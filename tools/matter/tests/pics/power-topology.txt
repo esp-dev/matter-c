@@ -1,0 +1,10 @@
+# Matter C host EP1, Power Topology rev1, Matter 1.6.1 Core section 11.8.
+# TREE only; endpoint lists belong to SET/DYPF and are not implemented.
+PWRTL.S=1
+PWRTL.C=0
+PWRTL.S.F00=0
+PWRTL.S.F01=1
+PWRTL.S.F02=0
+PWRTL.S.F03=0
+PWRTL.S.A0000=0
+PWRTL.S.A0001=0

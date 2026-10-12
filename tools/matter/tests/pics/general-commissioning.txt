@@ -1,0 +1,35 @@
+# Matter C host, endpoint 0, General Commissioning 0x0030 revision 2.
+# Capability declaration, NOT a certification/test result.
+# Source: matter_root.c builtin_new, matter_server.c commissioning config.
+# Matter Core 1.6.1 section 11.10. FeatureMap=0; powered, concurrent Wi-Fi host.
+CGEN.S=1
+CGEN.C=0
+# No TermsAndConditions or NetworkRecovery features.
+CGEN.S.F00=0
+CGEN.S.F01=0
+# Breadcrumb, BasicCommissioningInfo, RegulatoryConfig, LocationCapability,
+# SupportsConcurrentConnection (global attributes are implicit).
+CGEN.S.A0000=1
+CGEN.S.A0001=1
+CGEN.S.A0002=1
+CGEN.S.A0003=1
+CGEN.S.A0004=1
+# TC, NR and optional IsCommissioningWithoutPower attributes are absent.
+CGEN.S.A0005=0
+CGEN.S.A0006=0
+CGEN.S.A0007=0
+CGEN.S.A0008=0
+CGEN.S.A0009=0
+CGEN.S.A000a=0
+CGEN.S.A000b=0
+CGEN.S.A000c=0
+# TH SDK e91ea83: Rsp=accepted, Tx=generated.
+# ArmFailSafe, SetRegulatoryConfig, CommissioningComplete and responses.
+CGEN.S.C00.Rsp=1
+CGEN.S.C01.Tx=1
+CGEN.S.C02.Rsp=1
+CGEN.S.C03.Tx=1
+CGEN.S.C04.Rsp=1
+CGEN.S.C05.Tx=1
+CGEN.S.C06.Rsp=0
+CGEN.S.C07.Tx=0

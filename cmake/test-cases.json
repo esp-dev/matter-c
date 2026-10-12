@@ -1,0 +1,773 @@
+[
+  {
+    "name": "test_ack",
+    "source": "tools/matter/tests/test_ack.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_ack_sender",
+    "source": "tools/matter/tests/test_ack_sender.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_acl",
+    "source": "tools/matter/tests/test_acl.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_async",
+    "source": "tools/matter/tests/test_async.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_attestation_cert",
+    "source": "tools/matter/tests/test_attestation_cert.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_bdx",
+    "source": "tools/matter/tests/test_bdx.c",
+    "mode": "file",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_case",
+    "source": "tools/matter/tests/test_case.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_case_mrp",
+    "source": "tools/matter/tests/test_case_mrp.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_cluster",
+    "source": "tools/matter/tests/test_cluster.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_counter",
+    "source": "tools/matter/tests/test_counter.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_credentials",
+    "source": "tools/matter/tests/test_credentials.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_crypto_mbedtls",
+    "source": "tools/matter/tests/test_crypto_mbedtls.c",
+    "mode": "normal",
+    "platform": "windows",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_diagnostics",
+    "source": "tools/matter/tests/test_diagnostics.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_discovery",
+    "source": "tools/matter/tests/test_discovery.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_dispatch",
+    "source": "tools/matter/tests/test_dispatch.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_energy_sim",
+    "source": "tools/matter/tests/test_energy_sim.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_exchange",
+    "source": "tools/matter/tests/test_exchange.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_exchange_close",
+    "source": "tools/matter/tests/test_exchange_close.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_fabric",
+    "source": "tools/matter/tests/test_fabric.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_groupkey",
+    "source": "tools/matter/tests/test_groupkey.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_im_invoke",
+    "source": "tools/matter/tests/test_im_invoke.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_im_read",
+    "source": "tools/matter/tests/test_im_read.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_im_subscribe",
+    "source": "tools/matter/tests/test_im_subscribe.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_im_write",
+    "source": "tools/matter/tests/test_im_write.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_lifecycle",
+    "source": "tools/matter/tests/test_lifecycle.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_mdns",
+    "source": "tools/matter/tests/test_mdns.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_message_header",
+    "source": "tools/matter/tests/test_message_header.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_mrp_pair",
+    "source": "tools/matter/tests/test_mrp_pair.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_opcreds",
+    "source": "tools/matter/tests/test_opcreds.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_operational_cert",
+    "source": "tools/matter/tests/test_operational_cert.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_ota_apply",
+    "source": "tools/matter/tests/test_ota_apply.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_ota_query",
+    "source": "tools/matter/tests/test_ota_query.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_ota_requestor",
+    "source": "tools/matter/tests/test_ota_requestor.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_ota_update",
+    "source": "tools/matter/tests/test_ota_update.c",
+    "mode": "file",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_pase",
+    "source": "tools/matter/tests/test_pase.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_protocol_header",
+    "source": "tools/matter/tests/test_protocol_header.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_reception",
+    "source": "tools/matter/tests/test_reception.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_retransmission",
+    "source": "tools/matter/tests/test_retransmission.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_retransmission_sender",
+    "source": "tools/matter/tests/test_retransmission_sender.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_root",
+    "source": "tools/matter/tests/test_root.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_rx",
+    "source": "tools/matter/tests/test_rx.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_rx_policy",
+    "source": "tools/matter/tests/test_rx_policy.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_secure",
+    "source": "tools/matter/tests/test_secure.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_server_time",
+    "source": "tools/matter/tests/test_server_time.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_server_window",
+    "source": "tools/matter/tests/test_server_window.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_spake2p",
+    "source": "tools/matter/tests/test_spake2p.c",
+    "mode": "normal",
+    "platform": "windows",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_store",
+    "source": "tools/matter/tests/test_store.c",
+    "mode": "store",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_store_file_posix",
+    "source": "tools/matter/tests/test_store_file_posix.c",
+    "mode": "normal",
+    "platform": "linux",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_store_file_windows",
+    "source": "tools/matter/tests/test_store_file_windows.c",
+    "mode": "file",
+    "platform": "windows",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_switch_sim",
+    "source": "tools/matter/tests/test_switch_sim.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_tlv",
+    "source": "tools/matter/tests/test_tlv.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_tlv_validate",
+    "source": "tools/matter/tests/test_tlv_validate.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_tlv_writer",
+    "source": "tools/matter/tests/test_tlv_writer.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_udp",
+    "source": "tools/matter/tests/test_udp.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_udp_linux",
+    "source": "tools/matter/tests/test_udp_linux.c",
+    "mode": "normal",
+    "platform": "linux",
+    "privileged": true,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_udp_windows",
+    "source": "tools/matter/tests/test_udp_windows.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_unsecured",
+    "source": "tools/matter/tests/test_unsecured.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_unsecured_prepare",
+    "source": "tools/matter/tests/test_unsecured_prepare.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_unsecured_rx",
+    "source": "tools/matter/tests/test_unsecured_rx.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_unsecured_tx",
+    "source": "tools/matter/tests/test_unsecured_tx.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_unsecured_tx_windows",
+    "source": "tools/matter/tests/test_unsecured_tx_windows.c",
+    "mode": "normal",
+    "platform": "windows",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_lifecycle_alloc",
+    "source": "tools/matter/tests/test_lifecycle.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/matter.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_mdns_alloc",
+    "source": "tools/matter/tests/test_mdns.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/matter.c",
+      "main/apps/matter/matter_mdns.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_udp_alloc",
+    "source": "tools/matter/tests/test_udp.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/matter.c",
+      "main/apps/matter/matter_udp.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_ack_alloc",
+    "source": "tools/matter/tests/test_ack.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/transport/matter_ack.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_cluster_alloc",
+    "source": "tools/matter/tests/test_cluster.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_cluster.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_im_read_alloc",
+    "source": "tools/matter/tests/test_im_read.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_im_read.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_im_write_alloc",
+    "source": "tools/matter/tests/test_im_write.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_im_write.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_acl_alloc",
+    "source": "tools/matter/tests/test_acl.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_acl.c",
+      "main/apps/matter/model/matter_cluster.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_discovery_alloc",
+    "source": "tools/matter/tests/test_discovery.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/matter.c",
+      "main/apps/matter/matter_mdns.c",
+      "main/apps/matter/matter_discovery.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_ota_apply_alloc",
+    "source": "tools/matter/tests/test_ota_apply.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_ota_apply.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_ota_query_alloc",
+    "source": "tools/matter/tests/test_ota_query.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_ota_query.c",
+      "main/apps/matter/model/matter_im_client.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_ota_requestor_alloc",
+    "source": "tools/matter/tests/test_ota_requestor.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_ota_requestor.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_events.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_bdx_alloc",
+    "source": "tools/matter/tests/test_bdx.c",
+    "mode": "file",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/transport/matter_bdx.c",
+      "tools/matter/host/matter_ota_file.c"
+    ],
+    "malloc": true
+  },
+  {
+    "name": "test_ota_update_alloc",
+    "source": "tools/matter/tests/test_ota_update.c",
+    "mode": "file",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_ota_update.c",
+      "tools/matter/host/matter_ota_file.c"
+    ],
+    "malloc": true
+  },
+  {
+    "name": "test_udp_windows_alloc",
+    "source": "tools/matter/tests/test_udp_windows.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/matter.c",
+      "main/apps/matter/matter_udp.c",
+      "tools/matter/host/@udp@.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_runtime",
+    "source": "tools/matter/tests/test_runtime.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc"
+  },
+  {
+    "name": "test_runtime_alloc",
+    "source": "tools/matter/tests/test_runtime.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "malloc": true,
+    "replace": [
+      "main/apps/matter/runtime/matter_dispatch.c",
+      "main/apps/matter/runtime/matter_fabric_host.c",
+      "main/apps/matter/runtime/matter_opcreds_host.c",
+      "main/apps/matter/runtime/matter_store_host.c",
+      "main/apps/matter/runtime/matter_commissioning_host.c",
+      "main/apps/matter/runtime/matter_diagnostics_host.c",
+      "main/apps/matter/runtime/matter_runtime.c",
+      "main/apps/matter/clusters/matter_root.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_events.c",
+      "main/apps/matter/clusters/matter_wifi.c"
+    ]
+  }
+]

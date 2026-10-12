@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.20)
+project(MatterConsumer LANGUAGES C)
+find_package(MatterC CONFIG REQUIRED)
+add_executable(consumer main.c)
+target_link_libraries(consumer PRIVATE MatterC::Matter)
+enable_testing()
+add_test(NAME consumer COMMAND consumer)

@@ -1,0 +1,20 @@
+Matter C
+
+The project owner's first-party code is licensed under the Apache License,
+Version 2.0. See LICENSE. This does not relicense third-party material.
+
+Third-party notices:
+- mjansson/mdns: Unlicense; see tools/matter/host/vendor/mdns/LICENSE and mdns.h.
+- Project CHIP rs-matter and Matter.js certificate fixtures: Apache-2.0;
+  see tools/matter/fixtures/operational-sources.md,
+  operational-APACHE-2.0.txt and operational-matter-js-NOTICE.txt in that directory.
+- Mbed TLS is fetched separately from the official upstream repository;
+  this project uses it under Apache-2.0. Its LICENSE is installed with the package.
+- Optional JavaScript controller dependencies retain their own licenses;
+  see tools/matter/controller/package-lock.json.
+
+SPAKE2+ numerical constants and test vectors from draft-bar-cfrg-spake2plus-01:
+Copyright (c) 2020 IETF Trust, Tim Taubert and Christopher A. Wood.
+See licenses/IETF-BSD-2-Clause.txt for the applicable Simplified BSD terms.
+The first-party test data and retained upstream fixtures are catalogued in
+tools/matter/fixtures/fixture-provenance.md.

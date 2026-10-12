@@ -1,0 +1,30 @@
+# Matter C host EP1, EPM rev3, Matter 1.6.1 Application section 2.13.
+# ALTC + POLY; instantaneous sum of active power in mW, simulated on x86.
+EPM.S=1
+EPM.C=0
+EPM.S.F00=0
+EPM.S.F01=1
+EPM.S.F02=1
+EPM.S.F03=0
+EPM.S.F04=0
+# PowerMode, NumberOfMeasurementTypes, Accuracy, ActivePower.
+EPM.S.A0000=1
+EPM.S.A0001=1
+EPM.S.A0002=1
+EPM.S.A0003=0
+EPM.S.A0004=0
+EPM.S.A0005=0
+EPM.S.A0006=0
+EPM.S.A0007=0
+EPM.S.A0008=1
+EPM.S.A0009=0
+EPM.S.A000a=0
+EPM.S.A000b=0
+EPM.S.A000c=0
+EPM.S.A000d=0
+EPM.S.A000e=0
+EPM.S.A000f=0
+EPM.S.A0010=0
+EPM.S.A0011=0
+EPM.S.A0012=0
+EPM.S.E00=0

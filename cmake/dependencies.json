@@ -1,0 +1,207 @@
+{
+  "mbedtls": {
+    "url": "https://github.com/Mbed-TLS/mbedtls.git",
+    "tag": "mbedtls-3.6.0",
+    "version": "3.6.0",
+    "revision": "2ca6c285a0dd3f33982dd57299012dacab1ff206",
+    "license_declared": "Apache-2.0 OR GPL-2.0-or-later",
+    "license_selected": "Apache-2.0",
+    "evidence": [
+      {
+        "path": "LICENSE",
+        "bytes": 29852,
+        "sha256": "9b405ef4c89342f5eae1dd828882f931747f71001cfba7d114801039b52ad09b"
+      },
+      {
+        "path": "library/aes.c",
+        "bytes": 78798,
+        "sha256": "f30e6b7139527b41c32f68cc5430ceafa213e7fdf7a39bf4981f6a20cd0e77a1"
+      },
+      {
+        "path": "library/ccm.c",
+        "bytes": 23417,
+        "sha256": "be1f3f44857ee67129a9e029a3886284959cad94d472edbf618f17067ed2f8f8"
+      },
+      {
+        "path": "library/cipher.c",
+        "bytes": 59334,
+        "sha256": "ea17ce2e472750dc8737d6355652be540d88908f4a47cff2713638b296ac9540"
+      },
+      {
+        "path": "library/cipher_wrap.c",
+        "bytes": 67642,
+        "sha256": "d0d3ea15c9c4c7a87a231a3801274def8b8caac123beba92512ec59e3548e816"
+      },
+      {
+        "path": "library/ctr_drbg.c",
+        "bytes": 32299,
+        "sha256": "ff2e3aa42e9319bdd3ba5da1a410166456ce5ca039a07a403744488c544d06a1"
+      },
+      {
+        "path": "library/entropy.c",
+        "bytes": 18091,
+        "sha256": "efef1f6c9d5e131e64e61314962998056ba3e81cb2801f1a956df31ee9e4f103"
+      },
+      {
+        "path": "library/entropy_poll.c",
+        "bytes": 6203,
+        "sha256": "34b1793ed6be21f9063650c34de6d6a94744d464dd45a1c0ddf5b5f3a9a228b5"
+      },
+      {
+        "path": "library/sha1.c",
+        "bytes": 14189,
+        "sha256": "277b7499fe8315a46442c39c762e8768056114e3694215e4e2cadbd1ebfbce12"
+      },
+      {
+        "path": "library/sha256.c",
+        "bytes": 30062,
+        "sha256": "1ccb61301ae4e0b775926301c2f4a4060d4a607b27f4b8a9d51d5614657e6adc"
+      },
+      {
+        "path": "library/md.c",
+        "bytes": 30113,
+        "sha256": "e1dcc13b0816d6fe01adbfee1f07f01fbf3a3fbe08a6b1d8f3d0053da3aa6a0f"
+      },
+      {
+        "path": "library/hkdf.c",
+        "bytes": 3961,
+        "sha256": "c23ddf951e5037cf279a8974a6b228711ecdc0e7ada33b0eb3937f540079391c"
+      },
+      {
+        "path": "library/pkcs5.c",
+        "bytes": 15487,
+        "sha256": "1d29edc77054f108a204b7358eb039dbc506ed485871708dc35857d7836eee07"
+      },
+      {
+        "path": "library/bignum.c",
+        "bytes": 65545,
+        "sha256": "288ecae3123ba48d3a9eadf6eac96449dd2bd2e3b67b2cff8aee7ace7c626924"
+      },
+      {
+        "path": "library/bignum_core.c",
+        "bytes": 28122,
+        "sha256": "76ba9fe51cd3a8ad0483c40b7da64ea8cdb298f8e56f94f816823045a6fe680f"
+      },
+      {
+        "path": "library/bignum_mod.c",
+        "bytes": 11490,
+        "sha256": "de6608fc08ed5e61d22ac11f2369484c5a837ac4e1f58d450befc51d3674e68e"
+      },
+      {
+        "path": "library/bignum_mod_raw.c",
+        "bytes": 9336,
+        "sha256": "77d7b5fa4fe55d982d5a7be330fb0ca2de9bb254736c2a3e7716029fec49d118"
+      },
+      {
+        "path": "library/constant_time.c",
+        "bytes": 8856,
+        "sha256": "64fcbb48a6486f5c069bdbd29359749719169bd97028cf6fe3d3ab39045746a3"
+      },
+      {
+        "path": "library/ecp.c",
+        "bytes": 117841,
+        "sha256": "6f0d776d61d6d410aaab3168d3319a25d004462e9993612638a480ea46ff9e42"
+      },
+      {
+        "path": "library/ecp_curves.c",
+        "bytes": 316691,
+        "sha256": "29329ed2ecad6e68f615b1b5a3e7c592a0b625c4d1a1090280e305fa9afb51d3"
+      },
+      {
+        "path": "library/ecdsa.c",
+        "bytes": 27246,
+        "sha256": "fe5ef0be180c189181892903e4eb2c79d79b108c117398cbf968f6f52ca0b858"
+      },
+      {
+        "path": "library/ecdh.c",
+        "bytes": 21644,
+        "sha256": "85439414902f8421db8921c69a0be771ed69a7c69f0722127298f41a1d330ba8"
+      },
+      {
+        "path": "library/asn1parse.c",
+        "bytes": 11242,
+        "sha256": "d7d4ab84977626f3cb741ec6d606591f1665defad6d8c17e1c957022803d3ded"
+      },
+      {
+        "path": "library/asn1write.c",
+        "bytes": 12515,
+        "sha256": "6667aebb1e5f0500ef4a281fe2752fc7bc59610e7bfc01d2916d224e5bc5c3e3"
+      },
+      {
+        "path": "library/oid.c",
+        "bytes": 38475,
+        "sha256": "6e279e9f6c4d036588da7729b1fd432992d3bc1ad36d852eca76286c015ccf4d"
+      },
+      {
+        "path": "library/pk.c",
+        "bytes": 52583,
+        "sha256": "5915c5f04a32144989c9f6705ee98cb5ce60ba801d5cebaf6aaf3a870acf4fbf"
+      },
+      {
+        "path": "library/pk_ecc.c",
+        "bytes": 8922,
+        "sha256": "19ba6ca1251a610a53e3654a7727ba881c358a29d46f4586ab3c7e07c846b5bf"
+      },
+      {
+        "path": "library/pk_wrap.c",
+        "bytes": 52641,
+        "sha256": "2e862818f9fc4aa8c10570f8aab67228270635edd03110cf3fb49bd931666732"
+      },
+      {
+        "path": "library/pkparse.c",
+        "bytes": 43503,
+        "sha256": "36c0590c516a1b4ad99bfefc213da1a19a2e27638ee3f267ea3365cc738ecf17"
+      },
+      {
+        "path": "library/pkwrite.c",
+        "bytes": 20292,
+        "sha256": "e35ad925c26075233d6f186865e635e10fe68123ea3f0aa816a2033ab3ca4abd"
+      },
+      {
+        "path": "library/x509.c",
+        "bytes": 57491,
+        "sha256": "cdd67a9f53f3029c712cfd843038ffaf25dc477f9de215f55e585a15bc164995"
+      },
+      {
+        "path": "library/x509write.c",
+        "bytes": 7018,
+        "sha256": "a8f6a9606a9984b1dc6fb6eef25195a58edf546b47db58ec7b641da268c87f76"
+      },
+      {
+        "path": "library/x509_create.c",
+        "bytes": 19803,
+        "sha256": "fd399239aee30384786a19b47bfe5dd22b979d5d89bb38f29f0c82a3d81daaf7"
+      },
+      {
+        "path": "library/x509_crt.c",
+        "bytes": 103886,
+        "sha256": "2ad006b7720479427fa28d5d79beca72dc2a1c190081580d4963d3d9a7ceffcd"
+      },
+      {
+        "path": "library/x509_csr.c",
+        "bytes": 19804,
+        "sha256": "5b9919f0c54f1125c9f031908da61d674d6c70d49a47bddc8c3c60fb2d5e32a7"
+      },
+      {
+        "path": "library/x509write_csr.c",
+        "bytes": 10923,
+        "sha256": "a9456e74b1d9de59ec63e3244ac44b5361f5e901aee1010ff45265af9ff92ece"
+      },
+      {
+        "path": "library/x509_crl.c",
+        "bytes": 20976,
+        "sha256": "e984b69328f499eaf9b354a4b8010713641aff05d16848ed519b55d3721e477b"
+      },
+      {
+        "path": "library/platform_util.c",
+        "bytes": 8809,
+        "sha256": "b23bd328375222e0ecda41a2088e49dab562566ba0911f3fbdad394d18188eb5"
+      },
+      {
+        "path": "library/platform.c",
+        "bytes": 10923,
+        "sha256": "69f5e0c95478d792ac5654af56817c8272a68c322010e342afacc90e6d57524d"
+      }
+    ]
+  }
+}

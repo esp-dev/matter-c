@@ -1,0 +1,2325 @@
+{
+  "schema_version": 1,
+  "scope_roots": [
+    "tools/matter/tests",
+    "tools/matter/fuzz",
+    "tools/matter/fixtures",
+    "tools/matter/controller"
+  ],
+  "files": [
+    {
+      "path": "tools/matter/controller/package-lock.json",
+      "kind": "controller-dependency",
+      "ctest": [],
+      "entrypoint": "npm ci --prefix tools/matter/controller --ignore-scripts",
+      "referenced_by": [
+        "tools/matter/tests/test_host_network.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/controller/package.json",
+      "kind": "controller-dependency",
+      "ctest": [],
+      "entrypoint": "npm ci --prefix tools/matter/controller --ignore-scripts",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/acl_peer_vectors.h",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [
+        "tools/matter/fixtures/generate_fabric.py",
+        "tools/matter/tests/test_acl_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/ccm-vector.cjs",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/check_case.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/extract_operational.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/fixture-provenance.md",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Generated test data or provenance; see tools/matter/fixtures/fixture-provenance.md.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/generate_attestation.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [
+        "tools/matter/tests/test_attestation_vectors.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/generate_credentials.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [
+        "tools/matter/tests/test_credentials_vectors.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/generate_fabric.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [
+        "tools/matter/tests/test_fabric_vectors.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/generate_hash_reference.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Generated test data or provenance; see tools/matter/fixtures/fixture-provenance.md.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/generate_opcreds.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [
+        "tools/matter/tests/test_opcreds_vectors.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/generate_synthetic_operational.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "python tools/matter/fixtures/generate_synthetic_operational.py",
+      "referenced_by": [
+        "tools/matter/tests/test_synthetic_operational_vectors.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/generate_tlv_reference.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Generated test data or provenance; see tools/matter/fixtures/fixture-provenance.md.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/operational-APACHE-2.0.txt",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/operational-matter-js-NOTICE.txt",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/operational-sources.md",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Read fixture source revisions, license notices and synthetic generation provenance.",
+      "referenced_by": [
+        "tools/matter/tests/test_operational_vectors.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/pase-vector.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/verify_opcreds.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fixtures/verify_vid.py",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fuzz/fuzz_tlv.c",
+      "kind": "fuzz",
+      "ctest": [],
+      "entrypoint": "tools/matter/run_fuzz.ps1 (-ReplayOnly or bounded libFuzzer campaign)",
+      "referenced_by": [
+        "tools/matter/run_fuzz.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/fuzz/seeds.txt",
+      "kind": "fuzz",
+      "ctest": [],
+      "entrypoint": "tools/matter/run_fuzz.ps1 (-ReplayOnly or bounded libFuzzer campaign)",
+      "referenced_by": [
+        "tools/matter/run_fuzz.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/alloc.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py",
+        "tools/matter/run_discovery_tests.ps1",
+        "tools/matter/run_tests.ps1",
+        "tools/matter/tests/run_certificate_regression.py",
+        "tools/matter/tests/test_discovery.c",
+        "tools/matter/tests/test_dispatch.c",
+        "tools/matter/tests/test_lifecycle.c",
+        "tools/matter/tests/test_mdns.c",
+        "tools/matter/tests/test_udp.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/case_openssl_ccm.c",
+      "kind": "external-native-helper",
+      "ctest": [],
+      "entrypoint": "Lab helper: compile explicitly using requirements in source (OpenSSL, CAP_NET_RAW or LD_PRELOAD); not run by default.",
+      "referenced_by": [
+        "tools/matter/fixtures/check_case.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/case_packet_faults_linux.c",
+      "kind": "external-native-helper",
+      "ctest": [],
+      "entrypoint": "Lab helper: compile explicitly using requirements in source (OpenSSL, CAP_NET_RAW or LD_PRELOAD); not run by default.",
+      "referenced_by": [
+        "tools/matter/tests/run_linux_acceptance.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_acceptance.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
+      "referenced_by": [
+        "tools/matter/tests/run_linux_acceptance.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_energy_profile.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_event_wildcards.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_meter_restart.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_multi_events.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_resources.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_switch.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_acl_privacy.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_case_add_errors.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_controller.mjs",
+      "kind": "external-matter-js",
+      "ctest": [],
+      "entrypoint": "Node with pinned controller packages; invoked by network runner or explicit lab command.",
+      "referenced_by": [
+        "tools/matter/tests/host_fabrics.mjs",
+        "tools/matter/tests/test_fabrics_network.py",
+        "tools/matter/tests/test_host_network.py",
+        "tools/matter/tests/test_node_store_windows.py",
+        "tools/matter/tests/test_reconnect_network.py",
+        "tools/matter/tests/test_rediscovery_network.py",
+        "tools/matter/tests/test_update_network.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_energy_triggers.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_fabrics.mjs",
+      "kind": "external-matter-js",
+      "ctest": [],
+      "entrypoint": "Node with pinned controller packages; invoked by network runner or explicit lab command.",
+      "referenced_by": [
+        "tools/matter/tests/test_fabrics_network.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_failsafe_window.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_general_commissioning.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_network_commissioning.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_nocs_pase.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_ota_provider.mjs",
+      "kind": "external-matter-js",
+      "ctest": [],
+      "entrypoint": "Node with pinned controller packages; invoked by network runner or explicit lab command.",
+      "referenced_by": [
+        "tools/matter/tests/test_bdx_network.py",
+        "tools/matter/tests/test_ota_network.py",
+        "tools/matter/tests/test_ota_update_network.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_readonly_write.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_reconnect.mjs",
+      "kind": "external-matter-js",
+      "ctest": [],
+      "entrypoint": "Node with pinned controller packages; invoked by network runner or explicit lab command.",
+      "referenced_by": [
+        "tools/matter/tests/test_reconnect_network.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_rediscovery.mjs",
+      "kind": "external-matter-js",
+      "ctest": [],
+      "entrypoint": "Node with pinned controller packages; invoked by network runner or explicit lab command.",
+      "referenced_by": [
+        "tools/matter/tests/host_ota_provider.mjs",
+        "tools/matter/tests/test_rediscovery_network.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_revoke_pase.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_root_admission.py",
+      "kind": "external-chip-sdk",
+      "ctest": [],
+      "entrypoint": "CHIP Python SDK/mobly runner; isolated commissioned host, PAA store, explicit SDK arguments.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/host_runtime_pair.py",
+      "kind": "sdk-controller",
+      "ctest": [],
+      "entrypoint": "External CHIP SDK: RuntimePair (commissioning plus two-instance scenario)",
+      "referenced_by": [
+        "tools/matter/tests/runtime_pair_host.c"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/host_update.mjs",
+      "kind": "external-matter-js",
+      "ctest": [],
+      "entrypoint": "Node with pinned controller packages; invoked by network runner or explicit lab command.",
+      "referenced_by": [
+        "tools/matter/tests/test_update_network.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/ipv6_inject.c",
+      "kind": "external-native-helper",
+      "ctest": [],
+      "entrypoint": "Lab helper: compile explicitly using requirements in source (OpenSSL, CAP_NET_RAW or LD_PRELOAD); not run by default.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/pics/access-control.txt",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [
+        "tools/matter/th/configure_pics.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/pics/electrical-energy-measurement.txt",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [
+        "tools/matter/th/configure_pics.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/pics/electrical-power-measurement.txt",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [
+        "tools/matter/th/configure_pics.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/pics/general-commissioning.txt",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [
+        "tools/matter/th/configure_pics.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/pics/network-commissioning.txt",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [
+        "tools/matter/th/configure_pics.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/pics/operational-credentials.txt",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [
+        "tools/matter/th/configure_pics.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/pics/power-topology.txt",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [
+        "tools/matter/th/configure_pics.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/removal_faults_linux.c",
+      "kind": "external-native-helper",
+      "ctest": [],
+      "entrypoint": "Lab helper: compile explicitly using requirements in source (OpenSSL, CAP_NET_RAW or LD_PRELOAD); not run by default.",
+      "referenced_by": [
+        "tools/matter/tests/run_removal_acceptance.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/run_certificate_regression.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/run_linux_acceptance.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/run_noc_read_regression.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/run_removal_acceptance.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/run_removal_regression.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/runtime_pair_host.c",
+      "kind": "external-native-helper",
+      "ctest": [],
+      "entrypoint": "CMake target runtime-pair-host, driven by host_runtime_pair.py",
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/test_ack.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_ack",
+        "test_ack_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_ack",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_ack_sender.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_ack_sender"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_ack_sender",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_acl.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_acl",
+        "test_acl_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_acl",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_acl_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_acl_wire.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_acl.c",
+        "tools/matter/tests/test_acl_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_admin_commissioning.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_admin_commissioning_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_async.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_async"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_async",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_attestation_cert.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_attestation_cert"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_attestation_cert",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_attestation_vectors.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/fixtures/generate_attestation.py",
+        "tools/matter/fixtures/generate_opcreds.py",
+        "tools/matter/tests/test_attestation_cert.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_bdx.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_bdx",
+        "test_bdx_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_bdx",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_bdx_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_boot_events.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_root.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_case.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_case"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_case",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_case_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_case.c",
+        "tools/matter/tests/test_case_mrp.c",
+        "tools/matter/tests/test_case_network.h",
+        "tools/matter/tests/test_groupkey.c",
+        "tools/matter/tests/test_store.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_case_mrp.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_case_mrp"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_case_mrp",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_case_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_case_resumption.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_case.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_chip_energy_profile.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_cluster.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_cluster",
+        "test_cluster_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_cluster",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_commissioning.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_root.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_commissioning_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_commissioning.h",
+        "tools/matter/tests/test_commissioning_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_commissioning_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_complete_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_counter.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_counter"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_counter",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_credentials.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_credentials"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_credentials",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_credentials_vectors.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/fixtures/generate_credentials.py",
+        "tools/matter/tests/test_credentials.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_crypto_mbedtls.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_crypto_mbedtls"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_crypto_mbedtls",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_diagnostics.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_diagnostics"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_diagnostics",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_diagnostics_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_diagnostics.c",
+        "tools/matter/tests/test_diagnostics_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_diagnostics_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_discovery.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_discovery",
+        "test_discovery_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_discovery",
+      "referenced_by": [
+        "tools/matter/build_host_linux.py",
+        "tools/matter/run_discovery_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_discovery_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_dispatch.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_dispatch"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_dispatch",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_eem.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_root.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_eem_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_eem.h",
+        "tools/matter/tests/test_eem_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_eem_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_eem_subscribe_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_eem_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_energy_sim.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_energy_sim"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_energy_sim",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_epm.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_root.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_epm_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_epm.h",
+        "tools/matter/tests/test_epm_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_epm_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_exchange.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_exchange"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_exchange",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_exchange_close.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_exchange_close"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_exchange_close",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_fabric.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_fabric"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_fabric",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_fabric_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_case_fixture.h",
+        "tools/matter/tests/test_case_mrp.c",
+        "tools/matter/tests/test_fabric.c",
+        "tools/matter/tests/test_fabric_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_fabric_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_fabric_subscribe.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_fabric.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_fabric_vectors.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/fixtures/generate_fabric.py",
+        "tools/matter/tests/test_fabric_fixture.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_fabrics_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_groupkey.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_groupkey"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_groupkey",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_groupkey_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_groupkey_wire.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_groupkey.c",
+        "tools/matter/tests/test_groupkey_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_hash_reference.h",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Generated test data or provenance; see tools/matter/fixtures/fixture-provenance.md.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_host_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_chunks.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_complex.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_im_event_wildcards.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c",
+        "tools/matter/tests/test_im_subscribe.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_events.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_im_invoke.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_invoke"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_invoke",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_im_model.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_network.h",
+        "tools/matter/tests/test_im_wildcard.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_multi_events.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c",
+        "tools/matter/tests/test_im_subscribe.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_read.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_read",
+        "test_im_read_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_read",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1",
+        "tools/matter/tests/test_im_chunks.h"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_im_subscribe.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_subscribe"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_subscribe",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_im_values.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_complex.h",
+        "tools/matter/tests/test_im_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_vectors.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_case_mrp.c",
+        "tools/matter/tests/test_im_network.h",
+        "tools/matter/tests/test_im_read.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_wildcard.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_write.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_write",
+        "test_im_write_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_write",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py",
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_invoke_async.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_invoke.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_invoke_model.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_invoke.c",
+        "tools/matter/tests/test_invoke_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_invoke_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_invoke_timed.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_invoke.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_lifecycle.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_lifecycle",
+        "test_lifecycle_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_lifecycle",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_mdns.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_mdns",
+        "test_mdns_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_mdns",
+      "referenced_by": [
+        "tools/matter/run_discovery_tests.ps1",
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_mdns_addresses.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_discovery.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_mdns_conflicts_linux.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [
+        "tools/matter/tests/run_linux_acceptance.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_mdns_ingress.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_discovery.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_mdns_known_answers.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_discovery.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_mdns_linux.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_mdns_nsec.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_discovery.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_mdns_probe.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_discovery.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_message_header.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_message_header"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_message_header",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_meter_store.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_store.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_mrp_pair.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_mrp_pair"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_mrp_pair",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1",
+        "tools/matter/tests/test_case_mrp.c",
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_node_store_windows.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_opcreds.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_opcreds"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_opcreds",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_opcreds_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_case_fixture.h",
+        "tools/matter/tests/test_case_mrp.c",
+        "tools/matter/tests/test_fabric.c",
+        "tools/matter/tests/test_opcreds.c",
+        "tools/matter/tests/test_opcreds_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_opcreds_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_opcreds_vectors.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/fixtures/generate_opcreds.py",
+        "tools/matter/fixtures/verify_opcreds.py",
+        "tools/matter/tests/test_opcreds_fixture.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_operational_cert.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_operational_cert"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_operational_cert",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1",
+        "tools/matter/tests/run_certificate_regression.py"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_operational_vectors.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/fixtures/extract_operational.py",
+        "tools/matter/tests/test_operational_cert.c",
+        "tools/matter/tests/test_server_time.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_ota_apply.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_ota_apply",
+        "test_ota_apply_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_ota_apply",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_ota_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_ota_query.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_ota_query",
+        "test_ota_query_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_ota_query",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_ota_requestor.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_ota_requestor",
+        "test_ota_requestor_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_ota_requestor",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_ota_rollback_store.py",
+      "kind": "ctest-process",
+      "ctest": [
+        "ota_crash_recovery"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R ota_crash_recovery",
+      "referenced_by": [
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_ota_update.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_ota_update",
+        "test_ota_update_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_ota_update",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_ota_update_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_pase.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_pase"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_pase",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1",
+        "tools/matter/tests/test_secure.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_pase_secure.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_power_topology.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_root.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_power_topology_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_protocol_header.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_protocol_header"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_protocol_header",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_reception.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_reception"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_reception",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_reconnect_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_rediscovery_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_retransmission.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_retransmission"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_retransmission",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_retransmission_sender.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_retransmission_sender"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_retransmission_sender",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_root.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_root"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_root",
+      "referenced_by": [
+        "tools/matter/build_host_linux.py",
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_root_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_cluster.c",
+        "tools/matter/tests/test_root.c",
+        "tools/matter/tests/test_root_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_root_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_runtime.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_runtime",
+        "test_runtime_alloc"
+      ],
+      "entrypoint": "CMake/CTest: test_runtime and test_runtime_alloc; installed_consumer also rebuilds against relocated package",
+      "referenced_by": [
+        "cmake/test-cases.json",
+        "tools/matter/test_installed_package.py"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/test_rx.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_rx"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_rx",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_rx_policy.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_rx_policy"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_rx_policy",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_sanitizers.c",
+      "kind": "deliberate-failure-probe",
+      "ctest": [],
+      "entrypoint": "run_tests.ps1 -Sanitize checks both nonzero exit and expected ASan/UBSan diagnostic.",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_secure.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_secure"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_secure",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_server_time.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_server_time"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_server_time",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_server_window.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_server_window"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_server_window",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_spake2p.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_spake2p"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_spake2p",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_store.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_store"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_store",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py",
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_store_file_posix.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_store_file_posix"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_store_file_posix",
+      "referenced_by": [
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_store_file_windows.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_store_file_windows"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_store_file_windows",
+      "referenced_by": [
+        "tools/matter/build_host.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_subscribe_complex.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_subscribe.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_subscribe_lists.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_subscribe.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_subscribe_model.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_subscribe.c",
+        "tools/matter/tests/test_subscribe_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_subscribe_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_subscribe_selectors.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_subscribe.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_switch_sim.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_switch_sim"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_switch_sim",
+      "referenced_by": [
+        "tools/matter/build_host.ps1",
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_synthetic_operational_vectors.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Generated offline with fixtures/generate_synthetic_operational.py; compiled into test_operational_cert and test_server_time.",
+      "referenced_by": [
+        "tools/matter/tests/test_operational_cert.c",
+        "tools/matter/tests/test_server_time.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_timed_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_tlv.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_tlv"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_tlv",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_tlv_reference.h",
+      "kind": "fixture-or-generator",
+      "ctest": [],
+      "entrypoint": "Generated test data or provenance; see tools/matter/fixtures/fixture-provenance.md.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_tlv_validate.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_tlv_validate"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_tlv_validate",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_tlv_writer.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_tlv_writer"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_tlv_writer",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_udp.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_udp",
+        "test_udp_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_udp",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_udp_linux.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_udp_linux"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_udp_linux",
+      "referenced_by": [
+        "tools/matter/build_host_linux.py"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_udp_windows.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_udp_windows",
+        "test_udp_windows_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_udp_windows",
+      "referenced_by": [
+        "tools/matter/build_host_linux.py",
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_unsecured.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_unsecured"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_unsecured",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_unsecured_prepare.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_unsecured_prepare"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_unsecured_prepare",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_unsecured_rx.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_unsecured_rx"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_unsecured_rx",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_unsecured_tx.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_unsecured_tx"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_unsecured_tx",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_unsecured_tx_windows.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_unsecured_tx_windows"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_unsecured_tx_windows",
+      "referenced_by": [
+        "tools/matter/run_tests.ps1"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_update_network.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_update_store.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_store.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_vid.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_fabric.c",
+        "tools/matter/tests/test_store.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_wifi.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_root.c"
+      ],
+      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_wifi_fixture.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_wifi.h",
+        "tools/matter/tests/test_wifi_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_wifi_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_write_list_model.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_write_lists.h",
+        "tools/matter/tests/test_write_lists_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_write_lists.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_write.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_write_lists_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_write_model.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_write.c",
+        "tools/matter/tests/test_write_network.h"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_write_network.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_pase.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_write_readonly.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_write.c"
+      ],
+      "allocation_variant": "not applicable"
+    }
+  ],
+  "local_only_files": []
+}

@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Preserve the exact upstream bytes recorded in the export inventory.
+tools/matter/host/vendor/mdns/* -text

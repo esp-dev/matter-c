@@ -1,0 +1,8 @@
+/build/
+/third_party/mbedtls/
+__pycache__/
+*.pyc
+node_modules/
+/local/
+# Private captured fixture retained locally; public tests use synthetic data.
+/tools/matter/tests/test_th_operational_vectors.h

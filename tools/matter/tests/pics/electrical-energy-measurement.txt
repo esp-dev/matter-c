@@ -1,0 +1,19 @@
+# Matter C host EP1, EEM rev2, Matter 1.6.1 Application section 2.12.
+# IMPE + EXPE + CUME; cumulative simulated import/export in mWh.
+EEM.S=1
+EEM.C=0
+EEM.S.F00=1
+EEM.S.F01=1
+EEM.S.F02=1
+EEM.S.F03=0
+EEM.S.F04=0
+EEM.S.F05=0
+# Accuracy, CumulativeEnergyImported, CumulativeEnergyExported.
+EEM.S.A0000=1
+EEM.S.A0001=1
+EEM.S.A0002=1
+EEM.S.A0003=0
+EEM.S.A0004=0
+EEM.S.A0005=0
+EEM.S.E00=1
+EEM.S.E01=0

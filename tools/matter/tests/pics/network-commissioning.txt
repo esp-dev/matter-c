@@ -1,0 +1,29 @@
+# Matter C host EP0, Network Commissioning rev2, Core 1.6.1 section 11.9.
+# Radio is simulated; this declares capabilities, not certification results.
+CNET.S=1
+CNET.C=0
+CNET.S.F00=1
+CNET.S.F01=0
+CNET.S.F02=0
+# MaxNetworks, Networks, timeouts, InterfaceEnabled, status/error, Wi-Fi bands.
+CNET.S.A0000=1
+CNET.S.A0001=1
+CNET.S.A0002=1
+CNET.S.A0003=1
+CNET.S.A0004=1
+CNET.S.A0005=1
+CNET.S.A0006=1
+CNET.S.A0007=1
+CNET.S.A0008=1
+CNET.S.A0009=0
+CNET.S.A000a=0
+# Scan, AddOrUpdateWiFi, Remove, Connect, Reorder; no Thread command.
+CNET.S.C00.Rsp=1
+CNET.S.C01.Tx=1
+CNET.S.C02.Rsp=1
+CNET.S.C03.Rsp=0
+CNET.S.C04.Rsp=1
+CNET.S.C05.Tx=1
+CNET.S.C06.Rsp=1
+CNET.S.C07.Tx=1
+CNET.S.C08.Rsp=1
