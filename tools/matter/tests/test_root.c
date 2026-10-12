@@ -67,7 +67,119 @@ static void utility_types(void) {
     }
     ROOT_CHECK(count==5); root_release(f); puts("PASS Root utility device types: preserve Root, bounded list, revisions, idempotence");
 }
+static Matter_Result_T mp_sample(void* u,Matter_Epm_Multi_Sample_T* out) { *out=*(Matter_Epm_Multi_Sample_T*)u; return MATTER_OK; }
+static void multiphase_tests(void) {
+    RootFixture* f=root_fixture(); root_open(f);
+    const Matter_Root_Tag_T tags[]={{0x0a,1},{0x0f,1}};
+    Matter_Root_Endpoint_Config_T ep={.endpoint=1,.device_type=0x510,.revision=1,.data_version=10};
+    ROOT_CHECK(matter_root_add_tagged_endpoint(f->root,&ep,tags,2)==MATTER_OK);
+    ep.endpoint=3; ROOT_CHECK(matter_root_add_tagged_endpoint(f->root,&ep,tags,7)==MATTER_INVALID_ARGUMENT);
+    const Matter_Root_Tag_T duplicates[]={{0x0a,2},{0x0a,2}};
+    ROOT_CHECK(matter_root_add_tagged_endpoint(f->root,&ep,duplicates,2)==MATTER_INVALID_ARGUMENT);
+    const Matter_Root_Tag_T phase={0x0a,2};
+#ifdef MATTER_TEST_ALLOC
+    size_t before=live;
+    for(unsigned i=1;i<=2;++i) {
+        fail_at=calls+i; ROOT_CHECK(matter_root_add_tagged_endpoint(f->root,&ep,&phase,1)==MATTER_LIMIT_REACHED && live==before); fail_at=0;
+    }
+#endif
+    ROOT_CHECK(matter_root_add_tagged_endpoint(f->root,&ep,&phase,1)==MATTER_OK);
+    ROOT_CHECK(matter_root_set_parent(f->root,3,1)==MATTER_OK);
+    ROOT_CHECK(matter_root_set_parent(f->root,1,3)==MATTER_INVALID_ARGUMENT);
+    ROOT_CHECK(matter_root_set_parent(f->root,1,1)==MATTER_INVALID_ARGUMENT);
+    ROOT_CHECK(matter_root_set_parent(f->root,3,99)==MATTER_INVALID_ARGUMENT);
+    ROOT_CHECK(matter_root_add_device_type_at(f->root,1,0x514,1)==MATTER_OK);
+    ROOT_CHECK(matter_root_has_device_type(f->root,1,0x514));
+    ROOT_CHECK(matter_root_add_device_type_at(f->root,1,0x514,2)==MATTER_INVALID_ARGUMENT);
+    Matter_Cluster_Request_T q={0}; Matter_Im_Value_T v;
+    Matter_Cluster_T d=matter_root_cluster_at(f->root,1,0x1d);
+    ROOT_CHECK(!matter_cluster_read(d,0xfffc,&q,&v) && v.unsigned_value==1);
+    ROOT_CHECK(matter_cluster_attribute_count(d)==10);
+    static const uint8_t parts[]={0x16,4,3,0x18};
+    ROOT_CHECK(!matter_cluster_read(d,3,&q,&v) && v.size==sizeof(parts) && !memcmp(v.data,parts,sizeof(parts)));
+    static const uint8_t encoded_tags[]={0x16,0x15,0x34,0,0x24,1,0x0a,0x24,2,1,0x18,0x15,0x34,0,0x24,1,0x0f,0x24,2,1,0x18,0x18};
+    ROOT_CHECK(!matter_cluster_read(d,4,&q,&v) && v.size==sizeof(encoded_tags) && !memcmp(v.data,encoded_tags,sizeof(encoded_tags)));
+    ROOT_CHECK(matter_root_set_parent(f->root,3,0)==MATTER_OK);
+    ROOT_CHECK(!matter_cluster_read(d,3,&q,&v) && v.size==2);
+    root_release(f);
+
+    /* All large measurement/configuration workspaces stay on heap. */
+    Matter_Epm_Measurement_T* a=calloc(3,sizeof(*a)); Matter_Epm_Multi_Sample_T* sample=calloc(1,sizeof(*sample)); ROOT_CHECK(a && sample);
+    const uint32_t ids[]={8,4,17};
+    for(unsigned i=0;i<3;++i) {
+        a[i].attribute=ids[i]; a[i].range_count=1; a[i].measured=true;
+        a[i].ranges[0]=(Matter_Epm_Accuracy_Range_T){.min_mw=i==2?-10000:-1000000,.max_mw=i==2?10000:1000000,.fields=2,.fixed_max_mw=1};
+    }
+    Matter_Epm_Multi_Config_T c={a,3,100,3000,false}; Matter_Epm_Multi_Port_T p={sample,mp_sample};
+#ifdef MATTER_TEST_ALLOC
+    for(unsigned i=1;i<=2;++i) { fail_at=calls+i; ROOT_CHECK(!matter_epm_new_multi(&p,&c,0) && !live); fail_at=0; }
+#endif
+    Matter_Cluster_T h=matter_epm_new_multi(&p,&c,0),other=matter_epm_new_multi(&p,&c,0); ROOT_CHECK(h && other);
+    ROOT_CHECK(!matter_cluster_read(h,1,&q,&v) && v.unsigned_value==3);
+    ROOT_CHECK(!matter_cluster_read(h,2,&q,&v));
+    Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T token; unsigned seen=0;
+    ROOT_CHECK(matter_tlv_init(&reader,v.data,v.size,4)==MATTER_TLV_OK);
+    while(matter_tlv_next(&reader,&token)==MATTER_TLV_OK) if(token.type==MATTER_TLV_UNSIGNED && token.tag.control==1 && token.tag.number==0) {
+        ROOT_CHECK(token.unsigned_value==(seen==0?5:seen==1?1:12)); ++seen;
+    }
+    ROOT_CHECK(seen==3);
+    *sample=(Matter_Epm_Multi_Sample_T){.values={-750000,230125,9500},.available=7}; bool ready;
+    ROOT_CHECK(matter_epm_refresh(h,0,&ready)==MATTER_OK);
+    ROOT_CHECK(!matter_cluster_read(h,4,&q,&v) && v.signed_value==230125);
+    ROOT_CHECK(!matter_cluster_read(h,17,&q,&v) && v.signed_value==9500);
+    ROOT_CHECK(!matter_cluster_read(other,4,&q,&v) && v.type==MATTER_TLV_NULL);
+    sample->values[2]=10001; sample->sampled_ms=1000;
+    ROOT_CHECK(matter_epm_refresh(h,1000,&ready)==MATTER_PORT_ERROR && ready);
+    ROOT_CHECK(!matter_cluster_read(h,17,&q,&v) && v.type==MATTER_TLV_NULL);
+    ROOT_CHECK(!matter_cluster_read(h,8,&q,&v) && v.type==MATTER_TLV_SIGNED && v.signed_value==-750000);
+    sample->available=1; sample->sampled_ms=2000;
+    ROOT_CHECK(matter_epm_refresh(h,2000,&ready)==MATTER_OK);
+    ROOT_CHECK(!matter_cluster_read(h,4,&q,&v) && v.type==MATTER_TLV_NULL);
+    ROOT_CHECK(matter_epm_refresh(h,5000,&ready)==MATTER_OK);
+    ROOT_CHECK(!matter_cluster_read(h,8,&q,&v) && v.type==MATTER_TLV_NULL);
+    *sample=(Matter_Epm_Multi_Sample_T){.values={0,0,-9500},.available=7,.sampled_ms=6000};
+    ROOT_CHECK(matter_epm_refresh(h,6000,&ready)==MATTER_OK);
+    ROOT_CHECK(!matter_cluster_read(h,8,&q,&v) && v.type==MATTER_TLV_SIGNED && !v.signed_value);
+    ROOT_CHECK(!matter_cluster_read(h,17,&q,&v) && v.signed_value==-9500);
+    sample->sampled_ms=7001;
+    ROOT_CHECK(matter_epm_refresh(h,7000,&ready)==MATTER_PORT_ERROR);
+    ROOT_CHECK(!matter_cluster_read(h,4,&q,&v) && v.type==MATTER_TLV_NULL);
+    a[1].attribute=8; ROOT_CHECK(!matter_epm_new_multi(&p,&c,0)); a[1].attribute=18; ROOT_CHECK(!matter_epm_new_multi(&p,&c,0));
+    ROOT_CHECK(matter_cluster_delete(h)==MATTER_OK && matter_cluster_delete(other)==MATTER_OK); free(a); free(sample);
+    puts("PASS MP02: nested Descriptor/tags/types, cycles rejected, per-value Accuracy/units/null/error, independent clusters");
+}
+static void register_tests(void) {
+    EemFixture* f=eem_fixture(); Matter_Eem_Port_T p={f,eem_sample,eem_load,eem_store}; bool ready;
+#ifdef MATTER_TEST_ALLOC
+    size_t before=live;
+    for(unsigned i=1;i<=2;++i) { fail_at=calls+i; ROOT_CHECK(!matter_eem_new_registers(&p,&f->config,0) && live==before); fail_at=0; }
+#endif
+    f->cluster=matter_eem_new_registers(&p,&f->config,0); ROOT_CHECK(f->cluster);
+    f->sample=(Matter_Eem_Sample_T){.raw_mwh={INT64_C(12345678000),123450000},.generation=1,.available=true};
+    ROOT_CHECK(matter_eem_refresh(f->cluster,0,&ready)==MATTER_OK); eem_value(f,true,INT64_C(12345678000),123450000,0,false,0);
+    ROOT_CHECK(f->durable.registers && f->durable.register_mask==3 && f->durable.total_mwh[0]==f->sample.raw_mwh[0]);
+    ROOT_CHECK(!matter_eem_new(&p,&f->config,0)); /* no implicit mode migration */
+    ROOT_CHECK(matter_cluster_delete(f->cluster)==MATTER_OK);
+    f->cluster=matter_eem_new_registers(&p,&f->config,0); ROOT_CHECK(f->cluster);
+    ROOT_CHECK(matter_eem_refresh(f->cluster,0,&ready)==MATTER_OK); eem_value(f,true,INT64_C(12345678000),123450000,0,false,0);
+    f->sample.available=false; f->sample.available_mask=1; f->sample.raw_mwh[0]+=10; f->sample.raw_mwh[1]=-1; f->sample.sampled_ms=1000;
+    ROOT_CHECK(matter_eem_refresh(f->cluster,1000,&ready)==MATTER_OK);
+    Matter_Cluster_Request_T q={0}; Matter_Im_Value_T v;
+    ROOT_CHECK(!matter_cluster_read(f->cluster,1,&q,&v) && v.type==MATTER_TLV_STRUCTURE);
+    ROOT_CHECK(!matter_cluster_read(f->cluster,2,&q,&v) && v.type==MATTER_TLV_NULL);
+    f->sample.raw_mwh[0]=5; f->sample.sampled_ms=2000;
+    ROOT_CHECK(matter_eem_refresh(f->cluster,2000,&ready)==MATTER_PORT_ERROR);
+    f->sample.generation=2; f->fail_store=true;
+    ROOT_CHECK(matter_eem_refresh(f->cluster,2000,&ready)==MATTER_PORT_ERROR && f->durable.generation==1);
+    f->fail_store=false; ROOT_CHECK(matter_eem_refresh(f->cluster,2000,&ready)==MATTER_OK);
+    ROOT_CHECK(f->durable.total_mwh[0]==5 && f->durable.total_mwh[1]==0 && f->durable.register_mask==1);
+    f->sample.available=true; f->sample.raw_mwh[1]=9; f->sample.sampled_ms=3000;
+    ROOT_CHECK(matter_eem_refresh(f->cluster,3000,&ready)==MATTER_OK); eem_value(f,true,5,9,3000,false,0);
+    ROOT_CHECK(!matter_cluster_read(f->cluster,5,&q,&v) && v.type==MATTER_TLV_STRUCTURE);
+    eem_free(f); puts("PASS MP02 EEM registers: nonzero first sample, restart, mode guard, partial availability, decrease rejected, explicit replacement/store failure");
+}
 int main(void) {
+    multiphase_tests(); register_tests();
     utility_types();
     power_tests();
     epm_tests();

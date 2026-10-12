@@ -26,9 +26,10 @@ enum { MATTER_STORE_BLOB_MAX=32768 };
  * workspace; schema1 imports empty fabric labels, schema2 persists labels, schema3 journals credential rotation.
  * Schema4 appends VID verification metadata, also in the rollback record.
  * Schema5 appends node-wide EEM checkpoint and exclusive event high-water.
- * Schema6 appends fabric-scoped default OTA providers. Decode upgrades1..5 to6
+ * Schema6 appends fabric-scoped default OTA providers. Schema7 appends EEM mode
+ * and known-register mask. Decode upgrades1..6 to7
  * with absent providers empty (and absent metering state zero); old binaries
- * reject6. Earlier volatile counters cannot be reconstructed during migration.
+ * reject7. Earlier volatile counters cannot be reconstructed during migration.
  * Decode publishes only a completely validated record. Unknown
  * versions/tags or wrong lengths fail. Caller owns all buffers and scheduling. */
 Matter_Result_T matter_store_tlv_encode(const Matter_Store_Data_T*,uint8_t*,size_t,size_t*);

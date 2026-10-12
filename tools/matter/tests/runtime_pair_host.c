@@ -7,6 +7,11 @@
 #define REQUIRE(x) do { if(!(x)) { fprintf(stderr,"pair:%d: %s\n",__LINE__,#x); return false; } } while(0)
 static bool open_node(Node* n,unsigned index,unsigned id,const char* creds,const char* state,uint64_t now) {
     REQUIRE(matter_mdns_windows_interface(index,&n->iface)==MATTER_OK);
+    /* Two virtual devices share one NIC, but need distinct DNS host identities.
+     * This locally administered identifier only names DNS records: sockets use
+     * the original interface index and IP addresses, not this MAC field. */
+    n->iface.mac[0]=(uint8_t)((n->iface.mac[0]|2u)&~1u);
+    n->iface.mac[5]^=(uint8_t)(id+1u);
     n->owner=matter_new(NULL); REQUIRE(n->owner && matter_start(n->owner)==MATTER_OK);
     /* Different short discriminators too: framework setup-code discovery may
      * filter only the high four bits of a long discriminator. */
@@ -48,6 +53,12 @@ static bool close_node(Node* n,uint64_t now) {
     REQUIRE(matter_resolver_windows_delete(n->resolver)==MATTER_OK); n->resolver=NULL;
     if(n->eem) REQUIRE(matter_cluster_delete(n->eem)==MATTER_OK);
     if(n->test_switch) REQUIRE(matter_cluster_delete(n->test_switch)==MATTER_OK);
+    if(n->source) REQUIRE(matter_cluster_delete(n->source)==MATTER_OK);
+    free(n->source_sim); n->source_sim=NULL;
+    for(unsigned i=0;i<3;++i) {
+        if(n->phase_epm[i]) REQUIRE(matter_cluster_delete(n->phase_epm[i])==MATTER_OK);
+        if(n->phase_topology[i]) REQUIRE(matter_cluster_delete(n->phase_topology[i])==MATTER_OK);
+    }
     if(n->epm) REQUIRE(matter_cluster_delete(n->epm)==MATTER_OK);
     if(n->topology) REQUIRE(matter_cluster_delete(n->topology)==MATTER_OK);
     if(n->events) REQUIRE(matter_events_delete(n->events)==MATTER_OK);
@@ -56,10 +67,12 @@ static bool close_node(Node* n,uint64_t now) {
     printf("PAIR_DELETED port=%u\n",n->port); return true;
 }
 int main(int argc,char** argv) {
-    if(argc!=5) { fputs("runtime-pair-host IFACE CREDENTIALS STATE_A STATE_B\n",stderr); return 2; }
+    if(argc!=5 && !(argc==6 && (!strcmp(argv[5],"--three-phase") || !strcmp(argv[5],"--source-registers")))) { fputs("runtime-pair-host IFACE CREDENTIALS STATE_A STATE_B [--three-phase|--source-registers]\n",stderr); return 2; }
     unsigned long index; if(!number(argv[1],UINT32_MAX,&index) || !index || !strcmp(argv[3],argv[4])) return 2;
     setvbuf(stdout,NULL,_IONBF,0); signal(SIGINT,stop_signal); signal(SIGTERM,stop_signal);
     Node* nodes=calloc(2,sizeof(*nodes)); if(!nodes) return 1;
+    nodes[0].three_phase=nodes[1].three_phase=argc==6;
+    nodes[0].source_enabled=nodes[1].source_enabled=argc==6 && !strcmp(argv[5],"--source-registers");
     bool closing[2]={false,false},ok=true; uint64_t start=matter_host_now(),next=start;
     for(unsigned i=0;i<2;++i) if(!open_node(&nodes[i],(unsigned)index,i,argv[2],argv[3+i],start)) { ok=false; closing[0]=closing[1]=true; break; }
     while(nodes[0].owner || nodes[1].owner) {
@@ -79,7 +92,7 @@ int main(int argc,char** argv) {
                 if(!close_node(n,now) && n->server) (void)matter_server_process(n->server,now);
                 continue;
             }
-            if(due && !sample(n,now,(now-start)/1000)) { ok=false; closing[i]=true; }
+            if(due && !matter_server_reset_requested(n->server) && !sample(n,now,(now-start)/1000)) { ok=false; closing[i]=true; }
             if(!advertisements(n,now,false)) { ok=false; closing[i]=true; }
             if(n->mdns) { (void)matter_mdns_process(matter_mdns_windows_module(n->mdns)); (void)matter_mdns_windows_poll(n->mdns,now); }
         }

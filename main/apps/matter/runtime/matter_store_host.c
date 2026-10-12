@@ -10,7 +10,7 @@ struct Matter_Store_Host {
 };
 static void wipe(void* p,size_t n) { volatile unsigned char* b=p; while(n--) *b++=0; }
 static void capture(Matter_Store_Host_T s,const Matter_Store_Fabrics_T* f,const Matter_Store_Wifi_T* w) {
-    memset(&s->work,0,sizeof(s->work)); s->work.schema=6;
+    memset(&s->work,0,sizeof(s->work)); s->work.schema=7;
     s->work.fabrics=f?*f:s->fabric->data; s->work.wifi=w?*w:s->commissioning->data; s->work.root=*s->root;
     s->work.eem=s->eem; s->work.event_high=s->event_high;
     memcpy(s->work.ota,s->ota,sizeof(s->ota));
@@ -32,7 +32,7 @@ static Matter_Result_T publish(void* u,const Matter_Store_Fabrics_T* f,const Mat
 }
 static Matter_Result_T reset(void* u,const Matter_Store_Fabrics_T* f) {
     Matter_Store_Host_T s=u; if(s->busy) return MATTER_BUSY;
-    s->busy=true; memset(&s->work,0,sizeof(s->work)); s->work.schema=6; s->work.fabrics=*f;
+    s->busy=true; memset(&s->work,0,sizeof(s->work)); s->work.schema=7; s->work.fabrics=*f;
     s->work.eem=s->eem; s->work.event_high=s->event_high;
     s->work.root.location[0]=s->work.root.location[1]='X'; s->work.wifi.settings.enabled=true;
     Matter_Result_T r=save(s);
@@ -86,9 +86,10 @@ Matter_Result_T matter_store_host_eem_load(void* u,Matter_Eem_Checkpoint_T* out)
 Matter_Result_T matter_store_host_eem_store(void* u,const Matter_Eem_Checkpoint_T* in) {
     Matter_Store_Host_T s=u; if(!s || !in) return MATTER_INVALID_ARGUMENT;
     if(s->busy) return MATTER_BUSY;
-    if(s->eem.initialized && (!in->initialized || in->generation<s->eem.generation)) return MATTER_INVALID_ARGUMENT;
-    for(unsigned i=0;i<2;++i) if(in->total_mwh[i]<s->eem.total_mwh[i] ||
-        (s->eem.initialized && in->generation==s->eem.generation && in->raw_mwh[i]<s->eem.raw_mwh[i])) return MATTER_INVALID_ARGUMENT;
+    if(s->eem.initialized && (!in->initialized || in->registers!=s->eem.registers || in->generation<s->eem.generation)) return MATTER_INVALID_ARGUMENT;
+    for(unsigned i=0;i<2;++i) if((!in->registers && in->total_mwh[i]<s->eem.total_mwh[i]) ||
+        (s->eem.initialized && in->generation==s->eem.generation && (!in->registers || (s->eem.register_mask&(1u<<i))) &&
+            (in->raw_mwh[i]<s->eem.raw_mwh[i] || (in->registers && !(in->register_mask&(1u<<i)))))) return MATTER_INVALID_ARGUMENT;
     s->busy=true; capture(s,NULL,NULL); s->work.eem=*in; Matter_Result_T r=save(s);
     if(r==MATTER_OK) s->eem=*in;
     s->busy=false; return r;

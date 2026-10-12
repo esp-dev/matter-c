@@ -15,6 +15,8 @@ struct RootEndpoint {
     Matter_Root_Endpoint_Config_T config; RootCluster descriptor;
     Matter_Cluster_T clusters[16]; size_t count;
     uint32_t clients[8]; size_t client_count;
+    uint16_t parent; Matter_Root_Tag_T tags[6]; size_t tag_count;
+    struct { uint32_t type; uint16_t revision; } types[4]; size_t type_count;
 };
 static Matter_Cluster_T builtin_new(RootCluster*,uint32_t);
 static Matter_Im_Command_Result_T gc_invoke(Matter_Root_T,uint32_t,const Matter_Cluster_Request_T*,const uint8_t*,size_t,Matter_Tlv_Writer_T*);
@@ -35,7 +37,7 @@ struct Matter_Root {
     Matter_Tlv_Writer_T writer;
     Matter_Tlv_Reader_T reader;
     Matter_Tlv_Element_T token;
-    uint8_t encoded[128]; /* ServerList: <=25 uint32 IDs, <=127 encoded bytes. */
+    uint8_t encoded[128]; /* ServerList <=127 B; six standard semantic tags <=68 B. */
     bool busy,startup_emitted;
     bool commissioning;
     Matter_Root_Commissioning_Config_T gc;
@@ -90,7 +92,12 @@ Matter_Result_T matter_root_add_device_type(Matter_Root_T m,uint32_t type,uint16
 }
 bool matter_root_has_device_type(Matter_Root_T m,uint16_t ep,uint32_t type) {
     if(!m) return false;
-    if(ep) { RootEndpoint* e=endpoint(m,ep); return e && e->config.device_type==type; }
+    if(ep) {
+        RootEndpoint* e=endpoint(m,ep); if(!e) return false;
+        if(e->config.device_type==type) return true;
+        for(size_t i=0;i<e->type_count;++i) if(e->types[i].type==type) return true;
+        return false;
+    }
     if(type==0x16) return true;
     for(size_t i=0;i<m->type_count;++i) if(m->types[i].type==type) return true;
     return false;
@@ -108,18 +115,50 @@ static bool contains(Matter_Root_T m,Matter_Cluster_T c) {
     return false;
 }
 Matter_Result_T matter_root_add_endpoint(Matter_Root_T m,const Matter_Root_Endpoint_Config_T* config) {
+    return matter_root_add_tagged_endpoint(m,config,NULL,0);
+}
+Matter_Result_T matter_root_add_tagged_endpoint(Matter_Root_T m,const Matter_Root_Endpoint_Config_T* config,const Matter_Root_Tag_T* tags,size_t count) {
+    if(count>6 || (count && !tags)) return MATTER_INVALID_ARGUMENT;
+    for(size_t i=0;i<count;++i) {
+        if(tags[i].namespace_id==255 || tags[i].tag==255) return MATTER_INVALID_ARGUMENT;
+        for(size_t j=0;j<i;++j) if(tags[i].namespace_id==tags[j].namespace_id && tags[i].tag==tags[j].tag) return MATTER_INVALID_ARGUMENT;
+    }
     if(!m || !config || !config->endpoint || config->endpoint==65535 || !config->revision || config->device_type==UINT32_MAX) return MATTER_INVALID_ARGUMENT;
     if(m->busy) return MATTER_BUSY;
     if(m->fail_safe!=MATTER_ROOT_FAIL_SAFE_IDLE || endpoint(m,config->endpoint)) return MATTER_INVALID_STATE;
     if(m->endpoint_count==8) return MATTER_LIMIT_REACHED;
     RootEndpoint* e=calloc(1,sizeof(*e)); if(!e) return MATTER_LIMIT_REACHED;
-    e->config=*config; e->descriptor=(RootCluster){m,NULL,&e->config.data_version,e};
+    e->config=*config; e->tag_count=count; if(count) memcpy(e->tags,tags,count*sizeof(*tags)); e->descriptor=(RootCluster){m,NULL,&e->config.data_version,e};
     e->descriptor.interface=builtin_new(&e->descriptor,DESCRIPTOR);
     if(!e->descriptor.interface) { free(e); return MATTER_LIMIT_REACHED; }
     Matter_Result_T r=matter_cluster_retain(e->descriptor.interface);
     if(r!=MATTER_OK) { (void)matter_cluster_delete(e->descriptor.interface); free(e); return r; }
     e->clusters[e->count++]=e->descriptor.interface; m->endpoints[m->endpoint_count++]=e;
     ++m->config.descriptor_version; return MATTER_OK;
+}
+Matter_Result_T matter_root_set_parent(Matter_Root_T m,uint16_t ep,uint16_t parent) {
+    RootEndpoint* e=endpoint(m,ep); if(!e || ep==parent || (parent && !endpoint(m,parent))) return MATTER_INVALID_ARGUMENT;
+    if(m->busy) return MATTER_BUSY;
+    if(m->fail_safe!=MATTER_ROOT_FAIL_SAFE_IDLE) return MATTER_INVALID_STATE;
+    for(uint16_t id=parent;id;) {
+        if(id==ep) return MATTER_INVALID_ARGUMENT;
+        id=endpoint(m,id)->parent;
+    }
+    if(e->parent==parent) return MATTER_OK;
+    if(e->parent) ++endpoint(m,e->parent)->config.data_version;
+    e->parent=parent; if(parent) ++endpoint(m,parent)->config.data_version;
+    return MATTER_OK;
+}
+Matter_Result_T matter_root_add_device_type_at(Matter_Root_T m,uint16_t ep,uint32_t type,uint16_t revision) {
+    if(!ep) return matter_root_add_device_type(m,type,revision);
+    RootEndpoint* e=endpoint(m,ep); if(!e || !revision || type==UINT32_MAX) return MATTER_INVALID_ARGUMENT;
+    if(m->busy) return MATTER_BUSY;
+    if(m->fail_safe!=MATTER_ROOT_FAIL_SAFE_IDLE) return MATTER_INVALID_STATE;
+    if(type==e->config.device_type) return revision==e->config.revision?MATTER_OK:MATTER_INVALID_ARGUMENT;
+    for(size_t i=0;i<e->type_count;++i) if(e->types[i].type==type) return e->types[i].revision==revision?MATTER_OK:MATTER_INVALID_ARGUMENT;
+    if(e->type_count==4) return MATTER_LIMIT_REACHED;
+    e->types[e->type_count].type=type; e->types[e->type_count++].revision=revision;
+    ++e->config.data_version; return MATTER_OK;
 }
 Matter_Result_T matter_root_attach_cluster_at(Matter_Root_T m,uint16_t ep,Matter_Cluster_T c) {
     if(!ep) return matter_root_attach_cluster(m,c);
@@ -871,7 +910,8 @@ static uint8_t read_parts(void* u,const void* ref,const Matter_Cluster_Request_T
     if(!builtin_ready(u)) return MATTER_IM_FAILURE;
     (void)ref; (void)q; Matter_Root_T m=builtin_value(u,v);
     if(matter_tlv_writer_init(&m->writer,m->encoded,sizeof(m->encoded),1)!=MATTER_TLV_OK || !put(m,MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
-    if(!((RootCluster*)u)->endpoint) for(size_t i=0;i<m->endpoint_count;++i)
+    RootEndpoint* e=((RootCluster*)u)->endpoint;
+    for(size_t i=0;i<m->endpoint_count;++i) if(!e || m->endpoints[i]->parent==e->config.endpoint)
         if(!put(m,MATTER_TLV_UNSIGNED,-1,m->endpoints[i]->config.endpoint)) return MATTER_IM_FAILURE;
     if(!put(m,MATTER_TLV_END,-1,0) || matter_tlv_writer_finish(&m->writer,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
     v->type=MATTER_TLV_ARRAY; v->data=m->encoded; return 0;
@@ -946,9 +986,9 @@ static uint8_t read_device(void* u,const void* ref,const Matter_Cluster_Request_
     if(matter_tlv_writer_init(&m->writer,m->encoded,sizeof(m->encoded),3)!=MATTER_TLV_OK || !put(m,MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
     RootEndpoint* e=((RootCluster*)u)->endpoint;
     if(!put(m,MATTER_TLV_STRUCTURE,-1,0) || !put(m,MATTER_TLV_UNSIGNED,0,e?e->config.device_type:0x16) || !put(m,MATTER_TLV_UNSIGNED,1,e?e->config.revision:5) || !put(m,MATTER_TLV_END,-1,0)) return MATTER_IM_FAILURE;
-    if(!e) for(size_t i=0;i<m->type_count;++i)
-        if(!put(m,MATTER_TLV_STRUCTURE,-1,0) || !put(m,MATTER_TLV_UNSIGNED,0,m->types[i].type) ||
-            !put(m,MATTER_TLV_UNSIGNED,1,m->types[i].revision) || !put(m,MATTER_TLV_END,-1,0)) return MATTER_IM_FAILURE;
+    for(size_t i=0;i<(e?e->type_count:m->type_count);++i)
+        if(!put(m,MATTER_TLV_STRUCTURE,-1,0) || !put(m,MATTER_TLV_UNSIGNED,0,e?e->types[i].type:m->types[i].type) ||
+            !put(m,MATTER_TLV_UNSIGNED,1,e?e->types[i].revision:m->types[i].revision) || !put(m,MATTER_TLV_END,-1,0)) return MATTER_IM_FAILURE;
     if(!put(m,MATTER_TLV_END,-1,0) || matter_tlv_writer_finish(&m->writer,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
     v->type=MATTER_TLV_ARRAY; v->data=m->encoded; return 0;
 }
@@ -1010,9 +1050,29 @@ static Matter_Result_T builtin_poll(void* u,const void* ref,uint64_t token,Matte
     (void)ref; RootCluster* c=u; return complete_poll_impl(c->root,token,w,out);
 }
 static void builtin_cancel(void* u,const void* ref,uint64_t token) { (void)ref; RootCluster* c=u; complete_cancel_impl(c->root,token); }
+static uint8_t read_tags(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
+    if(!builtin_ready(u)) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Matter_Root_T m=builtin_value(u,v); RootEndpoint* e=((RootCluster*)u)->endpoint;
+    if(!e || matter_tlv_writer_init(&m->writer,m->encoded,sizeof(m->encoded),2)!=MATTER_TLV_OK || !put(m,MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
+    for(size_t i=0;i<e->tag_count;++i) if(!put(m,MATTER_TLV_STRUCTURE,-1,0) || !put(m,MATTER_TLV_NULL,0,0) ||
+        !put(m,MATTER_TLV_UNSIGNED,1,e->tags[i].namespace_id) || !put(m,MATTER_TLV_UNSIGNED,2,e->tags[i].tag) || !put(m,MATTER_TLV_END,-1,0)) return MATTER_IM_FAILURE;
+    if(!put(m,MATTER_TLV_END,-1,0) || matter_tlv_writer_finish(&m->writer,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
+    v->type=MATTER_TLV_ARRAY; v->data=m->encoded; return 0;
+}
+static uint8_t read_descriptor_feature(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
+    if(!builtin_ready(u)) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; (void)builtin_value(u,v); RootEndpoint* e=((RootCluster*)u)->endpoint;
+    v->unsigned_value=e && e->tag_count?1:0; return 0;
+}
+static uint8_t read_descriptor_ids(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
+    static const uint32_t tagged[]={0,1,2,3,4,0xfff8,0xfff9,0xfffb,0xfffc,0xfffd};
+    (void)ref; RootEndpoint* e=((RootCluster*)u)->endpoint;
+    RootIds ids={e && e->tag_count?tagged:descriptor_attrs,e && e->tag_count?10:9};
+    return read_ids(u,&ids,q,v);
+}
 static Matter_Cluster_T builtin_new(RootCluster* m,uint32_t id) {
     static const uint32_t zero=0,one=1,dm=21,spec=UINT32_C(0x01060100),dr=3,br=6,gr=2,accepted[]={0,2,4},generated[]={1,3,5};
-    static const RootIds empty={NULL,0},dl={descriptor_attrs,9},bl={basic_attrs,21},gl={commissioning_attrs,10},ga={accepted,3},gg={generated,3};
+    static const RootIds empty={NULL,0},bl={basic_attrs,21},gl={commissioning_attrs,10},ga={accepted,3},gg={generated,3};
     static const Matter_Attribute_Def_T descriptor[]={
         {.id=0,.read_access={MATTER_IM_VIEW,false},.read=read_device},
         {.id=1,.read_access={MATTER_IM_VIEW,false},.read=read_servers},
@@ -1020,8 +1080,8 @@ static Matter_Cluster_T builtin_new(RootCluster* m,uint32_t id) {
         {.id=3,.read_access={MATTER_IM_VIEW,false},.read=read_parts},
         {.id=0xfff8,.read_access={MATTER_IM_VIEW,false},.read=read_ids,.ref=&empty},
         {.id=0xfff9,.read_access={MATTER_IM_VIEW,false},.read=read_ids,.ref=&empty},
-        {.id=0xfffb,.read_access={MATTER_IM_VIEW,false},.read=read_ids,.ref=&dl},
-        {.id=0xfffc,.read_access={MATTER_IM_VIEW,false},.read=read_constant,.ref=&zero},
+        {.id=0xfffb,.read_access={MATTER_IM_VIEW,false},.read=read_descriptor_ids},
+        {.id=0xfffc,.read_access={MATTER_IM_VIEW,false},.read=read_descriptor_feature},
         {.id=0xfffd,.read_access={MATTER_IM_VIEW,false},.read=read_constant,.ref=&dr},
     };
     static const Matter_Attribute_Def_T basic[]={
@@ -1060,14 +1120,19 @@ static Matter_Cluster_T builtin_new(RootCluster* m,uint32_t id) {
         {.id=0xfffd,.read_access={MATTER_IM_VIEW,false},.read=read_constant,.ref=&gr},
     };
     const Matter_Attribute_Def_T* attrs=id==DESCRIPTOR?descriptor:id==BASIC?basic:gc;
-    Matter_Cluster_Config_T cfg={.id=id,.attributes=id==DESCRIPTOR?9:id==BASIC?21:10,.commands=id==COMMISSIONING?3:0,.pending=id==COMMISSIONING?2:0,
+    bool tagged=id==DESCRIPTOR && m->endpoint && m->endpoint->tag_count;
+    Matter_Cluster_Config_T cfg={.id=id,.attributes=id==DESCRIPTOR?(tagged?10:9):id==BASIC?21:10,.commands=id==COMMISSIONING?3:0,.pending=id==COMMISSIONING?2:0,
         .events=id==BASIC?1:0,.callbacks={.ctx=m,.version=builtin_version}};
     Matter_Cluster_T c=matter_cluster_new(&cfg); if(!c) return NULL;
     if(id==BASIC) {
         const Matter_Event_Def_T event={0,MATTER_IM_VIEW,2,false};
         if(matter_cluster_add_event(c,&event)!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
     }
-    for(size_t i=0;i<cfg.attributes;++i) if(matter_cluster_add_attribute(c,&attrs[i])!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
+    for(size_t i=0;i<(size_t)cfg.attributes-(tagged?1u:0u);++i) if(matter_cluster_add_attribute(c,&attrs[i])!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
+    if(tagged) {
+        const Matter_Attribute_Def_T tag={.id=4,.read_access={MATTER_IM_VIEW,false},.read=read_tags};
+        if(matter_cluster_add_attribute(c,&tag)!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
+    }
     for(unsigned i=0;i<cfg.commands;++i) {
         Matter_Command_Def_T cmd={.id=accepted[i],.ref=&accepted[i],.validate=builtin_validate_command,.start=builtin_start,
             .poll=i==2?builtin_poll:NULL,.cancel=i==2?builtin_cancel:NULL,

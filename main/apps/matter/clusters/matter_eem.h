@@ -9,11 +9,14 @@ enum { MATTER_EEM_CLUSTER=0x0091 };
  * is all-zero. Corrupt/unreadable state must fail load, never silently reset. */
 typedef struct {
     uint64_t generation; int64_t raw_mwh[2],total_mwh[2]; bool initialized;
+    /* Register mode only; zero in legacy checkpoints. Persist explicitly. */
+    bool registers; uint8_t register_mask;
 } Matter_Eem_Checkpoint_T;
 typedef struct {
     int64_t raw_mwh[2]; /* import, export: distinct nonnegative source registers */
     uint64_t generation,sampled_ms; uint32_t epoch_s;
     bool available,utc_known; /* coherent pair; epoch_s is seconds since 2000 */
+    uint8_t available_mask; /* register mode: bits import=1/export=2; available=true means both */
 } Matter_Eem_Sample_T;
 typedef struct {
     void* user;
@@ -42,6 +45,16 @@ typedef struct {
  * Do not change generation just because parser reset/reconnected. Backend must
  * distinguish replacement/reset and keep generation stable across reboots. */
 Matter_Cluster_T matter_eem_new(const Matter_Eem_Port_T*,const Matter_Eem_Config_T*,uint64_t now_ms);
+/* Explicit physical-register view. First sample reports raw_mwh, without a
+ * zero baseline. Initialized checkpoints from the other mode are rejected.
+ * A higher generation confirms meter replacement/reset; old totals are not
+ * added to the new registers. Missing directions remain null independently.
+ * Optional reset attribute reports unknown reset times (not sample/boot time).
+ * Complete-pair snapshots generate CumulativeEnergyMeasured. Partial source
+ * updates only update available attributes; no incomplete/nonconforming event
+ * is emitted. Both directions remain configured capabilities (FeatureMap=7).
+ * Source identity/generation and reset authorization belong to the backend. */
+Matter_Cluster_T matter_eem_new_registers(const Matter_Eem_Port_T*,const Matter_Eem_Config_T*,uint64_t now_ms);
 Matter_Result_T matter_eem_from_kwh(double,int64_t* milliwatt_hours);
 /* Owner pumps before IM and >=once/s. Accept at most one coherent snapshot/s;
  * unavailable/stale/error -> both null, without erasing checkpoint. State is

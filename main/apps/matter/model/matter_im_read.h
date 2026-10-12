@@ -8,9 +8,9 @@ extern "C" {
 #endif
 
 enum { MATTER_IM_REVISION = 13, MATTER_IM_READ_MAX_PAYLOAD = 1024, MATTER_IM_READ_MAX_PATHS = 9,
-	/* Full Root + electrical sensor profile exceeds 120 attributes. These
+	/* Root + aggregate + three phases + optional switch exceeds 256 attributes. These
 	 * bounded result tables belong to heap-owned Read/Subscribe handlers. */
-	MATTER_IM_READ_MAX_RESULTS = 256, MATTER_IM_READ_MAX_FILTERS = 16, MATTER_IM_READ_WORK_BATCH = 8,
+	MATTER_IM_READ_MAX_RESULTS = 320, MATTER_IM_READ_MAX_FILTERS = 16, MATTER_IM_READ_WORK_BATCH = 8,
 	MATTER_IM_READ_MAX_VALUE = 4096, MATTER_IM_READ_SNAPSHOT_BYTES = 16384 };
 typedef enum {
 	MATTER_IM_SUCCESS=0, MATTER_IM_FAILURE=1, MATTER_IM_UNSUPPORTED_ACCESS=0x7e,

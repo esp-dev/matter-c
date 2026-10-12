@@ -32,6 +32,31 @@ typedef struct {
  * Starts at null; no callback during construction. max_age_ms must be >0.
  * No clock/task/hardware/global state. user outlives cluster; common delete. */
 Matter_Cluster_T matter_epm_new(const Matter_Epm_Port_T*,const Matter_Epm_Config_T*,uint64_t now_ms);
+/* Extended AC scalar profile. Attribute IDs are the App 2.13 IDs; no harmonic
+ * features, Ranges or fabricated derived measurements. ActivePower is required.
+ * Every configured scalar has its own accuracy and independent availability.
+ * Values use the units defined by Matter: mV, mA, mW/mVAR/mVA, mHz, PF*10000.
+ * Accuracy range field names retain _mw for compatibility but use that scalar's
+ * unit. Config and entries are copied. Snapshot order equals config order. */
+enum { MATTER_EPM_MAX_MEASUREMENTS=13 };
+typedef struct {
+    uint32_t attribute;
+    Matter_Epm_Accuracy_Range_T ranges[MATTER_EPM_MAX_RANGES];
+    uint8_t range_count; bool measured;
+} Matter_Epm_Measurement_T;
+typedef struct {
+    const Matter_Epm_Measurement_T* measurements; size_t count;
+    uint32_t data_version,max_age_ms; bool polyphase;
+} Matter_Epm_Multi_Config_T;
+typedef struct {
+    int64_t values[MATTER_EPM_MAX_MEASUREMENTS];
+    uint16_t available; uint64_t sampled_ms; /* availability bits in config order */
+} Matter_Epm_Multi_Sample_T;
+typedef struct {
+    void* user;
+    Matter_Result_T (*snapshot)(void*,Matter_Epm_Multi_Sample_T*);
+} Matter_Epm_Multi_Port_T;
+Matter_Cluster_T matter_epm_new_multi(const Matter_Epm_Multi_Port_T*,const Matter_Epm_Multi_Config_T*,uint64_t now_ms);
 /* Optional adapter conversion W -> mW, nearest integer, half away from zero.
  * Reject nonfinite/out-of-protocol-range input; leave output unchanged on error.
  * Configuration limits are checked separately by refresh. Integer mW sources

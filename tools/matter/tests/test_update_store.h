@@ -58,7 +58,7 @@ static void update_checks(StoreTest* t,FabFixture* f) {
     update_call(f,7,true,MATTER_IM_CONSTRAINT_ERROR,0);
     vid_request(f,7,0x6a02,85,400); vid_call(f,1,12,0);
     read_file(t); OC_CHECK(matter_store_tlv_decode(t->bytes,t->size,&t->data)==MATTER_OK);
-    OC_CHECK(t->data.schema==6 && t->data.fabrics.previous.node_id==100 && t->data.fabrics.view.records[0].node_id==101);
+    OC_CHECK(t->data.schema==7 && t->data.fabrics.previous.node_id==100 && t->data.fabrics.view.records[0].node_id==101);
     OC_CHECK(t->data.fabrics.view.count==1 && !memcmp(&t->data.fabrics.acl,&t->previous.fabrics.acl,sizeof(t->data.fabrics.acl)) &&
         !memcmp(&t->data.fabrics.groupkey,&t->previous.fabrics.groupkey,sizeof(t->data.fabrics.groupkey)) &&
         !memcmp(t->data.fabrics.groupkeys,t->previous.fabrics.groupkeys,sizeof(t->data.fabrics.groupkeys)));

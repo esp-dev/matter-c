@@ -84,6 +84,12 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The optional [three-phase profile](doc/three-phase.md) adds tagged aggregate/L1/L2/L3
+endpoints and EEM source-register semantics: run the host with `--three-phase`
+and a separate state file. The default host profile is preserved.
+Add `--source-registers` for the [manufacturer-specific source view](doc/meter-source.md):
+tariff/quadrant/demand registers, directional values, metadata and volume channels.
+
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or
 `build/matter-host/gcc/matter-node.exe`. An unknown option prints usage and exits 2.

@@ -46,16 +46,16 @@ static void ota_seed(StoreTest* t) {
     t->data.schema=5; OC_CHECK(!matter_store_data_valid(&t->data));
     memset(t->data.ota,0,sizeof(t->data.ota)); size_t n;
     OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK);
-    OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->previous)==MATTER_OK && t->previous.schema==6 && !t->previous.ota[0].fabric);
+    OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->previous)==MATTER_OK && t->previous.schema==7 && !t->previous.ota[0].fabric);
     puts("PASS OTA persistence: exact uint64, four atomic file faults, duplicate/orphan rejection, schema5 migration");
 }
 static void codec_checks(StoreTest* t) {
     read_file(t); OC_CHECK(matter_store_tlv_decode(t->bytes,t->size,&t->data)==MATTER_OK);
-    OC_CHECK(t->bytes[0]==0x15 && t->bytes[1]==0x24 && t->bytes[2]==0 && t->bytes[3]==6);
+    OC_CHECK(t->bytes[0]==0x15 && t->bytes[1]==0x24 && t->bytes[2]==0 && t->bytes[3]==7);
     t->previous=t->data;
     size_t sizes[]={0,1,t->size/2,t->size-1};
     for(unsigned i=0;i<4;++i) { OC_CHECK(matter_store_tlv_decode(t->bytes,sizes[i],&t->data)!=MATTER_OK); OC_CHECK(!memcmp(&t->data,&t->previous,sizeof(t->data))); }
-    t->bytes[3]=7; OC_CHECK(matter_store_tlv_decode(t->bytes,t->size,&t->data)!=MATTER_OK); t->bytes[3]=6;
+    t->bytes[3]=8; OC_CHECK(matter_store_tlv_decode(t->bytes,t->size,&t->data)!=MATTER_OK); t->bytes[3]=7;
     t->bytes[t->size]=0x18; OC_CHECK(matter_store_tlv_decode(t->bytes,t->size+1,&t->data)!=MATTER_OK);
     OC_CHECK(!memcmp(&t->data,&t->previous,sizeof(t->data)));
     t->data.fabrics.view.count=6; size_t n=0; OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_INVALID_ARGUMENT);
@@ -65,10 +65,20 @@ static void codec_checks(StoreTest* t) {
     OC_CHECK(!memcmp(&t->data,&t->previous,sizeof(t->data)));
 #endif
     OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,16,&n)==MATTER_LIMIT_REACHED && n==0);
+    /* Explicit schema6 import keeps legacy mode; schema7 round-trips registers. */
+    t->data.schema=6;
+    OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK);
+    OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->data)==MATTER_OK && t->data.schema==7 && !t->data.eem.registers);
+    t->previous=t->data;
+    t->data.eem=(Matter_Eem_Checkpoint_T){.generation=3,.raw_mwh={12345678000,0},.total_mwh={12345678000,0},.initialized=true,.registers=true,.register_mask=1};
+    OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK);
+    OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->data)==MATTER_OK && t->data.eem.registers && t->data.eem.register_mask==1 && t->data.eem.total_mwh[0]==INT64_C(12345678000));
+    t->data.schema=6; OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_INVALID_ARGUMENT);
+    t->data=t->previous;
     t->data.schema=4;
     OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_INVALID_ARGUMENT); /* No loss of meter state. */
     memset(&t->data.eem,0,sizeof(t->data.eem)); t->data.event_high=0;
-    t->previous=t->data; t->previous.schema=6;
+    t->previous=t->data; t->previous.schema=7;
     OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK && t->copy[3]==4);
     OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->data)==MATTER_OK && !memcmp(&t->data,&t->previous,sizeof(t->data)));
     t->data.schema=3;
@@ -77,17 +87,17 @@ static void codec_checks(StoreTest* t) {
         Matter_Fabric_Record_T* f=&t->data.fabrics.view.records[i]; f->vvs_size=0; f->vvsc_size=0;
         memset(f->vvs,0,85); memset(f->vvsc,0,400);
     }
-    t->previous=t->data; t->previous.schema=6;
+    t->previous=t->data; t->previous.schema=7;
     OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK && t->copy[3]==3);
     OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->data)==MATTER_OK && !memcmp(&t->data,&t->previous,sizeof(t->data)));
-    t->data.schema=2; t->previous=t->data; t->previous.schema=6;
+    t->data.schema=2; t->previous=t->data; t->previous.schema=7;
     OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK && t->copy[3]==2);
     OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->data)==MATTER_OK && !memcmp(&t->data,&t->previous,sizeof(t->data)));
     t->data.schema=1;
     for(unsigned i=0;i<5;++i) { t->data.fabrics.view.records[i].label_size=0; memset(t->data.fabrics.view.records[i].label,0,32); }
-    t->previous=t->data; t->previous.schema=6;
+    t->previous=t->data; t->previous.schema=7;
     OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK && t->copy[3]==1);
-    OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->data)==MATTER_OK && t->data.schema==6);
+    OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->data)==MATTER_OK && t->data.schema==7);
     OC_CHECK(!memcmp(&t->data,&t->previous,sizeof(t->data))); /* Exact schema1 migration, labels initially empty. */
 }
 /* Independent file and fresh images: malformed storage must not publish defaults
@@ -106,7 +116,7 @@ static void restore_checks(StoreTest* t,const char* path) {
     OC_CHECK(blob.read(blob.user,t->copy,sizeof(t->copy),&t->copy_size)==MATTER_OK);
     root->location[0]='P'; root->location[1]='L'; diag->hours=13;
     for(unsigned fault=0;fault<3;++fault) {
-        if(fault==1) t->copy[3]=7;
+        if(fault==1) t->copy[3]=8;
         OC_CHECK(blob.replace(blob.user,t->copy,fault==0?t->copy_size/2:t->copy_size)==MATTER_OK);
         if(fault==2) {
 #ifdef MATTER_TEST_ALLOC
@@ -117,7 +127,7 @@ static void restore_checks(StoreTest* t,const char* path) {
 #endif
         } else OC_CHECK(!matter_store_host_new(&blob,fabric,image,root,diag,true));
         OC_CHECK(root->location[0]=='P' && diag->hours==13);
-        t->copy[3]=6;
+        t->copy[3]=7;
     }
     OC_CHECK(blob.replace(blob.user,t->copy,t->copy_size)==MATTER_OK);
     store=matter_store_host_new(&blob,fabric,image,root,diag,true); OC_CHECK(store && root->location[0]=='Z' && !diag->hours);

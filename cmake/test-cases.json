@@ -769,5 +769,53 @@
       "main/apps/matter/model/matter_events.c",
       "main/apps/matter/clusters/matter_wifi.c"
     ]
+  },
+  {
+    "name": "test_root_alloc",
+    "source": "tools/matter/tests/test_root.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "malloc": false,
+    "replace": [
+      "main/apps/matter/clusters/matter_eem.c",
+      "main/apps/matter/clusters/matter_epm.c",
+      "main/apps/matter/clusters/matter_power_topology.c",
+      "main/apps/matter/clusters/matter_root.c",
+      "main/apps/matter/clusters/matter_diagnostics.c",
+      "main/apps/matter/clusters/matter_groupkey.c",
+      "main/apps/matter/clusters/matter_acl.c",
+      "main/apps/matter/clusters/matter_opcreds.c",
+      "main/apps/matter/clusters/matter_fabric.c",
+      "main/apps/matter/clusters/matter_wifi.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_events.c",
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_im_write.c",
+      "main/apps/matter/model/matter_im_invoke.c",
+      "tools/matter/host/matter_wifi_sim.c"
+    ]
+  },
+  {
+    "name": "test_meter_source",
+    "source": "tools/matter/tests/test_meter_source.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc"
+  },
+  {
+    "name": "test_meter_source_alloc",
+    "source": "tools/matter/tests/test_meter_source.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "malloc": false,
+    "replace": [
+      "main/apps/matter/clusters/matter_meter_source.c",
+      "main/apps/matter/model/matter_cluster.c"
+    ]
   }
 ]

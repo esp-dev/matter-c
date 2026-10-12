@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stddef.h>
 /* Schema 2 appends label_size/label to each record. Schema 1 imports with an
- * empty label; schema3 adds the credential rollback image. Schema4 adds VVS/VVSC. Schema5 adds EEM/event high-water. Schema6 adds default OTA providers. New publications use 6. Ordinals of old fields stay fixed. */
+ * empty label; schema3 adds the credential rollback image. Schema4 adds VVS/VVSC. Schema5 adds EEM/event high-water. Schema6 adds default OTA providers. Schema7 adds explicit EEM register mode/mask. New publications use 7. Ordinals of old fields stay fixed. */
 typedef enum { U8,U16,U32,U64,I64,SIZE,BOOL,BYTES,OBJECT } Kind;
 typedef struct Field { const char* name; Kind kind; size_t offset,count,stride; const struct Field* children; } Field;
 #define F(T,m,k) {#m,k,offsetof(T,m),1,sizeof(((T*)0)->m),NULL}
@@ -28,7 +28,7 @@ static const Field record[]={H(Matter_Fabric_Record_T,discovery_instance),F(Matt
 static const Field view[]={F(Matter_Fabric_View_T,revision,U32),F(Matter_Fabric_View_T,count,U8),F(Matter_Fabric_View_T,pending_index,U8),F(Matter_Fabric_View_T,root_ready,BOOL),F(Matter_Fabric_View_T,added,BOOL),F(Matter_Fabric_View_T,root_size,U16),H(Matter_Fabric_View_T,root),OA(Matter_Fabric_View_T,records,record,5),LAST};
 static const Field fabrics[]={O(Matter_Store_Fabrics_T,view,view),O(Matter_Store_Fabrics_T,acl,acl),O(Matter_Store_Fabrics_T,groupkey,groupkey),H(Matter_Store_Fabrics_T,groupkeys),H(Matter_Store_Fabrics_T,keys),F(Matter_Store_Fabrics_T,next_index,U8),F(Matter_Store_Fabrics_T,saved_next,U8),F(Matter_Store_Fabrics_T,journal,BOOL),O(Matter_Store_Fabrics_T,previous,record),H(Matter_Store_Fabrics_T,previous_key),LAST};
 static const Field root[]={F(Matter_Root_Settings_T,node_label_size,SIZE),H(Matter_Root_Settings_T,node_label),H(Matter_Root_Settings_T,location),LAST};
-static const Field eem[]={F(Matter_Eem_Checkpoint_T,generation,U64),A(Matter_Eem_Checkpoint_T,raw_mwh,I64,2),A(Matter_Eem_Checkpoint_T,total_mwh,I64,2),F(Matter_Eem_Checkpoint_T,initialized,BOOL),LAST};
+static const Field eem[]={F(Matter_Eem_Checkpoint_T,generation,U64),A(Matter_Eem_Checkpoint_T,raw_mwh,I64,2),A(Matter_Eem_Checkpoint_T,total_mwh,I64,2),F(Matter_Eem_Checkpoint_T,initialized,BOOL),F(Matter_Eem_Checkpoint_T,registers,BOOL),F(Matter_Eem_Checkpoint_T,register_mask,U8),LAST};
 static const Field ota[]={F(Matter_Ota_Provider_T,node,U64),F(Matter_Ota_Provider_T,endpoint,U16),F(Matter_Ota_Provider_T,fabric,U8),LAST};
 static const Field schema[]={F(Matter_Store_Data_T,schema,U32),O(Matter_Store_Data_T,fabrics,fabrics),O(Matter_Store_Data_T,wifi,wifi),O(Matter_Store_Data_T,root,root),F(Matter_Store_Data_T,hours,U32),F(Matter_Store_Data_T,reboots,U16),O(Matter_Store_Data_T,eem,eem),F(Matter_Store_Data_T,event_high,U64),OA(Matter_Store_Data_T,ota,ota,5),LAST};
 typedef struct { Matter_Store_Data_T data; Matter_Tlv_Reader_T reader; Matter_Tlv_Writer_T writer; Matter_Tlv_Element_T e; } Codec;
@@ -52,6 +52,7 @@ static bool encode_value(Codec* c,const Field* f,const unsigned char* p,int tag)
 static bool encode_object(Codec* c,const Field* fields,const void* object,int tag) {
     if(!put(c,MATTER_TLV_STRUCTURE,tag,0,NULL,0)) return false;
     for(unsigned t=0;fields[t].name;++t) {
+        if(fields==eem && t==4 && c->data.schema<7) break;
         if(fields==schema && t==6 && c->data.schema<5) break;
         if(fields==schema && t==8 && c->data.schema<6) break;
         if(fields==record && t==15 && c->data.schema==1) break;
@@ -89,6 +90,7 @@ static bool decode_value(Codec* c,const Field* f,unsigned char* p) {
 static bool decode_object(Codec* c,const Field* fields,void* object) {
     if(c->e.type!=MATTER_TLV_STRUCTURE) return false;
     for(unsigned t=0;fields[t].name;++t) {
+        if(fields==eem && t==4 && c->data.schema<7) break;
         if(fields==schema && t==6 && c->data.schema<5) break;
         if(fields==schema && t==8 && c->data.schema<6) break;
         if(fields==record && t==15 && c->data.schema==1) break;
@@ -117,7 +119,7 @@ Matter_Result_T matter_store_tlv_decode(const uint8_t* data,size_t n,Matter_Stor
     Codec* c=calloc(1,sizeof(*c)); if(!c) return MATTER_LIMIT_REACHED;
     bool ok=matter_tlv_init(&c->reader,data,n,16)==MATTER_TLV_OK && next(c) && !c->e.tag.control && decode_object(c,schema,&c->data) &&
         matter_tlv_next(&c->reader,&c->e)==MATTER_TLV_DONE && matter_store_data_valid(&c->data);
-    if(ok) { c->data.schema=6; *out=c->data; }
+    if(ok) { c->data.schema=7; *out=c->data; }
     wipe(c,sizeof(*c)); free(c); return ok?MATTER_OK:MATTER_INVALID_ARGUMENT;
 }
 static bool acl_subject(uint64_t v,unsigned mode) {
@@ -129,12 +131,14 @@ static bool vid_valid(const Matter_Fabric_Record_T* r,uint32_t schema) {
         !(r->icac_size && r->vvsc_size) && (schema>=4 || (!r->vvs_size && !r->vvsc_size));
 }
 bool matter_store_data_valid(const Matter_Store_Data_T* d) {
-    if(!d || (d->schema!=1 && d->schema!=2 && d->schema!=3 && d->schema!=4 && d->schema!=5 && d->schema!=6) || d->root.node_label_size>32 || !valid_utf8(d->root.node_label,d->root.node_label_size) ||
+    if(!d || (d->schema!=1 && d->schema!=2 && d->schema!=3 && d->schema!=4 && d->schema!=5 && d->schema!=6 && d->schema!=7) || d->root.node_label_size>32 || !valid_utf8(d->root.node_label,d->root.node_label_size) ||
         d->root.location[0]<'A' || d->root.location[0]>'Z' || d->root.location[1]<'A' || d->root.location[1]>'Z') return false;
     const Matter_Eem_Checkpoint_T* e=&d->eem;
-    if((d->schema<5 && (e->initialized || d->event_high)) ||
-        (!e->initialized && (e->generation || e->raw_mwh[0] || e->raw_mwh[1] || e->total_mwh[0] || e->total_mwh[1]))) return false;
-    for(unsigned i=0;i<2;++i) if(e->raw_mwh[i]<0 || e->raw_mwh[i]>MATTER_EEM_LIMIT || e->total_mwh[i]<0 || e->total_mwh[i]>MATTER_EEM_LIMIT) return false;
+    if((d->schema<7 && (e->registers || e->register_mask)) || e->register_mask>3 ||
+        (e->registers ? (e->initialized!=!!e->register_mask) : e->register_mask!=0) ||
+        (d->schema<5 && (e->initialized || d->event_high)) ||
+        (!e->initialized && (e->registers || e->generation || e->raw_mwh[0] || e->raw_mwh[1] || e->total_mwh[0] || e->total_mwh[1]))) return false;
+    for(unsigned i=0;i<2;++i) if(e->raw_mwh[i]<0 || e->raw_mwh[i]>MATTER_EEM_LIMIT || e->total_mwh[i]<0 || e->total_mwh[i]>MATTER_EEM_LIMIT || (e->registers && e->total_mwh[i]!=e->raw_mwh[i])) return false;
     const Matter_Store_Wifi_T* w=&d->wifi;
     if(w->settings.count>4 || w->connected.size>32) return false;
     for(unsigned i=0;i<w->settings.count;++i) {

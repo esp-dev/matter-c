@@ -1,5 +1,8 @@
 # Clean snapshot validation
 
+This is the publication snapshot. Later three-phase changes and their focused
+CSA/controller/memory acceptance are recorded in [MP02 validation](mp02-validation.md).
+
 Executed 2026-10-12 from the isolated source export, with official upstream
 mbedTLS 3.6.0. The Linux source archive contained no private audit history,
 captured certificates, build outputs or external product checkout.

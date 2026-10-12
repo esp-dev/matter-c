@@ -55,7 +55,8 @@
     "transport/matter_retransmission",
     "transport/matter_retransmission_sender",
     "transport/matter_counter",
-    "transport/matter_reception"
+    "transport/matter_reception",
+    "clusters/matter_meter_source"
   ],
   "host_linux": [
     "matter_udp_linux",
@@ -65,7 +66,8 @@
     "matter_store_file_posix",
     "matter_ota_file",
     "matter_switch_sim",
-    "matter_energy_sim"
+    "matter_energy_sim",
+    "matter_source_sim"
   ],
   "host_windows": [
     "matter_udp_windows",
@@ -75,7 +77,8 @@
     "matter_store_file_windows",
     "matter_ota_file",
     "matter_switch_sim",
-    "matter_energy_sim"
+    "matter_energy_sim",
+    "matter_source_sim"
   ],
   "mbedtls": [
     "aes",
@@ -188,7 +191,8 @@
     "runtime/matter_host_limits.h",
     "runtime/matter_opcreds_host.h",
     "runtime/matter_runtime.h",
-    "runtime/matter_store_host.h"
+    "runtime/matter_store_host.h",
+    "clusters/matter_meter_source.h"
   ],
   "private_headers": [
     "clusters/matter_root_internal.h",

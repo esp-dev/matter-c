@@ -1807,14 +1807,15 @@
       "path": "tools/matter/tests/test_root.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_root"
+        "test_root",
+        "test_root_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_root",
       "referenced_by": [
         "tools/matter/build_host_linux.py",
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "test_root_alloc"
     },
     {
       "path": "tools/matter/tests/test_root_fixture.h",
@@ -2319,6 +2320,35 @@
         "tools/matter/tests/test_im_write.c"
       ],
       "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_three_phase.py",
+      "kind": "external-controller",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/chip_tool_three_phase.py --help",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_meter_source.c",
+      "kind": "native-test",
+      "ctest": [
+        "test_meter_source",
+        "test_meter_source_alloc"
+      ],
+      "entrypoint": "ctest --test-dir build/cmake -R test_meter_source --output-on-failure",
+      "referenced_by": [],
+      "allocation_variant": "native test_meter_source_alloc"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_meter_source.py",
+      "kind": "external-controller",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/chip_tool_meter_source.py --help",
+      "referenced_by": [
+        "tools/matter/tests/chip_tool_three_phase.py"
+      ],
+      "allocation_variant": "full host Memcheck and separate sanitizers"
     }
   ],
   "local_only_files": []

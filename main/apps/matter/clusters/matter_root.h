@@ -91,10 +91,12 @@ bool matter_root_has_device_type(Matter_Root_T,uint16_t endpoint,uint32_t type);
  * Root owns Descriptor/Basic/GC and pins every externally attached cluster. */
 Matter_Result_T matter_root_attach_cluster(Matter_Root_T,Matter_Cluster_T);
 Matter_Cluster_T matter_root_cluster(Matter_Root_T,uint32_t);
-/* Optional leaf endpoints; constructor creates EP0, old attach/lookup use EP0.
+/* Optional endpoints; constructor creates EP0, old attach/lookup use EP0.
  * The existing IM ports route all configured endpoints.
- * Up to 8 leaves, each with one configured device type, an owned Descriptor
- * rev3 (no TAGLIST), initially empty ClientList/PartsList and up to 15 other servers.
+ * Up to 8 endpoints, each initially with one configured device type, an owned
+ * Descriptor rev3, empty ClientList/PartsList and up to 15 other servers.
+ * add_endpoint preserves the untagged leaf default; the additive APIs below
+ * configure tags, composition and additional device types before publication.
  * IDs 1..65534, revision >=1; config is copied. Allocation failure is atomic.
  * Add/attach ONLY before publishing topology/creating handlers, while GC idle.
  * Root owns leaf contexts/Descriptors and pins externally owned clusters.
@@ -106,6 +108,17 @@ typedef struct {
     uint16_t endpoint,revision; uint32_t device_type,data_version;
 } Matter_Root_Endpoint_Config_T;
 Matter_Result_T matter_root_add_endpoint(Matter_Root_T,const Matter_Root_Endpoint_Config_T*);
+/* Configure composition before serving IM. parent=0 means a direct Root child.
+ * Endpoints must exist; cycles and self-parenting are rejected. Root PartsList
+ * always contains all endpoints; other PartsLists contain direct children.
+ * Additional device types are copied, at most four per endpoint. */
+Matter_Result_T matter_root_set_parent(Matter_Root_T,uint16_t endpoint,uint16_t parent);
+Matter_Result_T matter_root_add_device_type_at(Matter_Root_T,uint16_t endpoint,uint32_t type,uint16_t revision);
+/* Standard semantic tags (MfgCode=null, Label omitted). Copied at construction;
+ * 1..6 distinct namespace/tag pairs; count=0 preserves the untagged default.
+ * Same ownership as add_endpoint. */
+typedef struct { uint8_t namespace_id,tag; } Matter_Root_Tag_T;
+Matter_Result_T matter_root_add_tagged_endpoint(Matter_Root_T,const Matter_Root_Endpoint_Config_T*,const Matter_Root_Tag_T*,size_t count);
 Matter_Result_T matter_root_attach_cluster_at(Matter_Root_T,uint16_t endpoint,Matter_Cluster_T);
 /* Borrowed lookup, including EP0; old root_cluster remains the EP0 shorthand. */
 Matter_Cluster_T matter_root_cluster_at(Matter_Root_T,uint16_t endpoint,uint32_t cluster);
