@@ -28,7 +28,7 @@ struct Matter_Im_Subscribe {
     bool more,report_started;
     size_t count,cursor,snapshot_size,list_offset;
     struct { size_t item,start,end; bool prefix; } plan[MATTER_IM_READ_MAX_PATHS];
-    struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint8_t status; bool active,included,wildcard; } items[MATTER_IM_READ_MAX_RESULTS];
+    struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } items[MATTER_IM_READ_MAX_RESULTS];
     Matter_Im_Selector_T requests[MATTER_IM_READ_MAX_PATHS];
     size_t request_count,request_cursor,filter_count,collected,valid;
     struct { uint16_t endpoint; uint32_t cluster,version; } filters[MATTER_IM_READ_MAX_FILTERS];
@@ -374,11 +374,14 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
         uint8_t code=snapshot(s,s->capture_data,prime && s->items[i].wildcard,&omit);
         if(code==MATTER_IM_RESOURCE_EXHAUSTED) return code;
         if(prime && s->items[i].wildcard && path_error(code)) omit=true;
+        if(!prime && !code && s->capture_data && s->value.report_on_version_change &&
+            s->items[i].reported && s->items[i].reported_version==s->value.data_version) omit=true;
         s->items[i].status=code; s->items[i].value=s->value;
         if(prime) s->items[i].active=code==0;
         else if(code) s->terminal_report=true;
         if(!code) ++s->valid;
         s->items[i].included=!omit && (s->capture_data || code); s->attribute_report|=s->items[i].included;
+        if(!code && s->items[i].included) { s->items[i].reported=true; s->items[i].reported_version=s->value.data_version; }
     }
     if(s->collected<s->count) return 0;
     SubEvents* e=s->events;

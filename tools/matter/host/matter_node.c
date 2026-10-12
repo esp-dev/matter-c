@@ -19,6 +19,15 @@
 #include "matter_switch_sim.h"
 #include "matter_energy_sim.h"
 #include "matter_source_sim.h"
+#include "matter_time_host.h"
+#include "clusters/matter_identify.h"
+#include "clusters/matter_meter_identification.h"
+#ifndef MATTER_HOST_BUILD_UNIX
+#define MATTER_HOST_BUILD_UNIX 0 /* Legacy build: explicit UTC build floor needed for --meter-services. */
+#endif
+#define HOST_METER_SERVICES_COUNT 3
+#define HOST_UNIX_MATTER_EPOCH UINT64_C(946684800)
+#define HOST_NOC_NOT_BEFORE_TAG 4
 
 typedef struct { Matter_T owner; Matter_Mdns_Windows_T mdns; Matter_Discovery_T description; uint8_t index; } Operational;
 
@@ -27,6 +36,8 @@ typedef struct {
     bool switch_enabled,three_phase;
     bool source_enabled; Matter_Cluster_T source;
     Matter_Source_Sim_T* source_sim;
+    bool meter_services,clock_fabrics_seen; Matter_Time_Host_T clock;
+    Matter_Cluster_T utilities[HOST_METER_SERVICES_COUNT]; uint32_t utility_versions[HOST_METER_SERVICES_COUNT],clock_fabric_revision;
     Matter_Cluster_T phase_epm[3],phase_topology[3];
     Matter_Epm_Multi_Sample_T measurements[4];
     Matter_Epm_Measurement_T measurement_config[4];
@@ -81,6 +92,63 @@ static uint8_t energy_trigger(void* u,uint64_t event) {
     printf("ENERGY_TEST event=%016llx status=%u\n",(unsigned long long)event,status); return status;
 }
 static Matter_Result_T multi_sample(void* u,Matter_Epm_Multi_Sample_T* out) { *out=*(Matter_Epm_Multi_Sample_T*)u; return MATTER_OK; }
+static void identify_present(void* u,uint16_t seconds) { (void)u; printf("IDENTIFY seconds=%u presentation=simulation\n",seconds); }
+static Matter_Result_T meter_identity(void* u,Matter_Meter_Id_Snapshot_T* out) {
+    (void)u; *out=(Matter_Meter_Id_Snapshot_T){.type_known=true,.meter_type=2}; /* Generic synthetic meter; delivery unknown. */
+    static const char serial[]="SIM-0001",protocol[]="1.0";
+    out->serial.known=true; out->serial.size=sizeof(serial)-1; memcpy(out->serial.data,serial,sizeof(serial)-1);
+    out->protocol.known=true; out->protocol.size=sizeof(protocol)-1; memcpy(out->protocol.data,protocol,sizeof(protocol)-1); return MATTER_OK;
+}
+static bool certificate_floor(const uint8_t* data,size_t size,uint64_t* floor) {
+    Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T element;
+    if(matter_tlv_init(&reader,data,size,4)!=MATTER_TLV_OK) return false;
+    while(matter_tlv_next(&reader,&element)==MATTER_TLV_OK) {
+        /* Borrowed certificates were already validated by the fabric backend. */
+        if(reader.depth==1 && element.tag.control==1 && element.tag.number==HOST_NOC_NOT_BEFORE_TAG && element.type==MATTER_TLV_UNSIGNED) {
+            if(element.unsigned_value>*floor) *floor=element.unsigned_value;
+            return true;
+        }
+    }
+    return false;
+}
+static bool meter_process(Node* n,uint64_t now) {
+    if(!n->meter_services) return true;
+    const Matter_Fabric_View_T* fabrics=matter_server_fabrics(n->server);
+    if(fabrics && (!n->clock_fabrics_seen || fabrics->revision!=n->clock_fabric_revision)) {
+        uint64_t floor=0;
+        for(unsigned i=0;i<fabrics->count;++i) {
+            const Matter_Fabric_Record_T* f=&fabrics->records[i];
+            if(!certificate_floor(f->noc,f->noc_size,&floor) || !certificate_floor(f->root,f->root_size,&floor) ||
+                (f->icac_size && !certificate_floor(f->icac,f->icac_size,&floor))) return false;
+        }
+        /* Core 3.5.6.1: commissioning updates LKG even if SetUTCTime was omitted. */
+        Matter_Time_Sync_Port_T port=matter_time_host_port(n->clock); Matter_Time_Sync_Sample_T current;
+        if(port.sample(port.user,now,&current)!=MATTER_OK) return false;
+        if(current.granularity && current.utc_us/UINT64_C(1000000)>floor) floor=current.utc_us/UINT64_C(1000000);
+        if(matter_time_host_floor(n->clock,floor)!=MATTER_OK) return false;
+        n->clock_fabric_revision=fabrics->revision; n->clock_fabrics_seen=true;
+    }
+    for(unsigned i=0;i<HOST_METER_SERVICES_COUNT;++i) {
+        Matter_Result_T r=i==1?matter_meter_identification_refresh(n->utilities[i]):matter_cluster_process(n->utilities[i],now);
+        if(r!=MATTER_OK && r!=MATTER_PORT_ERROR) return false;
+        uint32_t version; if(matter_cluster_version(n->utilities[i],&version)!=MATTER_OK) return false;
+        if(version!=n->utility_versions[i]) { n->utility_versions[i]=version; matter_server_changed(n->server); }
+    }
+    return true;
+}
+static bool meter_model(Node* n,const char* state,uint64_t now) {
+    if(MATTER_HOST_BUILD_UNIX<HOST_UNIX_MATTER_EPOCH) { fputs("--meter-services requires a UTC MATTER_HOST_BUILD_UNIX definition (CMake supplies it).\n",stderr); return false; }
+    n->clock=matter_time_host_new(state,MATTER_HOST_BUILD_UNIX-HOST_UNIX_MATTER_EPOCH,now); if(!n->clock) return false;
+    if(matter_server_set_clock(n->server,n->clock,matter_time_host_cert,matter_time_host_timestamp)!=MATTER_OK) return false;
+    uint32_t versions[HOST_METER_SERVICES_COUNT]; if(!matter_host_random(versions,sizeof(versions))) return false;
+    Matter_Identify_Port_T identify={n,identify_present}; Matter_Identify_Config_T config={versions[0],0}; /* No physical presentation on x86. */
+    Matter_Meter_Id_Port_T meter={n,meter_identity}; Matter_Time_Sync_Port_T time=matter_time_host_port(n->clock);
+    n->utilities[0]=matter_identify_new(&identify,&config,now);
+    n->utilities[1]=matter_meter_identification_new(&meter,versions[1]);
+    n->utilities[2]=matter_time_sync_new(&time,n->events,versions[2],now);
+    for(unsigned i=0;i<HOST_METER_SERVICES_COUNT;++i) if(!n->utilities[i] || matter_root_attach_cluster_at(n->root,i==2?0:1,n->utilities[i])!=MATTER_OK) return false;
+    return meter_process(n,now);
+}
 static bool three_phase_model(Node* n,uint64_t now) {
     for(unsigned i=0;i<4;++i) {
         uint32_t versions[3]; if(!matter_host_random(versions,sizeof(versions))) return false;
@@ -117,6 +185,7 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     if(n->switch_enabled) c->configuration_version=2;
     if(n->three_phase) c->configuration_version=n->switch_enabled?4:3;
     if(n->source_enabled) c->configuration_version=n->switch_enabled?6:5;
+    if(n->meter_services) c->configuration_version=7+(n->source_enabled?2:0)+(n->switch_enabled?1:0);
     c->capabilities=(Matter_Root_Capabilities_T)MATTER_HOST_CAPABILITIES;
     c->settings.location[0]='X'; c->settings.location[1]='X'; c->descriptor_version=versions[0]; c->basic_version=versions[1];
     if(credentials) {
@@ -152,6 +221,7 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
         n->source=matter_source_sim_new(n->source_sim,c->vendor_id,versions[6],now);
         if(!n->source || matter_root_attach_cluster_at(n->root,1,n->source)!=MATTER_OK) return false;
     }
+    if(n->meter_services && !meter_model(n,state,now)) return false;
     return n->topology && n->epm && n->events && n->eem &&
         matter_root_attach_cluster_at(n->root,1,n->topology)==MATTER_OK &&
         matter_root_attach_cluster_at(n->root,1,n->epm)==MATTER_OK && matter_root_attach_cluster_at(n->root,1,n->eem)==MATTER_OK;
@@ -262,12 +332,13 @@ int main(int argc,char** argv) {
     unsigned long index=0,seconds=30,port=0,disc=3840,pin=20202021; bool operational=false;
     const char* credentials=NULL; const char* state=NULL; const char* ota_file=NULL; const char* ota_key=NULL; const char* ota_boot=NULL;
     Matter_Case_Resumption_Profile_T resumption_profile=MATTER_CASE_RESUMPTION_CHIP;
-    bool chip_validity=false,test_switch=false,three_phase=false,source_registers=false;
+    bool chip_validity=false,test_switch=false,three_phase=false,source_registers=false,meter_services=false;
     Matter_Diagnostics_Test_Trigger_T trigger={.trigger=energy_trigger}; bool energy_test=false;
     for(int i=1;i<argc;++i) {
         if(!strcmp(argv[i],"--test-event-key")) { if(++i==argc || !test_key(argv[i],trigger.enable_key)) return 2; energy_test=true; continue; }
         if(!strcmp(argv[i],"--three-phase")) { three_phase=true; continue; }
         if(!strcmp(argv[i],"--source-registers")) { source_registers=true; continue; }
+        if(!strcmp(argv[i],"--meter-services")) { meter_services=true; continue; }
         if(!strcmp(argv[i],"--test-switch")) { test_switch=true; continue; }
         if(!strcmp(argv[i],"--certificate-validity")) {
             if(++i==argc) return 2;
@@ -298,10 +369,11 @@ int main(int argc,char** argv) {
         else if(!strcmp(argv[i],"--discriminator")) { target=&disc; max=4095; }
         else if(!strcmp(argv[i],"--pin")) { target=&pin; max=99999998; }
         if(!target || ++i==argc || !number(argv[i],max,target)) {
-            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--three-phase [--source-registers]] [--test-event-key HEX32]\n"); return 2;
+            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"); return 2;
         }
     }
     if(source_registers && !three_phase) { fputs("--source-registers requires --three-phase\n",stderr); return 2; }
+    if(meter_services && (!three_phase || !credentials)) { fputs("--meter-services requires --three-phase and --credentials\n",stderr); return 2; }
     if(energy_test && (!credentials || three_phase)) return 2; /* trigger profile remains the legacy aggregate fixture */
     if(!index || !seconds) { fprintf(stderr,"Select an interface with a preferred link-local IPv6 address; seconds=1..86400.\n"); return 2; }
     if((ota_boot && !ota_key) || (ota_key && !ota_file) || (credentials && (!state || operational || !pin)) || (!credentials && (state || ota_file || ota_key || chip_validity))) return 2;
@@ -309,6 +381,7 @@ int main(int argc,char** argv) {
     Node* n=calloc(1,sizeof(*n)); if(!n) return 1;
     n->switch_enabled=test_switch; n->three_phase=three_phase;
     n->source_enabled=source_registers;
+    n->meter_services=meter_services;
     n->energy_test_enabled=energy_test; trigger.user=n;
     int result=1; bool started=false; uint64_t start=matter_host_now(),now=start;
     if(matter_mdns_windows_interface((uint32_t)index,&n->iface)!=MATTER_OK) { fprintf(stderr,"Interface has no supported IPv6/MAC/multicast binding.\n"); goto done; }
@@ -367,6 +440,7 @@ int main(int argc,char** argv) {
         Matter_Result_T r=matter_udp_windows_poll(n->udp);
         if(r!=MATTER_OK && r!=MATTER_WOULD_BLOCK && r!=MATTER_LIMIT_REACHED && r!=MATTER_INVALID_ARGUMENT) goto done;
         if(n->resolver) (void)matter_resolver_windows_poll(n->resolver,now);
+        if(!matter_server_reset_requested(n->server) && !meter_process(n,now)) { fputs("Meter services process failed\n",stderr); goto done; }
         r=matter_server_process(n->server,now); if(r!=MATTER_OK && r!=MATTER_PENDING) { fprintf(stderr,"Server process failed: %d\n",r); goto done; }
         if(matter_server_ota_reboot_requested(n->server)) { puts("OTA_SIM_REBOOT"); result=0; goto done; }
         if(matter_server_reset_ready(n->server)) { puts("RESET last fabric removed; commissioned state erased, restart for a fresh instance."); result=0; goto done; }
@@ -410,6 +484,8 @@ done:
     if(n->test_switch && matter_cluster_delete(n->test_switch)!=MATTER_OK) result=1;
     if(n->source && matter_cluster_delete(n->source)!=MATTER_OK) result=1;
     free(n->source_sim);
+    for(unsigned i=0;i<HOST_METER_SERVICES_COUNT;++i) if(n->utilities[i] && matter_cluster_delete(n->utilities[i])!=MATTER_OK) result=1;
+    if(matter_time_host_delete(n->clock)!=MATTER_OK) result=1;
     for(unsigned i=0;i<3;++i) {
         if(n->phase_epm[i] && matter_cluster_delete(n->phase_epm[i])!=MATTER_OK) result=1;
         if(n->phase_topology[i] && matter_cluster_delete(n->phase_topology[i])!=MATTER_OK) result=1;

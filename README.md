@@ -84,6 +84,11 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The [development roadmap](doc/roadmap.md) orders CSA acceptance, Google Test Suite
+and manual checks, measured optimization, then downstream firmware integration.
+The opt-in [meter services](doc/meter-services.md) add Identify, Meter Identification
+and a per-instance Time Synchronization server (`--three-phase --meter-services`).
+
 The optional [three-phase profile](doc/three-phase.md) adds tagged aggregate/L1/L2/L3
 endpoints and EEM source-register semantics: run the host with `--three-phase`
 and a separate state file. The default host profile is preserved.

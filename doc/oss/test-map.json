@@ -2349,6 +2349,35 @@
         "tools/matter/tests/chip_tool_three_phase.py"
       ],
       "allocation_variant": "full host Memcheck and separate sanitizers"
+    },
+    {
+      "path": "tools/matter/tests/test_meter_services.c",
+      "kind": "native-test",
+      "ctest": [
+        "test_meter_services",
+        "test_meter_services_alloc"
+      ],
+      "entrypoint": "ctest --test-dir build/cmake -R test_meter_services",
+      "referenced_by": [],
+      "allocation_variant": "paired alloc"
+    },
+    {
+      "path": "tools/matter/tests/test_time_host.c",
+      "kind": "native-test",
+      "ctest": [
+        "test_time_host"
+      ],
+      "entrypoint": "ctest --test-dir build/cmake -R test_time_host",
+      "referenced_by": [],
+      "allocation_variant": "host storage"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_meter_services.py",
+      "kind": "external-controller",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/chip_tool_meter_services.py --help",
+      "referenced_by": [],
+      "allocation_variant": "complete host under separate Memcheck and ASan/UBSan/LSan"
     }
   ],
   "local_only_files": []

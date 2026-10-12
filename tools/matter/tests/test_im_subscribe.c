@@ -85,6 +85,27 @@ static void case_tests(void) {
 #include "test_im_multi_events.h"
 #include "test_im_event_wildcards.h"
 int main(void) {
+    /* MP04 countdown quality: unrelated dirty notifications and heartbeat must
+     * not report a new IdentifyTime until an explicitly reportable version. */
+    {
+        SubModel* m=create(128); m->report_on_version=true; prime(m,true);
+        for(unsigned step=0;step<4;++step) {
+            uint64_t now=2100+(uint64_t)step*2000;
+            m->value=10+step; if(step==2) ++m->version;
+            if(step==3) m->deny=true;
+            CHECK(matter_im_subscribe_changed(m->active)==MATTER_OK);
+            CHECK(matter_im_subscribe_process(m->active,now)==MATTER_PENDING);
+            Matter_Exchange_Info_T e={1,(uint16_t)(13+step),true};
+            CHECK(matter_im_subscribe_bind_report(m->active,&e,now)==MATTER_OK);
+            Matter_Im_Subscribe_Message_T out=output(m,now);
+            if(step<2) literal(out,5,sub_empty,sizeof(sub_empty));
+            else if(step==2) CHECK(out.size==sizeof(sub_report) && out.data[26]==12);
+            else CHECK(out.size>sizeof(sub_empty)); /* Authorization is rechecked, not suppressed. */
+            CHECK(matter_im_subscribe_sent_at(m->active,now)==MATTER_OK && matter_im_subscribe_confirm(m->active,now+1)==MATTER_OK);
+            if(step<3) { receive(m,sub_success,sizeof(sub_success),1,e.exchange_id,false); CHECK(matter_im_subscribe_process(m->active,now+2)==MATTER_PENDING); }
+        }
+        release(m);
+    }
     multi_tests();
     event_wild_tests();
     event_wild_sub_tests();

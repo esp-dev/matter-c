@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 struct Matter_Server {
+    void* clock_user; bool started;
+    Matter_Result_T (*clock_utc)(void*,Matter_Cert_Time_T*);
+    Matter_Result_T (*clock_timestamp)(void*,uint32_t*);
     Matter_Runtime_T runtime; Matter_Crypto_Mbedtls_T backend;
     Matter_Wifi_Sim_T sim; Matter_Store_File_T file,update_file;
     Matter_Ota_Update_T update; Matter_Ota_File_T ota_file;
@@ -18,12 +21,14 @@ struct Matter_Server {
 };
 static void erase(void* p,size_t n) { volatile uint8_t* b=p; while(n--) *b++=0; }
 static Matter_Result_T utc(void* u,Matter_Cert_Time_T* out) {
-    (void)u; struct tm t; if(!matter_host_utc(&t)) return MATTER_OFFLINE;
+    Matter_Server_T s=u; if(s->clock_utc) return s->clock_utc(s->clock_user,out);
+    struct tm t; if(!matter_host_utc(&t)) return MATTER_OFFLINE;
     *out=(Matter_Cert_Time_T){(uint16_t)(t.tm_year+1900),(uint8_t)(t.tm_mon+1),(uint8_t)t.tm_mday,
         (uint8_t)t.tm_hour,(uint8_t)t.tm_min,(uint8_t)t.tm_sec}; return MATTER_OK;
 }
 static Matter_Result_T timestamp(void* u,uint32_t* out) {
-    (void)u; uint64_t seconds,epoch=UINT64_C(946684800);
+    Matter_Server_T s=u; if(s->clock_timestamp) return s->clock_timestamp(s->clock_user,out);
+    uint64_t seconds,epoch=UINT64_C(946684800);
     if(!matter_host_epoch(&seconds) || seconds<epoch || seconds-epoch>UINT32_MAX) return MATTER_PORT_ERROR;
     *out=(uint32_t)(seconds-epoch); return MATTER_OK;
 }
@@ -151,7 +156,15 @@ Matter_Result_T matter_server_set_certificate_validity(Matter_Server_T s,bool ch
 Matter_Result_T matter_server_set_test_trigger(Matter_Server_T s,const Matter_Diagnostics_Test_Trigger_T* p) { return matter_runtime_set_test_trigger(s?s->runtime:NULL,p); }
 Matter_Result_T matter_server_set_resolver(Matter_Server_T s,const Matter_Resolver_Port_T* p) { return matter_runtime_set_resolver(s?s->runtime:NULL,p); }
 Matter_Result_T matter_server_set_outbound(Matter_Server_T s,const Matter_Udp_Path_T* p) { return matter_runtime_set_outbound(s?s->runtime:NULL,p); }
-Matter_Result_T matter_server_start(Matter_Server_T s,Matter_T owner,Matter_Udp_T udp,Matter_Events_T events) { return matter_runtime_start(s?s->runtime:NULL,owner,udp,events); }
+Matter_Result_T matter_server_set_clock(Matter_Server_T s,void* user,Matter_Result_T (*clock_utc)(void*,Matter_Cert_Time_T*),Matter_Result_T (*clock_timestamp)(void*,uint32_t*)) {
+    if(!s || !clock_utc || !clock_timestamp) return MATTER_INVALID_ARGUMENT;
+    if(s->started) return MATTER_INVALID_STATE;
+    s->clock_user=user; s->clock_utc=clock_utc; s->clock_timestamp=clock_timestamp; return MATTER_OK;
+}
+Matter_Result_T matter_server_start(Matter_Server_T s,Matter_T owner,Matter_Udp_T udp,Matter_Events_T events) {
+    if(s) s->started=true;
+    return matter_runtime_start(s?s->runtime:NULL,owner,udp,events);
+}
 void matter_server_received(Matter_Server_T s,const Matter_Udp_Datagram_T* d) { matter_runtime_received(s?s->runtime:NULL,d); }
 void matter_server_sent(Matter_Server_T s,uint64_t id,Matter_Operation_Result_T result) { matter_runtime_sent(s?s->runtime:NULL,id,result); }
 void matter_server_changed(Matter_Server_T s) { matter_runtime_changed(s?s->runtime:NULL); }

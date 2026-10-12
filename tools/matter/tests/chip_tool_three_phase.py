@@ -14,7 +14,7 @@ from chip_tool_resources import Client
 from chip_tool_energy_profile import frames, ids, integer
 
 
-def inventory(text, test_switch=False, source_cluster=None):
+def inventory(text, test_switch=False, source_cluster=None, meter_services=False):
     attrs = {f['path']: f for f in frames(text) if f['kind'] == 'Attribute'}
     endpoints = {0, 1, 3, 4, 5} | ({2} if test_switch else set())
     assert set(ids(attrs[0, 0x1d, 3]['body'], 'PartsList')) == endpoints - {0}
@@ -27,7 +27,7 @@ def inventory(text, test_switch=False, source_cluster=None):
             assert 6 in clusters
         elif ep:
             assert integer(attrs[ep, 0x1d, 0]['body'], 'DeviceType') == 0x510
-            assert set(clusters) == (({0x1d, 0x90, 0x91, 0x9c} | ({source_cluster} if source_cluster else set())) if ep == 1 else {0x1d, 0x90, 0x9c})
+            assert set(clusters) == (({0x1d, 0x90, 0x91, 0x9c} | ({source_cluster} if source_cluster else set()) | ({3, 0xb06} if meter_services else set())) if ep == 1 else {0x1d, 0x90, 0x9c})
             assert integer(attrs[ep, 0x1d, 0xfffc]['body'], 'FeatureMap') == 1
             assert integer(attrs[ep, 0x9c, 0xfffc]['body'], 'FeatureMap') == 2
             assert integer(attrs[ep, 0x90, 0xfffc]['body'], 'FeatureMap') == (6 if ep == 1 else 2)
@@ -40,6 +40,8 @@ def inventory(text, test_switch=False, source_cluster=None):
             accuracy = attrs[ep, 0x90, 2]['body']
             types = [int(x) for x in re.findall(r'^MeasurementType: (\d+)\b', accuracy, re.M)]
             assert set(types) == ({5, 6, 7, 12} if ep == 1 else {1, 5, 6, 9})
+        if meter_services:
+            assert (0x38 in clusters) == (ep == 0)
         for cluster in clusters:
             keys = set(range(6)) | {0xfff8, 0xfff9, 0xfffb, 0xfffc, 0xfffd} if cluster == source_cluster else ids(attrs[ep, cluster, 0xfffb]['body'], 'AttributeList')
             expected.update((ep, cluster, attr) for attr in keys)
@@ -126,7 +128,7 @@ def pair(args, out):
                     'SuppressResponse = true')
             time.sleep(.4)
             data = c.text()[start:]
-            inventory(data, True, 0xfff1fc01 if args.source_registers else None)
+            inventory(data, True, 0xfff1fc01 if args.source_registers else None, args.meter_services)
             if args.source_registers:
                 from chip_tool_meter_source import validate_source
                 validate_source(data)
@@ -139,6 +141,15 @@ def pair(args, out):
         command(a, ['onoff', 'read', 'on-off', 1, 2], r'OnOff: TRUE')
         command(b, ['onoff', 'read', 'on-off', 2, 2], r'OnOff: FALSE')
         passed('independent-application-state')
+        if args.meter_services:
+            command(a, ['identify', 'identify', 60, 1, 1], r'status = 0x00')
+            command(b, ['identify', 'read', 'identify-time', 2, 1], r'IdentifyTime: 0\b')
+            shifted = time.time_ns()//1000 - 946684800000000 + 30000000
+            command(a, ['timesynchronization', 'set-utctime', shifted, 3, 1, 0], r'status = 0x00')
+            data = command(b, ['timesynchronization', 'read', 'utctime', 2, 0], r'UTCTime: (\d+)')
+            assert int(re.search(r'UTCTime: (\d+)', data)[1]) < shifted - 10000000
+            command(a, ['identify', 'read', 'identify-time', 1, 1], r'IdentifyTime: [1-9][0-9]\b')
+            passed('independent-Identify-and-UTC-anchors')
         # Decode through the existing TOO frame parser, not timestamps/prefixes.
         data = command(a, ['operationalcredentials', 'read', 'current-fabric-index', 1, 0], r'CurrentFabricIndex:')
         own = integer(next(f['body'] for f in frames(data) if f['path'] == (0, 0x3e, 5)), 'CurrentFabricIndex')
@@ -154,6 +165,11 @@ def pair(args, out):
         if args.source_registers:
             data = command(b, ['any', 'read-by-id', '0xfff1fc01', '0xffffffff', 2, 1], r'SuppressResponse = true')
             validate_source(data)
+        if args.meter_services:
+            command(b, ['identify', 'identify', 3, 2, 1], r'status = 0x00')
+            command(b, ['identify', 'read', 'identify-time', 2, 1], r'IdentifyTime: [123]\b')
+            command(b, ['timesynchronization', 'read', 'utctime', 2, 0], r'UTCTime: (\d+)')
+            passed('B-meter-services-survive-active-A-Identify-teardown')
         passed('B-subscription-and-phase-read-survive-A-deletion')
         data = command(b, ['operationalcredentials', 'read', 'current-fabric-index', 2, 0], r'CurrentFabricIndex:')
         own = integer(next(f['body'] for f in frames(data) if f['path'] == (0, 0x3e, 5)), 'CurrentFabricIndex')
@@ -173,7 +189,10 @@ def main():
     parser.add_argument('--restart-storage')
     parser.add_argument('--pair-discriminator', type=int, help='Second runtime-pair-host discriminator; enables pair scenario')
     parser.add_argument('--source-registers', action='store_true', help='Pair fixture includes MP03 extension')
+    parser.add_argument('--meter-services', action='store_true', help='Pair fixture includes MP04 services')
     args = parser.parse_args()
+    if args.meter_services and (not args.source_registers or args.pair_discriminator is None):
+        parser.error('--meter-services requires --source-registers and --pair-discriminator')
     out = Path(args.output).resolve()
     out.mkdir(parents=True, exist_ok=False)
     if args.pair_discriminator is not None:

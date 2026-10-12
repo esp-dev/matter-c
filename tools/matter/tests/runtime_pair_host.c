@@ -55,6 +55,8 @@ static bool close_node(Node* n,uint64_t now) {
     if(n->test_switch) REQUIRE(matter_cluster_delete(n->test_switch)==MATTER_OK);
     if(n->source) REQUIRE(matter_cluster_delete(n->source)==MATTER_OK);
     free(n->source_sim); n->source_sim=NULL;
+    for(unsigned i=0;i<HOST_METER_SERVICES_COUNT;++i) if(n->utilities[i]) REQUIRE(matter_cluster_delete(n->utilities[i])==MATTER_OK);
+    REQUIRE(matter_time_host_delete(n->clock)==MATTER_OK); n->clock=NULL;
     for(unsigned i=0;i<3;++i) {
         if(n->phase_epm[i]) REQUIRE(matter_cluster_delete(n->phase_epm[i])==MATTER_OK);
         if(n->phase_topology[i]) REQUIRE(matter_cluster_delete(n->phase_topology[i])==MATTER_OK);
@@ -67,12 +69,13 @@ static bool close_node(Node* n,uint64_t now) {
     printf("PAIR_DELETED port=%u\n",n->port); return true;
 }
 int main(int argc,char** argv) {
-    if(argc!=5 && !(argc==6 && (!strcmp(argv[5],"--three-phase") || !strcmp(argv[5],"--source-registers")))) { fputs("runtime-pair-host IFACE CREDENTIALS STATE_A STATE_B [--three-phase|--source-registers]\n",stderr); return 2; }
+    if(argc!=5 && !(argc==6 && (!strcmp(argv[5],"--three-phase") || (!strcmp(argv[5],"--source-registers") || !strcmp(argv[5],"--meter-services"))))) { fputs("runtime-pair-host IFACE CREDENTIALS STATE_A STATE_B [--three-phase|--source-registers|--meter-services]\n",stderr); return 2; }
     unsigned long index; if(!number(argv[1],UINT32_MAX,&index) || !index || !strcmp(argv[3],argv[4])) return 2;
     setvbuf(stdout,NULL,_IONBF,0); signal(SIGINT,stop_signal); signal(SIGTERM,stop_signal);
     Node* nodes=calloc(2,sizeof(*nodes)); if(!nodes) return 1;
     nodes[0].three_phase=nodes[1].three_phase=argc==6;
-    nodes[0].source_enabled=nodes[1].source_enabled=argc==6 && !strcmp(argv[5],"--source-registers");
+    nodes[0].source_enabled=nodes[1].source_enabled=argc==6 && (!strcmp(argv[5],"--source-registers") || !strcmp(argv[5],"--meter-services"));
+    nodes[0].meter_services=nodes[1].meter_services=argc==6 && !strcmp(argv[5],"--meter-services");
     bool closing[2]={false,false},ok=true; uint64_t start=matter_host_now(),next=start;
     for(unsigned i=0;i<2;++i) if(!open_node(&nodes[i],(unsigned)index,i,argv[2],argv[3+i],start)) { ok=false; closing[0]=closing[1]=true; break; }
     while(nodes[0].owner || nodes[1].owner) {
@@ -83,6 +86,7 @@ int main(int argc,char** argv) {
             if(n->udp) (void)matter_udp_windows_poll(n->udp);
             if(n->resolver) (void)matter_resolver_windows_poll(n->resolver,now);
             if(!closing[i]) {
+                if(!matter_server_reset_requested(n->server) && !meter_process(n,now)) { ok=false; closing[i]=true; }
                 Matter_Result_T r=matter_server_process(n->server,now);
                 if(r!=MATTER_OK && r!=MATTER_PENDING) { ok=false; closing[i]=true; }
                 if(matter_server_reset_ready(n->server)) closing[i]=true;

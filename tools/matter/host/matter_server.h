@@ -29,6 +29,10 @@ Matter_Result_T matter_server_set_resumption(Matter_Server_T,Matter_Case_Resumpt
  * waives only operational certificate validity periods (Core 3.5.6).
  * Signatures/trust/profile checks and attestation time policy are unchanged. */
 Matter_Result_T matter_server_set_certificate_validity(Matter_Server_T,bool chip);
+/* Optional per-instance clock, before start. Borrowed user/callbacks outlive
+ * server deletion; affects credentials and attestation timestamps together. */
+Matter_Result_T matter_server_set_clock(Matter_Server_T,void* user,
+    Matter_Result_T (*utc)(void*,Matter_Cert_Time_T*),Matter_Result_T (*timestamp)(void*,uint32_t*));
 /* Explicit laboratory triggers, before start only; NULL disables. */
 Matter_Result_T matter_server_set_test_trigger(Matter_Server_T,const Matter_Diagnostics_Test_Trigger_T*);
 /* Optional borrowed resolver, configured before start; backend outlives delete. */

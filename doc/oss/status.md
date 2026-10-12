@@ -1,5 +1,12 @@
 # Development status
 
+MP04 implemented: opt-in `--three-phase --meter-services` adds Identify and
+Meter Identification on EP1 and Time Synchronization on EP0. Each instance owns
+its callbacks/clock; the host persists Last Known Good time in an atomic sidecar.
+Focused official CSA tests passed; this is not complete utility-meter support.
+See [MP04 report](mp04-validation.md), [contracts](../meter-services.md) and the
+[ordered acceptance roadmap](../roadmap.md).
+
 MP03 implemented: opt-in `--three-phase --source-registers` adds a configurable
 manufacturer-specific source cluster. It preserves tariff/quadrant/demand
 registers, directional values, metadata and volume channels with explicit
@@ -37,6 +44,6 @@ CSA matrix, certification or a fresh acceptance run of this public snapshot.
 See validation.md for the publication snapshot and mp02-validation.md for the
 subsequent three-phase acceptance; neither is a full-stack certification.
 
-**Next task: MP04 — Identify, Meter Identification and Time Synchronization
-on x86, preparing Meter Reference Point before tariff support.** The four failures above
-remain separate unresolved conformance work, required before certification.
+**Next task: MP05 - Commodity Metering on x86, with explicit source mapping.**
+The four historical failures and the multi-node startup discovery race recorded
+in MP04 remain unresolved acceptance work; neither is waived by these results.

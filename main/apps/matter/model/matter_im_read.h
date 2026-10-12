@@ -45,6 +45,11 @@ typedef struct {
 	 * total copied snapshots <=16384 bytes per transaction. */
 	const uint8_t* data;
 	size_t size;
+    /* Opt-in report policy for continuously changing/countdown attributes.
+     * Read always returns the current value. Subscribe updates suppress this
+     * attribute until its provider marks a reportable change via DataVersion.
+     * Default false preserves existing providers. Authorization still runs. */
+    bool report_on_version_change;
 } Matter_Im_Value_T;
 typedef struct {
 	void* user;

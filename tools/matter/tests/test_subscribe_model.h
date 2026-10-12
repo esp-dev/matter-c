@@ -12,7 +12,7 @@ typedef struct SubModel {
     unsigned reads, auths, reserves, releases;
     uint32_t id, version;
     uint64_t value;
-    bool deny, fabric, read_error, reserve_error, keep;
+    bool deny, fabric, read_error, reserve_error, keep, report_on_version;
     Matter_Tlv_Type_T type;
     uint8_t input[1025];
 } SubModel;
@@ -31,7 +31,7 @@ static Matter_Im_Status_T sub_describe(void* u,const Matter_Im_Path_T* p,Matter_
 }
 static Matter_Im_Status_T sub_read(void* u,const Matter_Im_Path_T* p,bool filtered,Matter_Im_Value_T* v) {
     SubModel* m=u; (void)p; sub_guard(m); SUB_CHECK(filtered); ++m->reads;
-    *v=(Matter_Im_Value_T){.type=m->type,.unsigned_value=m->value,.signed_value=-9,.data_version=m->version};
+    *v=(Matter_Im_Value_T){.type=m->type,.unsigned_value=m->value,.signed_value=-9,.data_version=m->version,.report_on_version_change=m->report_on_version};
     return m->read_error ? MATTER_IM_FAILURE : 0;
 }
 static uint8_t sub_reserve(void* u,Matter_Exchange_Session_T session,bool keep,uint32_t* id) {

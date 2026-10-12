@@ -817,5 +817,36 @@
       "main/apps/matter/clusters/matter_meter_source.c",
       "main/apps/matter/model/matter_cluster.c"
     ]
+  },
+  {
+    "name": "test_meter_services",
+    "source": "tools/matter/tests/test_meter_services.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc"
+  },
+  {
+    "name": "test_meter_services_alloc",
+    "source": "tools/matter/tests/test_meter_services.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "malloc": false,
+    "replace": [
+      "main/apps/matter/clusters/matter_identify.c",
+      "main/apps/matter/clusters/matter_meter_identification.c",
+      "main/apps/matter/clusters/matter_time_sync.c",
+      "main/apps/matter/model/matter_cluster.c"
+    ]
+  },
+  {
+    "name": "test_time_host",
+    "source": "tools/matter/tests/test_time_host.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc"
   }
 ]

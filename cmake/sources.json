@@ -56,7 +56,10 @@
     "transport/matter_retransmission_sender",
     "transport/matter_counter",
     "transport/matter_reception",
-    "clusters/matter_meter_source"
+    "clusters/matter_meter_source",
+    "clusters/matter_identify",
+    "clusters/matter_meter_identification",
+    "clusters/matter_time_sync"
   ],
   "host_linux": [
     "matter_udp_linux",
@@ -67,7 +70,8 @@
     "matter_ota_file",
     "matter_switch_sim",
     "matter_energy_sim",
-    "matter_source_sim"
+    "matter_source_sim",
+    "matter_time_host"
   ],
   "host_windows": [
     "matter_udp_windows",
@@ -78,7 +82,8 @@
     "matter_ota_file",
     "matter_switch_sim",
     "matter_energy_sim",
-    "matter_source_sim"
+    "matter_source_sim",
+    "matter_time_host"
   ],
   "mbedtls": [
     "aes",
@@ -192,7 +197,10 @@
     "runtime/matter_opcreds_host.h",
     "runtime/matter_runtime.h",
     "runtime/matter_store_host.h",
-    "clusters/matter_meter_source.h"
+    "clusters/matter_meter_source.h",
+    "clusters/matter_identify.h",
+    "clusters/matter_meter_identification.h",
+    "clusters/matter_time_sync.h"
   ],
   "private_headers": [
     "clusters/matter_root_internal.h",
@@ -203,7 +211,8 @@
     "session/matter_case_resumption.h",
     "session/matter_secure_internal.h",
     "runtime/matter_store_internal.h",
-    "runtime/matter_fabric_resumption_internal.h"
+    "runtime/matter_fabric_resumption_internal.h",
+    "clusters/matter_utility_internal.h"
   ],
   "runtime": [
     "runtime/matter_dispatch",
