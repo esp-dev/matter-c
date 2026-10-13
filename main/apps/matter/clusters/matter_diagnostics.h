@@ -15,6 +15,7 @@ typedef struct {
     uint64_t system_ms,posix_ms; bool posix_valid;
     uint32_t operational_hours,total_subscriptions,im_sent,im_received;
     Matter_Diagnostics_Subscriptions_T subscriptions[5];
+    uint16_t unfabric_subscriptions; /* Active PASE subscriptions: total only, never an accessing fabric. */
 } Matter_Diagnostics_General_T;
 typedef struct {
     uint64_t max_rate,overruns;

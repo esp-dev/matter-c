@@ -848,5 +848,14 @@
     "platform": "all",
     "privileged": false,
     "variant": "libc"
+  },
+  {
+    "name": "test_node_discovery",
+    "source": "tools/matter/tests/test_node_discovery.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
   }
 ]

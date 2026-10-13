@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "c39daadaaad68c36505287c773bcc2515aeaaea10de3819375c8d15576e14fb9",
+  "previous": "csa07-results.json",
+  "previous_sha256": "dc6bdcd7caa04aa4c8cb779ba4d9fd37fa0fe7aa75791a93a575ab7e94115b24",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "General Diagnostics TimeSnapshot and DeviceLoadStatus: unchanged official TC_DGGEN_2_4/2_5, both reproduced before repair and passed afterwards. Unselected rows retain their previous results.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 83,
+    "FAIL": 22
+  },
+  "baseline_dut_sha256": "091cd7434c723e32a7dd044b9ce24788b9b8f2240a1cb37f2fe8a80813cd5e12",
+  "final_dut_sha256": "3326b48499cddde0dbc992d52e389ff975ff7ecfc155e70ec016dfc597937609",
+  "source_manifest_sha256": "5cbb7890a44eed971c27709c5e991a5d1e0f5b1fcb6c25833fb19f62c4ed7d5c",
+  "attempts": [
+    {
+      "case": "TC_DGGEN_2_4",
+      "endpoint": 0,
+      "run_id": 305,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 2,
+        "failed": 1
+      },
+      "evidence_sha256": "fb032364ed7034d4bb5bb37532477117cc90307b84b033676e45190fa27f417c",
+      "official_log_sha256": "4c5f015b6a37e456259035548e7383ce7ef85d9f99a25182f6c3138f73986d4f",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "c4e4e7bcd0b5aa7555b22f6bb2343a31abac95c59ac4f7d03d40c104ffd50c06"
+    },
+    {
+      "case": "TC_DGGEN_2_5",
+      "endpoint": 0,
+      "run_id": 306,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 9,
+        "failed": 1,
+        "pending": 1
+      },
+      "evidence_sha256": "2772edb9932dee737d4e80e6c3661f67b3cb99577cb2d672f91ba0f15c7e3e09",
+      "official_log_sha256": "1ef4fb0c0305fa0f0049953c920e2c6c8a2cb6a817505980c8a07b05f08c50a3",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "929fe4b4efc82b15de9e7adcccd36fe732888409c2636328884afdaa13653ef7"
+    },
+    {
+      "case": "TC_DGGEN_2_4",
+      "endpoint": 0,
+      "run_id": 307,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 3
+      },
+      "evidence_sha256": "d7b4228673daed1739a8a8a9f9c2778fa1fe3dfb4d67d3b024344ee144782f4b",
+      "official_log_sha256": "72bf935c8d5cb064c827b8747dff9fc1305d4663514318aafbb6f1cb4743de52",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "c4e4e7bcd0b5aa7555b22f6bb2343a31abac95c59ac4f7d03d40c104ffd50c06"
+    },
+    {
+      "case": "TC_DGGEN_2_5",
+      "endpoint": 0,
+      "run_id": 308,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 11
+      },
+      "evidence_sha256": "f84dfcec12b807b94ac4905d155a510d15340cb765f00a92d35473c41c1c6a1c",
+      "official_log_sha256": "68417735d3435101b35c98c5d3b489de2fdaf7276fa131350eddf04497709fa1",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "929fe4b4efc82b15de9e7adcccd36fe732888409c2636328884afdaa13653ef7"
+    }
+  ]
+}

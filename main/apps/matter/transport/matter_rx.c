@@ -21,6 +21,7 @@ struct Matter_Rx {
 	Matter_Rx_Input_T input;
 	Matter_Rx_Decision_T decision;
 	uint64_t received, now;
+	uint32_t im_received;
 	enum State state;
 	bool queued, ack_processed, busy;
 	uint8_t bytes[MATTER_RX_MAX_PLAINTEXT];
@@ -222,11 +223,17 @@ Matter_Result_T matter_rx_receive(Matter_Rx_T rx, const Matter_Rx_Input_T* input
 		rx->received = received_ms;
 		rx->queued = true;
 		rx->ack_processed = false;
+		/* Count admitted IM messages once, even if later rejected by an
+		 * exchange/handler. Authentication and replay classification precede RX. */
+		if (!input->duplicate && !rx->decision.header.vendor_id && rx->decision.header.protocol_id == 1 && rx->im_received < UINT32_MAX)
+			++rx->im_received;
 	}
 	rx->decision = (Matter_Rx_Decision_T){0}; /* Never retain the caller's bytes. */
 	rx->busy = false;
 	return result;
 }
+
+uint32_t matter_rx_im_received(Matter_Rx_T rx) { return rx ? rx->im_received : 0; }
 
 Matter_Result_T matter_rx_retire_session(Matter_Rx_T rx, Matter_Exchange_Session_T session) {
 	Matter_Result_T result = ready(rx);

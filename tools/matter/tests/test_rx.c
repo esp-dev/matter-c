@@ -201,6 +201,29 @@ static void packet(Fixture* f, uint8_t flags, uint16_t protocol, uint32_t counte
     f->input = (Matter_Rx_Input_T){1, counter, duplicate, f->wire, header + 1};
 }
 
+static bool im_counts(void) {
+    bool ok=false; Fixture* f=create(true); Fixture* other=create(true);
+    CHECK(f && other && !matter_rx_im_received(NULL));
+    packet(f,1,1,1,false);
+    CHECK(matter_rx_receive(f->rx,&f->input,0)==MATTER_OK && matter_rx_im_received(f->rx)==1);
+    CHECK(matter_rx_receive(f->rx,&f->input,0)==MATTER_WOULD_BLOCK && matter_rx_im_received(f->rx)==1);
+    CHECK(matter_rx_process(f->rx,0)==MATTER_OK);
+    packet(f,1,1,1,true);
+    CHECK(matter_rx_receive(f->rx,&f->input,0)==MATTER_OK && matter_rx_im_received(f->rx)==1);
+    CHECK(matter_rx_process(f->rx,0)==MATTER_OK);
+    packet(f,1,0,2,false); /* Secure Channel, not IM. */
+    CHECK(matter_rx_receive(f->rx,&f->input,0)==MATTER_OK && matter_rx_im_received(f->rx)==1);
+    CHECK(matter_rx_process(f->rx,0)==MATTER_OK);
+    packet(f,0,1,3,false); f->wire[2]=0x78; /* Unknown responder exchange still counts. */
+    CHECK(matter_rx_receive(f->rx,&f->input,0)==MATTER_OK && matter_rx_im_received(f->rx)==2);
+    CHECK(matter_rx_process(f->rx,0)==MATTER_OK);
+    packet(f,1,1,4,false); f->input.size=2; /* Malformed header. */
+    CHECK(matter_rx_receive(f->rx,&f->input,0)!=MATTER_OK && matter_rx_im_received(f->rx)==2);
+    packet(f,1,1,4,false); f->retention=MATTER_OFFLINE;
+    CHECK(matter_rx_receive(f->rx,&f->input,0)==MATTER_OFFLINE && matter_rx_im_received(f->rx)==2);
+    CHECK(!matter_rx_im_received(other->rx)); ok=true;
+done: cleanup(f); cleanup(other); return ok;
+}
 static bool owned_retry(void) {
     bool ok = false;
     Fixture* f = create(true);
@@ -520,7 +543,7 @@ done: fail_at = 0; cleanup(f); return ok && !live;
 int main(void) {
     unsigned passed = 0;
 #define RUN(t) do { if (!(t)()) return 1; ++passed; } while (0)
-    RUN(owned_retry); RUN(ephemeral_roles); RUN(ephemeral_contention); RUN(closing_control); RUN(deferred_close_and_registry);
+    RUN(im_counts); RUN(owned_retry); RUN(ephemeral_roles); RUN(ephemeral_contention); RUN(closing_control); RUN(deferred_close_and_registry);
     RUN(boundaries_and_errors); RUN(isolation_and_capacity); RUN(terminal_session);
 #ifdef MATTER_TEST_ALLOC
     RUN(allocation);

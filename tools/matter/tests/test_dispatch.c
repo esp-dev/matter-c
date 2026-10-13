@@ -31,6 +31,37 @@ static bool fabric_live(void* u,uint8_t index) { (void)index; return !*(bool*)u;
 static uint64_t rotated(void* u,uint8_t index,Matter_Exchange_Session_T* invoker) {
     (void)u; *invoker=100; return index==1?2:1;
 }
+static void diagnostic_counts(Matter_Dispatch_T d) {
+    Matter_Dispatch_Load_T load=matter_dispatch_load(d,0); CHECK(!load.sent && !load.established && !load.current);
+    d->connections[0]=(Connection){.token=100,.operational=true,.fabric_index=1};
+    d->connections[1]=(Connection){.token=101,.operational=true,.fabric_index=2};
+    d->connections[2]=(Connection){.token=102}; /* PASE has no accessing fabric. */
+    for(unsigned i=0;i<3;++i) {
+        Transaction* t=&d->transactions[i];
+        *t=(Transaction){.owner=d,.handle=i+1,.key={100+i,1,false},.fabric_index=i<2?i+1:0,
+            .subscription_id=i+1,.im_packet=true,.sub_response=true};
+        CHECK(!matter_dispatch_load(d,1).current); /* Reservations are not subscriptions. */
+        /* Only mark these established after all reservations have been made. */
+    }
+    for(unsigned i=0;i<3;++i) {
+        Transaction* t=&d->transactions[i];
+        count_sent(d,t,MATTER_OPERATION_FAILED); CHECK(!t->sub_established);
+        count_sent(d,t,MATTER_OPERATION_SUCCEEDED); count_sent(d,t,MATTER_OPERATION_SUCCEEDED); /* MRP retry. */
+    }
+    load=matter_dispatch_load(d,1); CHECK(load.sent==3 && load.established==3 && load.current==3 && load.current_for_fabric==1);
+    CHECK(matter_dispatch_load(d,2).current_for_fabric==1 && !matter_dispatch_load(d,0).current_for_fabric);
+    d->transactions[0].closing=true; CHECK(matter_dispatch_load(d,1).current==2);
+    unreserve(&d->transactions[1],2); CHECK(matter_dispatch_load(d,2).current==1 && matter_dispatch_load(d,2).established==3);
+    d->connections[2].retiring=true; CHECK(!matter_dispatch_load(d,0).current);
+    Transaction* t=&d->transactions[0];
+    t->closing=false; t->im_counted=false; t->im_packet=false;
+    count_sent(d,t,MATTER_OPERATION_SUCCEEDED); CHECK(d->im_sent==3); /* CASE/BDX/ACK. */
+    d->im_sent=d->subscriptions_established=UINT32_MAX; t->im_packet=true; t->sub_established=false;
+    count_sent(d,t,MATTER_OPERATION_SUCCEEDED); CHECK(d->im_sent==UINT32_MAX && d->subscriptions_established==UINT32_MAX);
+    memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,sizeof(d->transactions));
+    d->im_sent=d->subscriptions_established=0;
+    puts("PASS diagnostic load: local completion, retries/failures, reservations, fabric/PASE scope, cancellation and saturation");
+}
 static void rotation(Matter_Dispatch_T d) {
     d->config.credential_revision=rotated;
     for(unsigned outcome=0;outcome<3;++outcome) {
@@ -606,7 +637,7 @@ int main(void) {
         d->connections[0].operational=false; reset=true; reconcile(d);
         CHECK(d->connections[0].retiring && d->connections[1].retiring); reset=false;
         memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,sizeof(d->transactions)); d->ack_waiting=false;
-        rotation(d);
+        diagnostic_counts(d); rotation(d);
         removal(d);
         expiry_retirement(d);
         outgoing_cancel_tests(d,&bind);

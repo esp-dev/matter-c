@@ -289,7 +289,7 @@ static uint8_t general_10(void* u,const void* ref,const Matter_Cluster_Request_T
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
     Matter_Tlv_Writer_T* w=&m->writer;
     if(matter_tlv_writer_init(w,m->encoded,sizeof(m->encoded),4)!=MATTER_TLV_OK || !P(MATTER_TLV_STRUCTURE,-1,0)) return MATTER_IM_FAILURE;
-    uint32_t all=0,own=0;
+    uint32_t all=g->unfabric_subscriptions,own=0;
     for(unsigned i=0;i<5;++i) { all+=g->subscriptions[i].current; if(q->fabric && g->subscriptions[i].index==q->fabric) own=g->subscriptions[i].current; }
     if(!U(0,all>65535?65535:all) || !U(1,own) || !U(2,g->total_subscriptions) || !U(3,g->im_sent) || !U(4,g->im_received)) return MATTER_IM_FAILURE;
     if(!END() || matter_tlv_writer_finish(w,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;

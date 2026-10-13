@@ -91,6 +91,104 @@ static void write_identity(Fixture* f) {
 static Matter_Result_T event_load(void* u,uint64_t* n) { *n=((Fixture*)u)->high; return MATTER_OK; }
 static Matter_Result_T event_store(void* u,uint64_t n) { Fixture* f=u; if(f->fail_reserve) return MATTER_PORT_ERROR; f->high=n; return MATTER_OK; }
 static uint64_t event_now(void* u) { (void)u; return 123; }
+static Matter_Im_Write_Result_T event_write(void* u,const Matter_Im_Path_T* p,Matter_Im_List_Change_T c,const uint8_t* d,size_t n) {
+    Fixture* f=u; A(p->endpoint==0 && p->cluster==0x1f && p->attribute==0);
+    Matter_Cluster_Request_T q={.fabric=f->index,.is_case=true,.peer_node=101};
+    return matter_cluster_write_list(f->acl,0,&q,c,d,n);
+}
+static void invalid_entries(void) {
+    Fixture* f=calloc(1,sizeof(*f)); A(f); f->index=1;
+    f->view.fabrics[0].index=1; f->view.fabrics[1].index=2;
+    Matter_Acl_Port_T ap={f,view,store}; f->acl=matter_acl_new(&ap); A(f->acl);
+    Matter_Events_Port_T lp={f,event_load,event_store}; f->log=matter_events_new(&lp); A(f->log);
+    Matter_Acl_Events_Port_T ep={f->log,f,event_now}; A(!matter_acl_bind_events(f->acl,&ep));
+    Matter_Cluster_Request_T q={.fabric=1,.is_case=true,.peer_node=101};
+    AclWire* w=&f->wire; aw_list(w,false);
+    A(!matter_acl_write(f->acl,1,MATTER_IM_LIST_REPLACE,w->data,w->size));
+    A(!matter_acl_write(f->acl,2,MATTER_IM_LIST_REPLACE,w->data,w->size));
+    /* Core 9.10.5.2/7.3.8: Proxy View is D, not an assignable privilege.
+     * Core 9.10.5.7: PASE entries, Group Administer, zero/oversized subjects
+     * and malformed CASE/CAT subjects must not mutate storage or emit events. */
+    static const struct { uint64_t subject; unsigned privilege,mode; } bad[]={
+        {101,0,2},{101,2,2},{101,6,2},{101,255,2},{101,256,2},
+        {1,1,0},{1,1,1},{1,1,4},{1,5,3},{0,3,3},{0x10000,3,3},
+        {UINT64_C(0x100000001),3,3},{0,1,2},{UINT64_C(0xfffffff000000000),1,2},
+        {UINT64_C(0xfffffffd00010000),1,2},{UINT64_C(0xfffffffd00000001),1,2}
+    };
+    unsigned stores=f->stores; uint32_t version=f->view.version;
+    for(size_t i=0;i<sizeof(bad)/sizeof(*bad);++i) for(unsigned replace=0;replace<2;++replace) {
+        w->size=0;
+        if(replace) { aw_open(w,0x16,-1); aw_entry(w,101,5,0); }
+        aw_entry_ex(w,bad[i].subject,bad[i].privilege,bad[i].mode,1,0,0);
+        if(replace) aw_byte(w,0x18);
+        Matter_Im_List_Change_T change=replace?MATTER_IM_LIST_REPLACE:MATTER_IM_LIST_ADD;
+        A(matter_acl_validate(f->acl,1,change,w->data,w->size)==MATTER_IM_CONSTRAINT_ERROR);
+        A(matter_cluster_write_list(f->acl,0,&q,change,w->data,w->size).status==MATTER_IM_CONSTRAINT_ERROR);
+        uint64_t position; A(!matter_events_position(f->log,&position) && !position);
+        A(f->stores==stores && f->view.version==version && f->view.fabrics[0].count==1);
+        A(f->view.fabrics[1].count==1 && f->view.fabrics[1].entries[0].subjects[0]==101);
+        A(matter_acl_authorize(f->acl,1,101,NULL,0,NULL,MATTER_IM_ADMINISTER,NULL));
+    }
+    A(matter_acl_delete(f->acl)==MATTER_OK && matter_events_delete(f->log)==MATTER_OK); free(f);
+}
+static void invalid_group_write(void) {
+    for(unsigned legacy=0;legacy<2;++legacy) {
+        Fixture* f=calloc(1,sizeof(*f)); A(f); f->index=1;
+        f->view.fabrics[0].index=1; f->view.fabrics[1].index=2;
+        Matter_Acl_Port_T ap={f,view,store}; f->acl=matter_acl_new(&ap); A(f->acl);
+        Matter_Events_Port_T lp={f,event_load,event_store}; f->log=matter_events_new(&lp); A(f->log);
+        Matter_Acl_Events_Port_T ep={f->log,f,event_now}; A(!matter_acl_bind_events(f->acl,&ep));
+        AclWire* w=&f->wire; aw_list(w,false);
+        A(!matter_acl_write(f->acl,1,MATTER_IM_LIST_REPLACE,w->data,w->size));
+        A(!matter_acl_write(f->acl,2,MATTER_IM_LIST_REPLACE,w->data,w->size));
+        AclWire* request=calloc(1,sizeof(*request)); A(request);
+        /* Literal WriteRequests: REPLACE(admin, invalid), or legacy
+         * REPLACE([]), ADD(admin), ADD(group 0). All IBs share one message. */
+        static const uint8_t head[]={0x15,0x28,1,0x36,2},tail[]={0x18,0x24,255,13,0x18};
+        memcpy(request->request,head,sizeof(head)); size_t n=sizeof(head);
+        unsigned blocks=legacy?3:1;
+        for(unsigned i=0;i<blocks;++i) {
+            w->size=0;
+            if(!legacy) { aw_open(w,0x16,-1); aw_entry(w,101,5,0); aw_entry_ex(w,0,3,3,1,0,0); aw_byte(w,0x18); }
+            else if(!i) { aw_open(w,0x16,-1); aw_byte(w,0x18); }
+            else if(i==1) aw_entry(w,101,5,0);
+            else aw_entry_ex(w,0,3,3,1,0,0);
+            aw_request(w,legacy && i,false,-1);
+            size_t ib=w->request_size-sizeof(head)-sizeof(tail);
+            A(n+ib+sizeof(tail)<=sizeof(request->request));
+            memcpy(request->request+n,w->request+sizeof(head),ib); n+=ib;
+        }
+        memcpy(request->request+n,tail,sizeof(tail)); n+=sizeof(tail);
+        Matter_Im_Write_Port_T p={f,real_access,wd,wv,ws,wx,wl,event_write};
+        Matter_Im_Read_Fabric_Port_T resolver={write_index}; Matter_Im_Write_Config_T config={{42,10,false},1000,256,false};
+        Matter_Im_Write_T h=matter_im_write_new_case(&p,&resolver,&config,0); A(h);
+        Matter_Rx_Decision_T d={.session=42,.action=MATTER_RX_NEW_RESPONDER,
+            .header={.exchange_id=10,.protocol_id=1,.opcode=6,.exchange_flags=MATTER_PROTOCOL_INITIATOR},.payload=request->request,.payload_size=n};
+        unsigned before=f->stores; uint32_t version=f->view.version;
+        A(!matter_im_write_receive_at(h,&d,0) && matter_im_write_process(h,0)==MATTER_PENDING);
+        Matter_Im_Write_Message_T out; A(!matter_im_write_output(h,&out) && out.opcode==7);
+        Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T token; A(!matter_tlv_init(&reader,out.data,out.size,8));
+        unsigned depth=0,statuses=0; Matter_Tlv_Result_T r;
+        while((r=matter_tlv_next(&reader,&token))==MATTER_TLV_OK) {
+            if(token.type==MATTER_TLV_END) { A(depth); --depth; continue; }
+            if(depth==4 && token.type==MATTER_TLV_UNSIGNED && token.tag.control==1 && !token.tag.number) {
+                A(statuses<blocks && token.unsigned_value==(statuses==blocks-1?MATTER_IM_CONSTRAINT_ERROR:0)); ++statuses;
+            }
+            if(token.type==MATTER_TLV_ARRAY || token.type==MATTER_TLV_STRUCTURE || token.type==MATTER_TLV_LIST) ++depth;
+        }
+        A(r==MATTER_TLV_DONE && !depth && statuses==blocks);
+        A(f->stores==before+(legacy?2u:0u) && f->view.version==version+(legacy?2u:0u));
+        A(f->view.fabrics[0].count==1 && f->view.fabrics[0].entries[0].subjects[0]==101);
+        A(f->view.fabrics[1].count==1 && f->view.fabrics[1].entries[0].subjects[0]==101);
+        Matter_Event_Path_T path={0,0x1f,0}; size_t count;
+        A(!matter_events_copy_fabric(f->log,&path,0,1,true,f->records,&count) && count==(legacy?2u:0u));
+        if(legacy) A(f->records[0].data[8]==2 && f->records[1].data[8]==1); /* Only admin Removed/Added. */
+        A(matter_acl_authorize(f->acl,1,101,NULL,0,NULL,MATTER_IM_ADMINISTER,NULL));
+        A(!matter_im_write_delete(h) && !matter_acl_delete(f->acl) && !matter_events_delete(f->log));
+        free(request); free(f);
+    }
+    puts("PASS ACL invalid writes: modern [ConstraintError], legacy [Success, Success, ConstraintError], no invalid state/events, fabric isolation");
+}
 static void target_ids(void) {
     Fixture* f=calloc(1,sizeof(*f)); A(f); f->view.fabrics[0].index=1;
     Matter_Acl_Port_T p={f,view,store}; f->acl=matter_acl_new(&p); A(f->acl);
@@ -244,7 +342,7 @@ int main(void) {
     A(f->view.fabrics[1].count==4);
     write_identity(f);
     A(matter_acl_delete(f->acl)==MATTER_OK); free(f);
-    acl_events(); target_ids(); legacy_acl();
+    acl_events(); target_ids(); legacy_acl(); invalid_entries(); invalid_group_write();
 #ifdef MATTER_TEST_ALLOC
     A(!live);
 #endif

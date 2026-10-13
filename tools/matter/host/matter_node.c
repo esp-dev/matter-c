@@ -49,6 +49,7 @@ typedef struct {
     /* RAM cache; commissioned mode commits through the server store. */
     Matter_Eem_Checkpoint_T checkpoint; int64_t raw_base[2]; uint64_t high,rx_packets;
     Matter_Server_T server; Operational operational[5]; uint16_t port,discriminator,advertised_discriminator; uint8_t random[8],cm_mode;
+    uint8_t observed_cm_mode; bool discovery_stopping,discovery_rotate;
 } Node;
 static volatile sig_atomic_t interrupted;
 static void stop_signal(int sig) { (void)sig; interrupted=1; }
@@ -276,18 +277,31 @@ static bool sample(Node* n,uint64_t now,uint64_t seconds) {
 static bool advertisements(Node* n,uint64_t now,bool stopping) {
     uint16_t discriminator=n->discriminator;
     uint8_t mode=matter_server_commissioning_mode(n->server,&discriminator);
-    if(!stopping && n->server && (n->cm_mode!=mode || n->advertised_discriminator!=discriminator)) {
+    if(!stopping && n->server) {
+        /* Observe the requested window independently of the record still being
+         * withdrawn. Core 4.3.1 requires a fresh instance on each entry into
+         * commissioning, even when the discriminator is reused. */
+        if(mode && !n->observed_cm_mode) n->discovery_rotate=true;
+        n->observed_cm_mode=mode;
+    }
+    if(!stopping && n->server && (n->discovery_stopping || n->cm_mode!=mode || n->advertised_discriminator!=discriminator)) {
+        /* Once removal starts it must drain, including close/reopen transitions
+         * which return to the old mode/discriminator before goodbye completes. */
+        n->discovery_stopping=true;
         if(n->mdns) {
             (void)matter_mdns_stop(matter_mdns_windows_module(n->mdns));
             (void)matter_mdns_process(matter_mdns_windows_module(n->mdns)); (void)matter_mdns_windows_poll(n->mdns,now);
             if(matter_mdns_windows_delete(n->mdns)!=MATTER_OK) return true;
             n->mdns=NULL; matter_discovery_delete(n->discovery); n->discovery=NULL;
         }
+        if(n->discovery_rotate && !matter_host_random(n->random,sizeof(n->random))) return false;
+        n->discovery_rotate=false;
         n->cm_mode=mode; n->advertised_discriminator=discriminator;
         n->discovery=matter_discovery_commissionable(n->iface.mac,n->random,discriminator,mode,n->port);
         if(!n->discovery) return false;
         n->mdns=matter_mdns_windows_new(n->owner,&n->iface,matter_discovery_record(n->discovery));
         if(!n->mdns || matter_mdns_start(matter_mdns_windows_module(n->mdns))!=MATTER_OK) return false;
+        n->discovery_stopping=false;
     }
     const Matter_Fabric_View_T* view=matter_server_fabrics(n->server);
     for(unsigned i=0;i<5;++i) {
@@ -421,6 +435,7 @@ int main(int argc,char** argv) {
         if(matter_server_set_outbound(n->server,&outbound)!=MATTER_OK) goto done;
         if(matter_server_start(n->server,n->owner,matter_udp_windows_module(n->udp),n->events)!=MATTER_OK) goto done;
         n->advertised_discriminator=(uint16_t)disc; n->cm_mode=matter_server_commissioning_mode(n->server,&n->advertised_discriminator);
+        n->observed_cm_mode=n->cm_mode; /* Boot already selected the initial instance. */
         matter_discovery_delete(n->discovery);
         n->discovery=matter_discovery_commissionable(n->iface.mac,n->random,n->advertised_discriminator,n->cm_mode,bind.port);
         if(!n->discovery) goto done;

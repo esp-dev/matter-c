@@ -1,5 +1,45 @@
 # Development status
 
+CSA08 fixes General Diagnostics at the runtime boundary: TimeSnapshot now uses
+the attached Time Synchronization UTC, and DeviceLoadStatus reflects actual IM
+traffic and established subscriptions. Both unchanged official cases fail on
+the previous binary and pass after repair: **TC_DGGEN_2_4 and TC_DGGEN_2_5,
+2/2 PASS**. Latest matrix: **83 PASS, 22 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**;
+unselected rows are inherited. Six focused native tests pass normally and with
+ASan/UBSan/LSan. Full two-instance Memcheck reports zero errors/leaks; the separate
+sanitizer scenario also passes. See [CSA08 evidence](csa08-validation.md) and
+[all attempts](csa08-results.json).
+**Next: CSA09, invalid CASE input (TC_SC_3_4).**
+
+CSA07 fixes a reproduced host discovery race: closing and reopening the same
+commissioning window before asynchronous withdrawal completed could leave mDNS
+stopped. The host now drains the transition and selects a fresh DNS-SD instance
+per new window, as required by Core 1.6.1 section 4.3.1. Real CASE command/capture
+reproduction fails before the fix and passes after it; the new native lifecycle
+regression agrees. Final official results: **4/4 PASS** (three TC_ACL_2_8 runs
+and TC_CADMIN_1_25). Nine old-binary official repetitions also passed, so the
+specific cause of historical run 289 remains unproven. Latest matrix unchanged:
+**81 PASS, 24 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**. Six focused tests pass
+normally and with sanitizers; full two-instance Memcheck and separate
+ASan/UBSan/LSan scenarios pass. See [CSA07 evidence](csa07-validation.md) and
+[all attempts](csa07-results.json).
+CSA08 above records the subsequent General Diagnostics repair and rechecks.
+
+CSA06 reruns all four applicable Access Control cases. Latest results: **2 PASS,
+2 FAIL**. TC_ACL_2_4 expects ProxyView despite its D conformance in Core 1.6.1;
+TC_ACL_2_6 checks only the first status of a legacy clear/add/add write, whose
+actual response is Success/Success/ConstraintError. Both remain FAIL pending
+explicit CSA resolution. No production behavior was changed. Negative write
+regressions verify rejection without invalid storage/events and fabric isolation.
+TC_ACL_2_8 first timed out in discovery, then passed unchanged; its intermittent
+failure remains open. The latest-status matrix stays **81 PASS, 24 FAIL,
+21 BLOCKED, 32 MANUAL, 704 NA**, with unselected results inherited.
+Six focused tests pass normally and separately with sanitizers; full two-instance
+Memcheck and separate ASan/UBSan/LSan scenarios pass. See
+[CSA06 evidence and limitations](csa06-validation.md) and
+[all attempts](csa06-results.json).
+CSA07 above records the subsequent discovery investigation and bounded fix.
+
 CSA05 passes **3/3 official rechecks**: TC_IDM_2_2, TC_IDM_4_2 and TC_IDM_4_3,
 with no skipped steps. Shared Read/Subscribe validation rejects a specific
 non-global attribute without a concrete cluster before callbacks or subscription
@@ -10,7 +50,7 @@ Six focused tests pass normally and separately with ASan/UBSan/LSan. Full
 two-instance scenarios pass under Memcheck (zero errors/leaks) and separately
 with sanitizers. See
 [CSA05 evidence](csa05-validation.md) and [all attempts](csa05-results.json).
-**Next: CSA06, Access Control validation (TC_ACL_2_4 and TC_ACL_2_6).**
+CSA06 above records the subsequent Access Control validation.
 
 CSA04 passes **5/5 official rechecks**, including the previously failing
 TC_IDM_4_3 and TC_CADMIN_1_25. Root no longer repeats unchanged values on meter

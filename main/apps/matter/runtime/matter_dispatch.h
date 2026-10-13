@@ -21,6 +21,15 @@
  * including other sessions; PASE remains scoped to its opaque session token. */
 typedef struct Matter_Dispatch* Matter_Dispatch_T;
 typedef struct {
+    uint32_t sent,received,established;
+    uint16_t current,current_for_fabric;
+} Matter_Dispatch_Load_T;
+/* Owner-thread snapshot, no allocation. Active subscriptions exclude pending
+ * reservations and closing handlers. Fabric zero has no accessing fabric.
+ * Successful local IM sends exclude MRP retries; all counters saturate.
+ * NULL dispatcher returns zero (runtime construction before start). */
+Matter_Dispatch_Load_T matter_dispatch_load(Matter_Dispatch_T,uint8_t fabric);
+typedef struct {
     Matter_Root_T root; Matter_Events_T events;
     Matter_Crypto_Port_T crypto; Matter_Credentials_Port_T credentials;
     Matter_Case_Port_T fabrics; Matter_Cert_Time_Policy_T time;

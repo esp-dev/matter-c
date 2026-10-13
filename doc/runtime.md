@@ -35,6 +35,25 @@ profile still waives only validity dates, preserving signatures/root/identity.
 The host retains its DAC-derived UniqueID behavior; generic runtime preserves
 the caller's UniqueID. Event time uses the latest supplied monotonic time.
 
+General Diagnostics uses the runtime's live dispatcher statistics. Successfully
+completed local IM sends and admitted incoming IM messages are counted once;
+MRP retries, standalone ACKs and CASE/BDX traffic do not inflate these counters.
+Subscription reservations are not active subscriptions: successful local delivery
+of SubscribeResponse establishes one, and cancellation/removal excludes it from
+the current count while preserving the lifetime total. Counts are per runtime,
+with separate current totals for the accessing fabric, and saturate at their
+wire type limits. PASE subscriptions contribute only to the node total.
+
+TimeSnapshot reads UTCTime from the actual Time Synchronization cluster attached
+to Root and converts Matter-epoch microseconds to POSIX milliseconds. The
+application must process its external clock cluster with the same monotonic tick
+before `matter_runtime_process(now)`. No cluster or a null UTCTime produces a
+null PosixTimeMs; a certificate Last Known Good time is not synchronized UTC.
+SystemTimeMs continues to use the event clock supplied by the application.
+The diagnostics snapshot adds `unfabric_subscriptions` (zero by default) for
+unscoped subscriptions. Rebuild consumers against the updated public headers;
+the persistent TLV format and on-wire cluster schemas are unchanged.
+
 Recovery of an interrupted commissioning journal is driven before protocol
 processing. Admission remains gated until cleanup succeeds. Storage errors
 preserve the recovery marker and context for a later retry. A partially built

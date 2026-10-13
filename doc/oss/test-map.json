@@ -2397,6 +2397,18 @@
       "entrypoint": "python tools/matter/tests/test_discovery_startup_linux.py --help",
       "referenced_by": [],
       "allocation_variant": "full runtime pair under Memcheck then separate ASan/UBSan/LSan"
+    },
+    {
+      "path": "tools/matter/tests/test_node_discovery.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_node_discovery"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_node_discovery",
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt"
+      ],
+      "allocation_variant": "not applicable"
     }
   ],
   "local_only_files": []

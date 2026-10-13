@@ -43,6 +43,7 @@ typedef struct {
     bool busy_reply; uint64_t busy_deadline;
     bool pending,notified,acknowledged,sent,final,closing,operational;
     bool outbound,expiry_reply; /* Only the Invoke which synchronously expired fail-safe. */
+    bool im_packet,im_counted,sub_response,sub_established;
 } Transaction;
 struct Matter_Dispatch {
     Matter_Dispatch_Config_T config; Matter_Udp_T udp; Matter_Rx_T rx;
@@ -57,6 +58,8 @@ struct Matter_Dispatch {
     Connection* sending; Matter_Exchange_Session_T ack_token;
     bool completion; Matter_Operation_Result_T outcome;
     bool control; Transaction* control_transaction; /* Non-MRP Busy/CloseSession completion. */
+    Transaction* sending_message; /* Pinned by pending MRP send until completion. */
+    uint32_t im_sent,subscriptions_established;
     struct {
         uint64_t serial,id,node,resolve,deadline,revision; uint8_t fabric;
         Matter_Im_Client_T client; Matter_Bdx_T bdx; Matter_Exchange_Session_T session;
@@ -306,7 +309,7 @@ static Matter_Retransmission_Submission_T send_message(void* u,const Matter_Retr
         matter_unsecured_tx_send(d->transport,r->message.exchange.session,r->message.data,r->message.size,&d->request);
     if(result!=MATTER_PENDING) return result==MATTER_BUSY || result==MATTER_WOULD_BLOCK?
         MATTER_RETRANSMISSION_REJECTED_RETRYABLE:MATTER_RETRANSMISSION_REJECTED_FATAL;
-    d->sending=c; d->producer=r->id; d->ack_token=0;
+    d->sending=c; d->producer=r->id; d->ack_token=0; d->sending_message=t;
     if(!t->sent) {
         t->sent=true;
         if(t->case_attempt) {
@@ -402,6 +405,27 @@ void matter_dispatch_sent(void* u,uint64_t request,Matter_Operation_Result_T out
     Matter_Dispatch_T d=u; if(!d || request!=d->request || d->completion) return;
     d->completion=true; d->outcome=outcome;
 }
+static void count_sent(Matter_Dispatch_T d,Transaction* t,Matter_Operation_Result_T outcome) {
+    if(!t || outcome!=MATTER_OPERATION_SUCCEEDED || !t->im_packet || t->im_counted) return;
+    t->im_counted=true;
+    if(d->im_sent<UINT32_MAX) ++d->im_sent;
+    if(t->sub_response && !t->sub_established && t->subscription_id && !t->closing) {
+        t->sub_established=true;
+        if(d->subscriptions_established<UINT32_MAX) ++d->subscriptions_established;
+    }
+}
+Matter_Dispatch_Load_T matter_dispatch_load(Matter_Dispatch_T d,uint8_t fabric) {
+    Matter_Dispatch_Load_T load={0}; if(!d) return load;
+    load.sent=d->im_sent; load.received=matter_rx_im_received(d->rx); load.established=d->subscriptions_established;
+    for(unsigned i=0;i<TRANSACTIONS;++i) {
+        Transaction* t=&d->transactions[i]; Connection* c=connection(d,t->key.session);
+        if(!t->handle || !t->subscription_id || !t->sub_established || t->closing || !c || c->retiring || c->removal_reply) continue;
+        if(c->operational && d->config.fabric_live && !d->config.fabric_live(d->config.user,c->fabric_index)) continue;
+        if(load.current<UINT16_MAX) ++load.current;
+        if(fabric && t->fabric_index==fabric && load.current_for_fabric<UINT16_MAX) ++load.current_for_fabric;
+    }
+    return load;
+}
 static Matter_Result_T take_completion(Matter_Dispatch_T d) {
     if(!d->completion) return MATTER_OK;
     Matter_Result_T r;
@@ -415,6 +439,7 @@ static Matter_Result_T take_completion(Matter_Dispatch_T d) {
         if(r==MATTER_OK) r=matter_unsecured_tx_take(d->transport,&out);
     }
     if(r!=MATTER_OK) return r;
+    count_sent(d,d->sending_message,d->outcome); d->sending_message=NULL;
     if(d->sending && d->sending->rotating && d->outcome!=MATTER_OPERATION_SUCCEEDED) d->sending->retiring=true;
     d->request=0; d->completion=false; d->sending=NULL;
     if(d->control) {
@@ -466,7 +491,7 @@ static uint8_t reserve(void* u,Matter_Exchange_Session_T s,bool keep,uint32_t* i
     *id=t->subscription_id=++d->next_subscription; return MATTER_IM_SUCCESS;
 }
 static void unreserve(void* u,uint32_t id) {
-    Transaction* t=u; if(t->subscription_id==id) t->subscription_id=0;
+    Transaction* t=u; if(t->subscription_id==id) { t->subscription_id=0; t->sub_established=false; }
 }
 static Admission admission(uint16_t protocol,uint8_t opcode) {
     if(!protocol && (opcode==0x20 || opcode==0x30)) return HANDSHAKE;
@@ -819,6 +844,7 @@ static void process_transaction(Transaction* t) {
     r=matter_retransmission_sender_add(d->tx,&t->key,counter,t->packet,t->size,&t->message);
     if(r!=MATTER_OK) { t->closing=true; return; }
     t->pending=true; t->sent=false; t->final=out.opcode==0x40;
+    t->im_packet=h.protocol_id==1; t->im_counted=false; t->sub_response=t->sub && out.opcode==4;
     if(t->pase) (void)matter_pase_sent(t->pase);
     if(t->read) (void)matter_im_read_sent(t->read);
 }

@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "c39daadaaad68c36505287c773bcc2515aeaaea10de3819375c8d15576e14fb9",
+  "previous": "csa05-results.json",
+  "previous_sha256": "996cbeade6067c9cac6361cf859fc712b3fb419084999741c18e217f52de60dd",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "All four applicable Access Control cases for the frozen profile. No production behavior changes. Unselected results inherited, not rerun. Latest-status counts do not close the intermittent TC_ACL_2_8 discovery failure.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 81,
+    "FAIL": 24
+  },
+  "final_dut_sha256": "3d9a196ed4623175e82881901af28985408a40d11c2727e8a01231dd7d12db36",
+  "source_manifest_sha256": "f1804b465ccfb1ce67183e1ab78f721c1137f6d12fb4d298bd61428108e2fd8d",
+  "attempts": [
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "run_id": 284,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 17,
+        "failed": 1,
+        "pending": 29
+      },
+      "evidence_sha256": "1458ca99595634038eafc3eb94bfece850c3dbcccd24e79fe276efaf5677daef",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a",
+      "finding": "Step 16 expects deprecated ProxyView acceptance; Core 1.6.1 marks this enum value D. Explicit CSA resolution pending; no waiver."
+    },
+    {
+      "case": "TC_ACL_2_6",
+      "endpoint": 0,
+      "run_id": 285,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 9,
+        "failed": 1
+      },
+      "evidence_sha256": "eba39455c9fb6aa7d42e0be3010607ff0e1135bc3ccc26b12b8baef5b3b199f7",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f6f02e31bc99a052ec43832dc955bc198ca08f756deba3a3724e66f417390e8a",
+      "finding": "Modern encoding passes; legacy step 6 checks only result[0], but clear/add/add produce Success, Success, ConstraintError. Explicit CSA resolution pending; no waiver."
+    },
+    {
+      "case": "TC_ACL_2_2",
+      "endpoint": 0,
+      "run_id": 286,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 5
+      },
+      "evidence_sha256": "2f61376dbb22e59a7e7083c72ade5c86d36bc63e3ce655cdf25cee3067a37c40",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "c097975d825fbbfc718305f6414df41ab9694bb9083e5a82aa578e367afc6f53"
+    },
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "run_id": 287,
+      "status": "FAIL",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 17,
+        "failed": 1,
+        "pending": 29
+      },
+      "evidence_sha256": "1f4ee194117f50e6e0685ab16b670cf220fdd7136afce01a7c7e5bdc1971a5f2",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a",
+      "finding": "Step 16 expects deprecated ProxyView acceptance; Core 1.6.1 marks this enum value D. Explicit CSA resolution pending; no waiver."
+    },
+    {
+      "case": "TC_ACL_2_6",
+      "endpoint": 0,
+      "run_id": 288,
+      "status": "FAIL",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 9,
+        "failed": 1
+      },
+      "evidence_sha256": "05607dc34ba2d71f15d080d0a4d7aaaeb1ff21f3c2a48828b5206916f7ead35e",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f6f02e31bc99a052ec43832dc955bc198ca08f756deba3a3724e66f417390e8a",
+      "finding": "Modern encoding passes; legacy step 6 checks only result[0], but clear/add/add produce Success, Success, ConstraintError. Explicit CSA resolution pending; no waiver."
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 289,
+      "status": "FAIL",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 12,
+        "failed": 1
+      },
+      "evidence_sha256": "ebcb79cf73d277983f855b614bd0c7b893c50051c50f9346f0929792ebe3be81",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee",
+      "finding": "Legacy second-fabric commissioning times out in mDNS discovery at scenario step 3; cause unestablished."
+    },
+    {
+      "case": "TC_ACL_2_6",
+      "endpoint": 0,
+      "run_id": 290,
+      "status": "FAIL",
+      "source_stage": "diagnostic",
+      "step_states": {
+        "passed": 9,
+        "failed": 1
+      },
+      "evidence_sha256": "a50a8cac39c387353d86ea6e7cc741cce98895ba4471655e4befe967b859c8c3",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f6f02e31bc99a052ec43832dc955bc198ca08f756deba3a3724e66f417390e8a",
+      "finding": "Modern encoding passes; legacy step 6 checks only result[0], but clear/add/add produce Success, Success, ConstraintError. Explicit CSA resolution pending; no waiver.",
+      "diagnostic_dut_sha256": "f52aa7c8841bcf5b8335074ee2cc30c6a961949bd321499ef9a555f40733b535"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 291,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "84edaea6162dfb89f04729f1ad649b8a6dd602d30bb6130f320b01b32411038e",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee",
+      "finding": "Unchanged binary and test pass on recheck. Prior discovery timeout remains open; this is not evidence of a fix."
+    }
+  ]
+}

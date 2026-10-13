@@ -73,10 +73,32 @@ a concrete cluster. TC_IDM_2_2, TC_IDM_4_2 and TC_IDM_4_3 pass unchanged; the
 native wire matrix covers global ID boundaries and rejection before callbacks.
 See [evidence](oss/csa05-validation.md) and [result delta](oss/csa05-results.json).
 
-**Next task: CSA06 - Access Control validation.**
-Resolve TC_ACL_2_4 (ProxyView privilege) and TC_ACL_2_6 (writes incorrectly
-succeeding instead of ConstraintError) against Core 1.6.1. Preserve valid ACL
-entries and fabric isolation; verify the unchanged official ACL scenarios.
+CSA06 reruns all applicable ACL cases and preserves two test/specification
+discrepancies: ProxyView is D in Core 1.6.1; the invalid legacy append is rejected,
+but the test inspects the earlier successful clear operation's status. No
+production change or waiver is made. Negative write regressions verify valid
+entries, storage/events and fabric isolation. TC_ACL_2_8 first times out during
+discovery and then passes unchanged. See [evidence](oss/csa06-validation.md) and
+[all attempts](oss/csa06-results.json); that timeout remains open.
+
+CSA07 fixes a host race reproduced with rapid CASE revoke/reopen commands:
+withdrawal must finish even if the requested window returns to its old values.
+New windows also receive fresh DNS-SD instance names under Core 4.3.1. Native
+and wire before/after checks confirm the fix; four final official rechecks pass.
+Nine baseline official repetitions did not reproduce run 289, so its exact
+attribution remains unproven and repeated commissioning stays under observation.
+See [evidence](oss/csa07-validation.md) and [all attempts](oss/csa07-results.json).
+
+CSA08 connects TimeSnapshot to the attached UTC clock and DeviceLoadStatus to
+actual IM messages and established subscriptions, excluding retries and pending
+reservations. Both selected General Diagnostics tests fail before and pass after
+the repair. Latest matrix: 83 PASS, 22 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA.
+See [evidence](oss/csa08-validation.md) and [all attempts](oss/csa08-results.json).
+
+**Next task: CSA09 - invalid CASE input (TC_SC_3_4).**
+Reproduce the invalid-parameter response timeout, trace the rejection and secure
+channel status lifecycle against Core 1.6.1, then rerun the unchanged official
+case. Retain the historical discovery attribution limit while continuing CSA.
 
 Subsequent passes must resolve remaining read validation, diagnostics, discovery
 and resource limits, and prepare the

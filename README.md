@@ -84,6 +84,10 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The [CSA08 report](doc/oss/csa08-validation.md) records corrected TimeSnapshot
+and live IM/subscription diagnostics, with both official General Diagnostics
+rechecks passing. See [result delta](doc/oss/csa08-results.json).
+
 The [development roadmap](doc/roadmap.md) orders CSA acceptance, Google Test Suite
 and manual checks, measured optimization, then downstream firmware integration.
 The [CSA01 acceptance report](doc/oss/csa01-validation.md) links the complete
@@ -98,6 +102,12 @@ The [CSA04 report](doc/oss/csa04-validation.md) covers subscription delta report
 all-cluster selector capacity and window state after fabric removal.
 The [CSA05 report](doc/oss/csa05-validation.md) covers invalid Read/Subscribe
 paths, global-attribute wildcard rules and the unchanged official IDM rechecks.
+The [CSA06 report](doc/oss/csa06-validation.md) records Access Control validation,
+two test/specification discrepancies and an unresolved intermittent discovery
+timeout during multi-fabric commissioning.
+The [CSA07 report](doc/oss/csa07-validation.md) documents the reproduced rapid
+window-reopen discovery race, its fix, instance-name rotation and official
+commissioning rechecks, with the historical timeout's attribution limit.
 
 The optional [three-phase profile](doc/three-phase.md) adds tagged aggregate/L1/L2/L3
 endpoints and EEM source-register semantics: run the host with `--three-phase`

@@ -1,4 +1,5 @@
 #include "matter_runtime.h"
+#include "../clusters/matter_time_sync.h"
 #include "../storage/matter_store_tlv.h"
 #include "matter_store_host.h"
 #include "clusters/matter_admin_commissioning.h"
@@ -69,6 +70,37 @@ static Matter_Result_T live_cert_verify(void* user,Matter_Der_T leaf,Matter_Der_
 static Matter_Result_T live_operational_verify(void* user,Matter_Der_T leaf,Matter_Der_T intermediate,
     Matter_Der_T root,const Matter_Cert_Time_Policy_T* policy,uint8_t* public_key) {
     return live_chain_verify(user,leaf,intermediate,root,policy,public_key,true);
+}
+static Matter_Result_T diagnostics_snapshot(void* u,Matter_Diagnostics_Snapshot_T* out) {
+    Matter_Runtime_T s=u; Matter_Diagnostics_Port_T base=matter_diagnostics_host_port(s->diagnostics_host);
+    Matter_Result_T r=base.snapshot(base.user,out); if(r!=MATTER_OK) return r;
+    Matter_Diagnostics_General_T* g=&out->general;
+    Matter_Dispatch_Load_T load=matter_dispatch_load(s->dispatch,0);
+    g->im_sent=load.sent; g->im_received=load.received; g->total_subscriptions=load.established;
+    g->unfabric_subscriptions=load.current;
+    const Matter_Fabric_View_T* fabrics=matter_runtime_fabrics(s);
+    memset(g->subscriptions,0,sizeof(g->subscriptions));
+    if(fabrics) for(unsigned i=0;i<5;++i) {
+        uint8_t index=fabrics->records[i].index; if(!index) continue;
+        load=matter_dispatch_load(s->dispatch,index);
+        g->subscriptions[i]=(Matter_Diagnostics_Subscriptions_T){index,load.current_for_fabric};
+        g->unfabric_subscriptions-=load.current_for_fabric;
+    }
+    /* Use the actual attached Time Synchronization UTC, never certificate LKG
+     * or an unrelated OS wall clock. Both values share this owner-loop tick. */
+    Matter_Cluster_T time=s->root?matter_root_cluster(s->root,MATTER_TIME_SYNC_CLUSTER):NULL;
+    if(time) {
+        Matter_Cluster_Request_T request={0}; Matter_Im_Value_T value;
+        if(matter_cluster_read(time,MATTER_TIME_UTC,&request,&value)!=MATTER_IM_SUCCESS) return MATTER_PORT_ERROR;
+        if(value.type==MATTER_TLV_UNSIGNED) {
+            g->posix_valid=true; g->posix_ms=value.unsigned_value/1000+UINT64_C(946684800000);
+        } else if(value.type!=MATTER_TLV_NULL) return MATTER_PORT_ERROR;
+    }
+    return MATTER_OK;
+}
+static Matter_Result_T diagnostics_reset(void* u) {
+    Matter_Diagnostics_Port_T base=matter_diagnostics_host_port(((Matter_Runtime_T)u)->diagnostics_host);
+    return base.reset_counts(base.user);
 }
 static Matter_Result_T load(void* u,Matter_Root_Config_T* c) { *c=((Matter_Runtime_T)u)->identity; return MATTER_OK; }
 static Matter_Result_T store(void* u,const Matter_Root_Settings_T* settings) { return matter_store_host_root(((Matter_Runtime_T)u)->store,settings); }
@@ -217,7 +249,7 @@ Matter_Runtime_T matter_runtime_new(const Matter_Runtime_Config_T* c,uint32_t pi
     Matter_Diagnostics_Radio_Port_T radio={c->wifi.control.user,c->wifi.observe};
     s->diagnostics_host=matter_diagnostics_host_new_port(&s->diagnostics_image,&radio,&c->iface,c->boot_reason,c->reboot,now);
     if(!s->diagnostics_host) goto fail;
-    Matter_Diagnostics_Port_T dp=matter_diagnostics_host_port(s->diagnostics_host); s->diagnostics=matter_diagnostics_new(&dp,identity->basic_version,identity->descriptor_version);
+    Matter_Diagnostics_Port_T dp={s,diagnostics_snapshot,diagnostics_reset}; s->diagnostics=matter_diagnostics_new(&dp,identity->basic_version,identity->descriptor_version);
     Matter_Commissioning_Host_Port_T cp={s,retire};
     s->commission=matter_commissioning_host_new_port(s->commission_image,s->wifi,&c->wifi.control,s->opcreds,s->fabric_host,&cp); if(!s->commission) goto fail;
     s->recovering=matter_commissioning_host_pending(s->commission_image);

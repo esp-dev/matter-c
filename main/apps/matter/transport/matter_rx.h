@@ -94,6 +94,9 @@ Matter_Result_T matter_rx_retire_session(Matter_Rx_T rx, Matter_Exchange_Session
  * control RX open until drain finishes, but never delivers application data.
  */
 Matter_Result_T matter_rx_receive(Matter_Rx_T rx, const Matter_Rx_Input_T* input, uint64_t received_ms);
+/* Lifetime count of accepted standard IM messages, excluding duplicates and
+ * failed admission. Saturates at UINT32_MAX. Query on the owner thread; NULL=0. */
+uint32_t matter_rx_im_received(Matter_Rx_T rx);
 /* At most one queued RX and one ACK send per call. now >= earlier process and
  * queued reception. Pending/backpressure retains input and original deadline;
  * offline/error retains obligations for explicit retry. OK while running may

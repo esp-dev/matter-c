@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "c39daadaaad68c36505287c773bcc2515aeaaea10de3819375c8d15576e14fb9",
+  "previous": "csa06-results.json",
+  "previous_sha256": "48db200bb4735865a55c3424b9b29abf32d647e2e5b6af6870ea8b69a7bf0d73",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Discovery lifecycle on rapid commissioning-window reopen. Nine unchanged official baseline attempts did not reproduce historical run 289; a controlled CASE revoke/open sequence and a deterministic native test reproduce a host race. Historical attribution remains unproven.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 81,
+    "FAIL": 24
+  },
+  "baseline_dut_sha256": "3d9a196ed4623175e82881901af28985408a40d11c2727e8a01231dd7d12db36",
+  "final_dut_sha256": "091cd7434c723e32a7dd044b9ce24788b9b8f2240a1cb37f2fe8a80813cd5e12",
+  "source_manifest_sha256": "59b8a59723a53ac8257226af6a944744c4ecfa645225a314794a060324cf5885",
+  "attempts": [
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 292,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "707fae7634ddca5210a7e63a1f08293a9e30afed67234b78732c75fd2539e4ab",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 293,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "7079203c892224ed585990453cc133c0c920632f7c3be131d68f95888e8357a3",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 294,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "ef8e48ebf5754520a5661f8708da1d3c2a8bbc4b7b89d34674766a531d8faca6",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 295,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "344d13d73511d746e3ec20ad04ff69006583860d3dde5627f7510d10f537127b",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 296,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "eca67408c801176e53c1020e3e2c94369703ecfcf8fa50d2d0a9294241b82d05",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 297,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "9278b11eac8b4389dbbd55c49d1cd6e9989728cddfb7762fcfacf00feb13ad4c",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 298,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "3c9dc6e77171f7f4c3c77bf60723ca670119428fdf9a854252622008c38a180b",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 299,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "e3c654247cd5b8f6627721f76977b08d70b2e7bf5d6a9bf7193403a9f2e288e5",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 300,
+      "status": "PASS",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "804fe3e943e9cc707f43c440888430f6a01e107ce46caebca55a2bd7a4f99e13",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 301,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "398da68a2347925648836e55a2a73451a1c495f7a3f7c260a90936a516ea508e",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 302,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "e0872f6865f8b10cdca5a0c59450c65783c6b968f433c664b7e6a7095d6635aa",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "run_id": 303,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "evidence_sha256": "2cf77de6ff3baff5be570729fea8dbbeefaf7edb9e0427efd65f81290166e3bd",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee"
+    },
+    {
+      "case": "TC_CADMIN_1_25",
+      "endpoint": 0,
+      "run_id": 304,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 35
+      },
+      "evidence_sha256": "10acf881b2d6df5906f2dcb213a996b24d021f6886ea37cc6f297bd9468a14b8",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9277c12f82221fc608c9d5114b792fcb948d0ee7d672159a94881b1e1c022950"
+    }
+  ],
+  "non_csa_wire_reproduction": [
+    {
+      "stage": "baseline",
+      "status": "FAIL",
+      "command_sequence_seconds": 0.3782191276550293,
+      "checks": [
+        {
+          "name": "initial enhanced advertisement",
+          "pass": true
+        },
+        {
+          "name": "rapid reopen announced",
+          "pass": false
+        },
+        {
+          "name": "new commissioning instance",
+          "pass": false
+        }
+      ],
+      "result_sha256": "c18416a95d5ecebf73fa9a2185397357e65aa652be0e52093c6cc63c3ac3024a",
+      "multicast_capture_sha256": "1da52102b102c8b1ec76462dfe86edfd3a1b73b2d3dd989b2d060908761d071e"
+    },
+    {
+      "stage": "final",
+      "status": "PASS",
+      "command_sequence_seconds": 0.341503381729126,
+      "checks": [
+        {
+          "name": "initial enhanced advertisement",
+          "pass": true
+        },
+        {
+          "name": "rapid reopen announced",
+          "pass": true
+        },
+        {
+          "name": "new commissioning instance",
+          "pass": true
+        }
+      ],
+      "result_sha256": "8bd6780c00a3c3dee6cdcb839a4d354c0ea3be15a49206cb0a505d27c7c521d0",
+      "multicast_capture_sha256": "2c0d978fc2950e43b13174fbc6933cef709fbaf8539bd2d76daedf09204db60f"
+    }
+  ]
+}

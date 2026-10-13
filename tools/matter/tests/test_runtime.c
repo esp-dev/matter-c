@@ -1,6 +1,7 @@
 /* Full composition through installed public APIs: no host adapter headers. */
 #include "runtime/matter_runtime.h"
 #include "runtime/matter_host_limits.h"
+#include "clusters/matter_time_sync.h"
 #include "crypto/matter_crypto_mbedtls.h"
 #include "test_opcreds_vectors.h"
 #include <stdio.h>
@@ -22,6 +23,7 @@ typedef struct {
     unsigned stores,pumps,clocks,logs; uint64_t event_high,epoch;
     bool fail_store,fail_clock,fail_initialize,fail_snapshot;
     uint64_t wifi_token; bool cancelling,hold_cancel;
+    Matter_Cluster_T time_sync; Matter_Time_Sync_Sample_T time_sample;
 } Node;
 static Matter_Result_T blob_read(void* u,uint8_t* out,size_t cap,size_t* size) {
     Node* n=u; if(!n->blob) return MATTER_OFFLINE;
@@ -113,6 +115,43 @@ static void start_node(Node* n) {
     Matter_Events_Port_T events={n,event_load,event_store}; n->events=matter_events_new(&events); CHECK(n->events);
     CHECK(matter_runtime_start(n->runtime,n->owner,n->udp,n->events)==MATTER_OK);
 }
+static Matter_Result_T time_sample(void* u,uint64_t now,Matter_Time_Sync_Sample_T* out) {
+    (void)now; *out=((Node*)u)->time_sample; return MATTER_OK;
+}
+static Matter_Result_T time_set(void* u,uint64_t utc,uint8_t granularity,uint64_t now) {
+    (void)now; ((Node*)u)->time_sample=(Matter_Time_Sync_Sample_T){utc,granularity,granularity?MATTER_TIME_SOURCE_ADMIN:0}; return MATTER_OK;
+}
+static void time_sync(void* u) { (void)u; }
+static void check_snapshot(Node* n,bool valid,uint64_t posix) {
+    uint8_t bytes[22]; const uint8_t empty[]={0x15,0x18}; Matter_Tlv_Writer_T w;
+    Matter_Diagnostics_T diag=matter_root_cluster(matter_runtime_root(n->runtime),MATTER_DIAGNOSTICS_GENERAL);
+    CHECK(matter_tlv_writer_init(&w,bytes,sizeof(bytes),1)==MATTER_TLV_OK);
+    CHECK(!matter_diagnostics_invoke(diag,MATTER_DIAGNOSTICS_GENERAL,1,empty,sizeof(empty),&w).status);
+    Matter_Tlv_Reader_T r; Matter_Tlv_Element_T e;
+    CHECK(matter_tlv_init(&r,bytes,w.size,1)==MATTER_TLV_OK);
+    CHECK(matter_tlv_next(&r,&e)==MATTER_TLV_OK && e.type==MATTER_TLV_STRUCTURE);
+    CHECK(matter_tlv_next(&r,&e)==MATTER_TLV_OK && e.tag.number==0 && e.type==MATTER_TLV_UNSIGNED && e.unsigned_value==19);
+    CHECK(matter_tlv_next(&r,&e)==MATTER_TLV_OK && e.tag.number==1);
+    CHECK(e.type==(valid?MATTER_TLV_UNSIGNED:MATTER_TLV_NULL) && (!valid || e.unsigned_value==posix));
+}
+static void diagnostic_time(Node* a,Node* b) {
+    /* No TS means null, even though the certificate UTC callback is available. */
+    check_snapshot(a,false,0);
+    Matter_Time_Sync_Port_T p={a,time_sample,time_set,time_sync};
+    a->time_sync=matter_time_sync_new(&p,a->events,1,19); CHECK(a->time_sync);
+    CHECK(matter_root_attach_cluster(matter_runtime_root(a->runtime),a->time_sync)==MATTER_OK);
+    CHECK(matter_cluster_process(a->time_sync,19)==MATTER_OK); check_snapshot(a,false,0);
+    const uint64_t samples[]={0,UINT64_C(845000000123456),UINT64_MAX};
+    for(unsigned i=0;i<sizeof(samples)/sizeof(samples[0]);++i) {
+        CHECK(time_set(a,samples[i],MATTER_TIME_MICROSECONDS,19)==MATTER_OK);
+        CHECK(matter_cluster_process(a->time_sync,19)==MATTER_OK);
+        check_snapshot(a,true,samples[i]/1000+UINT64_C(946684800000));
+    }
+    CHECK(!matter_root_cluster(matter_runtime_root(b->runtime),MATTER_TIME_SYNC_CLUSTER));
+    CHECK(time_set(a,0,0,19)==MATTER_OK && matter_cluster_process(a->time_sync,19)==MATTER_OK);
+    check_snapshot(a,false,0);
+    puts("PASS runtime TimeSnapshot: absent/unsynchronized UTC, Matter-to-POSIX conversion, maximum value and clock isolation");
+}
 static void close_runtime(Node* n,uint64_t now) {
     CHECK(matter_runtime_delete(n->runtime)==MATTER_BUSY);
     Matter_Result_T result=matter_runtime_stop(n->runtime,now);
@@ -122,6 +161,7 @@ static void close_runtime(Node* n,uint64_t now) {
     CHECK(result==MATTER_OK);
     CHECK(matter_runtime_start(n->runtime,n->owner,n->udp,n->events)==MATTER_INVALID_STATE);
     CHECK(matter_runtime_delete(n->runtime)==MATTER_OK); n->runtime=NULL;
+    if(n->time_sync) { CHECK(matter_cluster_delete(n->time_sync)==MATTER_OK); n->time_sync=NULL; }
     if(n->events) { CHECK(matter_events_delete(n->events)==MATTER_OK); n->events=NULL; }
     if(n->owner) {
         CHECK(matter_stop(n->owner)==MATTER_PENDING);
@@ -163,6 +203,7 @@ int main(void) {
     CHECK(matter_runtime_commissionable(a->runtime) && matter_runtime_commissionable(b->runtime));
     for(uint64_t now=1;now<20;++now) { run(a,now); run(b,now*2); }
     CHECK(a->pumps==19 && b->pumps==19);
+    diagnostic_time(a,b);
     Matter_Store_Host_T sa=matter_runtime_store(a->runtime),sb=matter_runtime_store(b->runtime);
     uint64_t ha,hb; CHECK(matter_store_host_event_load(sa,&ha)==MATTER_OK && matter_store_host_event_load(sb,&hb)==MATTER_OK);
     CHECK(matter_store_host_event_store(sa,ha+100)==MATTER_OK);
