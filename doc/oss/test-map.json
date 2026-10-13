@@ -2326,7 +2326,7 @@
       "kind": "external-controller",
       "ctest": [],
       "entrypoint": "python tools/matter/tests/chip_tool_three_phase.py --help",
-      "referenced_by": [],
+      "referenced_by": ["tools/matter/tests/test_discovery_startup_linux.py"],
       "allocation_variant": "not applicable"
     },
     {
@@ -2378,6 +2378,14 @@
       "entrypoint": "python tools/matter/tests/chip_tool_meter_services.py --help",
       "referenced_by": [],
       "allocation_variant": "complete host under separate Memcheck and ASan/UBSan/LSan"
+    },
+    {
+      "path": "tools/matter/tests/test_discovery_startup_linux.py",
+      "kind": "external-network-or-runner",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_discovery_startup_linux.py --help",
+      "referenced_by": [],
+      "allocation_variant": "full runtime pair under Memcheck then separate ASan/UBSan/LSan"
     }
   ],
   "local_only_files": []

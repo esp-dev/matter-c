@@ -118,11 +118,30 @@ def pair(args, out):
     try:
         c = Client(Path(args.chip_tool).resolve(), Path(args.paa).resolve(), out, 'controller')
         clients.append(c)
-        for node, discriminator in enumerate((args.discriminator, args.pair_discriminator), 1):
-            data = command(c, ['pairing', 'onnetwork-long', node, 20202021, discriminator,
-                               '--country-code', 'PL', '--timeout', 60], 'Device commissioning completed with success')
+        nodes = list(enumerate((args.discriminator, args.pair_discriminator), 1))
+        if args.pair_reverse:
+            nodes.reverse()
+        for node, discriminator in nodes:
+            if args.pair_legacy_discovery:
+                # Diagnostic reproduction only: the pinned MinMDNS onnetwork-long
+                # path can accept an unrelated unsolicited startup announcement.
+                argv = ['pairing', 'onnetwork-long', node, 20202021, discriminator]
+            else:
+                data = command(c, ['payload', 'generate-qrcode', '--discriminator', discriminator,
+                                   '--setup-pin-code', 20202021, '--rendezvous', 4], r'QR Code: MT:')
+                payload = re.search(r'QR Code: (MT:[A-Z0-9.\-]+)', data)[1]
+                # SetUpCodePairer checks the returned TXT discriminator as well
+                # as browsing the subtype. Keep the upstream executable intact.
+                argv = ['pairing', 'code', node, payload, '--use-only-onnetwork-discovery', 1]
+            data = command(c, [*argv, '--country-code', 'PL', '--timeout', 60],
+                           'Device commissioning completed with success')
             assert "Successfully finished commissioning step 'AttestationVerification'" in data
-            assert re.search(r'Discovered Device: .*:' + str(5540 + node) + r'\b', data), 'wrong discovered instance port'
+            if args.pair_legacy_discovery:
+                ports = re.findall(r'Discovered Device: .*:(\d+)\b', data)
+            else:
+                assert f'Discovered device with discriminator {discriminator} matches' in data
+                ports = re.findall(r'Attempting PASE connection to UDP:.*:(\d+)\b', data)
+            assert ports and set(ports) == {str(5540 + node)}, ('wrong discovered instance port', ports)
             start = len(c.text())
             command(c, ['any', 'read-all', '0xffffffff,0xffffffff', '0xffffffff', '0xffffffff', node, '0xffff,0xffff'],
                     'SuppressResponse = true')
@@ -188,9 +207,14 @@ def main():
     parser.add_argument('--discriminator', type=int, default=3847)
     parser.add_argument('--restart-storage')
     parser.add_argument('--pair-discriminator', type=int, help='Second runtime-pair-host discriminator; enables pair scenario')
+    parser.add_argument('--pair-reverse', action='store_true', help='Commission B before A; keep logical node/port identities')
+    parser.add_argument('--pair-legacy-discovery', action='store_true',
+                        help='Diagnostic only: reproduce upstream onnetwork-long startup filtering failure')
     parser.add_argument('--source-registers', action='store_true', help='Pair fixture includes MP03 extension')
     parser.add_argument('--meter-services', action='store_true', help='Pair fixture includes MP04 services')
     args = parser.parse_args()
+    if (args.pair_reverse or args.pair_legacy_discovery) and args.pair_discriminator is None:
+        parser.error('--pair-reverse/--pair-legacy-discovery require --pair-discriminator')
     if args.meter_services and (not args.source_registers or args.pair_discriminator is None):
         parser.error('--meter-services requires --source-registers and --pair-discriminator')
     out = Path(args.output).resolve()

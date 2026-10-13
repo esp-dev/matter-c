@@ -89,8 +89,11 @@ it before allocation. The launcher now uses the documented combined profile.
 A genuine startup discovery race was observed: the controller requested A's
 long discriminator but selected B's port. The oracle caught it; no assertion
 was removed. A later run after initial mDNS announcements settled passed.
-This is an unresolved multi-node discovery acceptance limitation, not evidence
-that all discovery timings work. Concurrent external TH/pair scenarios also
+At the MP04 snapshot this was an unresolved multi-node discovery acceptance
+limitation, not evidence that all discovery timings work. The subsequent
+[MP04a investigation](mp04a-validation.md) identifies the controller path and
+replaces the delayed pair acceptance with an active-browse startup regression.
+Concurrent external TH/pair scenarios also
 caused an unsuccessful DUT start and PASE Busy; final external runs were
 serialized and the affected CSA case rerun. Retained failure logs are not
 counted as successful acceptance.
@@ -147,6 +150,7 @@ Raw build/controller/TH logs and local runners are retained under ignored
 lab project exports or specification files are tracked. Final successful build
 logs were checked for compiler warnings.
 
-Next task: MP05 - Commodity Metering on x86, with explicit source mapping.
-The [roadmap](../roadmap.md) requires all applicable CSA cases before Google
+The original MP05 follow-up is deferred by the updated [roadmap](../roadmap.md):
+MP04a discovery investigation, then CSA01 full-matrix acceptance before tariffs.
+The roadmap requires all applicable CSA cases before Google
 acceptance, then measured optimization, then downstream integration outside this repo.

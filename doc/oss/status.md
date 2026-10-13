@@ -1,5 +1,19 @@
 # Development status
 
+MP04a: startup discovery failure traced to the pinned chip-tool `onnetwork-long`
+selection path, which accepts an unrelated unsolicited announcement. Captured
+PTR/SRV/TXT records have the correct discriminator/instance/port relationships.
+The pair oracle uses unmodified chip-tool's `pairing code` path, which checks the
+returned discriminator. The startup regression begins browsing before both full
+runtimes start, without an announcement-settling sleep. The legacy tool path
+remains unreliable in this situation; the C responder/API is unchanged.
+See [MP04a evidence](mp04a-validation.md).
+Discovery/commissioning selected the correct ports in all four final QR-path
+runs. Three complete pair scenarios passed; the Memcheck A-then-B run failed
+later at RemoveFabric (request ACK received, Invoke response timed out). That
+independent acceptance failure remains open alongside the four historical CSA
+failures below; it is not relabelled as a full-pair PASS.
+
 MP04 implemented: opt-in `--three-phase --meter-services` adds Identify and
 Meter Identification on EP1 and Time Synchronization on EP0. Each instance owns
 its callbacks/clock; the host persists Last Known Good time in an atomic sidecar.
@@ -44,6 +58,10 @@ CSA matrix, certification or a fresh acceptance run of this public snapshot.
 See validation.md for the publication snapshot and mp02-validation.md for the
 subsequent three-phase acceptance; neither is a full-stack certification.
 
-**Next task: MP05 - Commodity Metering on x86, with explicit source mapping.**
-The four historical failures and the multi-node startup discovery race recorded
-in MP04 remain unresolved acceptance work; neither is waived by these results.
+**Next task: CSA01 - first full CSA matrix pass for the current x86 profile.**
+Full applicable CSA acceptance takes priority over new tariffs. Work proceeds in
+successive passes over the [roadmap](../roadmap.md), with explicit coverage gaps,
+evidence and follow-up actions. The four historical failures remain open; MP04a
+does not rerun or waive them.
+Include the newly observed concurrent-subscription RemoveFabric timeout in the
+first pass's regression work and compare it with the official applicable cases.

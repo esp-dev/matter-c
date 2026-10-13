@@ -1,6 +1,6 @@
 # Test inventory
 
-test-map.json enumerates 225 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 226 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
