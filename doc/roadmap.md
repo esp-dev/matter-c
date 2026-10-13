@@ -127,9 +127,16 @@ Native regressions and both full memory scenarios pass. See
 Counting repeated failures after successful PASE still needs a separate Core
 5.5.1 review. Retain the historical discovery attribution limit.
 
-**Next task: CSA13 - TC_CADMIN_1_19, full fabric table and failure status.**
-Reproduce RESOURCE_EXHAUSTED versus the expected table-full result and trace
-the failing commissioning step against Core and the unchanged official assertions.
+CSA13 admits the verified pending root at full fabric capacity and leaves the
+TableFull result to AddNOC. Unchanged TC_CADMIN_1_19 and TC_OPCREDS_3_1 pass.
+The matrix is 88 PASS, 17 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. Focused native
+regressions, the old-code control and both full memory scenarios are recorded in
+[evidence](oss/csa13-validation.md) and [all attempts](oss/csa13-results.json).
+
+**Next task: CSA14 - Network Commissioning Wi-Fi fixture and TC_CNET_4_1/4_4.**
+Prepare a connected simulated network for the on-network host, reconcile reported
+attributes with the specification, and rerun the unchanged official cases.
+Keep host simulation evidence separate from physical Wi-Fi radio acceptance.
 
 Subsequent passes must resolve remaining read validation, diagnostics, discovery
 and resource limits, and prepare the

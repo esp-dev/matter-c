@@ -4,6 +4,7 @@
 #include "crypto/matter_crypto_mbedtls.h"
 #include "test_opcreds_fixture.h"
 #include "test_fabric_fixture.h"
+#include "test_synthetic_operational_vectors.h"
 #include "test_vid.h"
 #include "test_fabric_subscribe.h"
 #ifdef MATTER_TEST_ALLOC
@@ -18,6 +19,56 @@ static Matter_Result_T two_sessions(void* u,Matter_Exchange_Session_T s,uint8_t 
 static void read_count(FabFixture* f,unsigned count) {
     Matter_Im_Value_T v; OC_CHECK(matter_opcreds_read_session(f->o->core,3,1,true,&v)==0 && v.unsigned_value==count);
     OC_CHECK(matter_opcreds_read_session(f->o->core,2,1,true,&v)==0 && v.unsigned_value==5);
+}
+static void full_table_root(FabFixture* f) {
+    const Matter_Fabric_View_T* v=f->port.view(f->host);
+    Matter_Fabric_Record_T* saved=malloc(sizeof(v->records)); OC_CHECK(saved);
+    memcpy(saved,v->records,sizeof(v->records));
+    OC_CHECK(v->count==MATTER_FABRIC_CAPACITY && !v->root_ready);
+    /* A distinct, independently signed test root must reach AddNOC, even when
+     * every fabric slot is occupied. A broken signature still fails admission. */
+    memcpy(f->changed,synthetic_root_tlv,sizeof(synthetic_root_tlv));
+    f->changed[sizeof(synthetic_root_tlv)-2]^=1;
+    fab_request(f,11,(Matter_Cert_Tlv_T){f->changed,sizeof(synthetic_root_tlv)},(Matter_Cert_Tlv_T){0},0);
+    fab_call(f,1,11,true,MATTER_IM_INVALID_COMMAND,0);
+    fab_request(f,11,FAB_CERT(synthetic_root_tlv),(Matter_Cert_Tlv_T){0},0);
+    f->control.fail_store=true; matter_fabric_host_control(f->host,&f->control);
+    fab_call(f,1,11,true,MATTER_IM_FAILURE,0);
+    f->control.fail_store=false; matter_fabric_host_control(f->host,&f->control);
+    OC_CHECK(!v->root_ready && !memcmp(saved,v->records,sizeof(v->records)));
+    for(unsigned restart=0;restart<2;++restart) {
+        fab_csr(f,23);
+        fab_request(f,11,FAB_CERT(synthetic_root_tlv),(Matter_Cert_Tlv_T){0},0);
+        fab_call(f,1,11,true,0,0); fab_call(f,1,11,true,0,0);
+        Matter_Im_Value_T value;
+        OC_CHECK(matter_opcreds_read_session(f->o->core,4,1,false,&value)==0);
+        OC_CHECK(matter_tlv_init(&f->reader,value.data,value.size,2)==MATTER_TLV_OK);
+        unsigned pending=0;
+        while(matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK)
+            if(f->e.type==MATTER_TLV_BYTES && f->e.size==sizeof(synthetic_root_tlv) &&
+                !memcmp(f->e.data,synthetic_root_tlv,f->e.size)) ++pending;
+        OC_CHECK(pending==1);
+        fab_request(f,11,FAB_CERT(fab_root),(Matter_Cert_Tlv_T){0},0);
+        fab_call(f,1,11,true,MATTER_IM_CONSTRAINT_ERROR,0);
+        fab_request(f,6,FAB_CERT(synthetic_noc_tlv),FAB_CERT(synthetic_icac_tlv),55);
+        fab_call(f,1,6,true,0,5); /* TableFull, not IM ResourceExhausted. */
+        OC_CHECK(v->root_ready && !v->added && !v->pending_index);
+        OC_CHECK(matter_opcreds_rollback(f->o->core)==MATTER_OK);
+        if(restart) {
+            /* Leave a root-only journal for recovery; the failed AddNOC's CSR
+             * is volatile and was explicitly discarded by the rollback above. */
+            fab_request(f,11,FAB_CERT(synthetic_root_tlv),(Matter_Cert_Tlv_T){0},0);
+            fab_call(f,1,11,true,0,0); fab_restart(f);
+        }
+        v=f->port.view(f->host); read_count(f,MATTER_FABRIC_CAPACITY);
+        OC_CHECK(!v->root_ready && !v->root_size && !memcmp(saved,v->records,sizeof(v->records)));
+        for(unsigned i=0;i<MATTER_FABRIC_CAPACITY;++i) {
+            OC_CHECK(matter_fabric_host_sign(f->host,saved[i].index,f->ipk,sizeof(f->ipk),f->signature)==MATTER_OK);
+            OC_CHECK(f->o->crypto.ecdsa_verify(f->o->crypto.user,saved[i].operational_public,
+                f->ipk,sizeof(f->ipk),f->signature)==MATTER_OK);
+        }
+    }
+    free(saved);
 }
 static uint8_t unused_validate(void* u,const void* ref,const Matter_Cluster_Request_T* q,const uint8_t* d,size_t n) {
     (void)u; (void)ref; (void)q; (void)d; (void)n; return MATTER_IM_INVALID_COMMAND;
@@ -315,6 +366,7 @@ int main(int argc,char** argv) {
     fab_csr(f,15); fab_request(f,11,FAB_CERT(fab_root),(Matter_Cert_Tlv_T){0},0); fab_call(f,1,11,true,0,0);
     fab_request(f,6,FAB_CERT(fab_noc5),(Matter_Cert_Tlv_T){0},55); fab_call(f,1,6,true,0,5);
     OC_CHECK(matter_opcreds_rollback(f->o->core)==MATTER_OK); fab_restart(f); read_count(f,5);
+    full_table_root(f);
     /* Installed-key collision fails CSR without changing the persistent store. */
     fab_scalar_value=10; oc_request(f->o,4,0,32,false); OC_CHECK(oc_start(f->o,4,true)==MATTER_PENDING); oc_finish(f->o); OC_CHECK(f->o->result.status==MATTER_IM_FAILURE);
     vid_checks(f); vid_export(f,argc==2?argv[1]:NULL); fabric_subscriptions(f); management(f); rollback_isolation(&crypto,&cp);

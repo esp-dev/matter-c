@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "773a7c9a52590f43e868c7a7886b1738573ff37b5fd2a686ed9836ae8b1de704",
+  "previous": "csa12-results.json",
+  "previous_sha256": "9037d1e817b7a599b7273343bd0de1ecb1a71f6af20b5cbf286400de9dc3dcfe",
+  "tracked_document_hash_encoding": "Git blob bytes (LF); private execution/build artifacts are hashed byte-for-byte.",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Full fabric table accepts a verified pending RCAC in its existing journal slot; AddNOC returns NOCResponse.TableFull. Unchanged official CADMIN 1.19 and OPCREDS 3.1 recheck. Other matrix rows inherited.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 88,
+    "FAIL": 17
+  },
+  "baseline_dut_sha256": "66cb069e4dc20cd152ab4551f625bb0bb5ead20c95d0dc74902e9b06650a6297",
+  "final_dut_sha256": "34b0d680aceffa25118f7a81d3162613200cd758efa1dce8a605175414b9508f",
+  "source_manifest_sha256": "199517e38581927f0e7da0f60c81b97b607b62dabe3c2e2fac90a672564d2d24",
+  "builds": {
+    "final matter-node": "34b0d680aceffa25118f7a81d3162613200cd758efa1dce8a605175414b9508f",
+    "final cmake/tests/runtime-pair-host": "3bcccecee8b511b0d4c2c201176df1e30d04d04ce72027616c6988b602a818b4",
+    "sanitize matter-node": "83b06ba290e29b96a41b1859065070f9cc982a257be415be1bf0261506fb366d",
+    "sanitize cmake/tests/runtime-pair-host": "ff8be4fd764a9b80cdd81b5370b0876e2976d28fffe269b7911a905c7b98ddc9"
+  },
+  "attempts": [
+    {
+      "case": "TC_CADMIN_1_19",
+      "endpoint": 0,
+      "run_id": 324,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "dut_sha256": "66cb069e4dc20cd152ab4551f625bb0bb5ead20c95d0dc74902e9b06650a6297",
+      "step_states": {
+        "passed": 18,
+        "failed": 1
+      },
+      "evidence_sha256": "22acd6175b78b47a8a1e1ca5dc37acecac7dedff391ee4b9079521a941af231e",
+      "official_log_sha256": "4e4837e102b6815516a65248d55f52565e0fa77da1ff2a2fde130d6d6e1c89af",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "e228385f4dcda374f82d1aa14983563d9e2f319e7a3f875066638cd1dd0307c0"
+    },
+    {
+      "case": "TC_CADMIN_1_19",
+      "endpoint": 0,
+      "run_id": 325,
+      "status": "PASS",
+      "source_stage": "final",
+      "dut_sha256": "34b0d680aceffa25118f7a81d3162613200cd758efa1dce8a605175414b9508f",
+      "step_states": {
+        "passed": 19
+      },
+      "evidence_sha256": "cef6b46838ddb7808ff1aabb5f6f4efb7637c79b71577c33bee802f32691d805",
+      "official_log_sha256": "8d178acf6bec7b3e4df38090f85a2ac36052d516b7856026f9d47a846b5a733a",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "e228385f4dcda374f82d1aa14983563d9e2f319e7a3f875066638cd1dd0307c0"
+    },
+    {
+      "case": "TC_OPCREDS_3_1",
+      "endpoint": 0,
+      "run_id": 326,
+      "status": "PASS",
+      "source_stage": "final",
+      "dut_sha256": "34b0d680aceffa25118f7a81d3162613200cd758efa1dce8a605175414b9508f",
+      "step_states": {
+        "passed": 3
+      },
+      "evidence_sha256": "69d8b4ebaee32302043ee51ec7ac467febeda24aa0a33d9e4693c1939a13814c",
+      "official_log_sha256": "6af0325295843c7a82147b3f25f4b0857c249846e7a25bd82204afc23f3ac36f",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "66cd49bb82bcd54b4942289306693d095a42f7021132bd00d0552fadf2e6debd"
+    }
+  ],
+  "native_tests": [
+    "test_fabric",
+    "test_opcreds",
+    "test_dispatch",
+    "test_root",
+    "test_runtime",
+    "test_runtime_alloc"
+  ],
+  "native_normal_log_sha256": "6880503a13f3beccb12e61beda79a24e79daa37eab1c75dd2771acf58944a16c",
+  "native_sanitizer_log_sha256": "edfdd62282f0bbab05372d26d3d4000a5d7c8f08ce4b5b43c412b434db89e431",
+  "memory": {
+    "results": [
+      {
+        "mode": "memcheck",
+        "returncode": 0
+      },
+      {
+        "mode": "sanitize",
+        "returncode": 0
+      }
+    ],
+    "results_sha256": "a332e76107da92611d50888f8a73919b522ec21eef0e5b7eb74b613c85f4d40c",
+    "valgrind_log_sha256": "5a56bb5867488bc4a0841e81390c34b9d9c1dde6932c26268e19b9e507ebe091",
+    "pair_memcheck_sha256": "23d7d36e8d935be83910a5c3c6da073f43e88b57ed592870ddd5c7a22cdd324c",
+    "pair_sanitize_sha256": "90f1a38f83e91e93e74c51a133149702d3bec4780a0ce9d2203c3ec9cb946843"
+  },
+  "old_behavior_regression_sha256": "c7f43d5026e825f259216e31bca8cab8aeaf2cb79a4736e198ad249fd02ac515"
+}

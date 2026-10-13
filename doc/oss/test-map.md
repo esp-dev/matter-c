@@ -22,6 +22,10 @@ exchange/status timeouts. CSA11 retains failing controls with the old behavior.
 exclusions. `test_runtime` and its allocation variant inject failed PASE requests
 and duplicates through public ingress, checking the twentieth-attempt closure
 and isolation of another runtime. CSA12 records a failing old-runtime control.
+`test_fabric` also fills the fabric table and admits a distinct pending RCAC,
+checks signature/storage errors and TableFull, then verifies rollback/root-only
+journal recovery without changing installed records or keys. CSA13 records its
+failing old-host control and the unchanged official CADMIN 1.19/OPCREDS 3.1 results.
 
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts

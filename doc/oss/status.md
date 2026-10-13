@@ -1,5 +1,18 @@
 # Development status
 
+CSA13 removes the premature full-table error from RCAC admission. A verified
+pending root uses the existing journal slot; **AddNOC returns TableFull** when
+all five fabric slots are occupied. **TC_CADMIN_1_19 passes (run 325)** after
+baseline run 324 reproduces IM ResourceExhausted at AddTrustedRootCertificate.
+**TC_OPCREDS_3_1 also passes (run 326)** with its unchanged official assertions.
+Latest matrix: **88 PASS, 17 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**; other rows
+are inherited. Six focused tests pass normally and with ASan/UBSan/LSan; the
+old-code control fails. Full two-instance Memcheck and separate sanitizer runs
+pass, with zero Memcheck errors/leaks. No pool, API or storage-schema expansion.
+See [CSA13 evidence and limits](csa13-validation.md) and
+[all attempts](csa13-results.json).
+**Next: CSA14 - Network Commissioning Wi-Fi fixture and TC_CNET_4_1/4_4.**
+
 CSA12 closes the initial/enhanced commissioning window after 20 failed PASE
 attempts. Notifications are one-shot, counters belong to each runtime/window,
 and existing CASE administration survives. **TC_CADMIN_1_9 passes (run 322)**
@@ -12,7 +25,7 @@ two-instance Memcheck and separate sanitizer runs pass, with zero Memcheck
 errors/leaks. See [CSA12 evidence and limits](csa12-validation.md) and
 [all attempts](csa12-results.json). Counting failures after successful PASE is
 outside this repair and remains for separate acceptance.
-**Next: CSA13 - TC_CADMIN_1_19, full fabric table and failure status.**
+CSA13 above records the subsequent full-table commissioning acceptance.
 
 CSA11 fixes excess unchanged Operational Credentials reports, empty attribute-only
 updates before MaxInterval, and premature cancellation on late heartbeat wakeups.

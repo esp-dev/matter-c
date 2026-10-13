@@ -5,7 +5,7 @@
 enum { MATTER_FABRIC_CAPACITY=5, MATTER_FABRIC_CERT_MAX=400 };
 /* Public store view only; private operational keys and IPKs stay in backend.
  * Five real slots (Core minimum). A pending root is an extra journal entry,
- * but TrustedRootCertificates never exceeds the supported capacity. */
+ * so TrustedRootCertificates can include one additional pending certificate. */
 typedef struct {
     char discovery_instance[34]; /* Uppercase compressed-fabric + node identifier. */
     uint8_t index, root_public[65], operational_public[65], compressed_id[8];

@@ -122,7 +122,9 @@ static uint8_t root(void* u,Matter_Cert_Tlv_T cert) {
     Matter_Result_T r=matter_operational_cert_verify_root(&h->crypto,cert);
     bool duplicate=false;
     for(unsigned j=0;j<5;++j) if(v->records[j].index && v->records[j].root_size==cert.size && !memcmp(v->records[j].root,cert.data,cert.size)) duplicate=true;
-    uint8_t status=r!=MATTER_OK?MATTER_IM_INVALID_COMMAND:!duplicate && v->count==5?MATTER_IM_RESOURCE_EXHAUSTED:h->control.fail_store?MATTER_IM_FAILURE:0;
+    /* The pending RCAC has its own journal slot. Fabric capacity is reported by
+     * AddNOC as NOCResponse.TableFull (Core 11.18.6.8), not an IM error here. */
+    uint8_t status=r!=MATTER_OK?MATTER_IM_INVALID_COMMAND:h->control.fail_store?MATTER_IM_FAILURE:0;
     if(!status && !v->root_ready) {
         before(h);
         i->data.saved_next=i->data.next_index; i->data.journal=true;

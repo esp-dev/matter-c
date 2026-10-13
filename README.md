@@ -84,6 +84,10 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The [CSA13 report](doc/oss/csa13-validation.md) records full-fabric-table acceptance:
+unchanged TC_CADMIN_1_19 and TC_OPCREDS_3_1 pass after removing premature RCAC
+rejection, allowing AddNOC to return TableFull. See [result delta](doc/oss/csa13-results.json).
+
 The [CSA12 report](doc/oss/csa12-validation.md) records the failed-PASE attempt
 limit: unchanged TC_CADMIN_1_9 and TC_CADMIN_1_11 pass after closing the window
 at twenty failures. See [result delta and coverage limits](doc/oss/csa12-results.json).
