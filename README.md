@@ -84,6 +84,10 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The [CSA12 report](doc/oss/csa12-validation.md) records the failed-PASE attempt
+limit: unchanged TC_CADMIN_1_9 and TC_CADMIN_1_11 pass after closing the window
+at twenty failures. See [result delta and coverage limits](doc/oss/csa12-results.json).
+
 The [CSA11 report](doc/oss/csa11-validation.md) records concurrent resource
 acceptance: TC_RR_1_1 passes with 15 subscriptions across five fabrics, including
 the optional unchanged-session-ID check. TC_IDM_4_3 also passes after repairs to

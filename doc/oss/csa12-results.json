@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "773a7c9a52590f43e868c7a7886b1738573ff37b5fd2a686ed9836ae8b1de704",
+  "previous": "csa11-results.json",
+  "previous_sha256": "b51adf02d3a252ecd4b426ac1e91b2e87d88eca328ad756a023a8f5fee63ba6f",
+  "tracked_document_hash_encoding": "Git blob bytes (LF); private execution/build artifacts are hashed byte-for-byte.",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Twenty failed PASE attempts close the initial/enhanced commissioning window; per-window epoch and duplicate-safe notification. Unchanged official CADMIN 1.9 and 1.11. Later failures after successful PASE are outside this acceptance. Other matrix rows inherited.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 87,
+    "FAIL": 18
+  },
+  "baseline_dut_sha256": "b34dd529e1971bcd30911be4c0560cf3bd5528a9b7a8a7140aeef0aa74b8a834",
+  "final_dut_sha256": "66cb069e4dc20cd152ab4551f625bb0bb5ead20c95d0dc74902e9b06650a6297",
+  "source_manifest_sha256": "ce4908abb9e41fb8d3e0d2f696c3906b43835ce2730d11319ff19bf53f4fad4b",
+  "builds": {
+    "final matter-node": "66cb069e4dc20cd152ab4551f625bb0bb5ead20c95d0dc74902e9b06650a6297",
+    "final cmake/tests/runtime-pair-host": "f5d12eed3dcc29398a2ac29b12c974b3df6812a43588c317614abed4136b01d9",
+    "sanitize matter-node": "93ac71f31674f92ed743a8afc5409871c8420755ab95d79ddebe8ecc731e3a22",
+    "sanitize cmake/tests/runtime-pair-host": "b89cc48df5056c8a2d433b618a881a6f424b73100ad27c74ff37ac57e2d8a22b"
+  },
+  "attempts": [
+    {
+      "case": "TC_CADMIN_1_9",
+      "endpoint": 0,
+      "run_id": 321,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "dut_sha256": "b34dd529e1971bcd30911be4c0560cf3bd5528a9b7a8a7140aeef0aa74b8a834",
+      "step_states": {
+        "passed": 5,
+        "failed": 1,
+        "pending": 2
+      },
+      "evidence_sha256": "9258eb214c23ad5d8d68532075e68e6e2c259b41ba98bd480262f0ed3bcac05f",
+      "official_log_sha256": "d73db72db5315020d59f6c6f10cd52d8d2f1ba0df8d188e203130b59591bb002",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "ad0d27f0e4d55a842ca05a237eeeeb08c4b125534c2539e24f000afc7c52a8b4"
+    },
+    {
+      "case": "TC_CADMIN_1_9",
+      "endpoint": 0,
+      "run_id": 322,
+      "status": "PASS",
+      "source_stage": "final",
+      "dut_sha256": "66cb069e4dc20cd152ab4551f625bb0bb5ead20c95d0dc74902e9b06650a6297",
+      "step_states": {
+        "passed": 8
+      },
+      "evidence_sha256": "71daf0bee58296f35ceda2b232422832a784fbb7058832ee7ce461e3aacec2f4",
+      "official_log_sha256": "0f8a3804d24ed5392c0ca82b7d764be4eec0168297b8c4dd819d2d430552052a",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "ad0d27f0e4d55a842ca05a237eeeeb08c4b125534c2539e24f000afc7c52a8b4"
+    },
+    {
+      "case": "TC_CADMIN_1_11",
+      "endpoint": 0,
+      "run_id": 323,
+      "status": "PASS",
+      "source_stage": "final",
+      "dut_sha256": "66cb069e4dc20cd152ab4551f625bb0bb5ead20c95d0dc74902e9b06650a6297",
+      "step_states": {
+        "passed": 13,
+        "not_applicable": 4
+      },
+      "evidence_sha256": "71c75e25edb4180a168e32779f4386ad79948aad4d61c0dea94284c614338574",
+      "official_log_sha256": "e59f0e929b0e64f142544ed20ded1a28867e94002bfdeea382d081fe8f58e216",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "8ccdd5e46de7e65b54379748120a33a4c7db8a91bba2b58742192e5b0907319e"
+    }
+  ],
+  "native_tests": [
+    "test_pase",
+    "test_dispatch",
+    "test_root",
+    "test_runtime",
+    "test_runtime_alloc"
+  ],
+  "native_normal_log_sha256": "dcd485715cb48c2494523dcbb58d2175966fed595a847fc83a22373053a42e82",
+  "native_sanitizer_log_sha256": "5ddf0a0c86f979d3bea56ad97e84de274a4d07407a3bc427e0dbe9118b68cdf5",
+  "memory": {
+    "results": [
+      {
+        "mode": "memcheck",
+        "returncode": 0
+      },
+      {
+        "mode": "sanitize",
+        "returncode": 0
+      }
+    ],
+    "results_sha256": "a332e76107da92611d50888f8a73919b522ec21eef0e5b7eb74b613c85f4d40c",
+    "valgrind_log_sha256": "0207cdc7880ede465a3fa4c576f3894e46b0c79c4f9442ee73e767cb96ca953c",
+    "pair_memcheck_sha256": "23d7d36e8d935be83910a5c3c6da073f43e88b57ed592870ddd5c7a22cdd324c",
+    "pair_sanitize_sha256": "90f1a38f83e91e93e74c51a133149702d3bec4780a0ce9d2203c3ec9cb946843"
+  },
+  "old_behavior_regression_sha256": "4488db1a0dd1aa600faa0957e1baa2614a8ce7e3928a2d9e7b067e9aad0a2889"
+}

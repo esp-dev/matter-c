@@ -119,10 +119,17 @@ Latest matrix: 86 PASS, 19 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. See
 [evidence](oss/csa11-validation.md) and [all attempts](oss/csa11-results.json).
 Group-resource branches remain outside this profile's exercised RR coverage.
 
-**Next task: CSA12 - repeated incorrect passcodes and commissioning-window
-behavior (TC_CADMIN_1_9).** Reproduce the rejection/rate-limiting failure and
-reconcile the window lifecycle with Core, without weakening the official test.
-Retain the historical discovery attribution limit.
+CSA12 closes the initial/enhanced window after twenty failed PASE attempts,
+with one-shot notifications and per-window epochs. Unchanged TC_CADMIN_1_9 and
+TC_CADMIN_1_11 pass; the matrix is 87 PASS, 18 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA.
+Native regressions and both full memory scenarios pass. See
+[evidence and limits](oss/csa12-validation.md) and [all attempts](oss/csa12-results.json).
+Counting repeated failures after successful PASE still needs a separate Core
+5.5.1 review. Retain the historical discovery attribution limit.
+
+**Next task: CSA13 - TC_CADMIN_1_19, full fabric table and failure status.**
+Reproduce RESOURCE_EXHAUSTED versus the expected table-full result and trace
+the failing commissioning step against Core and the unchanged official assertions.
 
 Subsequent passes must resolve remaining read validation, diagnostics, discovery
 and resource limits, and prepare the

@@ -3,6 +3,8 @@
 #include "runtime/matter_host_limits.h"
 #include "clusters/matter_time_sync.h"
 #include "crypto/matter_crypto_mbedtls.h"
+#include "codec/matter_message_header.h"
+#include "codec/matter_protocol_header.h"
 #include "test_opcreds_vectors.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +23,7 @@ typedef struct {
     Matter_Wifi_Settings_T settings; Matter_Wifi_Id_T connected;
     uint8_t key[32],*blob; size_t blob_size;
     unsigned stores,pumps,clocks,logs; uint64_t event_high,epoch;
+    bool accept_packets; uint64_t pending_packet;
     bool fail_store,fail_clock,fail_initialize,fail_snapshot;
     uint64_t wifi_token; bool cancelling,hold_cancel;
     Matter_Cluster_T time_sync; Matter_Time_Sync_Sample_T time_sample;
@@ -76,7 +79,10 @@ static Matter_Result_T event_load(void* u,uint64_t* v) { return matter_store_hos
 static Matter_Result_T event_store(void* u,uint64_t v) { return matter_store_host_event_store(matter_runtime_store(((Node*)u)->runtime),v); }
 static Matter_Result_T activate(void* u,Matter_Operation_Id_T epoch) { ((Node*)u)->epoch=epoch; return MATTER_OK; }
 static void deactivate(void* u,Matter_Operation_Id_T epoch) { Node* n=u; CHECK(n->epoch==epoch); n->epoch=0; }
-static Matter_Result_T send_packet(void* u,uint64_t id,const Matter_Udp_Datagram_T* d) { (void)u; (void)id; (void)d; return MATTER_OFFLINE; }
+static Matter_Result_T send_packet(void* u,uint64_t id,const Matter_Udp_Datagram_T* d) {
+    (void)d; Node* n=u; if(!n->accept_packets) return MATTER_OFFLINE;
+    CHECK(!n->pending_packet); n->pending_packet=id; return MATTER_OK;
+}
 static void cancel_packet(void* u,uint64_t id) { (void)u; (void)id; CHECK(false); }
 static void detach(void* u) { CHECK(!((Node*)u)->epoch); }
 static void received(void* u,const Matter_Udp_Datagram_T* d) { matter_runtime_received(((Node*)u)->runtime,d); }
@@ -171,6 +177,39 @@ static void close_runtime(Node* n,uint64_t now) {
     }
 }
 static void free_node(Node* n) { CHECK(!n->runtime && !n->owner); free(n->blob); CHECK(matter_crypto_mbedtls_delete(n->crypto)==MATTER_OK); memset(n,0,sizeof(*n)); free(n); }
+static void commissioning_failures(void) {
+    Node* a=node_new(0); Node* b=node_new(1); start_node(a); start_node(b); a->accept_packets=true;
+    uint64_t now=0; uint8_t bytes[40]; size_t n,h;
+    Matter_Udp_Datagram_T packet={.path={.local={.address={0xfe,0x80},.port=5541},
+        .peer={.address={0xfe,0x80},.port=6000},.interface_id=1},.data=bytes};
+    packet.path.local.address[15]=1; packet.path.peer.address[15]=2;
+    for(unsigned attempt=0;attempt<21;++attempt) {
+        Matter_Message_Header_T mh={.message_flags=MATTER_MESSAGE_SOURCE_PRESENT,.source_node_id=123,.message_counter=100+attempt};
+        Matter_Protocol_Header_T ph={.opcode=0x20,.exchange_id=(uint16_t)(1+attempt),
+            .exchange_flags=MATTER_PROTOCOL_INITIATOR|MATTER_PROTOCOL_RELIABLE};
+        CHECK(matter_message_header_write(&mh,bytes,sizeof(bytes),&n)==MATTER_MESSAGE_OK);
+        CHECK(matter_protocol_header_write(&ph,bytes+n,sizeof(bytes)-n,&h)==MATTER_MESSAGE_OK);
+        bytes[n+h]=0x15; bytes[n+h+1]=0x18; packet.size=n+h+2; /* Invalid PBKDFParamRequest. */
+        for(unsigned repeat=0;repeat<(attempt==0?25u:1u);++repeat) {
+            matter_runtime_received(a->runtime,&packet);
+            /* Let ACK/exchange cleanup finish before starting a new attempt;
+             * admission BUSY is not a failed admitted PASE handshake. */
+            for(unsigned tick=0;tick<5;++tick) {
+                if(a->pending_packet) {
+                    uint64_t id=a->pending_packet; a->pending_packet=0;
+                    CHECK(matter_udp_complete(a->udp,id,MATTER_OPERATION_SUCCEEDED)==MATTER_OK);
+                }
+                (void)matter_udp_process(a->udp); now+=1000; run(a,now);
+            }
+            if(matter_runtime_commissionable(a->runtime)!=(attempt<19))
+                fprintf(stderr,"commissioning attempt=%u duplicate=%u open=%u\n",attempt+1,repeat,matter_runtime_commissionable(a->runtime));
+            CHECK(matter_runtime_commissionable(a->runtime)==(attempt<19));
+            CHECK(matter_runtime_commissionable(b->runtime));
+        }
+    }
+    close_runtime(a,now); close_runtime(b,now); free_node(a); free_node(b);
+    puts("PASS initial commissioning window: 20 failed PASE attempts, duplicate filtering, closed admission and independent runtime");
+}
 int main(void) {
     Node* a=node_new(0); Node* b=node_new(1);
     CHECK(!matter_runtime_new(NULL,20202021,0)); CHECK(!matter_runtime_new(&a->config,11111111,0));
@@ -228,6 +267,7 @@ int main(void) {
     CHECK(matter_store_host_event_load(matter_runtime_store(a->runtime),&a->event_high)==MATTER_OK && a->event_high>ha+100);
     CHECK(matter_store_host_event_load(sb,&b->event_high)==MATTER_OK && b->event_high==hb+300);
     close_runtime(a,2); close_runtime(b,61); free_node(a); free_node(b);
+    commissioning_failures();
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live);
 #endif

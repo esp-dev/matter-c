@@ -41,6 +41,13 @@ typedef enum { MATTER_PASE_WAITING, MATTER_PASE_OUTPUT, MATTER_PASE_COMPLETE, MA
  * no extension by traffic/retries. NULL invalid config/port/OOM. Clear input copies.
  */
 Matter_Pase_T matter_pase_new(const Matter_Crypto_Port_T* port, const Matter_Pase_Config_T* config, uint64_t now_ms);
+/* Optional owner notification, installed once before first receive/process.
+ * Called exactly once for protocol/peer failure or attempt timeout, never for
+ * explicit cancel/delete. token identifies the owner's commissioning window.
+ * user must outlive this attempt; callback may only update owner state, never
+ * reenter/delete this engine or its dispatcher. No callback on successful PASE. */
+Matter_Result_T matter_pase_on_failure(Matter_Pase_T,void* user,uint64_t token,
+    void (*failed)(void*,uint64_t));
 /* Only copy one payload; no parsing/crypto. Call from accepted RX delivery AFTER
  * binding same unsecured session/exchange, protocol/vendor 0, peer I flag, R=1,
  * and duplicate filtering. Caller must reject unrelated exchanges before here.

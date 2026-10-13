@@ -9,6 +9,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+
+enum { COMMISSIONING_FAILURE_LIMIT=20 }; /* Core 1.6.1 section 5.5.1. */
 typedef struct { Matter_Credentials_Port_T base; void* user; Matter_Result_T (*utc)(void*,Matter_Cert_Time_T*); bool chip_validity; } Host_Credentials_T;
 struct Matter_Runtime {
     Matter_Root_Config_T identity; Matter_Root_T root; Matter_Dispatch_T dispatch;
@@ -31,6 +33,8 @@ struct Matter_Runtime {
     Matter_Ota_Update_T update; Matter_Ota_Signed_T proof;
     uint64_t notify; uint8_t notify_args[48]; bool ota_reboot,applied_event;
     uint64_t deadline; bool window,enhanced,stopping,stopped,reset,recovering;
+    uint64_t commissioning_epoch; unsigned commissioning_failures;
+    bool close_failed_window;
     char log_buffer[384];
 };
 static void runtime_log(Matter_Runtime_T s,const char* format,...) {
@@ -148,13 +152,27 @@ static Matter_Result_T regulatory(void* u,const Matter_Root_Settings_T* settings
     if(r==MATTER_OK && *supported) r=store(u,settings);
     return r;
 }
+static void pase_failed(void* u,uint64_t epoch) {
+    Matter_Runtime_T s=u;
+    if(s->stopping || epoch!=s->commissioning_epoch || (!s->window && !s->enhanced)) return;
+    if(++s->commissioning_failures==COMMISSIONING_FAILURE_LIMIT) {
+        /* Close admission immediately; process owns cluster/discovery cleanup.
+         * Do not reenter the dispatcher from its PASE engine's notification. */
+        s->window=false; s->enhanced=false; s->close_failed_window=true;
+    }
+}
 static Matter_Pase_T pase(void* u,uint16_t id,uint64_t now) {
     Matter_Runtime_T s=u; if(s->stopping || s->recovering) return NULL;
     Matter_Root_Fail_Safe_State_T state;
     if(matter_root_fail_safe_state(s->root,&state)!=MATTER_OK || state==MATTER_ROOT_FAIL_SAFE_CLEANUP) return NULL;
-    if(s->enhanced) return matter_admin_commissioning_pase_new(s->admin,id,30000,now);
-    if(!s->window || now>=s->deadline) return NULL;
-    s->pase.local_session_id=id; return matter_pase_new(&s->crypto,&s->pase,now);
+    Matter_Pase_T p;
+    if(s->enhanced) p=matter_admin_commissioning_pase_new(s->admin,id,30000,now);
+    else {
+        if(!s->window || now>=s->deadline) return NULL;
+        s->pase.local_session_id=id; p=matter_pase_new(&s->crypto,&s->pase,now);
+    }
+    if(p && matter_pase_on_failure(p,s,s->commissioning_epoch,pase_failed)!=MATTER_OK) { (void)matter_pase_delete(p); return NULL; }
+    return p;
 }
 static Matter_Result_T admin_vendor(void* u,uint8_t index,uint16_t* vendor) {
     const Matter_Fabric_View_T* view=matter_runtime_fabrics(u);
@@ -168,7 +186,12 @@ static Matter_Result_T admin_blocked(void* u,bool* blocked) {
     return r;
 }
 static Matter_Result_T admin_advertise(void* u,bool open,uint16_t discriminator) {
-    Matter_Runtime_T s=u; s->enhanced=open; s->enhanced_discriminator=discriminator; return MATTER_OK;
+    Matter_Runtime_T s=u;
+    if(open) {
+        if(s->close_failed_window || s->commissioning_epoch==UINT64_MAX) return MATTER_INVALID_STATE;
+        ++s->commissioning_epoch; s->commissioning_failures=0;
+    }
+    s->enhanced=open; s->enhanced_discriminator=discriminator; return MATTER_OK;
 }
 static Matter_Result_T admin_revoke(void* u) {
     Matter_Runtime_T s=u; s->enhanced=false;
@@ -272,6 +295,7 @@ Matter_Runtime_T matter_runtime_new(const Matter_Runtime_Config_T* c,uint32_t pi
         s->crypto.p256_reduce(s->crypto.user,tmp+4,40,s->pase.w0)==MATTER_OK &&
         s->crypto.p256_reduce(s->crypto.user,tmp+44,40,tmp+84)==MATTER_OK && s->crypto.p256_base(s->crypto.user,tmp+84,32,s->pase.L)==MATTER_OK;
     erase(tmp,116); free(tmp); if(!valid) goto fail;
+    s->commissioning_epoch=1;
     s->window=s->fabric_port.view(s->fabric_port.user)->count==0; s->deadline=UINT64_MAX-now<900000?UINT64_MAX:now+900000;
     return s;
 fail:
@@ -545,6 +569,10 @@ Matter_Result_T matter_runtime_process(Matter_Runtime_T s,uint64_t now) {
         notify_process(s); return matter_dispatch_process(s->dispatch,now);
     }
     if(s->window && now>=s->deadline) s->window=false;
+    if(s->close_failed_window) {
+        (void)matter_admin_commissioning_close(s->admin); s->close_failed_window=false;
+        matter_dispatch_changed(s->dispatch);
+    }
     if(s->admin) (void)matter_cluster_process(s->admin,now);
     (void)matter_root_process(s->root,now);
     /* Keep the initial default-provider offer until boot notification finishes.

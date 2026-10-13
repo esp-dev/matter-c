@@ -38,7 +38,11 @@ typedef struct {
     bool commissioning_expiry;
     bool wifi_commissioning;
     bool opcreds_commissioning, fabric_commissioning;
+    unsigned failures[2];
 } PaseFixture;
+static void failed_attempt(void* u,uint64_t token) {
+    PaseFixture* f=u; REQUIRE(token>=100 && token<=101); ++f->failures[token-100];
+}
 static Matter_Pase_T new_pase(PaseFixture* f, unsigned i) {
     Matter_Pase_T s = matter_pase_new(&f->port, &f->config[i], 0);
 #ifdef MATTER_TEST_ALLOC
@@ -70,7 +74,11 @@ static PaseFixture* setup(bool known, bool bad_pin) {
     REQUIRE(f->port.p256_reduce(f->port.user, f->wide + 40, 40, f->w1) == MATTER_OK);
     REQUIRE(f->port.p256_base(f->port.user, f->w1, 32, f->config[1].L) == MATTER_OK);
     if (bad_pin) ++f->config[0].pin;
-    for (unsigned i = 0; i < 2; ++i) { f->s[i] = new_pase(f, i); REQUIRE(f->s[i]); }
+    for (unsigned i = 0; i < 2; ++i) {
+        f->s[i] = new_pase(f, i); REQUIRE(f->s[i]);
+        REQUIRE(matter_pase_on_failure(f->s[i],f,100+i,failed_attempt)==MATTER_OK);
+        REQUIRE(matter_pase_on_failure(f->s[i],f,100+i,failed_attempt)==MATTER_INVALID_STATE);
+    }
     return f;
 }
 static bool same_keys(PaseFixture* f) {
@@ -106,6 +114,7 @@ static bool core_success(void) {
         CHECK(matter_pase_confirm_delivery(f->s[1], 6) == MATTER_INVALID_STATE);
         CHECK(matter_pase_process(f->s[0], 5) == MATTER_INVALID_ARGUMENT);
         CHECK(matter_pase_cancel(f->s[0]) == MATTER_OK && matter_pase_keys(f->s[0], &f->keys[0]) == MATTER_INVALID_STATE);
+        CHECK(!f->failures[0] && !f->failures[1]);
         dispose(f); f = NULL;
     }
     ok = true;
@@ -147,6 +156,7 @@ static bool rejected(void) {
         CHECK(matter_pase_receive(f->s[receiver], m.opcode, f->buffer, m.size) == MATTER_OK);
         CHECK(matter_pase_process(f->s[receiver], 4) == MATTER_PORT_ERROR);
         CHECK(matter_pase_state(f->s[receiver]) == MATTER_PASE_FAILED);
+        CHECK(f->failures[receiver]==1 && matter_pase_process(f->s[receiver],4)==MATTER_PORT_ERROR && f->failures[receiver]==1);
         CHECK(matter_pase_keys(f->s[receiver], &f->keys[receiver]) == MATTER_INVALID_STATE);
         CHECK(matter_pase_output(f->s[receiver], &m) == MATTER_OK && m.opcode == 0x40 && m.size == 8);
         static const uint8_t error[] = {1,0,0,0,0,0,2,0};
@@ -155,6 +165,7 @@ static bool rejected(void) {
         CHECK(matter_pase_sent(f->s[receiver]) == MATTER_OK);
         CHECK(matter_pase_process(f->s[1-receiver], 5) == MATTER_PORT_ERROR);
         CHECK(matter_pase_output(f->s[1-receiver], &m) == MATTER_WOULD_BLOCK);
+        CHECK(f->failures[1-receiver]==1);
         dispose(f); f = NULL;
     }
     ok = true;
@@ -432,6 +443,8 @@ static bool network_abort(void) {
         CHECK(matter_pase_process(p->pase,0)==MATTER_PENDING && queue_pase(p) && tick(p,0) && p->retained);
         if (timeout) CHECK(matter_pase_process(p->pase,30000)==MATTER_PORT_ERROR);
         else CHECK(matter_pase_cancel(p->pase)==MATTER_OK);
+        CHECK(f->failures[0]==timeout && !f->failures[1]);
+        CHECK(matter_pase_process(p->pase,30000)==MATTER_PORT_ERROR && f->failures[0]==timeout);
         CHECK(matter_pase_keys(p->pase,&f->keys[0])==MATTER_INVALID_STATE);
         CHECK(matter_retransmission_sender_cancel(p->tx,p->message_id)==MATTER_PENDING);
         CHECK(p->tx_pins && !p->notifications); /* Retained bytes survive cancellation. */

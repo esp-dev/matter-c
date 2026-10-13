@@ -1,5 +1,19 @@
 # Development status
 
+CSA12 closes the initial/enhanced commissioning window after 20 failed PASE
+attempts. Notifications are one-shot, counters belong to each runtime/window,
+and existing CASE administration survives. **TC_CADMIN_1_9 passes (run 322)**
+after baseline run 321 reproduces acceptance of the correct PIN after twenty
+failures. **TC_CADMIN_1_11 also passes (run 323)**; four Basic Commissioning
+feature records remain N/A. Latest matrix: **87 PASS, 18 FAIL, 21 BLOCKED,
+32 MANUAL, 704 NA**; other rows are inherited. Five focused tests pass normally
+and with ASan/UBSan/LSan, and the old-runtime control fails as expected. Full
+two-instance Memcheck and separate sanitizer runs pass, with zero Memcheck
+errors/leaks. See [CSA12 evidence and limits](csa12-validation.md) and
+[all attempts](csa12-results.json). Counting failures after successful PASE is
+outside this repair and remains for separate acceptance.
+**Next: CSA13 - TC_CADMIN_1_19, full fabric table and failure status.**
+
 CSA11 fixes excess unchanged Operational Credentials reports, empty attribute-only
 updates before MaxInterval, and premature cancellation on late heartbeat wakeups.
 **TC_RR_1_1 passes (run 319)** with five fabrics, three controllers/subscriptions
@@ -11,8 +25,7 @@ are inherited, not rerun. See [CSA11 evidence](csa11-validation.md) and
 the limits of RR group-resource coverage.
 Seven focused tests pass normally and with ASan/UBSan/LSan. Full two-instance
 Memcheck reports zero errors/leaks; the separate sanitizer scenario also passes.
-**Next: CSA12, repeated incorrect passcodes and commissioning-window behavior
-(TC_CADMIN_1_9).**
+CSA12 above records incorrect-passcode and window-lifecycle acceptance.
 
 CSA10 adds missing host DNS-SD service/subtype enumeration, including the subtype
 listing used by CHIP/TH. **TC_SC_4_1 passes (run 312)** for enhanced commissioning

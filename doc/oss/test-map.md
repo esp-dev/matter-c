@@ -18,6 +18,10 @@ alongside its existing TC/NSEC/address/duplicate-response checks.
 DataVersion suppression; `test_root` and `test_im_subscribe` cover unrelated
 notifications, retained heartbeat deadlines, late owner-loop wakeups and bounded
 exchange/status timeouts. CSA11 retains failing controls with the old behavior.
+`test_pase` also checks one-shot failure notifications and success/cancel
+exclusions. `test_runtime` and its allocation variant inject failed PASE requests
+and duplicates through public ingress, checking the twentieth-attempt closure
+and isolation of another runtime. CSA12 records a failing old-runtime control.
 
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts

@@ -12,6 +12,8 @@ struct Matter_Pase {
 	Matter_Pase_Keys_T keys;
 	unsigned phase, after_send;
 	bool busy, queued, output, transferred;
+	bool started; void* failure_user; uint64_t failure_token;
+	void (*failed)(void*,uint64_t);
 	uint64_t now, deadline;
 	uint8_t in_opcode, out_opcode;
 	size_t in_size, out_size, request_size, response_size;
@@ -40,7 +42,8 @@ static void secrets(Matter_Pase_T s) {
 	s->port.clear(s->wide, 80); s->port.clear(s->w1, 32); s->port.clear(s->ke, 16);
 	s->port.clear(s->derived, 48); s->port.clear(s->pin, 4); s->port.clear(s->confirm, 32);
 }
-static void failure(Matter_Pase_T s, bool report) {
+static void failure(Matter_Pase_T s, bool report, bool notify) {
+	bool first=s->phase!=FAILED;
 	secrets(s); s->port.clear((uint8_t*)&s->keys, sizeof(s->keys));
 	s->queued = false; s->phase = FAILED; s->output = report;
 	if (report) {
@@ -48,6 +51,7 @@ static void failure(Matter_Pase_T s, bool report) {
 		memset(s->out, 0, 8); s->out[0] = 1; s->out[6] = 2;
 		s->out_size = 8; s->out_opcode = 0x40; s->after_send = FAILED;
 	}
+	if(first && notify && s->failed) s->failed(s->failure_user,s->failure_token);
 }
 Matter_Pase_T matter_pase_new(const Matter_Crypto_Port_T* p, const Matter_Pase_Config_T* c, uint64_t now) {
 	if (!p || !c || !p->random || !p->sha256 || !p->hmac_sha256 || !p->hkdf_sha256 ||
@@ -63,13 +67,19 @@ Matter_Pase_T matter_pase_new(const Matter_Crypto_Port_T* p, const Matter_Pase_C
 	s->keys.peer_intervals = (Matter_Pase_Intervals_T){500, 300, 4000};
 	return s;
 }
+Matter_Result_T matter_pase_on_failure(Matter_Pase_T s,void* user,uint64_t token,void (*failed)(void*,uint64_t)) {
+	Matter_Result_T r=check(s); if(r!=MATTER_OK) return r;
+	if(!failed) return MATTER_INVALID_ARGUMENT;
+	if(s->started || s->failed || s->phase==FAILED) return MATTER_INVALID_STATE;
+	s->failure_user=user; s->failure_token=token; s->failed=failed; return MATTER_OK;
+}
 Matter_Result_T matter_pase_receive(Matter_Pase_T s, uint8_t opcode, const uint8_t* data, size_t size) {
 	Matter_Result_T r = check(s); if (r != MATTER_OK) return r;
 	if (!data || !size) return MATTER_INVALID_ARGUMENT;
 	if (size > sizeof(s->in)) return MATTER_LIMIT_REACHED;
 	if (s->phase == INIT || s->phase == FAILED || s->phase == COMPLETE || s->phase == DELIVERY) return MATTER_INVALID_STATE;
 	if (s->queued || s->output) return MATTER_WOULD_BLOCK;
-	memcpy(s->in, data, size); s->in_size = size; s->in_opcode = opcode; s->queued = true;
+	s->started=true; memcpy(s->in, data, size); s->in_size = size; s->in_opcode = opcode; s->queued = true;
 	return MATTER_OK;
 }
 /* Validation handles all unknown nested values and duplicate tags first. Known
@@ -231,14 +241,14 @@ static bool work(Matter_Pase_T s) {
 Matter_Result_T matter_pase_process(Matter_Pase_T s, uint64_t now) {
 	Matter_Result_T r = check(s); if (r != MATTER_OK) return r;
 	if (now < s->now) return MATTER_INVALID_ARGUMENT;
-	s->now = now; s->busy = true;
+	s->now = now; s->busy = true; s->started=true;
 	if (s->phase == COMPLETE) r = MATTER_OK;
 	else if (s->phase == FAILED) r = MATTER_PORT_ERROR;
-	else if (now >= s->deadline) { failure(s, false); r = MATTER_PORT_ERROR; }
+	else if (now >= s->deadline) { failure(s, false, true); r = MATTER_PORT_ERROR; }
 	else if (s->output || (s->phase != INIT && !s->queued)) r = MATTER_PENDING;
 	else {
 		bool ok = work(s); s->queued = false;
-		if (!ok) { failure(s, s->in_opcode != 0x40 && s->phase != INIT); r = MATTER_PORT_ERROR; }
+		if (!ok) { failure(s, s->in_opcode != 0x40 && s->phase != INIT, true); r = MATTER_PORT_ERROR; }
 		else r = s->phase == COMPLETE ? MATTER_OK : MATTER_PENDING;
 	}
 	s->busy = false; return r;
@@ -259,7 +269,7 @@ Matter_Result_T matter_pase_confirm_delivery(Matter_Pase_T s, uint64_t now) {
 	if (s->phase != DELIVERY) return MATTER_INVALID_STATE;
 	if (now < s->now) return MATTER_INVALID_ARGUMENT;
 	s->now = now;
-	if (now >= s->deadline) { s->busy = true; failure(s, false); s->busy = false; return MATTER_PORT_ERROR; }
+	if (now >= s->deadline) { s->busy = true; failure(s, false, true); s->busy = false; return MATTER_PORT_ERROR; }
 	s->phase = COMPLETE; return MATTER_OK;
 }
 Matter_Result_T matter_pase_keys(Matter_Pase_T s, Matter_Pase_Keys_T* out) {
@@ -290,7 +300,7 @@ Matter_Pase_State_T matter_pase_state(Matter_Pase_T s) {
 }
 Matter_Result_T matter_pase_cancel(Matter_Pase_T s) {
 	Matter_Result_T r = check(s); if (r != MATTER_OK) return r;
-	s->busy = true; failure(s, false); s->busy = false; return MATTER_OK;
+	s->busy = true; failure(s, false, false); s->busy = false; return MATTER_OK;
 }
 Matter_Result_T matter_pase_delete(Matter_Pase_T s) {
 	if (!s) return MATTER_OK;

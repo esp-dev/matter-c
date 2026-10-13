@@ -80,6 +80,17 @@ window closes. Failed persistence does not publish this notification. The option
 `Matter_Fabric_Host_Events_T.removed` callback runs synchronously on the owner
 thread and must not reenter the fabric adapter; callback users remain borrowed.
 
+The runtime closes its initial or enhanced commissioning window after 20 failed
+PASE attempts. Protocol/peer failures and timeouts count once per admitted
+attempt; packet duplicates and explicit local cancellation do not. A new enhanced
+window resets the counter and advances its epoch, so an older attempt cannot
+consume the new window's budget. Admission closes immediately at the limit;
+the next owner process pass clears the Admin window and drives discovery
+withdrawal. CASE administration remains available. This counter currently covers
+PASE failures; later-stage commissioning failures need separate acceptance.
+Custom PASE owners can install `matter_pase_on_failure` before starting an attempt
+and must keep its borrowed callback context alive through engine deletion.
+
 Descriptor, Basic Information and General Commissioning use their existing
 DataVersion for subscription change reporting. Unrelated application measurement
 notifications no longer repeat unchanged built-in values. Reads still return the
