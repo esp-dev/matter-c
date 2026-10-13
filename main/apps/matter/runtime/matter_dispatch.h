@@ -56,7 +56,10 @@ Matter_Result_T matter_dispatch_process(Matter_Dispatch_T,uint64_t now);
 /* Borrowed authenticated session only; NULL for unknown/revoked tokens. */
 Matter_Secure_T matter_dispatch_session(Matter_Dispatch_T,Matter_Exchange_Session_T);
 /* Revoke all PASE sessions, optionally all CASE sessions too. Repeated calls
- * drive retirement; include_case=false preserves CASE. Call before rollback. */
+ * drive retirement; include_case=false preserves CASE. Call before rollback.
+ * An expiry response waits for local UDP completion, not a peer ACK. OK means
+ * those session contexts have drained as well, so rollback can clear credentials.
+ * include_case=true cancels any remaining response immediately. */
 Matter_Result_T matter_dispatch_retire(Matter_Dispatch_T,bool include_case);
 Matter_Result_T matter_dispatch_retire_fabric(Matter_Dispatch_T,uint8_t index);
 void matter_dispatch_changed(Matter_Dispatch_T);

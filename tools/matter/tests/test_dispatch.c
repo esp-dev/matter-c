@@ -109,13 +109,11 @@ static void expiry_retirement(Matter_Dispatch_T d) {
             CHECK(!c->retiring && !t->closing && c->removal_reply==t->handle);
             uint64_t deadline=c->removal_deadline;
             CHECK(!matter_dispatch_session(d,100) && !create_handler(d,t,8));
-            t->sent=true; /* UDP submission alone must not retire the reply. */
+            t->sent=true; d->sending=c; /* UDP submission alone is not completion. */
             CHECK(matter_dispatch_retire_fabric(d,1)==MATTER_PENDING && !c->retiring && c->removal_deadline==deadline);
-            if(mode==0) {
-                Matter_Retransmission_Result_T r={.message={.exchange=t->key},.outcome=MATTER_RETRANSMISSION_ACKNOWLEDGED};
-                finished(d,&r);
-            } else if(mode==1) t->closing=true;
-            else c->removal_deadline=d->now;
+            d->sending=NULL; /* Actual UDP completion; deliberately no peer ACK. */
+            if(mode==1) t->closing=true;
+            else if(mode==2) { t->sent=false; c->removal_deadline=d->now; }
             CHECK(matter_dispatch_retire_fabric(d,1)==MATTER_PENDING && c->retiring && t->closing);
         }
         memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,sizeof(d->transactions));
@@ -125,8 +123,13 @@ static void expiry_retirement(Matter_Dispatch_T d) {
     *c=(Connection){.token=100};
     *t=(Transaction){.owner=d,.handle=1,.key={100,1,false},.expiry_reply=true};
     CHECK(matter_dispatch_retire(d,false)==MATTER_PENDING && !t->closing && !c->retiring && c->removal_reply==1);
+    CHECK(!matter_dispatch_session(d,100) && !create_handler(d,t,8));
+    t->sent=true; d->sending=c;
+    CHECK(matter_dispatch_retire(d,false)==MATTER_PENDING && !c->retiring && !t->closing);
+    d->sending=NULL;
+    CHECK(matter_dispatch_retire(d,false)==MATTER_PENDING && c->retiring && t->closing && !t->notified);
     memset(c,0,sizeof(*c)); memset(t,0,sizeof(*t));
-    puts("PASS fail-safe retirement: unique response through ACK/error/deadline, PASE and pending CASE; other sessions revoked, other fabric preserved");
+    puts("PASS fail-safe retirement: local UDP completion without peer ACK, error/deadline, PASE and pending CASE; other fabric preserved");
 }
 static void udp_sent(void* u,uint64_t id,Matter_Operation_Result_T r) { matter_dispatch_sent(*(Matter_Dispatch_T*)u,id,r); }
 static Matter_Result_T take_keys(void* u,Matter_Pase_Keys_T* keys,Matter_Secure_Identity_T* identity) {

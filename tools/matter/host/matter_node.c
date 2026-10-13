@@ -116,8 +116,10 @@ static bool meter_process(Node* n,uint64_t now) {
     const Matter_Fabric_View_T* fabrics=matter_server_fabrics(n->server);
     if(fabrics && (!n->clock_fabrics_seen || fabrics->revision!=n->clock_fabric_revision)) {
         uint64_t floor=0;
-        for(unsigned i=0;i<fabrics->count;++i) {
+        /* Removing a fabric leaves a free slot; count is not an array bound. */
+        for(unsigned i=0;i<MATTER_FABRIC_CAPACITY;++i) {
             const Matter_Fabric_Record_T* f=&fabrics->records[i];
+            if(!f->index) continue;
             if(!certificate_floor(f->noc,f->noc_size,&floor) || !certificate_floor(f->root,f->root_size,&floor) ||
                 (f->icac_size && !certificate_floor(f->icac,f->icac_size,&floor))) return false;
         }

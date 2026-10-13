@@ -120,6 +120,16 @@ static void case_addition(const Matter_Crypto_Port_T* crypto,const Matter_Creden
     OC_CHECK(!f->port.view(f->host)->root_ready && f->port.view(f->host)->count==1);
     f->control.fail_store=false; matter_fabric_host_control(f->host,&f->control);
     case_call(f,11,true,0,0); case_call(f,11,true,0,0);
+    /* Core 11.18.6.13: an identical installed RCAC succeeds without growing
+     * TrustedRootCertificates, even while a new fail-safe is armed. */
+    Matter_Im_Value_T roots;
+    OC_CHECK(matter_opcreds_read_fabric(f->o->core,4,1,false,&roots)==0);
+    OC_CHECK(matter_tlv_init(&f->reader,roots.data,roots.size,2)==MATTER_TLV_OK &&
+        matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type==MATTER_TLV_ARRAY &&
+        matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type==MATTER_TLV_BYTES &&
+        f->e.size==sizeof(fab_root) && !memcmp(f->e.data,fab_root,sizeof(fab_root)) &&
+        matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type==MATTER_TLV_END &&
+        matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_DONE);
     fab_request(f,6,FAB_CERT(fab_noc1),(Matter_Cert_Tlv_T){0},55);
     case_call(f,6,false,0xca,0); case_call(f,6,true,0,4); /* Missing CSR. */
     fab_scalar_value=11; oc_request(f->o,4,0,32,false);

@@ -1,0 +1,365 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "c39daadaaad68c36505287c773bcc2515aeaaea10de3819375c8d15576e14fb9",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Commissioning, fail-safe and selective fabric/session teardown. Other results inherited from CSA01, not rerun.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 77,
+    "FAIL": 28
+  },
+  "final_recheck_count": 7,
+  "final_dut_sha256": "ea6f6038aa6aa9527a817d1bc7564d440fc330f1afd8032039850a3ac13ec382",
+  "source_manifest_sha256": "74cf71a6e42968c5f91a5a8eb9e7db588be3b4c39bfc9045ec79e1f28c38e087",
+  "attempts": [
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "run_id": 235,
+      "phase": "baseline",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 10,
+        "failed": 1,
+        "pending": 39
+      },
+      "evidence_sha256": "7444f3628c47dad74ef729952e9661d51ce51a668762dbb47158348b17f7ab7c",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_2",
+      "endpoint": 0,
+      "run_id": 236,
+      "phase": "baseline",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 10,
+        "failed": 1
+      },
+      "evidence_sha256": "d2685cfcbaaf23f65d39ea73cc914c5523fca7dd6febd5445ed3cc112e5ba44f",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "run_id": 237,
+      "phase": "trace2",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 10,
+        "failed": 1,
+        "pending": 39
+      },
+      "evidence_sha256": "979b8bf107abb9e2e278f0e2e8ed2b56cd67273e4045ccf2ab902115e1fbabb3",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_2",
+      "endpoint": 0,
+      "run_id": 238,
+      "phase": "fix1",
+      "source_stage": "exploratory",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 11
+      },
+      "evidence_sha256": "326872990d682c157f902d1467102cc814f66dd6fe9a026005514e254b9d8ffa",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_15",
+      "endpoint": 0,
+      "run_id": 239,
+      "phase": "fix1",
+      "source_stage": "exploratory",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 23
+      },
+      "evidence_sha256": "14bb85bcdbb285f3266143d1c58738d5b27e6ec67816bc92a0b1c4516aa87bf9",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_1",
+      "endpoint": 0,
+      "run_id": 240,
+      "phase": "trace",
+      "source_stage": "exploratory",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 3
+      },
+      "evidence_sha256": "e585a8ea94570c2195de4c67a861f56f010c2f514aca6c55b74aead3a679f1a7",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "run_id": 241,
+      "phase": "trace",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 15,
+        "failed": 1,
+        "pending": 1
+      },
+      "evidence_sha256": "1ebc09495f1dced51fcde03d01c5a3c8ff760f671bd15bbdb448c4413aa327cc",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "run_id": 242,
+      "phase": "cleanup",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 15,
+        "failed": 1,
+        "pending": 1
+      },
+      "evidence_sha256": "e1655c05210b7cde9159da0ef06e5a605dba0a48c6b0f7f6e3c15184f8b5bfb1",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "run_id": 243,
+      "phase": "final",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 13,
+        "failed": 1,
+        "pending": 3
+      },
+      "evidence_sha256": "81e1aced8dc5f7a0f6bb91cafb5bd1508096dfdb56c65001bc0498ce761a0927",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_1",
+      "endpoint": 0,
+      "run_id": 244,
+      "phase": "final",
+      "source_stage": "exploratory",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 3
+      },
+      "evidence_sha256": "be10ed7a5fc2def1e17d7fd140cc011edb76aa30cd39345278979f63d3589f9f",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_2",
+      "endpoint": 0,
+      "run_id": 245,
+      "phase": "final",
+      "source_stage": "exploratory",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 11
+      },
+      "evidence_sha256": "daa726bc659947bad926393c899e6119c94f6c9b408da9a30c3e68d896404f47",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_15",
+      "endpoint": 0,
+      "run_id": 246,
+      "phase": "final",
+      "source_stage": "exploratory",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 23
+      },
+      "evidence_sha256": "f9f6d39f6e8f62bcd7f47025934fed48911ea63c9a1234c9f71bf264792440c3",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "run_id": 247,
+      "phase": "final",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 10,
+        "failed": 1,
+        "pending": 39
+      },
+      "evidence_sha256": "6fd1ea4adb0764d399c64b8dbf1629b61da57f61969ce68a7baec390e77b38a0",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "run_id": 248,
+      "phase": "final",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 32,
+        "failed": 1
+      },
+      "evidence_sha256": "e2875ccc650d801e276a4e7498580204952aa6905651b1e176ca25b493c5235e",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "run_id": 249,
+      "phase": "final",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 12,
+        "failed": 1,
+        "pending": 1
+      },
+      "evidence_sha256": "8c5e564379ee77db334012b83bbbe84fb41bae9326e772f1f505075acc0ead79",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "run_id": 250,
+      "phase": "final2",
+      "source_stage": "exploratory",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 15,
+        "failed": 1,
+        "pending": 1
+      },
+      "evidence_sha256": "145b059a76508565688992d3f4d7aa5e2e97fdcaca08f49584b4d8671ec0e830",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "run_id": 251,
+      "phase": "accept",
+      "source_stage": "final",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 17
+      },
+      "evidence_sha256": "b1320b37bb880e3cb4aed9067b436ae5fd3b55e2e43282268619deaac32824bc",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_1",
+      "endpoint": 0,
+      "run_id": 252,
+      "phase": "accept",
+      "source_stage": "final",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 3
+      },
+      "evidence_sha256": "486e6a1f28928228a68702e83832b1bc18351956fe4c876385ffbff74158c4f9",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_2",
+      "endpoint": 0,
+      "run_id": 253,
+      "phase": "accept",
+      "source_stage": "final",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 11
+      },
+      "evidence_sha256": "1d67b0b11ce6e2c0ceafab3d663bc9fea5f3f88b4d4d50134c57c18e094f0b84",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_15",
+      "endpoint": 0,
+      "run_id": 254,
+      "phase": "accept",
+      "source_stage": "final",
+      "status": "PASS",
+      "th_state": "TestStateEnum.passed",
+      "step_states": {
+        "passed": 23
+      },
+      "evidence_sha256": "29a329ea7310e3542c04e40a79a7102571284e35079c37a14197e9c72db889a0",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "run_id": 255,
+      "phase": "accept",
+      "source_stage": "final",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 10,
+        "failed": 1,
+        "pending": 39
+      },
+      "evidence_sha256": "0bd10e48b7ebbc6a695c928e2bd56f90d4e2514f51e251aebd62782b15b21d6b",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "run_id": 256,
+      "phase": "accept",
+      "source_stage": "final",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 32,
+        "failed": 1
+      },
+      "evidence_sha256": "c6d571cba138187e470f7fd179185f403472b34ea429ab91fec5203d4166b1a2",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "run_id": 257,
+      "phase": "accept",
+      "source_stage": "final",
+      "status": "FAIL",
+      "th_state": "TestStateEnum.failed",
+      "step_states": {
+        "passed": 12,
+        "failed": 1,
+        "pending": 1
+      },
+      "evidence_sha256": "81ffe370640b800805d453fe2ad987301a050eac5da5385f384ec63e0567016c",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    }
+  ]
+}

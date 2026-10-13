@@ -827,6 +827,10 @@ static bool keep_expiry_reply(Matter_Dispatch_T d,Connection* c) {
     for(unsigned i=0;i<TRANSACTIONS;++i) {
         Transaction* t=&d->transactions[i];
         if(!t->handle || t->key.session!=c->token || !t->expiry_reply || t->closing || t->notified) continue;
+        /* Core 11.10.7.2.2 clears the session context before rollback. Finish
+         * the response's local UDP operation, not its peer ACK: a commissioner
+         * can evict PASE immediately after reading ArmFailSafeResponse. */
+        if(t->sent && d->sending!=c) return false;
         if(!c->removal_reply) {
             c->removal_reply=t->handle;
             c->removal_deadline=d->now>UINT64_MAX-30000?UINT64_MAX:d->now+30000;
@@ -846,7 +850,8 @@ Matter_Result_T matter_dispatch_retire(Matter_Dispatch_T d,bool all) {
         Transaction* t=&d->transactions[i];
         Connection* c=connection(d,t->key.session);
         if(t->handle && (all || t->pase || (c && !t->operational))) {
-            if(all || !c || c->removal_reply!=t->handle) t->closing=true;
+            if(!all && c && c->removal_reply==t->handle && keep_expiry_reply(d,c)) continue;
+            t->closing=true;
             pending=true;
         }
     }
@@ -875,7 +880,8 @@ Matter_Result_T matter_dispatch_retire_fabric(Matter_Dispatch_T d,uint8_t index)
     for(unsigned i=0;i<TRANSACTIONS;++i) {
         Transaction* t=&d->transactions[i]; Connection* c=connection(d,t->key.session);
         if(t->handle && ((c && c->fabric_index==index) || matter_case_fabric_index(t->case_attempt)==index)) {
-            if(!c || c->retiring || c->removal_reply!=t->handle) t->closing=true;
+            if(c && c->removal_reply==t->handle && keep_expiry_reply(d,c)) continue;
+            t->closing=true;
             pending=true;
         }
     }

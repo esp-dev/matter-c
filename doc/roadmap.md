@@ -31,7 +31,7 @@ types, features and PICS; use failures and mandatory coverage gaps to select
 implementation work in the next pass. Maintain a test
 matrix with executable/version, PICS, result and evidence for every case. Record
 unsupported, blocked and manual cases explicitly; do not count a skip as PASS.
-Resolve the four existing failures and any new failures before leaving this
+Resolve the historical failures and newly observed failures before leaving this
 stage. Private extension semantics need separate controller tests; CSA composition
 tests do not validate their meaning.
 
@@ -42,15 +42,34 @@ MP04a identifies the startup discovery selection failure in the pinned controlle
 path, with browsing active before DUT startup and no announcement-settling delay.
 See [evidence and remaining tool limitation](oss/mp04a-validation.md).
 
-**Next task: CSA01 - first full CSA matrix pass for the current x86 profile.**
-Freeze the profile/PICS and runner version, enumerate every applicable case and
-endpoint, then run the matrix and triage failures against the specification. The
-four historical failures must be rerun on the current revision, with original
-expectations retained. Close actual implementation defects or document a supported
-specification/test-version discrepancy; do not silently waive failures.
-Include the separate MP04a Memcheck RemoveFabric timeout under concurrent
-subscriptions in the regression list. Correct discovery does not close this
-later failure in the full pair scenario.
+CSA01 establishes the first complete installed-catalog [matrix](oss/csa01-matrix.json)
+for the frozen five-endpoint x86 profile. The [report](oss/csa01-validation.md)
+records the actual official runs, PICS, baseline, failures and unexecuted coverage.
+All four historical failures reproduced. A complete matrix does not mean a
+completely passed profile: manual procedures and missing fixtures remain open.
+
+CSA02 addresses commissioning, fail-safe and selective fabric/session teardown.
+The [report](oss/csa02-validation.md) and [recheck evidence](oss/csa02-results.json)
+retain the original failures, exploratory runs and final-source acceptance.
+Host table holes and waiting for an unavailable PASE ACK are separate defects.
+Exact duplicate-root and PASE RevokeCommissioning response expectations require
+explicit CSA/test resolution, not implementation workarounds. Keep the MP04a
+concurrent RemoveFabric scenario as a regression; a later pass alone does not
+prove the cause of its historical intermittent timeout.
+
+**Next task: CSA03 - Descriptor and endpoint composition against Device Library.**
+Resolve IDM 10.5 for the actual advertised device types and server/client lists,
+including OTA Requestor and the meter-service clusters. Run the corresponding
+official composition/PICS tests on all affected endpoints. Do not add unsupported
+mandatory dependencies or tariff declarations merely to silence conformance.
+
+Subsequent passes must resolve Descriptor device-type composition, report timing,
+read validation, diagnostics, discovery and resource limits, and prepare the
+missing three-phase triggers, OTA, Wi-Fi and manual/attestation fixtures. Retain
+test/specification discrepancies for explicit CSA resolution, not silent waivers.
+Refresh the matrix after each coherent fix and rerun the full applicable suite
+before closing this stage. Do not discard the initial failures or count test
+credentials and skipped production checks as certification evidence.
 
 MP05 (Commodity Metering), Commodity Tariff/Price and complete utility-meter
 device-type declarations are deferred until this acceptance priority is met.

@@ -86,6 +86,10 @@ They retain their previous command line and output locations.
 
 The [development roadmap](doc/roadmap.md) orders CSA acceptance, Google Test Suite
 and manual checks, measured optimization, then downstream firmware integration.
+The [CSA01 acceptance report](doc/oss/csa01-validation.md) links the complete
+installed-catalog matrix, frozen x86 profile, official results and coverage gaps.
+The [CSA02 lifecycle report](doc/oss/csa02-validation.md) and
+[recheck results](doc/oss/csa02-results.json) preserve subsequent fixes and attempts.
 The opt-in [meter services](doc/meter-services.md) add Identify, Meter Identification
 and a per-instance Time Synchronization server (`--three-phase --meter-services`).
 
