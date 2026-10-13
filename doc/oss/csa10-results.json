@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "773a7c9a52590f43e868c7a7886b1738573ff37b5fd2a686ed9836ae8b1de704",
+  "previous": "csa09-results.json",
+  "previous_sha256": "64e132243bcf3c365a23c62b9e2a556148f9e96b585b7d10abcb23b07d89b36c",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "DNS-SD service and subtype enumeration. Unchanged TC_SC_4_1 reproduced before repair, then passed enhanced commissioning and extended discovery; Basic Commissioning Window remains unsupported with 9 recorded N/A steps. Operational discovery TC_SC_4_3 also rechecked unchanged. Unselected rows retain previous results.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 85,
+    "FAIL": 20
+  },
+  "baseline_dut_sha256": "e75205ed2949257f7c127efa5cf45f8da80b84234ed02631411152f0c44759e0",
+  "final_dut_sha256": "6422f697931995146e4adfd403f5f6f6acf19ec28b1ceaace625a24c506449e6",
+  "source_manifest_sha256": "0cafd4480af4d240deef9a52f02b146e6de3ea933e1f49598b3b8a8cf7b4bf93",
+  "attempts": [
+    {
+      "case": "TC_SC_4_1",
+      "endpoint": 0,
+      "run_id": 311,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 11,
+        "not_applicable": 9,
+        "failed": 1,
+        "pending": 9
+      },
+      "evidence_sha256": "392ad48da4ea0b8962e68124db5070821596d55d90d6b1469a98b4ff635ef6f1",
+      "official_log_sha256": "9fd03960223f68f5240a15e5e5ec5f559c7e13eec660420f1599635fbf457e98",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9087d175b89da40c4ab654b036fa747a3b3247b94415d143a609993bab1df4b0"
+    },
+    {
+      "case": "TC_SC_4_1",
+      "endpoint": 0,
+      "run_id": 312,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 21,
+        "not_applicable": 9
+      },
+      "evidence_sha256": "d74029ca6d6fa4b2acbf00044b2b2ec0a8d4ff762d1ade79e24319bb21055d6d",
+      "official_log_sha256": "e13cda66e5e84737fe174860fa0d189a880885f32f73f9df9df11baed67b0401",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9087d175b89da40c4ab654b036fa747a3b3247b94415d143a609993bab1df4b0"
+    },
+    {
+      "case": "TC_SC_4_3",
+      "endpoint": 0,
+      "run_id": 313,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 15
+      },
+      "evidence_sha256": "052e34848b5908c1194a6160187e68005d7ea0c62be58a0acd77543aa7461720",
+      "official_log_sha256": "3d3f536cf8fb3c1b02baa52e7cd47380cd27dc4484042b667788b81870b6f605",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "7d51a69ebdc328b2609004c8397959d1cb138a1f2fe2b73260e7230d7afae921"
+    }
+  ],
+  "mdns_test_helper_sha256": "7d037cacee8a8288104faf25d02058be72de18f50674e4a52c21d487c9057a2f",
+  "non_csa_wire_regression": {
+    "test": "tools/matter/tests/test_mdns_linux.py",
+    "test_sha256": "59086546293acdb0cd0e418c8607e97afd9e8165a6e23106d4444f29b803aabb",
+    "baseline": {
+      "status": "EXPECTED_FAIL",
+      "assertion": "service enumeration base and active subtypes",
+      "result_sha256": "ea6b1159e5b26bdc03cc1c5af0cda553ace47d72610deb1283acc61ab90fa29c"
+    },
+    "final": {
+      "status": "PASS",
+      "checks": 35,
+      "result_sha256": "cc80f084f117c888918f66396a73603f9a4d00a9ebda2026e6cd2b08476ad4c3",
+      "packets_sha256": "6b5803abdccff36d0f568e711a2e980012adf30ad7f809b01aa5f4b59d59a2fa"
+    }
+  },
+  "tracked_document_hash_encoding": "Git blob bytes (LF); private execution/build artifacts are hashed byte-for-byte."
+}

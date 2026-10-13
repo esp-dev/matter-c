@@ -1,4 +1,4 @@
-"""Real multicast known-answer/TC checks against a disposable complete Linux node.
+"""Real multicast service-listing/known-answer/TC checks against a disposable Linux node.
 No raw sockets or privileges. Independent DNS encoder/decoder; artifacts contain
 public discovery packets only. Private test credentials stay in the given folder.
 """
@@ -99,14 +99,19 @@ def main():
                 sock.bind(('::',5353))
                 sock.setsockopt(socket.IPPROTO_IPV6,socket.IPV6_JOIN_GROUP,socket.inet_pton(socket.AF_INET6,'ff02::fb')+struct.pack('@I',a.interface))
                 group=('ff02::fb',5353,0,a.interface)
-                def receive(duration):
+                meta='_services._dns-sd._udp.local.'
+                listing_targets=set()
+                def receive(duration,listing=False):
                     result=[]; until=time.monotonic()+duration
                     while time.monotonic()<until:
                         if not select.select([sock],[],[],max(0,until-time.monotonic()))[0]: break
                         data,source=sock.recvfrom(4096)
                         try: flags,records=decode(data)
                         except (ValueError,IndexError,struct.error,UnicodeError): continue
-                        if flags&0x8000 and any(r[0] in (instance,host) and r[3]==120 for r in records):
+                        ours=any(r[0]==meta and r[1]==12 and r[3]==120 and
+                                 read_name(r[4],0)[0].lower() in listing_targets for r in records) if listing else \
+                             any(r[0] in (instance,host) and r[3]==120 for r in records)
+                        if flags&0x8000 and ours:
                             stamp=time.monotonic(); result.append((stamp,records))
                             packets.append({'time':stamp,'source':source[0],'hex':data.hex()})
                     return result
@@ -119,6 +124,21 @@ def main():
                 check('baseline PTR/SRV/TXT/A/AAAA',types(baseline)=={1,12,33,16,28})
                 ptr=next(r for r in records if r[1]==12)
                 srv=next(r for r in records if r[1]==33); txt=next(r for r in records if r[1]==16)
+                fields={}; pos=0
+                while pos<len(txt[4]):
+                    size=txt[4][pos]; pos+=1
+                    key,value=txt[4][pos:pos+size].decode().split('=',1); fields[key]=value; pos+=size
+                disc=int(fields['D'])
+                listing_targets={service,f'_l{disc}._sub.{service}',f'_s{disc>>8}._sub.{service}'}
+                if int(fields.get('CM','0')): listing_targets.add(f'_cm._sub.{service}')
+                begin(); send(query(meta)); result=receive(.8,listing=True)
+                listing_rows=[r for _,rr in result for r in rr]
+                check('service enumeration base and active subtypes',bool(listing_rows) and types(result)=={12} and
+                      all(r[0]==meta for r in listing_rows) and
+                      {read_name(r[4],0)[0].lower() for r in listing_rows}==listing_targets)
+                for ttl,expect in ((59,True),(60,False)):
+                    begin(); send(query(meta,known=listing_rows,ttl=ttl))
+                    check('enumeration known TTL '+str(ttl),bool(receive(.8,listing=True))==expect)
                 for ttl,expect in ((59,True),(60,False),(61,False)):
                     begin(); send(query(service,known=[ptr],ttl=ttl)); result=receive(.8)
                     check('PTR known TTL '+str(ttl),bool(result)==expect)

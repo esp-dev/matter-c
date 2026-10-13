@@ -103,9 +103,18 @@ matrix: 84 PASS, 21 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. Full two-instance Memch
 and separate sanitizer scenarios pass. See [evidence](oss/csa09-validation.md)
 and [all attempts](oss/csa09-results.json).
 
-**Next task: CSA10 - Commissionable Node Discovery (TC_SC_4_1).**
-Rerun the unchanged official test, investigate its advertisement/subtype checks
-against Core 1.6.1 and retain the historical discovery attribution limit.
+CSA10 adds missing DNS-SD service/subtype enumeration in the host responder.
+Unchanged TC_SC_4_1 passes enhanced commissioning and Extended Discovery, with
+9 Basic Commissioning Window records N/A for the existing profile. Operational
+TC_SC_4_3 also passes. Latest matrix: 85 PASS, 20 FAIL, 21 BLOCKED, 32 MANUAL,
+704 NA. Independent wire checks fail before repair and pass afterwards; focused
+native/sanitizer tests and both full memory scenarios pass. See
+[evidence](oss/csa10-validation.md) and [all attempts](oss/csa10-results.json).
+
+**Next task: CSA11 - resource pressure/concurrent subscriptions (TC_RR_1_1).**
+Reproduce the unchanged official test's timeout, trace session/exchange and
+subscription lifetimes against CapabilityMinima, and fix the actual limit or
+admission issue. Retain the historical discovery attribution limit.
 
 Subsequent passes must resolve remaining read validation, diagnostics, discovery
 and resource limits, and prepare the

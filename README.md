@@ -84,9 +84,10 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
-The [CSA09 report](doc/oss/csa09-validation.md) records corrected CASE failure
-report delivery and retransmission lifetime. The unchanged official TC_SC_3_4
-passes all 13 recorded steps. See [result delta](doc/oss/csa09-results.json).
+The [CSA10 report](doc/oss/csa10-validation.md) records DNS-SD service/subtype
+enumeration. Unchanged TC_SC_4_1 and the TC_SC_4_3 operational discovery recheck
+pass, with the Basic Commissioning Window coverage limit recorded explicitly.
+See [result delta](doc/oss/csa10-results.json).
 
 The [development roadmap](doc/roadmap.md) orders CSA acceptance, Google Test Suite
 and manual checks, measured optimization, then downstream firmware integration.

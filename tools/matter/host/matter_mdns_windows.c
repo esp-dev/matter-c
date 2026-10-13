@@ -39,6 +39,10 @@ typedef struct sockaddr_in6 SOCKADDR_IN6;
 #include "vendor/mdns/mdns.h"
 
 enum { CAP=1200, MAX_RECORDS=22, TTL=120, QUERY_SLOTS=8, NSEC_INSTANCE=30, NSEC_HOST=31, PROBE_RECORDS=MATTER_MDNS_HOST_ADDRESSES+1 };
+/* Virtual PTRs reuse service/subtype names, without another record array. */
+enum { LISTING_FIRST=MAX_RECORDS, LISTING_COUNT=5, LISTING_END=LISTING_FIRST+LISTING_COUNT };
+#define LISTING_MASK (((UINT32_C(1)<<LISTING_COUNT)-1)<<LISTING_FIRST)
+typedef char ListingMaskFits[((unsigned)LISTING_END<=(unsigned)NSEC_INSTANCE)?1:-1];
 #define NSEC_MASK ((UINT32_C(1)<<NSEC_INSTANCE)|(UINT32_C(1)<<NSEC_HOST))
 #ifdef _WIN32
 typedef union { WSACMSGHDR align; char bytes[WSA_CMSG_SPACE(sizeof(IN6_PKTINFO))+WSA_CMSG_SPACE(sizeof(int))]; } Control;
@@ -64,7 +68,7 @@ struct Matter_Mdns_Windows {
 #endif
     Control control;
     mdns_record_t records[MAX_RECORDS]; size_t count,txt_start;
-    uint32_t addresses,ipv4_records; unsigned address_count;
+    uint32_t addresses,ipv4_records,listing; unsigned address_count;
     uint8_t host_order[MATTER_MDNS_HOST_ADDRESSES];
     mdns_string_table_t table;
     char service[96],instance[164],hostname[80],subtypes[4][164],name[256],target[256];
@@ -197,6 +201,7 @@ static bool prepare(Matter_Mdns_Windows_T h,const Matter_Mdns_Record_T* r) {
         snprintf(h->subtypes[i],sizeof(h->subtypes[i]),"%s._sub.%s",r->subtypes[i],h->service);
         h->records[h->count++]=(mdns_record_t){.name=string(h->subtypes[i]),.type=MDNS_RECORDTYPE_PTR,.data.ptr.name=string(h->instance)};
     }
+    h->listing=((UINT32_C(1)<<(r->subtype_count+1))-1)<<LISTING_FIRST;
     h->txt_start=h->count;
     for(size_t i=0;i<r->txt_count;++i) {
         const char* key=r->txt[i].key; const char* value=r->txt[i].value;
@@ -210,6 +215,14 @@ static bool prepare(Matter_Mdns_Windows_T h,const Matter_Mdns_Record_T* r) {
             .data.txt={.key=string(key),.value=string(value)}};
     }
     return true;
+}
+static mdns_record_t answer_record(Matter_Mdns_Windows_T h,size_t i) {
+    if(i<LISTING_FIRST) return h->records[i];
+    /* RFC6763 section 9 lists the base service. CHIP's minimal responder also
+     * lists subtype browse names; TC_SC_4_1 uses that extended enumeration.
+     * Only currently published names are exposed, never synthetic instances. */
+    return (mdns_record_t){.name=string("_services._dns-sd._udp.local."),.type=MDNS_RECORDTYPE_PTR,
+        .data.ptr.name=string(i==LISTING_FIRST?h->service:h->subtypes[i-LISTING_FIRST-1])};
 }
 static void* nsec_write(Matter_Mdns_Windows_T,void*,size_t,bool,bool);
 static size_t packet(Matter_Mdns_Windows_T h,bool probe,bool goodbye) {
@@ -327,8 +340,9 @@ static bool known_record(Matter_Mdns_Windows_T h,size_t n,size_t p,uint16_t type
     } else if((type==28 && len!=16) || (type==1 && len!=4)) return false;
     else if(type==16 && !txt_valid(h->rx+p,len)) return false;
     if(cl!=1 || ttl<TTL/2) return true;
-    for(size_t i=0;i<=h->txt_start;++i) {
-        const mdns_record_t* r=&h->records[i];
+    for(size_t i=0;i<LISTING_END;++i) {
+        if(i>h->txt_start && !(h->listing&(UINT32_C(1)<<i))) continue;
+        mdns_record_t record=answer_record(h,i); const mdns_record_t* r=&record;
         if(type!=r->type || _stricmp(h->name,r->name.str)) continue;
         bool same=type==12?!_stricmp(h->target,r->data.ptr.name.str):
             type==33?!get16(h->rx+p) && !get16(h->rx+p+2) && get16(h->rx+p+4)==r->data.srv.port && !_stricmp(h->target,h->hostname):
@@ -357,9 +371,11 @@ static bool parse(Matter_Mdns_Windows_T h,size_t n) {
             .owner=(cl==1 || cl==255)?probe_owner(h):0};
         if(query && (cl==1 || cl==255)) {
             uint32_t bits=0;
-            for(size_t j=0;j<h->count;++j)
-                if(!_stricmp(h->name,h->records[j].name.str) && (type==255 || type==h->records[j].type))
-                    bits|=UINT32_C(1)<<(j<h->txt_start?j:h->txt_start);
+            for(size_t j=0;j<LISTING_END;++j) {
+                if(j>h->txt_start && !(h->listing&(UINT32_C(1)<<j))) continue;
+                mdns_record_t record=answer_record(h,j);
+                if(!_stricmp(h->name,record.name.str) && (type==255 || type==record.type)) bits|=UINT32_C(1)<<j;
+            }
             /* Do not claim absence before successful ANY probing, for shared
              * names, other classes, or an ANY query with positive answers. */
             if(!bits && type!=255 && h->installed) {
@@ -414,7 +430,7 @@ static bool parse(Matter_Mdns_Windows_T h,size_t n) {
 }
 static uint32_t additionals(Matter_Mdns_Windows_T h,uint32_t answers,uint32_t known) {
     uint32_t extra=0;
-    if(answers&~(h->addresses|NSEC_MASK)) extra=(UINT32_C(1)<<h->txt_start)|2|h->addresses;
+    if(answers&~(h->addresses|NSEC_MASK|LISTING_MASK)) extra=(UINT32_C(1)<<h->txt_start)|2|h->addresses;
     if((answers|extra)&h->addresses) {
         extra|=h->addresses;
         if(!h->ipv4_records) extra|=UINT32_C(1)<<NSEC_HOST;
@@ -440,7 +456,7 @@ static size_t response_packet(Matter_Mdns_Windows_T h,uint32_t answers,uint32_t 
                 if(!next) { set16(h->tx+2,0x8600); set16(h->tx+(section?10:6),(uint16_t)count); return (uint8_t*)p-h->tx; }
                 p=next; ++count; continue;
             }
-            mdns_record_t r=h->records[i]; r.ttl=legacy?10:TTL;
+            mdns_record_t r=answer_record(h,i); r.ttl=legacy?10:TTL;
             r.rclass=1|(!legacy && r.type!=MDNS_RECORDTYPE_PTR?0x8000:0);
             /* Conventional DNS must not compress the SRV target (RFC2782). */
             mdns_string_table_t* table=legacy && r.type==MDNS_RECORDTYPE_SRV?NULL:&h->table;

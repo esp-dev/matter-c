@@ -1,5 +1,17 @@
 # Development status
 
+CSA10 adds missing host DNS-SD service/subtype enumeration, including the subtype
+listing used by CHIP/TH. **TC_SC_4_1 passes (run 312)** for enhanced commissioning
+and Extended Discovery; its 9 Basic Commissioning Window records remain N/A for
+the existing profile. **TC_SC_4_3 also passes (run 313)**. Baseline run 311 and
+the independent wire regression reproduce the missing listing before repair.
+Latest matrix: **85 PASS, 20 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**, with other
+rows inherited. Six focused tests pass normally and with ASan/UBSan/LSan;
+35 wire checks and both full two-instance memory scenarios pass. Memcheck
+reports zero errors/leaks. See [CSA10 evidence](csa10-validation.md) and
+[all attempts](csa10-results.json).
+**Next: CSA11, resource pressure/concurrent subscriptions (TC_RR_1_1).**
+
 CSA09 fixes delivery of required CASE failure StatusReports: the engine rejected
 invalid input correctly, but the dispatcher closed before sending its output.
 Reports now retain their MRP lifetime without creating a secure session or
@@ -10,7 +22,7 @@ Seven focused tests pass normally and with ASan/UBSan/LSan, including a new
 regression that fails against the previous dispatcher. Full two-instance
 Memcheck reports zero errors/leaks; the separate sanitizer scenario also passes.
 See [CSA09 evidence](csa09-validation.md) and [all attempts](csa09-results.json).
-**Next: CSA10, Commissionable Node Discovery (TC_SC_4_1).**
+CSA10 above records the subsequent Commissionable Node Discovery repair/recheck.
 
 CSA08 fixes General Diagnostics at the runtime boundary: TimeSnapshot now uses
 the attached Time Synchronization UTC, and DeviceLoadStatus reflects actual IM

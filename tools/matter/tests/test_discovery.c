@@ -172,8 +172,65 @@ static void resolver(void) {
 #include "test_mdns_nsec.h"
 #include "test_mdns_probe.h"
 #include "test_mdns_addresses.h"
+static void service_listing_tests(void) {
+    const char* meta="_services._dns-sd._udp.local.";
+    Matter_Mdns_Windows_T h=calloc(1,sizeof(*h)); CHECK(h);
+    h->iface.ipv6[0]=0xfe; h->iface.ipv6[1]=0x80; h->iface.ipv6[15]=1;
+    h->peer.sin6_family=AF_INET6; h->peer.sin6_port=htons(5353); h->peer.sin6_addr.s6_addr[15]=2;
+    h->peer_local=h->rx_multicast=true; h->now=h->last_response=1000;
+    for(unsigned mode=0;mode<4;++mode) {
+        Matter_Discovery_T d=mode==3?matter_discovery_operational(mac,random_id,123,5540):
+            matter_discovery_commissionable(mac,random_id,840,(uint8_t)mode,5540); CHECK(d);
+        const Matter_Mdns_Record_T* record=matter_discovery_record(d); CHECK(prepare(h,record));
+        unsigned count=(unsigned)record->subtype_count+1; uint32_t expected=((UINT32_C(1)<<count)-1)<<LISTING_FIRST;
+        h->installed=false;
+        size_t n=ka_question(h,meta,12,false); CHECK(parse(h,n)); queue_reply(h,0); CHECK(!ka_pending(h));
+        h->installed=true;
+        CHECK(parse(h,n) && h->multicast_answers==expected && !h->unicast_answers);
+        CHECK(!additionals(h,expected,0));
+        size_t wire=response_packet(h,expected,0,false),pos=12; CHECK(wire && get16(h->tx+6)==count && !get16(h->tx+10));
+        for(unsigned i=0;i<count;++i) {
+            CHECK(name(h->tx,wire,&pos,h->name) && !strcmp(h->name,meta));
+            CHECK(get16(h->tx+pos)==12 && get16(h->tx+pos+2)==1 && get32(h->tx+pos+4)==TTL);
+            size_t end=pos+10+get16(h->tx+pos+8); pos+=10;
+            CHECK(name(h->tx,wire,&pos,h->target) && pos==end);
+            CHECK(!strcmp(h->target,i?h->subtypes[i-1]:h->service));
+        }
+        CHECK(pos==wire);
+        n=ka_question(h,"_SERVICES._DNS-SD._UDP.LOCAL.",255,false); CHECK(parse(h,n) && h->multicast_answers==expected);
+        n=ka_question(h,meta,33,false); CHECK(parse(h,n) && !h->respond && !h->unicast_answers); /* No NSEC on shared name. */
+        n=ka_question(h,meta,12,false); ka_record(h,&n,LISTING_FIRST,59,6);
+        CHECK(parse(h,n) && h->multicast_answers==expected);
+        n=ka_question(h,meta,12,false); ka_record(h,&n,LISTING_FIRST,60,6);
+        CHECK(parse(h,n) && h->multicast_answers==(expected&~(UINT32_C(1)<<LISTING_FIRST)));
+        n=ka_question(h,meta,12,true); CHECK(parse(h,n)); queue_reply(h,0); CHECK(ka_pending(h)==1);
+        n=ka_question(h,NULL,12,false);
+        for(unsigned i=0;i<count;++i) ka_record(h,&n,LISTING_FIRST+i,60,6);
+        CHECK(parse(h,n)); queue_reply(h,0); CHECK(!ka_pending(h)); /* TC continuation suppresses complete set. */
+        n=ka_question(h,meta,12,false); CHECK(parse(h,n)); queue_reply(h,0); CHECK(ka_pending(h)==1);
+        wire=response_packet(h,expected,0,false); memcpy(h->rx,h->tx,wire);
+        CHECK(parse(h,wire) && h->duplicate_answers==expected && !h->conflict);
+        queue_reply(h,0); CHECK(!ka_pending(h)); /* Another publisher can answer the shared listing. */
+        n=ka_question(h,meta,12,false); set16(h->rx+n-2,0x8001);
+        CHECK(parse(h,n) && h->unicast_answers==expected && !h->multicast_answers);
+        h->legacy=true; CHECK(parse(h,n) && h->unicast_answers==expected);
+        wire=unicast_packet(h); pos=12; CHECK(wire && get16(h->tx+6)==count);
+        CHECK(name(h->tx,wire,&pos,h->name)); pos+=4; CHECK(name(h->tx,wire,&pos,h->name));
+        CHECK(get16(h->tx+pos+2)==1 && get32(h->tx+pos+4)==10); h->legacy=false;
+        matter_discovery_delete(d);
+    }
+    /* Full supported subtype count stays disjoint from TXT/address/NSEC bits. */
+    const char* subtypes[]={"_L840","_S3","_CM","_V1"};
+    Matter_Discovery_T d=matter_discovery_commissionable(mac,random_id,840,1,5540); CHECK(d);
+    Matter_Mdns_Record_T record=*matter_discovery_record(d); record.subtypes=subtypes; record.subtype_count=4;
+    CHECK(prepare(h,&record)); size_t n=ka_question(h,meta,12,false);
+    CHECK(parse(h,n) && h->multicast_answers==LISTING_MASK && !additionals(h,LISTING_MASK,0));
+    CHECK(response_packet(h,LISTING_MASK,0,false) && get16(h->tx+6)==LISTING_COUNT);
+    matter_discovery_delete(d); free(h);
+    puts("PASS service listing: base/active subtypes, mode/identity isolation, PTR-only, known answers/TC, duplicate/QU/legacy and publication gate");
+}
 int main(void) {
-    builders(); codec(); lifecycle(); resolver(); ingress_tests(); known_answer_tests(); nsec_tests(); probe_tests(); address_tests(); CHECK(!live);
+    builders(); codec(); lifecycle(); resolver(); ingress_tests(); known_answer_tests(); nsec_tests(); probe_tests(); address_tests(); service_listing_tests(); CHECK(!live);
     puts("PASS discovery: literal Matter names/subtypes, bounds/OOM, malformed DNS/prefixes/compression, conflict/known-answer/goodbye and cancel/drain");
     puts("PASS resolver: exact identity, fresh SRV/TXT/AAAA, malformed prefixes, TTL/goodbye, route change, TXT defaults, capacity/OOM, cancel/take/stale/timeout");
     puts("PASS ingress/replies: TTL64, interface/source/destination, QU/QM, legacy ID/questions/TTL/no-flush, capacity and cancellation");

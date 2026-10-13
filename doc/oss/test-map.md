@@ -11,6 +11,9 @@ recovery and a relocated installed-package consumer with two runtimes.
 deferred removal and rapid window reopening with a deterministic backend.
 `test_dispatch` also drives malformed CASE input through ingress and the real
 engine into reliable failure-report delivery, retry and ACK/exhaustion/stop drain.
+`test_discovery` covers service/subtype enumeration and shared-record suppression;
+`test_mdns_linux.py` verifies enumeration and known-answer thresholds on multicast
+alongside its existing TC/NSEC/address/duplicate-response checks.
 
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts

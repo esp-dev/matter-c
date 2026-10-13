@@ -8,7 +8,7 @@ static size_t ka_question(Matter_Mdns_Windows_T h,const char* owner,uint16_t typ
 /* Return RDATA offset for explicit corruptions. Explicit backward pointers
  * below test compression independently of the writer. */
 static size_t ka_record(Matter_Mdns_Windows_T h,size_t* n,unsigned which,uint32_t ttl,unsigned section) {
-    mdns_record_t r=h->records[which]; r.rclass=1; r.ttl=ttl;
+    mdns_record_t r=answer_record(h,which); r.rclass=1; r.ttl=ttl;
     memset(&h->table,0,sizeof(h->table));
     void* end=which==h->txt_start?mdns_answer_add_txt_record(h->rx,CAP,h->rx+*n,
         h->records+which,h->count-which,1,ttl,&h->table):
