@@ -28,9 +28,14 @@ static unsigned wild_reports(ImTestModel* m,unsigned* errors,bool revoke) {
     CHECK(false); return 0;
 }
 static void test_im_wildcard(void) {
-    /* Every combination of endpoint/cluster/attribute presence. */
+    /* Non-global attributes require a concrete cluster (Core 8.9.2.6). */
     for(unsigned mask=0;mask<8;++mask) {
         ImTestModel* m=wild_new(128,true); wild_start(m,mask,2,0); unsigned errors;
+        if(mask==4 || mask==5) {
+            Matter_Im_Read_Message_T out; CHECK(!matter_im_read_output(m->active,&out));
+            CHECK(out.opcode==1 && out.data[3]==MATTER_IM_INVALID_ACTION);
+            CHECK(!m->enumerations && !m->auths && !m->reads); wild_delete(m); continue;
+        }
         unsigned count=(mask&1 ? 1 : 2)*(mask&2 ? 1 : 2)*(mask&4 ? 1 : 6);
         CHECK(wild_reports(m,&errors,false)==count && !errors && m->reads==count);
         wild_delete(m);

@@ -21,9 +21,11 @@ Each measurement endpoint has Power Topology TREE (FeatureMap=2). Aggregate
 EPM has ALTC|POLY (6), phases ALTC (2). Each configured scalar has an Accuracy
 entry; EPM revision is 3. EEM revision 2 has IMPE|EXPE|CUME (7).
 There is **no EEM on phases**, no energy divided by three and no inferred phase
-energy. This stage does not declare Electrical Meter, Electrical Utility Meter,
-Meter Reference Point or tariff device types before implementing their required
-clusters. UI presentation by Google/Apple is not guaranteed by this data model.
+energy. With `--meter-services`, EP1 additionally declares the identity-only
+Electrical Utility Meter and its Meter Reference Point base; see the precise
+[composition and conditional requirements](meter-services.md). Electrical Meter
+and tariff device types remain absent. UI presentation by Google/Apple is not
+guaranteed by this data model.
 
 The deterministic host source includes simultaneous import on L1 and export on
 L2, negative reactive power/current, and unavailable L3 during seconds 15..19 of

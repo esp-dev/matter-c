@@ -145,6 +145,13 @@ static Matter_Result_T admin_revoke(void* u) {
     if(state!=MATTER_ROOT_FAIL_SAFE_IDLE) { (void)matter_root_expire(s->root); return MATTER_PENDING; }
     return r;
 }
+static void fabric_removed(void* u,uint8_t index) {
+    Matter_Runtime_T s=u;
+    /* Core 11.19.7.2/3: retain window, PAKE credentials and opening VendorID;
+     * only the reference to the removed fabric becomes null. */
+    (void)matter_admin_commissioning_fabric_removed(s->admin,index);
+    matter_dispatch_changed(s->dispatch);
+}
 Matter_Root_T matter_runtime_root(Matter_Runtime_T s) { return s?s->root:NULL; }
 bool matter_runtime_commissionable(Matter_Runtime_T s) { return s && (s->window || s->enhanced) && !s->stopping; }
 uint8_t matter_runtime_commissioning_mode(Matter_Runtime_T s,uint16_t* discriminator) {
@@ -458,7 +465,7 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Ud
     s->ota=matter_ota_requestor_new(&ota,events,s->identity.basic_version,s->update!=NULL);
     if(!s->ota || matter_root_attach_cluster(s->root,s->ota)!=MATTER_OK) return MATTER_PORT_ERROR;
     Matter_Acl_Events_Port_T ep={events,s,event_clock};
-    Matter_Fabric_Host_Events_T fp={s->acl,events,s,event_admin};
+    Matter_Fabric_Host_Events_T fp={s->acl,events,s,event_admin,fabric_removed};
     if(matter_root_startup(s->root,events,event_clock(s))!=MATTER_OK ||
         matter_diagnostics_boot(s->diagnostics,events,event_clock(s))!=MATTER_OK ||
         matter_acl_bind_events(s->acl,&ep)!=MATTER_OK || matter_fabric_host_bind_events(s->fabric_host,&fp)!=MATTER_OK) return MATTER_PORT_ERROR;
@@ -478,7 +485,9 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Ud
     Matter_Ota_Apply_Port_T ap={s,ota_generation,apply_start,query_take,query_cancel,apply_state,apply_ready,apply_done};
     if(s->has_ota) s->apply=matter_ota_apply_new(&ap,s->now);
     if(!s->query || (s->has_ota && !s->apply) || matter_root_add_client(s->root,0,0x29)!=MATTER_OK) return MATTER_PORT_ERROR;
-    return !s->update || !s->has_ota?MATTER_OK:matter_root_add_device_type(s->root,0x12,1);
+    /* Device Library 2.3: the exposed Requestor server and Provider client
+     * belong to OTA Requestor even when updates are currently unavailable. */
+    return matter_root_add_device_type(s->root,0x12,1);
 }
 void matter_runtime_received(Matter_Runtime_T s,const Matter_Udp_Datagram_T* d) { if(s) matter_dispatch_received(s->dispatch,d); }
 void matter_runtime_sent(Matter_Runtime_T s,uint64_t id,Matter_Operation_Result_T result) { if(s) matter_dispatch_sent(s->dispatch,id,result); }

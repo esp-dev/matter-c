@@ -1,4 +1,5 @@
 #include "matter_im_read.h"
+#include "matter_im_paths_internal.h"
 #include "matter_im_events_internal.h"
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
@@ -169,7 +170,7 @@ static Matter_Im_Status_T decode_path(Matter_Im_Read_T s, Matter_Im_Selector_T* 
 	}
 	selector->path=(Matter_Im_Path_T){(uint16_t)s->path_fields[2].unsigned_value,
 		(uint32_t)s->path_fields[3].unsigned_value,(uint32_t)s->path_fields[4].unsigned_value};
-	return MATTER_IM_SUCCESS;
+	return matter_im_read_path_valid(selector) ? MATTER_IM_SUCCESS : MATTER_IM_INVALID_ACTION;
 }
 static Matter_Im_Status_T decode_filters(Matter_Im_Read_T s) {
 	if (!s->fields[4].tag.control) return MATTER_IM_SUCCESS;

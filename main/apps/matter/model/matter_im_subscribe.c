@@ -1,4 +1,5 @@
 #include "matter_im_subscribe.h"
+#include "matter_im_paths_internal.h"
 #include "matter_im_events_internal.h"
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
@@ -29,7 +30,7 @@ struct Matter_Im_Subscribe {
     size_t count,cursor,snapshot_size,list_offset;
     struct { size_t item,start,end; bool prefix; } plan[MATTER_IM_READ_MAX_PATHS];
     struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } items[MATTER_IM_READ_MAX_RESULTS];
-    Matter_Im_Selector_T requests[MATTER_IM_READ_MAX_PATHS];
+    Matter_Im_Selector_T requests[MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS];
     size_t request_count,request_cursor,filter_count,collected,valid;
     struct { uint16_t endpoint; uint32_t cluster,version; } filters[MATTER_IM_READ_MAX_FILTERS];
     Matter_Im_Path_T after; bool after_valid,expanding,capture_data,attribute_report;
@@ -173,7 +174,7 @@ static uint8_t decode(Matter_Im_Subscribe_T s) {
     if(s->root[3].tag.control) {
         if(s->root[3].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[3])) return MATTER_IM_INVALID_ACTION;
         while(next(s) && s->token.type!=MATTER_TLV_END) {
-            if(s->request_count==MATTER_IM_READ_MAX_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
+            if(s->request_count==MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
             if(s->token.type!=MATTER_TLV_LIST || s->token.tag.control || !collect(s,s->fields,8)) return MATTER_IM_INVALID_ACTION;
     if((s->fields[0].tag.control && (!boolean(&s->fields[0]) || s->fields[0].unsigned_value)) ||
         s->fields[1].tag.control || s->fields[5].tag.control ||
@@ -185,13 +186,14 @@ static uint8_t decode(Matter_Im_Subscribe_T s) {
                 q->present|=(uint8_t)(1u<<(i-2));
             }
             q->path=(Matter_Im_Path_T){(uint16_t)s->fields[2].unsigned_value,(uint32_t)s->fields[3].unsigned_value,(uint32_t)s->fields[4].unsigned_value};
+            if(!matter_im_read_path_valid(q)) return MATTER_IM_INVALID_ACTION;
             if(q->present!=MATTER_IM_CONCRETE) { if(!s->port.attributes.enumerate) return MATTER_IM_INVALID_ACTION; s->expanding=true; }
         }
     }
     if(s->root[4].tag.control) {
         if(s->root[4].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[4])) return MATTER_IM_INVALID_ACTION;
         while(next(s) && s->token.type!=MATTER_TLV_END) {
-            if(s->request_count+(s->events?s->events->raw_count:0)==MATTER_IM_READ_MAX_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
+            if(s->request_count+(s->events?s->events->raw_count:0)>=MATTER_IM_READ_MAX_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
             if(!s->events || s->token.type!=MATTER_TLV_LIST || s->token.tag.control || !collect(s,s->fields,8)) return MATTER_IM_INVALID_ACTION;
             if(s->fields[0].tag.control || (s->fields[4].tag.control && !boolean(&s->fields[4]))) return MATTER_IM_INVALID_ACTION;
             Matter_Im_Event_Selector_T q={0};

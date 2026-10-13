@@ -208,6 +208,7 @@
     "crypto/matter_spake2p_points.h",
     "model/matter_cluster_internal.h",
     "model/matter_im_events_internal.h",
+    "model/matter_im_paths_internal.h",
     "session/matter_case_resumption.h",
     "session/matter_secure_internal.h",
     "runtime/matter_store_internal.h",

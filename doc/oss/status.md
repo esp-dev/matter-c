@@ -1,5 +1,40 @@
 # Development status
 
+CSA05 passes **3/3 official rechecks**: TC_IDM_2_2, TC_IDM_4_2 and TC_IDM_4_3,
+with no skipped steps. Shared Read/Subscribe validation rejects a specific
+non-global attribute without a concrete cluster before callbacks or subscription
+reservation. Global wildcard paths remain valid. The native grammar tests also
+correct a previously incorrect wildcard expectation. Combined matrix:
+**81 PASS, 24 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**; unselected rows are inherited.
+Six focused tests pass normally and separately with ASan/UBSan/LSan. Full
+two-instance scenarios pass under Memcheck (zero errors/leaks) and separately
+with sanitizers. See
+[CSA05 evidence](csa05-validation.md) and [all attempts](csa05-results.json).
+**Next: CSA06, Access Control validation (TC_ACL_2_4 and TC_ACL_2_6).**
+
+CSA04 passes **5/5 official rechecks**, including the previously failing
+TC_IDM_4_3 and TC_CADMIN_1_25. Root no longer repeats unchanged values on meter
+notifications, attribute-only subscriptions accept up to 32 selectors with
+bounded capture/chunking, and committed fabric removal updates the open window's
+AdminFabricIndex while preserving VendorID and window state. Combined matrix:
+**80 PASS, 25 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**. Unselected rows are inherited.
+Six focused tests pass normally and separately with ASan/UBSan/LSan. Full
+independent-instance scenarios pass under Memcheck (zero errors/leaks) and
+separately with sanitizers. See [CSA04 report](csa04-validation.md) and
+[all attempts](csa04-results.json).
+These CSA04 totals precede the CSA05 rechecks above. Timer/deadline
+consolidation stays in the post-acceptance optimization stage of the roadmap.
+
+CSA03 corrects Descriptor composition: Root includes OTA Requestor; opt-in
+meter services include the identity-only Electrical Utility Meter and its
+Meter Reference Point base alongside Electrical Sensor. No tariff condition or
+billing device type is advertised. Official rechecks: **12 PASS, 1 FAIL** (test
+VID in TC_IDM_10_1); TC_IDM_10_5 now passes. Combined matrix: **78 PASS, 27 FAIL,
+21 BLOCKED, 32 MANUAL, 704 NA**. Full two-instance Memcheck and separate
+ASan/UBSan/LSan scenarios pass; unselected CSA results are inherited.
+See [CSA03 evidence and limits](csa03-validation.md) and [result delta](csa03-results.json).
+These CSA03 totals precede the CSA04 rechecks above.
+
 CSA02 fixes host clock scanning after removal from a sparse fabric table and
 fail-safe cleanup waiting for a peer ACK after the commissioner has evicted PASE.
 The expiry response now drains its local UDP operation before session-context
@@ -10,8 +45,8 @@ The seven final rechecks yield **4 PASS and 3 FAIL**, moving the combined matrix
 to **77 PASS, 28 FAIL, 21 BLOCKED, 32 MANUAL and 704 NA**. The three remaining
 selected failures are documented test/specification discrepancies, not waived
 results. Full two-instance Linux scenarios pass under Memcheck (zero errors and
-zero live allocations at exit) and separately ASan/UBSan/LSan. Next: CSA03,
-Descriptor and endpoint composition.
+zero live allocations at exit) and separately ASan/UBSan/LSan. These are the
+historical CSA02 totals, before the CSA03 rechecks above.
 
 CSA01 establishes the complete installed-catalog matrix for the current x86
 profile: `--three-phase --source-registers --meter-services`, endpoints 0/1/3/4/5.
@@ -85,7 +120,7 @@ CSA matrix, certification or a fresh acceptance run of this public snapshot.
 See validation.md for the publication snapshot and mp02-validation.md for the
 subsequent three-phase acceptance; neither is a full-stack certification.
 
-**Next task: CSA02 - commissioning, fail-safe and selective fabric/session teardown.**
+**Historical CSA01 follow-up: CSA02 - commissioning, fail-safe and selective fabric/session teardown.**
 Full applicable CSA acceptance takes priority over new tariffs. Work proceeds in
 successive passes over the [roadmap](../roadmap.md), with explicit coverage gaps,
 evidence and follow-up actions. Address the connected CGEN/OPCREDS/CADMIN lifecycle

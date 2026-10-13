@@ -20,13 +20,17 @@ typedef struct {
 typedef Matter_Im_Read_Config_T Matter_Im_Subscribe_Config_T;
 typedef Matter_Im_Read_Message_T Matter_Im_Subscribe_Message_T;
 typedef struct Matter_Im_Subscribe* Matter_Im_Subscribe_T;
+/* Attribute-only subscriptions can name every standard cluster in the host
+ * profile without conflating selector capacity with per-chunk work/output. */
+#define MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS 32
 typedef enum { MATTER_IM_SUB_WAITING, MATTER_IM_SUB_OUTPUT, MATTER_IM_SUB_IN_FLIGHT,
     MATTER_IM_SUB_WAIT_STATUS, MATTER_IM_SUB_IDLE, MATTER_IM_SUB_NEED_EXCHANGE,
     MATTER_IM_SUB_FAILED, MATTER_IM_SUB_BUILD_REPORT, MATTER_IM_SUB_EXPANDING,
     MATTER_IM_SUB_COLLECTING } Matter_Im_Subscribe_State_T;
 /* One heap context, owner-thread scheduling; no task/socket/timer/global registry.
  * Legacy constructor requires trusted PASE commissionee config/grant as Read.
- * Up to 9 attribute selectors (wildcards via enumerate), 256 expanded candidates,
+ * Up to MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS attribute-only selectors (wildcards via
+ * enumerate), MATTER_IM_READ_MAX_RESULTS expanded candidates,
  * 16 DataVersionFilters (priming only), all Read value types, plus
  * optional EventPaths/EventMin via bind_events (9 requested attribute
  * and event paths combined, before deduplication). Whole attribute

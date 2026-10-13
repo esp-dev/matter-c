@@ -1,10 +1,17 @@
 # Meter services on x86 (MP04)
 
-Opt-in prerequisites for a future Meter Reference Point composition, targeting
-Matter 1.6.1. This does not yet declare Meter Reference Point, Electrical Meter
-or Electrical Utility Meter device types: their other required clusters and
-child-endpoint composition must be implemented first. Existing Electrical Sensor
-endpoints, phase tags and EEM source-register behavior remain unchanged.
+Opt-in meter identity and time services, targeting Matter 1.6.1. CSA03 completes
+their Descriptor composition: EP1 declares Electrical Sensor `0x0510`, Electrical
+Utility Meter `0x0511` and its Meter Reference Point base `0x0512`, all revision 1.
+Existing phase endpoints, tags and EEM source-register behavior remain unchanged.
+
+This is the identity-only Utility Meter profile: Identify and Meter Identification
+on EP1, with the required Time Synchronization server on EP0 (Device Library
+14.9 and 14.6). It does not represent a tariff, so the optional `ElectricalEnergy`
+condition in 14.6.3.1 is not selected. Its conditional tariff/meter child
+requirements therefore do not apply. No Electrical Meter `0x0514`, Electrical
+Energy Tariff `0x0513`, Commodity Metering, prices or tariff schedule is declared.
+Adding those capabilities later requires their full composition and validation.
 
 ```sh
 build/cmake/matter-node --interface <index> --credentials <private-directory> \
@@ -15,7 +22,8 @@ build/cmake/matter-node --interface <index> --credentials <private-directory> \
 `--three-phase` and credentials. CMake supplies the UTC build floor (honoring
 `SOURCE_DATE_EPOCH`). Legacy direct compiler runners need an explicit
 `MATTER_HOST_BUILD_UNIX` definition before enabling this new option. The default
-profile is unchanged. Use a separate lab state/controller store.
+measurement behavior is unchanged. Use a separate lab state/controller store.
+CSA03 advances the host ConfigurationVersion for the Descriptor changes.
 
 ## Declared servers
 

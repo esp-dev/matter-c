@@ -876,7 +876,7 @@ static bool builtin_ready(void* u) {
 }
 static Matter_Result_T builtin_version(void* u,uint32_t* v) { RootCluster* c=u; *v=*c->version; return MATTER_OK; }
 static Matter_Root_T builtin_value(void* u,Matter_Im_Value_T* v) {
-    RootCluster* c=u; *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=*c->version}; return c->root;
+    RootCluster* c=u; *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=*c->version,.report_on_version_change=true}; return c->root;
 }
 static uint8_t read_constant(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
     if(!builtin_ready(u)) return MATTER_IM_FAILURE;

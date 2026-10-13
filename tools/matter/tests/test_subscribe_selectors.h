@@ -118,6 +118,18 @@ static void selector_finish(SelectorSub* s,bool prime) {
     else CHECK(matter_im_subscribe_process(s->rich.model.active,s->rich.clock)==MATTER_PENDING);
 }
 static void selector_tests(void) {
+    /* Multiple cluster selectors must not share the nine-item output budget.
+     * Concrete-only collection also yields; neither path silently truncates. */
+    for(unsigned wildcard=0;wildcard<2;++wildcard) {
+        SelectorSub* many=selector_new(wildcard?2:MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS,true);
+        selector_request(many,MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS,!wildcard,0,false); selector_finish(many,true);
+        CHECK(many->seen==MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS*(wildcard?2u:1u)); rich_free(&many->rich);
+    }
+    SelectorSub* overflow=selector_new(MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS+1,true);
+    selector_request(overflow,MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS+1,true,0,false);
+    Matter_Im_Subscribe_Message_T rejected=selector_output(overflow);
+    CHECK(rejected.opcode==1 && rejected.data[3]==MATTER_IM_PATHS_EXHAUSTED && !overflow->rich.model.reserves && !overflow->rich.model.reads);
+    rich_free(&overflow->rich);
     /* More than nine results; wildcard must use actual privilege, skip denied
      * or unreadable paths, and own UTF8/bytes before shared scratch changes. */
     SelectorSub* s=selector_new(20,true); s->deny_view=true; s->denied=3; s->unreadable=4;

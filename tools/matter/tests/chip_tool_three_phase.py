@@ -22,6 +22,11 @@ def inventory(text, test_switch=False, source_cluster=None, meter_services=False
     expected = set()
     for ep in sorted(endpoints):
         clusters = ids(attrs[ep, 0x1d, 1]['body'], 'ServerList')
+        device_types = [int(x) for x in re.findall(r'^DeviceType: (\d+)\b', attrs[ep, 0x1d, 0]['body'], re.M)]
+        wanted_types = ({0x16, 0x12} if ep == 0 else {0x10a} if ep == 2 else
+                        {0x510, 0x511, 0x512} if ep == 1 and meter_services else {0x510})
+        assert len(device_types) == len(wanted_types) and set(device_types) == wanted_types, (ep, device_types)
+        assert set(ids(attrs[ep, 0x1d, 2]['body'], 'ClientList')) == ({0x29} if ep == 0 else set())
         if ep == 2:
             assert integer(attrs[ep, 0x1d, 0]['body'], 'DeviceType') == 0x10a
             assert 6 in clusters

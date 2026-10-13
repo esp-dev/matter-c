@@ -44,6 +44,10 @@ Matter_Acl_Port_T matter_fabric_host_acl_port(Matter_Fabric_Host_T);
 typedef struct {
     Matter_Acl_T acl; Matter_Events_T log; void* user;
     Matter_Result_T (*admin)(void*,Matter_Exchange_Session_T,Matter_Cluster_Request_T*);
+    /* Optional synchronous notification after committed removal/rollback, before
+     * index reuse. Never emitted for failed storage or credential rotation.
+     * Runs on the owner thread; must not reenter this fabric host. */
+    void (*removed)(void*,uint8_t index);
 } Matter_Fabric_Host_Events_T;
 Matter_Result_T matter_fabric_host_bind_events(Matter_Fabric_Host_T,const Matter_Fabric_Host_Events_T*);
 /* Legacy whole-node grant query, now backed by live ACL. Target-specific grants

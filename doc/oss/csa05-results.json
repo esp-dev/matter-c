@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "c39daadaaad68c36505287c773bcc2515aeaaea10de3819375c8d15576e14fb9",
+  "previous": "csa04-results.json",
+  "previous_sha256": "30eeae5710f9d87e3f9c8f07ec3cfba6b7165118e18dd461aac1428b7fc9c6fd",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Read/Subscribe attribute path grammar: specific non-global attributes require a concrete cluster. Unselected results inherited, not rerun.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 81,
+    "FAIL": 24
+  },
+  "final_dut_sha256": "3d196051ddf92788bd45f4cf48d7bd5b796c18c62b00ac4b7008bbcf77db4b0a",
+  "source_manifest_sha256": "70e4ae1501d4e5e39c5aad591dd0aca3264f38243ee3251094174f6e72bff820",
+  "attempts": [
+    {
+      "case": "TC_IDM_2_2",
+      "endpoint": 0,
+      "run_id": 280,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 19,
+        "failed": 1,
+        "pending": 3
+      },
+      "evidence_sha256": "f3a67a4fcd668390aafdc743044bde060073fad691c19a2c01a1cd58e3644dba",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "5a2591f4a39561f971771099f736d371e2854ef38942f00df8b43766a03fc6a7"
+    },
+    {
+      "case": "TC_IDM_2_2",
+      "endpoint": 0,
+      "run_id": 281,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 23
+      },
+      "evidence_sha256": "537c5ea658641b526d8d6fa9fbe94dbfccd66ae1f00537b6fe6e9d13ae7b80d7",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "5a2591f4a39561f971771099f736d371e2854ef38942f00df8b43766a03fc6a7"
+    },
+    {
+      "case": "TC_IDM_4_2",
+      "endpoint": 0,
+      "run_id": 282,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 17
+      },
+      "evidence_sha256": "add64231d9ed6348487abe04644f501fac385a822876f3dc5e141c758c5483e6",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "ac68c6c9d75f960daf8d57a6592ee9a34cffda19ee6242c307e2917ddfc7798b"
+    },
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "run_id": 283,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 15
+      },
+      "evidence_sha256": "9fae3849a28536e2e95cc7021c663bcea2beb3bfb4f3e43d1d9e0fef100a3716",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f27bbb7a09a5bdfd4951861942f155e792fc55353c7aff70339fd7b7129bcf8d"
+    }
+  ]
+}

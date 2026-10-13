@@ -44,6 +44,37 @@ fixed here. A failed Wi-Fi snapshot aborts the transaction without publishing.
 
 OTA uses application sink/artifact callbacks; the library no longer opens the
 image. The optional existing signed OTA journal remains a **simulation**.
+Once started, the runtime declares OTA Requestor `0x0012` rev1 alongside Root
+Node: its Requestor server and Provider client are exposed regardless of whether
+the application currently supplies an OTA sink/journal. Descriptor presence does
+not promise that an update can be applied now; the existing UpdatePossible and
+download/application gates retain that distinction. CSA03 corrects the former
+conditional omission of this device type without enabling update capabilities.
 This stage does not implement a production bootloader or change its signature
 format. Persistent blob operations remain synchronous and atomic; an MCU port
 must schedule them within its own latency budget. No ESP32/NVS claim is made.
+
+Committed fabric removal and rollback notify Administrator Commissioning before
+index reuse. The runtime clears only AdminFabricIndex for the opening fabric;
+WindowStatus, its original deadline and AdminVendorId remain intact until the
+window closes. Failed persistence does not publish this notification. The optional
+`Matter_Fabric_Host_Events_T.removed` callback runs synchronously on the owner
+thread and must not reenter the fabric adapter; callback users remain borrowed.
+
+Descriptor, Basic Information and General Commissioning use their existing
+DataVersion for subscription change reporting. Unrelated application measurement
+notifications no longer repeat unchanged built-in values. Reads still return the
+current value and subscriptions still recheck access and send heartbeats. The
+attribute-only subscription selector budget is 32; mixed attribute/event requests
+retain the existing nine-path guarantee. Chunk size, collection work per process,
+expanded-result and snapshot limits remain independently bounded.
+
+Read and Subscribe validate attribute path grammar before model callbacks or
+subscription reservation. A specific attribute without a concrete cluster must
+be global: the full ID is in `0x0000F000..0x0000FFFE` (Core 1.6.1 sections
+7.21.2.2 and 8.9.2.6). A manufacturer-prefixed ID with the same suffix is not
+global. An invalid path rejects the entire request with `InvalidAction`, even
+when earlier paths are valid. A syntactically valid path still undergoes normal
+existence and access checks; wildcard omission, concrete path statuses and
+DataVersionFilters are preserved. Existing Node/ListIndex/tag-compression and
+nonzero provisional wildcard-flag limitations remain unchanged.

@@ -145,7 +145,22 @@ static void case_addition(const Matter_Crypto_Port_T* crypto,const Matter_Creden
     fab_free(f);
     puts("PASS generic CASE AddRoot/AddNOC: failsafe, malformed root, storage error, CSR, signature, addition and rollback");
 }
+typedef struct { uint64_t high; unsigned count,mask; } RemovalLog;
+static Matter_Result_T removal_load(void* u,uint64_t* n) { *n=((RemovalLog*)u)->high; return MATTER_OK; }
+static Matter_Result_T removal_store(void* u,uint64_t n) { ((RemovalLog*)u)->high=n; return MATTER_OK; }
+static Matter_Result_T removal_admin(void* u,Matter_Exchange_Session_T s,Matter_Cluster_Request_T* q) {
+    (void)u; (void)s; (void)q; return MATTER_INVALID_STATE;
+}
+static void removal_notice(void* u,uint8_t index) {
+    RemovalLog* log=u; OC_CHECK(index>=1 && index<=5);
+    OC_CHECK(!(log->mask&(1u<<index))); log->mask|=1u<<index; ++log->count;
+}
 static void management(FabFixture* f) {
+    RemovalLog notices={0}; Matter_Events_Port_T ep={&notices,removal_load,removal_store};
+    Matter_Events_T events=matter_events_new(&ep); OC_CHECK(events);
+    Matter_Acl_Port_T acl_port=matter_fabric_host_acl_port(f->host); Matter_Acl_T acl=matter_acl_new(&acl_port); OC_CHECK(acl);
+    Matter_Fabric_Host_Events_T hooks={acl,events,&notices,removal_admin,removal_notice};
+    OC_CHECK(matter_fabric_host_bind_events(f->host,&hooks)==MATTER_OK);
     const Matter_Fabric_View_T* v=f->port.view(f->host); uint32_t version=v->revision;
     OC_CHECK(f->port.remove(f->host,0)==MATTER_INVALID_ARGUMENT && f->port.remove(f->host,255)==MATTER_INVALID_ARGUMENT);
     OC_CHECK(f->port.label(f->host,0,NULL,0)==MATTER_INVALID_ARGUMENT && f->port.label(f->host,1,NULL,1)==MATTER_INVALID_ARGUMENT && v->count==5);
@@ -163,10 +178,12 @@ static void management(FabFixture* f) {
     version=v->revision;
     manage(f,1,9,"not stored",0,MATTER_IM_FAILURE,0);
     manage(f,1,10,NULL,2,MATTER_IM_FAILURE,0); OC_CHECK(v->count==5 && v->revision==version);
+    OC_CHECK(!notices.count); /* Invalid indexes, label changes and failed removal. */
     f->control.fail_store=false; matter_fabric_host_control(f->host,&f->control);
     Matter_Case_Port_T cp=matter_fabric_host_case_port(f->host);
     Matter_Case_Fabric_T* snapshot=calloc(1,sizeof(*snapshot)); OC_CHECK(snapshot && cp.load(cp.user,2,snapshot)==MATTER_OK);
     manage(f,1,10,NULL,2,0,0); OC_CHECK(v->count==4 && !v->records[1].index);
+    OC_CHECK(notices.count==1 && notices.mask==(1u<<2));
     OC_CHECK(cp.valid(cp.user,snapshot->index,snapshot->revision)==MATTER_OK); free(snapshot);
     Matter_Acl_Port_T ap=matter_fabric_host_acl_port(f->host); Matter_Groupkey_Port_T gp=matter_fabric_host_groupkey_port(f->host);
     OC_CHECK(!ap.view(ap.user)->fabrics[1].index && !gp.view(gp.user)->fabrics[1].index);
@@ -174,6 +191,10 @@ static void management(FabFixture* f) {
     OC_CHECK(matter_fabric_host_sign(f->host,3,f->ipk,16,f->signature)==MATTER_OK);
     manage(f,1,10,NULL,1,0,0); manage(f,3,10,NULL,3,0,0); manage(f,4,10,NULL,4,0,0);
     manage(f,5,9,"",0,0,0); manage(f,5,10,NULL,5,0,0); OC_CHECK(!v->count && !v->root_ready);
+    OC_CHECK(notices.count==5 && notices.mask==0x3e);
+    /* Drain the borrowing host while its event/notification ports are alive. */
+    fab_free(f);
+    OC_CHECK(matter_acl_delete(acl)==MATTER_OK && matter_events_delete(events)==MATTER_OK);
     puts("PASS fabric management: label bounds/idempotence/conflict, NOC statuses, failed store unchanged, selective keys/ACL/GKM/CASE invalidation, self/last removal");
 }
 static void vid_export(FabFixture* f,const char* prefix) {
@@ -296,7 +317,7 @@ int main(int argc,char** argv) {
     OC_CHECK(matter_opcreds_rollback(f->o->core)==MATTER_OK); fab_restart(f); read_count(f,5);
     /* Installed-key collision fails CSR without changing the persistent store. */
     fab_scalar_value=10; oc_request(f->o,4,0,32,false); OC_CHECK(oc_start(f->o,4,true)==MATTER_PENDING); oc_finish(f->o); OC_CHECK(f->o->result.status==MATTER_IM_FAILURE);
-    vid_checks(f); vid_export(f,argc==2?argv[1]:NULL); fabric_subscriptions(f); management(f); fab_free(f); rollback_isolation(&crypto,&cp);
+    vid_checks(f); vid_export(f,argc==2?argv[1]:NULL); fabric_subscriptions(f); management(f); rollback_isolation(&crypto,&cp);
     f=fab_new(&crypto,&cp); fab_csr(f,16); fab_request(f,11,FAB_CERT(fab_root),(Matter_Cert_Tlv_T){0},0); fab_call(f,1,11,true,0,0);
     fab_request(f,6,FAB_CERT(fab_noc6),FAB_CERT(fab_icac),55); fab_call(f,1,6,true,0,0); read_count(f,1);
     vid_request(f,5,0x6a01,0,0); vid_call(f,1,12,MATTER_IM_INVALID_COMMAND);

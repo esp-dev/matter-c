@@ -35,6 +35,10 @@ Matter_Result_T matter_fabric_host_image_delete(Matter_Fabric_Host_Image_T i) {
     erase(i,sizeof(*i)); free(i); return MATTER_OK;
 }
 static void before(Matter_Fabric_Host_T h) { h->backup=h->image->data; }
+static void removed(Matter_Fabric_Host_T h,uint8_t index) {
+    if(h->events.log) (void)matter_events_forget_fabric(h->events.log,index);
+    if(h->events.removed) h->events.removed(h->events.user,index);
+}
 static Matter_Result_T after(Matter_Fabric_Host_T h) {
     Matter_Result_T r=MATTER_OK;
     unsigned changed=0;
@@ -54,7 +58,7 @@ static Matter_Result_T after(Matter_Fabric_Host_T h) {
         /* Label changes do not change operational identity. Other fabrics must
          * not invalidate this one's in-progress CASE snapshot. */
         const Matter_Fabric_Record_T* a=&h->backup.view.records[j],*b=&h->image->data.view.records[j];
-        if(a->index && a->index!=b->index && h->events.log) (void)matter_events_forget_fabric(h->events.log,a->index);
+        if(a->index && a->index!=b->index) removed(h,a->index);
         if(a->index!=b->index || a->noc_size!=b->noc_size || a->icac_size!=b->icac_size ||
             memcmp(a->noc,b->noc,400) || memcmp(a->icac,b->icac,400) ||
             memcmp(h->backup.keys[j],h->image->data.keys[j],32)) h->credential_revision[j]=++h->next_credential_revision;
@@ -272,11 +276,12 @@ static Matter_Result_T remove_fabric(void* u,uint8_t index) {
         if(!v->count && h->image->persist.reset) {
             d->next_index=1; d->saved_next=0;
             r=h->image->persist.reset(h->image->persist.user,d);
-            if(r!=MATTER_OK) *d=h->backup; else { h->case_revision[j]=++h->next_case_revision; erase(h->resumption,sizeof(h->resumption)); }
+            if(r!=MATTER_OK) *d=h->backup; else {
+                h->case_revision[j]=++h->next_case_revision; erase(h->resumption,sizeof(h->resumption)); removed(h,index);
+            }
             erase(&h->backup,sizeof(h->backup));
         } else r=after(h);
         if(r==MATTER_OK && clears_journal) h->update_session=0;
-        if(r==MATTER_OK && h->events.log) (void)matter_events_forget_fabric(h->events.log,index);
         if(r==MATTER_OK && !v->count) h->reset_requested=true;
         h->busy=false; return r;
     }

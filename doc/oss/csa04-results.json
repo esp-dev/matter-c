@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "c39daadaaad68c36505287c773bcc2515aeaaea10de3819375c8d15576e14fb9",
+  "previous": "csa03-results.json",
+  "previous_sha256": "07f51ccdfa23588a40dff794d8e34f4405069071932e274c8807e2d425f171af",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Subscription delta reporting, wider attribute-only selector capacity and Administrator Commissioning fabric-removal notifications. Unselected results inherited, not rerun.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 80,
+    "FAIL": 25
+  },
+  "final_dut_sha256": "db095b109466a5441e6b81299ecbb99b380091223e8996a6b7c489d66f19d94c",
+  "source_manifest_sha256": "e6fc831524c7b09c5e2a5baa2332491d28a65bf02c05635c304860a7a921bec1",
+  "attempts": [
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "run_id": 271,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 6,
+        "failed": 1,
+        "pending": 8
+      },
+      "evidence_sha256": "67a8c4810cf88a3d08fb54c915e4a8a18835e2fdb73d8560bf078abcf38dd4a8",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f27bbb7a09a5bdfd4951861942f155e792fc55353c7aff70339fd7b7129bcf8d"
+    },
+    {
+      "case": "TC_CADMIN_1_25",
+      "endpoint": 0,
+      "run_id": 272,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 30,
+        "failed": 1,
+        "pending": 4
+      },
+      "evidence_sha256": "e25e5219ac483b9c0c85fec0b482fd3fd50389351b330a6b9e8d25db27eedac1",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9277c12f82221fc608c9d5114b792fcb948d0ee7d672159a94881b1e1c022950"
+    },
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "run_id": 273,
+      "status": "FAIL",
+      "source_stage": "intermediate",
+      "step_states": {
+        "passed": 12,
+        "failed": 1,
+        "pending": 2
+      },
+      "evidence_sha256": "2dafa549427f6b28ac942f256cd97e79ae1e53388b74fd48cf2b228002b47128",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f27bbb7a09a5bdfd4951861942f155e792fc55353c7aff70339fd7b7129bcf8d"
+    },
+    {
+      "case": "TC_CADMIN_1_25",
+      "endpoint": 0,
+      "run_id": 274,
+      "status": "PASS",
+      "source_stage": "intermediate",
+      "step_states": {
+        "passed": 35
+      },
+      "evidence_sha256": "188e50145dbf1b53584e4247edc50041279a5830d6ef4fbb5ced12c48623493f",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9277c12f82221fc608c9d5114b792fcb948d0ee7d672159a94881b1e1c022950"
+    },
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "run_id": 275,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 15
+      },
+      "evidence_sha256": "8837c0894917d14bc83366ccdd980d79218dda23bc3cfea299ab3d563a9f4665",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f27bbb7a09a5bdfd4951861942f155e792fc55353c7aff70339fd7b7129bcf8d"
+    },
+    {
+      "case": "TC_CADMIN_1_25",
+      "endpoint": 0,
+      "run_id": 276,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 35
+      },
+      "evidence_sha256": "c90f3db5edb2ddaf6dcff9dc088a01f6b48daf56e71669025c710f1e5c187e27",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9277c12f82221fc608c9d5114b792fcb948d0ee7d672159a94881b1e1c022950"
+    },
+    {
+      "case": "TC_IDM_4_2",
+      "endpoint": 0,
+      "run_id": 277,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 17
+      },
+      "evidence_sha256": "ff68ab12c98f47f64eb7258c5969d1c1c6cc045a5ca6aae21fe2d12d0b6e69f7",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "ac68c6c9d75f960daf8d57a6592ee9a34cffda19ee6242c307e2917ddfc7798b"
+    },
+    {
+      "case": "TC_CADMIN_1_22",
+      "endpoint": 0,
+      "run_id": 278,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 12
+      },
+      "evidence_sha256": "f5da4cc7c67516dd74b02d23cd70c34d7a54280dd0b5da3f6311f4411f36518a",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "4c886aeeabf87b4fbc0491a57c348ce33d3a5ed3a414695b1e3fe02512492a9a"
+    },
+    {
+      "case": "TC_OPCREDS_3_8",
+      "endpoint": 0,
+      "run_id": 279,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 31
+      },
+      "evidence_sha256": "97c6b5193f8222ab5d9cb11e939616914ab74d9afd441e88ec7c68c1cb08dc9f",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "5caa3bfc67e3dbf3f4642fd33cd9355b5033396a668ba4bcacbc449122da4025"
+    }
+  ]
+}

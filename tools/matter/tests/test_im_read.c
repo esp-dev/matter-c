@@ -67,7 +67,9 @@ static void status_response(Fixture* f,uint8_t status) {
 #include "test_im_events.h"
 #include "test_im_multi_events.h"
 #include "test_im_event_wildcards.h"
+#include "test_im_path_grammar.h"
 int main(void) {
+    path_grammar_tests();
     multi_tests();
     event_wild_tests();
     Fixture* f=create(1024);

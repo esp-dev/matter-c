@@ -196,7 +196,7 @@ static void complex_tests(void) {
     Matter_Im_Subscribe_Message_T invalid=output(&r->model,0);
     CHECK(invalid.opcode==1 && invalid.data[3]==MATTER_IM_INVALID_ACTION && !r->model.reads); rich_free(r);
     for(unsigned mode=0;mode<5;++mode) {
-        r=rich_new(false,64); rich_request(r,mode==2?10:mode==3?0:1,mode==4,false,0); r->large=mode==0; r->malformed=mode==1;
+        r=rich_new(false,64); rich_request(r,mode==2?MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS+1:mode==3?0:1,mode==4,false,0); r->large=mode==0; r->malformed=mode==1;
         receive(&r->model,r->model.input,r->size,3,12,true); Matter_Im_Subscribe_Message_T out=output(&r->model,0);
         CHECK(out.opcode==1 && out.data[3]==(mode==0?MATTER_IM_RESOURCE_EXHAUSTED:mode==2?MATTER_IM_PATHS_EXHAUSTED:MATTER_IM_INVALID_ACTION));
         CHECK(r->model.reserves==(mode<2?1u:0u)); rich_free(r);

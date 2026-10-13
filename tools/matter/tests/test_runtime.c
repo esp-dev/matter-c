@@ -156,6 +156,8 @@ int main(void) {
     CHECK(matter_root_add_endpoint(ra,&endpoint)==MATTER_OK);
     CHECK(matter_root_has_device_type(ra,7,0x100) && !matter_root_has_device_type(rb,7,0x100));
     CHECK(matter_root_has_device_type(ra,0,0x16) && !matter_root_has_device_type(ra,1,0x510));
+    /* Both runtimes expose Requestor even without an application OTA sink. */
+    CHECK(matter_root_has_device_type(ra,0,0x12) && matter_root_has_device_type(rb,0,0x12));
     CHECK(matter_runtime_fabrics(a->runtime)!=matter_runtime_fabrics(b->runtime));
     CHECK(matter_runtime_set_certificate_validity(a->runtime,true)==MATTER_INVALID_STATE);
     CHECK(matter_runtime_commissionable(a->runtime) && matter_runtime_commissionable(b->runtime));

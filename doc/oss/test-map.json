@@ -1265,6 +1265,17 @@
       "allocation_variant": "not applicable"
     },
     {
+      "path": "tools/matter/tests/test_im_path_grammar.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c",
+        "tools/matter/tests/test_im_subscribe.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
       "path": "tools/matter/tests/test_im_multi_events.h",
       "kind": "fixture-or-helper",
       "ctest": [],

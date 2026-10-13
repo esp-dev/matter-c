@@ -84,7 +84,10 @@ static void case_tests(void) {
 #define TEST_MULTI_SUB
 #include "test_im_multi_events.h"
 #include "test_im_event_wildcards.h"
+#define TEST_PATH_SUB
+#include "test_im_path_grammar.h"
 int main(void) {
+    path_grammar_tests();
     /* MP04 countdown quality: unrelated dirty notifications and heartbeat must
      * not report a new IdentifyTime until an explicitly reportable version. */
     {

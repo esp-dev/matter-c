@@ -57,22 +57,38 @@ explicit CSA/test resolution, not implementation workarounds. Keep the MP04a
 concurrent RemoveFabric scenario as a regression; a later pass alone does not
 prove the cause of its historical intermittent timeout.
 
-**Next task: CSA03 - Descriptor and endpoint composition against Device Library.**
-Resolve IDM 10.5 for the actual advertised device types and server/client lists,
-including OTA Requestor and the meter-service clusters. Run the corresponding
-official composition/PICS tests on all affected endpoints. Do not add unsupported
-mandatory dependencies or tariff declarations merely to silence conformance.
+CSA03 completes the current profile's Descriptor composition: OTA Requestor on
+Root and identity-only Electrical Utility Meter/Meter Reference Point on EP1.
+The tariff condition remains absent. IDM 10.5, Descriptor, revision/superset and
+all five endpoint-local PICS checks pass. IDM 10.1 still rejects the lab's test
+vendor prefix; no certification bypass is enabled. See [evidence](oss/csa03-validation.md).
 
-Subsequent passes must resolve Descriptor device-type composition, report timing,
-read validation, diagnostics, discovery and resource limits, and prepare the
+CSA04 addresses subscription delta reporting, all-cluster attribute subscriptions
+and Administrator Commissioning notifications after committed fabric removal.
+See [acceptance evidence](oss/csa04-validation.md) and [result delta](oss/csa04-results.json).
+The official report-timing and multi-admin tests remain unmodified.
+
+CSA05 shares the Read/Subscribe rule that a specific non-global attribute needs
+a concrete cluster. TC_IDM_2_2, TC_IDM_4_2 and TC_IDM_4_3 pass unchanged; the
+native wire matrix covers global ID boundaries and rejection before callbacks.
+See [evidence](oss/csa05-validation.md) and [result delta](oss/csa05-results.json).
+
+**Next task: CSA06 - Access Control validation.**
+Resolve TC_ACL_2_4 (ProxyView privilege) and TC_ACL_2_6 (writes incorrectly
+succeeding instead of ConstraintError) against Core 1.6.1. Preserve valid ACL
+entries and fabric isolation; verify the unchanged official ACL scenarios.
+
+Subsequent passes must resolve remaining read validation, diagnostics, discovery
+and resource limits, and prepare the
 missing three-phase triggers, OTA, Wi-Fi and manual/attestation fixtures. Retain
 test/specification discrepancies for explicit CSA resolution, not silent waivers.
 Refresh the matrix after each coherent fix and rerun the full applicable suite
 before closing this stage. Do not discard the initial failures or count test
 credentials and skipped production checks as certification evidence.
 
-MP05 (Commodity Metering), Commodity Tariff/Price and complete utility-meter
-device-type declarations are deferred until this acceptance priority is met.
+MP05 (Commodity Metering), Commodity Tariff/Price and tariff/billing compositions
+are deferred until this acceptance priority is met. The CSA03 identity-only
+Utility Meter does not implement those capabilities.
 Do not advertise a device type whose mandatory dependencies are missing.
 Keep full-host checks with independent controllers, two instances in one process,
 failure paths, Memcheck and separate ASan/UBSan/LSan throughout development.
@@ -97,6 +113,16 @@ literals with named `#define` limits/IDs/units; retain intentional protocol
 constants with documented meanings. Avoid changing wire behavior or public
 contracts unnecessarily. Re-run affected CSA and ecosystem cases plus memory
 and multi-instance checks, and compare measured savings to the baseline.
+
+Unify duplicated monotonic-time primitives in this stage: checked/saturating
+deadline arithmetic, unit conversion and earliest-deadline selection. Preserve
+each operation's specified overflow/error policy and keep protocol decisions
+(MRP backoff, subscription intervals, fail-safe expiry) in their state machines.
+Aggregate module deadlines into a runtime next-wakeup API so an application can
+wait for I/O or the earliest deadline instead of periodic polling. Retain
+application-owned, single-thread scheduling and test clock boundaries, cancellation
+and idle-network expiry. Fix any actual timing defects during CSA acceptance;
+defer the cross-module refactor until the preceding acceptance gates are met.
 
 ## 4. Downstream provisioning and firmware integration
 

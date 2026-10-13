@@ -92,6 +92,12 @@ The [CSA02 lifecycle report](doc/oss/csa02-validation.md) and
 [recheck results](doc/oss/csa02-results.json) preserve subsequent fixes and attempts.
 The opt-in [meter services](doc/meter-services.md) add Identify, Meter Identification
 and a per-instance Time Synchronization server (`--three-phase --meter-services`).
+The [CSA03 report](doc/oss/csa03-validation.md) records their corrected device-type
+composition, official Descriptor/PICS rechecks and remaining test-identity limit.
+The [CSA04 report](doc/oss/csa04-validation.md) covers subscription delta reporting,
+all-cluster selector capacity and window state after fabric removal.
+The [CSA05 report](doc/oss/csa05-validation.md) covers invalid Read/Subscribe
+paths, global-attribute wildcard rules and the unchanged official IDM rechecks.
 
 The optional [three-phase profile](doc/three-phase.md) adds tagged aggregate/L1/L2/L3
 endpoints and EEM source-register semantics: run the host with `--three-phase`

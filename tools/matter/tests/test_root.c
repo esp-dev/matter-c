@@ -13,6 +13,48 @@ void matter_test_free(void* p) { if(p) { ROOT_CHECK(live); --live; } free(p); }
 #include "test_epm.h"
 #include "test_eem.h"
 #include "test_boot_events.h"
+#include "model/matter_im_subscribe.h"
+static uint8_t root_sub_reserve(void* u,Matter_Exchange_Session_T session,bool keep,uint32_t* id) {
+    (void)u; (void)session; (void)keep; *id=42; return MATTER_OK;
+}
+static void root_sub_release(void* u,uint32_t id) { (void)u; ROOT_CHECK(id==42); }
+static void label_subscription(void) {
+    RootFixture* f=root_fixture(); f->durable.basic_version=UINT32_MAX; root_open(f);
+    Matter_Im_Subscribe_Port_T port={f->read,root_sub_reserve,root_sub_release};
+    Matter_Im_Subscribe_Config_T config={{f->session,12,false},10000,128,true};
+    Matter_Im_Subscribe_T sub=matter_im_subscribe_new(&port,&config,0); ROOT_CHECK(sub);
+    const uint8_t request[]={0x15,0x29,0,0x24,1,5,0x24,2,10,0x36,3,0x17,0x24,2,0,0x24,3,0x28,0x24,4,5,0x18,0x18,0x29,7,0x24,0xff,13,0x18};
+    const uint8_t success[]={0x15,0x24,0,0,0x24,255,13,0x18};
+    const uint8_t empty[]={0x15,0x24,0,42,0x36,1,0x18,0x28,4,0x24,0xff,13,0x18};
+    Matter_Rx_Decision_T rx={.action=MATTER_RX_EXISTING,.session=f->session,
+        .header={.protocol_id=1,.opcode=3,.exchange_id=12,.exchange_flags=1},.payload=request,.payload_size=sizeof(request)};
+    ROOT_CHECK(matter_im_subscribe_receive(sub,&rx)==MATTER_OK && matter_im_subscribe_process(sub,0)==MATTER_PENDING);
+    ROOT_CHECK(matter_im_subscribe_sent_at(sub,0)==MATTER_OK && matter_im_subscribe_confirm(sub,1)==MATTER_OK);
+    rx.header.opcode=1; rx.payload=success; rx.payload_size=sizeof(success);
+    ROOT_CHECK(matter_im_subscribe_receive(sub,&rx)==MATTER_OK && matter_im_subscribe_process(sub,2)==MATTER_PENDING);
+    ROOT_CHECK(matter_im_subscribe_sent_at(sub,2)==MATTER_OK && matter_im_subscribe_confirm(sub,3)==MATTER_OK);
+    /* Simulated meter notifications must not repeat BasicInformation values.
+     * Real NodeLabel changes still report at MinInterval, including version wrap. */
+    for(unsigned step=1;step<=4;++step) {
+        uint64_t now=(uint64_t)step*5000;
+        if(step==2) {
+            const uint8_t label[]={0x0c,3,'n','e','w'}; Matter_Im_Path_T path={0,0x28,5};
+            Matter_Im_Write_Result_T r=f->write.write(f->root,&path,label,sizeof(label)); ROOT_CHECK(!r.status);
+        }
+        ROOT_CHECK(matter_im_subscribe_changed(sub)==MATTER_OK);
+        ROOT_CHECK(matter_im_subscribe_process(sub,now-1)==MATTER_PENDING && matter_im_subscribe_state(sub)==MATTER_IM_SUB_IDLE);
+        ROOT_CHECK(matter_im_subscribe_process(sub,now)==MATTER_PENDING && matter_im_subscribe_state(sub)==MATTER_IM_SUB_NEED_EXCHANGE);
+        Matter_Exchange_Info_T exchange={f->session,(uint16_t)(12+step),true};
+        ROOT_CHECK(matter_im_subscribe_bind_report(sub,&exchange,now)==MATTER_OK && matter_im_subscribe_process(sub,now)==MATTER_PENDING);
+        Matter_Im_Subscribe_Message_T out; ROOT_CHECK(matter_im_subscribe_output(sub,&out)==MATTER_OK);
+        if(step==2) ROOT_CHECK(out.size>sizeof(empty));
+        else ROOT_CHECK(out.size==sizeof(empty) && !memcmp(out.data,empty,sizeof(empty)));
+        ROOT_CHECK(matter_im_subscribe_sent_at(sub,now)==MATTER_OK && matter_im_subscribe_confirm(sub,now+1)==MATTER_OK);
+        rx.header.exchange_id=exchange.exchange_id; rx.header.exchange_flags=0;
+        ROOT_CHECK(matter_im_subscribe_receive(sub,&rx)==MATTER_OK && matter_im_subscribe_process(sub,now+2)==MATTER_PENDING);
+    }
+    ROOT_CHECK(matter_im_subscribe_cancel(sub)==MATTER_OK && matter_im_subscribe_delete(sub)==MATTER_OK); root_release(f);
+}
 static void write_im(RootFixture* f,uint32_t attr,const uint8_t* text,size_t size,uint32_t version,uint8_t expected) {
     root_write_request(f,attr,text,size,version);
     Matter_Im_Write_Config_T c={{f->session,0x1234,false},1000,256,true};
@@ -179,6 +221,7 @@ static void register_tests(void) {
     eem_free(f); puts("PASS MP02 EEM registers: nonzero first sample, restart, mode guard, partial availability, decrease rejected, explicit replacement/store failure");
 }
 int main(void) {
+    label_subscription();
     multiphase_tests(); register_tests();
     utility_types();
     power_tests();

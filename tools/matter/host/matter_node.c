@@ -149,6 +149,10 @@ static bool meter_model(Node* n,const char* state,uint64_t now) {
     n->utilities[1]=matter_meter_identification_new(&meter,versions[1]);
     n->utilities[2]=matter_time_sync_new(&time,n->events,versions[2],now);
     for(unsigned i=0;i<HOST_METER_SERVICES_COUNT;++i) if(!n->utilities[i] || matter_root_attach_cluster_at(n->root,i==2?0:1,n->utilities[i])!=MATTER_OK) return false;
+    /* Device Library 14.9/14.6: identity-only Utility Meter, including its
+     * Reference Point base. ElectricalEnergy (tariff) condition is not used. */
+    if(matter_root_add_device_type_at(n->root,1,0x511,1)!=MATTER_OK ||
+        matter_root_add_device_type_at(n->root,1,0x512,1)!=MATTER_OK) return false;
     return meter_process(n,now);
 }
 static bool three_phase_model(Node* n,uint64_t now) {
@@ -188,6 +192,7 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     if(n->three_phase) c->configuration_version=n->switch_enabled?4:3;
     if(n->source_enabled) c->configuration_version=n->switch_enabled?6:5;
     if(n->meter_services) c->configuration_version=7+(n->source_enabled?2:0)+(n->switch_enabled?1:0);
+    c->configuration_version+=10; /* CSA03 changes Descriptor.DeviceTypeList. */
     c->capabilities=(Matter_Root_Capabilities_T)MATTER_HOST_CAPABILITIES;
     c->settings.location[0]='X'; c->settings.location[1]='X'; c->descriptor_version=versions[0]; c->basic_version=versions[1];
     if(credentials) {
