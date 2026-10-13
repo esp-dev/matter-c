@@ -42,11 +42,18 @@ static void label_subscription(void) {
             Matter_Im_Write_Result_T r=f->write.write(f->root,&path,label,sizeof(label)); ROOT_CHECK(!r.status);
         }
         ROOT_CHECK(matter_im_subscribe_changed(sub)==MATTER_OK);
-        ROOT_CHECK(matter_im_subscribe_process(sub,now-1)==MATTER_PENDING && matter_im_subscribe_state(sub)==MATTER_IM_SUB_IDLE);
+        ROOT_CHECK(matter_im_subscribe_process(sub,now-1)==MATTER_PENDING);
+        ROOT_CHECK(matter_im_subscribe_state(sub)==(step%2?MATTER_IM_SUB_IDLE:MATTER_IM_SUB_NEED_EXCHANGE));
         ROOT_CHECK(matter_im_subscribe_process(sub,now)==MATTER_PENDING && matter_im_subscribe_state(sub)==MATTER_IM_SUB_NEED_EXCHANGE);
         Matter_Exchange_Info_T exchange={f->session,(uint16_t)(12+step),true};
         ROOT_CHECK(matter_im_subscribe_bind_report(sub,&exchange,now)==MATTER_OK && matter_im_subscribe_process(sub,now)==MATTER_PENDING);
-        Matter_Im_Subscribe_Message_T out; ROOT_CHECK(matter_im_subscribe_output(sub,&out)==MATTER_OK);
+        Matter_Im_Subscribe_Message_T out;
+        if(step%2) {
+            ROOT_CHECK(matter_im_subscribe_output(sub,&out)==MATTER_INVALID_STATE && matter_im_subscribe_state(sub)==MATTER_IM_SUB_IDLE);
+            uint64_t deadline; ROOT_CHECK(matter_im_subscribe_deadline(sub,&deadline)==MATTER_OK && deadline==(step==1?10000:20000));
+            continue;
+        }
+        ROOT_CHECK(matter_im_subscribe_output(sub,&out)==MATTER_OK);
         if(step==2) ROOT_CHECK(out.size>sizeof(empty));
         else ROOT_CHECK(out.size==sizeof(empty) && !memcmp(out.data,empty,sizeof(empty)));
         ROOT_CHECK(matter_im_subscribe_sent_at(sub,now)==MATTER_OK && matter_im_subscribe_confirm(sub,now+1)==MATTER_OK);

@@ -100,14 +100,24 @@ static void fs_update(FabricSub* s) {
     OC_CHECK(matter_im_subscribe_process(s->sub,s->now)==MATTER_PENDING && matter_im_subscribe_state(s->sub)==MATTER_IM_SUB_NEED_EXCHANGE);
     Matter_Exchange_Info_T e={1,++s->exchange,true}; OC_CHECK(!matter_im_subscribe_bind_report(s->sub,&e,s->now)); fs_report(s,false);
 }
+static void fs_unchanged(FabricSub* s) {
+    ++s->now; OC_CHECK(!matter_im_subscribe_changed(s->sub));
+    OC_CHECK(matter_im_subscribe_process(s->sub,s->now)==MATTER_PENDING);
+    Matter_Exchange_Info_T e={1,++s->exchange,true}; OC_CHECK(!matter_im_subscribe_bind_report(s->sub,&e,s->now));
+    OC_CHECK(matter_im_subscribe_process(s->sub,s->now)==MATTER_PENDING);
+    Matter_Im_Subscribe_Message_T out;
+    OC_CHECK(matter_im_subscribe_output(s->sub,&out)==MATTER_INVALID_STATE && matter_im_subscribe_state(s->sub)==MATTER_IM_SUB_IDLE);
+}
 static void fabric_subscriptions(FabFixture* f) {
     /* Five real records force multipart NOCs; exact reassembly also tests that
      * the provider's shared encoding arena cannot corrupt the previous path. */
     for(unsigned filter=0;filter<2;++filter) {
         FabricSub* s=fs_new(f,filter!=0); fs_report(s,true); OC_CHECK(s->reads==2 && (filter || s->parts>1));
-        vid_request(f,3,0x6a03,85,0); vid_call(f,1,12,0); fs_update(s); OC_CHECK(s->reads==4);
-        vid_request(f,3,0xfff1,0,0); vid_call(f,1,12,0); fs_update(s); OC_CHECK(s->reads==6);
+        fs_unchanged(s); OC_CHECK(s->reads==4);
+        vid_request(f,3,0x6a03,85,0); vid_call(f,1,12,0); fs_update(s); OC_CHECK(s->reads==6);
+        fs_unchanged(s); OC_CHECK(s->reads==8);
+        vid_request(f,3,0xfff1,0,0); vid_call(f,1,12,0); fs_update(s); OC_CHECK(s->reads==10);
         OC_CHECK(!matter_im_subscribe_delete(s->sub) && s->releases==1); free(s);
     }
-    puts("PASS OPCREDS subscriptions: exact Fabrics/NOCs reassembly, five fabrics, filtered/unfiltered, shared scratch, VID update/erase and versions");
+    puts("PASS OPCREDS subscriptions: exact Fabrics/NOCs reassembly, five fabrics, filtered/unfiltered, unrelated changes suppressed, VID update/erase and versions");
 }

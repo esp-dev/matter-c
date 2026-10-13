@@ -84,6 +84,11 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The [CSA11 report](doc/oss/csa11-validation.md) records concurrent resource
+acceptance: TC_RR_1_1 passes with 15 subscriptions across five fabrics, including
+the optional unchanged-session-ID check. TC_IDM_4_3 also passes after repairs to
+redundant reporting and heartbeat scheduling. See [result delta](doc/oss/csa11-results.json).
+
 The [CSA10 report](doc/oss/csa10-validation.md) records DNS-SD service/subtype
 enumeration. Unchanged TC_SC_4_1 and the TC_SC_4_3 operational discovery recheck
 pass, with the Basic Commissioning Window coverage limit recorded explicitly.

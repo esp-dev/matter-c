@@ -295,12 +295,12 @@ static Matter_Result_T cluster_version(void* u,uint32_t* v) { Opcreds m=u; *v=ma
 static Matter_Result_T cluster_process(void* u,uint64_t now) { (void)now; Opcreds m=u; return matter_opcreds_process(m->interface); }
 static uint8_t read_scalar(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
     (void)q; Opcreds m=u; if(m->busy) return MATTER_IM_FAILURE;
-    *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=*(const uint32_t*)ref,.data_version=matter_opcreds_version(m->interface)}; return 0;
+    *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=*(const uint32_t*)ref,.data_version=matter_opcreds_version(m->interface),.report_on_version_change=true}; return 0;
 }
 typedef struct { const uint32_t* ids; size_t base,full; } IdList;
 static uint8_t read_ids(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
     (void)q; Opcreds m=u; const IdList* list=ref; if(m->busy) return MATTER_IM_FAILURE;
-    *v=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=matter_opcreds_version(m->interface)};
+    *v=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=matter_opcreds_version(m->interface),.report_on_version_change=true};
     Matter_Tlv_Writer_T* w=&m->writer; size_t n=m->fabrics?list->full:list->base;
     const uint32_t* ids=list->ids;
     if(!ids) ids=matter_opcreds_attribute_ids(m->interface,&n);
@@ -312,7 +312,9 @@ static uint8_t read_ids(void* u,const void* ref,const Matter_Cluster_Request_T* 
 static uint8_t read_fabric(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
     Opcreds m=u; if(m->busy) return MATTER_IM_FAILURE;
     uint8_t r=matter_fabric_read_index(m->fabrics,*(const uint32_t*)ref,q->fabric,q->filtered,v);
-    if(!r) v->data_version=matter_opcreds_version(m->interface);
+    /* The fabric revision covers label/credential/VID changes and rollback.
+     * Unrelated application notifications must not resend the whole NOC table. */
+    if(!r) { v->data_version=matter_opcreds_version(m->interface); v->report_on_version_change=true; }
     return r;
 }
 static uint8_t cluster_validate(void* u,const void* ref,const Matter_Cluster_Request_T* q,const uint8_t* d,size_t n) {

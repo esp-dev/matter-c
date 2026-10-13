@@ -54,6 +54,11 @@ typedef enum { MATTER_IM_SUB_WAITING, MATTER_IM_SUB_OUTPUT, MATTER_IM_SUB_IN_FLI
  * holds encoded spans/containers (each <=4096 B, depth4); optional Events snapshot on heap.
  * Snapshots reused between transactions, released by delete; no per-chunk alloc.
  * Max chosen = requested ceiling (1 second when ceiling=0, within publisher limit).
+ * An attribute-only update whose values are all unchanged returns to IDLE without
+ * output until the maximum interval; its last-report/activity clocks are retained.
+ * The owner should process at the returned deadline. A late wakeup requests the
+ * due heartbeat, not immediate cancellation; exchange admission/delivery remain
+ * bounded by timeout_ms. Peer rejection/timeout still terminates the subscription.
  * Failed subscriptions never resume. Caller cancels/drains transport on failure.
  */
 Matter_Im_Subscribe_T matter_im_subscribe_new(const Matter_Im_Subscribe_Port_T*, const Matter_Im_Subscribe_Config_T*, uint64_t now_ms);

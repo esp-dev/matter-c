@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "773a7c9a52590f43e868c7a7886b1738573ff37b5fd2a686ed9836ae8b1de704",
+  "previous": "csa10-results.json",
+  "previous_sha256": "4232554b593fe12084f1fcaa77cc2046584b420ecdb7cb678e68ed61cfeb914b",
+  "tracked_document_hash_encoding": "Git blob bytes (LF); private execution/build artifacts are hashed byte-for-byte.",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Concurrent per-fabric CASE/subscriptions; suppress unrelated OPCREDS values and empty attribute-only updates, preserve heartbeat on late owner-loop wakeups. Unchanged official RR with optional stronger session-ID check, plus IDM 4.3 regression. Other matrix rows inherited.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 86,
+    "FAIL": 19
+  },
+  "baseline_dut_sha256": "6422f697931995146e4adfd403f5f6f6acf19ec28b1ceaace625a24c506449e6",
+  "final_dut_sha256": "b34dd529e1971bcd30911be4c0560cf3bd5528a9b7a8a7140aeef0aa74b8a834",
+  "source_manifest_sha256": "2bad31f3618bf8cd2eb3ddb14effec823780a78a9fab1efd615de2c5692b9804",
+  "builds": {
+    "final matter-node": "b34dd529e1971bcd30911be4c0560cf3bd5528a9b7a8a7140aeef0aa74b8a834",
+    "final cmake/tests/runtime-pair-host": "9110e750b7f57019ee88784c2729fb7fefb3b681b2bdb6db3be20c280de2f40a",
+    "sanitize matter-node": "96ce5786efa85998e3cc5cfd2ec3fedfbeb97758694397f38eaef98b78fa54d9",
+    "sanitize cmake/tests/runtime-pair-host": "c8bb1d6828cfb28a630fcbe22f4487a818628a9e5a6625f2057048dce19d3bb5"
+  },
+  "attempts": [
+    {
+      "case": "TC_RR_1_1",
+      "endpoint": 0,
+      "run_id": 314,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "implementation": "CSA10",
+      "dut_sha256": "6422f697931995146e4adfd403f5f6f6acf19ec28b1ceaace625a24c506449e6",
+      "step_states": {
+        "passed": 2,
+        "failed": 1
+      },
+      "evidence_sha256": "2b37e51b9b55349f39bd832d0bc9c02f02b1d657befc411bb57b1760c8f36996",
+      "official_log_sha256": "55a5093e7dfc7feedb4fa3e6e6b7a5a5a462e38358f2ed513da5adf293f6ea07",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9cf8c4a39c1fe2f55a69f26753c0b6bf3a8ad79ad058fbe7e507b312ddb7520f",
+      "harness_timeout_seconds": 1500,
+      "check_local_session_id_unchanged": false,
+      "coverage": "5 fabrics, 3 controllers each, 15 subscriptions. Legacy wrapper steps; UserLabel, Groups resource filling and Groupcast paths are not exercised because their clusters are absent."
+    },
+    {
+      "case": "TC_RR_1_1",
+      "endpoint": 0,
+      "run_id": 315,
+      "status": "FAIL",
+      "source_stage": "intermediate",
+      "implementation": "opcreds-version-policy",
+      "dut_sha256": "3080a9f0d9d4735f47968bb9af59931d9e13f438ee2c6222295d0c43f8430f1e",
+      "step_states": {
+        "passed": 2,
+        "failed": 1
+      },
+      "evidence_sha256": "50c30a516efd5b0cbf309eb93c32f0707392170db533cd37aa67fc2f7688de46",
+      "official_log_sha256": "68b800b4e04690fe0adc4377a56d76b074ce8550d99f77af1126df86248483f8",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9cf8c4a39c1fe2f55a69f26753c0b6bf3a8ad79ad058fbe7e507b312ddb7520f",
+      "harness_timeout_seconds": 1500,
+      "check_local_session_id_unchanged": false,
+      "coverage": "5 fabrics, 3 controllers each, 15 subscriptions. Legacy wrapper steps; UserLabel, Groups resource filling and Groupcast paths are not exercised because their clusters are absent."
+    },
+    {
+      "case": "TC_RR_1_1",
+      "endpoint": 0,
+      "run_id": 316,
+      "status": "PASS",
+      "source_stage": "intermediate",
+      "implementation": "quiet-unchanged-reports",
+      "dut_sha256": "9e1e40c50faacb4701f3e9eafd669a094e2090655d32f9b8e6580cea63a92ceb",
+      "step_states": {
+        "passed": 3
+      },
+      "evidence_sha256": "bb63ca524bd74e071bb46b50a02209b19ed467163d8125d2150add0759118c16",
+      "official_log_sha256": "33a351fddba93f5c63af3908c07db32ada8bb007a5cf41dc3e3c1a115656445c",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9cf8c4a39c1fe2f55a69f26753c0b6bf3a8ad79ad058fbe7e507b312ddb7520f",
+      "harness_timeout_seconds": 1500,
+      "check_local_session_id_unchanged": false,
+      "coverage": "5 fabrics, 3 controllers each, 15 subscriptions. Legacy wrapper steps; UserLabel, Groups resource filling and Groupcast paths are not exercised because their clusters are absent."
+    },
+    {
+      "case": "TC_RR_1_1",
+      "endpoint": 0,
+      "run_id": 317,
+      "status": "PASS",
+      "source_stage": "intermediate",
+      "implementation": "quiet-unchanged-reports",
+      "dut_sha256": "9e1e40c50faacb4701f3e9eafd669a094e2090655d32f9b8e6580cea63a92ceb",
+      "step_states": {
+        "passed": 3
+      },
+      "evidence_sha256": "a0ac5b0ab11c311c9100b2bb59ae4af60ea62d003b0d46206f5b5e7dd73050f8",
+      "official_log_sha256": "33d3949284c0aea05395607900674c6e9d2eafda59da6197629ce7fe712d575c",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9cf8c4a39c1fe2f55a69f26753c0b6bf3a8ad79ad058fbe7e507b312ddb7520f",
+      "harness_timeout_seconds": 1500,
+      "check_local_session_id_unchanged": true,
+      "coverage": "5 fabrics, 3 controllers each, 15 subscriptions. Legacy wrapper steps; UserLabel, Groups resource filling and Groupcast paths are not exercised because their clusters are absent."
+    },
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "run_id": 318,
+      "status": "FAIL",
+      "source_stage": "intermediate",
+      "implementation": "quiet-unchanged-reports",
+      "dut_sha256": "9e1e40c50faacb4701f3e9eafd669a094e2090655d32f9b8e6580cea63a92ceb",
+      "step_states": {
+        "passed": 3,
+        "failed": 1,
+        "pending": 11
+      },
+      "evidence_sha256": "b0471db21783bfafa27d06245fdd51415248b219718d4b10e50d940a447a7f49",
+      "official_log_sha256": "d692afc3a1f8a8eeeeff92210aac8f1a5b3cc047f9f1c46a1eacb16cd77a998b",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f27bbb7a09a5bdfd4951861942f155e792fc55353c7aff70339fd7b7129bcf8d"
+    },
+    {
+      "case": "TC_RR_1_1",
+      "endpoint": 0,
+      "run_id": 319,
+      "status": "PASS",
+      "source_stage": "final",
+      "implementation": "publisher-heartbeat-deadline",
+      "dut_sha256": "b34dd529e1971bcd30911be4c0560cf3bd5528a9b7a8a7140aeef0aa74b8a834",
+      "step_states": {
+        "passed": 3
+      },
+      "evidence_sha256": "c30fd9eee392db493cfcbedd822dd6a49e96b1106260a761899113c5e5b93a69",
+      "official_log_sha256": "74a4c5bf55990587d0573aeb5ff9cee9787b06f943c47248bd0ea1874304f1a8",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9cf8c4a39c1fe2f55a69f26753c0b6bf3a8ad79ad058fbe7e507b312ddb7520f",
+      "harness_timeout_seconds": 1500,
+      "check_local_session_id_unchanged": true,
+      "coverage": "5 fabrics, 3 controllers each, 15 subscriptions. Legacy wrapper steps; UserLabel, Groups resource filling and Groupcast paths are not exercised because their clusters are absent."
+    },
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "run_id": 320,
+      "status": "PASS",
+      "source_stage": "final",
+      "implementation": "publisher-heartbeat-deadline",
+      "dut_sha256": "b34dd529e1971bcd30911be4c0560cf3bd5528a9b7a8a7140aeef0aa74b8a834",
+      "step_states": {
+        "passed": 15
+      },
+      "evidence_sha256": "55b3ed858ccbeadb6643c7c1d01d496076cfb7159c3cc5eea31205af5fca23dc",
+      "official_log_sha256": "23b0dd5e731cf0ad0e51e9cae45794429ee659536d9be32ffa06510b1b843816",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "f27bbb7a09a5bdfd4951861942f155e792fc55353c7aff70339fd7b7129bcf8d"
+    }
+  ],
+  "native_tests": [
+    "test_opcreds",
+    "test_fabric",
+    "test_im_subscribe",
+    "test_dispatch",
+    "test_root",
+    "test_runtime",
+    "test_runtime_alloc"
+  ],
+  "native_normal_log_sha256": "679fac39548db693c4982faf319492c9f3807de2bd92d065e893fd900fd0dd3f",
+  "native_sanitizer_log_sha256": "db7fc8c9c7ffe1fb4a57aa27885d7fa05823ad44b2bec3afe3a240c326db9ac5",
+  "memory": {
+    "results": [
+      {
+        "mode": "memcheck",
+        "returncode": 0
+      },
+      {
+        "mode": "sanitize",
+        "returncode": 0
+      }
+    ],
+    "results_sha256": "a332e76107da92611d50888f8a73919b522ec21eef0e5b7eb74b613c85f4d40c",
+    "valgrind_log_sha256": "aee805283cbbcff6857ebf906ee9b168284f66e5b866ab1e196bc11f67c18884",
+    "pair_memcheck_sha256": "23d7d36e8d935be83910a5c3c6da073f43e88b57ed592870ddd5c7a22cdd324c",
+    "pair_sanitize_sha256": "90f1a38f83e91e93e74c51a133149702d3bec4780a0ce9d2203c3ec9cb946843"
+  },
+  "old_behavior_regressions": {
+    "opcreds": "6ed877bbf37a3557b37fae52413cc71bcc1ff53c48ef5b0fb6a6bab8ced6174a",
+    "subscribe": "b183b9e4a11c89e0d43dd059ada5aadff0dabbfecaf03e9afeda2362e47a77a8",
+    "heartbeat": "e5afa0476fe841199865707c665473bb6000dbc65f678f73aeaaed907048ce25"
+  }
+}

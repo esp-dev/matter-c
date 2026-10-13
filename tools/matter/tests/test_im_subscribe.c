@@ -92,20 +92,28 @@ int main(void) {
      * not report a new IdentifyTime until an explicitly reportable version. */
     {
         SubModel* m=create(128); m->report_on_version=true; prime(m,true);
-        for(unsigned step=0;step<4;++step) {
-            uint64_t now=2100+(uint64_t)step*2000;
+        const uint64_t times[]={2100,3100,4100,9100,11100};
+        for(unsigned step=0;step<5;++step) {
+            uint64_t now=times[step];
             m->value=10+step; if(step==2) ++m->version;
-            if(step==3) m->deny=true;
+            if(step==4) m->deny=true;
             CHECK(matter_im_subscribe_changed(m->active)==MATTER_OK);
             CHECK(matter_im_subscribe_process(m->active,now)==MATTER_PENDING);
             Matter_Exchange_Info_T e={1,(uint16_t)(13+step),true};
             CHECK(matter_im_subscribe_bind_report(m->active,&e,now)==MATTER_OK);
+            if(step<2) {
+                CHECK(matter_im_subscribe_process(m->active,now)==MATTER_PENDING);
+                Matter_Im_Subscribe_Message_T out; uint64_t deadline;
+                CHECK(matter_im_subscribe_state(m->active)==MATTER_IM_SUB_IDLE && matter_im_subscribe_output(m->active,&out)==MATTER_INVALID_STATE);
+                CHECK(matter_im_subscribe_deadline(m->active,&deadline)==MATTER_OK && deadline==5100);
+                continue;
+            }
             Matter_Im_Subscribe_Message_T out=output(m,now);
-            if(step<2) literal(out,5,sub_empty,sizeof(sub_empty));
-            else if(step==2) CHECK(out.size==sizeof(sub_report) && out.data[26]==12);
+            if(step==2) CHECK(out.size==sizeof(sub_report) && out.data[26]==12);
+            else if(step==3) literal(out,5,sub_empty,sizeof(sub_empty));
             else CHECK(out.size>sizeof(sub_empty)); /* Authorization is rechecked, not suppressed. */
             CHECK(matter_im_subscribe_sent_at(m->active,now)==MATTER_OK && matter_im_subscribe_confirm(m->active,now+1)==MATTER_OK);
-            if(step<3) { receive(m,sub_success,sizeof(sub_success),1,e.exchange_id,false); CHECK(matter_im_subscribe_process(m->active,now+2)==MATTER_PENDING); }
+            if(step<4) { receive(m,sub_success,sizeof(sub_success),1,e.exchange_id,false); CHECK(matter_im_subscribe_process(m->active,now+2)==MATTER_PENDING); }
         }
         release(m);
     }
@@ -163,7 +171,11 @@ int main(void) {
     }
     for(unsigned mode=0;mode<5;++mode) {
         SubModel* m=create(128); prime(m,false);
-        if(mode==0) CHECK(matter_im_subscribe_process(m->active,5101)==MATTER_PORT_ERROR);
+        if(mode==0) {
+            CHECK(matter_im_subscribe_process(m->active,5101)==MATTER_PENDING && matter_im_subscribe_state(m->active)==MATTER_IM_SUB_NEED_EXCHANGE);
+            CHECK(matter_im_subscribe_process(m->active,15100)==MATTER_PENDING);
+            CHECK(matter_im_subscribe_process(m->active,15101)==MATTER_PORT_ERROR); /* No exchange admitted. */
+        }
         else {
             CHECK(matter_im_subscribe_process(m->active,5100)==MATTER_PENDING); Matter_Exchange_Info_T e={1,13,true};
             CHECK(matter_im_subscribe_bind_report(m->active,&e,5100)==MATTER_OK);
@@ -177,6 +189,24 @@ int main(void) {
                 CHECK(matter_im_subscribe_confirm(m->active,5101)==MATTER_OK && matter_im_subscribe_process(m->active,5102)==MATTER_PORT_ERROR); }
         }
         CHECK(m->releases==1 && matter_im_subscribe_changed(m->active)==MATTER_INVALID_STATE); release(m);
+    }
+    /* Real owner loops do not land exactly on MaxInterval. An overdue heartbeat
+     * still sends, accepts the peer's status, and schedules from actual TX time. */
+    {
+        SubModel* s=create(128); prime(s,false);
+        CHECK(matter_im_subscribe_process(s->active,5107)==MATTER_PENDING);
+        Matter_Exchange_Info_T e={1,13,true}; CHECK(matter_im_subscribe_bind_report(s->active,&e,5111)==MATTER_OK);
+        literal(output(s,5112),5,sub_empty,sizeof(sub_empty));
+        CHECK(matter_im_subscribe_sent_at(s->active,5120)==MATTER_OK && matter_im_subscribe_confirm(s->active,5121)==MATTER_OK);
+        receive(s,sub_success,sizeof(sub_success),1,13,false);
+        CHECK(matter_im_subscribe_process(s->active,5122)==MATTER_PENDING);
+        uint64_t due; CHECK(matter_im_subscribe_deadline(s->active,&due)==MATTER_OK && due==10120);
+        CHECK(matter_im_subscribe_process(s->active,10127)==MATTER_PENDING);
+        e.exchange_id=14; CHECK(matter_im_subscribe_bind_report(s->active,&e,10127)==MATTER_OK);
+        literal(output(s,10128),5,sub_empty,sizeof(sub_empty));
+        CHECK(matter_im_subscribe_sent_at(s->active,10129)==MATTER_OK);
+        CHECK(matter_im_subscribe_process(s->active,20127)==MATTER_PORT_ERROR && s->releases==1);
+        release(s);
     }
     for(unsigned keep=0;keep<2;++keep) {
         SubModel* a=create(128); prime(a,true);

@@ -1,5 +1,19 @@
 # Development status
 
+CSA11 fixes excess unchanged Operational Credentials reports, empty attribute-only
+updates before MaxInterval, and premature cancellation on late heartbeat wakeups.
+**TC_RR_1_1 passes (run 319)** with five fabrics, three controllers/subscriptions
+each and the optional unchanged-CASE-session-ID check. **TC_IDM_4_3 also passes
+(run 320)**. Session/subscription limits and public function signatures are unchanged.
+Latest matrix: **86 PASS, 19 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**; other rows
+are inherited, not rerun. See [CSA11 evidence](csa11-validation.md) and
+[all seven attempts](csa11-results.json), including intermediate failures and
+the limits of RR group-resource coverage.
+Seven focused tests pass normally and with ASan/UBSan/LSan. Full two-instance
+Memcheck reports zero errors/leaks; the separate sanitizer scenario also passes.
+**Next: CSA12, repeated incorrect passcodes and commissioning-window behavior
+(TC_CADMIN_1_9).**
+
 CSA10 adds missing host DNS-SD service/subtype enumeration, including the subtype
 listing used by CHIP/TH. **TC_SC_4_1 passes (run 312)** for enhanced commissioning
 and Extended Discovery; its 9 Basic Commissioning Window records remain N/A for
@@ -10,7 +24,7 @@ rows inherited. Six focused tests pass normally and with ASan/UBSan/LSan;
 35 wire checks and both full two-instance memory scenarios pass. Memcheck
 reports zero errors/leaks. See [CSA10 evidence](csa10-validation.md) and
 [all attempts](csa10-results.json).
-**Next: CSA11, resource pressure/concurrent subscriptions (TC_RR_1_1).**
+CSA11 above records the subsequent resource/subscription acceptance.
 
 CSA09 fixes delivery of required CASE failure StatusReports: the engine rejected
 invalid input correctly, but the dispatcher closed before sending its output.

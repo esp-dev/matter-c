@@ -64,9 +64,10 @@ static Matter_Result_T clock_check(Matter_Im_Subscribe_T s,uint64_t now) {
     if(now<s->now) return MATTER_INVALID_ARGUMENT;
     s->now=now;
     if(s->state==MATTER_IM_SUB_FAILED) return MATTER_INVALID_STATE;
-    if(s->state==MATTER_IM_SUB_IDLE || s->state==MATTER_IM_SUB_NEED_EXCHANGE) {
-        if(now>add(s->last_activity,(uint64_t)s->maximum*1000)) return fail(s);
-    } else if(now>=s->expires) return fail(s);
+    /* MaxInterval is the publisher's next work deadline, not an exact-tick
+     * expiry. The owner loop can wake just after it. Once work is requested,
+     * the existing exchange timeout bounds resource/transport starvation. */
+    if(s->state!=MATTER_IM_SUB_IDLE && now>=s->expires) return fail(s);
     return MATTER_OK;
 }
 Matter_Im_Subscribe_T matter_im_subscribe_new(const Matter_Im_Subscribe_Port_T* p,const Matter_Im_Subscribe_Config_T* c,uint64_t now) {
@@ -615,7 +616,9 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
         }
     }
     if(s->state==MATTER_IM_SUB_IDLE && (now>=add(s->last_activity,(uint64_t)s->maximum*1000) ||
-        (pending_change(s) && now>=add(s->last_report,(uint64_t)s->minimum*1000)))) s->state=MATTER_IM_SUB_NEED_EXCHANGE;
+        (pending_change(s) && now>=add(s->last_report,(uint64_t)s->minimum*1000)))) {
+        s->expires=add(now,s->config.timeout_ms); s->state=MATTER_IM_SUB_NEED_EXCHANGE;
+    }
     if(s->state==MATTER_IM_SUB_BUILD_REPORT) {
         bool data=s->dirty; s->dirty=false;
         s->phase=UPDATE; capture_begin(s,data);
@@ -627,9 +630,18 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
     if(s->state==MATTER_IM_SUB_COLLECTING) {
         uint8_t code=capture(s);
         if(code || (s->collected==s->count && (!s->events || s->events->collected))) {
-            encoded=code?status(s,code):chunk(s,true);
-            if(!encoded) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);
-            s->state=MATTER_IM_SUB_OUTPUT;
+            /* A coarse application notification may concern no selected value.
+             * Attribute-only subscriptions can return to idle without traffic;
+             * do not move the heartbeat deadline or suppress access failures.
+             * Event subscriptions retain their independent cursor/report rules. */
+            if(!code && s->phase==UPDATE && !s->attribute_report && !s->terminal_report &&
+                (!s->events || !s->events->requested) && now<add(s->last_activity,(uint64_t)s->maximum*1000)) {
+                s->state=MATTER_IM_SUB_IDLE;
+            } else {
+                encoded=code?status(s,code):chunk(s,true);
+                if(!encoded) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);
+                s->state=MATTER_IM_SUB_OUTPUT;
+            }
         }
     }
     if(!encoded) r=fail(s); else r=MATTER_PENDING;
@@ -664,7 +676,6 @@ Matter_Result_T matter_im_subscribe_sent_at(Matter_Im_Subscribe_T s,uint64_t now
     if(s->state!=MATTER_IM_SUB_OUTPUT) return MATTER_INVALID_STATE;
     r=clock_check(s,now); if(r) return r;
     if(s->phase==PRIME || s->phase==UPDATE) {
-        if(s->active && now>add(s->last_activity,(uint64_t)s->maximum*1000)) return fail(s);
         if(!s->report_started) { s->last_report=now; s->report_started=true; }
         s->last_activity=now;
     } else if(s->phase==RESPONSE) s->active=true;

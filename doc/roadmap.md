@@ -111,10 +111,18 @@ TC_SC_4_3 also passes. Latest matrix: 85 PASS, 20 FAIL, 21 BLOCKED, 32 MANUAL,
 native/sanitizer tests and both full memory scenarios pass. See
 [evidence](oss/csa10-validation.md) and [all attempts](oss/csa10-results.json).
 
-**Next task: CSA11 - resource pressure/concurrent subscriptions (TC_RR_1_1).**
-Reproduce the unchanged official test's timeout, trace session/exchange and
-subscription lifetimes against CapabilityMinima, and fix the actual limit or
-admission issue. Retain the historical discovery attribution limit.
+CSA11 fixes redundant Operational Credentials reports, empty attribute-only
+updates and exact-tick heartbeat cancellation without increasing resource pools.
+TC_RR_1_1 passes with five fabrics and 15 subscriptions, including the optional
+unchanged-session-ID assertion; the TC_IDM_4_3 reporting recheck also passes.
+Latest matrix: 86 PASS, 19 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. See
+[evidence](oss/csa11-validation.md) and [all attempts](oss/csa11-results.json).
+Group-resource branches remain outside this profile's exercised RR coverage.
+
+**Next task: CSA12 - repeated incorrect passcodes and commissioning-window
+behavior (TC_CADMIN_1_9).** Reproduce the rejection/rate-limiting failure and
+reconcile the window lifecycle with Core, without weakening the official test.
+Retain the historical discovery attribution limit.
 
 Subsequent passes must resolve remaining read validation, diagnostics, discovery
 and resource limits, and prepare the

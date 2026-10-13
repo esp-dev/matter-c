@@ -14,6 +14,10 @@ engine into reliable failure-report delivery, retry and ACK/exhaustion/stop drai
 `test_discovery` covers service/subtype enumeration and shared-record suppression;
 `test_mdns_linux.py` verifies enumeration and known-answer thresholds on multicast
 alongside its existing TC/NSEC/address/duplicate-response checks.
+`test_opcreds` exercises five-fabric NOCs/Fabrics subscription chunking and
+DataVersion suppression; `test_root` and `test_im_subscribe` cover unrelated
+notifications, retained heartbeat deadlines, late owner-loop wakeups and bounded
+exchange/status timeouts. CSA11 retains failing controls with the old behavior.
 
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts
