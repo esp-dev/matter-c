@@ -64,6 +64,9 @@ Matter_Case_T matter_case_new(const Matter_Crypto_Port_T*,const Matter_Credentia
  * protocol/vendor0, peer I, R=1, same session/exchange, duplicate filtering.
  * Application schedules process, refreshes time after costly work if needed. */
 Matter_Result_T matter_case_receive(Matter_Case_T,uint8_t opcode,const uint8_t*,size_t);
+/* FAILED/PORT_ERROR can still expose a required failure StatusReport through
+ * output. Deliver it using the same immutable MRP lifecycle; never take keys
+ * or continue processing handshake data after failure. */
 Matter_Result_T matter_case_process(Matter_Case_T,uint64_t now_ms);
 Matter_Result_T matter_case_output(Matter_Case_T,Matter_Pase_Message_T*);
 /* Copy/enqueue immutable payload into MRP before sent. Retries reuse packet.

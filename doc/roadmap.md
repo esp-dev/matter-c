@@ -95,10 +95,17 @@ reservations. Both selected General Diagnostics tests fail before and pass after
 the repair. Latest matrix: 83 PASS, 22 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA.
 See [evidence](oss/csa08-validation.md) and [all attempts](oss/csa08-results.json).
 
-**Next task: CSA09 - invalid CASE input (TC_SC_3_4).**
-Reproduce the invalid-parameter response timeout, trace the rejection and secure
-channel status lifecycle against Core 1.6.1, then rerun the unchanged official
-case. Retain the historical discovery attribution limit while continuing CSA.
+CSA09 fixes a dropped CASE failure StatusReport at the dispatcher boundary.
+Unchanged TC_SC_3_4 reproduces the timeout before repair and passes all 13 recorded
+steps afterwards; cryptographic validation remains intact. MRP error delivery,
+retry and cleanup regressions pass, including a failing old-code control. Latest
+matrix: 84 PASS, 21 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. Full two-instance Memcheck
+and separate sanitizer scenarios pass. See [evidence](oss/csa09-validation.md)
+and [all attempts](oss/csa09-results.json).
+
+**Next task: CSA10 - Commissionable Node Discovery (TC_SC_4_1).**
+Rerun the unchanged official test, investigate its advertisement/subtype checks
+against Core 1.6.1 and retain the historical discovery attribution limit.
 
 Subsequent passes must resolve remaining read validation, diagnostics, discovery
 and resource limits, and prepare the

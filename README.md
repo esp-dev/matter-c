@@ -84,9 +84,9 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
-The [CSA08 report](doc/oss/csa08-validation.md) records corrected TimeSnapshot
-and live IM/subscription diagnostics, with both official General Diagnostics
-rechecks passing. See [result delta](doc/oss/csa08-results.json).
+The [CSA09 report](doc/oss/csa09-validation.md) records corrected CASE failure
+report delivery and retransmission lifetime. The unchanged official TC_SC_3_4
+passes all 13 recorded steps. See [result delta](doc/oss/csa09-results.json).
 
 The [development roadmap](doc/roadmap.md) orders CSA acceptance, Google Test Suite
 and manual checks, measured optimization, then downstream firmware integration.

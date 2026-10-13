@@ -9,6 +9,8 @@ Default CTest totals: 86 on Windows, 83 on Linux, including inventory, crash
 recovery and a relocated installed-package consumer with two runtimes.
 `test_node_discovery` drives the real host advertisement composition through
 deferred removal and rapid window reopening with a deterministic backend.
+`test_dispatch` also drives malformed CASE input through ingress and the real
+engine into reliable failure-report delivery, retry and ACK/exhaustion/stop drain.
 
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts

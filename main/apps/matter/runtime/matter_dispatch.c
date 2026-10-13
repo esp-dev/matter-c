@@ -647,6 +647,9 @@ static void dispatch(Matter_Dispatch_T d) {
     }
     if(t->closing) return;
     if(t->im_busy || t->busy_reply) return; /* Retransmits must not restart admission. */
+    /* A rejected handshake may still owe its reliable StatusReport. RX/MRP
+     * already handled control ACKs; further handshake data must not cancel it. */
+    if(t->case_attempt && matter_case_state(t->case_attempt)==MATTER_CASE_FAILED) return;
     if(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE) { t->received_counter=in->message_counter; t->has_ack=true; }
     Matter_Result_T r=MATTER_INVALID_ARGUMENT;
     if(t->outbound && !t->case_attempt && d->outgoing.bdx && !in->header.vendor_id &&
@@ -682,7 +685,10 @@ static void confirm(Transaction* t) {
     if(t->invoke) r=matter_im_invoke_confirm(t->invoke,now);
     if(t->sub) r=matter_im_subscribe_confirm(t->sub,now);
     if(t->final && t->pase) r=matter_pase_confirm_delivery(t->pase,now);
-    if(t->final && t->case_attempt) r=matter_case_confirm_delivery(t->case_attempt,now);
+    if(t->final && t->case_attempt) {
+        if(matter_case_state(t->case_attempt)==MATTER_CASE_FAILED) { t->closing=true; return; }
+        r=matter_case_confirm_delivery(t->case_attempt,now);
+    }
     if(r!=MATTER_OK) t->closing=true;
 }
 static bool handoff(Transaction* t) {
@@ -768,7 +774,16 @@ static void process_transaction(Transaction* t) {
             if(t->slot && !handoff(t)) { t->closing=true; return; }
             t->closing=!t->pending; return;
         }
-        if(matter_case_output(t->case_attempt,&hs)==MATTER_OK) out=(Matter_Im_Read_Message_T){hs.data,hs.size,hs.opcode}; }
+        if(matter_case_output(t->case_attempt,&hs)==MATTER_OK) out=(Matter_Im_Read_Message_T){hs.data,hs.size,hs.opcode};
+        if(matter_case_state(t->case_attempt)==MATTER_CASE_FAILED) {
+            /* Failure is terminal for crypto, not for delivery. Keep any
+             * immutable MRP packet through ACK/error, then send a queued
+             * failure report if present. No report means local cleanup only. */
+            if(t->pending) return;
+            if(!out.data) { t->closing=true; return; }
+            r=MATTER_OK;
+        }
+    }
     if(t->read) { r=matter_im_read_process(t->read,d->now); (void)matter_im_read_output(t->read,&out); if(matter_im_read_state(t->read)==MATTER_IM_READ_COMPLETE) t->closing=true; }
     if(t->write) { r=matter_im_write_process(t->write,d->now); (void)matter_im_write_output(t->write,&out); if(matter_im_write_state(t->write)==MATTER_IM_WRITE_COMPLETE) t->closing=true; }
     if(t->invoke) {

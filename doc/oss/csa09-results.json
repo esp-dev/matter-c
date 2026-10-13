@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "c39daadaaad68c36505287c773bcc2515aeaaea10de3819375c8d15576e14fb9",
+  "previous": "csa08-results.json",
+  "previous_sha256": "306bda023a35544200ac0de7331ea10030e470c1275738eadb8075b6ca5df3ea",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "CASE rejection StatusReport delivery and MRP lifetime. Unchanged official TC_SC_3_4 reproduced before repair and passed all 13 recorded steps afterwards. Unselected rows retain previous results.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 84,
+    "FAIL": 21
+  },
+  "baseline_dut_sha256": "3326b48499cddde0dbc992d52e389ff975ff7ecfc155e70ec016dfc597937609",
+  "final_dut_sha256": "e75205ed2949257f7c127efa5cf45f8da80b84234ed02631411152f0c44759e0",
+  "source_manifest_sha256": "8e0e57c71a6818bbf6a70f341ba6919b6ed47669ade370d2a47301122e9c92ed",
+  "attempts": [
+    {
+      "case": "TC_SC_3_4",
+      "endpoint": 0,
+      "run_id": 309,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "step_states": {
+        "passed": 3,
+        "failed": 1,
+        "pending": 9
+      },
+      "evidence_sha256": "03d2453100b259f3b335bdc868904b47ceb6b3c3234877d4e05511044059a0a2",
+      "official_log_sha256": "85274aa66b675601d1d9016ee163dc72949a9ac480fa4a326ebdff667430eda1",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "4e01c772d7123f0f43b5a480c01ac362ec7b355078e8b0369432c8a2e5522bb5"
+    },
+    {
+      "case": "TC_SC_3_4",
+      "endpoint": 0,
+      "run_id": 310,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 13
+      },
+      "evidence_sha256": "46d29c1b99a98b987e6ad5484fcbb0ff2f9d84973e550f2c7fa9520917657f66",
+      "official_log_sha256": "ddb631af17376d7d93972d747f08835f888834dbeeb8500074b543a2d66af4b4",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "4e01c772d7123f0f43b5a480c01ac362ec7b355078e8b0369432c8a2e5522bb5"
+    }
+  ]
+}

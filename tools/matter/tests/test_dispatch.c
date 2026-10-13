@@ -609,6 +609,79 @@ static void late_handshake(Matter_Dispatch_T d,const Matter_Udp_Address_T* local
     /* Normal owner completion/stop below drains the generated control ACK. */
     puts("PASS late CASE: duplicate final StatusReport control ACK; fresh counter, wrong route/opcode denied; no handler restart");
 }
+/* Malformed Sigma1 must fail before accessing credentials. Exercise the real
+ * CASE engine, ingress, dispatcher and MRP, not just the engine's output API. */
+static Matter_Result_T unused_case_load(void* u,unsigned slot,Matter_Case_Fabric_T* f) {
+    (void)u; (void)slot; (void)f; CHECK(false); return MATTER_PORT_ERROR;
+}
+static Matter_Result_T unused_case_valid(void* u,uint8_t index,uint32_t revision) {
+    (void)u; (void)index; (void)revision; CHECK(false); return MATTER_PORT_ERROR;
+}
+static Matter_Result_T unused_case_sign(void* u,uint8_t index,const uint8_t* p,size_t n,uint8_t sig[64]) {
+    (void)u; (void)index; (void)p; (void)n; (void)sig; CHECK(false); return MATTER_PORT_ERROR;
+}
+static void case_failure(Matter_Dispatch_T* current,Matter_T owner,Matter_Udp_Windows_T udp,
+    const Matter_Udp_Address_T* bind,Matter_Root_T root) {
+    Matter_Crypto_Mbedtls_T crypto=matter_crypto_mbedtls_new(NULL); CHECK(crypto);
+    Matter_Dispatch_Config_T cfg={.root=root,.fabrics={.capacity=1,.load=unused_case_load,
+        .valid=unused_case_valid,.sign=unused_case_sign},.time={MATTER_CERT_TIME_SUPPLIED,{2026,10,9,0,0,0}}};
+    CHECK(matter_crypto_mbedtls_port(crypto,&cfg.crypto)==MATTER_OK &&
+        matter_crypto_mbedtls_credentials(crypto,&cfg.credentials)==MATTER_OK);
+    for(unsigned mode=0;mode<3;++mode) {
+        Matter_Dispatch_T d=*current=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg); CHECK(d);
+        const uint8_t sigma1[]={4,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,5,0x30,7,0,0,0,0x15,0x18};
+        Matter_Udp_Datagram_T packet={.path={.local=*bind,.peer=*bind},.data=sigma1,.size=sizeof(sigma1)};
+        packet.path.peer.port=9;
+        matter_dispatch_received(d,&packet); CHECK(matter_dispatch_process(d,0)==MATTER_PENDING);
+        Transaction* t=&d->transactions[0];
+        CHECK(t->case_attempt && matter_case_state(t->case_attempt)==MATTER_CASE_FAILED);
+        CHECK(t->pending && t->final && !t->closing && !t->slot);
+        Matter_Message_Header_T mh; Matter_Protocol_Header_T ph; size_t n,h;
+        CHECK(matter_message_header_read(t->packet,t->size,&mh,&n)==MATTER_MESSAGE_OK && !mh.session_id);
+        CHECK(matter_protocol_header_read(t->packet+n,t->size-n,&ph,&h)==MATTER_MESSAGE_OK &&
+            ph.opcode==0x40 && !ph.protocol_id && (ph.exchange_flags&MATTER_PROTOCOL_RELIABLE));
+        const uint8_t expected[]={1,0,0,0,0,0,2,0};
+        CHECK(t->size==n+h+sizeof(expected) && !memcmp(t->packet+n+h,expected,sizeof(expected)));
+        uint8_t* saved=malloc(t->size); CHECK(saved); size_t size=t->size; memcpy(saved,t->packet,size);
+        uint64_t now=0,first=0;
+        for(unsigned i=0;i<100;++i) {
+            Matter_Result_T r=matter_udp_windows_poll(udp); CHECK(r==MATTER_OK || r==MATTER_WOULD_BLOCK);
+            CHECK(matter_dispatch_process(d,++now)==MATTER_PENDING);
+            if(t->sent && !d->request) { first=d->producer; break; }
+        }
+        CHECK(first && t->pending && !t->closing);
+        /* Additional handshake data cannot abort the queued failure report. */
+        d->decision=(Matter_Rx_Decision_T){.session=t->key.session,.exchange=t->handle,
+            .header={.exchange_id=t->key.exchange_id,.opcode=0x32,.exchange_flags=MATTER_PROTOCOL_INITIATOR},
+            .payload=expected,.payload_size=sizeof(expected)};
+        dispatch(d); CHECK(!t->closing);
+        uint64_t deadline; CHECK(matter_retransmission_sender_deadline(d->tx,&deadline)==MATTER_OK);
+        now=deadline;
+        for(unsigned i=0;i<100 && d->producer==first;++i) {
+            Matter_Result_T r=matter_udp_windows_poll(udp); CHECK(r==MATTER_OK || r==MATTER_WOULD_BLOCK);
+            CHECK(matter_dispatch_process(d,++now)==MATTER_PENDING);
+        }
+        CHECK(d->request && d->producer!=first && t->pending && !t->closing &&
+            t->size==size && !memcmp(t->packet,saved,size)); free(saved);
+        for(unsigned i=0;i<CONNECTIONS;++i) CHECK(!d->connections[i].token && !d->connections[i].reserved);
+        if(mode==0) CHECK(matter_retransmission_sender_ack(d->tx,&t->key,mh.message_counter)==MATTER_OK);
+        if(mode==2) CHECK(matter_dispatch_stop(d)==MATTER_PENDING); /* TX still borrowed. */
+        for(unsigned i=0;i<1000 && t->handle;++i) {
+            Matter_Result_T r=matter_udp_windows_poll(udp); CHECK(r==MATTER_OK || r==MATTER_WOULD_BLOCK);
+            r=matter_dispatch_process(d,++now); CHECK(r==MATTER_OK || r==MATTER_PENDING);
+            if(mode==1 && !d->request && matter_retransmission_sender_deadline(d->tx,&deadline)==MATTER_OK && deadline>now)
+                now=deadline; /* All retries exhausted without a peer ACK. */
+        }
+        CHECK(!t->handle);
+        for(unsigned i=0;i<1000 && matter_dispatch_stop(d)!=MATTER_OK;++i) {
+            Matter_Result_T r=matter_udp_windows_poll(udp); CHECK(r==MATTER_OK || r==MATTER_WOULD_BLOCK);
+            r=matter_dispatch_process(d,++now); CHECK(r==MATTER_OK || r==MATTER_PENDING);
+        }
+        CHECK(matter_dispatch_delete(d)==MATTER_OK && !allocations); *current=NULL;
+    }
+    CHECK(matter_crypto_mbedtls_delete(crypto)==MATTER_OK);
+    puts("PASS CASE rejection: StatusReport, immutable retry, no handshake restart/session, ACK/exhaustion/stop drain");
+}
 int main(void) {
     Matter_T owner=matter_new(NULL); CHECK(owner && matter_start(owner)==MATTER_OK);
     Matter_Root_Port_T rp={NULL,load_root,denied,store_root}; Matter_Root_T root=matter_root_new(&rp); CHECK(root);
@@ -617,6 +690,7 @@ int main(void) {
     Matter_Udp_Listener_T listener={&d,udp_received,udp_sent};
     Matter_Udp_Windows_T udp=matter_udp_windows_new(owner,&bind,0,&listener); CHECK(udp);
     CHECK(matter_udp_start(matter_udp_windows_module(udp))==MATTER_OK && matter_udp_windows_local(udp,&bind)==MATTER_OK);
+    case_failure(&d,owner,udp,&bind,root);
     Matter_Dispatch_Config_T cfg={.root=root,.crypto={.user=&fail_random,.random=entropy},.user=&reset,.fabric_live=fabric_live};
     fail_alloc=true; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_alloc=false;
     fail_random=true; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_random=false;

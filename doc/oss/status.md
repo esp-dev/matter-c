@@ -1,5 +1,17 @@
 # Development status
 
+CSA09 fixes delivery of required CASE failure StatusReports: the engine rejected
+invalid input correctly, but the dispatcher closed before sending its output.
+Reports now retain their MRP lifetime without creating a secure session or
+continuing the handshake. The unchanged **TC_SC_3_4 passes all 13 recorded steps
+(run 310)** after baseline run 309 reproduced the timeout. Latest matrix:
+**84 PASS, 21 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**; other rows are inherited.
+Seven focused tests pass normally and with ASan/UBSan/LSan, including a new
+regression that fails against the previous dispatcher. Full two-instance
+Memcheck reports zero errors/leaks; the separate sanitizer scenario also passes.
+See [CSA09 evidence](csa09-validation.md) and [all attempts](csa09-results.json).
+**Next: CSA10, Commissionable Node Discovery (TC_SC_4_1).**
+
 CSA08 fixes General Diagnostics at the runtime boundary: TimeSnapshot now uses
 the attached Time Synchronization UTC, and DeviceLoadStatus reflects actual IM
 traffic and established subscriptions. Both unchanged official cases fail on
@@ -9,7 +21,7 @@ unselected rows are inherited. Six focused native tests pass normally and with
 ASan/UBSan/LSan. Full two-instance Memcheck reports zero errors/leaks; the separate
 sanitizer scenario also passes. See [CSA08 evidence](csa08-validation.md) and
 [all attempts](csa08-results.json).
-**Next: CSA09, invalid CASE input (TC_SC_3_4).**
+CSA09 above records the subsequent invalid CASE input repair and recheck.
 
 CSA07 fixes a reproduced host discovery race: closing and reopening the same
 commissioning window before asynchronous withdrawal completed could leave mDNS
