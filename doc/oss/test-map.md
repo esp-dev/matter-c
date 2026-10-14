@@ -26,6 +26,11 @@ and isolation of another runtime. CSA12 records a failing old-runtime control.
 checks signature/storage errors and TableFull, then verifies rollback/root-only
 journal recovery without changing installed records or keys. CSA13 records its
 failing old-host control and the unchanged official CADMIN 1.19/OPCREDS 3.1 results.
+The optional `--wifi-sim-connected` mode of `test_discovery_startup_linux.py`
+passes through to `runtime-pair-host` and its CHIP controller. It checks each
+instance's connection, rejects unarmed scans, then exercises armed general and
+directed scans, missing SSIDs, Breadcrumb and rollback during the full pair
+lifecycle. This supplementary scenario is not TC_CNET_4_4 acceptance.
 
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts

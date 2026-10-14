@@ -69,13 +69,22 @@ static bool close_node(Node* n,uint64_t now) {
     printf("PAIR_DELETED port=%u\n",n->port); return true;
 }
 int main(int argc,char** argv) {
-    if(argc!=5 && !(argc==6 && (!strcmp(argv[5],"--three-phase") || (!strcmp(argv[5],"--source-registers") || !strcmp(argv[5],"--meter-services"))))) { fputs("runtime-pair-host IFACE CREDENTIALS STATE_A STATE_B [--three-phase|--source-registers|--meter-services]\n",stderr); return 2; }
+    bool three_phase=false,source=false,services=false,wifi=false;
+    if(argc<5) return 2;
+    for(int i=5;i<argc;++i) {
+        if(!strcmp(argv[i],"--three-phase")) three_phase=true;
+        else if(!strcmp(argv[i],"--source-registers")) three_phase=source=true;
+        else if(!strcmp(argv[i],"--meter-services")) three_phase=source=services=true;
+        else if(!strcmp(argv[i],"--wifi-sim-connected")) wifi=true;
+        else { fputs("runtime-pair-host IFACE CREDENTIALS STATE_A STATE_B [--three-phase|--source-registers|--meter-services] [--wifi-sim-connected]\n",stderr); return 2; }
+    }
     unsigned long index; if(!number(argv[1],UINT32_MAX,&index) || !index || !strcmp(argv[3],argv[4])) return 2;
     setvbuf(stdout,NULL,_IONBF,0); signal(SIGINT,stop_signal); signal(SIGTERM,stop_signal);
     Node* nodes=calloc(2,sizeof(*nodes)); if(!nodes) return 1;
-    nodes[0].three_phase=nodes[1].three_phase=argc==6;
-    nodes[0].source_enabled=nodes[1].source_enabled=argc==6 && (!strcmp(argv[5],"--source-registers") || !strcmp(argv[5],"--meter-services"));
-    nodes[0].meter_services=nodes[1].meter_services=argc==6 && !strcmp(argv[5],"--meter-services");
+    nodes[0].three_phase=nodes[1].three_phase=three_phase;
+    nodes[0].source_enabled=nodes[1].source_enabled=source;
+    nodes[0].meter_services=nodes[1].meter_services=services;
+    nodes[0].wifi_sim_connected=nodes[1].wifi_sim_connected=wifi;
     bool closing[2]={false,false},ok=true; uint64_t start=matter_host_now(),next=start;
     for(unsigned i=0;i<2;++i) if(!open_node(&nodes[i],(unsigned)index,i,argv[2],argv[3+i],start)) { ok=false; closing[0]=closing[1]=true; break; }
     while(nodes[0].owner || nodes[1].owner) {

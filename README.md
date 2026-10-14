@@ -84,6 +84,11 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The [CSA14 report](doc/oss/csa14-validation.md) records the optional connected
+Wi-Fi simulation: TC_CNET_4_1 passes; TC_CNET_4_4 remains FAIL because its
+unarmed ScanNetworks receives the status required by Core 1.6.1. Supplementary
+armed scans pass without relaxing that guard. See [result delta](doc/oss/csa14-results.json).
+
 The [CSA13 report](doc/oss/csa13-validation.md) records full-fabric-table acceptance:
 unchanged TC_CADMIN_1_19 and TC_OPCREDS_3_1 pass after removing premature RCAC
 rejection, allowing AddNOC to return TableFull. See [result delta](doc/oss/csa13-results.json).
@@ -167,6 +172,14 @@ build/cmake/matter-node --interface 2 --seconds 60 --port 5541 --credentials bui
 
 Choose your isolated test interface. `--case-resumption-profile chip` is the
 explicit interoperability profile; certificate validity remains strict above.
+For an already connected simulated Wi-Fi device, add `--wifi-sim-connected`
+and use a fresh state path. It seeds the existing `testharness` AP as configured
+and connected; `testharness-2` remains available to scans. The default still has
+an empty Networks list. A restored file always takes precedence, including an
+empty list: this option never replaces saved settings. It requires `--credentials`.
+The radio is simulated; IPv6 transport uses the selected real host interface.
+It neither configures nor connects the OS Wi-Fi adapter. ScanNetworks requires
+an armed fail-safe as specified by Core 1.6.1 section 11.9.7.1.
 To execute the Matter.js network scenario, pass `--modules tools/matter/controller/node_modules`
 to `tools/matter/tests/test_host_network.py` together with `--exe`, `--interface`
 and `--ipv6`. Windows DLL search can be set with `--runtime`; Node with `--node`.

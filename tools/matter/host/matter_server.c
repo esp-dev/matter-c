@@ -50,7 +50,12 @@ Matter_Server_T matter_server_new(const char* directory,const char* path,const M
     return matter_server_new_ota_sim(directory,path,identity,pin,now,NULL);
 }
 Matter_Server_T matter_server_new_ota_sim(const char* directory,const char* path,const Matter_Root_Config_T* identity,uint32_t pin,uint64_t now,const char* public_key) {
+    Matter_Server_Sim_Options_T options={.ota_public_key=public_key};
+    return matter_server_new_sim(directory,path,identity,pin,now,&options);
+}
+Matter_Server_T matter_server_new_sim(const char* directory,const char* path,const Matter_Root_Config_T* identity,uint32_t pin,uint64_t now,const Matter_Server_Sim_Options_T* options) {
     if(!directory || !path || !identity) return NULL;
+    const char* public_key=options?options->ota_public_key:NULL;
     Matter_Server_T s=calloc(1,sizeof(*s)); if(!s) return NULL;
     s->identity=*identity; Matter_Runtime_Config_T* c=&s->config; c->identity=&s->identity;
     s->backend=matter_crypto_mbedtls_new(NULL);
@@ -71,8 +76,7 @@ Matter_Server_T matter_server_new_ota_sim(const char* directory,const char* path
     erase(digest,sizeof(digest));
     Matter_Wifi_Sim_Config_T* wc=calloc(1,sizeof(*wc)); if(!wc) goto fail;
     wc->initial.enabled=true; wc->latency_ms=10;
-    /* Deterministic radio environment only: no OS Wi-Fi configuration. Networks
-     * still have to be added/connected through the cluster and committed. */
+    /* Deterministic radio environment only: no OS Wi-Fi configuration. */
     wc->count=2;
     static const char* const ssids[]={"testharness","testharness-2"};
     for(unsigned i=0;i<wc->count;++i) {
@@ -81,6 +85,15 @@ Matter_Server_T matter_server_new_ota_sim(const char* directory,const char* path
         ap->ap.security=8; ap->ap.bssid[0]=2; ap->ap.bssid[5]=(uint8_t)(i+1);
         ap->ap.channel=(uint16_t)(i?6:1); ap->ap.band=0; ap->ap.rssi=(int8_t)(i?-55:-40);
         ap->credential_size=13; memcpy(ap->credentials,"wifi-password",13);
+    }
+    if(options && options->wifi_connected) {
+        /* Model an already associated on-network device. Runtime restoration
+         * replaces this fresh-state seed before constructing the Wi-Fi cluster. */
+        const Matter_Wifi_Sim_Ap_T* ap=&wc->aps[0];
+        wc->initial.count=1; wc->connected=ap->ap.ssid;
+        wc->initial.networks[0].id=ap->ap.ssid;
+        wc->initial.networks[0].credential_size=ap->credential_size;
+        memcpy(wc->initial.networks[0].credentials,ap->credentials,ap->credential_size);
     }
     s->sim=matter_wifi_sim_new(wc,now); erase(wc,sizeof(*wc)); free(wc); if(!s->sim) goto fail;
     s->file=matter_store_file_new(path); if(!s->file) goto fail;

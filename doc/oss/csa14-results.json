@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "773a7c9a52590f43e868c7a7886b1738573ff37b5fd2a686ed9836ae8b1de704",
+  "previous": "csa13-results.json",
+  "previous_sha256": "a1e6977c15344b184e54be0116d82efdcd62ee3b74eaa60d0a9899f503c51b0e",
+  "tracked_document_hash_encoding": "Git blob bytes (LF); private execution/build artifacts are hashed byte-for-byte.",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Opt-in initially connected host Wi-Fi simulation with restored-state precedence. Unchanged CNET 4.1 passes; CNET 4.4 retains FAIL because its unarmed ScanNetworks conflicts with Core 1.6.1 11.9.7.1. Supplementary armed scans do not waive the official failure. Other rows inherited.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 89,
+    "FAIL": 16
+  },
+  "baseline_dut_sha256": "34b0d680aceffa25118f7a81d3162613200cd758efa1dce8a605175414b9508f",
+  "final_dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+  "source_manifest_sha256": "19ea6ee6e7f60555db6416670d8f83f8a24f004abfa6690d56a4ee21e092d581",
+  "builds": {
+    "final matter-node": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+    "final cmake/tests/runtime-pair-host": "32d751d83d4123bd94c794a00f25c980353f388cf949803ecdff86a07f1553fe",
+    "sanitize matter-node": "3f6851f1ae43d2203a3f5171cee436949aad788ebd42921a6612931b417864e1",
+    "sanitize cmake/tests/runtime-pair-host": "62dc952b568869482d1be27cd0fee83bc8f57db5a892eef3246bae19407da41b"
+  },
+  "attempts": [
+    {
+      "case": "TC_CNET_4_1",
+      "endpoint": 0,
+      "run_id": 327,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "dut_sha256": "34b0d680aceffa25118f7a81d3162613200cd758efa1dce8a605175414b9508f",
+      "step_states": {
+        "passed": 7,
+        "failed": 1,
+        "pending": 4
+      },
+      "evidence_sha256": "27d16b34af449738636e61d83e54f0b11933fa5129aa34ee5db2a9116e678fba",
+      "official_log_sha256": "06be2cb4b639c2193ea210ff458520aeda94c8cc7a4aae05f7c5f9ca6edc914b",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "61d4415b1a5f40b5443045ac824ff62fe15b744a20f996974f56e95228f94e65",
+      "connected_seed": false
+    },
+    {
+      "case": "TC_CNET_4_4",
+      "endpoint": 0,
+      "run_id": 328,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "dut_sha256": "34b0d680aceffa25118f7a81d3162613200cd758efa1dce8a605175414b9508f",
+      "step_states": {
+        "passed": 5,
+        "failed": 1,
+        "pending": 5
+      },
+      "evidence_sha256": "f91cf6d8a7eaca3e104eaced6a28b651a0a5677590da85b9b8f41469b8b0fa98",
+      "official_log_sha256": "884eb588b0ab0cd1b53948a3665f00c016d91fc4f138318af36ca8ef0cecbf0d",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "91e6c31c370388c5f644a3dde49250ae7d58f7d6d1cda1f6b2d607170405afcd",
+      "connected_seed": false
+    },
+    {
+      "case": "TC_CNET_4_1",
+      "endpoint": 0,
+      "run_id": 329,
+      "status": "PASS",
+      "source_stage": "final",
+      "dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+      "step_states": {
+        "passed": 12
+      },
+      "evidence_sha256": "229987d8a5fa9879549025cfe07e8f671937a8e9d1ab659af163339a7bf5d992",
+      "official_log_sha256": "f042866e2cd000118730a2a232cba097b8ec419aedf5786b944b3671215b01bf",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "61d4415b1a5f40b5443045ac824ff62fe15b744a20f996974f56e95228f94e65",
+      "connected_seed": true
+    },
+    {
+      "case": "TC_CNET_4_4",
+      "endpoint": 0,
+      "run_id": 330,
+      "status": "FAIL",
+      "source_stage": "final",
+      "dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+      "step_states": {
+        "passed": 6,
+        "failed": 1,
+        "pending": 4
+      },
+      "evidence_sha256": "7edd6e1bc6938761d9dfcd1b935b4873360716deaeff17269af726b19f35af3e",
+      "official_log_sha256": "024643acfa5560ed6fb0bde6d42fa4de4e5cce5ab7206c93b881e8e2aa6fdf63",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "91e6c31c370388c5f644a3dde49250ae7d58f7d6d1cda1f6b2d607170405afcd",
+      "connected_seed": true
+    }
+  ],
+  "native_tests": [
+    "test_root",
+    "test_root_alloc",
+    "test_diagnostics",
+    "test_runtime",
+    "test_runtime_alloc",
+    "test_store"
+  ],
+  "native_normal_log_sha256": "8fe1ebd355b93cd46fc19b00dfb85e6f92f5f4742d53a1c93208ee22b819f3c0",
+  "native_sanitizer_log_sha256": "ac22c08c243e508e40f149511b53f9d903ec5ca7c0695be4d48ac81ca0207c85",
+  "memory": {
+    "results": [
+      {
+        "mode": "memcheck",
+        "returncode": 0
+      },
+      {
+        "mode": "sanitize",
+        "returncode": 0
+      }
+    ],
+    "results_sha256": "a332e76107da92611d50888f8a73919b522ec21eef0e5b7eb74b613c85f4d40c",
+    "valgrind_log_sha256": "c2ea737bbbdd57ef2e4330ccb05e197153eb0e351fdfa766402b1149ebc0f943",
+    "pair_memcheck_sha256": "23d7d36e8d935be83910a5c3c6da073f43e88b57ed592870ddd5c7a22cdd324c",
+    "pair_sanitize_sha256": "90f1a38f83e91e93e74c51a133149702d3bec4780a0ce9d2203c3ec9cb946843"
+  },
+  "restore_probe_log_sha256": "65db14f562ed681336b3ee81c82fa6b4a0c61bb43edf4bb5a471ab5c0767cd6f",
+  "restore_probe_source_sha256": "72d2485bbaef4d1c02b56bb7c7eb68ea6385130e5ca9d748ff1f35299b4616d1",
+  "controller_sha256": "c7650610850f410f67ff44016fef230a939be603914411313b6a51c4f0698605",
+  "pair_runner_sha256": "722ad18f963ba7895d2f81a44a44784d18c17e6be0701ce64967b56ebfa701bf"
+}

@@ -99,6 +99,7 @@ def main():
     p.add_argument('--output', required=True)
     p.add_argument('--mode', choices=('plain', 'memcheck', 'sanitize'), required=True)
     p.add_argument('--reverse', action='store_true')
+    p.add_argument('--wifi-sim-connected', action='store_true', help='Seed and verify the connected simulated Wi-Fi profile')
     p.add_argument('--legacy-discovery', action='store_true', help='Expected upstream failure reproduction, never a PASS waiver')
     a = p.parse_args()
     out = Path(a.output).resolve(); out.mkdir(parents=True, exist_ok=False)
@@ -117,6 +118,8 @@ def main():
                    '--source-registers', '--meter-services']
         if a.reverse:
             command.append('--pair-reverse')
+        if a.wifi_sim_connected:
+            command.append('--wifi-sim-connected')
         if a.legacy_discovery:
             command.append('--pair-legacy-discovery')
         env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1', UBSAN_OPTIONS='halt_on_error=1')
@@ -148,7 +151,7 @@ def main():
                                           '--error-exitcode=99', '--log-file='+str(out/'valgrind.log')]
                             node = subprocess.Popen([*prefix, str(Path(a.exe).resolve()), str(a.interface),
                                                      a.credentials, str(out/'a.bin'), str(out/'b.bin'),
-                                                     '--meter-services'], stdout=log, stderr=subprocess.STDOUT, env=env)
+                                                     '--meter-services', *(['--wifi-sim-connected'] if a.wifi_sim_connected else [])], stdout=log, stderr=subprocess.STDOUT, env=env)
                 if controller.poll() is not None:
                     assert controller.returncode == 0, f'controller exit {controller.returncode}; see controller.log'
                     assert node is not None, 'DUT was never started'

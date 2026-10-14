@@ -1,5 +1,20 @@
 # Development status
 
+CSA14 adds explicit `--wifi-sim-connected` startup for the host, preserving
+saved settings and the existing empty-network default. **TC_CNET_4_1 passes
+(run 329)** after baseline run 327 fails on the missing connection.
+**TC_CNET_4_4 remains FAIL (run 330)**: it now reaches ScanNetworks but omits
+ArmFailSafe, receiving the FAILSAFE_REQUIRED required by Core 1.6.1 11.9.7.1.
+No test assertion or server protection was relaxed; no CSA waiver was obtained.
+Latest matrix: **89 PASS, 16 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**; other rows
+are inherited. Six focused tests pass normally and with ASan/UBSan/LSan.
+Two-instance Memcheck and separate sanitizer scenarios pass, including connected
+Wi-Fi, guarded/armed scans, Breadcrumb and rollback; zero Memcheck errors/leaks.
+See [CSA14 evidence and discrepancy](csa14-validation.md) and
+[all attempts](csa14-results.json).
+**Next: CSA15 - Wi-Fi connection/configuration fixture, TC_CNET_4_9/4_11.**
+Retain CNET 4.4 FAIL pending explicit test/specification resolution.
+
 CSA13 removes the premature full-table error from RCAC admission. A verified
 pending root uses the existing journal slot; **AddNOC returns TableFull** when
 all five fabric slots are occupied. **TC_CADMIN_1_19 passes (run 325)** after
@@ -11,7 +26,7 @@ old-code control fails. Full two-instance Memcheck and separate sanitizer runs
 pass, with zero Memcheck errors/leaks. No pool, API or storage-schema expansion.
 See [CSA13 evidence and limits](csa13-validation.md) and
 [all attempts](csa13-results.json).
-**Next: CSA14 - Network Commissioning Wi-Fi fixture and TC_CNET_4_1/4_4.**
+CSA14 above records the subsequent Wi-Fi fixture acceptance and open discrepancy.
 
 CSA12 closes the initial/enhanced commissioning window after 20 failed PASE
 attempts. Notifications are one-shot, counters belong to each runtime/window,

@@ -133,9 +133,16 @@ The matrix is 88 PASS, 17 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. Focused native
 regressions, the old-code control and both full memory scenarios are recorded in
 [evidence](oss/csa13-validation.md) and [all attempts](oss/csa13-results.json).
 
-**Next task: CSA14 - Network Commissioning Wi-Fi fixture and TC_CNET_4_1/4_4.**
-Prepare a connected simulated network for the on-network host, reconcile reported
-attributes with the specification, and rerun the unchanged official cases.
+CSA14 adds opt-in connected Wi-Fi simulation with restored-state precedence.
+TC_CNET_4_1 passes. TC_CNET_4_4 remains FAIL: the installed script sends
+ScanNetworks without the fail-safe required by Core 1.6.1 11.9.7.1. Keep that
+result pending CSA/test resolution; supplementary armed scans are not a waiver.
+The matrix is 89 PASS, 16 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. See
+[evidence and discrepancy](oss/csa14-validation.md) and [attempts](oss/csa14-results.json).
+
+**Next task: CSA15 - Wi-Fi connection/configuration fixture, TC_CNET_4_9/4_11.**
+Supply explicit simulated SSID/AP parameters, inspect the unchanged test steps
+and normative requirements, and check connection errors/configuration recovery.
 Keep host simulation evidence separate from physical Wi-Fi radio acceptance.
 
 Subsequent passes must resolve remaining read validation, diagnostics, discovery

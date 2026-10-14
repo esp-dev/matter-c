@@ -165,6 +165,22 @@ def pair(args, out):
         command(a, ['onoff', 'read', 'on-off', 1, 2], r'OnOff: TRUE')
         command(b, ['onoff', 'read', 'on-off', 2, 2], r'OnOff: FALSE')
         passed('independent-application-state')
+        if args.wifi_sim_connected:
+            for node in (1, 2):
+                command(c, ['networkcommissioning', 'read', 'networks', node, 0], r'Connected: TRUE')
+                command(c, ['networkcommissioning', 'read', 'last-networking-status', node, 0], r'LastNetworkingStatus: 0\b')
+                ok, _ = c.command(['networkcommissioning', 'scan-networks', node, 0], r'0x0*ca\b', 20, failure=True)
+                assert ok, 'ScanNetworks must require an armed fail-safe'
+                command(c, ['generalcommissioning', 'arm-fail-safe', 60, 0, node, 0], r'errorCode: 0\b')
+                command(c, ['networkcommissioning', 'scan-networks', node, 0, '--Breadcrumb', 41], r'networkingStatus: 0\b')
+                command(c, ['generalcommissioning', 'read', 'breadcrumb', node, 0], r'Breadcrumb: 41\b')
+                command(c, ['networkcommissioning', 'scan-networks', node, 0, '--Ssid', 'str:testharness', '--Breadcrumb', 42], r'networkingStatus: 0\b')
+                command(c, ['generalcommissioning', 'read', 'breadcrumb', node, 0], r'Breadcrumb: 42\b')
+                command(c, ['networkcommissioning', 'scan-networks', node, 0, '--Ssid', 'str:absent-csa14', '--Breadcrumb', 99], r'networkingStatus: 5\b')
+                command(c, ['generalcommissioning', 'read', 'breadcrumb', node, 0], r'Breadcrumb: 42\b')
+                command(c, ['generalcommissioning', 'arm-fail-safe', 0, 0, node, 0], r'errorCode: 0\b')
+                command(c, ['networkcommissioning', 'read', 'networks', node, 0], r'Connected: TRUE')
+            passed('two-connected-simulated-Wi-Fi-interfaces-failsafe-scans-breadcrumb-and-rollback')
         if args.meter_services:
             command(a, ['identify', 'identify', 60, 1, 1], r'status = 0x00')
             command(b, ['identify', 'read', 'identify-time', 2, 1], r'IdentifyTime: 0\b')
@@ -217,7 +233,10 @@ def main():
                         help='Diagnostic only: reproduce upstream onnetwork-long startup filtering failure')
     parser.add_argument('--source-registers', action='store_true', help='Pair fixture includes MP03 extension')
     parser.add_argument('--meter-services', action='store_true', help='Pair fixture includes MP04 services')
+    parser.add_argument('--wifi-sim-connected', action='store_true', help='Pair fixture starts with simulated Wi-Fi connected')
     args = parser.parse_args()
+    if args.wifi_sim_connected and args.pair_discriminator is None:
+        parser.error('--wifi-sim-connected requires --pair-discriminator')
     if (args.pair_reverse or args.pair_legacy_discovery) and args.pair_discriminator is None:
         parser.error('--pair-reverse/--pair-legacy-discovery require --pair-discriminator')
     if args.meter_services and (not args.source_registers or args.pair_discriminator is None):

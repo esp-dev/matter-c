@@ -33,7 +33,7 @@ typedef struct { Matter_T owner; Matter_Mdns_Windows_T mdns; Matter_Discovery_T 
 
 typedef struct {
     Matter_T owner; Matter_Root_T root; Matter_Cluster_T topology,epm,eem,test_switch;
-    bool switch_enabled,three_phase;
+    bool switch_enabled,three_phase,wifi_sim_connected;
     bool source_enabled; Matter_Cluster_T source;
     Matter_Source_Sim_T* source_sim;
     bool meter_services,clock_fabrics_seen; Matter_Time_Host_T clock;
@@ -197,7 +197,8 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     c->capabilities=(Matter_Root_Capabilities_T)MATTER_HOST_CAPABILITIES;
     c->settings.location[0]='X'; c->settings.location[1]='X'; c->descriptor_version=versions[0]; c->basic_version=versions[1];
     if(credentials) {
-        n->server=matter_server_new_ota_sim(credentials,state,c,pin,now,ota_key); if(!n->server) return false;
+        Matter_Server_Sim_Options_T options={.ota_public_key=ota_key,.wifi_connected=n->wifi_sim_connected};
+        n->server=matter_server_new_sim(credentials,state,c,pin,now,&options); if(!n->server) return false;
         n->root=matter_server_root(n->server);
     } else { Matter_Root_Port_T rp={n,load,deny,store}; n->root=matter_root_new(&rp); }
     if(!n->root) return false;
@@ -353,7 +354,7 @@ int main(int argc,char** argv) {
     unsigned long index=0,seconds=30,port=0,disc=3840,pin=20202021; bool operational=false;
     const char* credentials=NULL; const char* state=NULL; const char* ota_file=NULL; const char* ota_key=NULL; const char* ota_boot=NULL;
     Matter_Case_Resumption_Profile_T resumption_profile=MATTER_CASE_RESUMPTION_CHIP;
-    bool chip_validity=false,test_switch=false,three_phase=false,source_registers=false,meter_services=false;
+    bool chip_validity=false,test_switch=false,three_phase=false,source_registers=false,meter_services=false,wifi_sim_connected=false;
     Matter_Diagnostics_Test_Trigger_T trigger={.trigger=energy_trigger}; bool energy_test=false;
     for(int i=1;i<argc;++i) {
         if(!strcmp(argv[i],"--test-event-key")) { if(++i==argc || !test_key(argv[i],trigger.enable_key)) return 2; energy_test=true; continue; }
@@ -361,6 +362,7 @@ int main(int argc,char** argv) {
         if(!strcmp(argv[i],"--source-registers")) { source_registers=true; continue; }
         if(!strcmp(argv[i],"--meter-services")) { meter_services=true; continue; }
         if(!strcmp(argv[i],"--test-switch")) { test_switch=true; continue; }
+        if(!strcmp(argv[i],"--wifi-sim-connected")) { wifi_sim_connected=true; continue; }
         if(!strcmp(argv[i],"--certificate-validity")) {
             if(++i==argc) return 2;
             if(!strcmp(argv[i],"strict")) chip_validity=false;
@@ -390,10 +392,11 @@ int main(int argc,char** argv) {
         else if(!strcmp(argv[i],"--discriminator")) { target=&disc; max=4095; }
         else if(!strcmp(argv[i],"--pin")) { target=&pin; max=99999998; }
         if(!target || ++i==argc || !number(argv[i],max,target)) {
-            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"); return 2;
+            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"); return 2;
         }
     }
     if(source_registers && !three_phase) { fputs("--source-registers requires --three-phase\n",stderr); return 2; }
+    if(wifi_sim_connected && !credentials) { fputs("--wifi-sim-connected requires --credentials\n",stderr); return 2; }
     if(meter_services && (!three_phase || !credentials)) { fputs("--meter-services requires --three-phase and --credentials\n",stderr); return 2; }
     if(energy_test && (!credentials || three_phase)) return 2; /* trigger profile remains the legacy aggregate fixture */
     if(!index || !seconds) { fprintf(stderr,"Select an interface with a preferred link-local IPv6 address; seconds=1..86400.\n"); return 2; }
@@ -401,6 +404,7 @@ int main(int argc,char** argv) {
     setvbuf(stdout,NULL,_IONBF,0); signal(SIGINT,stop_signal); signal(SIGTERM,stop_signal);
     Node* n=calloc(1,sizeof(*n)); if(!n) return 1;
     n->switch_enabled=test_switch; n->three_phase=three_phase;
+    n->wifi_sim_connected=wifi_sim_connected;
     n->source_enabled=source_registers;
     n->meter_services=meter_services;
     n->energy_test_enabled=energy_test; trigger.user=n;

@@ -15,6 +15,12 @@ Matter_Server_T matter_server_new(const char* credentials,const char* state,
  * before Root creation. Existing new() remains unsigned download-only. */
 Matter_Server_T matter_server_new_ota_sim(const char* credentials,const char* state,
     const Matter_Root_Config_T*,uint32_t pin,uint64_t now,const char* public_key);
+/* Host-only initial simulation options, copied during construction. A restored
+ * state file takes precedence over wifi_connected, including an empty Networks
+ * list. This never changes the OS network interface or the portable runtime API. */
+typedef struct { const char* ota_public_key; bool wifi_connected; } Matter_Server_Sim_Options_T;
+Matter_Server_T matter_server_new_sim(const char* credentials,const char* state,
+    const Matter_Root_Config_T*,uint32_t pin,uint64_t now,const Matter_Server_Sim_Options_T*);
 bool matter_server_ota_reboot_requested(Matter_Server_T);
 bool matter_server_ota_trial(Matter_Server_T);
 /* Owner calls after all host initialization and before network polling.
