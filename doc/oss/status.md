@@ -1,5 +1,62 @@
 # Development status
 
+The CSA17 review is resolved by enabling the existing DataVersion reporting
+policy for Meter Identification attributes. **TC_MTRID_3_1 PASS (run336)** and
+**TC_MTRID_2_1 PASS (run337)** on unchanged official scripts. Latest matrix:
+**91 PASS, 14 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**; other rows are inherited.
+Full pair Memcheck and separate ASan/UBSan/LSan pass, as do single-host
+restart/recommissioning and selective/last-fabric removal. Last-fabric removal
+returns SUCCESS before the host exits; the other fabric survives selective
+removal and restart. Manual Home UI acceptance was not repeated.
+See [review and limits](csa17-review-validation.md) and
+[current delta](csa17-review-results.json). **Next: manual Home removal/re-add
+acceptance on a running node, keeping existing user fabrics separate from lab
+state.** No node was left running after this laboratory campaign.
+
+The following entry preserves the earlier handoff; the follow-up above supersedes
+its STOP status and outstanding tests.
+
+CSA17 is **STOP for review**, with **TC_MTRID_3_1 still FAIL**. Pre-existing
+official run334 rejects SET; run335 accepts it but step10 compares the first
+queued pre-SET MeterType=2 against the saved base value. The origin of that
+unchanged report remains unresolved. The two-unsuccessful-fixes gate prevents
+a third correction/attempt. The opt-in host fixture and stricter local oracles
+are retained; current Linux normal/sanitized builds and eight focused tests
+per variant pass. Current full pair memory/controller acceptance and MTRID2.1
+rerun remain outstanding. Matrix stays **90 PASS, 15 FAIL, 21 BLOCKED,
+32 MANUAL, 704 NA**. See [CSA17 evidence](csa17-validation.md) and
+[delta](csa17-results.json). **Next: main-reviewer decision on the pre-SET
+subscription callback before any further implementation/campaign.**
+
+CSA16 reproduces **TC_CADMIN_1_10 FAIL (run 333)** on the unchanged CSA14
+binary: step 9 awaits a RevokeCommissioning response over PASE. Core 1.6.1
+11.19.8.3 says the PASE caller SHALL NOT expect a response because revocation
+terminates the session. This confirms the CSA02 discrepancy; implementation
+work stops for review with no workaround, C/test/PICS changes or new build.
+Latest matrix stays **90 PASS, 15 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**.
+See [CSA16 evidence and decision](csa16-validation.md) and
+[baseline delta](csa16-results.json). CSA17 above records the subsequent
+Meter Identification fixture work and its unresolved subscription acceptance.
+The known step 9 discrepancy awaits consolidated CSA/test resolution and does
+not block independent work. Later-stage commissioning failure counting
+remains unassessed; successful PASE alone is not successful commissioning.
+
+CSA15 corrects the TH Wi-Fi parameter fixture: **TC_CNET_4_9 passes (run 332,
+25 records)** on the unchanged CSA14 binary. Run 331 preserves the initial
+empty-effective-SSID failure. **TC_CNET_4_11 was not rerun**: the TH VM has no
+Wi-Fi interface/wpa_supplicant for the script's two-AP transition. Its historical
+official FAIL remains; the new environment blocker is recorded separately.
+Latest matrix: **90 PASS, 15 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA**, with other
+rows inherited. The extended pair oracle covers simulated network migration,
+authentication errors, rollback, commit and instance isolation.
+Full Memcheck and separate ASan/UBSan/LSan runs pass; Memcheck reports zero
+errors/leaks, 49,628 allocations/frees and no suppressions. C/binary identities
+match CSA14; native builds/CTest were not repeated for this Python-only change.
+See [CSA15 evidence and fixture limits](csa15-validation.md) and
+[result delta](csa15-results.json). No C source, API, PICS or official assertion
+changed. CSA16 above records the subsequent TC_CADMIN_1_10 normative review.
+Retain CNET 4.4 pending CSA resolution and 4.11 pending its network fixture.
+
 CSA14 adds explicit `--wifi-sim-connected` startup for the host, preserving
 saved settings and the existing empty-network default. **TC_CNET_4_1 passes
 (run 329)** after baseline run 327 fails on the missing connection.
@@ -12,8 +69,7 @@ Two-instance Memcheck and separate sanitizer scenarios pass, including connected
 Wi-Fi, guarded/armed scans, Breadcrumb and rollback; zero Memcheck errors/leaks.
 See [CSA14 evidence and discrepancy](csa14-validation.md) and
 [all attempts](csa14-results.json).
-**Next: CSA15 - Wi-Fi connection/configuration fixture, TC_CNET_4_9/4_11.**
-Retain CNET 4.4 FAIL pending explicit test/specification resolution.
+CSA15 above records the subsequent removal/migration fixture work.
 
 CSA13 removes the premature full-table error from RCAC admission. A verified
 pending root uses the existing journal slot; **AddNOC returns TableFull** when

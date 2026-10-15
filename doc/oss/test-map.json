@@ -2391,6 +2391,14 @@
       "allocation_variant": "complete host under separate Memcheck and ASan/UBSan/LSan"
     },
     {
+      "path": "tools/matter/tests/chip_tool_meter_triggers.py",
+      "kind": "external-controller",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/chip_tool_meter_triggers.py --help",
+      "referenced_by": [],
+      "allocation_variant": "MTRID trigger host under separate Memcheck and ASan/UBSan/LSan"
+    },
+    {
       "path": "tools/matter/tests/test_discovery_startup_linux.py",
       "kind": "external-network-or-runner",
       "ctest": [],

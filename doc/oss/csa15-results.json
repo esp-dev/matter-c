@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "baseline_sha256": "773a7c9a52590f43e868c7a7886b1738573ff37b5fd2a686ed9836ae8b1de704",
+  "previous": "csa14-results.json",
+  "previous_sha256": "db7b4a1c2e0ab50df423ad625c351d2801c81bbebafbe62b555d278c298eb483",
+  "tracked_document_hash_encoding": "Git blob bytes (LF); private artifacts are hashed byte-for-byte.",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "Unchanged TC_CNET_4_9 passes with explicit runner Wi-Fi parameter fixture. TC_CNET_4_11 not rerun: no controller radio/wpa_supplicant; previous official FAIL retained. Two-instance simulated CASE migration is supplementary. No C change. Other matrix rows inherited.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 90,
+    "FAIL": 15
+  },
+  "baseline_dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+  "final_dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+  "builds": {
+    "final matter-node": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+    "final cmake/tests/runtime-pair-host": "32d751d83d4123bd94c794a00f25c980353f388cf949803ecdff86a07f1553fe",
+    "sanitize matter-node": "3f6851f1ae43d2203a3f5171cee436949aad788ebd42921a6612931b417864e1",
+    "sanitize cmake/tests/runtime-pair-host": "62dc952b568869482d1be27cd0fee83bc8f57db5a892eef3246bae19407da41b"
+  },
+  "source_manifest_sha256": "19ea6ee6e7f60555db6416670d8f83f8a24f004abfa6690d56a4ee21e092d581",
+  "source_manifest_unchanged_files": 353,
+  "attempts": [
+    {
+      "case": "TC_CNET_4_9",
+      "endpoint": 0,
+      "run_id": 331,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+      "step_states": {
+        "failed": 1,
+        "pending": 23,
+        "passed": 1
+      },
+      "evidence_sha256": "7fe02c8f675382c389370cbd8e898b3bc8e79c43f5a0b18533c600303b3c18c2",
+      "official_log_sha256": "49f8e1734857ce5239a366ce7c28de66e795e3ca2594c2841cd6ae1b8db8aeaf",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9ee135dcb77f9ecaaf412234ed08f416934d81bfd20108aec95ce09f3a7495ec",
+      "connected_seed": true,
+      "initial_commissioning": "on-network",
+      "in_test_commissioning_method": "on-network",
+      "in_test_commissioning_executed": false
+    },
+    {
+      "case": "TC_CNET_4_9",
+      "endpoint": 0,
+      "run_id": 332,
+      "status": "PASS",
+      "source_stage": "final",
+      "dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+      "step_states": {
+        "passed": 25
+      },
+      "evidence_sha256": "dcc414d86579b578232a604a06f41b6ab206062e41faad7754b1c87eebd5ff7a",
+      "official_log_sha256": "a2154f6c5de6ef398a8efe5b85740fd6270ed9c18f702427c787086f2bfd938f",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f",
+      "source_sha256": "9ee135dcb77f9ecaaf412234ed08f416934d81bfd20108aec95ce09f3a7495ec",
+      "connected_seed": true,
+      "initial_commissioning": "on-network",
+      "in_test_commissioning_method": "ble-wifi",
+      "in_test_commissioning_executed": false
+    }
+  ],
+  "blocked_reruns": [
+    {
+      "case": "TC_CNET_4_11",
+      "endpoint": 0,
+      "current_environment": "BLOCKED",
+      "official_status_retained": "FAIL",
+      "previous_run_id": 168,
+      "source_sha256": "d3bb318d58568fc0c3935f3803fd6848255d7ab8b7e62724d670935eded4e5ac",
+      "reason": "No wireless interfaces or wpa_supplicant directory on TH VM; script requires real controller AP switching and DUT transport transition.",
+      "preflight_sha256": "adc9578ea8139cfd4852244e2ceab1632d8cd319a1c5f91a777d238f44593237",
+      "no_new_official_run": true
+    }
+  ],
+  "sdk_runner_sha256": "7d5a7b2340dc8e3c7d922532de4cd18dc2a5b3dc6d13dd1d34cd39bf872ee115",
+  "native_checks": "No new C build or CTest rerun; unchanged source/binary identities verified against CSA14.",
+  "memory": {
+    "results": [
+      {
+        "mode": "memcheck",
+        "returncode": 0,
+        "checks.json_sha256": "86edc68fa800acf3db692e6d1db494b315ae4d35d73a72773b7d687b3e4fb42c",
+        "result.json_sha256": "18bfe748c57093475fe9dd68b6e5390a6666ead8bdd32126dfaee282fb3aa8c9",
+        "controller.log_sha256": "9b3c5bd7855f454bc6360810abaf0b54655c2e53624b6e6807bb0848701b183e",
+        "node.log_sha256": "0d6de79acec23504a23ca5fc2f40b51cb67af9d122de2a2954a6767bd32b195d"
+      },
+      {
+        "mode": "sanitize",
+        "returncode": 0,
+        "checks.json_sha256": "86edc68fa800acf3db692e6d1db494b315ae4d35d73a72773b7d687b3e4fb42c",
+        "result.json_sha256": "9f23a14001a5d8140ff6d8d9dc5f2866056d19658d71a839d5eab7451a346fac",
+        "controller.log_sha256": "9b3c5bd7855f454bc6360810abaf0b54655c2e53624b6e6807bb0848701b183e",
+        "node.log_sha256": "6669c3ff0cf090af000ce276c11165f3c30a257a5cbce43ad708036c981ed867"
+      }
+    ],
+    "results_sha256": "a332e76107da92611d50888f8a73919b522ec21eef0e5b7eb74b613c85f4d40c",
+    "valgrind_log_sha256": "733b65de86144ecf7b44c300fd28e17f6a121b132e7dc281127e319f70ed9ef4",
+    "allocations_and_frees": 49628,
+    "errors": 0,
+    "bytes_at_exit": 0,
+    "suppressed_errors": 0
+  },
+  "controller_sha256": "d8a5f02baa1db1ccb391b7d03143bce07b4c8fba61d9e5256860644a404a6faf",
+  "pair_runner_sha256": "722ad18f963ba7895d2f81a44a44784d18c17e6be0701ce64967b56ebfa701bf",
+  "local_setup_failures": [
+    "Initial lab copy omitted test_mdns_linux.py; DUT not started.",
+    "First expanded oracle used add-or-update-wifi-network instead of the actual chip-tool add-or-update-wi-fi-network. Memcheck scenario failed; following sanitizer attempt was stopped. Logs retained locally. Final corrected scenarios both pass."
+  ]
+}

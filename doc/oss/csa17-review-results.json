@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa17-results.json",
+  "previous_sha256": "6a5e6d9327e6802f45e223a49e83dac2581ef275702a6a73e3334b4b05ec4080",
+  "scope": "Reviewed MTRID subscription fix and independent RemoveFabric lifecycle acceptance; not certification.",
+  "latest_counts": {
+    "PASS": 91,
+    "FAIL": 14,
+    "BLOCKED": 21,
+    "MANUAL": 32,
+    "NA": 704
+  },
+  "attempts": [
+    {
+      "case": "TC_MTRID_3_1",
+      "endpoint": 1,
+      "run_id": 336,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 14,
+        "not_applicable": 4
+      },
+      "evidence_sha256": "e64d1852ba6a9c0a6fd83c0b8865d37b90cf683da735e4e99d9896a2766fd45e",
+      "official_log_sha256": "eb7e3abd048f2455cbddf9d0b0897e9a9cccee0bd8c7d6955c8295372a937a18",
+      "execution_pics_sha256": "19a9cd654819215b08ae9e7be2686fd4f1e4ba603b55d1e9eaa85e30933e2644"
+    },
+    {
+      "case": "TC_MTRID_2_1",
+      "endpoint": 1,
+      "run_id": 337,
+      "status": "PASS",
+      "source_stage": "final",
+      "step_states": {
+        "passed": 6,
+        "not_applicable": 2
+      },
+      "evidence_sha256": "dc584a96ab7c7a7a76a5028072d1f1f3f3fa510aa747dfdfcf6d79ebd7915ab2",
+      "official_log_sha256": "6fcfb755d793b95952d5afbbc5b932720690a0ffdf440574a43f45c8a816f14f",
+      "execution_pics_sha256": "19a9cd654819215b08ae9e7be2686fd4f1e4ba603b55d1e9eaa85e30933e2644"
+    }
+  ],
+  "source_manifest_sha256": "8f017da4f6a865d18fc4bed4b8ffc89874e75ade8086b130431173361a6db367",
+  "binary_identities": [
+    "MATCH 353 C/H files",
+    "final matter-node feb43ea0355edcd7e19b165aceeafc673fc2dd4d5fe5613b1f074117e2f5b073",
+    "final cmake/tests/runtime-pair-host 3946b86b29fb57fd5c706655b992ae02dce0b8a85d01e2c2ad332d57adac55c6",
+    "sanitize matter-node 31177cc341160ffbdf4e366dd10a183b6cccc254bd3dada87fcd6d533d7ad8ad",
+    "sanitize cmake/tests/runtime-pair-host 3d82f16f7b7664c6f62cff2e3fe1d0c42f7081e4026f784dc2b471a63e0d1f84"
+  ],
+  "normal_focused": "8/8 PASS plus dispatch/fabric/IM subscription 3/3 PASS",
+  "sanitized_focused": "8/8 PASS",
+  "memcheck": {
+    "mode": "memcheck",
+    "reverse": false,
+    "legacy": false,
+    "node_exit": 0,
+    "ports": [
+      5541,
+      5542
+    ],
+    "browse_before_DUT": true,
+    "coherent_PTR_SRV_TXT": true,
+    "distinct_instances_and_hosts": true,
+    "status": "PASS"
+  },
+  "sanitizers": {
+    "mode": "sanitize",
+    "reverse": true,
+    "legacy": false,
+    "node_exit": 0,
+    "ports": [
+      5541,
+      5542
+    ],
+    "browse_before_DUT": true,
+    "coherent_PTR_SRV_TXT": true,
+    "distinct_instances_and_hosts": true,
+    "status": "PASS"
+  },
+  "memcheck_log_sha256": "4259f947a7ae75ce27ec979f05316ea494c07dea39d8f2582e3aff333605547c",
+  "pair_checks": [
+    "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+    "independent-application-state",
+    "two-connected-simulated-Wi-Fi-interfaces-failsafe-scans-breadcrumb-and-rollback",
+    "two-independent-Wi-Fi-migrations-authentication-errors-rollback-and-commit",
+    "independent-Identify-and-UTC-anchors",
+    "MTRID-SET-and-CLEAR-attributes-reports-node-isolation-and-negative-key",
+    "B-meter-services-survive-active-A-Identify-teardown",
+    "B-subscription-and-phase-read-survive-A-deletion",
+    "both-last-fabric-responses"
+  ],
+  "lifecycle_checks": [
+    "set",
+    "restart",
+    "last-with-trigger",
+    "last-fabric-response-before-clean-node-exit",
+    "fresh",
+    "same-storage-recommissioned-after-last-fabric-reset",
+    "remove-one-of-two-fabrics-preserves-other-subscription-and-node",
+    "surviving-fabric-reconnects-after-restart",
+    "second-home-last-fabric-removal-confirmed"
+  ],
+  "controller_sources_sha256": {
+    "chip_tool_meter_triggers.py": "a853a59045d41e567dbb4a46cfb6ee72658767be5a1a7244b243ebb4f9acb12e",
+    "chip_tool_three_phase.py": "619b523b7426be7294d95e923ad1d7fdfaae81cd95123faa4a4180e8f165e20f"
+  },
+  "limitations": [
+    "No current manual Google Home/Apple Home UI acceptance.",
+    "No native Windows or hardware execution; Linux x86 only.",
+    "No full CSA campaign rerun; other rows inherited.",
+    "Last-fabric removal exits host; fresh commissioning requires restarting it."
+  ]
+}

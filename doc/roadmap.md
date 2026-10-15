@@ -140,15 +140,48 @@ result pending CSA/test resolution; supplementary armed scans are not a waiver.
 The matrix is 89 PASS, 16 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. See
 [evidence and discrepancy](oss/csa14-validation.md) and [attempts](oss/csa14-results.json).
 
-**Next task: CSA15 - Wi-Fi connection/configuration fixture, TC_CNET_4_9/4_11.**
-Supply explicit simulated SSID/AP parameters, inspect the unchanged test steps
-and normative requirements, and check connection errors/configuration recovery.
-Keep host simulation evidence separate from physical Wi-Fi radio acceptance.
+CSA15 fixes the TH's effective Wi-Fi parameter fixture; unchanged TC_CNET_4_9
+passes on the CSA14 binary. TC_CNET_4_11 requires a controller/DUT transport
+that actually switches AP networks and is blocked in the current Ethernet VM
+fixture. Its previous official FAIL is retained. The local two-instance CASE
+scenario covers simulated migration, authentication errors, rollback and commit.
+The matrix is 90 PASS, 15 FAIL, 21 BLOCKED, 32 MANUAL, 704 NA. See
+[evidence and limits](oss/csa15-validation.md) and [attempts](oss/csa15-results.json).
+
+CSA16 reproduces TC_CADMIN_1_10 FAIL in run 333 on the unchanged CSA14 binary.
+Step 9 expects a response to RevokeCommissioning over PASE, while Core 1.6.1
+11.19.8.3 says the caller SHALL NOT expect one. No code or test workaround is
+made; the matrix stays unchanged. See [review evidence](oss/csa16-validation.md)
+and [baseline delta](oss/csa16-results.json).
+
+CSA17 adds the opt-in Meter Identification change/reset fixture on EP1, using
+the existing snapshot/refresh path and preserving legacy energy triggers.
+Official runs334/335 remain historical FAILs. The follow-up review reproduces
+the redundant identity reports caused by unrelated source updates and applies
+the existing DataVersion reporting policy. MTRID 3.1/2.1 now pass (336/337),
+with full pair memory acceptance and independent selective/last-fabric removal,
+restart and recommissioning. See [review evidence](oss/csa17-review-validation.md).
+**Next task: manual Home removal/re-add acceptance on a running node.**
+Last-fabric removal currently stops the host; restart is required for re-add.
+Keep CADMIN 1.10 as a
+known CSA02/CSA16 discrepancy for the consolidated CSA report; do not rerun it
+without new evidence or a relevant implementation/test/specification change.
+Later-stage failed commissioning accounting remains a separate, unassessed task.
+Return to CNET 4.4 after specification/test resolution and to CNET 4.11 when its
+two-AP network fixture exists. Keep simulation results separate from radio and
+IP-transition acceptance, without blocking unrelated CSA coverage.
 
 Subsequent passes must resolve remaining read validation, diagnostics, discovery
 and resource limits, and prepare the
 missing three-phase triggers, OTA, Wi-Fi and manual/attestation fixtures. Retain
 test/specification discrepancies for explicit CSA resolution, not silent waivers.
+After submitting a discrepancy report and obtaining CSA's response, if a conflict
+cannot be resolved, consider an explicit compile-time compatibility option.
+Keep normative behavior as the default; document each deviation and the affected
+TH/specification versions, and test both configurations independently. Results
+from the compatibility mode must identify that mode and must not imply normative
+conformance. No such option is implemented now, and no external report has been
+sent as part of CSA14/CSA15.
 Refresh the matrix after each coherent fix and rerun the full applicable suite
 before closing this stage. Do not discard the initial failures or count test
 credentials and skipped production checks as certification evidence.

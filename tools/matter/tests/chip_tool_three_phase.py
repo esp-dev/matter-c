@@ -181,6 +181,44 @@ def pair(args, out):
                 command(c, ['generalcommissioning', 'arm-fail-safe', 0, 0, node, 0], r'errorCode: 0\b')
                 command(c, ['networkcommissioning', 'read', 'networks', node, 0], r'Connected: TRUE')
             passed('two-connected-simulated-Wi-Fi-interfaces-failsafe-scans-breadcrumb-and-rollback')
+            # Local counterpart of the CNET migration sequence. The radio is
+            # simulated; this does not replace TH's physical two-AP test.
+            primary, secondary = 'testharness', 'testharness-2'
+
+            def wifi_entries(node, expected):
+                data = command(c, ['networkcommissioning', 'read', 'networks', node, 0], r'SuppressResponse = true')
+                body = next(f['body'] for f in frames(data) if f['path'] == (0, 0x31, 1))
+                entries = [(bytes.fromhex(ssid).decode(), connected == 'TRUE') for ssid, connected in
+                           re.findall(r'^NetworkID: ([0-9A-Fa-f]+)\nConnected: (TRUE|FALSE)$', body, re.M)]
+                assert integer(body, 'Networks') == len(entries) and entries == expected, (node, body, expected)
+
+            for node in (1, 2):
+                for commit in (False, True):
+                    command(c, ['generalcommissioning', 'arm-fail-safe', 60, 0, node, 0], r'errorCode: 0\b')
+                    command(c, ['networkcommissioning', 'remove-network', 'str:'+primary, node, 0,
+                                '--Breadcrumb', 1], r'networkingStatus: 0\b')
+                    wifi_entries(node, [])
+                    command(c, ['networkcommissioning', 'add-or-update-wi-fi-network', 'str:'+secondary,
+                                'str:wrong-password', node, 0, '--Breadcrumb', 1], r'networkingStatus: 0\b')
+                    wifi_entries(node, [(secondary, False)])
+                    command(c, ['networkcommissioning', 'connect-network', 'str:'+secondary, node, 0,
+                                '--Breadcrumb', 99], r'networkingStatus: 7\b')
+                    command(c, ['networkcommissioning', 'read', 'last-connect-error-value', node, 0], r'LastConnectErrorValue: 13\b')
+                    command(c, ['generalcommissioning', 'read', 'breadcrumb', node, 0], r'Breadcrumb: 1\b')
+                    command(c, ['networkcommissioning', 'add-or-update-wi-fi-network', 'str:'+secondary,
+                                'str:wifi-password', node, 0], r'networkingStatus: 0\b')
+                    command(c, ['networkcommissioning', 'connect-network', 'str:'+secondary, node, 0,
+                                '--Breadcrumb', 2], r'networkingStatus: 0\b')
+                    wifi_entries(node, [(secondary, True)])
+                    command(c, ['networkcommissioning', 'read', 'last-connect-error-value', node, 0], r'LastConnectErrorValue: null\b')
+                    command(c, ['generalcommissioning', 'read', 'breadcrumb', node, 0], r'Breadcrumb: 2\b')
+                    wifi_entries(3-node, [(primary if node == 1 else secondary, True)])
+                    if commit:
+                        command(c, ['generalcommissioning', 'commissioning-complete', node, 0], r'errorCode: 0\b')
+                    command(c, ['generalcommissioning', 'arm-fail-safe', 0, 0, node, 0], r'errorCode: 0\b')
+                    wifi_entries(node, [(secondary if commit else primary, True)])
+                    command(c, ['generalcommissioning', 'read', 'breadcrumb', node, 0], r'Breadcrumb: 0\b')
+            passed('two-independent-Wi-Fi-migrations-authentication-errors-rollback-and-commit')
         if args.meter_services:
             command(a, ['identify', 'identify', 60, 1, 1], r'status = 0x00')
             command(b, ['identify', 'read', 'identify-time', 2, 1], r'IdentifyTime: 0\b')
@@ -190,6 +228,79 @@ def pair(args, out):
             assert int(re.search(r'UTCTime: (\d+)', data)[1]) < shifted - 10000000
             command(a, ['identify', 'read', 'identify-time', 1, 1], r'IdentifyTime: [1-9][0-9]\b')
             passed('independent-Identify-and-UTC-anchors')
+        if args.meter_triggers:
+            # Dedicated read connection: TOO attribute lines omit node IDs, so
+            # A's asynchronous reports must not be mistaken for B's readback.
+            reader = Client(Path(args.chip_tool).resolve(), Path(args.paa).resolve(), out,
+                            'identity-reader', c.storage, advertise=False)
+            clients.append(reader)
+            # CSA17 PIXIT.MTRID laboratory triggers: 0x0B06000000000000 SET,
+            # 0x0B06000000000001 CLEAR, enable key 000102030405060708090a0b0c0d0e0f.
+            key = '000102030405060708090a0b0c0d0e0f'
+            mtrid_set, mtrid_clear = 0x0B06000000000000, 0x0B06000000000001
+
+            def identity(node):
+                data = command(reader, ['any', 'read-by-id', '0xb06', '0,1,2,3', node, 1], r'SuppressResponse = true')
+                attrs = {f['path'][2]: f['body'] for f in frames(data) if f['kind'] == 'Attribute' and f['path'][:2] == (1, 0xb06)}
+                assert set(attrs) == {0, 1, 2, 3}, attrs.keys()
+                values = {}
+                for identifier, name in ((0, 'MeterType'), (1, 'PointOfDelivery'), (2, 'MeterSerialNumber'), (3, 'ProtocolVersion')):
+                    match = re.search(r'^' + name + r': (.*)$', attrs[identifier], re.M)
+                    values[name] = None if match is None else match[1].strip()
+                return values
+
+            def trigger(node, event, key_hex=key, expected=None):
+                argv = ['generaldiagnostics', 'test-event-trigger', 'hex:'+key_hex, event, node, 0]
+                ok, _ = c.command(argv, expected or r'status = 0x00', 30, failure=expected is not None)
+                assert ok, argv
+
+            base_a = identity(1)
+            assert base_a['MeterType'] == '2' and base_a['MeterSerialNumber'] == 'SIM-0001' \
+                and base_a['ProtocolVersion'] == '1.0' and base_a['PointOfDelivery'] == 'null', base_a
+            assert identity(2) == base_a, 'pair nodes disagree on base identity'
+            # Negative checks before any effect: wrong key and unknown MTRID event must not act.
+            trigger(1, mtrid_set, key_hex='ff'*16, expected=r'status = 0x0*87 \(CONSTRAINT_ERROR\)')
+            trigger(1, mtrid_set+2, expected=r'status = 0x0*85 \(INVALID_COMMAND\)')
+            assert identity(1) == base_a, 'negative triggers changed identity'
+            # One wildcard subscription covers all four attributes and fits the
+            # three-subscriptions-per-fabric budget beside the existing OnOff.
+            command(c, ['meteridentification', 'subscribe-by-id', '0xffffffff', 0, 10, 1, 1, '--keepSubscriptions', 1], 'Subscription established')
+            start = len(c.text())
+            time.sleep(2)  # Observe two unrelated energy refreshes before SET.
+            assert not any(f['kind'] == 'Attribute' and f['path'][:2] == (1, 0xb06)
+                           and f['path'][2] in range(4) for f in frames(c.text()[start:])), \
+                'unchanged identity reported on unrelated source refresh'
+
+            def reports_since(offset, expected):
+                deadline = time.monotonic() + 10
+                while time.monotonic() < deadline:
+                    reported = {f['path'][2]: f for f in frames(c.text()[offset:])
+                                if f['kind'] == 'Attribute' and f['path'][:2] == (1, 0xb06)}
+                    if all(i in reported and re.search(r'^'+name+': '+re.escape(value)+r'$', reported[i]['body'], re.M)
+                           for i, (name, value) in enumerate(expected.items())):
+                        return reported
+                    time.sleep(.1)
+                raise AssertionError('Missing MTRID subscription reports: '+str(expected))
+
+            start = len(c.text())
+            trigger(1, mtrid_set)
+            changed_values = dict(zip(base_a, ('0', 'CSA17-POD', 'CSA17-00000042', '9.9')))
+            set_reports = reports_since(start, changed_values)
+            changed_a = identity(1)
+            assert all(changed_a[k] != base_a[k] for k in base_a), (base_a, changed_a)
+            assert changed_a['MeterType'] == '0' and changed_a['MeterSerialNumber'] == 'CSA17-00000042' \
+                and changed_a['ProtocolVersion'] == '9.9' and changed_a['PointOfDelivery'] == 'CSA17-POD', changed_a
+            assert identity(2) == base_a, 'trigger on A changed B'
+            # CLEAR restores the base snapshot on A; B stays on base.
+            start = len(c.text())
+            trigger(1, mtrid_clear)
+            clear_reports = reports_since(start, base_a)
+            assert all(set_reports[i]['version'] != clear_reports[i]['version'] for i in range(4))
+            assert identity(1) == base_a, 'clear did not restore base identity'
+            assert identity(2) == base_a
+            # Close only node1's subscriptions: B's OnOff must survive A's teardown below.
+            command(c, ['subscriptions', 'shutdown-all-for-node', 1], r'Command: subscriptions shutdown-all-for-node')
+            passed('MTRID-SET-and-CLEAR-attributes-reports-node-isolation-and-negative-key')
         # Decode through the existing TOO frame parser, not timestamps/prefixes.
         data = command(a, ['operationalcredentials', 'read', 'current-fabric-index', 1, 0], r'CurrentFabricIndex:')
         own = integer(next(f['body'] for f in frames(data) if f['path'] == (0, 0x3e, 5)), 'CurrentFabricIndex')
@@ -233,6 +344,8 @@ def main():
                         help='Diagnostic only: reproduce upstream onnetwork-long startup filtering failure')
     parser.add_argument('--source-registers', action='store_true', help='Pair fixture includes MP03 extension')
     parser.add_argument('--meter-services', action='store_true', help='Pair fixture includes MP04 services')
+    parser.add_argument('--meter-triggers', action='store_true',
+                        help='Pair fixture exercises the MTRID TestEventTrigger change/reset scenario')
     parser.add_argument('--wifi-sim-connected', action='store_true', help='Pair fixture starts with simulated Wi-Fi connected')
     args = parser.parse_args()
     if args.wifi_sim_connected and args.pair_discriminator is None:
@@ -241,6 +354,8 @@ def main():
         parser.error('--pair-reverse/--pair-legacy-discovery require --pair-discriminator')
     if args.meter_services and (not args.source_registers or args.pair_discriminator is None):
         parser.error('--meter-services requires --source-registers and --pair-discriminator')
+    if args.meter_triggers and not args.meter_services:
+        parser.error('--meter-triggers requires --meter-services (and a --test-event-key pair instance)')
     out = Path(args.output).resolve()
     out.mkdir(parents=True, exist_ok=False)
     if args.pair_discriminator is not None:

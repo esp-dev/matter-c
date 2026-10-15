@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa16-results.json",
+  "previous_sha256": "4913dcf06191ecf45d8a35756163b73bcdbacfa35b7a39aeb7ae6346ee256f0a",
+  "previous_hash_encoding": "Working-tree bytes; CSA15/CSA16 changes retained.",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "STOP for review after two pre-existing unsuccessful fixes/official attempts. No additional official execution this turn. Keep TC_MTRID_3_1 FAIL and all historical results.",
+  "latest_counts": {
+    "PASS": 90,
+    "FAIL": 15,
+    "BLOCKED": 21,
+    "MANUAL": 32,
+    "NA": 704
+  },
+  "historical_baseline": {
+    "case": "TC_MTRID_3_1",
+    "run_id": 190,
+    "status": "FAIL",
+    "failed_test_step": "8",
+    "new_execution": false
+  },
+  "attempts": [
+    {
+      "case": "TC_MTRID_3_1",
+      "endpoint": 1,
+      "run_id": 334,
+      "status": "FAIL",
+      "provenance": "Pre-existing official attempt, retrieved and inspected this turn; not a new execution.",
+      "failed_test_step": "9",
+      "step_states": {
+        "passed": 8,
+        "not_applicable": 2,
+        "failed": 1,
+        "pending": 7
+      },
+      "evidence_sha256": "d894cd260d1a5f8c7cb034aef366ca68cb2226fe337f188de27fe69900cfb4ac",
+      "official_log_sha256": "5f2507d5f2634af9587993fca2b06455b844dfc0d8a704b6e3e5d5e65d4b1314",
+      "execution_pics_sha256": "19a9cd654819215b08ae9e7be2686fd4f1e4ba603b55d1e9eaa85e30933e2644",
+      "dut_sha256": null,
+      "failure": "IM INVALID_COMMAND (133) at SET before endpoint-field routing correction."
+    },
+    {
+      "case": "TC_MTRID_3_1",
+      "endpoint": 1,
+      "run_id": 335,
+      "status": "FAIL",
+      "provenance": "Pre-existing official attempt, retrieved and inspected this turn; not a new execution.",
+      "failed_test_step": "10",
+      "step_states": {
+        "passed": 9,
+        "not_applicable": 2,
+        "failed": 1,
+        "pending": 6
+      },
+      "evidence_sha256": "7d9ce384900219132722cfdda7ada1be7a2890a2de1ec5650173273c8791abbf",
+      "official_log_sha256": "5e8ef846b2b344de61f64f4be4b6f6548d0b572d91b69f3a58f9ec01a5fe9aa8",
+      "execution_pics_sha256": "19a9cd654819215b08ae9e7be2686fd4f1e4ba603b55d1e9eaa85e30933e2644",
+      "dut_sha256": null,
+      "failure": "SET SUCCESS; step10 compares first queued pre-SET MeterType=2 with saved MeterType=2.",
+      "node_log_sha256": "6af681d358ec5c1f6e265d6e92f650ed9cce638ff7c69381ae88ee857ff4f30a"
+    }
+  ],
+  "script_hashes": {
+    "TH-TC_MTRID_3_1.py": "8e7fc1bfa3e732a8e9de9d5b5af1a86e0555b1d53d808325c54f914662218ed3",
+    "TH-TC_MTRID_2_1.py": "ef4240d597082646b171fa4804122a837b63037c841b1df5c8711dee25d4a4e0",
+    "TC_MTRIDTestBase.py": "1abd1e87d8c7dcf6c35b849b48585196603f35b50b5f2f6353f1b0bf498ae23c",
+    "TH-event_attribute_reporting.py": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322"
+  },
+  "current_build": {
+    "officially_executed": false,
+    "source_manifest_sha256": "a873d31121beffd5a33d32889ec71fb664ad9ded942d109e3d8dca8ce329b69b",
+    "c_h_files": 353,
+    "final_dut_sha256": "457c39bb7bf461255b7f5430af2ff9d2348ca8d6faaf87d0d163b6ed3085d6b3",
+    "final_pair_sha256": "4ad09348304b07ef54b92c828fa85959fb0585e79fa0864c8d89c5566b9fbefa",
+    "sanitize_dut_sha256": "5ce89beeec0e34c411b750a562c115fe861e344182840d3966340748bbc496fe",
+    "sanitize_pair_sha256": "1c88ffff33462e27dc52bd05b744a3e7aa5a880bcff0a7b59ac8f4f47fad8adb",
+    "normal_focused": "8/8 PASS",
+    "sanitize_focused": "8/8 PASS",
+    "build_warning_count": 0,
+    "memory_runtime_scenarios": "NOT RUN: STOP gate",
+    "log_hashes": {
+      "final-build.log": "8ba2884e059cd4b4d1f78d6a3a4d9737418d916a1db956e2ba942973807f9586",
+      "sanitize-build.log": "93dc350ecfceecee8d9b9ea0bda6b828a0ac39c5bf3d2269cd1b2b234e8146b7",
+      "final-focused.log": "5b05a77babd743a63b067bd7011705f3ff0c1b184248d9fa49cfc4e2b2f505f5",
+      "sanitize-focused.log": "95971d7df4bb46e93f6c694085121f0051cbc609323b1c296a25c31ea29e7e40",
+      "build-identities.txt": "859d5a9d2030ae5ac2a64ac51cbea3825ced6893502b1e73066f5334947bdb5e"
+    }
+  },
+  "review_finding": {
+    "observed": "Pre-SET attribute callback at 11:51:24.291; SET starts 11:51:24.978; helper compares reports[attribute][0].value.",
+    "unresolved": "Why the host/controller reports an unchanged baseline after subscription establishment. No proven normative conflict or CSA waiver.",
+    "decision": "No third firmware fix, no test/PICS relaxation, no matrix PASS."
+  },
+  "lab_cleanup": {
+    "th_idle": true,
+    "project_modified_this_turn": false,
+    "owned_csa17_node_and_capture_stopped": true,
+    "lab_ports_free": true
+  },
+  "limits": [
+    "TC_MTRID_2_1 not rerun.",
+    "Current stricter controller oracle only syntax-checked; runtime SET/CLEAR/isolation/restart/reset/negative cases not executed.",
+    "Full pair Memcheck and separate ASan/UBSan/LSan scenario not executed on current build.",
+    "Pre-existing official attempts cannot be reliably bound to an archived exact DUT binary; dut_sha256 kept null.",
+    "No Windows native test, hardware test, commit or publication."
+  ]
+}

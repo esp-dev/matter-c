@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa15-results.json",
+  "previous_sha256": "1f5dbabd0c20ca185facfa6bd35bf12ccf462ad3b4ad1697d0f1f8d81f4ee417",
+  "previous_hash_encoding": "Working-tree file bytes; CSA15 is uncommitted.",
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "cluster_profile_sha256": "1c6be9138c9424573e25ff5586decc7c50352f3e78263db866739edbe38c0c75",
+  "scope": "One unchanged TC_CADMIN_1_10 baseline on CSA14 binary. Normative discrepancy at step 9; stop for review under CSA16. No C/test/PICS change, no final run or PASS claim. Other rows inherited.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 21,
+    "PASS": 90,
+    "FAIL": 15
+  },
+  "baseline_dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+  "final_dut_sha256": null,
+  "attempts": [
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "run_id": 333,
+      "status": "FAIL",
+      "source_stage": "baseline",
+      "dut_sha256": "e2eb58b373dca220bb98ee2033c3db7ec0ec97d71dc442c9b12e589afd71b371",
+      "source_sha256": "a983dbfc42a8555f7923cec3adb9d99436c13717995fbf463329de433c8782cd",
+      "step_states": {
+        "passed": 12,
+        "failed": 1,
+        "pending": 1
+      },
+      "failed_step_indices": [
+        11
+      ],
+      "failed_test_step": "9",
+      "failure": "SendCommand RevokeCommissioning over PASE awaits response; CHIP Error 0x00000032 Timeout",
+      "evidence_sha256": "7a9e9175eab2f327a56946ee0b59c5f20da46b14e85dad8373f30dc2d8875dc8",
+      "official_log_sha256": "dc4511613daacb864e5724bc5b9852f723895cb11335382ef15192d6567fc14f",
+      "node_log_sha256": "fa6db3704a1a32730da5078d4be0e6cf4c012caaa9f82e02a239dd6778f2fe3a",
+      "mdns_capture_sha256": "511e6d88a43041e7d63b21b7b32a6823cd5797218fe4b29c12be8e1e9e2d0f9b",
+      "execution_pics_sha256": "ac5938f6f10a8df788347ca006935dfa466e1f5fc3a777a53f11b910cef71c5f"
+    }
+  ],
+  "discrepancy": {
+    "core_version": "1.6.1",
+    "section": "11.19.8.3",
+    "requirement": "Terminate open/in-progress PASE sessions; PASE caller shall not expect a response.",
+    "test_expectation": "Step 9 awaits SendCommand without accepting timeout; step 10 expects the cleared session to reject reads.",
+    "decision": "Retain official FAIL; obtain CSA/test resolution before changing implementation or test.",
+    "previous_evidence": "csa02-validation.md; run 257"
+  },
+  "native_checks": "No C changes; no build, native regression, old-code control, Memcheck or sanitizer rerun.",
+  "lab_cleanup": {
+    "th_idle": true,
+    "own_dut_and_capture_stopped": true,
+    "project_config_changed": false,
+    "wifi_override": false,
+    "fresh_dut_store": true
+  },
+  "limits": [
+    "Step 10 not executed after step 9 failure.",
+    "Successful-PASE later-stage failure counting, epoch race injection and physical hardware were not assessed.",
+    "mDNS capture is discovery evidence, not decrypted IM traffic."
+  ]
+}

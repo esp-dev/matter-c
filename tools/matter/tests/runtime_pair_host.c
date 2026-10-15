@@ -5,7 +5,8 @@
 #include "../host/matter_node.c"
 #undef main
 #define REQUIRE(x) do { if(!(x)) { fprintf(stderr,"pair:%d: %s\n",__LINE__,#x); return false; } } while(0)
-static bool open_node(Node* n,unsigned index,unsigned id,const char* creds,const char* state,uint64_t now) {
+static bool open_node(Node* n,unsigned index,unsigned id,const char* creds,const char* state,uint64_t now,
+                      const Matter_Diagnostics_Test_Trigger_T* trigger) {
     REQUIRE(matter_mdns_windows_interface(index,&n->iface)==MATTER_OK);
     /* Two virtual devices share one NIC, but need distinct DNS host identities.
      * This locally administered identifier only names DNS records: sockets use
@@ -23,6 +24,10 @@ static bool open_node(Node* n,unsigned index,unsigned id,const char* creds,const
     REQUIRE(matter_host_random(n->random,8));
     n->discovery=matter_discovery_commissionable(n->iface.mac,n->random,n->discriminator,0,n->port);
     REQUIRE(n->discovery && model(n,now,creds,state,20202021,NULL));
+    if(trigger) {
+        Matter_Diagnostics_Test_Trigger_T own=*trigger; own.user=n;
+        REQUIRE(matter_server_set_test_trigger(n->server,&own)==MATTER_OK);
+    }
     REQUIRE(matter_server_set_resumption(n->server,MATTER_CASE_RESUMPTION_CHIP)==MATTER_OK);
     n->resolver=matter_resolver_windows_new(&n->iface); REQUIRE(n->resolver);
     Matter_Resolver_Port_T resolver=matter_resolver_windows_port(n->resolver);
@@ -70,14 +75,20 @@ static bool close_node(Node* n,uint64_t now) {
 }
 int main(int argc,char** argv) {
     bool three_phase=false,source=false,services=false,wifi=false;
+    uint8_t enable_key[16]={0}; bool test_events=false;
     if(argc<5) return 2;
     for(int i=5;i<argc;++i) {
         if(!strcmp(argv[i],"--three-phase")) three_phase=true;
         else if(!strcmp(argv[i],"--source-registers")) three_phase=source=true;
         else if(!strcmp(argv[i],"--meter-services")) three_phase=source=services=true;
         else if(!strcmp(argv[i],"--wifi-sim-connected")) wifi=true;
-        else { fputs("runtime-pair-host IFACE CREDENTIALS STATE_A STATE_B [--three-phase|--source-registers|--meter-services] [--wifi-sim-connected]\n",stderr); return 2; }
+        else if(!strcmp(argv[i],"--test-event-key")) {
+            if(++i==argc || !test_key(argv[i],enable_key)) return 2;
+            test_events=true;
+        }
+        else { fputs("runtime-pair-host IFACE CREDENTIALS STATE_A STATE_B [--three-phase|--source-registers|--meter-services] [--wifi-sim-connected] [--test-event-key HEX32]\n",stderr); return 2; }
     }
+    if(test_events && !services) return 2;
     unsigned long index; if(!number(argv[1],UINT32_MAX,&index) || !index || !strcmp(argv[3],argv[4])) return 2;
     setvbuf(stdout,NULL,_IONBF,0); signal(SIGINT,stop_signal); signal(SIGTERM,stop_signal);
     Node* nodes=calloc(2,sizeof(*nodes)); if(!nodes) return 1;
@@ -86,7 +97,10 @@ int main(int argc,char** argv) {
     nodes[0].meter_services=nodes[1].meter_services=services;
     nodes[0].wifi_sim_connected=nodes[1].wifi_sim_connected=wifi;
     bool closing[2]={false,false},ok=true; uint64_t start=matter_host_now(),next=start;
-    for(unsigned i=0;i<2;++i) if(!open_node(&nodes[i],(unsigned)index,i,argv[2],argv[3+i],start)) { ok=false; closing[0]=closing[1]=true; break; }
+    Matter_Diagnostics_Test_Trigger_T trigger={.user=NULL,.trigger=test_event_trigger};
+    if(test_events) memcpy(trigger.enable_key,enable_key,sizeof(enable_key));
+    for(unsigned i=0;i<2;++i) if(!open_node(&nodes[i],(unsigned)index,i,argv[2],argv[3+i],start,test_events?&trigger:NULL)) { ok=false; closing[0]=closing[1]=true; break; }
+    if(test_events) puts("PAIR_TRIGGERS enabled=1 key=not-persisted");
     while(nodes[0].owner || nodes[1].owner) {
         uint64_t now=matter_host_now(); bool due=now>=next; if(due) next=now+1000;
         if(interrupted || now-start>240000) closing[0]=closing[1]=true;

@@ -33,7 +33,9 @@ Matter_Result_T matter_meter_identification_refresh(Matter_Cluster_T h) {
 static uint8_t read_value(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
     MeterId* m=u; uint32_t id=*(const uint32_t*)ref; (void)q;
     if(m->busy) return MATTER_IM_FAILURE;
-    *v=(Matter_Im_Value_T){.type=MATTER_TLV_NULL,.data_version=m->common.version};
+    /* Coarse owner notifications also cover energy samples. Identity changes
+     * only when refresh accepts a different snapshot (including unavailable). */
+    *v=(Matter_Im_Value_T){.type=MATTER_TLV_NULL,.data_version=m->common.version,.report_on_version_change=true};
     if(id==MATTER_METER_ID_TYPE) { if(m->saved.type_known) { v->type=MATTER_TLV_UNSIGNED; v->unsigned_value=m->saved.meter_type; } }
     else {
         const Matter_Meter_Id_Text_T* t=id==MATTER_METER_ID_DELIVERY?&m->saved.delivery:id==MATTER_METER_ID_SERIAL?&m->saved.serial:&m->saved.protocol;

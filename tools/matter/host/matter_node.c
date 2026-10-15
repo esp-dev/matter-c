@@ -38,6 +38,7 @@ typedef struct {
     Matter_Source_Sim_T* source_sim;
     bool meter_services,clock_fabrics_seen; Matter_Time_Host_T clock;
     Matter_Cluster_T utilities[HOST_METER_SERVICES_COUNT]; uint32_t utility_versions[HOST_METER_SERVICES_COUNT],clock_fabric_revision;
+    bool meter_id_test_active; /* Volatile; cleared with the Node on restart/reset. */
     Matter_Cluster_T phase_epm[3],phase_topology[3];
     Matter_Epm_Multi_Sample_T measurements[4];
     Matter_Epm_Measurement_T measurement_config[4];
@@ -86,16 +87,42 @@ static void text(Matter_Root_Text_T* t,const char* str) { t->size=strlen(str); m
 static void switch_changed(void* u,bool on) {
     Node* n=u; printf("TEST_SWITCH endpoint=2 on=%u\n",on?1:0); matter_server_changed(n->server);
 }
-static uint8_t energy_trigger(void* u,uint64_t event) {
+static uint8_t test_event_trigger(void* u,uint64_t event) {
     Node* n=u;
     if(matter_server_reset_requested(n->server)) return MATTER_IM_FAILURE;
+    /* Core 11.12.7.1: unknown EventTrigger -> INVALID_COMMAND; effects never persist. */
+    if((event>>48)==UINT64_C(0x0b06)) {
+        if(!n->meter_services) return MATTER_IM_INVALID_COMMAND;
+        /* TH embeds the target endpoint in bits32..47 (MatterBaseTest
+         * _update_legacy_test_event_triggers); PIXIT values are the low 32 bits. */
+        uint64_t trigger_id=event&~(UINT64_C(0xffff)<<32);
+        if(trigger_id==UINT64_C(0x0B06000000000000) || trigger_id==UINT64_C(0x0B06000000000001)) {
+            bool set=trigger_id==UINT64_C(0x0B06000000000000);
+            /* Repeating either trigger is a successful no-op; only a real change reports. */
+            if(n->meter_id_test_active!=set) { n->meter_id_test_active=set; printf("MTRID_TEST event=%016llx action=%s\n",(unsigned long long)event,set?"attributes-value-set":"clear"); }
+            return MATTER_IM_SUCCESS;
+        }
+        printf("MTRID_TEST event=%016llx status=%u\n",(unsigned long long)event,(unsigned)MATTER_IM_INVALID_COMMAND);
+        return MATTER_IM_INVALID_COMMAND;
+    }
+    if(!n->energy_test_enabled) return MATTER_IM_INVALID_COMMAND;
     uint8_t status=matter_energy_sim_trigger(&n->energy_sim,event,matter_host_now());
     printf("ENERGY_TEST event=%016llx status=%u\n",(unsigned long long)event,status); return status;
 }
 static Matter_Result_T multi_sample(void* u,Matter_Epm_Multi_Sample_T* out) { *out=*(Matter_Epm_Multi_Sample_T*)u; return MATTER_OK; }
 static void identify_present(void* u,uint16_t seconds) { (void)u; printf("IDENTIFY seconds=%u presentation=simulation\n",seconds); }
 static Matter_Result_T meter_identity(void* u,Matter_Meter_Id_Snapshot_T* out) {
-    (void)u; *out=(Matter_Meter_Id_Snapshot_T){.type_known=true,.meter_type=2}; /* Generic synthetic meter; delivery unknown. */
+    Node* n=u;
+    /* CSA17 PIXIT.MTRID fake data covers every supported attribute 0..3. */
+    if(n->meter_id_test_active) {
+        static const char delivery[]="CSA17-POD",serial[]="CSA17-00000042",protocol[]="9.9";
+        *out=(Matter_Meter_Id_Snapshot_T){.type_known=true,.meter_type=0}; /* Utility: differs from base Generic. */
+        out->delivery.known=true; out->delivery.size=sizeof(delivery)-1; memcpy(out->delivery.data,delivery,sizeof(delivery)-1);
+        out->serial.known=true; out->serial.size=sizeof(serial)-1; memcpy(out->serial.data,serial,sizeof(serial)-1);
+        out->protocol.known=true; out->protocol.size=sizeof(protocol)-1; memcpy(out->protocol.data,protocol,sizeof(protocol)-1);
+        return MATTER_OK;
+    }
+    *out=(Matter_Meter_Id_Snapshot_T){.type_known=true,.meter_type=2}; /* Generic synthetic meter; delivery unknown. */
     static const char serial[]="SIM-0001",protocol[]="1.0";
     out->serial.known=true; out->serial.size=sizeof(serial)-1; memcpy(out->serial.data,serial,sizeof(serial)-1);
     out->protocol.known=true; out->protocol.size=sizeof(protocol)-1; memcpy(out->protocol.data,protocol,sizeof(protocol)-1); return MATTER_OK;
@@ -355,9 +382,9 @@ int main(int argc,char** argv) {
     const char* credentials=NULL; const char* state=NULL; const char* ota_file=NULL; const char* ota_key=NULL; const char* ota_boot=NULL;
     Matter_Case_Resumption_Profile_T resumption_profile=MATTER_CASE_RESUMPTION_CHIP;
     bool chip_validity=false,test_switch=false,three_phase=false,source_registers=false,meter_services=false,wifi_sim_connected=false;
-    Matter_Diagnostics_Test_Trigger_T trigger={.trigger=energy_trigger}; bool energy_test=false;
+    Matter_Diagnostics_Test_Trigger_T trigger={.trigger=test_event_trigger}; bool test_events=false;
     for(int i=1;i<argc;++i) {
-        if(!strcmp(argv[i],"--test-event-key")) { if(++i==argc || !test_key(argv[i],trigger.enable_key)) return 2; energy_test=true; continue; }
+        if(!strcmp(argv[i],"--test-event-key")) { if(++i==argc || !test_key(argv[i],trigger.enable_key)) return 2; test_events=true; continue; }
         if(!strcmp(argv[i],"--three-phase")) { three_phase=true; continue; }
         if(!strcmp(argv[i],"--source-registers")) { source_registers=true; continue; }
         if(!strcmp(argv[i],"--meter-services")) { meter_services=true; continue; }
@@ -392,13 +419,19 @@ int main(int argc,char** argv) {
         else if(!strcmp(argv[i],"--discriminator")) { target=&disc; max=4095; }
         else if(!strcmp(argv[i],"--pin")) { target=&pin; max=99999998; }
         if(!target || ++i==argc || !number(argv[i],max,target)) {
-            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"); return 2;
+            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
+            "  --test-event-key: default profile routes energy triggers (legacy aggregate fixture);\n"
+            "  with --three-phase --meter-services it enables the Meter Identification change/reset triggers.\n"); return 2;
         }
     }
     if(source_registers && !three_phase) { fputs("--source-registers requires --three-phase\n",stderr); return 2; }
     if(wifi_sim_connected && !credentials) { fputs("--wifi-sim-connected requires --credentials\n",stderr); return 2; }
     if(meter_services && (!three_phase || !credentials)) { fputs("--meter-services requires --three-phase and --credentials\n",stderr); return 2; }
-    if(energy_test && (!credentials || three_phase)) return 2; /* trigger profile remains the legacy aggregate fixture */
+    /* TestEventTrigger profiles: MTRID change/reset on three-phase meter services,
+     * legacy energy simulation only on the default aggregate fixture. */
+    if(test_events && !credentials) return 2;
+    bool energy_test=test_events && !three_phase;
+    if(test_events && three_phase && !meter_services) return 2;
     if(!index || !seconds) { fprintf(stderr,"Select an interface with a preferred link-local IPv6 address; seconds=1..86400.\n"); return 2; }
     if((ota_boot && !ota_key) || (ota_key && !ota_file) || (credentials && (!state || operational || !pin)) || (!credentials && (state || ota_file || ota_key || chip_validity))) return 2;
     setvbuf(stdout,NULL,_IONBF,0); signal(SIGINT,stop_signal); signal(SIGTERM,stop_signal);
@@ -425,7 +458,7 @@ int main(int argc,char** argv) {
         matter_discovery_commissionable(n->iface.mac,n->random,(uint16_t)disc,0,bind.port);
     if(!n->discovery || !model(n,now,credentials,state,(uint32_t)pin,ota_key)) goto done;
     if(n->server) {
-        if(energy_test && matter_server_set_test_trigger(n->server,&trigger)!=MATTER_OK) goto done;
+        if(test_events && matter_server_set_test_trigger(n->server,&trigger)!=MATTER_OK) goto done;
         if(ota_file && matter_server_set_ota_file(n->server,ota_file)!=MATTER_OK) goto done;
         if(matter_server_set_resumption(n->server,resumption_profile)!=MATTER_OK) goto done;
         if(matter_server_set_certificate_validity(n->server,chip_validity)!=MATTER_OK) goto done;
@@ -460,6 +493,7 @@ int main(int argc,char** argv) {
     if(n->source) printf("SOURCE_REGISTERS endpoint=1 cluster=%08lx channels=%lu schema=1 synthetic-only\n",(unsigned long)matter_cluster_id(n->source),(unsigned long)n->source_sim->count);
     if(n->switch_enabled) puts("TEST_SWITCH endpoint=2 on=0 profile=incomplete-ui-demo state=volatile");
     if(energy_test) puts("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile");
+    if(test_events && three_phase) puts("MTRID_TEST enabled=1 endpoint=1 key=not-persisted identity=volatile clear=base-snapshot");
     bool announced=false; uint64_t next_sample=now;
     while(!interrupted && (now=matter_host_now())-start<seconds*1000) {
         if(!matter_server_reset_requested(n->server) && now>=next_sample) { if(!sample(n,now,(now-start)/1000)) goto done; next_sample=now+1000; }

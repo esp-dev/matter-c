@@ -84,6 +84,22 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The [CSA17 follow-up](doc/oss/csa17-review-validation.md) fixes redundant Meter
+Identification subscription reports: unrelated energy samples no longer report
+unchanged identity. Official MTRID 3.1/2.1 pass (runs336/337); full pair Memcheck
+and separate sanitizer acceptance pass. Independent chip-tool also confirms
+selective/last-fabric removal, restart and recommissioning with the same store.
+The host exits after its last fabric is removed; restart it to commission again.
+This is protocol acceptance, not a current manual Google/Apple Home UI test.
+See the [result delta](doc/oss/csa17-review-results.json) and
+[CLI/fixture contract](doc/meter-services.md#test-event-triggers-csa17).
+
+The [CSA15 report](doc/oss/csa15-validation.md) records TC_CNET_4_9 PASS with an
+explicit Wi-Fi parameter fixture and the unchanged CSA14 binary. TC_CNET_4_11
+still needs a controller/DUT environment that can switch between real or
+validated virtual AP networks; the local two-instance migration regression is
+separate from official acceptance. See [result delta](doc/oss/csa15-results.json).
+
 The [CSA14 report](doc/oss/csa14-validation.md) records the optional connected
 Wi-Fi simulation: TC_CNET_4_1 passes; TC_CNET_4_4 remains FAIL because its
 unarmed ScanNetworks receives the status required by Core 1.6.1. Supplementary
