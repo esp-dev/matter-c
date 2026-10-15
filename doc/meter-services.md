@@ -46,16 +46,18 @@ IdentifyTime decreases on monotonic one-second boundaries. Reads see the current
 value, but normal countdown ticks do not cause reports. Explicit command/write
 (including the same value) and expiry update DataVersion and reporting.
 
-## Test event triggers (CSA17)
+## Test event triggers (CSA17/CSA18)
 
-Acceptance is pending: [CSA17](oss/csa17-validation.md) stops for review after
-official runs334/335 fail. Run335 accepts SET but step10 consumes a pre-SET
-baseline callback. Current focused builds/tests pass; the stricter controller
-and full pair memory scenarios below have not been run on the current build.
+The [CSA17 follow-up](oss/csa17-review-validation.md) resolves the queued pre-SET
+report defect and records official MTRID3.1/2.1 PASS in runs336/337, together
+with independent controller and full pair memory acceptance. Historical failed
+attempts remain in the original report. CSA18 extends the same opt-in fixture
+with targeted energy inputs; its separate evidence is in
+[CSA18](oss/csa18-validation.md).
 
 With `--three-phase --meter-services`, `--test-event-key HEX32` enables the
-opt-in General Diagnostics TestEventTrigger command for the Meter
-Identification PIXIT.MTRID events, default disabled and never persisted:
+opt-in General Diagnostics TestEventTrigger command for energy and Meter
+Identification PIXIT events, default disabled and never persisted:
 
 | EventTrigger (cluster:16, endpoint:16, code:32) | Effect on EP1 Meter Identification |
 | --- | --- |
@@ -80,8 +82,29 @@ erases the node with them. The PowerThreshold feature remains unimplemented and
 its trigger-relevant test steps stay N/A; no PowerThreshold value is fabricated.
 On the default profile (no `--three-phase`) the same option retains its previous
 meaning: the legacy energy simulation triggers. It still requires credentials,
-and with `--three-phase` it now requires `--meter-services` instead of being
-rejected outright.
+and with `--three-phase` it requires `--meter-services`.
+
+### Targeted energy inputs
+
+| EventTrigger (cluster:16, endpoint:16, code:32) | Effect |
+| --- | --- |
+| `0x0091` `xxxx` `00000000` | Stop fake readings on that endpoint; resume its normal source |
+| `0x0091` `xxxx` `00000001` | Fake 1kW load, changing every two seconds |
+| `0x0091` `xxxx` `00000002` | Fake 3kW generator, changing every five seconds |
+
+Endpoints 1, 3, 4 and 5 select the aggregate or L1/L2/L3 EPM input. The legacy
+zero-endpoint encoding also selects EP1. Other targets/codes are rejected
+without changing any input. The aggregate simulator integrates actual elapsed
+monotonic time into import/export registers. STOP preserves both registers and
+resumes their normal rates; it never restores an older counter. Phase inputs
+have independent volatile state and expose no phase EEM or divided aggregate energy.
+
+An active fake input overrides the selected endpoint's intentional synthetic
+outages. STOP restores normal source availability, including its unavailable
+periods. These are endpoint-specific PIXIT injections, not a physical three-phase
+power-flow simulator; unselected phases and other node instances remain unchanged.
+The laboratory key and fake modes are not persisted. Restart disables the
+fixture unless the key is supplied again. Default non-fixture behavior is unchanged.
 
 ## Reusable callback contracts
 

@@ -1,5 +1,22 @@
 # Development status
 
+CSA18 completes the targeted energy fixture for the existing three-phase host.
+Unchanged official **TC_EPM_2_2 passes on EP1/3/4/5 (runs435–438)** and
+**TC_EEM_2_2/2_3 pass on EP1 (runs439/440)** after baseline run434 reproduces
+the missing trigger route. Latest matrix: **97 PASS, 14 FAIL, 15 BLOCKED,
+32 MANUAL, 704 NA**; only those six previously blocked rows change classification.
+Optional ActiveCurrent/aggregate Voltage steps stay N/A. Normal and separate
+ASan/UBSan/LSan focused tests pass 9/9; full pair memory/controller results and
+source/binary identities are in [CSA18 evidence](csa18-validation.md) and its
+[result delta](csa18-results.json). Default non-fixture behavior, public core
+API and PICS are unchanged. This is Linux x86 acceptance, not certification.
+**Next: CSA19 — prepare OTA provider/image/restart orchestration and run
+TC_SU_2_1 on a disposable host.** Manual Home removal/re-add remains pending;
+no user-paired state is used for laboratory campaigns.
+
+The entries below retain the preceding campaigns; CSA18 supersedes their
+next-task pointers, without changing inherited results or their limitations.
+
 The CSA17 review is resolved by enabling the existing DataVersion reporting
 policy for Meter Identification attributes. **TC_MTRID_3_1 PASS (run336)** and
 **TC_MTRID_2_1 PASS (run337)** on unchanged official scripts. Latest matrix:

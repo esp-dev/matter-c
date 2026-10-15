@@ -40,6 +40,7 @@ typedef struct {
     Matter_Cluster_T utilities[HOST_METER_SERVICES_COUNT]; uint32_t utility_versions[HOST_METER_SERVICES_COUNT],clock_fabric_revision;
     bool meter_id_test_active; /* Volatile; cleared with the Node on restart/reset. */
     Matter_Cluster_T phase_epm[3],phase_topology[3];
+    Matter_Energy_Sim_T phase_energy_sim[3]; /* Independent, volatile PIXIT inputs. */
     Matter_Epm_Multi_Sample_T measurements[4];
     Matter_Epm_Measurement_T measurement_config[4];
     bool energy_test_enabled; Matter_Energy_Sim_T energy_sim;
@@ -106,7 +107,12 @@ static uint8_t test_event_trigger(void* u,uint64_t event) {
         return MATTER_IM_INVALID_COMMAND;
     }
     if(!n->energy_test_enabled) return MATTER_IM_INVALID_COMMAND;
-    uint8_t status=matter_energy_sim_trigger(&n->energy_sim,event,matter_host_now());
+    unsigned endpoint=(unsigned)((event>>32)&0xffff);
+    Matter_Energy_Sim_T* target=&n->energy_sim;
+    if(n->three_phase && endpoint>=3 && endpoint<=5) target=&n->phase_energy_sim[endpoint-3];
+    else if(endpoint>1) return MATTER_IM_INVALID_COMMAND;
+    /* Validate the target before normalizing the legacy energy helper's event. */
+    uint8_t status=matter_energy_sim_trigger(target,event&~(UINT64_C(0xffff)<<32),matter_host_now());
     printf("ENERGY_TEST event=%016llx status=%u\n",(unsigned long long)event,status); return status;
 }
 static Matter_Result_T multi_sample(void* u,Matter_Epm_Multi_Sample_T* out) { *out=*(Matter_Epm_Multi_Sample_T*)u; return MATTER_OK; }
@@ -244,7 +250,14 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     n->eem=n->three_phase?matter_eem_new_registers(&pe,&ec,now):matter_eem_new(&pe,&ec,now);
     memcpy(n->raw_base,n->checkpoint.raw_mwh,sizeof(n->raw_base));
     if(n->three_phase && !n->checkpoint.initialized) { n->raw_base[0]=INT64_C(12345678000); n->raw_base[1]=INT64_C(123450000); }
-    if(n->energy_test_enabled && matter_energy_sim_init(&n->energy_sim,n->raw_base,now)!=MATTER_OK) return false;
+    if(n->energy_test_enabled) {
+        if(n->three_phase) {
+            const uint64_t rates[]={UINT64_C(551)*3600,UINT64_C(208)*3600},idle[]={0,0};
+            const int64_t zero[]={0,0};
+            if(matter_energy_sim_init_rates(&n->energy_sim,n->raw_base,rates,now)!=MATTER_OK) return false;
+            for(unsigned i=0;i<3;++i) if(matter_energy_sim_init_rates(&n->phase_energy_sim[i],zero,idle,now)!=MATTER_OK) return false;
+        } else if(matter_energy_sim_init(&n->energy_sim,n->raw_base,now)!=MATTER_OK) return false;
+    }
     if(n->switch_enabled) {
         /* Explicit UI experiment; additional required plug clusters are not implemented. */
         Matter_Root_Endpoint_Config_T sw={.endpoint=2,.revision=5,.device_type=0x10a,.data_version=versions[5]};
@@ -278,8 +291,10 @@ static bool sample(Node* n,uint64_t now,uint64_t seconds) {
     }
     if(n->energy_test_enabled) {
         if(matter_energy_sim_sample(&n->energy_sim,now)!=MATTER_OK) return false;
-        n->power.active_mw=n->energy_sim.power;
+        if(!n->three_phase) n->power.active_mw=n->energy_sim.power;
         memcpy(n->energy.raw_mwh,n->energy_sim.raw,sizeof(n->energy.raw_mwh));
+        if(n->three_phase) for(unsigned i=0;i<3;++i)
+            if(matter_energy_sim_sample(&n->phase_energy_sim[i],now)!=MATTER_OK) return false;
     }
     if(n->source) {
         matter_source_sim_sample(n->source_sim,now,seconds,n->energy.raw_mwh[0],n->energy.raw_mwh[1]);
@@ -287,6 +302,23 @@ static bool sample(Node* n,uint64_t now,uint64_t seconds) {
         if(!source->online || now-source->sampled_ms>=3000) {
             n->energy.available=false; n->power.available=false;
             for(unsigned i=0;i<4;++i) n->measurements[i].available=0;
+        }
+    }
+    if(n->three_phase && n->energy_test_enabled) {
+        /* Targeted fake readings override the normal source's intentional outages.
+         * STOP resumes that source; cumulative registers never roll back or reset.
+         * Phase PIXITs inject only that EPM endpoint, not fabricated phase EEM. */
+        if(n->energy_sim.mode) {
+            int64_t p=n->energy_sim.power;
+            n->measurements[0].values[0]=p; n->measurements[0].values[1]=0;
+            n->measurements[0].values[2]=p<0?-p:p; n->measurements[0].values[3]=p<0?-10000:10000;
+            n->measurements[0].available=15; n->power.active_mw=p; n->power.available=true; n->energy.available=true;
+        }
+        for(unsigned i=0;i<3;++i) if(n->phase_energy_sim[i].mode) {
+            Matter_Energy_Sim_T* s=&n->phase_energy_sim[i]; Matter_Epm_Multi_Sample_T* m=&n->measurements[i+1];
+            int64_t voltage=230000+(int64_t)(((now-s->epoch)/2000)%11)*10,p=s->power;
+            m->values[0]=voltage; m->values[1]=p; m->values[2]=0;
+            m->values[3]=(p<0?-p:p)*1000/voltage; m->available=15;
         }
     }
     if(n->three_phase) for(unsigned i=0;i<3;++i) { bool ready; if(matter_epm_refresh(n->phase_epm[i],now,&ready)!=MATTER_OK) return false; }
@@ -421,16 +453,15 @@ int main(int argc,char** argv) {
         if(!target || ++i==argc || !number(argv[i],max,target)) {
             fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
             "  --test-event-key: default profile routes energy triggers (legacy aggregate fixture);\n"
-            "  with --three-phase --meter-services it enables the Meter Identification change/reset triggers.\n"); return 2;
+            "  with --three-phase --meter-services it enables targeted energy and Meter Identification change/reset triggers.\n"); return 2;
         }
     }
     if(source_registers && !three_phase) { fputs("--source-registers requires --three-phase\n",stderr); return 2; }
     if(wifi_sim_connected && !credentials) { fputs("--wifi-sim-connected requires --credentials\n",stderr); return 2; }
     if(meter_services && (!three_phase || !credentials)) { fputs("--meter-services requires --three-phase and --credentials\n",stderr); return 2; }
-    /* TestEventTrigger profiles: MTRID change/reset on three-phase meter services,
-     * legacy energy simulation only on the default aggregate fixture. */
+    /* Explicit laboratory key enables energy and MTRID fixtures; never persisted. */
     if(test_events && !credentials) return 2;
-    bool energy_test=test_events && !three_phase;
+    bool energy_test=test_events;
     if(test_events && three_phase && !meter_services) return 2;
     if(!index || !seconds) { fprintf(stderr,"Select an interface with a preferred link-local IPv6 address; seconds=1..86400.\n"); return 2; }
     if((ota_boot && !ota_key) || (ota_key && !ota_file) || (credentials && (!state || operational || !pin)) || (!credentials && (state || ota_file || ota_key || chip_validity))) return 2;
@@ -492,7 +523,7 @@ int main(int argc,char** argv) {
     if(n->three_phase) puts("THREE_PHASE aggregate=1 phases=3,4,5 energy=physical-registers phase-energy=absent L3-unavailable=15..19s-of-20s synthetic-only");
     if(n->source) printf("SOURCE_REGISTERS endpoint=1 cluster=%08lx channels=%lu schema=1 synthetic-only\n",(unsigned long)matter_cluster_id(n->source),(unsigned long)n->source_sim->count);
     if(n->switch_enabled) puts("TEST_SWITCH endpoint=2 on=0 profile=incomplete-ui-demo state=volatile");
-    if(energy_test) puts("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile");
+    if(energy_test) printf("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile endpoints=%s\n",three_phase?"1,3,4,5":"1");
     if(test_events && three_phase) puts("MTRID_TEST enabled=1 endpoint=1 key=not-persisted identity=volatile clear=base-snapshot");
     bool announced=false; uint64_t next_sample=now;
     while(!interrupted && (now=matter_host_now())-start<seconds*1000) {

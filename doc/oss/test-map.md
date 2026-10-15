@@ -57,6 +57,14 @@ connection so asynchronous A reports cannot contaminate B's identity check.
 Full pair Memcheck and separate ASan/UBSan/LSan pass; official MTRID 3.1/2.1
 pass in runs336/337. Historical failures remain in the earlier report.
 
+CSA18 extends `test_energy_sim` with profile-specific normal source rates and
+counter continuity across generator/STOP transitions. The existing pair
+`--meter-triggers` oracle also exercises load/STOP on all four EPM endpoints of
+both nodes, varying phase voltage, invalid targets/codes, peer/phase isolation,
+aggregate export growth and no rollback after STOP. Official EPM/EEM results
+and skipped optional steps are recorded separately in
+[CSA18](csa18-validation.md); these local checks do not replace them.
+
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts
 and prerequisites are retained in tools/matter/tests and fixtures. See each

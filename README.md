@@ -84,6 +84,12 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The [CSA18 campaign](doc/oss/csa18-validation.md) enables targeted energy test
+inputs on the three-phase host. Official EPM2.2 passes on aggregate/L1/L2/L3,
+and EEM2.2/2.3 pass on aggregate import/export. The laboratory key also retains
+the MTRID fixture; phase energy is never fabricated. Current matrix and limits
+are recorded in the [result delta](doc/oss/csa18-results.json).
+
 The [CSA17 follow-up](doc/oss/csa17-review-validation.md) fixes redundant Meter
 Identification subscription reports: unrelated energy samples no longer report
 unchanged identity. Official MTRID 3.1/2.1 pass (runs336/337); full pair Memcheck

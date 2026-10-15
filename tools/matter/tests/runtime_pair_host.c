@@ -96,6 +96,7 @@ int main(int argc,char** argv) {
     nodes[0].source_enabled=nodes[1].source_enabled=source;
     nodes[0].meter_services=nodes[1].meter_services=services;
     nodes[0].wifi_sim_connected=nodes[1].wifi_sim_connected=wifi;
+    nodes[0].energy_test_enabled=nodes[1].energy_test_enabled=test_events;
     bool closing[2]={false,false},ok=true; uint64_t start=matter_host_now(),next=start;
     Matter_Diagnostics_Test_Trigger_T trigger={.user=NULL,.trigger=test_event_trigger};
     if(test_events) memcpy(trigger.enable_key,enable_key,sizeof(enable_key));

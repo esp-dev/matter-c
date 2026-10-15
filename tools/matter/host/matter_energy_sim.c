@@ -5,16 +5,20 @@ static int64_t power(const Matter_Energy_Sim_T* s,uint64_t now) {
     if(s->mode==2) return -3000000+(int64_t)((elapsed/5000)%21)*1000;
     return elapsed/1000%10<5?3600000:-1800000;
 }
+Matter_Result_T matter_energy_sim_init_rates(Matter_Energy_Sim_T* s,const int64_t raw[2],const uint64_t normal_mw[2],uint64_t now) {
+    if(!s || !raw || !normal_mw || raw[0]<0 || raw[1]<0 || raw[0]>MATTER_EEM_LIMIT || raw[1]>MATTER_EEM_LIMIT) return MATTER_INVALID_ARGUMENT;
+    *s=(Matter_Energy_Sim_T){.raw={raw[0],raw[1]},.normal_mw={normal_mw[0],normal_mw[1]},.last=now,.epoch=now,.power=3600000}; return MATTER_OK;
+}
 Matter_Result_T matter_energy_sim_init(Matter_Energy_Sim_T* s,const int64_t raw[2],uint64_t now) {
-    if(!s || !raw || raw[0]<0 || raw[1]<0 || raw[0]>MATTER_EEM_LIMIT || raw[1]>MATTER_EEM_LIMIT) return MATTER_INVALID_ARGUMENT;
-    *s=(Matter_Energy_Sim_T){.raw={raw[0],raw[1]},.last=now,.epoch=now,.power=3600000}; return MATTER_OK;
+    const uint64_t normal_mw[]={3600000,1800000};
+    return matter_energy_sim_init_rates(s,raw,normal_mw,now);
 }
 Matter_Result_T matter_energy_sim_sample(Matter_Energy_Sim_T* s,uint64_t now) {
     if(!s || now<s->last || s->mode>2) return MATTER_INVALID_ARGUMENT;
     /* Small host-only transaction copy, no partial update on failure. */
     Matter_Energy_Sim_T next=*s; uint64_t delta=now-s->last;
     for(unsigned i=0;i<2;++i) {
-        uint64_t mw=s->mode?(i==0?(s->power>0?(uint64_t)s->power:0):(s->power<0?(uint64_t)-s->power:0)):(i==0?3600000:1800000);
+        uint64_t mw=s->mode?(i==0?(s->power>0?(uint64_t)s->power:0):(s->power<0?(uint64_t)-s->power:0)):s->normal_mw[i];
         if(mw && delta>(UINT64_MAX-s->remainder[i])/mw) return MATTER_LIMIT_REACHED;
         uint64_t integrated=mw*delta+s->remainder[i],energy=integrated/3600000;
         if(energy>(uint64_t)(MATTER_EEM_LIMIT-s->raw[i])) return MATTER_LIMIT_REACHED;

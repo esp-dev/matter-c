@@ -1,0 +1,188 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa17-review-results.json",
+  "previous_sha256": "b8cfc2115dd30c75c1949c2b8b25f99bfc2da51989961b687b200be54e9d00bd",
+  "tracked_document_hash_encoding": "Previous report hash uses committed Git blob bytes at f93f46d65231c73809dbed25c916cbea33571878",
+  "scope": "Targeted laboratory EPM/EEM TestEventTrigger inputs on the existing three-phase profile; other official results inherited, not certification.",
+  "latest_counts": {
+    "MANUAL": 32,
+    "NA": 704,
+    "BLOCKED": 15,
+    "PASS": 97,
+    "FAIL": 14
+  },
+  "attempts": [
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 1,
+      "run_id": 434,
+      "source_stage": "baseline",
+      "status": "FAIL",
+      "step_states": {
+        "passed": 4,
+        "failed": 1,
+        "pending": 9
+      },
+      "evidence_sha256": "8207a3133f4669806962fced3e311ab3420f651959b5a383f18eb5617b49b600",
+      "official_log_sha256": "4d945a90de22f174e7c29817c3e7bde88f5290a0b367305c0081f6f477df8992",
+      "node_log_sha256": "2f3a995cb0deb03f76c8779c7ce2564e463bf31ec9b04c6bcb5920593db41a0d",
+      "execution_pics_sha256": "19a9cd654819215b08ae9e7be2686fd4f1e4ba603b55d1e9eaa85e30933e2644"
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 1,
+      "run_id": 435,
+      "source_stage": "final",
+      "status": "PASS",
+      "step_states": {
+        "passed": 10,
+        "not_applicable": 4
+      },
+      "evidence_sha256": "1a950aaed88a572473dcfeac28bd20368a90cf773c845e5550fd1c93efec84f5",
+      "official_log_sha256": "68835f01e685b6b5b8a72127a25572e50e8c234c6cd1ce0d06f9ae4f306b800a",
+      "node_log_sha256": "ce8a7edfda7438a378793b4d19e96cab1be8bc6dda9adf729a500ab7c8d04b8e",
+      "execution_pics_sha256": "19a9cd654819215b08ae9e7be2686fd4f1e4ba603b55d1e9eaa85e30933e2644"
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 3,
+      "run_id": 436,
+      "source_stage": "final",
+      "status": "PASS",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 2
+      },
+      "evidence_sha256": "857eb85e86a1dd6cf6d35ca67616f07def2b3f701880bb15ac8dbbce7231578d",
+      "official_log_sha256": "aa6c25c0e2dc937cf2254906c09fe1da0cc6b5dc5592c5d4924d1f7d348ad7c4",
+      "node_log_sha256": "cd246bef9f3d85f7fd8e077cf2fda8c5b5edbbf1ca68102ca4d0d6e23ad57719",
+      "execution_pics_sha256": "75d379d28d0f1d61732b6e62380472ed82c4a76084d2167bca73f1e2427ee5a8"
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 4,
+      "run_id": 437,
+      "source_stage": "final",
+      "status": "PASS",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 2
+      },
+      "evidence_sha256": "6ace3c274ad019efd5a73ad058f49a334a0d2202567453f54b8ab849c4060850",
+      "official_log_sha256": "80d9c230d4d2c8afa417ce02a2e7844df60c4996011cd37806bcb83df7500526",
+      "node_log_sha256": "8d945671eea5cd2194a90545557005b2595d3abaa6b4e404d2dd8a6f79d5ae92",
+      "execution_pics_sha256": "75d379d28d0f1d61732b6e62380472ed82c4a76084d2167bca73f1e2427ee5a8"
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 5,
+      "run_id": 438,
+      "source_stage": "final",
+      "status": "PASS",
+      "step_states": {
+        "passed": 12,
+        "not_applicable": 2
+      },
+      "evidence_sha256": "a9f7888c56ab9cfdbe57b478e6f117d5e4c2d28eaed38291eb426e0db6fe3310",
+      "official_log_sha256": "4bf17bd461f0a55fba45819cf5879b43a20e7770d80326c1502b77ac8ed6c5c5",
+      "node_log_sha256": "c3f181113eaa2519fbeeb5a6db7cf21586b8ea5757f170700abf6b9579447324",
+      "execution_pics_sha256": "75d379d28d0f1d61732b6e62380472ed82c4a76084d2167bca73f1e2427ee5a8"
+    },
+    {
+      "case": "TC_EEM_2_2",
+      "endpoint": 1,
+      "run_id": 439,
+      "source_stage": "final",
+      "status": "PASS",
+      "step_states": {
+        "passed": 10
+      },
+      "evidence_sha256": "cd007dc94076c5ebb2c706dd7d6efdbd1b5f463c6a8bf71342337d21e857b342",
+      "official_log_sha256": "118b4d780d70b9a909a9fe8f4e14a9b8d7ecc8fb0dfd6ec1c415a721b65d732b",
+      "node_log_sha256": "9c05f64713fd9ad6e2a3e2b786ade81e8a6b891668a4a8dea59ab235e4a822b2",
+      "execution_pics_sha256": "19a9cd654819215b08ae9e7be2686fd4f1e4ba603b55d1e9eaa85e30933e2644"
+    },
+    {
+      "case": "TC_EEM_2_3",
+      "endpoint": 1,
+      "run_id": 440,
+      "source_stage": "final",
+      "status": "PASS",
+      "step_states": {
+        "passed": 10
+      },
+      "evidence_sha256": "0c9693f45d38321fe48f2f030c7d4fdf9bd277817d0c76bf56a6857b7b6803d8",
+      "official_log_sha256": "a55fd159e046ab706606579ead0262ac88a841cdb1ffa9ca0c7281107237a426",
+      "node_log_sha256": "c68fd9784dc2e23ef33cec5b9b538502c49b2b69412d9adb83d668a42c243578",
+      "execution_pics_sha256": "19a9cd654819215b08ae9e7be2686fd4f1e4ba603b55d1e9eaa85e30933e2644"
+    }
+  ],
+  "official_script_sha256": {
+    "TC_EPM_2_2": "bfe2863599b3d68727c52a1083aaf3e192726e681016390d9045665abd898bd1",
+    "TC_EEM_2_2": "fd93bc701f6ec8b0a198afb3f145d146b4c582907278957596bca8d29f4522c1",
+    "TC_EEM_2_3": "075d5ab30d7318226da937dddd411f27496c05d32df6ceb20fd1332f8118452c"
+  },
+  "source_manifest_sha256": "6171903d6adbcb943ead24faac6d277d691d3f7d94da8b2747b16b1b7f2bfbbf",
+  "binary_identities": [
+    "MATCH 353 C/H files",
+    "final matter-node a3f4d3375764799dd757970228407af48061414820f808c90378731caa6981f2",
+    "final cmake/tests/runtime-pair-host 84079b7853d513b7c6a00dfe66de695aa06f26e060b0def52b3182c3508fb7b2",
+    "sanitize matter-node 91806604b744f12530fa13d521a648ca803b7c7373364beb4eca31862993040e",
+    "sanitize cmake/tests/runtime-pair-host ac04f46b3af142752a7bc67a9a5a73d0adb335dcc7e2d652242be90689d88e46"
+  ],
+  "normal_focused": "9/9 PASS",
+  "sanitized_focused": "9/9 PASS",
+  "build_warnings": 0,
+  "memcheck": {
+    "mode": "memcheck",
+    "reverse": false,
+    "legacy": false,
+    "node_exit": 0,
+    "ports": [
+      5541,
+      5542
+    ],
+    "browse_before_DUT": true,
+    "coherent_PTR_SRV_TXT": true,
+    "distinct_instances_and_hosts": true,
+    "status": "PASS"
+  },
+  "sanitizers": {
+    "mode": "sanitize",
+    "reverse": true,
+    "legacy": false,
+    "node_exit": 0,
+    "ports": [
+      5541,
+      5542
+    ],
+    "browse_before_DUT": true,
+    "coherent_PTR_SRV_TXT": true,
+    "distinct_instances_and_hosts": true,
+    "status": "PASS"
+  },
+  "pair_checks": [
+    "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+    "independent-application-state",
+    "two-connected-simulated-Wi-Fi-interfaces-failsafe-scans-breadcrumb-and-rollback",
+    "two-independent-Wi-Fi-migrations-authentication-errors-rollback-and-commit",
+    "independent-Identify-and-UTC-anchors",
+    "targeted-energy-triggers-on-every-EPM-endpoint-with-peer-and-phase-isolation",
+    "generator-and-STOP-preserve-the-aggregate-energy-register",
+    "MTRID-SET-and-CLEAR-attributes-reports-node-isolation-and-negative-key",
+    "B-meter-services-survive-active-A-Identify-teardown",
+    "B-subscription-and-phase-read-survive-A-deletion",
+    "both-last-fabric-responses"
+  ],
+  "memcheck_log_sha256": "62e1a6cc2051f4385925c1b03557a8f7781147163b9a9fdb44447d9efe008ee2",
+  "controller_sources_sha256": {
+    "chip_tool_three_phase.py": "1780b544774cf66d1a521227e81dbe7729b85c3e916c5ea83d4f25410534fe6c"
+  },
+  "limitations": [
+    "No full CSA campaign rerun; 14 FAIL, 15 BLOCKED and 32 MANUAL remain.",
+    "No native Windows, physical firmware or manual Home UI execution.",
+    "Phase PIXITs inject independent EPM inputs, not a physical power-flow simulator; no phase EEM.",
+    "Existing source outages resume after STOP; missing ActiveCurrent/aggregate Voltage branches remain official N/A."
+  ]
+}

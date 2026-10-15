@@ -298,6 +298,67 @@ def pair(args, out):
             assert all(set_reports[i]['version'] != clear_reports[i]['version'] for i in range(4))
             assert identity(1) == base_a, 'clear did not restore base identity'
             assert identity(2) == base_a
+            # The same public laboratory key enables independent energy PIXITs.
+            # Exercise the addressed EPM endpoint and prove that B and the other
+            # phases retain their normal source (including genuine unavailable).
+            energy_stop = 0x0091000000000000
+
+            def epm_value(node, endpoint, attribute=8, name='ActivePower'):
+                data = command(reader, ['any', 'read-by-id', '0x90', attribute, node, endpoint], r'SuppressResponse = true')
+                body = next(f['body'] for f in frames(data) if f['kind'] == 'Attribute' and f['path'] == (endpoint, 0x90, attribute))
+                return None if re.search(r'^'+name+r': null$', body, re.M) else integer(body, name)
+
+            def normal_power(endpoint, value):
+                return value is None or (1234000 <= value <= 1238000 if endpoint == 1 else
+                                         1800000 <= value <= 1804000 if endpoint == 3 else
+                                         value == (-750000 if endpoint == 4 else 184000))
+
+            trigger(1, energy_stop+(2 << 32)+1, expected=r'status = 0x0*85 \(INVALID_COMMAND\)')
+            trigger(1, energy_stop+(6 << 32)+1, expected=r'status = 0x0*85 \(INVALID_COMMAND\)')
+            trigger(1, energy_stop+3, expected=r'status = 0x0*85 \(INVALID_COMMAND\)')
+            for node in (1, 2):
+                for endpoint in (1, 3, 4, 5):
+                    event = energy_stop+(endpoint << 32)
+                    trigger(node, event+1)
+                    time.sleep(3)
+                    first = epm_value(node, endpoint)
+                    assert first is not None and 980000 <= first <= 1020000, (node, endpoint, first)
+                    voltage = epm_value(node, endpoint, 4, 'Voltage') if endpoint != 1 else None
+                    time.sleep(3)
+                    second = epm_value(node, endpoint)
+                    assert second is not None and 980000 <= second <= 1020000 and second != first, (first, second)
+                    if endpoint != 1:
+                        voltage2 = epm_value(node, endpoint, 4, 'Voltage')
+                        assert voltage is not None and voltage2 is not None and 229000 <= voltage <= 231000 \
+                            and 229000 <= voltage2 <= 231000 and voltage != voltage2, (voltage, voltage2)
+                    assert normal_power(endpoint, epm_value(3-node, endpoint)), 'energy trigger contaminated peer node'
+                    other_phase = 4 if endpoint != 4 else 3
+                    assert normal_power(other_phase, epm_value(node, other_phase)), 'energy trigger contaminated another phase'
+                    trigger(node, event)
+                    time.sleep(1.1)
+                    assert normal_power(endpoint, epm_value(node, endpoint)), 'STOP did not restore normal source'
+            passed('targeted-energy-triggers-on-every-EPM-endpoint-with-peer-and-phase-isolation')
+            def exported_energy():
+                deadline = time.monotonic() + 6
+                while time.monotonic() < deadline:
+                    data = command(reader, ['electricalenergymeasurement', 'read', 'cumulative-energy-exported', 1, 1], r'SuppressResponse = true')
+                    body = next(f['body'] for f in frames(data) if f['path'] == (1, 0x91, 2))
+                    if re.search(r'^Energy: ', body, re.M):
+                        return integer(body, 'Energy')
+                    time.sleep(.25)  # STOP may resume the normal two-second source outage.
+                raise AssertionError('Aggregate source did not recover after STOP')
+
+            trigger(1, energy_stop+2)
+            time.sleep(1.1)
+            energy_before = exported_energy()
+            time.sleep(6)
+            energy_generated = exported_energy()
+            assert energy_generated > energy_before
+            trigger(1, energy_stop)
+            time.sleep(1.1)
+            energy_stopped = exported_energy()
+            assert energy_stopped >= energy_generated, 'STOP rolled back the cumulative source register'
+            passed('generator-and-STOP-preserve-the-aggregate-energy-register')
             # Close only node1's subscriptions: B's OnOff must survive A's teardown below.
             command(c, ['subscriptions', 'shutdown-all-for-node', 1], r'Command: subscriptions shutdown-all-for-node')
             passed('MTRID-SET-and-CLEAR-attributes-reports-node-isolation-and-negative-key')
@@ -345,7 +406,7 @@ def main():
     parser.add_argument('--source-registers', action='store_true', help='Pair fixture includes MP03 extension')
     parser.add_argument('--meter-services', action='store_true', help='Pair fixture includes MP04 services')
     parser.add_argument('--meter-triggers', action='store_true',
-                        help='Pair fixture exercises the MTRID TestEventTrigger change/reset scenario')
+                        help='Pair fixture exercises MTRID and targeted EPM/EEM TestEventTrigger scenarios')
     parser.add_argument('--wifi-sim-connected', action='store_true', help='Pair fixture starts with simulated Wi-Fi connected')
     args = parser.parse_args()
     if args.wifi_sim_connected and args.pair_discriminator is None:

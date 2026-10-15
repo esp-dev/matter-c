@@ -23,5 +23,14 @@ int main(void) {
     s.raw[1]=MATTER_EEM_LIMIT; before=s;
     CHECK(matter_energy_sim_sample(&s,15100)==MATTER_LIMIT_REACHED && !memcmp(&s,&before,sizeof(s)));
     CHECK(matter_energy_sim_init(&s,(const int64_t[]){-1,0},0)==MATTER_INVALID_ARGUMENT);
+    const uint64_t rates[]={UINT64_C(551)*3600,UINT64_C(208)*3600};
+    CHECK(matter_energy_sim_init_rates(&s,raw,rates,100)==MATTER_OK);
+    CHECK(matter_energy_sim_sample(&s,1100)==MATTER_OK && s.raw[0]==10551 && s.raw[1]==20208);
+    CHECK(matter_energy_sim_trigger(&s,stop+2,1100)==MATTER_IM_SUCCESS);
+    CHECK(matter_energy_sim_sample(&s,7100)==MATTER_OK && s.raw[0]==10551 && s.raw[1]==25208);
+    before=s; CHECK(matter_energy_sim_trigger(&s,stop,7100)==MATTER_IM_SUCCESS);
+    CHECK(s.raw[0]==before.raw[0] && s.raw[1]==before.raw[1]);
+    CHECK(matter_energy_sim_sample(&s,8100)==MATTER_OK && s.raw[0]==11102 && s.raw[1]==25416);
+    before=s; CHECK(matter_energy_sim_init_rates(&s,raw,NULL,8100)==MATTER_INVALID_ARGUMENT && !memcmp(&s,&before,sizeof(s)));
     puts("PASS energy simulation: integration, directions, stop, isolation, backwards time, overflow"); return 0;
 }

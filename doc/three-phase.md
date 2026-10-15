@@ -77,6 +77,12 @@ on this ABI. These are structure sizes/deltas, not total node RAM requirements.
 
 Use disposable development credentials and a new state path:
 
+For dynamic EPM/EEM test inputs, additionally use `--meter-services` and
+`--test-event-key <public-laboratory-key>`. The aggregate and individual phases
+accept independent PIXIT targets; no phase energy is fabricated. See the
+[trigger contract](meter-services.md#targeted-energy-inputs) and
+[CSA18 acceptance](oss/csa18-validation.md).
+
 ```sh
 mkdir -p build/three-phase
 build/cmake/matter-node --interface <IPv6-interface-index> --port 5547 \

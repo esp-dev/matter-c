@@ -161,7 +161,7 @@ the redundant identity reports caused by unrelated source updates and applies
 the existing DataVersion reporting policy. MTRID 3.1/2.1 now pass (336/337),
 with full pair memory acceptance and independent selective/last-fabric removal,
 restart and recommissioning. See [review evidence](oss/csa17-review-validation.md).
-**Next task: manual Home removal/re-add acceptance on a running node.**
+Manual Home removal/re-add acceptance on a running node remains pending.
 Last-fabric removal currently stops the host; restart is required for re-add.
 Keep CADMIN 1.10 as a
 known CSA02/CSA16 discrepancy for the consolidated CSA report; do not rerun it
@@ -192,6 +192,18 @@ Utility Meter does not implement those capabilities.
 Do not advertise a device type whose mandatory dependencies are missing.
 Keep full-host checks with independent controllers, two instances in one process,
 failure paths, Memcheck and separate ASan/UBSan/LSan throughout development.
+
+CSA18 supplies targeted laboratory energy inputs for the existing three-phase
+profile. The opt-in key now routes fake load/generator/STOP events to EP1 or
+EP3/4/5 without changing unselected phases or another runtime. Aggregate
+import/export registers integrate elapsed time and stay monotonic across STOP;
+no per-phase energy is synthesized. Official EPM2.2 passes on all four measuring
+endpoints and EEM2.2/2.3 pass on EP1. The matrix becomes 97 PASS, 14 FAIL,
+15 BLOCKED, 32 MANUAL, 704 NA; unaffected rows are inherited. See
+[evidence and limits](oss/csa18-validation.md) and [result delta](oss/csa18-results.json).
+**Next task: CSA19 — configure the OTA provider/image/restart fixture and run
+the first applicable TC_SU_2_1 case.** OTA is already declared; do not add tariffs
+or otherwise expand the device profile to substitute for its missing acceptance.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 
