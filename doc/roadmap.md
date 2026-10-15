@@ -201,9 +201,20 @@ no per-phase energy is synthesized. Official EPM2.2 passes on all four measuring
 endpoints and EEM2.2/2.3 pass on EP1. The matrix becomes 97 PASS, 14 FAIL,
 15 BLOCKED, 32 MANUAL, 704 NA; unaffected rows are inherited. See
 [evidence and limits](oss/csa18-validation.md) and [result delta](oss/csa18-results.json).
-**Next task: CSA19 — configure the OTA provider/image/restart fixture and run
-the first applicable TC_SU_2_1 case.** OTA is already declared; do not add tariffs
+OTA is already declared; do not add tariffs
 or otherwise expand the device profile to substitute for its missing acceptance.
+
+CSA19 adds the official CHIP provider and signed host-simulation OTA fixture.
+TC-SU-2.1 completes its three manual verification prompts and evidence upload
+in TH run442. It stays separate from automatic CSA PASS coverage: one row moves
+BLOCKED to MANUAL with manual result PASS; counts are 97 PASS, 14 FAIL,
+14 BLOCKED, 33 MANUAL, 704 NA. Full download/authentication/restart/fresh CASE
+also passes under Memcheck and separately ASan/UBSan/LSan. C sources remain at
+the accepted CSA18 revision. No executable firmware or physical bootloader was
+updated. See [evidence and limits](oss/csa19-validation.md) and
+[fixture contract](ota-host.md).
+**Next task: CSA20 — TC-SU-2.2, applicable QueryImageResponse scenarios,
+including Busy/NotAvailable timing and invalid URI or non-newer version rejection.**
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

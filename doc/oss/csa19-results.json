@@ -1,0 +1,227 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa18-results.json",
+  "previous_sha256": "30b61ca689758f33fecd7a06b22153f4e5057df0b821c12bf9ccaa3c51974468",
+  "tracked_document_hash_encoding": "Previous report hash uses committed Git blob bytes at dad6cb0; private evidence hashes use saved artifact bytes; PICS uses canonical sorted compact JSON.",
+  "scope": "TC-SU-2.1 manual TH acceptance with reviewed QueryImage/Busy evidence and supplementary complete signed host-simulation OTA; no C implementation change or certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 14,
+    "BLOCKED": 14,
+    "MANUAL": 33,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SU-2.1",
+      "endpoint": 0,
+      "previous": "BLOCKED",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 442,
+      "reason": "OTA fixture available; unchanged manual TH procedure passed with three evaluated steps and attached evidence. Kept separate from automatic PASS coverage."
+    }
+  ],
+  "attempts": [
+    {
+      "run_id": 441,
+      "case": "TC-SU-2.1",
+      "endpoint": 0,
+      "status": "CANCELLED",
+      "harness_state": "cancelled",
+      "execution_mode": "manual operator decisions from reviewed laboratory evidence",
+      "step_states": {
+        "passed": 3,
+        "cancelled": 1
+      },
+      "evidence_sha256": "ca7c35373827b299d4684286eea7bc312aec8374d106b8ef8481c3a9c64ce3f4",
+      "official_log_sha256": "6cab1fe5ac00d48322022f66a5af82749d7b2bcbb76689219038a6446235cbd8",
+      "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb"
+    },
+    {
+      "run_id": 442,
+      "case": "TC-SU-2.1",
+      "endpoint": 0,
+      "status": "MANUAL_PASS",
+      "harness_state": "passed",
+      "execution_mode": "manual operator decisions from reviewed laboratory evidence",
+      "step_states": {
+        "passed": 4
+      },
+      "evidence_sha256": "bdbe5a17ce67aa408e82efcea3dbb4421030b1d03c734a43da4af8693110a3b1",
+      "official_log_sha256": "64a06cb2b3bdd4637b9d942c568017ca6723aee724257e8864b5f11dcc552430",
+      "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb"
+    }
+  ],
+  "manual_upload_sha256": "a2188b04df11db2f8745b08229c5c68a0aa2d5c521d1e7e9cf10084960d2905c",
+  "official_script_sha256": {
+    "TC-SU-2.1": "0f19904fd0b1e23b7da2c6c4ca6038d7043bbc1af91bea6db00b1872ff856081"
+  },
+  "source_commit": "dad6cb0",
+  "source_manifest_sha256": "6171903d6adbcb943ead24faac6d277d691d3f7d94da8b2747b16b1b7f2bfbbf",
+  "source_identity": "MATCH 353 C/H files with the accepted CSA18 build; no C/H changes.",
+  "provider": {
+    "sdk_sha": "3bcdd56ba54fb88b2afb4bfef575014671df7aa7",
+    "sdk_dirty": false,
+    "provider_build_warnings": [],
+    "provider_binary_sha256": "36cfd8c96bb9084ec5d6d39c12e0597a64f3279c7f82b0c2f4c2f4a745b2fa4c",
+    "controller_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+  },
+  "laboratory_runs": [
+    {
+      "mode": "busy-update-final",
+      "result": "PASS",
+      "checks": 12,
+      "driver_sha256": "48f2c132036a298e0c72e701e0d90b2d80fc86706f6bc69c1cd0ccbc640eb712",
+      "image": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "6268def595d713e859a195c70e746cc4b632c6f4744b3a5f0f1e8a709b943a5a",
+        "public_key_sha256": "dad168bf114eb289433fe9b5045857d81ca33f015dd498972877cb42703fc279"
+      },
+      "binaries": {
+        "requestor": "a3f4d3375764799dd757970228407af48061414820f808c90378731caa6981f2",
+        "provider": "36cfd8c96bb9084ec5d6d39c12e0597a64f3279c7f82b0c2f4c2f4a745b2fa4c",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "evidence_sha256": {
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "6fcd4a24e9f15306cc031930edb739a09b452eb25011b129937ae37f2111817f",
+        "provider.log": "77ac957a3e03961a43aac4d9e6ce08f388cf62a068c4a1471609bc137829f967",
+        "manual-evidence.log": "a2188b04df11db2f8745b08229c5c68a0aa2d5c521d1e7e9cf10084960d2905c",
+        "result.json": "205ffa5893c54bf91843007b7d267436e2ca8bf62bea5500d24cbe6c47a197d6",
+        "node-1.log": "a0b9b521bc11c77f7786782bbc6e9de103af1e035ea6c51908fb7c7300cf2fc9",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "fresh-reader/interactive.log": "1319235542cc023e1fc7ae1659f6ca52dd4bffaf3834c2d1ac83c5729f5920d4",
+        "controller/commands.txt": "73ae280ad34d136acc8e81f3f9e728cc8158afee9811f8ce366b9426a21460d0",
+        "controller/interactive.log": "48c50401975ca4c22e2acd0aae42ef26f2d6d9b5e5a139668b2b094fa292a73b"
+      },
+      "provider_eof_apply_notify_review": "PASS",
+      "memcheck_summaries": {}
+    },
+    {
+      "mode": "memcheck-01",
+      "result": "PASS",
+      "checks": 10,
+      "driver_sha256": "48f2c132036a298e0c72e701e0d90b2d80fc86706f6bc69c1cd0ccbc640eb712",
+      "image": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "0c0ed28be5f50eb136cc9af5b17b778c81515b9af649e2dfeffa7b4821241643",
+        "public_key_sha256": "15b5bc039236771a9440380eb3fdee1dfc4bf6874b316009208f83152d4db088"
+      },
+      "binaries": {
+        "requestor": "a3f4d3375764799dd757970228407af48061414820f808c90378731caa6981f2",
+        "provider": "36cfd8c96bb9084ec5d6d39c12e0597a64f3279c7f82b0c2f4c2f4a745b2fa4c",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "evidence_sha256": {
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "1a13af011df080fa7c167668ecbb9eeb221e3e5dac7cda856666aa1383c23351",
+        "valgrind-2.log": "139dcf65e21bc63f2ae0b6c12d54d220ae8f2a1ab03826b426552f265d401f53",
+        "node-2.log": "dc78bc8aa0b8ad9843f8b312acb3aed44a6198a01dbc9a0c80e6796e25baad96",
+        "provider.log": "4546ee01bef6b285c016af1dd90e0b615e14e99aca19ed65d1c6fbc5ce360b5e",
+        "result.json": "5688dfcd9ddc2501ec8fdf7223f7de4a8c9d6baf2a1a1c022c2febb36c2231f9",
+        "node-1.log": "1b8418edba0dc7d8843f9b2d29ef2e16e76d0626b2cd3e763d7f75d8c8cc1c38",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "fresh-reader/interactive.log": "0eed2d6acce1192ab6a5d56917a5e748f5afe606dfc4dd35e4ec252aa542a9b8",
+        "controller/commands.txt": "ced79ff585ca2e5789e7eb3690e4c6d5c3911143fcf40a29f1bc6637545d935c",
+        "controller/interactive.log": "333e84b9917d6917a201310f45035fe77089cb6bef24ce9f1a2f6d86dd8c542f"
+      },
+      "provider_eof_apply_notify_review": "PASS",
+      "memcheck_summaries": {
+        "valgrind-1.log": [
+          "==843258==     in use at exit: 0 bytes in 0 blocks",
+          "==843258==   total heap usage: 35,532 allocs, 35,532 frees, 2,595,878 bytes allocated",
+          "==843258== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ],
+        "valgrind-2.log": [
+          "==843262==     in use at exit: 0 bytes in 0 blocks",
+          "==843262==   total heap usage: 19,533 allocs, 19,533 frees, 1,564,507 bytes allocated",
+          "==843262== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ]
+      }
+    },
+    {
+      "mode": "sanitize-01",
+      "result": "PASS",
+      "checks": 10,
+      "driver_sha256": "48f2c132036a298e0c72e701e0d90b2d80fc86706f6bc69c1cd0ccbc640eb712",
+      "image": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "4406bb22bb21d723d3c3ff12ca67226cdcf43e9180c3854fe761296dcaed4c57",
+        "public_key_sha256": "df20a16c5b5f58c091ce5d934c9cc65504bad105d51b97feda9ac98cfe8c73bf"
+      },
+      "binaries": {
+        "requestor": "91806604b744f12530fa13d521a648ca803b7c7373364beb4eca31862993040e",
+        "provider": "36cfd8c96bb9084ec5d6d39c12e0597a64f3279c7f82b0c2f4c2f4a745b2fa4c",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "evidence_sha256": {
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "2d4dc7d3d5f0945a71d8d1badcf71a95c554a7242474df7ebb3cdf8132369066",
+        "provider.log": "5fac1438e0b98c27c0d9b037e0da3c1970310441724524141298f31373b4b931",
+        "result.json": "56ec3c419a30952ec7fc2c87f87c7c0663d3c156571d4907e17c046218cda003",
+        "node-1.log": "03443f0c51a499e2e25281df05c21c2de8ba5c09d8ebb6bb15978c8bc92378bf",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "fresh-reader/interactive.log": "5eb5ad22bf9d21d4d17bbb84af002e2b39873b7e29dedc7f4016501fcab04a9a",
+        "controller/commands.txt": "ced79ff585ca2e5789e7eb3690e4c6d5c3911143fcf40a29f1bc6637545d935c",
+        "controller/interactive.log": "a8b12bdc1480f840e4a16b28b7fcefb1572987bdd4dabd603c6eeaaf63c32a46"
+      },
+      "provider_eof_apply_notify_review": "PASS",
+      "memcheck_summaries": {}
+    }
+  ],
+  "busy_observation_seconds": 120.20880452310666,
+  "query_interval_seconds": 150.196,
+  "location": "Omitted; optional under Core 1.6.1 11.20.6.6.1. Manual wording interpreted with the normative optional field requirement.",
+  "preflight_attempts": [
+    {
+      "name": "preflight-01",
+      "status": "FAIL",
+      "error": "Fixture UDP port collides with chip-tool default listen port.",
+      "result_sha256": "42487795249a54ea003560d05763c600f6189cd85496d1a2f2c9c3e6c14124da"
+    },
+    {
+      "name": "preflight-02",
+      "status": "FAIL",
+      "error": "Provider ACL has not granted requestor QueryImage access.",
+      "result_sha256": "9fa8a0b6710c7217a4bdaee3ec21f47359e429515c21ef9f2b712ea27e6b6635"
+    },
+    {
+      "name": "preflight-03",
+      "status": "FAIL",
+      "error": "ANSI-colored log parser incorrectly reports BDX absent.",
+      "result_sha256": "14cb208cc1f260ec736296c68a5b39056c325168d0b89001537e2181a0aa7fef"
+    },
+    {
+      "name": "preflight-04",
+      "status": "PASS",
+      "error": null,
+      "result_sha256": "393b9726a0b8974afeb1b2a2bb56014208ffdeeeaa633c06802eef2509cd61fc"
+    },
+    {
+      "name": "busy-update-01",
+      "status": "PASS",
+      "error": null,
+      "result_sha256": "15be02b7a68de6798c3557f9d727983161015e8def1bbd4e51a9d208d8276d5f"
+    }
+  ],
+  "limitations": [
+    "TH result uses the official manual procedure with agent-reviewed evidence and entered prompt decisions, not automatic CSA assertions or certification.",
+    "Only TC-SU-2.1 changes classification; other rows are inherited, not rerun.",
+    "A signed host-simulation payload and process restart are used; no executable firmware, physical device, production bootloader or Google/Apple Home acceptance.",
+    "The requestor binaries are reused from CSA18 after source and binary identity verification; native builds and CTest are not repeated for a Python/documentation-only change.",
+    "Memcheck and sanitizer instrumentation cover both C requestor boots, not the separate CHIP provider/controller.",
+    "The provider and requestor use trusted development credentials and a default test VID/PID; production attestation/provisioning is outside this campaign.",
+    "Run441 retained as cancelled due to the separate th-cli upload handler. No official test, PICS, C API or cryptographic policy was changed."
+  ]
+}

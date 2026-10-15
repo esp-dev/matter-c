@@ -260,7 +260,9 @@
       "kind": "external-chip-tool",
       "ctest": [],
       "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
-      "referenced_by": [],
+      "referenced_by": [
+        "tools/matter/tests/test_ota_chip_provider.py"
+      ],
       "allocation_variant": "not applicable"
     },
     {
@@ -292,7 +294,9 @@
       "kind": "external-chip-tool",
       "ctest": [],
       "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
-      "referenced_by": [],
+      "referenced_by": [
+        "tools/matter/tests/test_ota_chip_provider.py"
+      ],
       "allocation_variant": "not applicable"
     },
     {
@@ -1698,6 +1702,14 @@
         "tools/matter/build_host_linux.py"
       ],
       "allocation_variant": "native"
+    },
+    {
+      "path": "tools/matter/tests/test_ota_chip_provider.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP OTA provider, chip-tool, Python cryptography and disposable Linux lab required.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
     },
     {
       "path": "tools/matter/tests/test_ota_update_network.py",

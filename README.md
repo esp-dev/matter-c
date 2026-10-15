@@ -156,6 +156,11 @@ and a separate state file. The default host profile is preserved.
 Add `--source-registers` for the [manufacturer-specific source view](doc/meter-source.md):
 tariff/quadrant/demand registers, directional values, metadata and volume channels.
 
+The optional [OTA host laboratory](doc/ota-host.md) uses an unmodified CHIP
+provider to exercise QueryImage, Busy timing, BDX, a signed simulation image,
+restart and NotifyUpdateApplied. Its memory-tool modes cover both boots.
+The fixture does not install executable firmware or certify a bootloader.
+
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or
 `build/matter-host/gcc/matter-node.exe`. An unknown option prints usage and exits 2.

@@ -1,6 +1,6 @@
 # Test inventory
 
-test-map.json enumerates 228 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 230 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
@@ -64,6 +64,14 @@ both nodes, varying phase voltage, invalid targets/codes, peer/phase isolation,
 aggregate export growth and no rollback after STOP. Official EPM/EEM results
 and skipped optional steps are recorded separately in
 [CSA18](csa18-validation.md); these local checks do not replace them.
+
+CSA19 adds `test_ota_chip_provider.py`: an unmodified CHIP OTA provider,
+attested commissioning, QueryImage/Busy timing, BDX, signed simulated install,
+restart and fresh CASE readback. `--mode update --valgrind` covers both boots;
+a separate sanitized executable covers ASan/UBSan/LSan. It is optional and is
+not part of native CTest. Official TC-SU-2.1 is a manual TH procedure; its
+prompt decisions and attached evidence are recorded separately in
+[CSA19](csa19-validation.md) and the [fixture contract](../ota-host.md).
 
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts
