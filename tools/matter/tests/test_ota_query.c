@@ -78,9 +78,17 @@ static void policy(void) {
         CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,edge?599999:999); CHECK(!t->starts);
         pump(t,edge?600000:1000); CHECK(t->starts==1); destroy(t);
     }
+    /* CASE can delay the actual QueryImage beyond start(). A repeated
+     * announcement must not reset the Busy retry to that earlier floor. */
+    t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
+    response(t,1,60,false); pump(t,500); CHECK(t->state==3);
+    t->offer.announced=true; t->offer.reason=0;
+    CHECK(matter_ota_query_offer(t->query,&t->offer,1000));
+    pump(t,120000); CHECK(t->starts==1); pump(t,120499); CHECK(t->starts==1);
+    pump(t,120500); CHECK(t->starts==2); destroy(t);
     t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
     response(t,2,0,false); pump(t,1); t->offer.provider.node=43;
-    CHECK(matter_ota_query_offer(t->query,&t->offer,2)); pump(t,119999); CHECK(t->starts==1); pump(t,120000); CHECK(t->starts==2); destroy(t);
+    CHECK(matter_ota_query_offer(t->query,&t->offer,2)); pump(t,120000); CHECK(t->starts==1); pump(t,120001); CHECK(t->starts==2); destroy(t);
     t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
     t->generation=2; pump(t,1); CHECK(t->cancels==1); pump(t,2); CHECK(t->cancels==1);
     CHECK(matter_ota_query_delete(t->query)==MATTER_BUSY); response(t,0,0,true); pump(t,3); CHECK(!t->available && t->state==1); destroy(t);

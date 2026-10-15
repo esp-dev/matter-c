@@ -54,7 +54,7 @@ commissioned into a disposable fabric, never a user's existing fabric.
 
 `busy-update` checks QueryImage identity against Basic Information, BDX
 Synchronous support and false RequestorCanConsent. Location is optional under
-Core 1.6.1 11.20.6.6.1 and is omitted by this requestor. The provider first
+Core 1.6.1 11.20.6.5.1 and is omitted by this requestor. The provider first
 returns Busy with a 150-second delay. The script observes a real 120-second
 window with no second query, repeats AnnounceOTAProvider, then verifies the next
 query, complete download, authentication, restart, NotifyUpdateApplied and
@@ -65,6 +65,55 @@ Memcheck scenario. Then run `--mode update` separately with a binary compiled
 with ASan/UBSan/LSan. This shorter mode skips the two-minute Busy procedure;
 it must not be reported as timing acceptance. The provider and controller are
 independent peers, not instrumented targets of the requestor memory check.
+
+## QueryImageResponse scenarios (CSA20)
+
+For actual response-field verification, build the same official provider with
+these additional GN arguments: `matter_enable_tracing_support=true` and
+`matter_log_json_payload_hex=true`. To avoid a scope-tracing backend, set
+`matter_trace_config` to the SDK's absolute `src/tracing/none` path. The SDK
+source remains unchanged. These flags affect the external provider only.
+
+Add `--require-trace` to `--mode update` to verify UpdateAvailable on the wire
+and the provider's receipt of the final BDX block ACK. The following modes
+require JSON trace automatically:
+
+| Mode | Response and expected requestor behavior |
+|---|---|
+| `busy-60` | Busy / 60 seconds; no retry before 120 seconds, then complete update |
+| `busy-180` | Busy / 180 seconds; respect the delay from the response, then complete update |
+| `not-available` | NotAvailable; no query or download over a real 120-second observation |
+| `same-version` | UpdateAvailable / version 1; reject before BDX |
+| `older-version` | UpdateAvailable / version 0; reject before BDX |
+| `invalid-uri` | UpdateAvailable / missing BDX file path; reject before BDX |
+
+The pinned official provider emits DelayedActionTime only for Busy: its CLI
+`--delayedQueryActionTimeSec 60` is ignored for NotAvailable. That optional field
+is therefore omitted in the observed NotAvailable response; the 120-second
+minimum still applies. This scenario does not test a supplied NotAvailable delay.
+
+Each invocation uses a new output directory. Run the modes sequentially because
+they use the same laboratory ports and discriminators. Same/older/invalid URI
+checks wait for the requestor's completed Idle decision, challenge the query
+floor with another announcement, observe three seconds without download, and
+read version 1 / boot reason PowerOn over fresh CASE. This is a bounded rejection
+check, not evidence about every future retry. Busy modes verify both query
+timestamps and the response-delay interval. The requestor retains a conservative
+120-second floor from completion of the preceding QueryImage Invoke. This keeps
+a repeated announcement from bypassing the time spent establishing CASE before
+the original request reached the provider. The 60-second mode allows a valid
+retry at 120 seconds; it does not reject it for arriving shortly after that bound.
+
+The independent Python reader reconstructs the official `json:log` trace from
+its Automation log chunks and checks the actual IM response path
+0 / 0x0029 / QueryImageResponse and its Status, DelayedActionTime, version and
+URI. CLI arguments alone are insufficient, particularly for testing an older
+image that a provider might otherwise filter out. The provider log includes
+plaintext laboratory protocol data and belongs only in ignored output directories.
+This log backend avoids the pinned SDK's file-trace opening failure; no SDK
+source patch is required.
+The original CSA19 `update` and `busy-update` modes still accept a provider built
+without tracing unless `--require-trace` is explicitly supplied.
 
 ## Relationship to Test Harness
 

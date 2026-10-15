@@ -160,6 +160,9 @@ The optional [OTA host laboratory](doc/ota-host.md) uses an unmodified CHIP
 provider to exercise QueryImage, Busy timing, BDX, a signed simulation image,
 restart and NotifyUpdateApplied. Its memory-tool modes cover both boots.
 The fixture does not install executable firmware or certify a bootloader.
+The [CSA20 report](doc/oss/csa20-validation.md) records QueryImageResponse
+manual acceptance and the timing fix that keeps repeated announcements from
+bypassing the OTA query floor during asynchronous CASE setup.
 
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or

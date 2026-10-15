@@ -213,8 +213,16 @@ also passes under Memcheck and separately ASan/UBSan/LSan. C sources remain at
 the accepted CSA18 revision. No executable firmware or physical bootloader was
 updated. See [evidence and limits](oss/csa19-validation.md) and
 [fixture contract](ota-host.md).
-**Next task: CSA20 — TC-SU-2.2, applicable QueryImageResponse scenarios,
-including Busy/NotAvailable timing and invalid URI or non-newer version rejection.**
+CSA20 fixes the stored OTA query floor after asynchronous CASE setup: repeated
+announcements can no longer cause a query less than 120 seconds after the
+previous one. The new regression fails with the old implementation. Unchanged
+TC-SU-2.2 completes its manual steps and evidence upload in run443, with optional
+HTTPS N/A. All seven wire scenarios pass under Memcheck, and a separate complete
+update/restart passes with ASan/UBSan/LSan; each build passes 11 focused native
+tests. Counts become 97 PASS, 14 FAIL, 13 BLOCKED, 34 MANUAL, 704 NA;
+manual PASS stays separate from automatic coverage. See
+[evidence and limits](oss/csa20-validation.md) and [result delta](oss/csa20-results.json).
+**Next task: CSA21 — TC-SU-2.3, applicable OTA image-transfer procedures and failure paths.**
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

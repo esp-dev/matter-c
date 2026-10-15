@@ -73,6 +73,15 @@ not part of native CTest. Official TC-SU-2.1 is a manual TH procedure; its
 prompt decisions and attached evidence are recorded separately in
 [CSA19](csa19-validation.md) and the [fixture contract](../ota-host.md).
 
+CSA20 extends the same runner with actual QueryImageResponse trace validation,
+Busy 60/180-second and NotAvailable timing, both same/older version offers and
+invalid BDX URI rejection. The optional provider JSON trace is independently
+parsed by Python; neither provider CLI flags nor a successful announcement alone
+establish the response under test. No new CTest definition or source is added.
+The existing `test_ota_query` and allocation variant add an asynchronous-setup /
+repeated-announcement regression that fails with the previous stored query floor.
+See [CSA20](csa20-validation.md) for the manual TH result and coverage limits.
+
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts
 and prerequisites are retained in tools/matter/tests and fixtures. See each

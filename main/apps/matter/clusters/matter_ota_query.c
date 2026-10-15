@@ -125,7 +125,10 @@ static void finish(Matter_Ota_Query_T q,bool ok,uint8_t im) {
     /* A bounded single-provider policy may forget an old selection. Carry its
      * provider delay into the conservative global floor, so switching away and
      * back (or a repeated announcement) cannot bypass that delay. */
-    q->floor=maximum(q->floor,q->provider_floor);
+    /* start() may spend time establishing CASE before QueryImage is sent.
+     * Its completion is a conservative anchor for the 120s query floor; keep
+     * it across announcements, not only in the current retry's due time. */
+    q->floor=maximum(q->floor,maximum(after(q->now,120000),q->provider_floor));
     if(ok && !q->image.status && q->image.version>q->config.version && uri(q)) {
         q->image_pending=true; q->due=q->provider_floor; q->state=3; q->reason=4; q->failures=0; return;
     }

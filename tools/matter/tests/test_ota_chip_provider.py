@@ -5,6 +5,8 @@ announcement/query and a complete signed host-simulation update/restart.
 update exercises the same download/apply/restart path without that timing
 procedure, suitable for separate Memcheck and ASan/UBSan/LSan runs.
 Neither mode installs executable firmware or is an automatic CSA test.
+CSA20 modes cover TC-SU-2.2 response scenarios using a provider built with
+matter_enable_tracing_support=true and matter_log_json_payload_hex=true.
 Requires Python cryptography, chip-tool and trusted development PAAs.
 """
 import argparse
@@ -22,16 +24,16 @@ from chip_tool_resources import ANSI, Client
 from chip_tool_energy_profile import frames, integer
 
 
-def image_fixture(directory):
+def image_fixture(directory, version=2):
     """Independent OpenSSL-backed signature; no private key is written to disk."""
     body = bytes((i * 17 + 3) % 256 for i in range(16387))
     key = ec.generate_private_key(ec.SECP256R1())
-    manifest = b'WWOTA001' + struct.pack('<HHIQ', 0xfff1, 0x8001, 2, len(body)) + hashlib.sha256(body).digest()
+    manifest = b'WWOTA001' + struct.pack('<HHIQ', 0xfff1, 0x8001, version, len(body)) + hashlib.sha256(body).digest()
     r, s = utils.decode_dss_signature(key.sign(manifest, ec.ECDSA(hashes.SHA256())))
     payload = manifest + r.to_bytes(32, 'big') + s.to_bytes(32, 'big') + body
     public = key.public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
     del key
-    header = (b'\x15\x25\x00\xf1\xff\x25\x01\x01\x80\x24\x02\x02\x2c\x03\x02v2'
+    header = (b'\x15\x25\x00\xf1\xff\x25\x01\x01\x80\x24\x02' + bytes([version]) + b'\x2c\x03\x02v' + str(version).encode()
               + b'\x26\x04' + struct.pack('<I', len(payload))
               + b'\x24\x08\x01\x30\x09\x20' + hashlib.sha256(payload).digest() + b'\x18')
     image = struct.pack('<IQI', 0x1beef11e, 16 + len(header) + len(payload), len(header)) + header + payload
@@ -39,8 +41,97 @@ def image_fixture(directory):
         with (directory / name).open('xb') as output:
             output.write(data)
     return {'format': 'Matter OTA header and WWOTA001 signed host simulation',
-            'version': 2, 'image_bytes': len(image), 'image_sha256': hashlib.sha256(image).hexdigest(),
+            'version': version, 'image_bytes': len(image), 'image_sha256': hashlib.sha256(image).hexdigest(),
             'public_key_sha256': hashlib.sha256(public).hexdigest()}
+
+
+def tlv_document(data):
+    """Independent, bounded reader for anonymous/context-tagged IM trace fields."""
+    offset = 0
+
+    def take(size):
+        nonlocal offset
+        if offset + size > len(data):
+            raise ValueError('truncated trace TLV')
+        value = data[offset:offset + size]; offset += size; return value
+
+    def element(depth=0):
+        if depth > 16:
+            raise ValueError('trace TLV nesting limit')
+        control = take(1)[0]; kind = control & 31; tagging = control >> 5
+        if tagging > 1:
+            raise ValueError('unexpected trace TLV tag')
+        tag = take(1)[0] if tagging else None
+        if kind == 24:
+            return tag, None, True
+        if kind <= 7:
+            value = int.from_bytes(take(1 << (kind & 3)), 'little', signed=kind < 4)
+        elif kind in (8, 9):
+            value = kind == 9
+        elif 12 <= kind <= 19:
+            size = int.from_bytes(take(1 << (kind & 3)), 'little')
+            value = take(size)
+            if kind <= 15:
+                value = value.decode('utf-8')
+        elif kind == 20:
+            value = None
+        elif kind in (21, 22, 23):
+            value = []
+            while True:
+                child_tag, child, end = element(depth + 1)
+                if end:
+                    break
+                value.append((child_tag, child))
+        else:
+            raise ValueError('unsupported trace TLV type')
+        return tag, value, False
+
+    tag, value, end = element()
+    if tag is not None or end or offset != len(data):
+        raise ValueError('invalid trace TLV document')
+    return dict(value)
+
+
+def query_messages(path, requests=False):
+    """Read QueryImage/Response from CHIP's JSON log records; omit tokens."""
+    if not path.exists():
+        return []
+    decoder = json.JSONDecoder(); result = []; pending = ''; stamp = 0
+    # json:log avoids an upstream OpenFile/create_directories failure. CHIP
+    # splits long JSON lines into 256-byte ATM chunks: concatenate exactly.
+    for line in ANSI.sub('', path.read_text(errors='replace')).splitlines():
+        match = re.match(r'^\[(\d+\.\d+)\].*?\[ATM\] (.*)$', line)
+        if not match:
+            continue
+        chunk = match[2]
+        if not pending:
+            if not chunk.lstrip().startswith('{'):
+                continue
+            stamp = round(float(match[1]) * 1000)
+        pending += chunk
+        try:
+            record, end = decoder.raw_decode(pending.lstrip())
+        except json.JSONDecodeError:
+            continue
+        assert not pending.lstrip()[end:].strip(), 'extra trace record data'
+        pending = ''
+        record['time_ms'] = stamp  # SDK log prefix; no time_ms in json:log mode.
+        header = record.get('payloadHeader', {})
+        if record.get('event') != ('MessageReceived' if requests else 'MessageSend') or header.get('protocolId') != 1 or header.get('messageType') != (8 if requests else 9):
+            continue
+        document = tlv_document(bytes.fromhex(record['payload']['hex']))
+        for _, response in document.get(2 if requests else 1, []):
+            command = response if requests else dict(response).get(0)
+            if command is None:
+                continue
+            command = dict(command); command_path = dict(command[0])
+            if command_path != {0: 0, 1: 0x29, 2: 0 if requests else 1}:
+                continue
+            fields = dict(command[1])
+            result.append({'time_ms': record['time_ms'], 'version': fields[2]} if requests else
+                          {'time_ms': record['time_ms'], 'status': fields[0],
+                           'delay': fields.get(1, 0), 'uri': fields.get(2), 'version': fields.get(3)})
+    return result
 
 
 def main():
@@ -48,14 +139,22 @@ def main():
     for name in ('exe', 'provider', 'chip-tool', 'paa', 'credentials', 'output'):
         p.add_argument('--' + name, required=True)
     p.add_argument('--interface', type=int, required=True)
-    p.add_argument('--mode', choices=('busy-update', 'update'), default='busy-update')
+    p.add_argument('--mode', choices=('busy-update', 'update', 'busy-60', 'busy-180',
+                   'not-available', 'same-version', 'older-version', 'invalid-uri'), default='busy-update')
     p.add_argument('--valgrind', action='store_true')
+    p.add_argument('--require-trace', action='store_true', help='Require and verify actual QueryImageResponse fields, also in update mode.')
     a = p.parse_args()
+    negative = a.mode in ('not-available', 'same-version', 'older-version', 'invalid-uri')
+    busy_mode = a.mode in ('busy-update', 'busy-60', 'busy-180')
+    delay = {'busy-60': 60, 'busy-180': 180, 'not-available': 60}.get(a.mode, 150 if a.mode == 'busy-update' else 0)
+    image_version = {'same-version': 1, 'older-version': 0}.get(a.mode, 2)
+    need_trace = a.require_trace or a.mode not in ('busy-update', 'update')
     out = Path(a.output).resolve(); out.mkdir(parents=True, exist_ok=False)
     env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
     report = {'scope': 'CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification',
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-              'mode': a.mode, 'valgrind': a.valgrind, 'checks': [], 'fixture': image_fixture(out),
+              'mode': a.mode, 'valgrind': a.valgrind, 'trace_required': need_trace,
+              'checks': [], 'fixture': image_fixture(out, image_version),
               'binaries': {n: hashlib.sha256(Path(v).read_bytes()).hexdigest() for n, v in
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
     provider = node = client = reader = None
@@ -79,6 +178,17 @@ def main():
 
     def query_count():
         return provider_text().count('OTA Provider received QueryImage')
+
+    def responses():
+        return query_messages(out / 'provider.log')
+
+    def observe(seconds):
+        deadline = observed + seconds
+        while time.monotonic() < deadline:
+            assert query_count() == 1, 'provider queried before required delay'
+            assert node.poll() is None and provider.poll() is None, 'OTA process exited during observation'
+            assert 'OTA_DOWNLOAD' not in node_text(), 'unexpected download during rejection/wait'
+            time.sleep(.1)
 
     def wait(test, timeout=60, allow_node_exit=False):
         deadline = time.monotonic() + timeout
@@ -123,8 +233,12 @@ def main():
     try:
         provider = subprocess.Popen([a.provider, '--secured-device-port', '5561', '--discriminator', '3991',
                     '--passcode', '20202021', '--KVS', str(out / 'provider.kvs'),
-                    '--filepath', str(out / 'source.ota'), '--queryImageStatus', 'busy' if a.mode == 'busy-update' else 'updateAvailable',
-                    '--delayedQueryActionTimeSec', '150'], stdout=log('provider.log'), stderr=subprocess.STDOUT, env=env)
+                    '--filepath', str(out / 'source.ota'), '--queryImageStatus', 'busy' if busy_mode else
+                    'updateNotAvailable' if a.mode == 'not-available' else 'updateAvailable',
+                    '--delayedQueryActionTimeSec', str(delay),
+                    *(['--imageUri', 'bdx://0000000000000001'] if a.mode == 'invalid-uri' else []),
+                    *(['--trace-to', 'json:log'] if need_trace else [])],
+                    stdout=log('provider.log'), stderr=subprocess.STDOUT, env=env)
         wait(lambda: 'SetupQRCode' in provider_text() or 'SetupManualCode' in provider_text())
         start_node()
         client = Client(Path(a.chip_tool).resolve(), Path(a.paa).resolve(), out, 'controller')
@@ -157,17 +271,28 @@ def main():
         has_bdx = 0 in protocol_ids
         consent = re.search(r'RequestorCanConsent:\s*(\d+)', first)
         report['query_fields'] = query_fields
-        report['location'] = 'omitted (optional under Core 11.20.6.6.1)' if not re.search(r'\bLocation:', first) else 'present'
+        report['location'] = 'omitted (optional under Core 11.20.6.5.1)' if not re.search(r'\bLocation:', first) else 'present'
         check('query-image-fields', query_fields == identity and has_bdx and consent is not None and consent[1] == '0',
               {'identity': query_fields, 'bdx_synchronous': has_bdx, 'consent': consent[1] if consent else None})
-        if a.mode == 'busy-update':
+        # TC-SU-2.2 must observe the actual response, not infer it from CLI flags.
+        if need_trace:
+            wait(lambda: len(responses()) >= 1)
+            first_response = responses()[0]; report['first_response'] = first_response
+            check('query-response-fields', first_response['status'] == (1 if busy_mode else 2 if a.mode == 'not-available' else 0)
+                  # The official provider emits DelayedActionTime only for Busy;
+                  # omission for NotAvailable/UpdateAvailable is conformant.
+                  and first_response['delay'] == (delay if busy_mode else 0) and (first_response['status'] != 0 or
+                  first_response['version'] == image_version), first_response)
+            if first_response['status'] == 0 and a.mode != 'invalid-uri':
+                check('response-has-usable-bdx-location', isinstance(first_response['uri'], str)
+                      and first_response['uri'].startswith('bdx://0000000000000002/')
+                      and len(first_response['uri']) >= 24)
+        if busy_mode:
             wait(lambda: 'OTA_STATE state=3 reason=4' in node_text())
             announce()  # A repeated announcement must not bypass Busy's floor.
-            while time.monotonic() - observed < 120.2:
-                assert query_count() == 1, 'Busy retried within 120 seconds'
-                assert node.poll() is None and provider.poll() is None, 'OTA process exited during Busy observation'
-                time.sleep(.1)
-            check('busy-single-query-for-120s', query_count() == 1, {'observed_seconds': time.monotonic() - observed})
+            observe(119.8 if delay == 60 else 120.2 if delay < 180 else 179.8)
+            check('busy-single-query-for-120s' if a.mode == 'busy-update' else 'busy-observation-no-early-query',
+                  query_count() == 1, {'observed_seconds': time.monotonic() - observed})
             report['next_announcement_monotonic'] = time.monotonic()
             announce()
             wait(lambda: query_count() >= 2, 75, allow_node_exit=True)
@@ -175,23 +300,48 @@ def main():
                   {'seconds_from_first_observed': time.monotonic() - observed})
             report['provider_query_times'] = [float(x) for x in re.findall(
                 r'^\[(\d+\.\d+)\].*OTA Provider received QueryImage', provider_text(), re.M)]
-        wait(lambda: 'OTA_SIM_REBOOT' in node_text(), 120, allow_node_exit=True)
-        check('signed-download-and-reboot', node.wait(timeout=30) == 0 and 'authenticated=1 installed=1' in node_text())
-        check('download-matches-image', hashlib.sha256((out / 'download.ota').read_bytes()).hexdigest() == report['fixture']['image_sha256'])
-        start_node()
-        wait(lambda: 'OTA_NOTIFY_DONE' in node_text(), 90)
-        check('notify-update-applied', 'OTA_NOTIFY_DONE success=1' in node_text())
+            if need_trace:
+                wait(lambda: len(responses()) >= 2)
+                response = responses()[1]; report['second_response'] = response
+                requests = query_messages(out / 'provider.log', requests=True)
+                assert len(requests) == 2, requests
+                query_interval = requests[1]['time_ms'] - requests[0]['time_ms']
+                delay_interval = requests[1]['time_ms'] - first_response['time_ms']
+                check('busy-delay-respected', query_interval >= 120000 and delay_interval >= delay * 1000,
+                      {'query_interval_ms': query_interval, 'response_to_next_query_ms': delay_interval})
+                check('busy-retry-update-available', response['status'] == 0 and response['version'] == 2, response)
+        if negative:
+            wait(lambda: 'OTA_STATE state=1 reason=1' in node_text())
+            if a.mode != 'not-available':
+                announce()  # Also challenge the shared query floor after rejection.
+            observe(120.2 if a.mode == 'not-available' else 3)
+            check('rejected-without-bdx-or-install', query_count() == 1 and not (out / 'download.ota').exists()
+                  and 'Type 0002:01 (BDX:ReceiveInit)' not in provider_text()
+                  and 'OTA_AUTH' not in node_text() and 'OTA_SIM_REBOOT' not in node_text(),
+                  {'observed_seconds': time.monotonic() - observed})
+            if a.mode == 'invalid-uri':
+                check('invalid-uri-was-sent', first_response['uri'] == 'bdx://0000000000000001')
+        else:
+            wait(lambda: 'OTA_SIM_REBOOT' in node_text(), 120, allow_node_exit=True)
+            check('signed-download-and-reboot', node.wait(timeout=30) == 0 and 'authenticated=1 installed=1' in node_text())
+            check('download-matches-image', hashlib.sha256((out / 'download.ota').read_bytes()).hexdigest() == report['fixture']['image_sha256'])
+            check('provider-received-final-block-ack', 'Transfer completed, got AckEOF' in provider_text())
+            start_node()
+            wait(lambda: 'OTA_NOTIFY_DONE' in node_text(), 90)
+            check('notify-update-applied', 'OTA_NOTIFY_DONE success=1' in node_text()
+                  and 'OTA Provider received NotifyUpdateApplied' in provider_text())
         reader = Client(Path(a.chip_tool).resolve(), Path(a.paa).resolve(), out, 'fresh-reader', client.storage, advertise=False)
         restored = basic(reader)
         boot = command(reader, ['generaldiagnostics', 'read', 'boot-reason', 1, 0])
-        check('fresh-case-after-restart', restored['SoftwareVersion'] == 2 and bool(re.search(r'BootReason: 5\b', boot)), restored)
+        check('fresh-case-version-and-boot' if negative else 'fresh-case-after-restart', restored['SoftwareVersion'] == (1 if negative else 2)
+              and bool(re.search(r'BootReason: ' + ('1' if negative else '5') + r'\b', boot)), restored)
         node.terminate(); check('clean-requestor-stop', node.wait(timeout=30) == 0)
         for i in range(1, phase + 1):
             assert not (out / f'node-{i}.err').read_text()
             if a.valgrind:
                 text = (out / f'valgrind-{i}.log').read_text()
                 assert 'ERROR SUMMARY: 0 errors' in text and 'in use at exit: 0 bytes in 0 blocks' in text
-        check('memory-diagnostics-clean', True, 'both boots; Memcheck' if a.valgrind else 'both boot stderr logs empty')
+        check('memory-diagnostics-clean', True, f'boots={phase}; ' + ('Memcheck' if a.valgrind else 'stderr logs empty'))
         report['result'] = 'PASS'; report['restarts'] = phase - 1
         return 0
     except (AssertionError, OSError, ValueError, subprocess.SubprocessError) as error:

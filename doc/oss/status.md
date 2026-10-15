@@ -1,5 +1,22 @@
 # Development status
 
+CSA20 fixes an early OTA retry after repeated AnnounceOTAProvider: the
+conservative 120-second floor now survives asynchronous CASE setup and starts
+from Invoke completion. The old binary reproduces 119.862/119.858-second
+intervals; the new native regression fails with the old code and passes with
+the fix. **TC-SU-2.2 passes as a manual TH procedure in run443**: six evaluated
+steps, optional HTTPS N/A and evidence upload. Actual provider responses cover
+UpdateAvailable, Busy/60, NotAvailable, Busy/180, both same/older versions and
+an invalid BDX URI. Busy limits pass at 120.239 s between queries and 180.247 s
+from the response respectively. All seven scenarios pass under Memcheck:
+10 C requestor boots, 315,962 allocations/frees, zero errors/leaks. Separate
+ASan/UBSan/LSan update/restart and 11 focused CTests per build pass.
+Latest matrix: **97 PASS, 14 FAIL, 13 BLOCKED, 34 MANUAL, 704 NA**;
+the changed row stays MANUAL with recorded PASS, not automatic CSA coverage.
+See [CSA20 evidence](csa20-validation.md), [result delta](csa20-results.json)
+and [fixture contract](../ota-host.md). Other official rows are inherited.
+**Next: CSA21 — TC-SU-2.3, applicable OTA image-transfer procedures and failure paths.**
+
 CSA19 prepares the official CHIP OTA provider, a signed simulation image and
 restart orchestration. **TC-SU-2.1 passes as a manual TH procedure in run442**:
 three evidence-based prompt decisions and the attached log, not automatic CSA
@@ -12,8 +29,6 @@ under Memcheck (55,065 allocations/frees, zero errors/leaks) and separately unde
 ASan/UBSan/LSan. C/H sources and binaries are unchanged from CSA18. This is not
 executable firmware installation or certification. See [CSA19 evidence](csa19-validation.md),
 [result delta](csa19-results.json) and [fixture contract](../ota-host.md).
-**Next: CSA20 — TC-SU-2.2, applicable QueryImageResponse scenarios, including
-Busy/NotAvailable timing and invalid URI or non-newer version rejection.**
 Manual Home removal/re-add remains pending; user fabrics are not lab fixtures.
 
 The entries below retain preceding campaigns; the newest entry supersedes
