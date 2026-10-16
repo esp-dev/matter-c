@@ -1,5 +1,21 @@
 # Development status
 
+**CSA23: TC-SU-2.5 manual PASS, run446**, five verification steps and evidence
+upload. The previous binary returns Idle after Discontinue but retains the
+verified download; an optional application discard callback now removes the
+host candidate. Failed removal revokes candidacy and logs failure. The existing
+Apply action/timer policy is unchanged. Peer traces and monotonic logs confirm
+Proceed/180 at 180.001 s, Await/60 at 120.208 s
+and Await/180 at 180.267 s, with exact token/version and request-count checks.
+Five full scenarios pass under Memcheck: nine host boots, 260,130 matched
+allocations/frees, zero errors/leaks. Separate Await/retry/update/restart and
+Discontinue ASan/UBSan/LSan scenarios pass; each build passes eight focused
+CTests. Counts: **97 PASS, 14 FAIL, 10 BLOCKED, 37 MANUAL, 704 NA**; this is manual
+acceptance, not automatic CSA coverage or certification. Other rows are inherited.
+Consumers must rebuild for the appended optional OTA port callback. See
+[CSA23 evidence and limits](csa23-validation.md) and [delta](csa23-results.json).
+**Next: CSA24 — automatic TC_SU_2_5, provider IPC, subscriptions and interruption.**
+
 **CSA22: TC-SU-2.4 manual PASS, run445**, with its required verification step
 and evidence upload. Peer JSON traces prove ApplyUpdateRequest uses the latest
 QueryImageResponse token and the authenticated image version, for separate

@@ -365,6 +365,11 @@ static Matter_Result_T query_start(void* u,const Matter_Ota_Provider_T* p,const 
 static Matter_Result_T query_take(void* u,uint64_t id,uint8_t* status,const uint8_t** d,size_t* n) {
     return matter_dispatch_invoke_take(((Matter_Runtime_T)u)->dispatch,id,status,d,n);
 }
+static Matter_Result_T apply_take(void* u,uint64_t id,uint8_t* status,const uint8_t** d,size_t* n) {
+    Matter_Runtime_T s=u; Matter_Result_T r=query_take(u,id,status,d,n);
+    if(r==MATTER_OK) runtime_log(s,"OTA_APPLY_RESPONSE now_ms=%llu\n",(unsigned long long)s->now);
+    return r;
+}
 static void query_cancel(void* u,uint64_t id) { matter_dispatch_invoke_cancel(((Matter_Runtime_T)u)->dispatch,id); }
 static Matter_Result_T query_state(void* u,uint8_t state,uint8_t reason,uint64_t now) {
     Matter_Runtime_T s=u; Matter_Result_T r=matter_ota_requestor_state(s->ota,s->update!=NULL,state,-1,reason,0,now);
@@ -397,8 +402,8 @@ static Matter_Result_T apply_ready(void* u,const Matter_Ota_Apply_Context_T* c) 
         if(r==MATTER_OK && !ota_fingerprint(s,c->provider.fabric,fingerprint)) r=MATTER_INVALID_STATE;
         if(r==MATTER_OK) r=matter_ota_update_accept(s->update,c,fingerprint,&s->proof);
         if(r==MATTER_OK) s->ota_reboot=true;
-        runtime_log(s,"OTA_APPLY_GATE provider=1 integrity=%u authenticated=%u installed=%u version=%lu simulation=1\n",
-            integrity?1u:0u,authenticated?1u:0u,r==MATTER_OK?1u:0u,(unsigned long)c->version);
+        runtime_log(s,"OTA_APPLY_GATE provider=1 integrity=%u authenticated=%u installed=%u version=%lu simulation=1 now_ms=%llu\n",
+            integrity?1u:0u,authenticated?1u:0u,r==MATTER_OK?1u:0u,(unsigned long)c->version,(unsigned long long)s->now);
          return r;
     }
     Matter_Result_T r=s->ota_port.check(s->ota_port.user,c->artifact);
@@ -408,7 +413,12 @@ static Matter_Result_T apply_ready(void* u,const Matter_Ota_Apply_Context_T* c) 
      return MATTER_INVALID_STATE;
 }
 static void apply_done(void* u,const Matter_Ota_Apply_Context_T* c,Matter_Ota_Apply_Result_T result) {
-    Matter_Runtime_T s=u; s->ota_port.invalidate(s->ota_port.user);
+    Matter_Runtime_T s=u;
+    if(result==MATTER_OTA_APPLY_DISCONTINUED && s->ota_port.discard) {
+        Matter_Result_T r=s->ota_port.discard(s->ota_port.user,c->artifact);
+        runtime_log(s,"OTA_DISCARD result=%d\n",r);
+    }
+    s->ota_port.invalidate(s->ota_port.user);
     runtime_log(s,"OTA_APPLY_DONE result=%u\n",(unsigned)result);
     /* Error recovery returns to QueryImage, preserving its global rate floor.
      * Rejected unsigned host fixtures/discontinued images use normal polling. */
@@ -538,7 +548,7 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Ud
         .hardware=s->identity.hardware_version,.version=s->identity.software_version,.protocols={0},.protocol_count=s->has_ota?1:0};
     Matter_Ota_Query_Port_T qp={s,ota_generation,query_random,query_start,query_take,query_cancel,query_state,query_available};
     s->query=matter_ota_query_new(&qc,&qp,s->now);
-    Matter_Ota_Apply_Port_T ap={s,ota_generation,apply_start,query_take,query_cancel,apply_state,apply_ready,apply_done};
+    Matter_Ota_Apply_Port_T ap={s,ota_generation,apply_start,apply_take,query_cancel,apply_state,apply_ready,apply_done};
     if(s->has_ota) s->apply=matter_ota_apply_new(&ap,s->now);
     if(!s->query || (s->has_ota && !s->apply) || matter_root_add_client(s->root,0,0x29)!=MATTER_OK) return MATTER_PORT_ERROR;
     /* Device Library 2.3: the exposed Requestor server and Provider client

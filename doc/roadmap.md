@@ -239,7 +239,14 @@ rejected before Apply/Notify. Counts become 97 PASS, 14 FAIL, 11 BLOCKED,
 36 MANUAL, 704 NA. This step also removes inline Read/Subscribe RX/TX buffers:
 allocations follow actual RX/configured TX sizes, within the UDP wire budget.
 See [results and limits](oss/csa22-validation.md).
-**Next task: CSA23 — TC-SU-2.5, ApplyUpdateResponse actions and real delay/retry timing.**
+CSA23 completes unchanged TC-SU-2.5 in manual TH run446: Proceed/0 and /180,
+Await/60 with the 120-second floor, Await/180 followed by Proceed, and Discontinue.
+An optional application callback now disposes of the discontinued host candidate;
+the preceding binary retains it. All five real-time scenarios pass under Memcheck,
+with separate sanitizer acceptance of retry/restart and disposal. The existing
+Apply delay policy remains unchanged. Counts become 97 PASS, 14 FAIL,
+10 BLOCKED, 37 MANUAL, 704 NA. See [evidence and limits](oss/csa23-validation.md).
+**Next task: CSA24 — automatic TC_SU_2_5, provider IPC, subscriptions and interruption.**
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

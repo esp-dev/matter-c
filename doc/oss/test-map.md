@@ -1,11 +1,11 @@
 # Test inventory
 
-test-map.json enumerates 230 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 231 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
-CMake defines 85 native test variants, with explicit platform/privilege filters.
-Default CTest totals: 86 on Windows, 83 on Linux, including inventory, crash
+CMake defines 86 native test variants, with explicit platform/privilege filters.
+Default CTest totals: 87 on Windows, 84 on Linux, including inventory, crash
 recovery and a relocated installed-package consumer with two runtimes.
 `test_node_discovery` drives the real host advertisement composition through
 deferred removal and rapid window reopening with a deterministic backend.
@@ -119,3 +119,12 @@ the immutable command copy. The existing CHIP provider runner adds peer-trace
 Apply/Notify token/version correlation, independent versions 2 and 3, and an
 offered/signed-version mismatch rejection scenario. These remain external
 scenarios, not new CTest definitions. See [CSA22](csa22-validation.md).
+
+CSA23 adds five `apply-*` modes to that external runner: real Proceed/0,
+Proceed/180, Await/60 (120-second floor), Await/180 followed by Proceed, and
+Discontinue. Decoded peer responses, exact request counts, token/version binding,
+monotonic timing, retained version during delay and physical candidate disposal
+are checked. `test_bdx` and its allocation variant cover scoped file discard,
+stale/restarted ownership, removal failure and candidacy revocation. The eight
+focused BDX/Apply/update/runtime CTests and their allocation variants remain
+existing definitions. See [CSA23](csa23-validation.md) for actual runs and limits.

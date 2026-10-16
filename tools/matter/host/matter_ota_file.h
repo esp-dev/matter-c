@@ -23,6 +23,10 @@ Matter_Result_T matter_ota_file_check(Matter_Ota_File_T,uint64_t artifact);
 Matter_Result_T matter_ota_file_signed(Matter_Ota_File_T,uint64_t artifact,Matter_Ota_Signed_T*);
 /* Revoke logical candidacy; keep published file for host inspection. */
 void matter_ota_file_invalidate(Matter_Ota_File_T);
+/* Remove only this instance's live committed candidate. Stale/zero IDs and
+ * restarted instances cannot delete a file. Even an I/O failure revokes the
+ * candidate; unrelated paths and partial transfers are never removed here. */
+Matter_Result_T matter_ota_file_discard(Matter_Ota_File_T,uint64_t artifact);
 void matter_ota_file_cancel(Matter_Ota_File_T);
 void matter_ota_file_delete(Matter_Ota_File_T);
 #define MATTER_OTA_FILE_LIMIT UINT64_C(67108864)

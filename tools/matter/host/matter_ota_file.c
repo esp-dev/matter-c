@@ -110,6 +110,11 @@ Matter_Result_T matter_ota_file_commit(Matter_Ota_File_T f) {
 }
 uint64_t matter_ota_file_artifact(Matter_Ota_File_T f) { return f && f->valid?f->serial:0; }
 void matter_ota_file_invalidate(Matter_Ota_File_T f) { if(f) f->valid=false; }
+Matter_Result_T matter_ota_file_discard(Matter_Ota_File_T f,uint64_t artifact) {
+    if(!f || !artifact || !f->valid || artifact!=f->serial || f->owned || f->file) return MATTER_INVALID_STATE;
+    f->valid=false;
+    return remove(f->path)?MATTER_PORT_ERROR:MATTER_OK;
+}
 Matter_Result_T matter_ota_file_check(Matter_Ota_File_T f,uint64_t artifact) {
     if(!f || !artifact || !f->valid || artifact!=f->serial || f->owned || f->file) return MATTER_INVALID_STATE;
     uint8_t* buffer=malloc(1024); if(!buffer) return MATTER_LIMIT_REACHED;

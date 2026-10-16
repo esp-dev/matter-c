@@ -154,6 +154,35 @@ Run these with the normal host under Memcheck and separately with sanitizer
 binaries. These extend the fixture; they do not add production image formats or
 change OTA authorization. See [CSA22](oss/csa22-validation.md).
 
+For TC-SU-2.5, use fresh output/state directories with each of
+`--mode apply-proceed-0`, `apply-proceed-180`, `apply-await-60`,
+`apply-await-180` and `apply-discontinue`. These enable JSON peer traces and
+the provider's unchanged `--applyUpdateAction` / `--delayedApplyActionTimeSec`
+options. That provider returns the chosen action/delay on the first Apply only;
+later replies are Proceed/0. No clock is accelerated. Proceed/180 waits 180 real
+seconds; Await/60 waits at least 120, and Await/180 at least 180 before retry.
+During delayed application, Basic Information must still report version 1.
+The runner compares response-receipt and installation-gate monotonic ticks for
+Proceed, and the independent provider's response-send/retry-receive timestamps
+for Await. Both paths require the latest token/version, one Query/BDX and no
+extra Apply after Proceed, including after the simulated restart/Notify.
+
+Discontinue uses a nonzero 180-second delay to check that it is ignored. The
+candidate must be disposed before the independent Idle read, without install or
+Notify during a further 15-second observation; version 1 remains installed.
+The host's discard callback rejects zero/stale IDs and IDs from a restarted
+instance. Removal errors revoke the logical candidate and are reported; no
+silent cleanup success is claimed. Cancellation/ordinary invalidation keep
+their existing separate semantics. The file path is application-owned and must
+not be shared or replaced by other writers during artifact use.
+
+Run the five scenarios under Memcheck, then a separate sanitizer build for the
+full Await/retry/update/restart path and Discontinue cleanup. The native Apply
+tests separately cover malformed responses, timeout/cancel/drain, the 24-hour
+delay cap, clock overflow, publication failure and generation changes. These
+are laboratory regressions; the five official verification prompts and evidence
+upload remain manual TH acceptance. See [CSA23](oss/csa23-validation.md).
+
 The installed case is **TC-SU-2.1**, SDK YAML Tests / FirstManualSuite, not an
 automatic Python `TC_SU_2_1` test. Its three disabled YAML steps become manual
 verification prompts in TH; they are not discarded by its manual runner.

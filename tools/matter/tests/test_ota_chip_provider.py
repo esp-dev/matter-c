@@ -11,6 +11,8 @@ interrupt-retry covers TC-SU-2.3: kill the provider mid-transfer, observe
 at least five real minutes, read Idle, then restart the same provider and
 verify a new ReceiveInit at offset zero and a complete update.
 Requires Python cryptography, chip-tool and trusted development PAAs.
+apply-* modes cover TC-SU-2.5 with real provider delays, never an accelerated
+requestor clock. They verify peer responses, retry counts and image disposal.
 """
 import argparse
 import hashlib
@@ -147,7 +149,7 @@ def query_messages(path, requests=False):
             for m in ota_messages(path, 0 if requests else 1, requests)]
 
 
-def apply_binding(paths, version):
+def apply_binding(paths, version, require_notify=True):
     """Require the latest offered token/version in every actual Apply request."""
     messages = []
     for path in paths:
@@ -168,7 +170,7 @@ def apply_binding(paths, version):
             else:
                 notified += 1
     assert applied, 'No decoded ApplyUpdateRequest in provider trace'
-    assert notified, 'No decoded NotifyUpdateApplied in provider trace'
+    assert bool(notified) == require_notify, 'Unexpected NotifyUpdateApplied presence in provider trace'
     return applied
 
 
@@ -179,13 +181,18 @@ def main():
     p.add_argument('--interface', type=int, required=True)
     p.add_argument('--mode', choices=('busy-update', 'update', 'busy-60', 'busy-180',
                    'not-available', 'same-version', 'older-version', 'invalid-uri',
-                   'interrupt-retry', 'version-mismatch'), default='busy-update')
+                   'interrupt-retry', 'version-mismatch', 'apply-proceed-0',
+                   'apply-proceed-180', 'apply-await-60', 'apply-await-180',
+                   'apply-discontinue'), default='busy-update')
     p.add_argument('--valgrind', action='store_true')
     p.add_argument('--require-trace', action='store_true', help='Require and verify actual QueryImageResponse fields, also in update mode.')
     p.add_argument('--apply-binding', action='store_true', help='Verify UpdateToken/NewVersion from peer Query/Apply/Notify traces.')
     p.add_argument('--image-version', type=int, choices=(2, 3), default=2, help='Positive update fixture version; enables a nonconstant NewVersion control.')
     a = p.parse_args()
-    negative = a.mode in ('not-available', 'same-version', 'older-version', 'invalid-uri', 'version-mismatch')
+    apply_policy = {'apply-proceed-0': (0, 0), 'apply-proceed-180': (0, 180),
+                    'apply-await-60': (1, 60), 'apply-await-180': (1, 180),
+                    'apply-discontinue': (2, 180)}.get(a.mode)
+    negative = a.mode in ('not-available', 'same-version', 'older-version', 'invalid-uri', 'version-mismatch', 'apply-discontinue')
     busy_mode = a.mode in ('busy-update', 'busy-60', 'busy-180')
     delay = {'busy-60': 60, 'busy-180': 180, 'not-available': 60}.get(a.mode, 150 if a.mode == 'busy-update' else 0)
     if a.image_version != 2 and a.mode != 'update':
@@ -230,6 +237,71 @@ def main():
 
     def responses():
         return [message for path in provider_logs() for message in query_messages(path)]
+
+    def apply_messages(command_id, requests=False):
+        return [m for path in provider_logs() for m in ota_messages(path, command_id, requests)]
+
+    def observe_apply():
+        action, delay_seconds = apply_policy
+        wait(lambda: bool(apply_messages(3)), 120, allow_node_exit=action == 0 and delay_seconds == 0)
+        first = apply_messages(3)[0]
+        check('apply-response-action-and-delay', first['fields'] == {0: action, 1: delay_seconds}, first)
+        if action == 2:
+            wait(lambda: 'OTA_APPLY_DONE' in node_text())
+            # Discontinue ignores DelayedActionTime. Do not wait its 180 s.
+            until = time.monotonic() + 15
+            while time.monotonic() < until:
+                assert node.poll() is None and 'OTA_APPLY_GATE' not in node_text()
+                assert not apply_messages(4, True), 'Notify after Discontinue'
+                time.sleep(.05)
+            state = command(client, ['otasoftwareupdaterequestor', 'read', 'update-state', 1, 0], r'UpdateState: 1\b')
+            check('discontinue-idle-clears-image-without-install', 'OTA_AUTH accepted=1' in node_text()
+                  and bool(re.search(r'UpdateState: 1\b', state))
+                  and 'OTA_DISCARD result=0' in node_text()
+                  and not (out / 'download.ota').exists() and not (out / 'download.ota.part').exists()
+                  and 'OTA_SIM_REBOOT' not in node_text())
+        else:
+            required_seconds = max(120, delay_seconds) if action == 1 else delay_seconds
+            observed = time.monotonic(); next_progress = 30
+            if required_seconds:
+                check('old-version-retained-during-delay', basic(client)['SoftwareVersion'] == 1)
+            # A delayed response must not install early or launch a new Query/BDX.
+            # The requestor's monotonic response/gate stamps below provide the
+            # exact Proceed interval; peer stamps independently time Await retries.
+            if not required_seconds:
+                wait(lambda: 'OTA_APPLY_GATE' in node_text(), 90, allow_node_exit=True)
+            while 'OTA_APPLY_GATE' not in node_text():
+                elapsed = time.monotonic() - observed
+                assert elapsed < required_seconds + 90, 'delayed apply timed out'
+                assert node.poll() is None and provider.poll() is None, 'process exited before apply'
+                assert query_count() == 1 and node_text().count('OTA_DOWNLOAD version=') == 1
+                if action == 1 and len(apply_messages(2, True)) == 1:
+                    assert 'OTA_SIM_REBOOT' not in node_text(), 'install without Proceed'
+                if elapsed >= next_progress:
+                    print(f'OBSERVE Apply action={action} delay={delay_seconds}: {elapsed:.1f}s', flush=True)
+                    next_progress += 30
+                time.sleep(.05)
+            if action == 0:
+                received = re.findall(r'OTA_APPLY_RESPONSE now_ms=(\d+)', node_text())
+                gate = re.search(r'OTA_APPLY_GATE .*now_ms=(\d+)', node_text())
+                assert len(received) == 1 and gate, 'missing monotonic apply stamps'
+                interval = int(gate[1]) - int(received[0])
+            else:
+                requests = apply_messages(2, True)
+                assert len(requests) == 2, 'Await must retry exactly once in this fixture'
+                interval = requests[1]['time_ms'] - first['time_ms']
+                received = re.findall(r'OTA_APPLY_RESPONSE now_ms=(\d+)', node_text())
+                gate = re.search(r'OTA_APPLY_GATE .*now_ms=(\d+)', node_text())
+                check('apply-only-after-second-response', len(received) == 2 and gate is not None
+                      and int(gate[1]) >= int(received[1])
+                      and int(gate[1]) - int(received[0]) >= required_seconds * 1000)
+            check('apply-required-real-delay', interval >= required_seconds * 1000,
+                  {'minimum_seconds': required_seconds, 'measured_ms': interval,
+                   'clock': 'requestor monotonic receipt-to-gate' if action == 0 else 'provider response-send-to-retry-receive'})
+        report['apply_responses'] = [dict(time_ms=m['time_ms'], action=m['fields'][0], delay=m['fields'][1]) for m in apply_messages(3)]
+        expected = [(action, delay_seconds)] + ([(0, 0)] if action == 1 else [])
+        check('apply-response-sequence', [(m['action'], m['delay']) for m in report['apply_responses']] == expected)
+        check('single-query-single-download', query_count() == 1 and node_text().count('OTA_DOWNLOAD version=') == 1)
 
     def observe(seconds):
         deadline = observed + seconds
@@ -287,6 +359,8 @@ def main():
                     '--filepath', str(out / 'source.ota'), '--queryImageStatus', 'busy' if busy_mode else
                     'updateNotAvailable' if a.mode == 'not-available' else 'updateAvailable',
                     '--delayedQueryActionTimeSec', str(delay),
+                    *(['--applyUpdateAction', ('proceed', 'awaitNextAction', 'discontinue')[apply_policy[0]],
+                       '--delayedApplyActionTimeSec', str(apply_policy[1])] if apply_policy else []),
                     *(['--pollInterval', '500'] if a.mode == 'interrupt-retry' and provider_phase == 1 else []),
                     *(['--imageUri', 'bdx://0000000000000001'] if a.mode == 'invalid-uri' else []),
                     *(['--trace-to', 'json:log'] if need_trace else [])],
@@ -416,7 +490,12 @@ def main():
                   and control is not None and int(control[1], 16) & 2 == 0,
                   {'start_offset': int(offset[1], 16) if offset else None,
                    'range_control': int(control[1], 16) if control else None})
-        if a.mode == 'version-mismatch':
+        if apply_policy:
+            observe_apply()
+        if a.mode == 'apply-discontinue':
+            report['apply_requests'] = apply_binding(provider_logs(), image_version, require_notify=False)
+            check('discontinue-single-bound-apply-no-notify', len(report['apply_requests']) == 1)
+        elif a.mode == 'version-mismatch':
             wait(lambda: 'OTA_AUTH accepted=0' in node_text() and 'OTA_DOWNLOAD_FAILED' in node_text())
             check('signed-version-mismatch-rejected', True, {'offered_version': image_version, 'signed_version': 2})
             time.sleep(3)
@@ -443,9 +522,11 @@ def main():
             wait(lambda: 'OTA_NOTIFY_DONE' in node_text(), 90)
             check('notify-update-applied', 'OTA_NOTIFY_DONE success=1' in node_text()
                   and 'OTA Provider received NotifyUpdateApplied' in provider_text())
-            if a.apply_binding:
+            if a.apply_binding or apply_policy:
                 report['apply_requests'] = apply_binding(provider_logs(), image_version)
                 check('apply-token-and-version-bound-to-query-and-image', True, report['apply_requests'])
+                if apply_policy:
+                    check('no-extra-apply-after-proceed', len(report['apply_requests']) == (2 if apply_policy[0] == 1 else 1))
         reader = Client(Path(a.chip_tool).resolve(), Path(a.paa).resolve(), out, 'fresh-reader', client.storage, advertise=False)
         restored = basic(reader)
         boot = command(reader, ['generaldiagnostics', 'read', 'boot-reason', 1, 0])

@@ -30,6 +30,11 @@ typedef struct {
     Matter_Result_T (*signed_image)(void*,uint64_t artifact,Matter_Ota_Signed_T*);
     void (*invalidate)(void*);
     void (*cancel)(void*);
+    /* Optional synchronous disposal after Discontinue (Core 11.20.3.6 SHOULD).
+     * Discard ONLY the identified candidate, never installed firmware. Return
+     * failure if cleanup fails; runtime still revokes candidacy and stays Idle.
+     * An omitted callback leaves disposal to the application. */
+    Matter_Result_T (*discard)(void*,uint64_t artifact);
 } Matter_Runtime_Ota_Port_T;
 typedef struct {
     const Matter_Root_Config_T* identity; /* Copied, including caller's UniqueID. */

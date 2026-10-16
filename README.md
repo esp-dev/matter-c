@@ -173,6 +173,14 @@ acceptance: peer-trace UpdateToken/NewVersion binding for image versions 2 and 3
 and rejection of a signed image with the wrong version. Read/Subscribe RX/TX
 buffers now use per-handler allocations and transport-derived UDP budgets.
 
+The [CSA23 report](doc/oss/csa23-validation.md) records manual TC-SU-2.5
+acceptance of Proceed, AwaitNextAction and Discontinue, using real 120/180-second
+intervals and decoded peer responses. Discontinue now disposes of the downloaded
+host candidate through an optional application callback; accepted simulation
+images remain available for inspection. Memcheck and separate sanitizer runs
+cover retry/restart and disposal. Rebuild consumers for the appended runtime OTA
+port field. This is simulated host OTA, not firmware installation or certification.
+
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or
 `build/matter-host/gcc/matter-node.exe`. An unknown option prints usage and exits 2.

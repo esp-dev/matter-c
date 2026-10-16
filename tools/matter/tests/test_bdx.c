@@ -123,7 +123,21 @@ static void file(Test* t,const char* path) {
         }
         else { CHECK(r!=MATTER_OK); s.cancel(s.user); CHECK(fopen(t->partial,"rb")==NULL); }
     }
-    matter_ota_file_delete(f); puts("PASS OTA file: fragmented header, known SHA256 abc, identity/size bounds, corrupt/truncated digest, exclusive partial, staged publish and cleanup");
+    for(unsigned missing=0;missing<2;++missing) {
+        size_t n=image(t);
+        CHECK(matter_ota_file_prepare(f,2)==MATTER_OK && s.open(s.user)==MATTER_OK);
+        CHECK(s.write(s.user,t->image,n)==MATTER_OK && s.finish(s.user,n)==MATTER_OK && matter_ota_file_commit(f)==MATTER_OK);
+        uint64_t id=matter_ota_file_artifact(f); CHECK(id);
+        CHECK(matter_ota_file_discard(f,0)==MATTER_INVALID_STATE && matter_ota_file_discard(f,id+1)==MATTER_INVALID_STATE);
+        CHECK(matter_ota_file_check(f,id)==MATTER_OK);
+        Matter_Ota_File_T other=matter_ota_file_new(path,0xfff1,0x8001,1); CHECK(other);
+        CHECK(matter_ota_file_discard(other,id)==MATTER_INVALID_STATE); matter_ota_file_delete(other);
+        if(missing) CHECK(!remove(path));
+        CHECK(matter_ota_file_discard(f,id)==(missing?MATTER_PORT_ERROR:MATTER_OK));
+        CHECK(!matter_ota_file_artifact(f) && matter_ota_file_check(f,id)==MATTER_INVALID_STATE);
+        CHECK(matter_ota_file_discard(f,id)==MATTER_INVALID_STATE && fopen(path,"rb")==NULL);
+    }
+    matter_ota_file_delete(f); puts("PASS OTA file: fragmented header, known SHA256 abc, identity/size bounds, corrupt/truncated digest, exclusive partial, staged publish, scoped discard/I/O failure and cleanup");
 }
 int main(int argc,char** argv) {
     CHECK(argc==2); Test* t=calloc(1,sizeof(*t)); CHECK(t); core(t); file(t,argv[1]);

@@ -92,6 +92,16 @@ fixed here. A failed Wi-Fi snapshot aborts the transaction without publishing.
 
 OTA uses application sink/artifact callbacks; the library no longer opens the
 image. The optional existing signed OTA journal remains a **simulation**.
+`Matter_Runtime_Ota_Port_T.discard` is an optional synchronous callback for
+Discontinue, receiving the same candidate artifact ID. It must dispose only of
+that downloaded candidate, never installed firmware. The runtime logs a cleanup
+failure, revokes candidacy and stays Idle even if disposal fails. Without the
+callback, disposal remains the application's responsibility (Core 11.20.3.6
+SHOULD). The file host supplies it; logical `invalidate` alone still preserves
+accepted images for laboratory inspection. Rebuild consumers for the appended
+port field and zero-initialize optional callbacks. No persistent or wire schema
+changes. Response-receipt and simulation-gate logs include the supplied monotonic
+tick, allowing real delay verification without changing the application clock.
 Once started, the runtime declares OTA Requestor `0x0012` rev1 alongside Root
 Node: its Requestor server and Provider client are exposed regardless of whether
 the application currently supplies an OTA sink/journal. Descriptor presence does
