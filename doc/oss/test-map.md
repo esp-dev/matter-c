@@ -1,12 +1,18 @@
 # Test inventory
 
-test-map.json enumerates 232 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 234 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
-CMake defines 86 native test variants, with explicit platform/privilege filters.
-Default CTest totals: 87 on Windows, 84 on Linux, including inventory, crash
+CMake defines 87 native test variants, with explicit platform/privilege filters.
+Default CTest totals: 88 on Windows, 85 on Linux, including inventory, crash
 recovery and a relocated installed-package consumer with two runtimes.
+
+`test_gui_pairing` checks native C QR packing and onboarding boundaries.
+The optional `test_gui_host_chip.py` drives two concurrent pipe-controlled
+minimal workers through signed Read/Subscribe, malformed input, restart/fresh
+CASE, distinct identities and last-fabric removal. Run under Memcheck and
+separately sanitizers; this does not test Win32 painting or ecosystem UI.
 `test_node_discovery` drives the real host advertisement composition through
 deferred removal and rapid window reopening with a deterministic backend.
 `test_dispatch` also drives malformed CASE input through ingress and the real

@@ -869,5 +869,14 @@
     "privileged": false,
     "variant": "libc",
     "replace": []
+  },
+  {
+    "name": "test_gui_pairing",
+    "source": "tools/matter/tests/test_gui_pairing.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
   }
 ]

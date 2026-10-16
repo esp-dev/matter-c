@@ -1,0 +1,56 @@
+{
+  "scope": "Local desktop backend acceptance, not CSA certification or Apple UI acceptance",
+  "results": {
+    "normal": {
+      "result": "PASS",
+      "checks": 36,
+      "host_sha256": "edda106e6aa56c33a1a6cb85bef972fe60a02d8cddf09bdc10364acb2f7c8818",
+      "boots": 3,
+      "memcheck": {
+        "errors": 0,
+        "live_bytes": 0,
+        "allocations": 59064
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks": 33,
+      "host_sha256": "3a83e81f8f986e03b1f7b78d1c4901eab3734858da95c35b5f5038e1d3fac964",
+      "boots": 3,
+      "diagnostic_stderr_empty": true
+    }
+  },
+  "native_tests": {
+    "windows": {
+      "test_gui_pairing": "PASS"
+    },
+    "linux_normal": {
+      "focused_tests": 8,
+      "result": "PASS"
+    },
+    "linux_sanitized": {
+      "focused_tests": 8,
+      "result": "PASS"
+    }
+  },
+  "limitations": [
+    "Win32 UI painting is checked manually, not by Linux sanitizers.",
+    "Google/Apple pairing of this GUI build is not an automated UI claim.",
+    "REST HTTP(S) source integrations are planned, not implemented."
+  ],
+  "windows_binary": {
+    "build_type": "MinSizeRel",
+    "stripped": true,
+    "bytes": 580512,
+    "sha256": "173ab8637677084decdb8b4c6906c03101ae5e241856fdd1b772832e1ca8f4a1",
+    "dependencies": "Windows/UCRT DLLs only; static non-system libraries"
+  },
+  "native_frontend": {
+    "source_selection": "observed",
+    "qr_initial_window": "observed",
+    "slider_release_positive_and_negative": "observed",
+    "restart_restore": "observed",
+    "integration_removal": "implemented; no manual deletion test on the paired GUI node",
+    "post_restart_fabrics": 2
+  }
+}

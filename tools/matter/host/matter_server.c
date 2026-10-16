@@ -74,6 +74,10 @@ Matter_Server_T matter_server_new_sim(const char* directory,const char* path,con
     s->identity.unique_id.size=32;
     for(unsigned i=0;i<16;++i) { s->identity.unique_id.data[i*2]=(uint8_t)hex[digest[i]>>4]; s->identity.unique_id.data[i*2+1]=(uint8_t)hex[digest[i]&15]; }
     erase(digest,sizeof(digest));
+    if(options && options->unique_id) {
+        if(!options->unique_id->size || options->unique_id->size>sizeof(s->identity.unique_id.data)) goto fail;
+        s->identity.unique_id=*options->unique_id;
+    }
     Matter_Wifi_Sim_Config_T* wc=calloc(1,sizeof(*wc)); if(!wc) goto fail;
     wc->initial.enabled=true; wc->latency_ms=10;
     /* Deterministic radio environment only: no OS Wi-Fi configuration. */

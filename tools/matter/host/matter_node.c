@@ -16,6 +16,7 @@
 #include "matter_server.h"
 #include "matter_host_limits.h"
 #include "matter_host_identity.h"
+#include "matter_gui_control.h"
 #include "matter_switch_sim.h"
 #include "matter_energy_sim.h"
 #include "matter_store_file.h"
@@ -67,6 +68,7 @@ typedef struct {
     uint8_t plug_bytes[HOST_PLUG_STATE_BYTES]; bool plug_on,plug_fault,plug_ready;
     bool power_only_enabled,power_sensor_only,sensor_energy; Matter_Cluster_T power_only_epm,power_only_topology;
     Matter_Epm_Sample_T power_only_sample;
+    bool gui_enabled; Matter_Gui_Control_T gui;
     Matter_Server_T server; Operational operational[5]; uint16_t port,discriminator,advertised_discriminator; uint8_t random[8],cm_mode;
     uint8_t observed_cm_mode; bool discovery_stopping,discovery_rotate;
 } Node;
@@ -311,7 +313,7 @@ static bool power_only_model(Node* n,uint64_t now,uint16_t endpoint) {
     Matter_Root_Endpoint_Config_T sensor={.endpoint=endpoint,.revision=1,.device_type=0x510,.data_version=versions[0]};
     Matter_Epm_Port_T port={n,power_only};
     Matter_Epm_Config_T config={.range_count=1,.measured=false,.data_version=versions[1],.max_age_ms=3000};
-    config.ranges[0]=(Matter_Epm_Accuracy_Range_T){.min_mw=0,.max_mw=HOST_POWER_ONLY_MW,.fixed_max_mw=1,.fields=MATTER_EPM_FIXED_MAX};
+    config.ranges[0]=(Matter_Epm_Accuracy_Range_T){.min_mw=n->gui_enabled?-MATTER_GUI_POWER_LIMIT_MW:0,.max_mw=n->gui_enabled?MATTER_GUI_POWER_LIMIT_MW:HOST_POWER_ONLY_MW,.fixed_max_mw=1,.fields=MATTER_EPM_FIXED_MAX};
     n->power_only_epm=matter_epm_new(&port,&config,now);
     n->power_only_topology=matter_power_topology_new(versions[2]);
     return n->power_only_epm && n->power_only_topology && matter_root_add_endpoint(n->root,&sensor)==MATTER_OK &&
@@ -338,7 +340,8 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     c->capabilities=(Matter_Root_Capabilities_T)MATTER_HOST_CAPABILITIES;
     c->settings.location[0]='X'; c->settings.location[1]='X'; c->descriptor_version=versions[0]; c->basic_version=versions[1];
     if(credentials) {
-        Matter_Server_Sim_Options_T options={.ota_public_key=ota_key,.wifi_connected=n->wifi_sim_connected};
+        Matter_Server_Sim_Options_T options={.ota_public_key=ota_key,.wifi_connected=n->wifi_sim_connected,
+            .unique_id=n->gui_enabled?&c->unique_id:NULL};
         n->server=matter_server_new_sim(credentials,state,c,pin,now,&options); if(!n->server) return false;
         n->root=matter_server_root(n->server);
     } else { Matter_Root_Port_T rp={n,load,deny,store}; n->root=matter_root_new(&rp); }
@@ -399,7 +402,7 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
 }
 static bool sample(Node* n,uint64_t now,uint64_t seconds) {
     if(n->power_only_enabled) {
-        n->power_only_sample=(Matter_Epm_Sample_T){.active_mw=HOST_POWER_ONLY_MW,.sampled_ms=now,.available=true};
+        n->power_only_sample=(Matter_Epm_Sample_T){.active_mw=n->gui_enabled?n->gui.power_mw:HOST_POWER_ONLY_MW,.sampled_ms=now,.available=true};
         bool ready; if(matter_epm_refresh(n->power_only_epm,now,&ready)!=MATTER_OK) return false;
     }
     if(n->power_sensor_only) {
@@ -553,6 +556,7 @@ int main(int argc,char** argv) {
     unsigned long index=0,seconds=30,port=0,disc=3840,pin=20202021; bool operational=false;
     const char* credentials=NULL; const char* state=NULL; const char* ota_file=NULL; const char* ota_key=NULL; const char* ota_boot=NULL;
     Matter_Case_Resumption_Profile_T resumption_profile=MATTER_CASE_RESUMPTION_CHIP;
+    bool gui_control=false; const char* instance_id=NULL;
     bool chip_validity=false,test_switch=false,test_power_only=false,power_sensor_only=false,sensor_energy=false,three_phase=false,source_registers=false,meter_services=false,wifi_sim_connected=false;
     Matter_Diagnostics_Test_Trigger_T trigger={.trigger=test_event_trigger}; bool test_events=false;
     for(int i=1;i<argc;++i) {
@@ -563,6 +567,8 @@ int main(int argc,char** argv) {
         if(!strcmp(argv[i],"--test-switch")) { test_switch=true; continue; }
         if(!strcmp(argv[i],"--test-power-only")) { test_power_only=true; continue; }
         if(!strcmp(argv[i],"--power-sensor-only")) { power_sensor_only=true; continue; }
+        if(!strcmp(argv[i],"--gui-control")) { gui_control=true; continue; }
+        if(!strcmp(argv[i],"--instance-id")) { if(++i==argc) return 2; instance_id=argv[i]; continue; }
         if(!strcmp(argv[i],"--sensor-energy")) { sensor_energy=true; continue; }
         if(!strcmp(argv[i],"--wifi-sim-connected")) { wifi_sim_connected=true; continue; }
         if(!strcmp(argv[i],"--certificate-validity")) {
@@ -594,11 +600,14 @@ int main(int argc,char** argv) {
         else if(!strcmp(argv[i],"--discriminator")) { target=&disc; max=4095; }
         else if(!strcmp(argv[i],"--pin")) { target=&pin; max=99999998; }
         if(!target || ++i==argc || !number(argv[i],max,target)) {
-            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--test-power-only] [--power-sensor-only [--sensor-energy]] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
+            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--test-power-only] [--power-sensor-only [--sensor-energy | --gui-control [--instance-id HEX16]]] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
             "  --test-event-key: default profile routes energy triggers (legacy aggregate fixture);\n"
             "  with --three-phase --meter-services it enables targeted energy and Meter Identification change/reset triggers.\n"); return 2;
         }
     }
+    if(gui_control && (!power_sensor_only || sensor_energy || !credentials)) { fputs("--gui-control requires --power-sensor-only and credentials, without --sensor-energy\n",stderr); return 2; }
+    if(gui_control && !instance_id) { fputs("--gui-control requires a persistent --instance-id HEX16\n",stderr); return 2; }
+    if(instance_id && (!gui_control || strlen(instance_id)!=16 || strspn(instance_id,"0123456789abcdefABCDEF")!=16)) return 2;
     if(sensor_energy && !power_sensor_only) { fputs("--sensor-energy requires --power-sensor-only\n",stderr); return 2; }
     if(power_sensor_only && (test_switch || test_power_only || three_phase || source_registers || meter_services || test_events)) {
         fputs("--power-sensor-only excludes other measurement, switch and test-trigger profiles\n",stderr); return 2;
@@ -610,13 +619,13 @@ int main(int argc,char** argv) {
     if(test_events && !credentials) return 2;
     bool energy_test=test_events;
     if(test_events && three_phase && !meter_services) return 2;
-    if(!index || !seconds) { fprintf(stderr,"Select an interface with a preferred link-local IPv6 address; seconds=1..86400.\n"); return 2; }
+    if(!index || (!seconds && !gui_control)) { fprintf(stderr,"Select an interface with a preferred link-local IPv6 address; seconds=1..86400.\n"); return 2; }
     if((ota_boot && !ota_key) || (ota_key && !ota_file) || (credentials && (!state || operational || !pin)) || (!credentials && (state || ota_file || ota_key || chip_validity))) return 2;
     setvbuf(stdout,NULL,_IONBF,0); signal(SIGINT,stop_signal); signal(SIGTERM,stop_signal);
     Node* n=calloc(1,sizeof(*n)); if(!n) return 1;
     n->switch_enabled=test_switch; n->three_phase=three_phase;
     n->power_only_enabled=test_power_only || power_sensor_only; n->power_sensor_only=power_sensor_only;
-    n->sensor_energy=sensor_energy;
+    n->sensor_energy=sensor_energy; n->gui_enabled=gui_control;
     n->wifi_sim_connected=wifi_sim_connected;
     n->source_enabled=source_registers;
     n->meter_services=meter_services;
@@ -631,6 +640,9 @@ int main(int argc,char** argv) {
     n->udp=matter_udp_windows_new(n->owner,&bind,(uint32_t)index,&listener);
     if(!n->udp || matter_udp_start(matter_udp_windows_module(n->udp))!=MATTER_OK || matter_udp_windows_local(n->udp,&bind)!=MATTER_OK) goto done;
     if(!matter_host_random(n->random,8)) goto done;
+    if(instance_id) for(unsigned i=0;i<sizeof(n->random);++i) {
+        char hex[3]={instance_id[i*2],instance_id[i*2+1],0}; n->random[i]=(uint8_t)strtoul(hex,NULL,16);
+    }
     memcpy(n->discovery_mac,n->iface.mac,sizeof(n->discovery_mac));
     if(n->power_sensor_only) {
         /* Separate simulated nodes must not contend for the physical NIC's
@@ -684,8 +696,14 @@ int main(int argc,char** argv) {
         (unsigned)(n->power_sensor_only?HOST_POWER_SENSOR_ONLY_ENDPOINT:HOST_POWER_ONLY_ENDPOINT),(long long)HOST_POWER_ONLY_MW,n->sensor_energy?"cumulative-import-export":"absent");
     if(energy_test) printf("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile endpoints=%s\n",three_phase?"1,3,4,5":"1");
     if(test_events && three_phase) puts("MTRID_TEST enabled=1 endpoint=1 key=not-persisted identity=volatile clear=base-snapshot");
-    bool announced=false; uint64_t next_sample=now;
-    while(!interrupted && (now=matter_host_now())-start<seconds*1000) {
+    bool announced=false; uint64_t next_sample=now,next_status=now;
+    while(!interrupted && (now=matter_host_now(),(!seconds || now-start<seconds*1000))) {
+        if(n->gui_enabled) {
+            uint64_t generation=n->gui.generation;
+            if(!matter_gui_control_poll(&n->gui)) { fputs("GUI control pipe failed\n",stderr); goto done; }
+            if(n->gui.stop) break;
+            if(generation!=n->gui.generation) { next_sample=now; next_status=now; }
+        }
         if(!matter_server_reset_requested(n->server) && now>=next_sample) { if(!sample(n,now,(now-start)/1000)) goto done; next_sample=now+1000; }
         Matter_Result_T r=matter_udp_windows_poll(n->udp);
         if(r!=MATTER_OK && r!=MATTER_WOULD_BLOCK && r!=MATTER_LIMIT_REACHED && r!=MATTER_INVALID_ARGUMENT) goto done;
@@ -698,9 +716,18 @@ int main(int argc,char** argv) {
         if(matter_mdns_process(matter_mdns_windows_module(n->mdns))==MATTER_PORT_ERROR ||
             matter_mdns_windows_poll(n->mdns,now)==MATTER_PORT_ERROR) { fprintf(stderr,"mDNS publication failed (I/O or name conflict); stop and retry with a fresh instance.\n"); goto done; }
         if(!announced && matter_mdns_is_published(matter_mdns_windows_module(n->mdns))) { puts("PUBLISHED"); announced=true; }
+        if(n->gui_enabled && now>=next_status) {
+            const Matter_Fabric_View_T* fabrics=matter_server_fabrics(n->server);
+            uint16_t discriminator=n->discriminator;
+            uint8_t mode=matter_server_commissioning_mode(n->server,&discriminator);
+            printf("GUI_STATUS {\"commissioning\":%u,\"fabrics\":%u,\"published\":%s,\"power_mw\":%lld,\"generation\":%llu}\n",
+                mode,fabrics?fabrics->count:0,matter_mdns_is_published(matter_mdns_windows_module(n->mdns))?"true":"false",
+                (long long)n->gui.power_mw,(unsigned long long)n->gui.generation);
+            next_status=now+500;
+        }
         matter_host_sleep(10); /* This executable owns scheduling; the library never sleeps. */
     }
-    result=announced?0:1;
+    result=(announced || (n->gui_enabled && n->gui.stop))?0:1;
 done:
     if(n->server) {
         while(matter_server_stop(n->server,matter_host_now())==MATTER_PENDING) {

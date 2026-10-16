@@ -4,6 +4,8 @@ The project owner's first-party code is licensed under the Apache License,
 Version 2.0. See LICENSE. This does not relicense third-party material.
 
 Third-party notices:
+- Nayuki QR Code generator v1.8.0: MIT; copyright and full license are retained
+  in third_party/qrcodegen/qrcodegen.c and qrcodegen.h. Desktop executable only.
 - mjansson/mdns: Unlicense; see tools/matter/host/vendor/mdns/LICENSE and mdns.h.
 - Project CHIP rs-matter and Matter.js certificate fixtures: Apache-2.0;
   see tools/matter/fixtures/operational-sources.md,

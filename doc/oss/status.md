@@ -1,5 +1,15 @@
 # Development status
 
+Native Windows desktop is implemented in C/Win32: independent node processes
+from one EXE, per-user state, integration selection/removal, ±10 kW slider and
+runtime-gated QR/status. Two concurrent workers pass CHIP under Memcheck (three
+boots, 59064 matched allocations/frees, zero errors/live bytes) and separately
+ASan/UBSan/LSan. Eight focused Linux tests pass per build; Windows QR CTest passes.
+GUI choice/QR/slider and restore were inspected; exhaustive Win32 memory stress
+and ecosystem UI acceptance remain unperformed. REST sources are not implemented.
+CSA counts/next CSA24 task are unchanged. See [usage](../desktop.md) and
+[evidence](desktop-validation.md).
+
 The minimal sensor now optionally adds EEM with `--sensor-energy`: separate
 cumulative import/export registers (initial synthetic 12.345/2.345 kWh) and
 CumulativeEnergyMeasured. Import grows coherently with +123 W; export is fixed

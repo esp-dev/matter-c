@@ -84,6 +84,13 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
+The Windows [native C desktop](doc/desktop.md) builds as `matter-desktop.exe`:
+one executable manages independent power-sensor windows, commissioning QR/status
+and a release-triggered −10…+10 kW slider. Per-user state retains each node's
+identity/pairing. Runtime dependencies are Windows/UCRT only; development
+credentials remain external. See [acceptance](doc/oss/desktop-validation.md).
+REST HTTP(S) integrations are planned, not implemented.
+
 The [CSA18 campaign](doc/oss/csa18-validation.md) enables targeted energy test
 inputs on the three-phase host. Official EPM2.2 passes on aggregate/L1/L2/L3,
 and EEM2.2/2.3 pass on aggregate import/export. The laboratory key also retains

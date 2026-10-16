@@ -18,7 +18,12 @@ Matter_Server_T matter_server_new_ota_sim(const char* credentials,const char* st
 /* Host-only initial simulation options, copied during construction. A restored
  * state file takes precedence over wifi_connected, including an empty Networks
  * list. This never changes the OS network interface or the portable runtime API. */
-typedef struct { const char* ota_public_key; bool wifi_connected; } Matter_Server_Sim_Options_T;
+typedef struct {
+    const char* ota_public_key; bool wifi_connected;
+    /* Optional copied desktop identity (1..32 bytes); default remains DAC hash.
+     * Each simulated node sharing development credentials needs its own ID. */
+    const Matter_Root_Text_T* unique_id;
+} Matter_Server_Sim_Options_T;
 Matter_Server_T matter_server_new_sim(const char* credentials,const char* state,
     const Matter_Root_Config_T*,uint32_t pin,uint64_t now,const Matter_Server_Sim_Options_T*);
 bool matter_server_ota_reboot_requested(Matter_Server_T);

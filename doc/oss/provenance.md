@@ -3,6 +3,10 @@
 First-party code: Apache-2.0, selected by the project owner. See root LICENSE.
 Retained third-party material keeps its original terms; see NOTICE.
 
+- Desktop QR image generator: nayuki/QR-Code-generator v1.8.0, commit
+  720f62bddb7226106071d4728c292cb1df519ceb; MIT. Unmodified C/header, full
+  copyright/license and SHA-256 inventory in third_party/qrcodegen.
+
 - mDNS: mjansson/mdns, commit a569c4759bd47e0f2a7bfc4d4c19620445782806,
   Unlicense; original header and LICENSE in tools/matter/host/vendor/mdns.
 - Crypto dependency: official Mbed-TLS/mbedtls 3.6.0, commit

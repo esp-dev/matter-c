@@ -2350,7 +2350,9 @@
       "kind": "external-controller",
       "ctest": [],
       "entrypoint": "python tools/matter/tests/chip_tool_three_phase.py --help",
-      "referenced_by": ["tools/matter/tests/test_discovery_startup_linux.py"],
+      "referenced_by": [
+        "tools/matter/tests/test_discovery_startup_linux.py"
+      ],
       "allocation_variant": "not applicable"
     },
     {
@@ -2446,6 +2448,24 @@
       "entrypoint": "python tools/matter/tests/test_plug_energy_chip.py --help; disposable Linux host, unmodified chip-tool and development PAA/credentials required.",
       "referenced_by": [],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
+    },
+    {
+      "path": "tools/matter/tests/test_gui_pairing.c",
+      "kind": "native-test",
+      "ctest": [
+        "test_gui_pairing"
+      ],
+      "entrypoint": "ctest --test-dir build/cmake -R test_gui_pairing --output-on-failure",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_gui_host_chip.py",
+      "kind": "external-controller",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_gui_host_chip.py --help; Memcheck, then separate sanitizers; disposable profiles only.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
     }
   ],
   "local_only_files": []

@@ -71,7 +71,9 @@
     "matter_switch_sim",
     "matter_energy_sim",
     "matter_source_sim",
-    "matter_time_host"
+    "matter_time_host",
+    "matter_gui_control",
+    "matter_gui_pairing"
   ],
   "host_windows": [
     "matter_udp_windows",
@@ -83,7 +85,9 @@
     "matter_switch_sim",
     "matter_energy_sim",
     "matter_source_sim",
-    "matter_time_host"
+    "matter_time_host",
+    "matter_gui_control",
+    "matter_gui_pairing"
   ],
   "mbedtls": [
     "aes",
