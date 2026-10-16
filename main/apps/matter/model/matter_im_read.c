@@ -35,7 +35,7 @@ struct Matter_Im_Read {
 	size_t request_count, request_cursor, collected, filter_count;
 	bool expanding, after_valid;
 	Matter_Im_Path_T after;
-	struct { uint16_t endpoint; uint32_t cluster, version; } filters[MATTER_IM_READ_MAX_FILTERS];
+	struct { uint16_t endpoint; uint32_t cluster, version; } *filters;
 	struct {
 		Matter_Im_Path_T path;
 		Matter_Im_Attribute_T attribute;
@@ -130,7 +130,9 @@ static bool empty_array(Matter_Im_Read_T s, const Matter_Tlv_Element_T* e) {
 }
 static Matter_Im_Status_T decode_fields(Matter_Im_Read_T s) {
 	memset(s->fields,0,sizeof(s->fields)); memset(&s->revision,0,sizeof(s->revision));
-	const Matter_Tlv_Validation_Options_T opt={1024,256,2048,8,false,0,0};
+	/* Every TLV token consumes at least one input byte. Accept dense filter lists
+	 * within the existing request budget without weakening semantic validation. */
+	const Matter_Tlv_Validation_Options_T opt={MATTER_IM_READ_MAX_PAYLOAD,MATTER_IM_READ_MAX_PAYLOAD,2048,8,false,0,0};
 	Matter_Tlv_Validation_Report_T report;
 	Matter_Tlv_Result_T r=matter_tlv_validate(s->input,s->input_size,&opt,&s->validation,s->tags,48,&report);
 	if (r == MATTER_TLV_LIMIT_REACHED || r == MATTER_TLV_DEPTH_LIMIT) return MATTER_IM_RESOURCE_EXHAUSTED;
@@ -174,34 +176,47 @@ static Matter_Im_Status_T decode_path(Matter_Im_Read_T s, Matter_Im_Selector_T* 
 }
 static Matter_Im_Status_T decode_filters(Matter_Im_Read_T s) {
 	if (!s->fields[4].tag.control) return MATTER_IM_SUCCESS;
-	if (s->fields[4].type != MATTER_TLV_ARRAY || !enter(s,&s->fields[4])) return MATTER_IM_INVALID_ACTION;
-	while (next(s) && s->element.type != MATTER_TLV_END) {
-		if (s->filter_count == MATTER_IM_READ_MAX_FILTERS) return MATTER_IM_RESOURCE_EXHAUSTED;
-		if (s->element.type != MATTER_TLV_STRUCTURE || s->element.tag.control) return MATTER_IM_INVALID_ACTION;
-		s->filter_element=s->element; memset(s->filter_fields,0,sizeof(s->filter_fields));
+	/* Validate/count before allocating; the second pass fills exactly that many
+	 * entries in this handler's private, immutable request snapshot. */
+	for (unsigned pass=0; pass<2; ++pass) {
+		s->filter_count=0;
+		if (s->fields[4].type != MATTER_TLV_ARRAY || !enter(s,&s->fields[4])) return MATTER_IM_INVALID_ACTION;
 		while (next(s) && s->element.type != MATTER_TLV_END) {
-			if (s->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
-			if (s->element.tag.number < 2) s->filter_fields[s->element.tag.number]=s->element;
-			if (!skip(s)) return MATTER_IM_INVALID_ACTION;
-		}
-		if (!number(&s->filter_fields[1],UINT32_MAX) || !s->filter_fields[0].tag.control ||
-			s->filter_fields[0].type != MATTER_TLV_LIST || !enter(s,&s->filter_fields[0])) return MATTER_IM_INVALID_ACTION;
-		memset(s->path_fields,0,sizeof(s->path_fields));
-		while (next(s) && s->element.type != MATTER_TLV_END) {
-			if (s->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
-			uint32_t tag=s->element.tag.number;
-			if (tag < 3) {
-				if (s->path_fields[tag].tag.control) return MATTER_IM_INVALID_ACTION;
-				s->path_fields[tag]=s->element;
+			if (s->filter_count == MATTER_IM_READ_MAX_FILTERS) return MATTER_IM_RESOURCE_EXHAUSTED;
+			if (s->element.type != MATTER_TLV_STRUCTURE || s->element.tag.control) return MATTER_IM_INVALID_ACTION;
+			s->filter_element=s->element; memset(s->filter_fields,0,sizeof(s->filter_fields));
+			while (next(s) && s->element.type != MATTER_TLV_END) {
+				if (s->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
+				if (s->element.tag.number < 2) s->filter_fields[s->element.tag.number]=s->element;
+				if (!skip(s)) return MATTER_IM_INVALID_ACTION;
 			}
-			if (!skip(s)) return MATTER_IM_INVALID_ACTION;
+			if (!number(&s->filter_fields[1],UINT32_MAX) || !s->filter_fields[0].tag.control ||
+				s->filter_fields[0].type != MATTER_TLV_LIST || !enter(s,&s->filter_fields[0])) return MATTER_IM_INVALID_ACTION;
+			memset(s->path_fields,0,sizeof(s->path_fields));
+			while (next(s) && s->element.type != MATTER_TLV_END) {
+				if (s->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
+				uint32_t tag=s->element.tag.number;
+				if (tag < 3) {
+					if (s->path_fields[tag].tag.control) return MATTER_IM_INVALID_ACTION;
+					s->path_fields[tag]=s->element;
+				}
+				if (!skip(s)) return MATTER_IM_INVALID_ACTION;
+			}
+			if (s->path_fields[0].tag.control || !number(&s->path_fields[1],UINT16_MAX) ||
+				!number(&s->path_fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+			if (pass) {
+				s->filters[s->filter_count].endpoint=(uint16_t)s->path_fields[1].unsigned_value;
+				s->filters[s->filter_count].cluster=(uint32_t)s->path_fields[2].unsigned_value;
+				s->filters[s->filter_count].version=(uint32_t)s->filter_fields[1].unsigned_value;
+			}
+			++s->filter_count;
+			if (!enter(s,&s->filter_element) || !skip(s)) return MATTER_IM_INVALID_ACTION;
 		}
-		if (s->path_fields[0].tag.control || !number(&s->path_fields[1],UINT16_MAX) ||
-			!number(&s->path_fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
-		s->filters[s->filter_count].endpoint=(uint16_t)s->path_fields[1].unsigned_value;
-		s->filters[s->filter_count].cluster=(uint32_t)s->path_fields[2].unsigned_value;
-		s->filters[s->filter_count++].version=(uint32_t)s->filter_fields[1].unsigned_value;
-		if (!enter(s,&s->filter_element) || !skip(s)) return MATTER_IM_INVALID_ACTION;
+		if (!pass) {
+			if (!s->filter_count) return MATTER_IM_SUCCESS;
+			s->filters=calloc(s->filter_count,sizeof(*s->filters));
+			if (!s->filters) { s->filter_count=0; return MATTER_IM_RESOURCE_EXHAUSTED; }
+		}
 	}
 	return MATTER_IM_SUCCESS;
 }
@@ -678,7 +693,7 @@ Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	free(s->filters); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

@@ -65,9 +65,23 @@ static void test_im_wildcard(void) {
     m=wild_new(34,true); wild_start(m,0,0,0); CHECK(wild_reports(m,&errors,true)==20 && !errors && m->reads==24); wild_delete(m);
     m=wild_new(128,true); m->size=0; wild_start(m,0,0,0); CHECK(wild_reports(m,&errors,false)==0 && !errors); wild_delete(m);
     m=wild_new(128,true); m->size=MATTER_IM_READ_MAX_RESULTS; wild_start(m,0,0,0); CHECK(wild_reports(m,&errors,false)==MATTER_IM_READ_MAX_RESULTS && !errors && m->reads==MATTER_IM_READ_MAX_RESULTS); wild_delete(m);
-    m=wild_new(128,true);
-    for(unsigned i=0;i<16;++i) { m->filters[i].cluster=0x28; m->filters[i].version=7; }
-    wild_start(m,0,0,16); CHECK(wild_reports(m,&errors,false)==18 && !errors && m->reads==18); wild_delete(m);
+    /* Near-full payload, >16 filters and >256 TLV tokens. Validate the final
+     * entry too: a conflicting duplicate must prevent version suppression. */
+    for(unsigned conflict=0;conflict<2;++conflict) {
+        m=wild_new(128,true);
+        for(unsigned i=0;i<70;++i) { m->filters[i].cluster=0x28; m->filters[i].version=7; }
+        if(conflict) ++m->filters[69].version;
+        wild_start(m,0,0,70);
+        CHECK(wild_reports(m,&errors,false)==(conflict?24u:18u) && !errors && m->reads==(conflict?24u:18u)); wild_delete(m);
+    }
+#ifdef MATTER_TEST_ALLOC
+    m=wild_new(128,true); m->filters[0].cluster=0x28; m->filters[0].version=7;
+    size_t request_size=model_request(m,0,(Matter_Im_Path_T){0},1);
+    wild_receive(m,request_size); size_t base=live; fail_at=calls+1; model_process(m,0); fail_at=0;
+    Matter_Im_Read_Message_T rejected; CHECK(!matter_im_read_output(m->active,&rejected));
+    CHECK(rejected.opcode==1 && rejected.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==base && !m->reads);
+    wild_delete(m); CHECK(!live);
+#endif
     /* Literal normative shapes: anonymous AttributePath LIST; concrete filter
      * ClusterPath LIST uses tags 1/2, not AttributePath's tags 2/3. */
     m=wild_new(128,true); m->filters[0].cluster=0x28; m->filters[0].version=7;
@@ -76,10 +90,10 @@ static void test_im_wildcard(void) {
     CHECK(n==sizeof(expected) && !memcmp(m->input,expected,n)); wild_delete(m);
     for(unsigned mode=0;mode<9;++mode) {
         m=wild_new(128,true); m->filters[0].cluster=0x28; m->filters[0].version=7;
-        n=model_request(m,mode==4 ? 1 : 0,(Matter_Im_Path_T){0},mode==1 ? 17 : mode==0 ? 1 : 0);
+        n=model_request(m,mode==4 ? 1 : 0,(Matter_Im_Path_T){0},mode==1 ? 70 : mode==0 ? 1 : 0);
         uint8_t status=1;
         if(mode==0) { m->input[17]=1; status=0x80; } /* Duplicate endpoint in filter LIST. */
-        if(mode==1) status=0x89;
+        if(mode==1) { m->input[17+69*14]=1; status=0x80; } /* Malformed final filter, beyond old capacity/token limits. */
         if(mode==2) { m->size=MATTER_IM_READ_MAX_RESULTS+1; status=0x89; }
         if(mode==3) m->bad_enum=2;
         if(mode==4) m->bad_enum=1;

@@ -222,7 +222,17 @@ update/restart passes with ASan/UBSan/LSan; each build passes 11 focused native
 tests. Counts become 97 PASS, 14 FAIL, 13 BLOCKED, 34 MANUAL, 704 NA;
 manual PASS stays separate from automatic coverage. See
 [evidence and limits](oss/csa20-validation.md) and [result delta](oss/csa20-results.json).
-**Next task: CSA21 — TC-SU-2.3, applicable OTA image-transfer procedures and failure paths.**
+CSA21 fixes stale peer-session reuse after an OTA provider restart. An outbound
+MRP timeout now retires that operational connection; subsequent work establishes
+CASE, while cancellation/local failure/inbound behavior remains unchanged.
+The previous binary fails the real interruption/retry scenario and the new native
+regression. Unchanged TC-SU-2.3 completes manual verification and evidence upload
+in run444: uninterrupted transfer, five real minutes after interruption, Idle
+readback and a successful new transfer from offset zero. Consent, HTTPS and
+resumption stay N/A. Counts become 97 PASS, 14 FAIL, 12 BLOCKED, 35 MANUAL, 704 NA;
+manual PASS remains separate from automatic coverage. See
+[evidence and limits](oss/csa21-validation.md) and [delta](oss/csa21-results.json).
+**Next task: CSA22 — TC-SU-2.4, ApplyUpdateRequest fields and token/version binding.**
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

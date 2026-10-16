@@ -31,8 +31,9 @@ typedef enum { MATTER_IM_SUB_WAITING, MATTER_IM_SUB_OUTPUT, MATTER_IM_SUB_IN_FLI
  * Legacy constructor requires trusted PASE commissionee config/grant as Read.
  * Up to MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS attribute-only selectors (wildcards via
  * enumerate), MATTER_IM_READ_MAX_RESULTS expanded candidates,
- * 16 DataVersionFilters (priming only), all Read value types, plus
- * optional EventPaths/EventMin via bind_events (9 requested attribute
+ * DataVersionFilters within the request payload budget (priming only), all Read value types, plus
+ * an exactly sized per-request filter allocation, freed after priming or on
+ * failure/cancel/delete. Optional EventPaths/EventMin via bind_events (9 requested attribute
  * and event paths combined, before deduplication). Whole attribute
  * structures and events chunk between IBs; lists use ARRAY REPLACE followed by
  * whole-element ADD (ListIndex=null), preserving one snapshot/DataVersion.

@@ -10,7 +10,13 @@ extern "C" {
 enum { MATTER_IM_REVISION = 13, MATTER_IM_READ_MAX_PAYLOAD = 1024, MATTER_IM_READ_MAX_PATHS = 9,
 	/* Root + aggregate + three phases + optional switch exceeds 256 attributes. These
 	 * bounded result tables belong to heap-owned Read/Subscribe handlers. */
-	MATTER_IM_READ_MAX_RESULTS = 320, MATTER_IM_READ_MAX_FILTERS = 16, MATTER_IM_READ_WORK_BATCH = 8,
+	MATTER_IM_READ_MAX_RESULTS = 320,
+	/* Core 10.6.3: a minimal DataVersionFilterIB occupies 14 bytes (anonymous
+	 * structure, concrete ClusterPath LIST, version and both ENDs). Budget for
+	 * every filter that can fit in one request, including duplicate paths. */
+	MATTER_IM_READ_MIN_FILTER_BYTES = 14,
+	MATTER_IM_READ_MAX_FILTERS = MATTER_IM_READ_MAX_PAYLOAD / MATTER_IM_READ_MIN_FILTER_BYTES,
+	MATTER_IM_READ_WORK_BATCH = 8,
 	MATTER_IM_READ_MAX_VALUE = 4096, MATTER_IM_READ_SNAPSHOT_BYTES = 16384 };
 typedef enum {
 	MATTER_IM_SUCCESS=0, MATTER_IM_FAILURE=1, MATTER_IM_UNSUPPORTED_ACCESS=0x7e,
@@ -95,10 +101,12 @@ typedef enum { MATTER_IM_READ_WAITING, MATTER_IM_READ_OUTPUT, MATTER_IM_READ_IN_
 typedef struct { const uint8_t* data; size_t size; uint8_t opcode; } Matter_Im_Read_Message_T;
 
 /* One transaction, heap context plus a lazy bounded snapshot arena for complex
- * values, both released by delete; copied config/port, borrowed port.user.
+ * values and an exactly sized validated filter table, all released by delete;
+ * copied config/port, borrowed port.user. Empty/absent filters allocate nothing.
  * Owner thread, no tasks, hardware, session ownership or transport queue.
- * Subset: 0..9 local attribute selectors, 0..16 concrete cluster version filters,
- * up to 256 expanded attribute results and chunking. Enumeration and collection are bounded
+ * Subset: 0..9 local attribute selectors, concrete cluster version filters up to
+ * the request payload budget, up to 320 expanded attribute results and chunking.
+ * Enumeration and collection are bounded
  * to 8 candidates each per process call (concrete-only reads keep their original
  * single-call budget of 9); no allocation per chunk. Scalars keep the old API.
  * Lists fitting one report use one ARRAY. Larger lists start with an ARRAY

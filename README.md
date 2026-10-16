@@ -163,6 +163,10 @@ The fixture does not install executable firmware or certify a bootloader.
 The [CSA20 report](doc/oss/csa20-validation.md) records QueryImageResponse
 manual acceptance and the timing fix that keeps repeated announcements from
 bypassing the OTA query floor during asynchronous CASE setup.
+The [CSA21 report](doc/oss/csa21-validation.md) records manual TC-SU-2.3
+acceptance: interruption, five real minutes, Idle readback and retry from zero.
+An outbound MRP timeout now retires the stale peer session, allowing CASE after
+the provider restarts.
 
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or

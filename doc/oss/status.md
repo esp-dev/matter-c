@@ -1,5 +1,39 @@
 # Development status
 
+DataVersionFilters recovery fixes a reproduced Apple Home resubscription failure:
+the old 16-entry table rejected a 547-byte SubscribeRequest with ResourceExhausted.
+Read/Subscribe now allocate exactly the validated filter count, bounded by the
+existing request byte budget, with no allocation for empty lists. Native tests
+cover 70 filters, malformed tails, conflicting versions and allocation failures;
+the added Subscribe allocation variant checks cleanup. Four focused tests pass
+on Windows, Linux and separate Linux ASan/UBSan/LSan builds. Independent CHIP
+scenarios pass under Memcheck and separately under sanitizers: 17 cluster filters,
+fresh CASE, filtered priming, live On/Off reports and RemoveFabric. Memcheck has
+31,177 matched allocations/frees, zero errors and zero live bytes. The preserved
+Windows pairing recovered; the user confirmed Apple Home online and On/Off.
+This is local interoperability evidence; the CSA matrix is unchanged.
+See [details and limits](im-version-filters-validation.md). Next remains CSA22.
+
+CSA21 fixes OTA recovery after a provider process restart: exhausted outbound
+MRP retries retire only that peer's operational session, so a later operation
+establishes CASE. The preceding binary reproduces unknown-session drops and
+fails the full retry scenario; the new native regression fails with the old code.
+**TC-SU-2.3 passes as a manual TH procedure in run444**: complete transfer and
+interruption/retry, evidence upload, consent/HTTPS/resumption N/A. The fixed
+interruption scenario waits 301.021 real seconds, independently reads Idle /
+version 1, and completes a new transfer from offset zero without restarting or
+recommissioning the requestor before retry. Uninterrupted and interrupted OTA
+pass under Memcheck: four requestor boots, 111,042 allocations/frees, zero
+errors/leaks. Each build passes 13 focused CTests with no compiler warnings.
+A separate ASan/UBSan/LSan interruption/retry run waits 301.053 seconds and
+completes both requestor boots with clean exits and empty stderr.
+Latest matrix: **97 PASS, 14 FAIL, 12 BLOCKED, 35 MANUAL, 704 NA**;
+this manual PASS does not increase automatic coverage. Other official rows are
+inherited. See [CSA21 evidence](csa21-validation.md), [delta](csa21-results.json)
+and [fixture contract](../ota-host.md). Host simulation is not firmware installation
+or certification; Windows, hardware and Home UI acceptance remain unperformed here.
+**Next: CSA22 — TC-SU-2.4, ApplyUpdateRequest fields and token/version binding.**
+
 CSA20 fixes an early OTA retry after repeated AnnounceOTAProvider: the
 conservative 120-second floor now survives asynchronous CASE setup and starts
 from Invoke completion. The old binary reproduces 119.862/119.858-second

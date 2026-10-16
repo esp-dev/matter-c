@@ -82,8 +82,31 @@ The existing `test_ota_query` and allocation variant add an asynchronous-setup /
 repeated-announcement regression that fails with the previous stored query floor.
 See [CSA20](csa20-validation.md) for the manual TH result and coverage limits.
 
+CSA21 extends that runner with `interrupt-retry`: a real provider process kill
+after a verified partial prefix, five real minutes, independent Idle/version
+readback, partial-file cleanup, provider restart with retained KVS, ReceiveInit
+at offset zero and the full authenticated simulation/restart/Notify path.
+Normal `update` remains a separate uninterrupted-transfer control. These are
+optional external CHIP scenarios, not new native CTest definitions. The installed
+TC-SU-2.3 remains a manual TH procedure; its conditional consent/HTTPS/resumption
+steps require features outside this profile. Results and limits are recorded in
+[CSA21](csa21-validation.md).
+The existing `test_dispatch` also checks outbound MRP timeout retirement and its
+peer isolation, with negative controls for ACK, cancellation, local send failure,
+inbound traffic and PASE. The timeout control fails against the preceding code.
+
 External CHIP/TH, Matter.js network scenarios, fuzz campaigns and privileged
 IPv6 injection are optional, not implied by default CTest results. Their scripts
 and prerequisites are retained in tools/matter/tests and fixtures. See each
 entrypoint and the map for exact routes; generators are not build prerequisites.
 No CSA test distribution is bundled, and no local result waives open CSA failures.
+
+DataVersionFilters regression adds `test_im_subscribe_alloc` alongside the
+existing Read allocation variant. Both native suites cover 70 entries and
+malformed final entries beyond the former entry/token budgets; Subscribe checks
+that version suppression only applies to priming and that its filter table is
+released before idle, on allocation/reservation errors and deletion.
+`test_im_version_filters_chip.py` runs a disposable full-profile host against
+unmodified chip-tool, with 17 distinct cluster filters, exact inventory, fresh
+CASE after controller restart, subsequent switch reports and RemoveFabric.
+Its `--memcheck` mode and a separate sanitizer host run are external scenarios.

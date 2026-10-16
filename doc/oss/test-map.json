@@ -1318,7 +1318,8 @@
       "path": "tools/matter/tests/test_im_subscribe.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_im_subscribe"
+        "test_im_subscribe",
+        "test_im_subscribe_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_im_subscribe",
       "referenced_by": [
@@ -2429,6 +2430,14 @@
         "cmake/tests/CMakeLists.txt"
       ],
       "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_version_filters_chip.py",
+      "kind": "controller-regression",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_im_version_filters_chip.py --help",
+      "referenced_by": [],
+      "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     }
   ],
   "local_only_files": []

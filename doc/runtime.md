@@ -38,11 +38,27 @@ the caller's UniqueID. Event time uses the latest supplied monotonic time.
 General Diagnostics uses the runtime's live dispatcher statistics. Successfully
 completed local IM sends and admitted incoming IM messages are counted once;
 MRP retries, standalone ACKs and CASE/BDX traffic do not inflate these counters.
+An exhausted MRP retry sequence on an outbound operation retires only that
+peer's operational session, through the existing drain lifecycle. A later
+operation establishes CASE instead of reusing keys forgotten by a restarted
+peer. The failed operation is still reported as failed; it is not silently
+replayed. ACKs, explicit cancellation, local send errors, inbound transactions
+and unsecured handshakes do not trigger this retirement policy.
 Subscription reservations are not active subscriptions: successful local delivery
 of SubscribeResponse establishes one, and cancellation/removal excludes it from
 the current count while preserving the lifetime total. Counts are per runtime,
 with separate current totals for the accessing fabric, and saturate at their
 wire type limits. PASE subscriptions contribute only to the node total.
+
+Read and Subscribe allocate DataVersionFilters for the exact validated entry
+count in each request. Empty/absent lists allocate nothing; Read owns the table
+until deletion, while Subscribe frees it after priming or on error/cancel/delete.
+The previous 16-entry cap was an implementation limit, not a Matter limit.
+The existing 1024-byte IM request budget still applies; the defensive entry
+bound derives from the minimum 14-byte concrete DataVersionFilterIB encoding.
+Both decoders allow enough TLV tokens for any request within that byte budget.
+Allocation failure produces ResourceExhausted without reserving a subscription
+or reading values. See [regression results](oss/im-version-filters-validation.md).
 
 TimeSnapshot reads UTCTime from the actual Time Synchronization cluster attached
 to Root and converts Matter-epoch microseconds to POSIX milliseconds. The

@@ -32,7 +32,7 @@ struct Matter_Im_Subscribe {
     struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } items[MATTER_IM_READ_MAX_RESULTS];
     Matter_Im_Selector_T requests[MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS];
     size_t request_count,request_cursor,filter_count,collected,valid;
-    struct { uint16_t endpoint; uint32_t cluster,version; } filters[MATTER_IM_READ_MAX_FILTERS];
+    struct { uint16_t endpoint; uint32_t cluster,version; } *filters;
     Matter_Im_Path_T after; bool after_valid,expanding,capture_data,attribute_report;
     uint8_t* snapshots; SubEvents* events;
     Matter_Tlv_Reader_T value_reader; Matter_Tlv_Element_T element;
@@ -53,7 +53,11 @@ struct Matter_Im_Subscribe {
 };
 static uint64_t add(uint64_t a,uint64_t b) { return UINT64_MAX-a<b ? UINT64_MAX : a+b; }
 static Matter_Result_T check(Matter_Im_Subscribe_T s) { return !s ? MATTER_INVALID_ARGUMENT : s->busy ? MATTER_BUSY : MATTER_OK; }
+static void clear_filters(Matter_Im_Subscribe_T s) {
+    free(s->filters); s->filters=NULL; s->filter_count=0;
+}
 static void release(Matter_Im_Subscribe_T s) {
+    clear_filters(s);
     if(s->reserved) { s->reserved=false; s->port.release(s->port.attributes.user,s->id); }
 }
 static Matter_Result_T fail(Matter_Im_Subscribe_T s) {
@@ -142,24 +146,38 @@ static bool number(const Matter_Tlv_Element_T* e,uint64_t max) { return e->tag.c
 static bool boolean(const Matter_Tlv_Element_T* e) { return e->tag.control==1 && e->type==MATTER_TLV_BOOL; }
 static uint8_t decode_filters(Matter_Im_Subscribe_T s) {
     if(!s->root[8].tag.control) return 0;
-    if(s->root[8].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[8])) return MATTER_IM_INVALID_ACTION;
-    while(next(s) && s->token.type!=MATTER_TLV_END) {
-        if(s->filter_count==MATTER_IM_READ_MAX_FILTERS) return MATTER_IM_RESOURCE_EXHAUSTED;
-        Matter_Tlv_Element_T element=s->token;
-        if(element.type!=MATTER_TLV_STRUCTURE || element.tag.control || !collect(s,s->fields,8) ||
-            !number(&s->fields[1],UINT32_MAX) || s->fields[0].tag.control!=1 || s->fields[0].type!=MATTER_TLV_LIST) return MATTER_IM_INVALID_ACTION;
-        uint32_t version=(uint32_t)s->fields[1].unsigned_value;
-        if(!enter(s,&s->fields[0]) || !collect(s,s->fields,8) || s->fields[0].tag.control ||
-            !number(&s->fields[1],UINT16_MAX) || !number(&s->fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
-        s->filters[s->filter_count].endpoint=(uint16_t)s->fields[1].unsigned_value;
-        s->filters[s->filter_count].cluster=(uint32_t)s->fields[2].unsigned_value;
-        s->filters[s->filter_count++].version=version;
-        if(!enter(s,&element) || matter_tlv_skip_container(&s->reader)!=MATTER_TLV_OK) return MATTER_IM_INVALID_ACTION;
+    /* Count fully validated entries before allocating the exact per-request
+     * table. Keep it only through priming, never for the subscription lifetime. */
+    for(unsigned pass=0;pass<2;++pass) {
+        s->filter_count=0;
+        if(s->root[8].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[8])) return MATTER_IM_INVALID_ACTION;
+        while(next(s) && s->token.type!=MATTER_TLV_END) {
+            if(s->filter_count==MATTER_IM_READ_MAX_FILTERS) return MATTER_IM_RESOURCE_EXHAUSTED;
+            Matter_Tlv_Element_T element=s->token;
+            if(element.type!=MATTER_TLV_STRUCTURE || element.tag.control || !collect(s,s->fields,8) ||
+                !number(&s->fields[1],UINT32_MAX) || s->fields[0].tag.control!=1 || s->fields[0].type!=MATTER_TLV_LIST) return MATTER_IM_INVALID_ACTION;
+            uint32_t version=(uint32_t)s->fields[1].unsigned_value;
+            if(!enter(s,&s->fields[0]) || !collect(s,s->fields,8) || s->fields[0].tag.control ||
+                !number(&s->fields[1],UINT16_MAX) || !number(&s->fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+            if(pass) {
+                s->filters[s->filter_count].endpoint=(uint16_t)s->fields[1].unsigned_value;
+                s->filters[s->filter_count].cluster=(uint32_t)s->fields[2].unsigned_value;
+                s->filters[s->filter_count].version=version;
+            }
+            ++s->filter_count;
+            if(!enter(s,&element) || matter_tlv_skip_container(&s->reader)!=MATTER_TLV_OK) return MATTER_IM_INVALID_ACTION;
+        }
+        if(!pass) {
+            if(!s->filter_count) return 0;
+            s->filters=calloc(s->filter_count,sizeof(*s->filters));
+            if(!s->filters) { s->filter_count=0; return MATTER_IM_RESOURCE_EXHAUSTED; }
+        }
     }
     return 0;
 }
 static uint8_t decode(Matter_Im_Subscribe_T s) {
-    const Matter_Tlv_Validation_Options_T opt={1024,256,2048,8,false,0,0};
+    /* Include dense DataVersionFilters; at most one TLV token per input byte. */
+    const Matter_Tlv_Validation_Options_T opt={MATTER_IM_READ_MAX_PAYLOAD,MATTER_IM_READ_MAX_PAYLOAD,2048,8,false,0,0};
     Matter_Tlv_Validation_Report_T report;
     Matter_Tlv_Result_T r=matter_tlv_validate(s->input,s->input_size,&opt,&s->validation,s->tags,48,&report);
     if(r!=MATTER_TLV_OK) return r==MATTER_TLV_LIMIT_REACHED || r==MATTER_TLV_DEPTH_LIMIT ? MATTER_IM_RESOURCE_EXHAUSTED : MATTER_IM_INVALID_ACTION;
@@ -243,6 +261,7 @@ static bool finish(Matter_Im_Subscribe_T s) {
     return put(s,MATTER_TLV_UNSIGNED,255,MATTER_IM_REVISION) && end(s) && matter_tlv_writer_finish(&s->writer,&s->output_size)==MATTER_TLV_OK;
 }
 static bool status(Matter_Im_Subscribe_T s,uint8_t code) {
+    clear_filters(s);
     s->phase=ERROR_REPLY; s->opcode=1;
     return begin(s) && put(s,MATTER_TLV_UNSIGNED,0,code) && finish(s);
 }
@@ -608,6 +627,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
         } else {
             if(s->events && s->events->active) s->events->next=s->events->pending_next;
             if(s->phase==PRIME) {
+                clear_filters(s);
                 s->phase=RESPONSE; s->opcode=4;
                 encoded=begin(s) && put(s,MATTER_TLV_UNSIGNED,0,s->id) && put(s,MATTER_TLV_UNSIGNED,2,s->maximum) && finish(s);
                 if(!encoded) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);

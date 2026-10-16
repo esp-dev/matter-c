@@ -623,6 +623,18 @@
     "malloc": false
   },
   {
+    "name": "test_im_subscribe_alloc",
+    "source": "tools/matter/tests/test_im_subscribe.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_im_subscribe.c"
+    ],
+    "malloc": false
+  },
+  {
     "name": "test_im_write_alloc",
     "source": "tools/matter/tests/test_im_write.c",
     "mode": "normal",

@@ -247,7 +247,26 @@ static Matter_Result_T bdx_open(void* u) { (void)u; return MATTER_OK; }
 static Matter_Result_T bdx_write(void* u,const uint8_t* d,size_t n) { (void)u; (void)d; (void)n; return MATTER_OK; }
 static Matter_Result_T bdx_finish(void* u,uint64_t n) { (void)u; (void)n; return MATTER_OK; }
 static void bdx_cancel(void* u) { ++*(unsigned*)u; }
+static void outgoing_timeout_tests(Matter_Dispatch_T d) {
+    Connection* c=&d->connections[0]; Connection* other=&d->connections[1];
+    CHECK(!c->token && !other->token && !d->transactions[0].handle);
+    for(unsigned mode=0;mode<6;++mode) {
+        *c=(Connection){.token=100,.operational=mode!=5};
+        *other=(Connection){.token=101,.operational=true};
+        Transaction* t=&d->transactions[0];
+        *t=(Transaction){.owner=d,.handle=1,.key={100,1,false},.outbound=mode!=4};
+        Matter_Retransmission_Result_T result={.message={.exchange=t->key},
+            .outcome=mode==1?MATTER_RETRANSMISSION_ACKNOWLEDGED:
+                mode==2?MATTER_RETRANSMISSION_CANCELLED:mode==3?MATTER_RETRANSMISSION_FAILED:MATTER_RETRANSMISSION_TIMEOUT};
+        finished(d,&result);
+        CHECK(t->notified && t->acknowledged==(mode==1));
+        CHECK(c->retiring==(mode==0) && !other->retiring);
+        memset(t,0,sizeof(*t)); memset(c,0,sizeof(*c)); memset(other,0,sizeof(*other));
+    }
+    puts("PASS outbound MRP timeout retires only the peer CASE session; ACK/cancel/local failure/inbound/PASE preserve sessions");
+}
 static void outgoing_cancel_tests(Matter_Dispatch_T d,const Matter_Udp_Address_T* bind) {
+    outgoing_timeout_tests(d);
     uint64_t saved_now=d->now; Matter_Dispatch_Config_T saved=d->config;
     Resolver resolver={0}; d->config.resolver=(Matter_Resolver_Port_T){&resolver,resolve_begin,resolve_end,resolve_abort};
     d->config.compressed_fabric=compressed; d->config.credential_revision=rotated;

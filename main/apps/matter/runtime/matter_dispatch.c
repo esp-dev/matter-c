@@ -331,6 +331,13 @@ static void cancel_send(void* u,uint64_t id) { (void)u; (void)id; /* UDP owes ac
 static void finished(void* u,const Matter_Retransmission_Result_T* result) {
     Transaction* t=transaction(u,&result->message.exchange); if(!t) return;
     t->notified=true; t->acknowledged=result->outcome==MATTER_RETRANSMISSION_ACKNOWLEDGED;
+    /* A restarted peer no longer knows this session. After exhausted outbound
+     * MRP retries, retire only its connection so the next operation uses CASE.
+     * ACKs, explicit cancellation and local send failures do not prove that. */
+    if(t->outbound && result->outcome==MATTER_RETRANSMISSION_TIMEOUT) {
+        Connection* c=connection(t->owner,t->key.session);
+        if(c && c->operational) c->retiring=true;
+    }
 }
 static Matter_Result_T send_ack(void* u,uint64_t id,const Matter_Ack_Message_T* m) {
     Matter_Dispatch_T d=u; d->ack_waiting=true; if(d->request) return MATTER_WOULD_BLOCK;

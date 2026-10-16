@@ -10,7 +10,7 @@ typedef struct {
     Matter_Tlv_Reader_T reader;
     Matter_Tlv_Element_T element;
     uint8_t input[1024];
-    struct { uint16_t endpoint; uint32_t cluster, version; } filters[17];
+    struct { uint16_t endpoint; uint32_t cluster, version; } filters[70];
 } ImTestModel;
 static Matter_Im_Path_T model_path(unsigned i) {
     return (Matter_Im_Path_T){(uint16_t)(i/12),0x28+(i%12)/6,2+i%6};
@@ -65,7 +65,7 @@ static void model_put(ImTestModel* m,Matter_Tlv_Type_T type,int tag,uint64_t val
     MODEL_CHECK(matter_tlv_write(&m->writer,&m->element,0)==MATTER_TLV_OK);
 }
 static size_t model_request(ImTestModel* m,unsigned mask,Matter_Im_Path_T p,unsigned filters) {
-    MODEL_CHECK(filters<=17 && matter_tlv_writer_init(&m->writer,m->input,sizeof(m->input),8)==MATTER_TLV_OK);
+    MODEL_CHECK(filters<=sizeof(m->filters)/sizeof(m->filters[0]) && matter_tlv_writer_init(&m->writer,m->input,sizeof(m->input),8)==MATTER_TLV_OK);
     model_put(m,MATTER_TLV_STRUCTURE,-1,0); model_put(m,MATTER_TLV_ARRAY,0,0); model_put(m,MATTER_TLV_LIST,-1,0);
     if(mask&1) model_put(m,MATTER_TLV_UNSIGNED,2,p.endpoint);
     if(mask&2) model_put(m,MATTER_TLV_UNSIGNED,3,p.cluster);

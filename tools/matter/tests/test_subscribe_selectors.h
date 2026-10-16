@@ -3,7 +3,7 @@ typedef struct {
     unsigned count,enumerations,versions,denied,unreadable,seen,statuses;
     uint32_t version_hint; unsigned bad_enum;
     size_t span_size;
-    bool version_error,deny_view,empty,bad_utf8,null_data,too_large,wrong_filter;
+    bool version_error,deny_view,empty,bad_utf8,null_data,too_large,wrong_filter,bad_filter_tail;
     uint8_t large[4096];
 } SelectorSub;
 static const uint8_t selector_text[]={'a',0,0xc4,0x85};
@@ -71,7 +71,7 @@ static void selector_request(SelectorSub* s,unsigned selectors,bool concrete,uns
         rich_put(r,MATTER_TLV_ARRAY,8,0);
         for(unsigned i=0;i<filters;++i) {
             rich_put(r,MATTER_TLV_STRUCTURE,-1,0); rich_put(r,MATTER_TLV_LIST,0,0);
-            if(s->wrong_filter) rich_put(r,MATTER_TLV_UNSIGNED,0,1);
+            if(s->wrong_filter || (s->bad_filter_tail && i+1==filters)) rich_put(r,MATTER_TLV_UNSIGNED,0,1);
             rich_put(r,MATTER_TLV_UNSIGNED,1,1); rich_put(r,MATTER_TLV_UNSIGNED,2,0x91); rich_put(r,MATTER_TLV_END,-1,0);
             rich_put(r,MATTER_TLV_UNSIGNED,1,conflict && i?8:7); rich_put(r,MATTER_TLV_END,-1,0);
         }
@@ -152,13 +152,13 @@ static void selector_tests(void) {
      * fallback read, duplicate equal filters, or a version changing during read. */
     for(unsigned mode=0;mode<4;++mode) {
         s=selector_new(12,mode!=0); if(mode==2) s->version_hint=8;
-        selector_request(s,1,false,mode==3?16:1,false); selector_finish(s,true);
+        selector_request(s,1,false,mode==3?70:1,false); selector_finish(s,true);
         CHECK(!s->seen && s->rich.model.reads==(mode==0 || mode==2?12u:0u));
         unsigned before=s->rich.model.reads,versions=s->versions;
         CHECK(!matter_im_subscribe_changed(s->rich.model.active)); rich_update(&s->rich,2000); selector_finish(s,false);
         CHECK(s->seen==12 && s->rich.model.reads==before+12 && s->versions==versions); rich_free(&s->rich);
     }
-    s=selector_new(3,true); selector_request(s,2,false,2,true); selector_finish(s,true);
+    s=selector_new(3,true); selector_request(s,2,false,70,true); selector_finish(s,true);
     CHECK(s->seen==6 && s->rich.model.reads==6); rich_free(&s->rich);
     /* Concrete paths retain View gating despite equal version filters. */
     s=selector_new(2,true); s->denied=1; selector_request(s,2,true,1,false); selector_finish(s,true);
@@ -166,19 +166,30 @@ static void selector_tests(void) {
     s=selector_new(2,false); s->empty=true; selector_request(s,2,true,0,false); selector_finish(s,true); CHECK(s->seen==2); rich_free(&s->rich);
     for(unsigned mode=0;mode<12;++mode) {
         s=selector_new(mode==3?MATTER_IM_READ_MAX_RESULTS+1:mode==4?0:2,true);
-        s->bad_enum=mode<3?mode+1:0; s->wrong_filter=mode==5; s->version_error=mode==7;
+        s->bad_enum=mode<3?mode+1:0; s->wrong_filter=mode==5; s->bad_filter_tail=mode==6; s->version_error=mode==7;
         s->bad_utf8=mode==8; s->null_data=mode==9; s->too_large=mode==10;
         if(mode==11) s->span_size=180; /* Valid text must fit one entire report. */
-        selector_request(s,1,mode>=8,mode==6?17:mode==5 || mode==7?1:0,false);
+        selector_request(s,1,mode>=8,mode==6?70:mode==5 || mode==7?1:0,false);
         Matter_Im_Subscribe_Message_T out=selector_output(s);
-        CHECK(out.opcode==1 && out.data[3]==(mode<3?MATTER_IM_FAILURE:mode==3 || mode==6 || mode>=10?MATTER_IM_RESOURCE_EXHAUSTED:MATTER_IM_INVALID_ACTION));
+        CHECK(out.opcode==1 && out.data[3]==(mode<3?MATTER_IM_FAILURE:mode==3 || mode>=10?MATTER_IM_RESOURCE_EXHAUSTED:MATTER_IM_INVALID_ACTION));
         if(mode==5 || mode==6) CHECK(!s->rich.model.reads && !s->rich.model.reserves);
         rich_free(&s->rich);
     }
     /* Delete during collection and fail allocation of the first copied span. */
 #ifdef MATTER_TEST_ALLOC
-    s=selector_new(12,true); selector_request(s,1,false,0,false);
+    s=selector_new(12,true); selector_request(s,1,false,70,false); size_t filter_base=live; fail_at=calls+1;
+    Matter_Im_Subscribe_Message_T filter_error=selector_output(s); fail_at=0;
+    CHECK(filter_error.opcode==1 && filter_error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==filter_base);
+    CHECK(!s->rich.model.reads && !s->rich.model.reserves); rich_free(&s->rich); CHECK(!live);
+    s=selector_new(12,true); selector_request(s,1,false,70,false); filter_base=live;
+    selector_finish(s,true); CHECK(live==filter_base); /* Filters released before the live subscription idles. */
+    rich_free(&s->rich); CHECK(!live);
+    s=selector_new(12,true); selector_request(s,1,false,70,false);
     while(matter_im_subscribe_state(s->rich.model.active)!=MATTER_IM_SUB_COLLECTING) CHECK(matter_im_subscribe_process(s->rich.model.active,0)==MATTER_PENDING);
+    rich_free(&s->rich); CHECK(!live);
+    s=selector_new(12,true); s->rich.model.reserve_error=true; selector_request(s,1,false,70,false); filter_base=live;
+    filter_error=selector_output(s);
+    CHECK(filter_error.opcode==1 && filter_error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==filter_base);
     rich_free(&s->rich); CHECK(!live);
     s=selector_new(2,true); selector_request(s,2,true,0,false); size_t base=live; fail_at=calls+1;
     Matter_Im_Subscribe_Message_T out=selector_output(s); fail_at=0;

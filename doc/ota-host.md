@@ -86,6 +86,7 @@ require JSON trace automatically:
 | `same-version` | UpdateAvailable / version 1; reject before BDX |
 | `older-version` | UpdateAvailable / version 0; reject before BDX |
 | `invalid-uri` | UpdateAvailable / missing BDX file path; reject before BDX |
+| `interrupt-retry` | Kill the provider during BDX, wait five real minutes, read Idle, restart the same provider and download from offset zero |
 
 The pinned official provider emits DelayedActionTime only for Busy: its CLI
 `--delayedQueryActionTimeSec 60` is ignored for NotAvailable. That optional field
@@ -114,6 +115,27 @@ This log backend avoids the pinned SDK's file-trace opening failure; no SDK
 source patch is required.
 The original CSA19 `update` and `busy-update` modes still accept a provider built
 without tracing unless `--require-trace` is explicitly supplied.
+
+`interrupt-retry` implements the applicable failure procedure of TC-SU-2.3.
+The provider's official `--pollInterval 500` slows its first transfer so the
+runner can capture a matching partial file prefix before killing that process.
+The first provider must not have received AckEOF, and the requestor must not
+have authenticated, published or installed the partial image. The requestor
+continues running throughout a 301-second monotonic observation. The runner
+then reads UpdateState=Idle and unchanged SoftwareVersion through chip-tool,
+checks partial-file cleanup, restarts the provider with its existing KVS and
+image, and announces it again. The second provider log must show ReceiveInit
+with STARTOFS unset and Start Offset zero. Full download, exact image hash,
+authentication, simulated reboot, NotifyUpdateApplied and fresh CASE readback
+must still succeed. Separate provider logs retain both attempts.
+
+Run this mode once with the normal executable and `--valgrind`, and separately
+with the sanitized executable. Each run waits the full interval. An MRP delivery
+error can end the transfer before the BDX idle timer; the runner records the
+observed failure time separately. Such an error is not evidence that a BDX idle
+timer expired early. The five-minute rule is Core 1.6.1 11.20.3.5; the optional
+ReceiveInit STARTOFS field is described in 11.22.5.1. This profile restarts at
+zero and does not declare transfer resumption, HTTPS or requestor user consent.
 
 ## Relationship to Test Harness
 

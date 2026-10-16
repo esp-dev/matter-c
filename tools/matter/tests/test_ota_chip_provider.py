@@ -7,6 +7,9 @@ procedure, suitable for separate Memcheck and ASan/UBSan/LSan runs.
 Neither mode installs executable firmware or is an automatic CSA test.
 CSA20 modes cover TC-SU-2.2 response scenarios using a provider built with
 matter_enable_tracing_support=true and matter_log_json_payload_hex=true.
+interrupt-retry covers TC-SU-2.3: kill the provider mid-transfer, observe
+at least five real minutes, read Idle, then restart the same provider and
+verify a new ReceiveInit at offset zero and a complete update.
 Requires Python cryptography, chip-tool and trusted development PAAs.
 """
 import argparse
@@ -140,7 +143,8 @@ def main():
         p.add_argument('--' + name, required=True)
     p.add_argument('--interface', type=int, required=True)
     p.add_argument('--mode', choices=('busy-update', 'update', 'busy-60', 'busy-180',
-                   'not-available', 'same-version', 'older-version', 'invalid-uri'), default='busy-update')
+                   'not-available', 'same-version', 'older-version', 'invalid-uri',
+                   'interrupt-retry'), default='busy-update')
     p.add_argument('--valgrind', action='store_true')
     p.add_argument('--require-trace', action='store_true', help='Require and verify actual QueryImageResponse fields, also in update mode.')
     a = p.parse_args()
@@ -158,7 +162,7 @@ def main():
               'binaries': {n: hashlib.sha256(Path(v).read_bytes()).hexdigest() for n, v in
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
     provider = node = client = reader = None
-    logs = []; phase = 0
+    logs = []; phase = 0; provider_phase = 0
 
     def check(name, ok, detail=None):
         report['checks'].append({'name': name, 'status': 'PASS' if ok else 'FAIL', 'detail': detail})
@@ -174,13 +178,17 @@ def main():
         return (out / f'node-{phase}.log').read_text(errors='replace')
 
     def provider_text():
-        return ANSI.sub('', (out / 'provider.log').read_text(errors='replace'))
+        return ''.join(ANSI.sub('', path.read_text(errors='replace')) for path in provider_logs())
+
+    def provider_logs():
+        return [out / ('provider.log' if i == 1 else f'provider-{i}.log')
+                for i in range(1, provider_phase + 1)]
 
     def query_count():
         return provider_text().count('OTA Provider received QueryImage')
 
     def responses():
-        return query_messages(out / 'provider.log')
+        return [message for path in provider_logs() for message in query_messages(path)]
 
     def observe(seconds):
         deadline = observed + seconds
@@ -190,12 +198,12 @@ def main():
             assert 'OTA_DOWNLOAD' not in node_text(), 'unexpected download during rejection/wait'
             time.sleep(.1)
 
-    def wait(test, timeout=60, allow_node_exit=False):
+    def wait(test, timeout=60, allow_node_exit=False, allow_provider_exit=False):
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             if test():
                 return
-            if provider is not None and provider.poll() is not None:
+            if provider is not None and provider.poll() is not None and not allow_provider_exit:
                 raise AssertionError('provider exited')
             if node is not None and node.poll() is not None and not allow_node_exit:
                 raise AssertionError('requestor exited: ' + node_text()[-600:])
@@ -230,16 +238,24 @@ def main():
     def announce():
         command(client, ['otasoftwareupdaterequestor', 'announce-otaprovider', 2, 0xfff1, 0, 0, 1, 0], r'status = 0x00')
 
-    try:
+    def start_provider():
+        nonlocal provider, provider_phase
+        provider_phase += 1
         provider = subprocess.Popen([a.provider, '--secured-device-port', '5561', '--discriminator', '3991',
                     '--passcode', '20202021', '--KVS', str(out / 'provider.kvs'),
                     '--filepath', str(out / 'source.ota'), '--queryImageStatus', 'busy' if busy_mode else
                     'updateNotAvailable' if a.mode == 'not-available' else 'updateAvailable',
                     '--delayedQueryActionTimeSec', str(delay),
+                    *(['--pollInterval', '500'] if a.mode == 'interrupt-retry' and provider_phase == 1 else []),
                     *(['--imageUri', 'bdx://0000000000000001'] if a.mode == 'invalid-uri' else []),
                     *(['--trace-to', 'json:log'] if need_trace else [])],
-                    stdout=log('provider.log'), stderr=subprocess.STDOUT, env=env)
-        wait(lambda: 'SetupQRCode' in provider_text() or 'SetupManualCode' in provider_text())
+                    stdout=log('provider.log' if provider_phase == 1 else f'provider-{provider_phase}.log'),
+                    stderr=subprocess.STDOUT, env=env)
+        wait(lambda: any(x in provider_logs()[-1].read_text(errors='replace')
+                        for x in ('SetupQRCode', 'SetupManualCode', 'Server initialization complete')))
+
+    try:
+        start_provider()
         start_node()
         client = Client(Path(a.chip_tool).resolve(), Path(a.paa).resolve(), out, 'controller')
         for identifier, discriminator in [(2, 3991), (1, 3910)]:
@@ -310,6 +326,55 @@ def main():
                 check('busy-delay-respected', query_interval >= 120000 and delay_interval >= delay * 1000,
                       {'query_interval_ms': query_interval, 'response_to_next_query_ms': delay_interval})
                 check('busy-retry-update-available', response['status'] == 0 and response['version'] == 2, response)
+        if a.mode == 'interrupt-retry':
+            partial = out / 'download.ota.part'
+            wait(lambda: partial.exists() and partial.stat().st_size >= 4096)
+            # The file stream buffers writes; the visible prefix is a lower
+            # bound on received data. The provider's EOF must still be absent.
+            prefix = partial.read_bytes()
+            check('partial-transfer-before-kill', 0 < len(prefix) < report['fixture']['image_bytes']
+                  and prefix == (out / 'source.ota').read_bytes()[:len(prefix)]
+                  and 'Transfer completed, got AckEOF' not in provider_text()
+                  and 'OTA_AUTH' not in node_text() and 'OTA_SIM_REBOOT' not in node_text(),
+                  {'visible_prefix_bytes': len(prefix), 'prefix_sha256': hashlib.sha256(prefix).hexdigest()})
+            provider.kill(); provider.wait(timeout=10)
+            killed = time.monotonic(); failure_elapsed = None; next_progress = 30
+            report['provider_kill_exit'] = provider.returncode
+            # Official step 4 requires a real five-minute observation. An MRP
+            # delivery failure can terminate the transfer sooner than its BDX
+            # idle timer; record that separately instead of calling it idle expiry.
+            while time.monotonic() - killed < 301:
+                elapsed = time.monotonic() - killed
+                assert node.poll() is None, 'requestor exited during interrupted transfer'
+                text = node_text()
+                assert 'OTA_AUTH' not in text and 'OTA_SIM_REBOOT' not in text, 'partial image accepted'
+                assert not (out / 'download.ota').exists(), 'partial image published'
+                if failure_elapsed is None and 'OTA_DOWNLOAD_FAILED' in text:
+                    failure_elapsed = elapsed
+                if elapsed >= next_progress:
+                    print(f'OBSERVE interrupted transfer {elapsed:.1f}s', flush=True); next_progress += 30
+                time.sleep(.1)
+            report['interruption'] = {'observation_seconds': time.monotonic() - killed,
+                                      'failure_observed_after_seconds': failure_elapsed}
+            wait(lambda: 'OTA_DOWNLOAD_FAILED' in node_text(), 45, allow_provider_exit=True)
+            idle = command(client, ['otasoftwareupdaterequestor', 'read', 'update-state', 1, 0], r'UpdateState: 1\b')
+            check('idle-after-five-real-minutes', bool(re.search(r'UpdateState: 1\b', idle))
+                  and not partial.exists() and not (out / 'download.ota').exists(), report['interruption'])
+            check('version-retained-after-interruption', basic(client)['SoftwareVersion'] == 1)
+            start_provider()  # Same image, KVS, node/fabric and requestor process.
+            announce()
+            wait(lambda: query_count() == 2, 90, allow_node_exit=True)
+            wait(lambda: len(responses()) == 2, allow_node_exit=True)
+            check('retry-query-update-available', responses()[1]['status'] == 0 and responses()[1]['version'] == 2,
+                  responses()[1])
+            wait(lambda: 'Start Offset:' in provider_logs()[-1].read_text(errors='replace'), allow_node_exit=True)
+            receive = ANSI.sub('', provider_logs()[-1].read_text(errors='replace')).split('[ATM] ReceiveInit', 1)[1]
+            offset = re.search(r'Start Offset:\s*(0x[0-9a-fA-F]+)', receive)
+            control = re.search(r'Range Control:\s*(0x[0-9a-fA-F]+)', receive)
+            check('retry-receive-init-starts-at-zero', offset is not None and int(offset[1], 16) == 0
+                  and control is not None and int(control[1], 16) & 2 == 0,
+                  {'start_offset': int(offset[1], 16) if offset else None,
+                   'range_control': int(control[1], 16) if control else None})
         if negative:
             wait(lambda: 'OTA_STATE state=1 reason=1' in node_text())
             if a.mode != 'not-available':
@@ -342,7 +407,7 @@ def main():
                 text = (out / f'valgrind-{i}.log').read_text()
                 assert 'ERROR SUMMARY: 0 errors' in text and 'in use at exit: 0 bytes in 0 blocks' in text
         check('memory-diagnostics-clean', True, f'boots={phase}; ' + ('Memcheck' if a.valgrind else 'stderr logs empty'))
-        report['result'] = 'PASS'; report['restarts'] = phase - 1
+        report['result'] = 'PASS'; report['restarts'] = phase - 1; report['provider_restarts'] = provider_phase - 1
         return 0
     except (AssertionError, OSError, ValueError, subprocess.SubprocessError) as error:
         report['result'] = 'FAIL'; report['error'] = str(error); print('FAIL', error, flush=True)
