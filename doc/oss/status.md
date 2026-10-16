@@ -2,7 +2,9 @@
 
 Native Windows desktop is implemented in C/Win32: independent node processes
 from one EXE, per-user state, integration selection/removal, ±10 kW slider and
-runtime-gated QR/status. Two concurrent workers pass CHIP under Memcheck (three
+runtime-gated QR/status. The interface is English and includes a transparent
+slate/teal icon embedded at nine sizes; its presentation update retains existing
+settings and pairings. Two concurrent workers pass CHIP under Memcheck (three
 boots, 59064 matched allocations/frees, zero errors/live bytes) and separately
 ASan/UBSan/LSan. Eight focused Linux tests pass per build; Windows QR CTest passes.
 GUI choice/QR/slider and restore were inspected; exhaustive Win32 memory stress

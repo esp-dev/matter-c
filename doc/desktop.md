@@ -6,6 +6,13 @@ system libraries remain dependencies. Initial frontend target: Windows 10 1903+
 (UTF-8 process manifest) and Windows 11. This is an experimental host, not a CSA
 certified product. Linux retains the CLI and backend acceptance scenario.
 
+Application labels, status and error messages are in English. Native Windows
+system UI, such as a folder picker, can still follow the OS language.
+The EXE and window icons share an embedded transparent slate/teal energy mark,
+with nine ICO sizes (16–256 px). Source PNG, generation prompts and file hashes
+are retained in `tools/matter/host/assets/icon-source.json`. The source asset
+is not needed alongside the executable at runtime.
+
 ## Build
 
 First configure the compiler and official Mbed TLS as in the root README.
@@ -22,7 +29,7 @@ Development attestation credentials intentionally remain external to the EXE.
 
 ## Setup and workflow
 
-**Ustawienia** selects the credentials directory (`dac.der`, `pai.der`, `paa.der`,
+**Settings** selects the credentials directory (`dac.der`, `pai.der`, `paa.der`,
 `dac-key.bin`, `cd.der`) and the IPv6 interface index (`Get-NetAdapter`). Identity
 is fixed to test VID `0xFFF1` / PID `0x8001` and must match the DAC/CD. Vendor and
 Product names accept the same CMake settings as the CLI host. The default
@@ -48,8 +55,8 @@ Other nodes' rules and the permanent execution policy are unchanged. The desktop
 itself runs without elevation. Local control uses inherited pipes, not a network
 control server.
 
-1. **Nowy węzeł** opens integration selection before starting a worker.
-2. **Symulator mocy** starts Root 0 and Electrical Sensor 1 with Descriptor,
+1. **New node** opens integration selection before starting a worker.
+2. **Power simulator** starts Root 0 and Electrical Sensor 1 with Descriptor,
    Power Topology and EPM. This desktop profile has no On/Off or EEM registers.
 3. Slider preview changes while dragging; release commits one changed value.
    Keyboard tracking completion also commits. The confirmation shows accepted
@@ -59,9 +66,9 @@ control server.
 4. QR appears after mDNS publication in the initial open commissioning window.
    Complete, expiry, stale status and process exit hide it. Enhanced windows use
    the sharing code from their controller; the initial PIN's QR is hidden then.
-5. **Zatrzymaj/Uruchom** preserves identity and pairing. Restarting an unpaired
+5. **Stop/Start** preserves identity and pairing. Restarting an unpaired
    node opens its initial window again. A paired restart keeps that window closed.
-6. **Usuń integrację** stops the worker and returns to source selection, retaining
+6. **Remove integration** stops the worker and returns to source selection, retaining
    its pairing files and last value. Selecting Simulator again reuses them.
    Controller RemoveFabric is separate: after last removal the reply completes
    and the worker stops, following the existing host behavior. Start it again

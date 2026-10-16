@@ -1,0 +1,26 @@
+{
+  "generator": "Built-in image_gen tool; one initial generation and one targeted refinement",
+  "purpose": "First-party Matter C desktop icon; no third-party logo",
+  "prompts": [
+    "Use case: logo-brand. Create one polished, minimal Windows desktop application icon for an energy/power measurement simulator called Matter C (do not put text or letters in the image). A distinctive simple open circular meter ring with a compact lightning-bolt-shaped needle in its center, conveying both measurement and electricity. Flat, precise, softly rounded geometric silhouette, professional engineering software aesthetic. Use only TWO subdued solid colors: deep slate blue #354D60 for the thick ring and muted teal #6A9A98 for the bold central lightning needle. No vivid colors, no gradients, no glow, no shadows, no texture, no 3D, no tiny tick marks or ornament. Clear silhouette readable at 16x16 and 32x32. Center one large isolated symbol on a square canvas, occupying about 80 percent of the canvas with comfortable even margins. Truly transparent background including the open central negative space; no white disk, no colored tile, no checkerboard pattern. Do not use the official Matter trademark symbol, Google or Apple logos. Output a clean high-resolution RGBA PNG icon.",
+    "Refine this exact application icon. Keep the open round meter ring, lightning bolt, layout, proportions, transparent background and muted slate-blue/teal palette. Clean the silhouette to immaculate smooth edges: remove ALL tiny stray cyan/teal fragments or specks around the lightning bolt and ring. Make each shape a completely uniform solid flat color, no texture, grain, lighting, highlight, gradient or shadow. The ring must be uniform #354D60 and the bolt uniform #6A9A98. Exactly two fill colors plus anti-aliased edge pixels and true transparent negative space. Professional crisp app icon, readable small. Do not add any other elements or text."
+  ],
+  "png": "matter-desktop.png",
+  "ico": "matter-desktop.ico",
+  "conversion": "Pillow ICO container conversion/resampling only; original PNG and alpha preserved",
+  "ico_sizes": [
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64,
+    128,
+    256
+  ],
+  "sha256": {
+    "matter-desktop.ico": "aa2a0b0af30c41e80de28a7beacff59f944accb2e3b346515d19c8509cdc1c15",
+    "matter-desktop.png": "2d797de29f95ed9e77bb5e17d5c1ba4560e353a7e3bc8d55f54bd9889807fb81"
+  }
+}

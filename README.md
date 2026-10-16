@@ -84,7 +84,7 @@ They retain their previous command line and output locations.
 
 ## Host and tests
 
-The Windows [native C desktop](doc/desktop.md) builds as `matter-desktop.exe`:
+The English-language Windows [native C desktop](doc/desktop.md) builds as `matter-desktop.exe`:
 one executable manages independent power-sensor windows, commissioning QR/status
 and a release-triggered −10…+10 kW slider. Per-user state retains each node's
 identity/pairing. Runtime dependencies are Windows/UCRT only; development

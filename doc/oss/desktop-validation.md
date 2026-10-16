@@ -1,5 +1,42 @@
 # Native desktop acceptance
 
+## English interface and icon update
+
+The desktop frontend now uses English labels/messages and an embedded transparent
+slate/teal energy icon, generated with the built-in image tool. Source, exact
+prompts and ICO conversion metadata are in `tools/matter/host/assets`. The ICO
+contains nine RGBA sizes (16–256 px); PNG/ICO alpha and transparent corners were
+checked. All application window classes use large/small resource icons.
+
+MinSizeRel desktop compilation and `test_gui_pairing` CTest pass. Native UI
+inspection confirms English manager/simulator/Settings labels, the window icon,
+two restored fabrics and the retained source value. The local settings file is
+byte-identical before/after the update. Windows/UCRT-only imports and the source
+inventory check pass. Windows-owned system UI can retain the OS language.
+
+Only Win32 presentation/resource code changes in this update. Portable stack,
+worker protocol, persistence schema and Linux-compiled C sources are unchanged;
+the earlier Memcheck/sanitizer/controller results below are retained evidence,
+not new runs for this UI update. No new CSA or ecosystem acceptance is claimed.
+
+### Explorer launch and profile recovery
+
+An actual Explorer launch initially showed an empty node list. The same EXE
+started through development tools restored a sensor, despite displaying the
+same nominal LocalAppData path. Explorer showed only `manager.lock` there;
+the tool environment also saw `settings.ini` and a node store. This exposed
+different filesystem views, not a working-directory-dependent INI lookup.
+
+The preserved settings and opaque node store were copied, without lock files,
+through an ignored staging directory into the interactive user's profile using
+Explorer. Staged copies were hash-checked against the originals. Two subsequent
+Explorer launches, separated by a graceful manager shutdown, restored one
+simulator at +4301 W and two fabrics with the pairing window closed. No reset,
+recommissioning, persistence-schema change or application-code change was
+needed. Actual Apple/Google reachability after this recovery was not checked.
+Tool-launched restoration alone is insufficient evidence for interactive
+Windows profile restoration in an isolated development environment.
+
 The portable library API is unchanged. Host simulation options append an optional
 copied UniqueID, requiring host consumers to rebuild. Existing callers retain
 their DAC-hash identity; GUI instances sharing test credentials use persistent,

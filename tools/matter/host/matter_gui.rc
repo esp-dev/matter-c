@@ -1,1 +1,3 @@
+#include "matter_gui_resources.h"
+IDI_MATTER_DESKTOP ICON "assets/matter-desktop.ico"
 1 24 "matter_gui.manifest"

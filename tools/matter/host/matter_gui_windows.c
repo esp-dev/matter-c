@@ -18,6 +18,7 @@
 #include <inttypes.h>
 #include "matter_host_platform.h"
 #include "matter_gui_pairing.h"
+#include "matter_gui_resources.h"
 #include "qrcodegen.h"
 
 #define GUI_PORT_FIRST 5546
@@ -53,12 +54,15 @@ static LRESULT CALLBACK node_proc(HWND,UINT,WPARAM,LPARAM);
 static LRESULT CALLBACK qr_proc(HWND,UINT,WPARAM,LPARAM);
 static LRESULT CALLBACK settings_proc(HWND,UINT,WPARAM,LPARAM);
 static App* application;
-static void error(HWND owner,const wchar_t* message) { MessageBoxW(owner,message,L"Matter C",MB_ICONERROR|MB_OK); }
+static int message_box(HWND owner,const wchar_t* message,const wchar_t* title,UINT type) {
+    return MessageBoxExW(owner,message,title,type,MAKELANGID(LANG_ENGLISH,SUBLANG_ENGLISH_US));
+}
+static void error(HWND owner,const wchar_t* message) { message_box(owner,message,L"Matter C",MB_ICONERROR|MB_OK); }
 static void os_error(HWND owner,const wchar_t* action) {
     wchar_t* detail=NULL;
     FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,GetLastError(),0,(wchar_t*)&detail,0,NULL);
-    MessageBoxW(owner,detail?detail:action,action,MB_ICONERROR|MB_OK); LocalFree(detail);
+        NULL,GetLastError(),MAKELANGID(LANG_ENGLISH,SUBLANG_ENGLISH_US),(wchar_t*)&detail,0,NULL);
+    message_box(owner,detail?detail:action,action,MB_ICONERROR|MB_OK); LocalFree(detail);
 }
 static wchar_t* join(const wchar_t* base,const wchar_t* name) {
     size_t size=wcslen(base)+wcslen(name)+2; wchar_t* out=calloc(size,sizeof(*out));
@@ -161,7 +165,7 @@ static HWND widget(App* a,HWND parent,const wchar_t* cls,const wchar_t* text,DWO
 static void refresh_list(App* a) {
     SendMessageW(a->list,LB_RESETCONTENT,0,0);
     for(Node* n=a->nodes;n;n=n->next) {
-        wchar_t text[120]; swprintf(text,120,L"Czujnik %u     ·     %ls     ·     UDP %u",n->index+1,n->simulator?L"Symulator":L"Wybierz integrację",n->port);
+        wchar_t text[120]; swprintf(text,120,L"Sensor %u     ·     %ls     ·     UDP %u",n->index+1,n->simulator?L"Simulator":L"Choose integration",n->port);
         LRESULT row=SendMessageW(a->list,LB_ADDSTRING,0,(LPARAM)text);
         SendMessageW(a->list,LB_SETITEMDATA,(WPARAM)row,(LPARAM)n);
     }
@@ -198,18 +202,18 @@ static void close_process(Node* n) {
 }
 static void start(Node* n) {
     App* a=n->app; if(n->process || !n->simulator || a->closing) return;
-    if(!a->interface_id || !*a->credentials) { error(n->window,L"Najpierw wybierz katalog poświadczeń i indeks interfejsu IPv6 w ustawieniach."); return; }
+    if(!a->interface_id || !*a->credentials) { error(n->window,L"First select the credentials folder and IPv6 interface index in Settings."); return; }
     const wchar_t* required[]={L"dac.der",L"pai.der",L"paa.der",L"cd.der",L"dac-key.bin"};
     for(unsigned i=0;i<sizeof(required)/sizeof(required[0]);++i) {
         wchar_t* file=join(a->credentials,required[i]);
         DWORD attributes=file?GetFileAttributesW(file):INVALID_FILE_ATTRIBUTES; free(file);
         if(attributes==INVALID_FILE_ATTRIBUTES || (attributes&FILE_ATTRIBUTE_DIRECTORY)) {
-            error(n->window,L"Katalog poświadczeń musi zawierać dac.der, pai.der, paa.der, cd.der i dac-key.bin."); return;
+            error(n->window,L"The credentials folder must contain dac.der, pai.der, paa.der, cd.der and dac-key.bin."); return;
         }
     }
     wchar_t* nodes=join(a->home,L"nodes"); wchar_t* directory=nodes?join(nodes,n->id):NULL;
     wchar_t* state=directory?join(directory,L"state.tlv"):NULL;
-    if(!nodes || !directory || !state) { free(nodes); free(directory); free(state); error(n->window,L"Brak pamięci."); return; }
+    if(!nodes || !directory || !state) { free(nodes); free(directory); free(state); error(n->window,L"Out of memory."); return; }
     bool ok=(CreateDirectoryW(nodes,NULL) || GetLastError()==ERROR_ALREADY_EXISTS) &&
         (CreateDirectoryW(directory,NULL) || GetLastError()==ERROR_ALREADY_EXISTS);
     free(nodes); free(directory);
@@ -245,19 +249,19 @@ static void start(Node* n) {
     if(input) CloseHandle(input);
     if(output) CloseHandle(output);
     free(command);
-    if(!ok) { close_process(n); SetLastError(failure); os_error(n->window,L"Uruchamianie węzła"); return; }
+    if(!ok) { close_process(n); SetLastError(failure); os_error(n->window,L"Starting node"); return; }
     n->stopping=n->detach=n->ready=n->show_qr=n->published=n->line_drop=false; n->used=0; n->error[0]=0;
     n->mode=n->fabrics=0; n->status_at=GetTickCount64();
-    if(!send_power(n)) wcscpy(n->error,L"Nie przekazano początkowego pomiaru.");
-    SetWindowTextW(n->status,L"Uruchamianie i publikowanie mDNS…");
+    if(!send_power(n)) wcscpy(n->error,L"Could not send the initial measurement.");
+    SetWindowTextW(n->status,L"Starting node and publishing mDNS…");
 }
 static void stop(Node* n,bool detach) {
-    if(!n->process) { if(detach) { n->simulator=false; if(!save(n->app)) { n->simulator=true; error(n->window,L"Nie zapisano ustawień."); } refresh_list(n->app); } return; }
+    if(!n->process) { if(detach) { n->simulator=false; if(!save(n->app)) { n->simulator=true; error(n->window,L"Could not save settings."); } refresh_list(n->app); } return; }
     n->detach|=detach;
     if(n->stopping) return;
     n->stopping=true; n->show_qr=false; n->stop_at=GetTickCount64();
     (void)send_line(n,"stop\n"); CloseHandle(n->input); n->input=NULL;
-    SetWindowTextW(n->status,L"Kończenie sesji i publikacji mDNS…");
+    SetWindowTextW(n->status,L"Closing sessions and mDNS advertisements…");
 }
 static void received_line(Node* n) {
     n->line[n->used]=0;
@@ -284,30 +288,30 @@ static void poll_node(Node* n) {
         GetExitCodeProcess(n->process,&n->exit_code); close_process(n);
         if(n->detach && n->exit_code==0) {
             n->simulator=false;
-            if(!save(n->app)) { n->simulator=true; error(n->window,L"Nie zapisano usunięcia integracji; stan parowania pozostał bez zmian."); }
+            if(!save(n->app)) { n->simulator=true; error(n->window,L"Could not save integration removal; pairing state is unchanged."); }
             refresh_list(n->app);
         }
         n->stopping=false;
-        wchar_t text[340]; swprintf(text,340,L"Zatrzymany · kod %lu. %ls",n->exit_code,n->error);
+        wchar_t text[340]; swprintf(text,340,L"Stopped · exit code %lu. %ls",n->exit_code,n->error);
         SetWindowTextW(n->status,text); return;
     }
     uint64_t now=GetTickCount64();
     if(n->stopping) {
-        if(now-n->stop_at>GUI_STOP_NOTICE_MS) SetWindowTextW(n->status,L"Węzeł nadal kończy pracę. Jego stan pozostaje zachowany.");
+        if(now-n->stop_at>GUI_STOP_NOTICE_MS) SetWindowTextW(n->status,L"The node is still shutting down. Its state is retained.");
         return;
     }
-    if(now-n->status_at>GUI_STATUS_STALE_MS) { n->show_qr=false; SetWindowTextW(n->status,L"Oczekiwanie na status procesu…"); return; }
+    if(now-n->status_at>GUI_STATUS_STALE_MS) { n->show_qr=false; SetWindowTextW(n->status,L"Waiting for node status…"); return; }
     if(n->ready) {
-        wchar_t text[180]; swprintf(text,180,L"%ls · fabrics: %u · %ls",n->published?L"Działa":L"Publikowanie mDNS",n->fabrics,n->mode?L"okno parowania otwarte":L"okno parowania zamknięte");
+        wchar_t text[180]; swprintf(text,180,L"%ls · fabrics: %u · %ls",n->published?L"Running":L"Publishing mDNS",n->fabrics,n->mode?L"pairing window open":L"pairing window closed");
         SetWindowTextW(n->status,text);
-        swprintf(text,180,L"Potwierdzone: %+.3f W · zmiana #%llu",(double)n->actual_mw/1000,(unsigned long long)n->generation);
+        swprintf(text,180,L"Confirmed: %+.3f W · update #%llu",(double)n->actual_mw/1000,(unsigned long long)n->generation);
         SetWindowTextW(n->applied,text);
         n->show_qr=n->mode==1 && n->published;
     }
 }
 static void preview(Node* n) {
     int watts=(int)SendMessageW(n->slider,TBM_GETPOS,0,0);
-    wchar_t text[100]; swprintf(text,100,L"%+d W · %ls",watts,watts>0?L"pobór":watts<0?L"oddawanie":L"brak przepływu");
+    wchar_t text[100]; swprintf(text,100,L"%+d W · %ls",watts,watts>0?L"import":watts<0?L"export":L"no power flow");
     SetWindowTextW(n->power,text);
 }
 static void show_controls(Node* n) {
@@ -317,9 +321,9 @@ static void show_controls(Node* n) {
     EnableWindow(n->start,!n->process); EnableWindow(n->stop,n->process && !n->stopping);
     EnableWindow(n->slider,!n->stopping && !n->app->closing); EnableWindow(n->remove,!n->stopping && !n->app->closing);
     if(n->simulator) {
-        SetWindowTextW(n->note,n->show_qr?L"Zeskanuj w Apple Dom lub Google Home.":n->fabrics?
-            L"Sparowany. Kolejny ekosystem dodaj z aplikacji zarządzającej urządzeniem.":
-            L"QR pojawi się w otwartym oknie parowania. Po wygaśnięciu zatrzymaj i uruchom węzeł.");
+        SetWindowTextW(n->note,n->show_qr?L"Scan with Apple Home or Google Home.":n->fabrics?
+            L"Paired. Add another ecosystem from the app managing this device.":
+            L"The QR code appears while pairing is open. After expiry, stop and restart the node.");
     }
     if(n->show_qr!=n->qr_displayed) { InvalidateRect(n->qr,NULL,FALSE); n->qr_displayed=n->show_qr; }
 }
@@ -334,7 +338,7 @@ static bool build_qr(Node* n) {
 }
 static void open_node(Node* n) {
     if(!n->window) {
-        wchar_t title[70]; swprintf(title,70,L"Czujnik %u — Matter C",n->index+1);
+        wchar_t title[70]; swprintf(title,70,L"Sensor %u — Matter C",n->index+1);
         n->window=CreateWindowExW(0,L"MatterCNode",title,WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,
             CW_USEDEFAULT,CW_USEDEFAULT,660,770,n->app->window,NULL,n->app->instance,n);
     }
@@ -342,7 +346,7 @@ static void open_node(Node* n) {
 }
 static void add_node(App* a) {
     if(a->closing) return;
-    if(a->count>=GUI_PORT_LAST-GUI_PORT_FIRST+1) { error(a->window,L"Brak wolnych portów w zakresie aplikacji."); return; }
+    if(a->count>=GUI_PORT_LAST-GUI_PORT_FIRST+1) { error(a->window,L"No free ports in the application range."); return; }
     Node* n=calloc(1,sizeof(*n)); if(!n) return;
     n->app=a; n->index=a->count;
     for(n->port=GUI_PORT_FIRST;n->port<=GUI_PORT_LAST;++n->port) {
@@ -364,7 +368,7 @@ static void add_node(App* a) {
     } while(!unique);
     Node** tail=&a->nodes; while(*tail) tail=&(*tail)->next;
     *tail=n; ++a->count;
-    if(!save(a)) { *tail=NULL; --a->count; free(n); error(a->window,L"Nie zapisano nowego węzła."); return; }
+    if(!save(a)) { *tail=NULL; --a->count; free(n); error(a->window,L"Could not save the new node."); return; }
     refresh_list(a); open_node(n);
 }
 static LRESULT CALLBACK node_proc(HWND window,UINT message,WPARAM w,LPARAM l) {
@@ -375,18 +379,18 @@ static LRESULT CALLBACK node_proc(HWND window,UINT message,WPARAM w,LPARAM l) {
     switch(message) {
     case WM_CTLCOLORSTATIC: SetBkColor((HDC)w,RGB(255,255,255)); return (LRESULT)GetStockObject(WHITE_BRUSH);
     case WM_CREATE: {
-        HWND title=widget(a,window,L"STATIC",L"Czujnik mocy",0,24,20,590,34,0); SendMessageW(title,WM_SETFONT,(WPARAM)a->title_font,TRUE);
-        n->status=widget(a,window,L"STATIC",L"Wybierz integrację przed uruchomieniem węzła.",0,24,65,590,46,0);
-        n->choose=widget(a,window,L"BUTTON",L"Integracja: Symulator mocy",WS_TABSTOP,24,135,350,44,ID_SIMULATOR);
+        HWND title=widget(a,window,L"STATIC",L"Power sensor",0,24,20,590,34,0); SendMessageW(title,WM_SETFONT,(WPARAM)a->title_font,TRUE);
+        n->status=widget(a,window,L"STATIC",L"Choose an integration before starting the node.",0,24,65,590,46,0);
+        n->choose=widget(a,window,L"BUTTON",L"Integration: Power simulator",WS_TABSTOP,24,135,350,44,ID_SIMULATOR);
         n->power=widget(a,window,L"STATIC",L"",SS_CENTER,24,118,590,46,0); SendMessageW(n->power,WM_SETFONT,(WPARAM)a->power_font,TRUE);
         n->slider=widget(a,window,TRACKBAR_CLASSW,L"",TBS_HORZ|WS_TABSTOP,24,176,590,44,ID_SLIDER);
         SendMessageW(n->slider,TBM_SETRANGE,TRUE,MAKELPARAM(-GUI_POWER_W,GUI_POWER_W));
         SendMessageW(n->slider,TBM_SETPAGESIZE,0,500); SendMessageW(n->slider,TBM_SETPOS,TRUE,n->watts);
-        n->legend=widget(a,window,L"STATIC",L"−10 kW oddawanie / +10 kW pobór · zmiana po puszczeniu",SS_CENTER,24,222,590,22,0);
+        n->legend=widget(a,window,L"STATIC",L"−10 kW export / +10 kW import · release to apply",SS_CENTER,24,222,590,22,0);
         n->applied=widget(a,window,L"STATIC",L"",SS_CENTER,24,247,590,22,0);
-        n->start=widget(a,window,L"BUTTON",L"Uruchom",WS_TABSTOP,24,274,120,34,ID_START);
-        n->stop=widget(a,window,L"BUTTON",L"Zatrzymaj",WS_TABSTOP,154,274,120,34,ID_STOP);
-        n->remove=widget(a,window,L"BUTTON",L"Usuń integrację",WS_TABSTOP,414,274,200,34,ID_REMOVE);
+        n->start=widget(a,window,L"BUTTON",L"Start",WS_TABSTOP,24,274,120,34,ID_START);
+        n->stop=widget(a,window,L"BUTTON",L"Stop",WS_TABSTOP,154,274,120,34,ID_STOP);
+        n->remove=widget(a,window,L"BUTTON",L"Remove integration",WS_TABSTOP,414,274,200,34,ID_REMOVE);
         n->qr=CreateWindowExW(0,L"MatterCQR",L"",WS_CHILD|WS_VISIBLE,175,325,290,290,window,NULL,a->instance,n);
         n->note=widget(a,window,L"STATIC",L"",SS_CENTER,24,635,590,66,0);
         preview(n); show_controls(n); if(n->simulator) start(n); return 0;
@@ -398,19 +402,19 @@ static LRESULT CALLBACK node_proc(HWND window,UINT message,WPARAM w,LPARAM l) {
                 int value=(int)SendMessageW(n->slider,TBM_GETPOS,0,0),old=n->watts;
                 if(value!=old) {
                     n->watts=value;
-                    if(!save(a)) { n->watts=old; SendMessageW(n->slider,TBM_SETPOS,TRUE,old); preview(n); error(window,L"Nie zapisano mocy; pomiar nie został wysłany."); }
-                    else if(n->process && !send_power(n)) error(window,L"Nie przekazano pomiaru do węzła.");
+                    if(!save(a)) { n->watts=old; SendMessageW(n->slider,TBM_SETPOS,TRUE,old); preview(n); error(window,L"Could not save power; the measurement was not sent."); }
+                    else if(n->process && !send_power(n)) error(window,L"Could not send the measurement to the node.");
                 }
             }
         } return 0;
     case WM_COMMAND:
         if(a->closing) return 0;
         switch(LOWORD(w)) {
-        case ID_SIMULATOR: n->simulator=true; if(!save(a)) { n->simulator=false; error(window,L"Nie zapisano integracji."); } else { refresh_list(a); show_controls(n); start(n); } break;
+        case ID_SIMULATOR: n->simulator=true; if(!save(a)) { n->simulator=false; error(window,L"Could not save the integration."); } else { refresh_list(a); show_controls(n); start(n); } break;
         case ID_START: start(n); break;
         case ID_STOP: stop(n,false); break;
         case ID_REMOVE:
-            if(MessageBoxW(window,L"Zatrzymać symulator i usunąć integrację? Parowanie i pliki węzła pozostaną zachowane.",L"Usuń integrację",MB_YESNO|MB_ICONQUESTION)==IDYES) stop(n,true);
+            if(message_box(window,L"Stop the simulator and remove its integration? Pairing and node files will be retained.",L"Remove integration",MB_YESNO|MB_ICONQUESTION)==IDYES) stop(n,true);
             break;
         } show_controls(n); return 0;
     case WM_CLOSE: ShowWindow(window,SW_HIDE); return 0;
@@ -432,7 +436,7 @@ static LRESULT CALLBACK qr_proc(HWND window,UINT message,WPARAM w,LPARAM l) {
             }
         } else {
             SetBkMode(dc,TRANSPARENT); SelectObject(dc,n?n->app->font:GetStockObject(DEFAULT_GUI_FONT));
-            DrawTextW(dc,n && n->fabrics?L"Węzeł sparowany":L"QR podczas parowania",-1,&rect,DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+            DrawTextW(dc,n && n->fabrics?L"Node paired":L"QR code shown during pairing",-1,&rect,DT_CENTER|DT_VCENTER|DT_SINGLELINE);
         }
         EndPaint(window,&paint); return 0;
     }
@@ -448,24 +452,24 @@ static LRESULT CALLBACK settings_proc(HWND window,UINT message,WPARAM w,LPARAM l
     switch(message) {
     case WM_CTLCOLORSTATIC: SetBkColor((HDC)w,RGB(255,255,255)); return (LRESULT)GetStockObject(WHITE_BRUSH);
     case WM_CREATE: {
-        widget(a,window,L"STATIC",L"Katalog poświadczeń testowych DAC / PAI / PAA / CD i klucz DAC",0,24,20,650,26,0);
+        widget(a,window,L"STATIC",L"Test credentials folder: DAC / PAI / PAA / CD and DAC key",0,24,20,650,26,0);
         a->credentials_edit=widget(a,window,L"EDIT",a->credentials,WS_BORDER|ES_AUTOHSCROLL|WS_TABSTOP,24,52,510,28,ID_CREDENTIALS);
-        widget(a,window,L"BUTTON",L"Wybierz…",WS_TABSTOP,546,52,110,28,ID_BROWSE);
-        widget(a,window,L"STATIC",L"Indeks interfejsu IPv6 (Windows: Get-NetAdapter)",0,24,104,630,26,0);
+        widget(a,window,L"BUTTON",L"Browse…",WS_TABSTOP,546,52,110,28,ID_BROWSE);
+        widget(a,window,L"STATIC",L"IPv6 interface index (Windows: Get-NetAdapter)",0,24,104,630,26,0);
         wchar_t iface[16]; swprintf(iface,16,L"%u",a->interface_id);
         a->interface_edit=widget(a,window,L"EDIT",iface,WS_BORDER|ES_NUMBER|WS_TABSTOP,24,137,130,28,ID_INTERFACE);
-        widget(a,window,L"STATIC",L"Polityka okresu ważności certyfikatów operacyjnych",0,24,190,630,26,0);
-        a->validity_edit=widget(a,window,L"COMBOBOX",L"",CBS_DROPDOWNLIST|WS_TABSTOP,24,223,230,100,ID_VALIDITY);
-        SendMessageW(a->validity_edit,CB_ADDSTRING,0,(LPARAM)L"strict — kontrola czasu");
-        SendMessageW(a->validity_edit,CB_ADDSTRING,0,(LPARAM)L"chip — zgodność kontrolerów");
+        widget(a,window,L"STATIC",L"Operational certificate validity policy",0,24,190,630,26,0);
+        a->validity_edit=widget(a,window,L"COMBOBOX",L"",CBS_DROPDOWNLIST|WS_TABSTOP,24,223,400,100,ID_VALIDITY);
+        SendMessageW(a->validity_edit,CB_ADDSTRING,0,(LPARAM)L"strict — validate dates");
+        SendMessageW(a->validity_edit,CB_ADDSTRING,0,(LPARAM)L"chip — controller compatibility");
         SendMessageW(a->validity_edit,CB_SETCURSEL,a->chip?1:0,0);
-        widget(a,window,L"STATIC",L"Produkt testowy: VID 0xFFF1 / PID 0x8001.\r\nMusi odpowiadać poświadczeniom i integracji Google Home Developer Console.\r\nNie trzeba ustawiać identyfikatora konta Google w aplikacji.",0,24,280,630,72,0);
-        widget(a,window,L"STATIC",L"Zmiany obowiązują po ponownym uruchomieniu węzłów.",0,24,367,630,28,0);
-        widget(a,window,L"BUTTON",L"Zapisz",WS_TABSTOP,526,420,130,36,ID_SAVE); return 0;
+        widget(a,window,L"STATIC",L"Test product: VID 0xFFF1 / PID 0x8001.\r\nMust match the credentials and Google Home Developer Console integration.\r\nNo Google account ID is required in this application.",0,24,280,630,72,0);
+        widget(a,window,L"STATIC",L"Changes take effect after restarting the nodes.",0,24,367,630,28,0);
+        widget(a,window,L"BUTTON",L"Save",WS_TABSTOP,526,420,130,36,ID_SAVE); return 0;
     }
     case WM_COMMAND:
         if(LOWORD(w)==ID_BROWSE) {
-            BROWSEINFOW info={0}; info.hwndOwner=window; info.lpszTitle=L"Poświadczenia testowe Matter"; info.ulFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
+            BROWSEINFOW info={0}; info.hwndOwner=window; info.lpszTitle=L"Matter test credentials"; info.ulFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
             PIDLIST_ABSOLUTE item=SHBrowseForFolderW(&info);
             if(item) {
                 wchar_t* path=calloc(GUI_INI_MAX_CHARS,sizeof(*path));
@@ -475,12 +479,12 @@ static LRESULT CALLBACK settings_proc(HWND window,UINT message,WPARAM w,LPARAM l
         } else if(LOWORD(w)==ID_SAVE) {
             wchar_t* path=field_text(a->credentials_edit); wchar_t* iface=field_text(a->interface_edit); unsigned index=0;
             if(!path || !iface || !number(iface,UINT32_MAX,&index) || !index || GetFileAttributesW(path)==INVALID_FILE_ATTRIBUTES) {
-                free(path); free(iface); error(window,L"Wskaż istniejący katalog poświadczeń oraz dodatni indeks interfejsu."); return 0;
+                free(path); free(iface); error(window,L"Select an existing credentials folder and a positive interface index."); return 0;
             }
             free(iface); wchar_t* old=a->credentials; unsigned old_index=a->interface_id; bool old_chip=a->chip;
             a->credentials=path; a->interface_id=index; a->chip=SendMessageW(a->validity_edit,CB_GETCURSEL,0,0)==1;
             if(save(a)) { free(old); DestroyWindow(window); }
-            else { free(path); a->credentials=old; a->interface_id=old_index; a->chip=old_chip; error(window,L"Nie zapisano ustawień."); }
+            else { free(path); a->credentials=old; a->interface_id=old_index; a->chip=old_chip; error(window,L"Could not save settings."); }
         } return 0;
     case WM_DESTROY: a->settings=NULL; EnableWindow(a->window,TRUE); SetForegroundWindow(a->window); return 0;
     }
@@ -492,12 +496,12 @@ static LRESULT CALLBACK manager_proc(HWND window,UINT message,WPARAM w,LPARAM l)
     case WM_CTLCOLORSTATIC: SetBkColor((HDC)w,RGB(255,255,255)); return (LRESULT)GetStockObject(WHITE_BRUSH);
     case WM_CREATE: {
         a->window=window;
-        HWND title=widget(a,window,L"STATIC",L"Węzły pomiarowe Matter",0,24,20,680,38,0); SendMessageW(title,WM_SETFONT,(WPARAM)a->title_font,TRUE);
-        widget(a,window,L"STATIC",L"Jeden EXE · niezależne węzły i parowania",0,24,68,680,28,0);
+        HWND title=widget(a,window,L"STATIC",L"Matter power sensors",0,24,20,680,38,0); SendMessageW(title,WM_SETFONT,(WPARAM)a->title_font,TRUE);
+        widget(a,window,L"STATIC",L"One executable · independent nodes and pairings",0,24,68,680,28,0);
         a->list=widget(a,window,L"LISTBOX",L"",LBS_NOTIFY|WS_BORDER|WS_VSCROLL|WS_TABSTOP,24,115,680,200,ID_LIST);
-        widget(a,window,L"BUTTON",L"+ Nowy węzeł",WS_TABSTOP,24,340,170,38,ID_NEW);
-        widget(a,window,L"BUTTON",L"Otwórz",WS_TABSTOP,210,340,130,38,ID_OPEN);
-        widget(a,window,L"BUTTON",L"Ustawienia",WS_TABSTOP,540,340,164,38,ID_SETTINGS);
+        widget(a,window,L"BUTTON",L"+ New node",WS_TABSTOP,24,340,170,38,ID_NEW);
+        widget(a,window,L"BUTTON",L"Open",WS_TABSTOP,210,340,130,38,ID_OPEN);
+        widget(a,window,L"BUTTON",L"Settings",WS_TABSTOP,540,340,164,38,ID_SETTINGS);
         widget(a,window,L"STATIC",a->home,0,24,400,680,48,0);
         refresh_list(a); SetTimer(window,1,GUI_POLL_MS,NULL); return 0;
     }
@@ -508,7 +512,7 @@ static LRESULT CALLBACK manager_proc(HWND window,UINT message,WPARAM w,LPARAM l)
             LRESULT row=SendMessageW(a->list,LB_GETCURSEL,0,0);
             if(row!=LB_ERR) open_node((Node*)SendMessageW(a->list,LB_GETITEMDATA,(WPARAM)row,0));
         } else if(LOWORD(w)==ID_SETTINGS && !a->settings) {
-            a->settings=CreateWindowExW(WS_EX_DLGMODALFRAME,L"MatterCSettings",L"Ustawienia — Matter C",WS_CAPTION|WS_SYSMENU,
+            a->settings=CreateWindowExW(WS_EX_DLGMODALFRAME,L"MatterCSettings",L"Settings — Matter C",WS_CAPTION|WS_SYSMENU,
                 CW_USEDEFAULT,CW_USEDEFAULT,700,520,window,NULL,a->instance,NULL);
             EnableWindow(window,FALSE); ShowWindow(a->settings,SW_SHOW);
         } return 0;
@@ -521,7 +525,7 @@ static LRESULT CALLBACK manager_proc(HWND window,UINT message,WPARAM w,LPARAM l)
     case WM_CLOSE:
         a->closing=true;
         if(a->settings) DestroyWindow(a->settings);
-        SetWindowTextW(window,L"Matter C — zamykanie węzłów…");
+        SetWindowTextW(window,L"Matter C — shutting down nodes…");
         for(Node* n=a->nodes;n;n=n->next) stop(n,false);
         return 0;
     case WM_DESTROY: PostQuitMessage(0); return 0;
@@ -538,7 +542,7 @@ int WINAPI WinMain(HINSTANCE instance,HINSTANCE previous,LPSTR cmd,int show) {
     application=a; a->instance=instance; int result=1;
     int argc=0; wchar_t** argv=CommandLineToArgvW(GetCommandLineW(),&argc);
     if(argc==3 && !wcscmp(argv[1],L"--data-dir")) a->home=_wcsdup(argv[2]);
-    else if(argc!=1) { error(NULL,L"Użycie: matter-desktop [--data-dir KATALOG]"); goto done; }
+    else if(argc!=1) { error(NULL,L"Usage: matter-desktop [--data-dir DIRECTORY]"); goto done; }
     else {
         wchar_t* local=NULL;
         if(SHGetKnownFolderPath(&FOLDERID_LocalAppData,KF_FLAG_CREATE,NULL,&local)!=S_OK) goto done;
@@ -547,8 +551,8 @@ int WINAPI WinMain(HINSTANCE instance,HINSTANCE previous,LPSTR cmd,int show) {
     if(!a->home || (!CreateDirectoryW(a->home,NULL) && GetLastError()!=ERROR_ALREADY_EXISTS)) goto done;
     a->ini=join(a->home,L"settings.ini"); wchar_t* lock=join(a->home,L"manager.lock"); if(!a->ini || !lock) { free(lock); goto done; }
     a->lock=CreateFileW(lock,GENERIC_READ|GENERIC_WRITE,0,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL); free(lock);
-    if(a->lock==INVALID_HANDLE_VALUE) { error(NULL,L"Ten profil jest już otwarty albo katalog jest niedostępny."); a->lock=NULL; goto done; }
-    if(!load(a)) { error(NULL,L"Niepoprawny lub nieobsługiwany plik ustawień. Pozostawiono go bez zmian."); goto done; }
+    if(a->lock==INVALID_HANDLE_VALUE) { error(NULL,L"This profile is already open or its folder is inaccessible."); a->lock=NULL; goto done; }
+    if(!load(a)) { error(NULL,L"Invalid or unsupported settings file. It has been left unchanged."); goto done; }
     a->exe=calloc(GUI_INI_MAX_CHARS,sizeof(*a->exe));
     if(!a->exe || !GetModuleFileNameW(NULL,a->exe,GUI_INI_MAX_CHARS)) goto done;
     a->job=CreateJobObjectW(NULL,NULL); if(!a->job) goto done;
@@ -559,12 +563,19 @@ int WINAPI WinMain(HINSTANCE instance,HINSTANCE previous,LPSTR cmd,int show) {
     a->power_font=CreateFontW(-32,0,0,0,FW_SEMIBOLD,FALSE,FALSE,FALSE,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Segoe UI");
     const wchar_t* names[]={L"MatterCManager",L"MatterCNode",L"MatterCQR",L"MatterCSettings"};
     WNDPROC procedures[]={manager_proc,node_proc,qr_proc,settings_proc};
+    /* Resource-owned shared handles: no DestroyIcon; both sizes use the
+     * matching frame from the embedded multi-resolution ICO. */
+    HICON icon=(HICON)LoadImageW(instance,MAKEINTRESOURCEW(IDI_MATTER_DESKTOP),IMAGE_ICON,
+        GetSystemMetrics(SM_CXICON),GetSystemMetrics(SM_CYICON),LR_SHARED);
+    HICON small_icon=(HICON)LoadImageW(instance,MAKEINTRESOURCEW(IDI_MATTER_DESKTOP),IMAGE_ICON,
+        GetSystemMetrics(SM_CXSMICON),GetSystemMetrics(SM_CYSMICON),LR_SHARED);
+    if(!icon || !small_icon) { error(NULL,L"Could not load the application icon."); goto done; }
     for(unsigned i=0;i<4;++i) {
-        WNDCLASSW cls={0}; cls.lpfnWndProc=procedures[i]; cls.hInstance=instance; cls.lpszClassName=names[i];
-        cls.hCursor=LoadCursorW(NULL,IDC_ARROW); cls.hIcon=LoadIconW(NULL,IDI_APPLICATION); cls.hbrBackground=(HBRUSH)(COLOR_WINDOW+1);
-        if(!RegisterClassW(&cls)) goto done;
+        WNDCLASSEXW cls={0}; cls.cbSize=sizeof(cls); cls.lpfnWndProc=procedures[i]; cls.hInstance=instance; cls.lpszClassName=names[i];
+        cls.hCursor=LoadCursorW(NULL,IDC_ARROW); cls.hIcon=icon; cls.hIconSm=small_icon; cls.hbrBackground=(HBRUSH)(COLOR_WINDOW+1);
+        if(!RegisterClassExW(&cls)) goto done;
     }
-    a->window=CreateWindowExW(0,names[0],L"Matter C — węzły pomiarowe",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,
+    a->window=CreateWindowExW(0,names[0],L"Matter C — power sensors",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,
         CW_USEDEFAULT,CW_USEDEFAULT,750,500,NULL,NULL,instance,NULL);
     if(!a->window) goto done;
     ShowWindow(a->window,show);

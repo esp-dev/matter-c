@@ -126,6 +126,8 @@ if(MATTER_BUILD_HOST)
   target_link_options(matter-node PRIVATE -Wl,--gc-sections)
   if(WIN32)
     enable_language(RC)
+    set_property(SOURCE "${host_dir}/matter_gui.rc" APPEND PROPERTY OBJECT_DEPENDS
+      "${host_dir}/assets/matter-desktop.ico" "${host_dir}/matter_gui.manifest")
     add_executable(matter-desktop WIN32 "${host_dir}/matter_node.c"
       "${host_dir}/matter_gui_windows.c"
       "${host_dir}/matter_gui.rc"

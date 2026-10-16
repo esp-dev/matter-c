@@ -52,5 +52,46 @@
     "restart_restore": "observed",
     "integration_removal": "implemented; no manual deletion test on the paired GUI node",
     "post_restart_fabrics": 2
+  },
+  "presentation_update": {
+    "scope": "English Win32 labels and embedded transparent icon; backend acceptance above retained, not rerun",
+    "bytes": 647630,
+    "sha256": "50e9d13f9f9e7ae2b3abad1c4bc4e74f49238da435b6d846b12c2fd80a6f3159",
+    "ico_sizes": [
+      16,
+      20,
+      24,
+      32,
+      40,
+      48,
+      64,
+      128,
+      256
+    ],
+    "checks": {
+      "MinSizeRel_build": "PASS",
+      "test_gui_pairing": "PASS",
+      "inventory": "PASS",
+      "English_text_audit": "PASS",
+      "RGBA_alpha_and_ICO_frames": "PASS",
+      "settings_byte_identical": "PASS",
+      "native_manager_simulator_Settings_inspection": "PASS"
+    },
+    "restored_fabrics": 2
+  },
+  "interactive_profile_recovery": {
+    "scope": "Manual Windows Explorer launch and profile restoration; no new backend or ecosystem acceptance",
+    "initial_Explorer_launch": "empty list; profile files absent in the interactive filesystem view",
+    "tool_launch": "one simulator and two fabrics; different filesystem view despite the same displayed profile path",
+    "recovery": "copied preserved settings and opaque node store through ignored staging using Explorer; excluded lock files",
+    "staging_hashes_match": true,
+    "subsequent_Explorer_launches": 2,
+    "graceful_shutdown_between_launches": true,
+    "restored_simulators": 1,
+    "restored_watts": 4301,
+    "restored_fabrics": 2,
+    "pairing_window": "closed",
+    "application_code_changed_for_recovery": false,
+    "Apple_Google_reachability_after_recovery": "not checked"
   }
 }
