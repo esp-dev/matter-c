@@ -1,0 +1,1264 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa21-results.json",
+  "previous_sha256": "943b996bf9ef5564fd8f0d74b4fbc17b41595347b8a2c8fecd4be8a3710c068d",
+  "scope": "Read/Subscribe dynamic UDP-bounded buffers and manual TC-SU-2.4 ApplyUpdateRequest token/version acceptance; not automatic CSA assertions or certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 14,
+    "BLOCKED": 11,
+    "MANUAL": 36,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SU-2.4",
+      "endpoint": 0,
+      "previous": "BLOCKED",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 445
+    }
+  ],
+  "official_manual": {
+    "case": "TC-SU-2.4",
+    "run_id": 445,
+    "harness_state": "passed",
+    "execution_mode": "agent-operated manual verification with captured peer protocol evidence",
+    "step_states": {
+      "passed": 2
+    },
+    "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "evidence_sha256": "69e86455da014c7d0a5221edbe8bcc0bdb02b7205a2ea3c3dec7c9c6b95af5ec",
+    "official_log_sha256": "591ac6cf4066cfc8c0b3ca77e179bb06741711d88284ac1e4975b16a8dbacf6a",
+    "upload_sha256": "ff1e047c8811f862d72f64690d576f785d02c50a8c10b3a97d17272eba1db76b"
+  },
+  "official_script_sha256": "1b488627a9f5a0f102bdf88eb702217dd1e828ed156e8faef0f644860b3aa13e",
+  "profile": {
+    "features": {
+      "MCORE.OTA.Requestor": true,
+      "MCORE.OTA.RequestorConsent": false,
+      "MCORE.OTA.HTTPS": false,
+      "MCORE.OTA.Resume": false
+    },
+    "pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "yaml_sha256": "1b488627a9f5a0f102bdf88eb702217dd1e828ed156e8faef0f644860b3aa13e"
+  },
+  "source_base_commit": "76ea851",
+  "build": {
+    "source_files": 353,
+    "source_manifest_sha256": "c8c022187138171a1d5aa869220535fc070f4ecbae55e2928c972487054ee8c1",
+    "binaries": {
+      "normal": "6a426a6c96864b0758ab5b1629c1fc17fcfee486a7eb2af0d0299d448b18012a",
+      "sanitize": "86c03e27e5d8c82dbb94df5dfe556d8dbab6d00b8a688a789805f9a1b8de27a4"
+    },
+    "warnings": {
+      "normal": [],
+      "sanitize": []
+    },
+    "focused": {
+      "normal": [
+        "100% tests passed, 0 tests failed out of 11"
+      ],
+      "sanitize": [
+        "100% tests passed, 0 tests failed out of 11"
+      ]
+    },
+    "evidence_sha256": {
+      "source-manifest.json": "c8c022187138171a1d5aa869220535fc070f4ecbae55e2928c972487054ee8c1",
+      "normal-build.log": "0bc60da9bfc1a1e8b5a007bfe08297674f01da43fbb64611013c79598386d486",
+      "normal-compile.log": "a5ddc598855fcec845e166bef36749140264f04f05669edc612c7e3a82befe09",
+      "normal-tests.log": "80076481fbf29f246f72a52f34b7428c8fd1e664782df8b02a052844a248fdf9",
+      "sanitize-build.log": "6f82c8d3bd5002c5c42aabeae0377e183cd6e8cc700973dee487330967a0434b",
+      "sanitize-compile.log": "5c73603863ede79c2349fe79e1f09e4830f2bfecee1388146f64ee1645dbd66d",
+      "sanitize-tests.log": "cefd168fd274a7fb139018943da85c8fc9fd1e4df3990333b8aa7d6f41f8e346"
+    }
+  },
+  "hash_encoding": "Committed previous report uses exact Git blob bytes; private evidence uses filesystem bytes; PICS sorted compact JSON. BDX paths are redacted.",
+  "external_tools": {
+    "binaries": {
+      "requestor": "6a426a6c96864b0758ab5b1629c1fc17fcfee486a7eb2af0d0299d448b18012a",
+      "sanitized_requestor": "86c03e27e5d8c82dbb94df5dfe556d8dbab6d00b8a688a789805f9a1b8de27a4",
+      "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+      "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+    },
+    "sdk_commit": "3bcdd56ba54fb88b2afb4bfef575014671df7aa7",
+    "sdk_clean": true
+  },
+  "laboratory_runs": {
+    "memcheck-v2": {
+      "result": {
+        "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+        "driver_sha256": "e4774746e237469ae3ed4c3d72f564f5c4b7d0793336e1695c58e1b42eef06c4",
+        "mode": "update",
+        "valgrind": true,
+        "trace_required": true,
+        "checks": [
+          {
+            "name": "commission-provider",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "commission-requestor",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "provider-authorizes-requestor",
+            "status": "PASS",
+            "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+          },
+          {
+            "name": "query-image-fields",
+            "status": "PASS",
+            "detail": {
+              "identity": {
+                "VendorID": 65521,
+                "ProductID": 32769,
+                "SoftwareVersion": 1,
+                "HardwareVersion": 1
+              },
+              "bdx_synchronous": true,
+              "consent": "0"
+            }
+          },
+          {
+            "name": "query-response-fields",
+            "status": "PASS",
+            "detail": {
+              "time_ms": 1792146784052,
+              "status": 0,
+              "delay": 0,
+              "uri": "bdx://0000000000000002/<laboratory-image>",
+              "version": 2
+            }
+          },
+          {
+            "name": "response-has-usable-bdx-location",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "signed-download-and-reboot",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "download-matches-image",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "provider-received-final-block-ack",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "notify-update-applied",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "apply-token-and-version-bound-to-query-and-image",
+            "status": "PASS",
+            "detail": [
+              {
+                "time_ms": 1792146787371,
+                "new_version": 2,
+                "token_size": 32,
+                "token_sha256": "dafeed0c29bb65fb231380cd683e9a5bb0c8cbd4931f7ce3b454c79237109f19"
+              }
+            ]
+          },
+          {
+            "name": "fresh-case-after-restart",
+            "status": "PASS",
+            "detail": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 2,
+              "HardwareVersion": 1
+            }
+          },
+          {
+            "name": "clean-requestor-stop",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memory-diagnostics-clean",
+            "status": "PASS",
+            "detail": "boots=2; Memcheck"
+          }
+        ],
+        "fixture": {
+          "format": "Matter OTA header and WWOTA001 signed host simulation",
+          "version": 2,
+          "signed_version": 2,
+          "image_bytes": 16585,
+          "image_sha256": "41c587135ff035dd4473da52d7fd8bae499f24b70c289c9a9535949982f2505d",
+          "public_key_sha256": "adf8a55cef00a688f48a21d9241a2ffc3ed6938e34aeccd582dfe7946bc7de49"
+        },
+        "binaries": {
+          "requestor": "6a426a6c96864b0758ab5b1629c1fc17fcfee486a7eb2af0d0299d448b18012a",
+          "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+          "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+        },
+        "basic_information": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "query_fields": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "location": "omitted (optional under Core 11.20.6.5.1)",
+        "first_response": {
+          "time_ms": 1792146784052,
+          "status": 0,
+          "delay": 0,
+          "uri": "bdx://0000000000000002/<laboratory-image>",
+          "version": 2
+        },
+        "apply_requests": [
+          {
+            "time_ms": 1792146787371,
+            "new_version": 2,
+            "token_size": 32,
+            "token_sha256": "dafeed0c29bb65fb231380cd683e9a5bb0c8cbd4931f7ce3b454c79237109f19"
+          }
+        ],
+        "result": "PASS",
+        "restarts": 1,
+        "provider_restarts": 0
+      },
+      "memcheck_summaries": {
+        "valgrind-1.log": [
+          "==873271==     in use at exit: 0 bytes in 0 blocks",
+          "==873271==   total heap usage: 35,529 allocs, 35,529 frees, 2,592,391 bytes allocated",
+          "==873271== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ],
+        "valgrind-2.log": [
+          "==873275==     in use at exit: 0 bytes in 0 blocks",
+          "==873275==   total heap usage: 19,543 allocs, 19,543 frees, 1,563,609 bytes allocated",
+          "==873275== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ]
+      },
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "d706f37619152de46a81585112fd3e3982277b620b893b680facd4f5ec04d740",
+        "provider.log": "e10716f91ea83536679930d4bf086401b9f8f463c59c6d543863fbd510f571f6",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "d92e6b89b5e44059a7fcfda2ca7072708eb7d4cbbb93c41678b90f7103cd0f94",
+        "node-1.log": "6df755d10307a693132c1c168ec4dc2b56ac3f94f93d06a8fb911ece724466fd",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "1c3830fe2a2dab239fa0043297e9f1ff03706182a4a534199be51d9e144685e4",
+        "valgrind-2.log": "1e8c7fc234732cfbbeb84aae44d8197c7920719bc0f99c1fa470168cb0295b68",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "ced79ff585ca2e5789e7eb3690e4c6d5c3911143fcf40a29f1bc6637545d935c",
+        "fresh-reader/interactive.log": "cc734ae62880df4434b3e2586ee851c2dcc4dfdf014d9cd84299e1d5f9d249cd",
+        "controller/interactive.log": "30976310b268337ce894daa3717558f52acb4339c94f9e3832e6f4bbb3b51114"
+      }
+    },
+    "memcheck-v3": {
+      "result": {
+        "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+        "driver_sha256": "e4774746e237469ae3ed4c3d72f564f5c4b7d0793336e1695c58e1b42eef06c4",
+        "mode": "update",
+        "valgrind": true,
+        "trace_required": true,
+        "checks": [
+          {
+            "name": "commission-provider",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "commission-requestor",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "provider-authorizes-requestor",
+            "status": "PASS",
+            "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+          },
+          {
+            "name": "query-image-fields",
+            "status": "PASS",
+            "detail": {
+              "identity": {
+                "VendorID": 65521,
+                "ProductID": 32769,
+                "SoftwareVersion": 1,
+                "HardwareVersion": 1
+              },
+              "bdx_synchronous": true,
+              "consent": "0"
+            }
+          },
+          {
+            "name": "query-response-fields",
+            "status": "PASS",
+            "detail": {
+              "time_ms": 1792146855555,
+              "status": 0,
+              "delay": 0,
+              "uri": "bdx://0000000000000002/<laboratory-image>",
+              "version": 3
+            }
+          },
+          {
+            "name": "response-has-usable-bdx-location",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "signed-download-and-reboot",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "download-matches-image",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "provider-received-final-block-ack",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "notify-update-applied",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "apply-token-and-version-bound-to-query-and-image",
+            "status": "PASS",
+            "detail": [
+              {
+                "time_ms": 1792146858637,
+                "new_version": 3,
+                "token_size": 32,
+                "token_sha256": "b409998b7a916913c3c37dc713097c95ea16ca3955114ac83a106b98fede2830"
+              }
+            ]
+          },
+          {
+            "name": "fresh-case-after-restart",
+            "status": "PASS",
+            "detail": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 3,
+              "HardwareVersion": 1
+            }
+          },
+          {
+            "name": "clean-requestor-stop",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memory-diagnostics-clean",
+            "status": "PASS",
+            "detail": "boots=2; Memcheck"
+          }
+        ],
+        "fixture": {
+          "format": "Matter OTA header and WWOTA001 signed host simulation",
+          "version": 3,
+          "signed_version": 3,
+          "image_bytes": 16585,
+          "image_sha256": "0e399209dac3198ce6ded9436d803cfa951d68277589a30c027ca724dcaf0bcf",
+          "public_key_sha256": "331fa0673fc008de8064cd19c8f21c2cd3bbb92b4e5b25dffa3ff793e07ae007"
+        },
+        "binaries": {
+          "requestor": "6a426a6c96864b0758ab5b1629c1fc17fcfee486a7eb2af0d0299d448b18012a",
+          "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+          "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+        },
+        "basic_information": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "query_fields": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "location": "omitted (optional under Core 11.20.6.5.1)",
+        "first_response": {
+          "time_ms": 1792146855555,
+          "status": 0,
+          "delay": 0,
+          "uri": "bdx://0000000000000002/<laboratory-image>",
+          "version": 3
+        },
+        "apply_requests": [
+          {
+            "time_ms": 1792146858637,
+            "new_version": 3,
+            "token_size": 32,
+            "token_sha256": "b409998b7a916913c3c37dc713097c95ea16ca3955114ac83a106b98fede2830"
+          }
+        ],
+        "result": "PASS",
+        "restarts": 1,
+        "provider_restarts": 0
+      },
+      "memcheck_summaries": {
+        "valgrind-1.log": [
+          "==873739==     in use at exit: 0 bytes in 0 blocks",
+          "==873739==   total heap usage: 35,549 allocs, 35,549 frees, 2,593,083 bytes allocated",
+          "==873739== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ],
+        "valgrind-2.log": [
+          "==873743==     in use at exit: 0 bytes in 0 blocks",
+          "==873743==   total heap usage: 19,567 allocs, 19,567 frees, 1,564,455 bytes allocated",
+          "==873743== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ]
+      },
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "62d548bbf919cd525eb3ffdc9fc7a4c71ce55fa9bf28557738cb2b8ee8822498",
+        "provider.log": "28121e421e0e360689e0037e61bfe1d4d98c4e5884bcdb36a90ac0e845485601",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "07869efe6f1cc0549f82ec91ad282253a9616af057b8b5bf82e87607e9e229d9",
+        "node-1.log": "d32dcfccc24bbd7a9beb08647d7b6013cdf83b9a7aabef81ce9edb706a221aa2",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "0b8ee4638b7204699a6b5df1cc1bb94bc1987c8d1080e0f4b936663a4586837f",
+        "valgrind-2.log": "6563fe5b8942fa2cfc8e61e6a53ff094cb05fb222bf196445b50ad6b2b3da4b5",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "ced79ff585ca2e5789e7eb3690e4c6d5c3911143fcf40a29f1bc6637545d935c",
+        "fresh-reader/interactive.log": "0a73a7313c3024daf5b648c1253deea8f87fe8c9a39e55c174e6bc8241d1d506",
+        "controller/interactive.log": "db5f761a8d9aeba2c4200c7bb660123c8cf5008c23656b68554c83346da67070"
+      }
+    },
+    "memcheck-version-mismatch": {
+      "result": {
+        "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+        "driver_sha256": "e4774746e237469ae3ed4c3d72f564f5c4b7d0793336e1695c58e1b42eef06c4",
+        "mode": "version-mismatch",
+        "valgrind": true,
+        "trace_required": true,
+        "checks": [
+          {
+            "name": "commission-provider",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "commission-requestor",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "provider-authorizes-requestor",
+            "status": "PASS",
+            "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+          },
+          {
+            "name": "query-image-fields",
+            "status": "PASS",
+            "detail": {
+              "identity": {
+                "VendorID": 65521,
+                "ProductID": 32769,
+                "SoftwareVersion": 1,
+                "HardwareVersion": 1
+              },
+              "bdx_synchronous": true,
+              "consent": "0"
+            }
+          },
+          {
+            "name": "query-response-fields",
+            "status": "PASS",
+            "detail": {
+              "time_ms": 1792146936127,
+              "status": 0,
+              "delay": 0,
+              "uri": "bdx://0000000000000002/<laboratory-image>",
+              "version": 3
+            }
+          },
+          {
+            "name": "response-has-usable-bdx-location",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "signed-version-mismatch-rejected",
+            "status": "PASS",
+            "detail": {
+              "offered_version": 3,
+              "signed_version": 2
+            }
+          },
+          {
+            "name": "no-apply-or-notify-for-rejected-version",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "fresh-case-version-and-boot",
+            "status": "PASS",
+            "detail": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            }
+          },
+          {
+            "name": "clean-requestor-stop",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memory-diagnostics-clean",
+            "status": "PASS",
+            "detail": "boots=1; Memcheck"
+          }
+        ],
+        "fixture": {
+          "format": "Matter OTA header and WWOTA001 signed host simulation",
+          "version": 3,
+          "signed_version": 2,
+          "image_bytes": 16585,
+          "image_sha256": "d2c694ae848b9acfac3007f65ac1205e891730f520f3a305e5275a62923a5ea5",
+          "public_key_sha256": "86693f55e521ac60e1df48c7783687d735046beffc65c480ec192d5550b290b5"
+        },
+        "binaries": {
+          "requestor": "6a426a6c96864b0758ab5b1629c1fc17fcfee486a7eb2af0d0299d448b18012a",
+          "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+          "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+        },
+        "basic_information": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "query_fields": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "location": "omitted (optional under Core 11.20.6.5.1)",
+        "first_response": {
+          "time_ms": 1792146936127,
+          "status": 0,
+          "delay": 0,
+          "uri": "bdx://0000000000000002/<laboratory-image>",
+          "version": 3
+        },
+        "result": "PASS",
+        "restarts": 0,
+        "provider_restarts": 0
+      },
+      "memcheck_summaries": {
+        "valgrind-1.log": [
+          "==874005==     in use at exit: 0 bytes in 0 blocks",
+          "==874005==   total heap usage: 37,662 allocs, 37,662 frees, 2,897,307 bytes allocated",
+          "==874005== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ]
+      },
+      "stderr_bytes": {
+        "node-1.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "98d36f6ee1a3af33bfae2c7387f8469e425169d7869eccb49b00edcf8bc37358",
+        "provider.log": "ab6fa84f6293bd2f5540fa58f5d7e51619e057b907ec3add70699fa2c6ed93e0",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-1.log": "98eb92dcdda27a8c078f4224ccb4ab56dbeebda446afebad8178da9ebd49a35e",
+        "valgrind-1.log": "b86db3ec78f38b7eaace7de36f81c737f71b0fdbebec3ed7138e239a87df1e80",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "ced79ff585ca2e5789e7eb3690e4c6d5c3911143fcf40a29f1bc6637545d935c",
+        "fresh-reader/interactive.log": "29a01bb37ad55a0dea76b3612c9e084554b0ef9803e9353d832614e513b40e91",
+        "controller/interactive.log": "c0939c59aac5d148d11495ad113515c651adf569095342af612c0b3e292d308c"
+      }
+    },
+    "sanitize-v3": {
+      "result": {
+        "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+        "driver_sha256": "e4774746e237469ae3ed4c3d72f564f5c4b7d0793336e1695c58e1b42eef06c4",
+        "mode": "update",
+        "valgrind": false,
+        "trace_required": true,
+        "checks": [
+          {
+            "name": "commission-provider",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "commission-requestor",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "provider-authorizes-requestor",
+            "status": "PASS",
+            "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+          },
+          {
+            "name": "query-image-fields",
+            "status": "PASS",
+            "detail": {
+              "identity": {
+                "VendorID": 65521,
+                "ProductID": 32769,
+                "SoftwareVersion": 1,
+                "HardwareVersion": 1
+              },
+              "bdx_synchronous": true,
+              "consent": "0"
+            }
+          },
+          {
+            "name": "query-response-fields",
+            "status": "PASS",
+            "detail": {
+              "time_ms": 1792147004577,
+              "status": 0,
+              "delay": 0,
+              "uri": "bdx://0000000000000002/<laboratory-image>",
+              "version": 3
+            }
+          },
+          {
+            "name": "response-has-usable-bdx-location",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "signed-download-and-reboot",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "download-matches-image",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "provider-received-final-block-ack",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "notify-update-applied",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "apply-token-and-version-bound-to-query-and-image",
+            "status": "PASS",
+            "detail": [
+              {
+                "time_ms": 1792147007024,
+                "new_version": 3,
+                "token_size": 32,
+                "token_sha256": "6fbbce13e3f92c3b6ff1582e7d30dbf165b08ced8d577398327eb74a90eed1a3"
+              }
+            ]
+          },
+          {
+            "name": "fresh-case-after-restart",
+            "status": "PASS",
+            "detail": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 3,
+              "HardwareVersion": 1
+            }
+          },
+          {
+            "name": "clean-requestor-stop",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memory-diagnostics-clean",
+            "status": "PASS",
+            "detail": "boots=2; stderr logs empty"
+          }
+        ],
+        "fixture": {
+          "format": "Matter OTA header and WWOTA001 signed host simulation",
+          "version": 3,
+          "signed_version": 3,
+          "image_bytes": 16585,
+          "image_sha256": "ceb5a7b865f927ec67457c2026d0f5aa5d512a4bce8a8657944644985080a2eb",
+          "public_key_sha256": "9486fea409fd7e3dd2972f8d0ee277493264ecf432649a27d505fdabc777da18"
+        },
+        "binaries": {
+          "requestor": "86c03e27e5d8c82dbb94df5dfe556d8dbab6d00b8a688a789805f9a1b8de27a4",
+          "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+          "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+        },
+        "basic_information": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "query_fields": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "location": "omitted (optional under Core 11.20.6.5.1)",
+        "first_response": {
+          "time_ms": 1792147004577,
+          "status": 0,
+          "delay": 0,
+          "uri": "bdx://0000000000000002/<laboratory-image>",
+          "version": 3
+        },
+        "apply_requests": [
+          {
+            "time_ms": 1792147007024,
+            "new_version": 3,
+            "token_size": 32,
+            "token_sha256": "6fbbce13e3f92c3b6ff1582e7d30dbf165b08ced8d577398327eb74a90eed1a3"
+          }
+        ],
+        "result": "PASS",
+        "restarts": 1,
+        "provider_restarts": 0
+      },
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "85a3d5b95e7b41e8f029395079ba245f9c07e23fe5720830f6a25a3d03f1988a",
+        "provider.log": "14c4f1212ece8e3ea4957dfa64b515174b0bd08d230b48f930bbe826ad5c8376",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "0bc3202fbe4b1db5a4e7b69c477f86444bf133cb17e487731fa28eef12337c23",
+        "node-1.log": "17ff2b995a114395b8fede4e7d919bd9fc030bf79109cf3aa6c3651d30a9b8e4",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "ced79ff585ca2e5789e7eb3690e4c6d5c3911143fcf40a29f1bc6637545d935c",
+        "fresh-reader/interactive.log": "716b5cd8bbe49a8b16e4d2d9b09f1d98babfdb8ac05f7a6826055ff3d0009423",
+        "controller/interactive.log": "8251f543e973560f2d789e0cc3de219dcdbd799fef74b590d7d4a697843933fb"
+      }
+    },
+    "sanitize-version-mismatch": {
+      "result": {
+        "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+        "driver_sha256": "e4774746e237469ae3ed4c3d72f564f5c4b7d0793336e1695c58e1b42eef06c4",
+        "mode": "version-mismatch",
+        "valgrind": false,
+        "trace_required": true,
+        "checks": [
+          {
+            "name": "commission-provider",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "commission-requestor",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "provider-authorizes-requestor",
+            "status": "PASS",
+            "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+          },
+          {
+            "name": "query-image-fields",
+            "status": "PASS",
+            "detail": {
+              "identity": {
+                "VendorID": 65521,
+                "ProductID": 32769,
+                "SoftwareVersion": 1,
+                "HardwareVersion": 1
+              },
+              "bdx_synchronous": true,
+              "consent": "0"
+            }
+          },
+          {
+            "name": "query-response-fields",
+            "status": "PASS",
+            "detail": {
+              "time_ms": 1792147070399,
+              "status": 0,
+              "delay": 0,
+              "uri": "bdx://0000000000000002/<laboratory-image>",
+              "version": 3
+            }
+          },
+          {
+            "name": "response-has-usable-bdx-location",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "signed-version-mismatch-rejected",
+            "status": "PASS",
+            "detail": {
+              "offered_version": 3,
+              "signed_version": 2
+            }
+          },
+          {
+            "name": "no-apply-or-notify-for-rejected-version",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "fresh-case-version-and-boot",
+            "status": "PASS",
+            "detail": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            }
+          },
+          {
+            "name": "clean-requestor-stop",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memory-diagnostics-clean",
+            "status": "PASS",
+            "detail": "boots=1; stderr logs empty"
+          }
+        ],
+        "fixture": {
+          "format": "Matter OTA header and WWOTA001 signed host simulation",
+          "version": 3,
+          "signed_version": 2,
+          "image_bytes": 16585,
+          "image_sha256": "7d378f74f0c9aed5e81c6c3b7a01ae17a814b782dab66928297a12185becd2ed",
+          "public_key_sha256": "628288667ce072c4d787de4ac38762cab179c9ca40a403360a8511e8911bc03e"
+        },
+        "binaries": {
+          "requestor": "86c03e27e5d8c82dbb94df5dfe556d8dbab6d00b8a688a789805f9a1b8de27a4",
+          "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+          "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+        },
+        "basic_information": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "query_fields": {
+          "VendorID": 65521,
+          "ProductID": 32769,
+          "SoftwareVersion": 1,
+          "HardwareVersion": 1
+        },
+        "location": "omitted (optional under Core 11.20.6.5.1)",
+        "first_response": {
+          "time_ms": 1792147070399,
+          "status": 0,
+          "delay": 0,
+          "uri": "bdx://0000000000000002/<laboratory-image>",
+          "version": 3
+        },
+        "result": "PASS",
+        "restarts": 0,
+        "provider_restarts": 0
+      },
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "517b8d4e3644de3c83d411c51ce7f3138a369313ecdf5c496dfc0520041e3019",
+        "provider.log": "032c2818e2d9e155abde57ce09f01b39d9061e5db3529394649db2d765c2c8c9",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-1.log": "71538b2925bb467c04c045a6ba716a6ccce37d9329393c06f1f68365f14956a0",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "ced79ff585ca2e5789e7eb3690e4c6d5c3911143fcf40a29f1bc6637545d935c",
+        "fresh-reader/interactive.log": "485bb234db672218336398e13f6af3b8e131232fb4e7e8a391d2d5fbc688eee5",
+        "controller/interactive.log": "fb044bda9c7973121afd2d5e56c92e5a174d81cecba6a5d6f0f1a80e7fd37495"
+      }
+    },
+    "memcheck-im": {
+      "result": {
+        "scope": "full host regression, not CSA certification",
+        "checks": [
+          {
+            "name": "host-published",
+            "passed": true
+          },
+          {
+            "name": "command-payload-generate-qrcode",
+            "passed": true
+          },
+          {
+            "name": "command-pairing-code",
+            "passed": true
+          },
+          {
+            "name": "attestation-verified",
+            "passed": true
+          },
+          {
+            "name": "command-any-read-all",
+            "passed": true
+          },
+          {
+            "name": "complete-inventory-0",
+            "passed": true
+          },
+          {
+            "name": "seventeen-cluster-filters-0",
+            "passed": true
+          },
+          {
+            "name": "command-any-subscribe-by-id",
+            "passed": true
+          },
+          {
+            "name": "unchanged-priming-suppressed-0",
+            "passed": true
+          },
+          {
+            "name": "command-onoff-on",
+            "passed": true
+          },
+          {
+            "name": "filtered-switch-still-reports-0",
+            "passed": true
+          },
+          {
+            "name": "command-subscriptions-shutdown-all",
+            "passed": true
+          },
+          {
+            "name": "command-any-read-all",
+            "passed": true
+          },
+          {
+            "name": "complete-inventory-1",
+            "passed": true
+          },
+          {
+            "name": "fresh-CASE-and-discovery",
+            "passed": true
+          },
+          {
+            "name": "seventeen-cluster-filters-1",
+            "passed": true
+          },
+          {
+            "name": "command-any-subscribe-by-id",
+            "passed": true
+          },
+          {
+            "name": "unchanged-priming-suppressed-1",
+            "passed": true
+          },
+          {
+            "name": "command-onoff-off",
+            "passed": true
+          },
+          {
+            "name": "filtered-switch-still-reports-1",
+            "passed": true
+          },
+          {
+            "name": "command-subscriptions-shutdown-all",
+            "passed": true
+          },
+          {
+            "name": "command-operationalcredentials-read",
+            "passed": true
+          },
+          {
+            "name": "command-operationalcredentials-remove-fabric",
+            "passed": true
+          },
+          {
+            "name": "host-clean-exit",
+            "passed": true
+          },
+          {
+            "name": "memcheck-clean",
+            "passed": true
+          }
+        ],
+        "host_sha256": "6a426a6c96864b0758ab5b1629c1fc17fcfee486a7eb2af0d0299d448b18012a",
+        "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+        "result": "PASS"
+      },
+      "memcheck_summaries": {
+        "memcheck.log": [
+          "==873841==     in use at exit: 0 bytes in 0 blocks",
+          "==873841==   total heap usage: 31,239 allocs, 31,239 frees, 2,922,718 bytes allocated",
+          "==873841== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ]
+      },
+      "stderr_bytes": {
+        "host.stderr.log": 0
+      },
+      "evidence_sha256": {
+        "result.json": "fcaa3ea80993d85a63ff2d738b2f59382528f0b19eb23b02fbe55ed8d671a344",
+        "memcheck.log": "772900e9e9a9cda8b48098c4d306a0fdb528fa4f1925f84b0e4a9246f12297e8",
+        "host.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "host.stdout.log": "e03529ad4be905c5139084033aca7de97e4fc8484e79a04784e3b81fd712b802",
+        "fresh-controller/commands.txt": "6005d2ef6efc5f4fbcb5aab22bd6f7a42da4237bba6534b73f56dcc6364cffbe",
+        "initial/commands.txt": "5eaa96726a60dbfe64b61a503287dbd64f54a8a58d1261ef574da97895c6282e",
+        "fresh-controller/interactive.log": "fc217f22442226a0ced559aaaca24f13f180e0dea6060271aed36ff3338d65e5",
+        "initial/interactive.log": "2af153c7b4eedeb7508ca33ea3aef8b377ee6445263abfbb49cb87e58c642baf"
+      }
+    },
+    "sanitize-im": {
+      "result": {
+        "scope": "full host regression, not CSA certification",
+        "checks": [
+          {
+            "name": "host-published",
+            "passed": true
+          },
+          {
+            "name": "command-payload-generate-qrcode",
+            "passed": true
+          },
+          {
+            "name": "command-pairing-code",
+            "passed": true
+          },
+          {
+            "name": "attestation-verified",
+            "passed": true
+          },
+          {
+            "name": "command-any-read-all",
+            "passed": true
+          },
+          {
+            "name": "complete-inventory-0",
+            "passed": true
+          },
+          {
+            "name": "seventeen-cluster-filters-0",
+            "passed": true
+          },
+          {
+            "name": "command-any-subscribe-by-id",
+            "passed": true
+          },
+          {
+            "name": "unchanged-priming-suppressed-0",
+            "passed": true
+          },
+          {
+            "name": "command-onoff-on",
+            "passed": true
+          },
+          {
+            "name": "filtered-switch-still-reports-0",
+            "passed": true
+          },
+          {
+            "name": "command-subscriptions-shutdown-all",
+            "passed": true
+          },
+          {
+            "name": "command-any-read-all",
+            "passed": true
+          },
+          {
+            "name": "complete-inventory-1",
+            "passed": true
+          },
+          {
+            "name": "fresh-CASE-and-discovery",
+            "passed": true
+          },
+          {
+            "name": "seventeen-cluster-filters-1",
+            "passed": true
+          },
+          {
+            "name": "command-any-subscribe-by-id",
+            "passed": true
+          },
+          {
+            "name": "unchanged-priming-suppressed-1",
+            "passed": true
+          },
+          {
+            "name": "command-onoff-off",
+            "passed": true
+          },
+          {
+            "name": "filtered-switch-still-reports-1",
+            "passed": true
+          },
+          {
+            "name": "command-subscriptions-shutdown-all",
+            "passed": true
+          },
+          {
+            "name": "command-operationalcredentials-read",
+            "passed": true
+          },
+          {
+            "name": "command-operationalcredentials-remove-fabric",
+            "passed": true
+          },
+          {
+            "name": "host-clean-exit",
+            "passed": true
+          }
+        ],
+        "host_sha256": "86c03e27e5d8c82dbb94df5dfe556d8dbab6d00b8a688a789805f9a1b8de27a4",
+        "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+        "result": "PASS"
+      },
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "host.stderr.log": 0
+      },
+      "evidence_sha256": {
+        "result.json": "9a7995deafcac50307a52db61eae9abc9e6c8c5850d5c9da754d0990f9619a45",
+        "host.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "host.stdout.log": "bf72aec1c5d3394c63aea12ed192f5541fa6c09cac54a42d5ccae9e121d2bb09",
+        "fresh-controller/commands.txt": "1813a59ea9479f543b270126105033171ce75f7fa44ab965d65386391e7e1000",
+        "initial/commands.txt": "f26fd64578096aba16be9790332546029a9345f62a47e6176ac64c986d71803c",
+        "fresh-controller/interactive.log": "20d531c33f5c5c484d93d50d58870ed6f75f908ee2e9605425be10e09a6126ca",
+        "initial/interactive.log": "167da05812ba42b8c2b6265ad9b1504fa75b0118b3a88c0b234ac0873c02e71b"
+      }
+    }
+  },
+  "oracle_review": {
+    "trace_rechecks": {
+      "memcheck-v2": [
+        {
+          "time_ms": 1792146787371,
+          "new_version": 2,
+          "token_size": 32,
+          "token_sha256": "dafeed0c29bb65fb231380cd683e9a5bb0c8cbd4931f7ce3b454c79237109f19"
+        }
+      ],
+      "memcheck-v3": [
+        {
+          "time_ms": 1792146858637,
+          "new_version": 3,
+          "token_size": 32,
+          "token_sha256": "b409998b7a916913c3c37dc713097c95ea16ca3955114ac83a106b98fede2830"
+        }
+      ],
+      "sanitize-v3": [
+        {
+          "time_ms": 1792147007024,
+          "new_version": 3,
+          "token_size": 32,
+          "token_sha256": "6fbbce13e3f92c3b6ff1582e7d30dbf165b08ced8d577398327eb74a90eed1a3"
+        }
+      ]
+    },
+    "rejected_controls": [
+      "token",
+      "version",
+      "missing-apply",
+      "missing-notify"
+    ],
+    "driver_sha256": "cf6faee292d275e03ca80ad451dc646cf323979f7867a7b208519536b52ab341"
+  },
+  "source_comment_review": {
+    "files": [
+      "main/apps/matter/model/matter_im_read.h",
+      "main/apps/matter/model/matter_im_subscribe.h"
+    ],
+    "only_block_comments_changed": true
+  },
+  "im_budgets": {
+    "ipv6_udp_packet": 1280,
+    "udp_payload": 1232,
+    "secure_overhead": 24,
+    "protocol_header_minimum": 6,
+    "receive_application": 1202,
+    "transmit_application_with_ack_reserve": 1198,
+    "allocation": "exact receive length, configured transmit capacity, exact validated filters",
+    "native_filter_entries": 83,
+    "request_boundaries_tested": [
+      1025,
+      1198,
+      1202,
+      1203
+    ]
+  },
+  "windows": {
+    "focused_tests": 5,
+    "result": "PASS",
+    "tests_log_sha256": "a81653347a6ceaee971aa62ba9ca52c228981da4b0086bc3052353c937246ff5",
+    "build_log_sha256": "a7a2358c8a6ecfbfb35ae786d72b480be608f9f18d2897f7aac438614de718d4"
+  },
+  "memcheck": {
+    "result": "PASS",
+    "requestor_boots": 6,
+    "allocations": 179089,
+    "frees": 179089,
+    "errors": 0,
+    "bytes_at_exit": 0,
+    "suppressions": 0
+  },
+  "limits": [
+    "Only TC-SU-2.4 changes classification; other official rows inherited, not rerun.",
+    "Manual prompts evaluated by the coding agent against evidence; not automatic assertions, certification or accredited laboratory acceptance.",
+    "Two separate fresh fixtures install simulated versions 1-to-2 and 1-to-3, not one sequential update of the same node.",
+    "Memory tools instrument the C host, not independent CHIP binaries.",
+    "IM maximums apply to secure standard-vendor UDP; actual optional headers can reduce usable wire space. Larger buffers do not permit larger UDP packets.",
+    "Invoke, Write, outbound IM, result/connection/transport tables remain separate migration work.",
+    "Only API block comments changed after the Linux compiled source snapshot; comment-stripped source tokens were compared for both headers.",
+    "Final trace oracle additionally requires Notify; all saved positive traces were rechecked, and mutated token/version/missing-message controls rejected.",
+    "No executable firmware installation, hardware bootloader/radio test, Google/Apple Home UI test or full CSA rerun. The paired Windows instance was not changed."
+  ],
+  "signature_controls": {
+    "memcheck-version-mismatch": {
+      "ecdsa_p256_sha256_signature": "valid",
+      "signed_version": 2,
+      "offered_version": 3
+    },
+    "sanitize-version-mismatch": {
+      "ecdsa_p256_sha256_signature": "valid",
+      "signed_version": 2,
+      "offered_version": 3
+    }
+  },
+  "specification": {
+    "revision": "Matter Core R1.6.1",
+    "document": "23-27349, September 16, 2026",
+    "local_extracted_text_sha256": "14a490965ec952506fcc46dd9c5503ecca9973bb178513207c2fd6e33613ec05",
+    "sections": [
+      "4.4.4",
+      "11.20.3.6",
+      "OTA Provider ApplyUpdateRequest command"
+    ]
+  }
+}

@@ -102,7 +102,7 @@ entrypoint and the map for exact routes; generators are not build prerequisites.
 No CSA test distribution is bundled, and no local result waives open CSA failures.
 
 DataVersionFilters regression adds `test_im_subscribe_alloc` alongside the
-existing Read allocation variant. Both native suites cover 70 entries and
+existing Read allocation variant. Both native suites now cover 83 entries and
 malformed final entries beyond the former entry/token budgets; Subscribe checks
 that version suppression only applies to priming and that its filter table is
 released before idle, on allocation/reservation errors and deletion.
@@ -110,3 +110,12 @@ released before idle, on allocation/reservation errors and deletion.
 unmodified chip-tool, with 17 distinct cluster filters, exact inventory, fresh
 CASE after controller restart, subsequent switch reports and RemoveFabric.
 Its `--memcheck` mode and a separate sanitizer host run are external scenarios.
+
+CSA22 extends those native tests with exact-sized RX/TX ownership, requests of
+1025/1198/1202 bytes, oversize rejection and constructor/receive allocation
+failure. The runtime dispatcher uses the transport-derived output budget.
+`test_ota_apply` mutates both the caller token and version after begin and checks
+the immutable command copy. The existing CHIP provider runner adds peer-trace
+Apply/Notify token/version correlation, independent versions 2 and 3, and an
+offered/signed-version mismatch rejection scenario. These remain external
+scenarios, not new CTest definitions. See [CSA22](csa22-validation.md).

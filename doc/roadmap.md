@@ -232,7 +232,14 @@ readback and a successful new transfer from offset zero. Consent, HTTPS and
 resumption stay N/A. Counts become 97 PASS, 14 FAIL, 12 BLOCKED, 35 MANUAL, 704 NA;
 manual PASS remains separate from automatic coverage. See
 [evidence and limits](oss/csa21-validation.md) and [delta](oss/csa21-results.json).
-**Next task: CSA22 — TC-SU-2.4, ApplyUpdateRequest fields and token/version binding.**
+CSA22 completes unchanged TC-SU-2.4 in manual TH run445. The peer-trace oracle
+compares the actual UpdateToken and NewVersion to QueryImageResponse and the
+authenticated image, using versions 2 and 3; a mismatched signed version is
+rejected before Apply/Notify. Counts become 97 PASS, 14 FAIL, 11 BLOCKED,
+36 MANUAL, 704 NA. This step also removes inline Read/Subscribe RX/TX buffers:
+allocations follow actual RX/configured TX sizes, within the UDP wire budget.
+See [results and limits](oss/csa22-validation.md).
+**Next task: CSA23 — TC-SU-2.5, ApplyUpdateResponse actions and real delay/retry timing.**
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 
@@ -244,6 +251,12 @@ failures before optimization; do not change the declared device type to disguise
 missing ecosystem support.
 
 ## 3. Memory and code-size optimization
+
+Incremental migrations already completed during acceptance: per-request
+DataVersionFilters and Read/Subscribe RX/TX buffers. Remaining candidates include
+Invoke/Write/outbound-IM buffers, expanded-result tables and connection/transport
+tables. Migrate one subsystem at a time with its error-path, protocol and memory
+tests; preserve the transport ceiling instead of increasing arbitrary capacities.
 
 Measure an accepted baseline (flash/text/rodata, stack, steady-state and peak
 heap). Replace oversized fixed-capacity arrays with per-instance dynamic

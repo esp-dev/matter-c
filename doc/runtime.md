@@ -54,11 +54,24 @@ Read and Subscribe allocate DataVersionFilters for the exact validated entry
 count in each request. Empty/absent lists allocate nothing; Read owns the table
 until deletion, while Subscribe frees it after priming or on error/cancel/delete.
 The previous 16-entry cap was an implementation limit, not a Matter limit.
-The existing 1024-byte IM request budget still applies; the defensive entry
-bound derives from the minimum 14-byte concrete DataVersionFilterIB encoding.
+Read/Subscribe accept up to 1202 application bytes, derived from the secure UDP
+packet ceiling minus the 8-byte message header, 16-byte MIC and minimum 6-byte
+protocol header (Core 4.4.4). Actual optional headers reduce the wire budget and
+are checked by framing/transport. Each accepted receive allocates its actual
+length before freeing the old copy; failure returns LIMIT_REACHED without queue
+mutation. Its owner can retry. Output is allocated at construction according to
+output_capacity, now up to 1198 bytes: reserve four additional bytes for an MRP
+ACK. The host dispatcher selects this output budget for Read/Subscribe. Both
+buffers are released with the handler. The defensive filter entry bound derives
+from the minimum 14-byte concrete DataVersionFilterIB encoding.
 Both decoders allow enough TLV tokens for any request within that byte budget.
-Allocation failure produces ResourceExhausted without reserving a subscription
+Filter allocation failure produces ResourceExhausted without reserving a subscription
 or reading values. See [regression results](oss/im-version-filters-validation.md).
+
+The UDP ceiling remains 1280 bytes including IPv6/UDP headers. Enlarging heap
+buffers does not authorize larger UDP packets. Invoke, Write, the outbound IM
+client and other result/transport tables retain their separate budgets; migrating
+those is subsequent work, with interoperability tests after each subsystem.
 
 TimeSnapshot reads UTCTime from the actual Time Synchronization cluster attached
 to Root and converts Matter-epoch microseconds to POSIX milliseconds. The

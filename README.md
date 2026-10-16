@@ -168,6 +168,11 @@ acceptance: interruption, five real minutes, Idle readback and retry from zero.
 An outbound MRP timeout now retires the stale peer session, allowing CASE after
 the provider restarts.
 
+The [CSA22 report](doc/oss/csa22-validation.md) records manual TC-SU-2.4
+acceptance: peer-trace UpdateToken/NewVersion binding for image versions 2 and 3,
+and rejection of a signed image with the wrong version. Read/Subscribe RX/TX
+buffers now use per-handler allocations and transport-derived UDP budgets.
+
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or
 `build/matter-host/gcc/matter-node.exe`. An unknown option prints usage and exits 2.

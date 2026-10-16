@@ -17,7 +17,7 @@ typedef struct {
     Matter_Tlv_Type_T type;
     uint64_t value;
     Matter_Im_Read_Message_T out;
-    uint8_t input[1025];
+    uint8_t input[MATTER_IM_READ_MAX_PAYLOAD+1];
 } Fixture;
 static void guard(Fixture* f) {
     CHECK(matter_im_read_cancel(f->s)==MATTER_BUSY && matter_im_read_delete(f->s)==MATTER_BUSY);
@@ -145,6 +145,16 @@ int main(void) {
     CHECK(!f->auths && f->out.size==sizeof(empty_report) && !memcmp(f->out.data,empty_report,sizeof(empty_report))); release(f);
     f=create(1024); memcpy(f->input,im_request,14); memcpy(f->input+14,im_request+3,11); memcpy(f->input+25,im_request+14,7);
     execute(f,f->input,32); CHECK(f->reads==2 && f->out.opcode==5 && f->out.size==58); release(f);
+    CHECK(MATTER_IM_READ_MAX_PAYLOAD==1202 && MATTER_IM_READ_MAX_OUTPUT==1198);
+    for(size_t size=1025;size<=1202;size=size==1025?1198:1202) {
+        f=create(1198); size_t padding=size-sizeof(im_request)-4;
+        memcpy(f->input,im_request,sizeof(im_request)-1); size_t at=sizeof(im_request)-1;
+        f->input[at++]=0x31; f->input[at++]=6; /* Unknown context BYTES, uint16 length. */
+        f->input[at++]=(uint8_t)padding; f->input[at++]=(uint8_t)(padding>>8);
+        memset(f->input+at,0,padding); f->input[size-1]=0x18;
+        execute(f,f->input,size); CHECK(f->reads==1 && f->out.opcode==5); release(f);
+        if(size==1202) break;
+    }
     f=create(1024); d=decision(f->input,sizeof(f->input));
     CHECK(matter_im_read_receive(f->s,&d)==MATTER_LIMIT_REACHED && matter_im_read_state(f->s)==MATTER_IM_READ_WAITING);
     release(f);
@@ -163,7 +173,13 @@ int main(void) {
     test_im_events();
 #ifdef MATTER_TEST_ALLOC
     Matter_Im_Read_Port_T p={NULL,allow,describe,read_value,NULL,NULL}; Matter_Im_Read_Config_T c={{1,1,false},10,1024,true};
-    fail_at=calls+1; CHECK(!matter_im_read_new(&p,&c,0)); fail_at=0; CHECK(!live);
+    for(size_t allocation=1;allocation<=2;++allocation) {
+        fail_at=calls+allocation; CHECK(!matter_im_read_new(&p,&c,0)); fail_at=0; CHECK(!live);
+    }
+    f=create(1198); d=decision(im_request,sizeof(im_request)); size_t before=live;
+    fail_at=calls+1; CHECK(matter_im_read_receive(f->s,&d)==MATTER_LIMIT_REACHED); fail_at=0;
+    CHECK(live==before && matter_im_read_state(f->s)==MATTER_IM_READ_WAITING);
+    execute(f,im_request,sizeof(im_request)); release(f); CHECK(!live);
 #endif
     puts("PASS IM read: literal request/report/status, access order, malformed TLV, bounds, timeout/cancel and OOM");
     return 0;

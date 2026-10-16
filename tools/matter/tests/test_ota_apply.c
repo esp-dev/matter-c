@@ -70,7 +70,7 @@ static void destroy(Test* t) {
 }
 static void policy(void) {
     for(unsigned mode=0;mode<5;++mode) {
-        Test* t=setup(0); begin(t); memset(t->context.token,255,32); pump(t,0); CHECK(t->starts==1 && t->state==5);
+        Test* t=setup(0); begin(t); memset(t->context.token,255,32); t->context.version=0; pump(t,0); CHECK(t->starts==1 && t->state==5);
         uint32_t delay=mode==0?0:mode==1?3:mode==2?86400:UINT32_MAX;
         reply(t,mode==4?2:0,delay); pump(t,10);
         if(mode<4 && delay) {

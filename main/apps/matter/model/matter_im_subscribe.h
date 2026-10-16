@@ -51,9 +51,12 @@ typedef enum { MATTER_IM_SUB_WAITING, MATTER_IM_SUB_OUTPUT, MATTER_IM_SUB_IN_FLI
  * after the empty update is acknowledged. Concrete revocation still terminates.
  * No Node/ListIndex selectors or nonzero provisional wildcard flags; no claims of full IM minima. reserve/release share attributes.user.
  * Config timeout bounds each exchange, not the lifetime of an active subscription.
- * output_capacity is an upper bound (8..1024). A lazy 16 KiB snapshot arena
+ * RX copies use their actual length (<=READ_MAX_PAYLOAD); OOM returns
+ * LIMIT_REACHED with queue/state unchanged. TX is a separate allocation of
+ * output_capacity bytes (8..READ_MAX_OUTPUT). Both are released by delete.
+ * A lazy 16 KiB snapshot arena
  * holds encoded spans/containers (each <=4096 B, depth4); optional Events snapshot on heap.
- * Snapshots reused between transactions, released by delete; no per-chunk alloc.
+ * Snapshots reused between transactions, released by delete; no per-chunk snapshot allocation.
  * Max chosen = requested ceiling (1 second when ceiling=0, within publisher limit).
  * An attribute-only update whose values are all unchanged returns to IDLE without
  * output until the maximum interval; its last-report/activity clocks are retained.

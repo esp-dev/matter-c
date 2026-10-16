@@ -3,6 +3,10 @@
 Validated on 2026-10-16. This is a local interoperability regression, not a CSA
 PASS or certification. Previously pending CSA21 work remains separate.
 
+This records the original 1024-byte-budget repair. The later
+[CSA22 update](csa22-validation.md) migrates RX/TX buffers and derives larger
+Read/Subscribe budgets from the UDP ceiling; its current tests use 83 filters.
+
 ## Failure and implementation
 
 Live metadata-only debugging showed ResourceExhausted (0x89) while decoding a

@@ -49,7 +49,7 @@ struct Matter_Im_Subscribe {
     Matter_Tlv_Element_T token, root[9], fields[8], revision;
     Matter_Tlv_Validation_Workspace_T validation;
     Matter_Tlv_Tag_T tags[48];
-    uint8_t input[1024], output[1024];
+    uint8_t *input, *output;
 };
 static uint64_t add(uint64_t a,uint64_t b) { return UINT64_MAX-a<b ? UINT64_MAX : a+b; }
 static Matter_Result_T check(Matter_Im_Subscribe_T s) { return !s ? MATTER_INVALID_ARGUMENT : s->busy ? MATTER_BUSY : MATTER_OK; }
@@ -76,9 +76,13 @@ static Matter_Result_T clock_check(Matter_Im_Subscribe_T s,uint64_t now) {
 }
 Matter_Im_Subscribe_T matter_im_subscribe_new(const Matter_Im_Subscribe_Port_T* p,const Matter_Im_Subscribe_Config_T* c,uint64_t now) {
     if(!p || !c || !p->attributes.authorize || !p->attributes.describe || !p->attributes.read || !p->reserve || !p->release ||
-        !c->exchange.session || c->exchange.initiator || !c->pase_commissionee || !c->timeout_ms || c->output_capacity<8 || c->output_capacity>1024) return NULL;
+        !c->exchange.session || c->exchange.initiator || !c->pase_commissionee || !c->timeout_ms || c->output_capacity<8 || c->output_capacity>MATTER_IM_READ_MAX_OUTPUT) return NULL;
     Matter_Im_Subscribe_T s=calloc(1,sizeof(*s));
-    if(s) { s->port=*p; s->config=*c; s->exchange=c->exchange; s->now=now; s->expires=add(now,c->timeout_ms); s->dirty=true; }
+    if(s) {
+        s->output=calloc(1,c->output_capacity);
+        if(!s->output) { free(s); return NULL; }
+        s->port=*p; s->config=*c; s->exchange=c->exchange; s->now=now; s->expires=add(now,c->timeout_ms); s->dirty=true;
+    }
     return s;
 }
 Matter_Im_Subscribe_T matter_im_subscribe_new_case(const Matter_Im_Subscribe_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,
@@ -119,8 +123,11 @@ Matter_Result_T matter_im_subscribe_receive(Matter_Im_Subscribe_T s,const Matter
         d->header.protocol_id!=1 || d->header.opcode!=(initial ? 3 : 1) ||
         (!!(d->header.exchange_flags & MATTER_PROTOCOL_INITIATOR)==s->exchange.initiator) || d->standalone_ack ||
         (d->action!=MATTER_RX_NEW_RESPONDER && d->action!=MATTER_RX_EXISTING)) return MATTER_INVALID_ARGUMENT;
-    if(d->payload_size>sizeof(s->input)) return MATTER_LIMIT_REACHED;
-    if(d->payload_size) memcpy(s->input,d->payload,d->payload_size);
+    if(d->payload_size>MATTER_IM_READ_MAX_PAYLOAD) return MATTER_LIMIT_REACHED;
+    uint8_t* input=d->payload_size?calloc(1,d->payload_size):NULL;
+    if(d->payload_size && !input) return MATTER_LIMIT_REACHED;
+    if(d->payload_size) memcpy(input,d->payload,d->payload_size);
+    free(s->input); s->input=input;
     s->input_size=d->payload_size; s->queued=true; return MATTER_OK;
 }
 static bool container(Matter_Tlv_Type_T t) { return t==MATTER_TLV_ARRAY || t==MATTER_TLV_STRUCTURE || t==MATTER_TLV_LIST; }
@@ -254,7 +261,7 @@ static bool put(Matter_Im_Subscribe_T s,Matter_Tlv_Type_T type,int tag,uint64_t 
 }
 static bool end(Matter_Im_Subscribe_T s) { return put(s,MATTER_TLV_END,-1,0); }
 static bool begin(Matter_Im_Subscribe_T s) {
-    size_t cap=s->config.output_capacity<sizeof(s->output) ? s->config.output_capacity : sizeof(s->output);
+    size_t cap=s->config.output_capacity;
     return matter_tlv_writer_init(&s->writer,s->output,cap,8)==MATTER_TLV_OK && put(s,MATTER_TLV_STRUCTURE,-1,0);
 }
 static bool finish(Matter_Im_Subscribe_T s) {
@@ -722,5 +729,5 @@ Matter_Im_Subscribe_State_T matter_im_subscribe_state(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_delete(Matter_Im_Subscribe_T s) {
     if(!s) return MATTER_OK;
     Matter_Result_T r=check(s); if(r) return r;
-    s->busy=true; release(s); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+    s->busy=true; release(s); free(s->input); free(s->output); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }

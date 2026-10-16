@@ -1,5 +1,24 @@
 # Development status
 
+**CSA22: TC-SU-2.4 manual PASS, run445**, with its required verification step
+and evidence upload. Peer JSON traces prove ApplyUpdateRequest uses the latest
+QueryImageResponse token and the authenticated image version, for separate
+version 1-to-2 and 1-to-3 simulations. A valid signature with a different version
+is rejected before Apply/Notify and keeps the installed version unchanged.
+The OTA engine already enforced this binding; the change strengthens its oracle
+and native copied-context regression. Counts are now **97 PASS, 14 FAIL,
+11 BLOCKED, 36 MANUAL, 704 NA**; manual PASS is separate from automatic coverage.
+
+Read/Subscribe now allocate input at actual received length and output according
+to configuration. RX supports 1202 application bytes; TX supports 1198, reserving
+four additional wire bytes for a piggyback ACK. These follow the 1280-byte IPv6
+UDP ceiling, not a larger transport. Native cases cover 83 filters, 1025/1198/1202
+byte requests, oversize rejection and allocation failure. Linux passes 11 focused
+tests in normal and sanitizer builds; Windows passes five. Full IM and OTA
+scenarios pass under Memcheck and separately ASan/UBSan/LSan. See
+[CSA22 evidence, commands and limits](csa22-validation.md).
+**Next: CSA23 — TC-SU-2.5, ApplyUpdateResponse actions and real delay/retry timing.**
+
 DataVersionFilters recovery fixes a reproduced Apple Home resubscription failure:
 the old 16-entry table rejected a 547-byte SubscribeRequest with ResourceExhausted.
 Read/Subscribe now allocate exactly the validated filter count, bounded by the

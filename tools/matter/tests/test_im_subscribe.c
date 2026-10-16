@@ -231,9 +231,26 @@ int main(void) {
     receive(m,sub_success,sizeof(sub_success),1,12,true); out=output(m,3); CHECK(out.opcode==4 && out.data[6]==1); release(m);
     m=create(128); memcpy(m->input,sub_request,sizeof(sub_request)); m->input[1]=0x28;
     receive(m,m->input,sizeof(sub_request),3,12,true); (void)output(m,0); CHECK(!m->keep); release(m);
+    for(size_t size=1025;size<=1202;size=size==1025?1198:1202) {
+        m=create(1198); size_t padding=size-sizeof(sub_request)-4,at=sizeof(sub_request)-1;
+        memcpy(m->input,sub_request,at); m->input[at++]=0x31; m->input[at++]=9;
+        m->input[at++]=(uint8_t)padding; m->input[at++]=(uint8_t)(padding>>8);
+        memset(m->input+at,0,padding); m->input[size-1]=0x18;
+        receive(m,m->input,size,3,12,true); literal(output(m,0),5,sub_report,sizeof(sub_report)); release(m);
+        if(size==1202) break;
+    }
+    m=create(1198); Matter_Rx_Decision_T oversized=decision(m->input,sizeof(m->input),3,12,true);
+    CHECK(matter_im_subscribe_receive(m->active,&oversized)==MATTER_LIMIT_REACHED); release(m);
 #ifdef MATTER_TEST_ALLOC
     m=create(128); Matter_Im_Subscribe_Port_T p=sub_port(m); Matter_Im_Subscribe_Config_T c={{1,1,false},100,128,true};
-    fail_at=calls+1; CHECK(!matter_im_subscribe_new(&p,&c,0)); fail_at=0; release(m); CHECK(!live);
+    size_t base=live;
+    for(size_t allocation=1;allocation<=2;++allocation) {
+        fail_at=calls+allocation; CHECK(!matter_im_subscribe_new(&p,&c,0)); fail_at=0; CHECK(live==base);
+    }
+    Matter_Rx_Decision_T d=decision(sub_request,sizeof(sub_request),3,12,true);
+    fail_at=calls+1; CHECK(matter_im_subscribe_receive(m->active,&d)==MATTER_LIMIT_REACHED); fail_at=0;
+    CHECK(live==base && matter_im_subscribe_state(m->active)==MATTER_IM_SUB_WAITING);
+    prime(m,false); release(m); CHECK(!live);
 #endif
     puts("PASS Subscribe: literal prime/status/response, IM and MRP ordering, min/max, dirty during TX, new exchanges, heartbeat, access/schema, timeout/cancel and OOM");
     return 0;

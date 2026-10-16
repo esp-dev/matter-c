@@ -69,9 +69,9 @@ static void test_im_wildcard(void) {
      * entry too: a conflicting duplicate must prevent version suppression. */
     for(unsigned conflict=0;conflict<2;++conflict) {
         m=wild_new(128,true);
-        for(unsigned i=0;i<70;++i) { m->filters[i].cluster=0x28; m->filters[i].version=7; }
-        if(conflict) ++m->filters[69].version;
-        wild_start(m,0,0,70);
+        for(unsigned i=0;i<83;++i) { m->filters[i].cluster=0x28; m->filters[i].version=7; }
+        if(conflict) ++m->filters[82].version;
+        wild_start(m,0,0,83);
         CHECK(wild_reports(m,&errors,false)==(conflict?24u:18u) && !errors && m->reads==(conflict?24u:18u)); wild_delete(m);
     }
 #ifdef MATTER_TEST_ALLOC
@@ -90,10 +90,10 @@ static void test_im_wildcard(void) {
     CHECK(n==sizeof(expected) && !memcmp(m->input,expected,n)); wild_delete(m);
     for(unsigned mode=0;mode<9;++mode) {
         m=wild_new(128,true); m->filters[0].cluster=0x28; m->filters[0].version=7;
-        n=model_request(m,mode==4 ? 1 : 0,(Matter_Im_Path_T){0},mode==1 ? 70 : mode==0 ? 1 : 0);
+        n=model_request(m,mode==4 ? 1 : 0,(Matter_Im_Path_T){0},mode==1 ? 83 : mode==0 ? 1 : 0);
         uint8_t status=1;
         if(mode==0) { m->input[17]=1; status=0x80; } /* Duplicate endpoint in filter LIST. */
-        if(mode==1) { m->input[17+69*14]=1; status=0x80; } /* Malformed final filter, beyond old capacity/token limits. */
+        if(mode==1) { m->input[17+82*14]=1; status=0x80; } /* Malformed final filter, beyond old capacity/token limits. */
         if(mode==2) { m->size=MATTER_IM_READ_MAX_RESULTS+1; status=0x89; }
         if(mode==3) m->bad_enum=2;
         if(mode==4) m->bad_enum=1;

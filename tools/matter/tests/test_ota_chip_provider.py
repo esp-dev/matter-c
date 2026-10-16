@@ -27,11 +27,12 @@ from chip_tool_resources import ANSI, Client
 from chip_tool_energy_profile import frames, integer
 
 
-def image_fixture(directory, version=2):
+def image_fixture(directory, version=2, signed_version=None):
     """Independent OpenSSL-backed signature; no private key is written to disk."""
     body = bytes((i * 17 + 3) % 256 for i in range(16387))
     key = ec.generate_private_key(ec.SECP256R1())
-    manifest = b'WWOTA001' + struct.pack('<HHIQ', 0xfff1, 0x8001, version, len(body)) + hashlib.sha256(body).digest()
+    signed_version = version if signed_version is None else signed_version
+    manifest = b'WWOTA001' + struct.pack('<HHIQ', 0xfff1, 0x8001, signed_version, len(body)) + hashlib.sha256(body).digest()
     r, s = utils.decode_dss_signature(key.sign(manifest, ec.ECDSA(hashes.SHA256())))
     payload = manifest + r.to_bytes(32, 'big') + s.to_bytes(32, 'big') + body
     public = key.public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
@@ -44,7 +45,7 @@ def image_fixture(directory, version=2):
         with (directory / name).open('xb') as output:
             output.write(data)
     return {'format': 'Matter OTA header and WWOTA001 signed host simulation',
-            'version': version, 'image_bytes': len(image), 'image_sha256': hashlib.sha256(image).hexdigest(),
+            'version': version, 'signed_version': signed_version, 'image_bytes': len(image), 'image_sha256': hashlib.sha256(image).hexdigest(),
             'public_key_sha256': hashlib.sha256(public).hexdigest()}
 
 
@@ -95,8 +96,11 @@ def tlv_document(data):
     return dict(value)
 
 
-def query_messages(path, requests=False):
-    """Read QueryImage/Response from CHIP's JSON log records; omit tokens."""
+def ota_messages(path, command_id, requests=False):
+    """Decode one OTA command from actual peer trace, including its field types.
+
+    Raw token bytes remain in memory/private traces; public results use digests.
+    """
     if not path.exists():
         return []
     decoder = json.JSONDecoder(); result = []; pending = ''; stamp = 0
@@ -128,13 +132,44 @@ def query_messages(path, requests=False):
             if command is None:
                 continue
             command = dict(command); command_path = dict(command[0])
-            if command_path != {0: 0, 1: 0x29, 2: 0 if requests else 1}:
+            if command_path != {0: 0, 1: 0x29, 2: command_id}:
                 continue
             fields = dict(command[1])
-            result.append({'time_ms': record['time_ms'], 'version': fields[2]} if requests else
-                          {'time_ms': record['time_ms'], 'status': fields[0],
-                           'delay': fields.get(1, 0), 'uri': fields.get(2), 'version': fields.get(3)})
+            result.append({'time_ms': record['time_ms'], 'fields': fields})
     return result
+
+
+def query_messages(path, requests=False):
+    """Read QueryImage/Response from CHIP's JSON log records; omit tokens."""
+    return [dict(time_ms=m['time_ms'], version=m['fields'][2]) if requests else
+            dict(time_ms=m['time_ms'], status=m['fields'][0], delay=m['fields'].get(1, 0),
+                 uri=m['fields'].get(2), version=m['fields'].get(3))
+            for m in ota_messages(path, 0 if requests else 1, requests)]
+
+
+def apply_binding(paths, version):
+    """Require the latest offered token/version in every actual Apply request."""
+    messages = []
+    for path in paths:
+        for command, requests in ((1, False), (2, True), (4, True)):
+            messages.extend((m['time_ms'], command, m['fields']) for m in ota_messages(path, command, requests))
+    messages.sort(key=lambda m: m[0])
+    token = None; offered = None; applied = []; notified = 0
+    for stamp, command, fields in messages:
+        if command == 1 and fields[0] == 0:
+            token, offered = fields[5], fields[3]
+            assert type(token) is bytes and 8 <= len(token) <= 32 and type(offered) is int
+        elif command in (2, 4):
+            assert token is not None and fields[0] == token, 'OTA command did not echo latest offered UpdateToken'
+            assert type(fields[0]) is bytes and type(fields[1]) is int and fields[1] == offered == version, 'OTA token/version binding mismatch'
+            if command == 2:
+                applied.append({'time_ms': stamp, 'new_version': fields[1], 'token_size': len(token),
+                                'token_sha256': hashlib.sha256(token).hexdigest()})
+            else:
+                notified += 1
+    assert applied, 'No decoded ApplyUpdateRequest in provider trace'
+    assert notified, 'No decoded NotifyUpdateApplied in provider trace'
+    return applied
 
 
 def main():
@@ -144,21 +179,27 @@ def main():
     p.add_argument('--interface', type=int, required=True)
     p.add_argument('--mode', choices=('busy-update', 'update', 'busy-60', 'busy-180',
                    'not-available', 'same-version', 'older-version', 'invalid-uri',
-                   'interrupt-retry'), default='busy-update')
+                   'interrupt-retry', 'version-mismatch'), default='busy-update')
     p.add_argument('--valgrind', action='store_true')
     p.add_argument('--require-trace', action='store_true', help='Require and verify actual QueryImageResponse fields, also in update mode.')
+    p.add_argument('--apply-binding', action='store_true', help='Verify UpdateToken/NewVersion from peer Query/Apply/Notify traces.')
+    p.add_argument('--image-version', type=int, choices=(2, 3), default=2, help='Positive update fixture version; enables a nonconstant NewVersion control.')
     a = p.parse_args()
-    negative = a.mode in ('not-available', 'same-version', 'older-version', 'invalid-uri')
+    negative = a.mode in ('not-available', 'same-version', 'older-version', 'invalid-uri', 'version-mismatch')
     busy_mode = a.mode in ('busy-update', 'busy-60', 'busy-180')
     delay = {'busy-60': 60, 'busy-180': 180, 'not-available': 60}.get(a.mode, 150 if a.mode == 'busy-update' else 0)
-    image_version = {'same-version': 1, 'older-version': 0}.get(a.mode, 2)
-    need_trace = a.require_trace or a.mode not in ('busy-update', 'update')
+    if a.image_version != 2 and a.mode != 'update':
+        p.error('--image-version=3 requires --mode update')
+    if a.apply_binding and a.mode != 'update':
+        p.error('--apply-binding requires --mode update')
+    image_version = {'same-version': 1, 'older-version': 0, 'version-mismatch': 3}.get(a.mode, a.image_version)
+    need_trace = a.require_trace or a.apply_binding or a.mode not in ('busy-update', 'update')
     out = Path(a.output).resolve(); out.mkdir(parents=True, exist_ok=False)
     env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
     report = {'scope': 'CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification',
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               'mode': a.mode, 'valgrind': a.valgrind, 'trace_required': need_trace,
-              'checks': [], 'fixture': image_fixture(out, image_version),
+              'checks': [], 'fixture': image_fixture(out, image_version, 2 if a.mode == 'version-mismatch' else None),
               'binaries': {n: hashlib.sha256(Path(v).read_bytes()).hexdigest() for n, v in
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
     provider = node = client = reader = None
@@ -375,7 +416,14 @@ def main():
                   and control is not None and int(control[1], 16) & 2 == 0,
                   {'start_offset': int(offset[1], 16) if offset else None,
                    'range_control': int(control[1], 16) if control else None})
-        if negative:
+        if a.mode == 'version-mismatch':
+            wait(lambda: 'OTA_AUTH accepted=0' in node_text() and 'OTA_DOWNLOAD_FAILED' in node_text())
+            check('signed-version-mismatch-rejected', True, {'offered_version': image_version, 'signed_version': 2})
+            time.sleep(3)
+            check('no-apply-or-notify-for-rejected-version',
+                  not any(ota_messages(path, command, True) for path in provider_logs() for command in (2, 4))
+                  and 'OTA_SIM_REBOOT' not in node_text() and node.poll() is None)
+        elif negative:
             wait(lambda: 'OTA_STATE state=1 reason=1' in node_text())
             if a.mode != 'not-available':
                 announce()  # Also challenge the shared query floor after rejection.
@@ -395,10 +443,13 @@ def main():
             wait(lambda: 'OTA_NOTIFY_DONE' in node_text(), 90)
             check('notify-update-applied', 'OTA_NOTIFY_DONE success=1' in node_text()
                   and 'OTA Provider received NotifyUpdateApplied' in provider_text())
+            if a.apply_binding:
+                report['apply_requests'] = apply_binding(provider_logs(), image_version)
+                check('apply-token-and-version-bound-to-query-and-image', True, report['apply_requests'])
         reader = Client(Path(a.chip_tool).resolve(), Path(a.paa).resolve(), out, 'fresh-reader', client.storage, advertise=False)
         restored = basic(reader)
         boot = command(reader, ['generaldiagnostics', 'read', 'boot-reason', 1, 0])
-        check('fresh-case-version-and-boot' if negative else 'fresh-case-after-restart', restored['SoftwareVersion'] == (1 if negative else 2)
+        check('fresh-case-version-and-boot' if negative else 'fresh-case-after-restart', restored['SoftwareVersion'] == (1 if negative else image_version)
               and bool(re.search(r'BootReason: ' + ('1' if negative else '5') + r'\b', boot)), restored)
         node.terminate(); check('clean-requestor-stop', node.wait(timeout=30) == 0)
         for i in range(1, phase + 1):

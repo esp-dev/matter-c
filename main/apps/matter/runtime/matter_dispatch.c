@@ -569,6 +569,7 @@ static bool create_handler(Matter_Dispatch_T d,Transaction* t,uint8_t opcode) {
     Matter_Im_Read_Config_T config={t->key,30000,1024,!c->operational};
     Matter_Im_Read_Port_T read; Matter_Im_Read_Fabric_Port_T fabric; Matter_Im_Write_Port_T write;
     if(opcode==2 || opcode==3) {
+        config.output_capacity=MATTER_IM_READ_MAX_OUTPUT;
         Matter_Result_T r=c->operational?matter_root_case_read_port(d->config.root,c->token,c->secure,&t->read_case,&read,&fabric):
             matter_root_fabric_read_port(d->config.root,c->token,&t->read_pase,&read,&fabric);
         if(r!=MATTER_OK) return false;

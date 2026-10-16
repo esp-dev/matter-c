@@ -139,6 +139,21 @@ zero and does not declare transfer resumption, HTTPS or requestor user consent.
 
 ## Relationship to Test Harness
 
+For TC-SU-2.4 use `--mode update --apply-binding --image-version 2`, then a fresh
+fixture/output directory with `--image-version 3`. This enables peer JSON traces
+and compares the UpdateToken bytes and NewVersion received in ApplyUpdateRequest
+to the latest UpdateAvailable QueryImageResponse and the authenticated image.
+NotifyUpdateApplied is checked against the same token/version. Published results
+contain only the token length and SHA-256, not the token itself. The official
+provider does not validate this binding for us; the independent trace oracle does.
+
+The `version-mismatch` mode offers/header-encodes version 3 but signs version 2
+inside the simulation payload. It requires authentication rejection, no Apply or
+Notify, no simulated reboot, and fresh CASE readback of the original version 1.
+Run these with the normal host under Memcheck and separately with sanitizer
+binaries. These extend the fixture; they do not add production image formats or
+change OTA authorization. See [CSA22](oss/csa22-validation.md).
+
 The installed case is **TC-SU-2.1**, SDK YAML Tests / FirstManualSuite, not an
 automatic Python `TC_SU_2_1` test. Its three disabled YAML steps become manual
 verification prompts in TH; they are not discarded by its manual runner.

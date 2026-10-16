@@ -9,8 +9,8 @@ typedef struct {
     Matter_Tlv_Writer_T writer;
     Matter_Tlv_Reader_T reader;
     Matter_Tlv_Element_T element;
-    uint8_t input[1024];
-    struct { uint16_t endpoint; uint32_t cluster, version; } filters[70];
+    uint8_t input[MATTER_IM_READ_MAX_PAYLOAD];
+    struct { uint16_t endpoint; uint32_t cluster, version; } filters[83];
 } ImTestModel;
 static Matter_Im_Path_T model_path(unsigned i) {
     return (Matter_Im_Path_T){(uint16_t)(i/12),0x28+(i%12)/6,2+i%6};

@@ -14,7 +14,7 @@ typedef struct SubModel {
     uint64_t value;
     bool deny, fabric, read_error, reserve_error, keep, report_on_version;
     Matter_Tlv_Type_T type;
-    uint8_t input[1025];
+    uint8_t input[MATTER_IM_READ_MAX_PAYLOAD+1];
 } SubModel;
 static void sub_guard(SubModel* m) {
     SUB_CHECK(matter_im_subscribe_cancel(m->active)==MATTER_BUSY && matter_im_subscribe_delete(m->active)==MATTER_BUSY);

@@ -55,7 +55,7 @@ struct Matter_Im_Read {
 	Matter_Tlv_Element_T token;
 	Matter_Tlv_Writer_T writer;
 	Matter_Tlv_Element_T element, fields[5], revision, path_fields[8], filter_fields[2], filter_element;
-	uint8_t input[MATTER_IM_READ_MAX_PAYLOAD], output[MATTER_IM_READ_MAX_PAYLOAD];
+	uint8_t *input, *output;
 };
 static Matter_Result_T check(Matter_Im_Read_T s) {
 	return !s ? MATTER_INVALID_ARGUMENT : s->busy ? MATTER_BUSY : MATTER_OK;
@@ -63,9 +63,12 @@ static Matter_Result_T check(Matter_Im_Read_T s) {
 Matter_Im_Read_T matter_im_read_new(const Matter_Im_Read_Port_T* p, const Matter_Im_Read_Config_T* c, uint64_t now) {
 	if (!p || !c || !p->authorize || !p->describe || !p->read || !c->exchange.session ||
 		c->exchange.initiator || !c->pase_commissionee || !c->timeout_ms ||
-		c->output_capacity < 8 || c->output_capacity > MATTER_IM_READ_MAX_PAYLOAD) return NULL;
+		c->output_capacity < 8 || c->output_capacity > MATTER_IM_READ_MAX_OUTPUT) return NULL;
 	Matter_Im_Read_T s=calloc(1,sizeof(*s));
-	if (s) { s->port=*p; s->config=*c; s->now=now;
+	if (s) {
+		s->output=calloc(1,c->output_capacity);
+		if (!s->output) { free(s); return NULL; }
+		s->port=*p; s->config=*c; s->now=now;
 		s->deadline=UINT64_MAX-now < c->timeout_ms ? UINT64_MAX : now+c->timeout_ms; }
 	return s;
 }
@@ -105,8 +108,11 @@ Matter_Result_T matter_im_read_receive(Matter_Im_Read_T s, const Matter_Rx_Decis
 		d->header.vendor_id || d->header.protocol_id != 1 || d->header.opcode != (continuation ? 1 : 2) ||
 		!(d->header.exchange_flags & MATTER_PROTOCOL_INITIATOR) || d->standalone_ack ||
 		(d->action != MATTER_RX_NEW_RESPONDER && d->action != MATTER_RX_EXISTING)) return MATTER_INVALID_ARGUMENT;
-	if (d->payload_size > sizeof(s->input)) return MATTER_LIMIT_REACHED;
-	if (d->payload_size) memcpy(s->input,d->payload,d->payload_size);
+	if (d->payload_size > MATTER_IM_READ_MAX_PAYLOAD) return MATTER_LIMIT_REACHED;
+	uint8_t* input=d->payload_size ? calloc(1,d->payload_size) : NULL;
+	if (d->payload_size && !input) return MATTER_LIMIT_REACHED;
+	if (d->payload_size) memcpy(input,d->payload,d->payload_size);
+	free(s->input); s->input=input;
 	s->input_size=d->payload_size; s->opcode=d->header.opcode; s->queued=true;
 	return MATTER_OK;
 }
@@ -693,7 +699,7 @@ Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	free(s->filters); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	free(s->input); free(s->output); free(s->filters); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

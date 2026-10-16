@@ -1,13 +1,21 @@
 #ifndef MATTER_IM_READ_H_INCLUDED
 #define MATTER_IM_READ_H_INCLUDED 1
 #include "../transport/matter_rx_policy.h"
+#include "../session/matter_secure.h"
 #include "../codec/matter_tlv.h"
 #include "matter_events.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum { MATTER_IM_REVISION = 13, MATTER_IM_READ_MAX_PAYLOAD = 1024, MATTER_IM_READ_MAX_PATHS = 9,
+enum { MATTER_IM_REVISION = 13,
+	/* Core 4.4.4: secure UDP ceiling minus message header/MIC and the minimum
+	 * standard-vendor protocol header. RX framing enforces actual header sizes.
+	 * TX reserves room for a piggybacked 32-bit MRP acknowledgment as well. */
+	MATTER_IM_HEADER_BYTES = 6,
+	MATTER_IM_READ_MAX_PAYLOAD = MATTER_SECURE_MAX_PACKET - MATTER_SECURE_OVERHEAD - MATTER_IM_HEADER_BYTES,
+	MATTER_IM_READ_MAX_OUTPUT = MATTER_IM_READ_MAX_PAYLOAD - sizeof(uint32_t),
+	MATTER_IM_READ_MAX_PATHS = 9,
 	/* Root + aggregate + three phases + optional switch exceeds 256 attributes. These
 	 * bounded result tables belong to heap-owned Read/Subscribe handlers. */
 	MATTER_IM_READ_MAX_RESULTS = 320,
@@ -91,7 +99,7 @@ typedef struct {
 typedef struct {
 	Matter_Exchange_Info_T exchange; /* Already admitted responder exchange. */
 	uint32_t timeout_ms; /* Application budget, absolute, not extended by retry. */
-	size_t output_capacity; /* 8..1024 bytes; 8 fits StatusResponse. */
+	size_t output_capacity; /* Read/Subscribe: 8..MAX_OUTPUT bytes; 8 fits StatusResponse. */
 	bool pase_commissionee; /* Trusted application binding; true for PASE; false with matter_im_read_new_case. */
 } Matter_Im_Read_Config_T;
 typedef struct Matter_Im_Read* Matter_Im_Read_T;
@@ -100,15 +108,19 @@ typedef enum { MATTER_IM_READ_WAITING, MATTER_IM_READ_OUTPUT, MATTER_IM_READ_IN_
 	MATTER_IM_READ_EXPANDING, MATTER_IM_READ_COLLECTING } Matter_Im_Read_State_T;
 typedef struct { const uint8_t* data; size_t size; uint8_t opcode; } Matter_Im_Read_Message_T;
 
-/* One transaction, heap context plus a lazy bounded snapshot arena for complex
+/* One transaction, heap context plus separately allocated RX/TX buffers and a
+ * lazy bounded snapshot arena for complex
  * values and an exactly sized validated filter table, all released by delete;
  * copied config/port, borrowed port.user. Empty/absent filters allocate nothing.
+ * RX allocates the received length before replacing the old copy; OOM returns
+ * LIMIT_REACHED with queue/state unchanged, so the owner may retry. TX allocates
+ * output_capacity during construction; failure unwinds the context allocation.
  * Owner thread, no tasks, hardware, session ownership or transport queue.
  * Subset: 0..9 local attribute selectors, concrete cluster version filters up to
  * the request payload budget, up to 320 expanded attribute results and chunking.
  * Enumeration and collection are bounded
  * to 8 candidates each per process call (concrete-only reads keep their original
- * single-call budget of 9); no allocation per chunk. Scalars keep the old API.
+ * single-call budget of 9); no snapshot allocation per chunk. Scalars keep the old API.
  * Lists fitting one report use one ARRAY. Larger lists start with an ARRAY
  * prefix, followed by complete item IBs with ListIndex=null (Core 10.6.4.3.1).
  * Strings, structures and individual list items are never split; an item that
