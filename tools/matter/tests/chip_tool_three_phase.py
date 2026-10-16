@@ -14,9 +14,9 @@ from chip_tool_resources import Client
 from chip_tool_energy_profile import frames, ids, integer
 
 
-def inventory(text, test_switch=False, source_cluster=None, meter_services=False, metered_switch=False):
+def inventory(text, test_switch=False, source_cluster=None, meter_services=False, metered_switch=False, power_only=False):
     attrs = {f['path']: f for f in frames(text) if f['kind'] == 'Attribute'}
-    endpoints = {0, 1, 3, 4, 5} | ({2} if test_switch else set())
+    endpoints = {0, 1, 3, 4, 5} | ({2} if test_switch else set()) | ({6} if power_only else set())
     assert set(ids(attrs[0, 0x1d, 3]['body'], 'PartsList')) == endpoints - {0}
     assert set(ids(attrs[1, 0x1d, 3]['body'], 'PartsList')) == {3, 4, 5}
     expected = set()
@@ -34,6 +34,11 @@ def inventory(text, test_switch=False, source_cluster=None, meter_services=False
                 assert set(clusters) == {0x1d, 6, 0x90, 0x91, 0x9c}
                 assert integer(attrs[ep, 0x90, 0xfffc]['body'], 'FeatureMap') == 2
                 assert integer(attrs[ep, 0x91, 0xfffc]['body'], 'FeatureMap') == 7
+        elif ep == 6:
+            assert set(clusters) == {0x1d, 0x90, 0x9c}  # No On/Off and no EEM.
+            assert ids(attrs[ep, 0x1d, 3]['body'], 'PartsList') == []
+            assert integer(attrs[ep, 0x90, 0xfffc]['body'], 'FeatureMap') == 2
+            assert integer(attrs[ep, 0x90, 1]['body'], 'NumberOfMeasurementTypes') == 1
         elif ep:
             assert integer(attrs[ep, 0x1d, 0]['body'], 'DeviceType') == 0x510
             assert set(clusters) == (({0x1d, 0x90, 0x91, 0x9c} | ({source_cluster} if source_cluster else set()) | ({3, 0xb06} if meter_services else set())) if ep == 1 else {0x1d, 0x90, 0x9c})

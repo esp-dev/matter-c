@@ -164,6 +164,27 @@ and its fractional remainder. It starts off after restart. This UI experiment
 is an incomplete plug device profile, not certified hardware; see
 [validation and UI limitations](doc/oss/plug-energy-validation.md).
 
+For a separate power-only UI experiment, add `--test-power-only`. Endpoint 6
+is an Electrical Sensor with Descriptor, EPM and Power Topology, reporting
+a fixed synthetic 123 W independently of the socket. It has neither On/Off
+nor EEM. Existing endpoint numbers and the profile without this flag remain
+unchanged. See [acceptance and UI limits](doc/oss/power-only-validation.md).
+
+Use `--power-sensor-only` for a minimal node: required Root services on endpoint
+0 and one Electrical Sensor on endpoint 1, with Descriptor/EPM/Power Topology
+and synthetic 123 W. There is no On/Off or EEM anywhere. This mode excludes
+the other measurement/switch/test-trigger profiles and uses a separate mDNS
+host label so it can coexist with other simulated nodes on the same interface.
+See [minimal sensor acceptance](doc/oss/sensor-only-validation.md).
+
+`--power-sensor-only --sensor-energy` also exposes EEM on endpoint 1:
+separate cumulative import/export registers and the cumulative measurement
+event. Initial simulated registers are 12.345 kWh imported and 2.345 kWh
+exported. The constant +123 W increases import; export is historical and
+unchanged. With `--state`, accepted register checkpoints survive restart through
+the existing store. Display and unit selection remain the controller's choice.
+See [energy-register acceptance](doc/oss/sensor-energy-validation.md).
+
 The optional [OTA host laboratory](doc/ota-host.md) uses an unmodified CHIP
 provider to exercise QueryImage, Busy timing, BDX, a signed simulation image,
 restart and NotifyUpdateApplied. Its memory-tool modes cover both boots.

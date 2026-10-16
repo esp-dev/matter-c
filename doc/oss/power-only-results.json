@@ -1,0 +1,321 @@
+{
+  "schema": 1,
+  "scope": "Optional standalone EPM endpoint beside metered socket; local interoperability, not CSA certification or Apple UI acceptance",
+  "profile": {
+    "endpoint": 6,
+    "device_types": [
+      1296
+    ],
+    "server_clusters": [
+      29,
+      144,
+      156
+    ],
+    "active_power_mW": 123000,
+    "onoff": false,
+    "eem": false,
+    "option": "--test-power-only"
+  },
+  "source_manifest_sha256": "99bfeb949d3ffea17fbc8b97a779499040ea4ae6cc023ff06b4d219abccfd2b7",
+  "changed_sources_sha256": {
+    "tools/matter/host/matter_node.c": "5f1b55b42b5b9a54bb551bd534231fdc2272cf5f7a94703b4e3ca9c1da239551",
+    "tools/matter/tests/chip_tool_three_phase.py": "38a15f5542e1c5571d9889d59e7213bde9c024aba909b9527181714037bf6deb",
+    "tools/matter/tests/test_plug_energy_chip.py": "c99966b80fb0ebdd2d721196e1450c15be4463289db94e3c09b839836e4c7656"
+  },
+  "windows": {
+    "focused_ctests": 7,
+    "host_sha256": "68dd4d33433013b837ff2768a89dfe4d3c7f7d550fc2233d40fb98a6ee045b90",
+    "tests_log_sha256": "904e3a375cb2add4ca633229aee3d0ec89f2c7828d4f5188971cfab6dce3c9b1",
+    "deployed": true,
+    "paired_fabrics_restored": 2,
+    "udp_bound": true,
+    "diagnostic_stderr_bytes": 0
+  },
+  "linux": {
+    "laboratory": {
+      "normal-run1": {
+        "result": {
+          "scope": "synthetic metered plug; not CSA certification or Apple UI acceptance",
+          "checks": [
+            {
+              "name": "verified-attestation",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "descriptor-and-whole-meter-preserved",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-initial",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-power-subscription",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "new-plug-energy-zero",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "on-integrates-600W",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-plug-on",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "off-freezes-import",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-plug-off",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no-invented-export",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "energy-events-at-plug-endpoint",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "memcheck-clean-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "persistent-plug-register-after-fresh-CASE",
+              "passed": true,
+              "detail": {
+                "import_mWh": 802
+              }
+            },
+            {
+              "name": "independent-123W-restart",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "restart-off-zero-power",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "memcheck-clean-2",
+              "passed": true,
+              "detail": null
+            }
+          ],
+          "host_sha256": "fca3289a33ba087cf6a0174012e90f1ea4f15203e9ac0b9a132b75f3ce10879e",
+          "result": "PASS"
+        },
+        "evidence_sha256": {
+          "result.json": "e25216d844246294f1bfb94784edc67b2a66a5d22cdbb22a3eadb53389b573a1",
+          "node-2.log": "51ac5416c5277b164fac44f21f02017700b27fbfa2f8bc4389d3cfb756d70840",
+          "node-1.log": "1310f70c8fc63fecda2c58ec50e4e4a926124ae94955bffb0916c05f12387bda",
+          "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "memcheck-1.log": "23b2b50749c13b78f37dcb300f2c3e3091191e7729be9a0afa6daabde1a57030",
+          "memcheck-2.log": "50eba0ee81c1316e9cf378ccc4cd76cb506fe4d4443fb405b4f502d9afd2324c"
+        }
+      },
+      "sanitize-run1": {
+        "result": {
+          "scope": "synthetic metered plug; not CSA certification or Apple UI acceptance",
+          "checks": [
+            {
+              "name": "verified-attestation",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "descriptor-and-whole-meter-preserved",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-initial",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-power-subscription",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "new-plug-energy-zero",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "on-integrates-600W",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-plug-on",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "off-freezes-import",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-plug-off",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no-invented-export",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "energy-events-at-plug-endpoint",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "persistent-plug-register-after-fresh-CASE",
+              "passed": true,
+              "detail": {
+                "import_mWh": 767
+              }
+            },
+            {
+              "name": "independent-123W-restart",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "restart-off-zero-power",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-2",
+              "passed": true,
+              "detail": null
+            }
+          ],
+          "host_sha256": "2554fa35b5f282e9f7deb75e19608d6e3039f0b4d1e4e4467ed91dcb52b88351",
+          "result": "PASS"
+        },
+        "evidence_sha256": {
+          "result.json": "cb8b4fdf85e6318b52747b7cf18d78c1a55f7f6336a4859706e4cd5ef64b24a2",
+          "node-2.log": "b28656a152b2471947e81dee7c12b5a2af1d806f51340cb2d26b32864c631cf8",
+          "node-1.log": "b5e97f0d3b34cfb151134355b51b544708dfe4f49357d8d99ce086e748930d23",
+          "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    "memcheck": {
+      "normal-run1/memcheck-1.log": [
+        "==886929==     in use at exit: 0 bytes in 0 blocks",
+        "==886929==   total heap usage: 24,704 allocs, 24,704 frees, 2,945,315 bytes allocated",
+        "==886929== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ],
+      "normal-run1/memcheck-2.log": [
+        "==886933==     in use at exit: 0 bytes in 0 blocks",
+        "==886933==   total heap usage: 11,231 allocs, 11,231 frees, 1,279,194 bytes allocated",
+        "==886933== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ]
+    },
+    "build": {
+      "normal": {
+        "host_sha256": "fca3289a33ba087cf6a0174012e90f1ea4f15203e9ac0b9a132b75f3ce10879e",
+        "ctest": [
+          "100% tests passed, 0 tests failed out of 7"
+        ],
+        "warnings": []
+      },
+      "sanitize": {
+        "host_sha256": "2554fa35b5f282e9f7deb75e19608d6e3039f0b4d1e4e4467ed91dcb52b88351",
+        "ctest": [
+          "100% tests passed, 0 tests failed out of 7"
+        ],
+        "warnings": []
+      }
+    }
+  },
+  "memcheck_summary": {
+    "boots": 2,
+    "allocations": 35935,
+    "frees": 35935,
+    "errors": 0,
+    "live_bytes_at_exit": 0
+  },
+  "apple_home_ui": {
+    "source": "user report after reopening Apple Home and checking room/sensor view",
+    "pairing": "retained",
+    "visible": "existing socket only",
+    "separate_123W_sensor_visible": false,
+    "fresh_pairing_recheck": {
+      "source": "user reports new instance added, still On/Off with 600 T",
+      "profile": "same tested full profile, including control socket and endpoint 6",
+      "isolated_state_and_discovery": true,
+      "original_node_kept_running": true,
+      "new_node_fabric_advertisements": 2,
+      "new_node_socket_on_command_observed": true,
+      "endpoint_6_startup_confirmed": true,
+      "diagnostic_stderr_bytes": 0,
+      "separate_123W_sensor_visible": false
+    },
+    "cause": "unresolved UI handling or Apple-specific interoperability; reproduced after fresh pairing",
+    "limits": "No controller path trace or test of a minimal node containing only the power sensor; protocol acceptance does not prove UI support"
+  },
+  "next": "CSA24 automatic TC_SU_2_5; standalone sensor UI support remains unresolved"
+}

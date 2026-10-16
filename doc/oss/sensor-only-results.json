@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "scope": "Root and one power sensor only; local interoperability, not new CSA acceptance or certification",
+  "profile": {
+    "option": "--power-sensor-only",
+    "endpoints": [
+      0,
+      1
+    ],
+    "endpoint_1_device_types": [
+      1296
+    ],
+    "endpoint_1_servers": [
+      29,
+      144,
+      156
+    ],
+    "active_power_mW": 123000,
+    "onoff_anywhere": false,
+    "eem_anywhere": false
+  },
+  "source_manifest_sha256": "36b5c315783332a289f4446ad6ceec32588e1278be5be87c90ea9d887bf81cc3",
+  "changed_sources_sha256": {
+    "tools/matter/host/matter_node.c": "bbb22f71f7b2bf25fda7e75fb2994b460abf3c40eb0d361c83e3061c06bac14b",
+    "tools/matter/tests/test_plug_energy_chip.py": "ef69c6f4cc921d9f6add6203a1b630ddac1a937d3306b96e3728d0acd98ddcd9"
+  },
+  "linux": {
+    "laboratory": {
+      "normal-run2": {
+        "result": {
+          "scope": "synthetic Root and power sensor only; not CSA certification or Apple UI acceptance",
+          "checks": [
+            {
+              "name": "conflicting-profile-rejected-test-switch",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-test-power-only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-three-phase",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-source-registers",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-meter-services",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "verified-attestation",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "root-and-one-power-sensor-no-onoff-no-eem",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-initial",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "sensor-only-subscription",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "memcheck-clean-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-restart",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "root-and-one-power-sensor-no-onoff-no-eem",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "memcheck-clean-2",
+              "passed": true,
+              "detail": null
+            }
+          ],
+          "host_sha256": "f24b76a98e3e3c98b8aaa143af5138dbb130c79ed4eef98e7a7c3d152fb37beb",
+          "result": "PASS"
+        },
+        "evidence_sha256": {
+          "result.json": "3227e52ba38ca14ba56c42a4cbbb5a303ddd7a74979bbec69dc290efddb5499f",
+          "node-2.log": "bed8e1539386d1e1b791b001ce1615bb5fb5b2a3b839f4870488705927440bdf",
+          "node-1.log": "2623076167a2e30b5989bb24efcf9caa5be174f1361432fb9bcbf8834d4443e2",
+          "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "memcheck-1.log": "a29a2f24b8a84c19d92371f3693788e0eee1153da2abe7e795f6c6892a47e81b",
+          "memcheck-2.log": "d710aa36c428da425d21de96235c3162492461ad34fe8448dac9d187cbd8338d"
+        }
+      },
+      "sanitize-run2": {
+        "result": {
+          "scope": "synthetic Root and power sensor only; not CSA certification or Apple UI acceptance",
+          "checks": [
+            {
+              "name": "conflicting-profile-rejected-test-switch",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-test-power-only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-three-phase",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-source-registers",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-meter-services",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "verified-attestation",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "root-and-one-power-sensor-no-onoff-no-eem",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-initial",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "sensor-only-subscription",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-restart",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "root-and-one-power-sensor-no-onoff-no-eem",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-2",
+              "passed": true,
+              "detail": null
+            }
+          ],
+          "host_sha256": "6c08aff0cabf7719ab458fd11b54b06f14932259aa10cf1d3c3a578157493efe",
+          "result": "PASS"
+        },
+        "evidence_sha256": {
+          "result.json": "71340807513dcdf9a35cbb5295d93e08b6d20543571297ef1d5a264c7633095b",
+          "node-2.log": "53dd2e4c1ebcb2a637047abfe6aae2a657e36cc1b9b9f4cad672935c30d389ec",
+          "node-1.log": "5bc1dd87586719cc60b64e4ec09df4dbcdc628d1201700028de0e40a55788725",
+          "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    "memcheck": {
+      "normal-run2/memcheck-1.log": [
+        "==891186==     in use at exit: 0 bytes in 0 blocks",
+        "==891186==   total heap usage: 23,937 allocs, 23,937 frees, 1,878,905 bytes allocated",
+        "==891186== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ],
+      "normal-run2/memcheck-2.log": [
+        "==891191==     in use at exit: 0 bytes in 0 blocks",
+        "==891191==   total heap usage: 11,209 allocs, 11,209 frees, 1,162,442 bytes allocated",
+        "==891191== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ]
+    },
+    "build": {
+      "normal": {
+        "host_sha256": "f24b76a98e3e3c98b8aaa143af5138dbb130c79ed4eef98e7a7c3d152fb37beb",
+        "ctest": [
+          "100% tests passed, 0 tests failed out of 7"
+        ],
+        "warnings": []
+      },
+      "sanitize": {
+        "host_sha256": "6c08aff0cabf7719ab458fd11b54b06f14932259aa10cf1d3c3a578157493efe",
+        "ctest": [
+          "100% tests passed, 0 tests failed out of 7"
+        ],
+        "warnings": []
+      }
+    }
+  },
+  "memcheck_summary": {
+    "host_boots": 2,
+    "allocations": 35146,
+    "frees": 35146,
+    "errors": 0,
+    "live_bytes_at_exit": 0
+  },
+  "windows": {
+    "focused_ctests": 7,
+    "host_sha256": "2f978172eebc108c1592b0d403f8c888fffebbdcd9573f7b6d7a6e4b247d1d0f",
+    "firewall_verified": true,
+    "three_processes_alive": true,
+    "coexistence_seconds_after_minimal_start": 84.0,
+    "diagnostic_stderr_bytes": 0,
+    "initial_conflict": "Both previous instances exited with Discovery state transition failed during the first start.",
+    "recovery": "Both previous nodes restored using their unchanged executable and retained stores; no reset/unpair.",
+    "correction": "Minimal mode uses a distinct per-process mDNS host label; interface MAC/IP are unchanged.",
+    "limit": "No packet-level proof of the exact conflicting record; finite coexistence observation."
+  },
+  "apple_home_ui": {
+    "source": "user report after fresh pairing of the minimal node",
+    "value_visible": true,
+    "location_reported": "Energia",
+    "scope": "This snapshot has EPM only, so its reported value is power; no cumulative EEM energy was present."
+  },
+  "next": "Add optional cumulative import/export EEM to the minimal sensor; next CSA task remains CSA24 automatic TC_SU_2_5"
+}

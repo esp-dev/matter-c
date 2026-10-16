@@ -34,6 +34,11 @@
 #define HOST_PLUG_POWER_MW UINT64_C(600000)
 #define HOST_PLUG_MW_MS_PER_MWH UINT64_C(3600000)
 #define HOST_PLUG_STATE_BYTES 32
+#define HOST_POWER_ONLY_ENDPOINT 6
+#define HOST_POWER_SENSOR_ONLY_ENDPOINT 1
+#define HOST_POWER_ONLY_MW INT64_C(123000)
+#define HOST_SENSOR_IMPORTED_MWH INT64_C(12345000)
+#define HOST_SENSOR_EXPORTED_MWH INT64_C(2345000)
 
 typedef struct { Matter_T owner; Matter_Mdns_Windows_T mdns; Matter_Discovery_T description; uint8_t index; } Operational;
 
@@ -51,7 +56,7 @@ typedef struct {
     Matter_Epm_Measurement_T measurement_config[4];
     bool energy_test_enabled; Matter_Energy_Sim_T energy_sim;
     Matter_Events_T events; Matter_Udp_Windows_T udp; Matter_Mdns_Windows_T mdns;
-    Matter_Discovery_T discovery; Matter_Mdns_Windows_Interface_T iface;
+    Matter_Discovery_T discovery; Matter_Mdns_Windows_Interface_T iface; uint8_t discovery_mac[6];
     Matter_Resolver_Windows_T resolver;
     Matter_Root_Config_T identity; Matter_Epm_Sample_T power; Matter_Eem_Sample_T energy;
     /* RAM cache; commissioned mode commits through the server store. */
@@ -60,6 +65,8 @@ typedef struct {
     Matter_Energy_Sim_T plug_sim; Matter_Eem_Checkpoint_T plug_checkpoint;
     Matter_Store_File_T plug_file; Matter_Store_Blob_Port_T plug_blob;
     uint8_t plug_bytes[HOST_PLUG_STATE_BYTES]; bool plug_on,plug_fault,plug_ready;
+    bool power_only_enabled,power_sensor_only,sensor_energy; Matter_Cluster_T power_only_epm,power_only_topology;
+    Matter_Epm_Sample_T power_only_sample;
     Matter_Server_T server; Operational operational[5]; uint16_t port,discriminator,advertised_discriminator; uint8_t random[8],cm_mode;
     uint8_t observed_cm_mode; bool discovery_stopping,discovery_rotate;
 } Node;
@@ -72,6 +79,7 @@ static uint8_t deny(void* u,Matter_Exchange_Session_T s,const Matter_Im_Path_T* 
 }
 static Matter_Result_T power(void* u,Matter_Epm_Sample_T* out) { *out=((Node*)u)->power; return MATTER_OK; }
 static Matter_Result_T energy(void* u,Matter_Eem_Sample_T* out) { *out=((Node*)u)->energy; return MATTER_OK; }
+static Matter_Result_T power_only(void* u,Matter_Epm_Sample_T* out) { *out=((Node*)u)->power_only_sample; return MATTER_OK; }
 static Matter_Result_T checkpoint_load(void* u,Matter_Eem_Checkpoint_T* out) {
     Node* n=u;
     if(n->server && matter_store_host_eem_load(matter_server_store(n->server),&n->checkpoint)!=MATTER_OK) return MATTER_PORT_ERROR;
@@ -298,6 +306,18 @@ static bool three_phase_model(Node* n,uint64_t now) {
     }
     return true;
 }
+static bool power_only_model(Node* n,uint64_t now,uint16_t endpoint) {
+    uint32_t versions[3]; if(!matter_host_random(versions,sizeof(versions))) return false;
+    Matter_Root_Endpoint_Config_T sensor={.endpoint=endpoint,.revision=1,.device_type=0x510,.data_version=versions[0]};
+    Matter_Epm_Port_T port={n,power_only};
+    Matter_Epm_Config_T config={.range_count=1,.measured=false,.data_version=versions[1],.max_age_ms=3000};
+    config.ranges[0]=(Matter_Epm_Accuracy_Range_T){.min_mw=0,.max_mw=HOST_POWER_ONLY_MW,.fixed_max_mw=1,.fields=MATTER_EPM_FIXED_MAX};
+    n->power_only_epm=matter_epm_new(&port,&config,now);
+    n->power_only_topology=matter_power_topology_new(versions[2]);
+    return n->power_only_epm && n->power_only_topology && matter_root_add_endpoint(n->root,&sensor)==MATTER_OK &&
+        matter_root_attach_cluster_at(n->root,endpoint,n->power_only_epm)==MATTER_OK &&
+        matter_root_attach_cluster_at(n->root,endpoint,n->power_only_topology)==MATTER_OK;
+}
 static bool model(Node* n,uint64_t now,const char* credentials,const char* state,uint32_t pin,const char* ota_key) {
     uint32_t versions[7]; if(!matter_host_random(versions,sizeof(versions))) return false;
     Matter_Root_Config_T* c=&n->identity;
@@ -312,6 +332,9 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     if(n->meter_services) c->configuration_version=7+(n->source_enabled?2:0)+(n->switch_enabled?1:0);
     c->configuration_version+=10; /* CSA03 changes Descriptor.DeviceTypeList. */
     if(n->switch_enabled) c->configuration_version+=100; /* Metering on the existing plug endpoint. */
+    if(n->power_only_enabled) c->configuration_version+=200; /* Additional independent sensor. */
+    if(n->power_sensor_only) c->configuration_version+=400; /* Root and one power sensor only. */
+    if(n->sensor_energy) c->configuration_version+=800; /* Add cumulative import/export to that sensor. */
     c->capabilities=(Matter_Root_Capabilities_T)MATTER_HOST_CAPABILITIES;
     c->settings.location[0]='X'; c->settings.location[1]='X'; c->descriptor_version=versions[0]; c->basic_version=versions[1];
     if(credentials) {
@@ -320,6 +343,19 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
         n->root=matter_server_root(n->server);
     } else { Matter_Root_Port_T rp={n,load,deny,store}; n->root=matter_root_new(&rp); }
     if(!n->root) return false;
+    if(n->power_sensor_only) {
+        Matter_Events_Port_T events={n,event_load,event_store}; n->events=matter_events_new(&events);
+        if(!n->events || matter_root_startup(n->root,n->events,now)!=MATTER_OK ||
+            !power_only_model(n,now,HOST_POWER_SENSOR_ONLY_ENDPOINT)) return false;
+        if(!n->sensor_energy) return true;
+        Matter_Eem_Port_T port={n,energy,checkpoint_load,checkpoint_store};
+        Matter_Eem_Config_T config={.endpoint=HOST_POWER_SENSOR_ONLY_ENDPOINT,.fixed_max_mwh=1,.data_version=versions[4],.max_age_ms=3000,.events=n->events};
+        n->eem=matter_eem_new_registers(&port,&config,now); if(!n->eem) return false;
+        const int64_t initial[]={HOST_SENSOR_IMPORTED_MWH,HOST_SENSOR_EXPORTED_MWH};
+        const uint64_t rates[]={(uint64_t)HOST_POWER_ONLY_MW,0};
+        if(matter_energy_sim_init_rates(&n->energy_sim,n->checkpoint.initialized?n->checkpoint.raw_mwh:initial,rates,now)!=MATTER_OK) return false;
+        return matter_root_attach_cluster_at(n->root,HOST_POWER_SENSOR_ONLY_ENDPOINT,n->eem)==MATTER_OK;
+    }
     Matter_Root_Endpoint_Config_T ep={.endpoint=1,.revision=1,.device_type=0x510,.data_version=versions[2]};
     const Matter_Root_Tag_T tag={0x0a,1};
     if((n->three_phase?matter_root_add_tagged_endpoint(n->root,&ep,&tag,1):matter_root_add_endpoint(n->root,&ep))!=MATTER_OK) return false;
@@ -350,6 +386,7 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
         if(!n->test_switch || matter_root_add_endpoint(n->root,&sw)!=MATTER_OK ||
             matter_root_attach_cluster_at(n->root,2,n->test_switch)!=MATTER_OK || !plug_model(n,state,now)) return false;
     }
+    if(n->power_only_enabled && !power_only_model(n,now,HOST_POWER_ONLY_ENDPOINT)) return false;
     if(n->source_enabled) {
         n->source_sim=calloc(1,sizeof(*n->source_sim)); if(!n->source_sim) return false;
         n->source=matter_source_sim_new(n->source_sim,c->vendor_id,versions[6],now);
@@ -361,6 +398,19 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
         matter_root_attach_cluster_at(n->root,1,n->epm)==MATTER_OK && matter_root_attach_cluster_at(n->root,1,n->eem)==MATTER_OK;
 }
 static bool sample(Node* n,uint64_t now,uint64_t seconds) {
+    if(n->power_only_enabled) {
+        n->power_only_sample=(Matter_Epm_Sample_T){.active_mw=HOST_POWER_ONLY_MW,.sampled_ms=now,.available=true};
+        bool ready; if(matter_epm_refresh(n->power_only_epm,now,&ready)!=MATTER_OK) return false;
+    }
+    if(n->power_sensor_only) {
+        if(n->sensor_energy) {
+            if(matter_energy_sim_sample(&n->energy_sim,now)!=MATTER_OK) return false;
+            n->energy=(Matter_Eem_Sample_T){.raw_mwh={n->energy_sim.raw[0],n->energy_sim.raw[1]},
+                .generation=n->checkpoint.initialized?n->checkpoint.generation:1,.sampled_ms=now,.available=true};
+            bool ready; if(matter_eem_refresh(n->eem,now,&ready)!=MATTER_OK) return false;
+        }
+        matter_server_changed(n->server); return true;
+    }
     if(n->switch_enabled) {
         bool ready;
         if(n->plug_fault || matter_energy_sim_sample(&n->plug_sim,now)!=MATTER_OK ||
@@ -447,7 +497,7 @@ static bool advertisements(Node* n,uint64_t now,bool stopping) {
         if(n->discovery_rotate && !matter_host_random(n->random,sizeof(n->random))) return false;
         n->discovery_rotate=false;
         n->cm_mode=mode; n->advertised_discriminator=discriminator;
-        n->discovery=matter_discovery_commissionable(n->iface.mac,n->random,discriminator,mode,n->port);
+        n->discovery=matter_discovery_commissionable(n->discovery_mac,n->random,discriminator,mode,n->port);
         if(!n->discovery) return false;
         n->mdns=matter_mdns_windows_new(n->owner,&n->iface,matter_discovery_record(n->discovery));
         if(!n->mdns || matter_mdns_start(matter_mdns_windows_module(n->mdns))!=MATTER_OK) return false;
@@ -466,7 +516,7 @@ static bool advertisements(Node* n,uint64_t now,bool stopping) {
             matter_discovery_delete(a->description); memset(a,0,sizeof(*a));
         }
         if(!a->owner && index) {
-            a->index=index; a->owner=matter_new(NULL); a->description=matter_discovery_operational(n->iface.mac,record->compressed_id,record->node_id,n->port);
+            a->index=index; a->owner=matter_new(NULL); a->description=matter_discovery_operational(n->discovery_mac,record->compressed_id,record->node_id,n->port);
             if(!a->owner || !a->description || matter_start(a->owner)!=MATTER_OK) return false;
             a->mdns=matter_mdns_windows_new(a->owner,&n->iface,matter_discovery_record(a->description));
             if(!a->mdns || matter_mdns_start(matter_mdns_windows_module(a->mdns))!=MATTER_OK) return false;
@@ -503,7 +553,7 @@ int main(int argc,char** argv) {
     unsigned long index=0,seconds=30,port=0,disc=3840,pin=20202021; bool operational=false;
     const char* credentials=NULL; const char* state=NULL; const char* ota_file=NULL; const char* ota_key=NULL; const char* ota_boot=NULL;
     Matter_Case_Resumption_Profile_T resumption_profile=MATTER_CASE_RESUMPTION_CHIP;
-    bool chip_validity=false,test_switch=false,three_phase=false,source_registers=false,meter_services=false,wifi_sim_connected=false;
+    bool chip_validity=false,test_switch=false,test_power_only=false,power_sensor_only=false,sensor_energy=false,three_phase=false,source_registers=false,meter_services=false,wifi_sim_connected=false;
     Matter_Diagnostics_Test_Trigger_T trigger={.trigger=test_event_trigger}; bool test_events=false;
     for(int i=1;i<argc;++i) {
         if(!strcmp(argv[i],"--test-event-key")) { if(++i==argc || !test_key(argv[i],trigger.enable_key)) return 2; test_events=true; continue; }
@@ -511,6 +561,9 @@ int main(int argc,char** argv) {
         if(!strcmp(argv[i],"--source-registers")) { source_registers=true; continue; }
         if(!strcmp(argv[i],"--meter-services")) { meter_services=true; continue; }
         if(!strcmp(argv[i],"--test-switch")) { test_switch=true; continue; }
+        if(!strcmp(argv[i],"--test-power-only")) { test_power_only=true; continue; }
+        if(!strcmp(argv[i],"--power-sensor-only")) { power_sensor_only=true; continue; }
+        if(!strcmp(argv[i],"--sensor-energy")) { sensor_energy=true; continue; }
         if(!strcmp(argv[i],"--wifi-sim-connected")) { wifi_sim_connected=true; continue; }
         if(!strcmp(argv[i],"--certificate-validity")) {
             if(++i==argc) return 2;
@@ -541,10 +594,14 @@ int main(int argc,char** argv) {
         else if(!strcmp(argv[i],"--discriminator")) { target=&disc; max=4095; }
         else if(!strcmp(argv[i],"--pin")) { target=&pin; max=99999998; }
         if(!target || ++i==argc || !number(argv[i],max,target)) {
-            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
+            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--test-power-only] [--power-sensor-only [--sensor-energy]] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
             "  --test-event-key: default profile routes energy triggers (legacy aggregate fixture);\n"
             "  with --three-phase --meter-services it enables targeted energy and Meter Identification change/reset triggers.\n"); return 2;
         }
+    }
+    if(sensor_energy && !power_sensor_only) { fputs("--sensor-energy requires --power-sensor-only\n",stderr); return 2; }
+    if(power_sensor_only && (test_switch || test_power_only || three_phase || source_registers || meter_services || test_events)) {
+        fputs("--power-sensor-only excludes other measurement, switch and test-trigger profiles\n",stderr); return 2;
     }
     if(source_registers && !three_phase) { fputs("--source-registers requires --three-phase\n",stderr); return 2; }
     if(wifi_sim_connected && !credentials) { fputs("--wifi-sim-connected requires --credentials\n",stderr); return 2; }
@@ -558,6 +615,8 @@ int main(int argc,char** argv) {
     setvbuf(stdout,NULL,_IONBF,0); signal(SIGINT,stop_signal); signal(SIGTERM,stop_signal);
     Node* n=calloc(1,sizeof(*n)); if(!n) return 1;
     n->switch_enabled=test_switch; n->three_phase=three_phase;
+    n->power_only_enabled=test_power_only || power_sensor_only; n->power_sensor_only=power_sensor_only;
+    n->sensor_energy=sensor_energy;
     n->wifi_sim_connected=wifi_sim_connected;
     n->source_enabled=source_registers;
     n->meter_services=meter_services;
@@ -572,11 +631,19 @@ int main(int argc,char** argv) {
     n->udp=matter_udp_windows_new(n->owner,&bind,(uint32_t)index,&listener);
     if(!n->udp || matter_udp_start(matter_udp_windows_module(n->udp))!=MATTER_OK || matter_udp_windows_local(n->udp,&bind)!=MATTER_OK) goto done;
     if(!matter_host_random(n->random,8)) goto done;
+    memcpy(n->discovery_mac,n->iface.mac,sizeof(n->discovery_mac));
+    if(n->power_sensor_only) {
+        /* Separate simulated nodes must not contend for the physical NIC's
+         * shared host name when their advertised address snapshots differ.
+         * This locally assigned host label changes no interface/MAC/address. */
+        memcpy(n->discovery_mac,n->random,sizeof(n->discovery_mac));
+        n->discovery_mac[0]=(uint8_t)((n->discovery_mac[0]|2u)&~1u);
+    }
     n->port=bind.port; n->discriminator=(uint16_t)disc;
     /* Explicit fixture identity from Core4.3.2 examples, never a commissioned fabric. */
     static const uint8_t fabric[]={0x87,0xe1,0xb0,4,0xe2,0x35,0xa1,0x30};
-    n->discovery=operational?matter_discovery_operational(n->iface.mac,fabric,1,bind.port):
-        matter_discovery_commissionable(n->iface.mac,n->random,(uint16_t)disc,0,bind.port);
+    n->discovery=operational?matter_discovery_operational(n->discovery_mac,fabric,1,bind.port):
+        matter_discovery_commissionable(n->discovery_mac,n->random,(uint16_t)disc,0,bind.port);
     if(!n->discovery || !model(n,now,credentials,state,(uint32_t)pin,ota_key)) goto done;
     if(n->server) {
         if(test_events && matter_server_set_test_trigger(n->server,&trigger)!=MATTER_OK) goto done;
@@ -595,7 +662,7 @@ int main(int argc,char** argv) {
         n->advertised_discriminator=(uint16_t)disc; n->cm_mode=matter_server_commissioning_mode(n->server,&n->advertised_discriminator);
         n->observed_cm_mode=n->cm_mode; /* Boot already selected the initial instance. */
         matter_discovery_delete(n->discovery);
-        n->discovery=matter_discovery_commissionable(n->iface.mac,n->random,n->advertised_discriminator,n->cm_mode,bind.port);
+        n->discovery=matter_discovery_commissionable(n->discovery_mac,n->random,n->advertised_discriminator,n->cm_mode,bind.port);
         if(!n->discovery) goto done;
     }
     n->mdns=matter_mdns_windows_new(n->owner,&n->iface,matter_discovery_record(n->discovery));
@@ -609,10 +676,12 @@ int main(int argc,char** argv) {
     const Matter_Mdns_Record_T* record=matter_discovery_record(n->discovery);
     printf("NODE instance=%s service=%s.%s.local. host=%s.local. port=%u interface=%lu mode=%s\n",
         record->instance,record->service,record->protocol,record->hostname,bind.port,index,operational?"operational-fixture":n->cm_mode?"CM1":"CM0");
-    printf("SIMULATION %s.\n",n->server?"PASE/CASE/IM, durable fabrics/EEM/event high-water; simulated source resumes at saved raw; development attestation":"discovery only, closed commissioning, volatile EPM/EEM");
+    printf("SIMULATION %s.\n",n->power_sensor_only?(n->sensor_energy?"Root and synthetic power/energy sensor, no On/Off":"Root and synthetic power sensor only, no On/Off or EEM"):n->server?"PASE/CASE/IM, durable fabrics/EEM/event high-water; simulated source resumes at saved raw; development attestation":"discovery only, closed commissioning, volatile EPM/EEM");
     if(n->three_phase) puts("THREE_PHASE aggregate=1 phases=3,4,5 energy=physical-registers phase-energy=absent L3-unavailable=15..19s-of-20s synthetic-only");
     if(n->source) printf("SOURCE_REGISTERS endpoint=1 cluster=%08lx channels=%lu schema=1 synthetic-only\n",(unsigned long)matter_cluster_id(n->source),(unsigned long)n->source_sim->count);
     if(n->switch_enabled) puts("TEST_SWITCH endpoint=2 on=0 profile=incomplete-ui-demo state=volatile energy=independent-600W-on-0W-off cumulative-import-export-persisted-with-state");
+    if(n->power_only_enabled) printf("TEST_POWER_ONLY endpoint=%u power_mW=%lld synthetic-only onoff=absent energy=%s\n",
+        (unsigned)(n->power_sensor_only?HOST_POWER_SENSOR_ONLY_ENDPOINT:HOST_POWER_ONLY_ENDPOINT),(long long)HOST_POWER_ONLY_MW,n->sensor_energy?"cumulative-import-export":"absent");
     if(energy_test) printf("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile endpoints=%s\n",three_phase?"1,3,4,5":"1");
     if(test_events && three_phase) puts("MTRID_TEST enabled=1 endpoint=1 key=not-persisted identity=volatile clear=base-snapshot");
     bool announced=false; uint64_t next_sample=now;
@@ -672,12 +741,14 @@ done:
     if(n->server) { if(matter_server_delete(n->server)!=MATTER_OK) result=1; }
     else if(matter_root_delete(n->root)!=MATTER_OK) result=1;
     if(matter_resolver_windows_delete(n->resolver)!=MATTER_OK) result=1;
-    if(matter_cluster_delete(n->eem)!=MATTER_OK) result=1;
+    if(n->eem && matter_cluster_delete(n->eem)!=MATTER_OK) result=1;
     if(n->test_switch && matter_cluster_delete(n->test_switch)!=MATTER_OK) result=1;
     if(n->plug_power && matter_cluster_delete(n->plug_power)!=MATTER_OK) result=1;
     if(n->plug_energy && matter_cluster_delete(n->plug_energy)!=MATTER_OK) result=1;
     if(n->plug_topology && matter_cluster_delete(n->plug_topology)!=MATTER_OK) result=1;
     if(n->plug_file && matter_store_file_delete(n->plug_file)!=MATTER_OK) result=1;
+    if(n->power_only_epm && matter_cluster_delete(n->power_only_epm)!=MATTER_OK) result=1;
+    if(n->power_only_topology && matter_cluster_delete(n->power_only_topology)!=MATTER_OK) result=1;
     if(n->source && matter_cluster_delete(n->source)!=MATTER_OK) result=1;
     free(n->source_sim);
     for(unsigned i=0;i<HOST_METER_SERVICES_COUNT;++i) if(n->utilities[i] && matter_cluster_delete(n->utilities[i])!=MATTER_OK) result=1;
@@ -686,8 +757,8 @@ done:
         if(n->phase_epm[i] && matter_cluster_delete(n->phase_epm[i])!=MATTER_OK) result=1;
         if(n->phase_topology[i] && matter_cluster_delete(n->phase_topology[i])!=MATTER_OK) result=1;
     }
-    if(matter_cluster_delete(n->epm)!=MATTER_OK) result=1;
-    if(matter_cluster_delete(n->topology)!=MATTER_OK) result=1;
+    if(n->epm && matter_cluster_delete(n->epm)!=MATTER_OK) result=1;
+    if(n->topology && matter_cluster_delete(n->topology)!=MATTER_OK) result=1;
     if(matter_events_delete(n->events)!=MATTER_OK) result=1;
     if(matter_delete(n->owner)!=MATTER_OK) result=1;
     matter_discovery_delete(n->discovery); printf("STOPPED rx_packets=%llu result=%d\n",(unsigned long long)n->rx_packets,result);

@@ -1,0 +1,372 @@
+{
+  "schema": 1,
+  "scope": "Optional EEM import/export on the minimal power sensor; not new CSA acceptance or certification",
+  "profile": {
+    "option": "--power-sensor-only --sensor-energy",
+    "endpoints": [
+      0,
+      1
+    ],
+    "endpoint_1_servers": [
+      29,
+      144,
+      145,
+      156
+    ],
+    "onoff": false,
+    "initial_import_mWh": 12345000,
+    "initial_export_mWh": 2345000,
+    "active_power_mW": 123000,
+    "export_is_historical": true
+  },
+  "source_manifest_sha256": "24567a044e42baf07fe18e0f10c6928866085e544775edea17eaca7209cf716c",
+  "changed_sources_sha256": {
+    "tools/matter/host/matter_node.c": "65ea87e4b04540b15c13b7757063b97f8dd0f367e056ac799f87483c2843c552",
+    "tools/matter/tests/test_plug_energy_chip.py": "963df6ee549d0dc2a12c4793b15fcd2dbac211bc9686aaff9720ad617f4ee175"
+  },
+  "linux": {
+    "laboratory": {
+      "normal-run1": {
+        "result": {
+          "scope": "synthetic Root and power/energy sensor; not CSA certification or Apple UI acceptance",
+          "checks": [
+            {
+              "name": "energy-option-requires-minimal-profile",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-test-switch",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-test-power-only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-three-phase",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-source-registers",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-meter-services",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "verified-attestation",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "root-and-one-sensor-no-onoff",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-initial",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "distinct-import-export-baselines",
+              "passed": true,
+              "detail": {
+                "mWh": [
+                  12345409,
+                  2345000
+                ]
+              }
+            },
+            {
+              "name": "sensor-only-subscription",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "import-grows-export-history-unchanged",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "energy-event-has-both-directions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "memcheck-clean-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-restart",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "root-and-one-sensor-no-onoff",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "both-registers-retained-after-restart",
+              "passed": true,
+              "detail": {
+                "before_mWh": [
+                  12345443,
+                  2345000
+                ],
+                "after_mWh": [
+                  12345670,
+                  2345000
+                ]
+              }
+            },
+            {
+              "name": "clean-stop-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "memcheck-clean-2",
+              "passed": true,
+              "detail": null
+            }
+          ],
+          "host_sha256": "73488f8ff7308174133042d789a7f05c399ad70d179083d16d225b8ca496d2a3",
+          "result": "PASS"
+        },
+        "evidence_sha256": {
+          "result.json": "f995b88079c9f457947bf25400dbb3c5082f68b700381a55a399dafe4fa92dd7",
+          "node-2.log": "2a9bec4290636149db5a3ecc8229bc86b52c6d48c1916e01516e4c10a1684260",
+          "node-1.log": "67e3c798699e49d4e5de018bf09380c3152f20beb21514da3f23d9cf55788d13",
+          "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "memcheck-1.log": "ec507bcc2a415995eabe4a1e4fa3d55c4734a879f1e61adbaf30d357d83eedd6",
+          "memcheck-2.log": "5e9ce3e4f016aebf624d0c3873af598d8850052eab95b49873fc1f66dce81c4a"
+        }
+      },
+      "sanitize-run1": {
+        "result": {
+          "scope": "synthetic Root and power/energy sensor; not CSA certification or Apple UI acceptance",
+          "checks": [
+            {
+              "name": "energy-option-requires-minimal-profile",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-test-switch",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-test-power-only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-three-phase",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-source-registers",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "conflicting-profile-rejected-meter-services",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "verified-attestation",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "root-and-one-sensor-no-onoff",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-initial",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "distinct-import-export-baselines",
+              "passed": true,
+              "detail": {
+                "mWh": [
+                  12345139,
+                  2345000
+                ]
+              }
+            },
+            {
+              "name": "sensor-only-subscription",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "import-grows-export-history-unchanged",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "energy-event-has-both-directions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "independent-123W-restart",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "root-and-one-sensor-no-onoff",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "both-registers-retained-after-restart",
+              "passed": true,
+              "detail": {
+                "before_mWh": [
+                  12345174,
+                  2345000
+                ],
+                "after_mWh": [
+                  12345246,
+                  2345000
+                ]
+              }
+            },
+            {
+              "name": "clean-stop-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-2",
+              "passed": true,
+              "detail": null
+            }
+          ],
+          "host_sha256": "21d5ac025ad78016689632435ad98577e95440186360606488a0209d032cfd07",
+          "result": "PASS"
+        },
+        "evidence_sha256": {
+          "result.json": "1c2bb23588cef569e8fe543e551ab2725121b1f3559a6c6ee7d08d9cf808aa25",
+          "node-2.log": "23a0be8937d34b014721809a34e3d4b434790d6a18030cf0b41c73c86d9edf27",
+          "node-1.log": "59bb1b43bc42f29c083f8ea3b7510797f1146dabc9cedfafb3fab8dc4a25722b",
+          "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    "memcheck": {
+      "normal-run1/memcheck-1.log": [
+        "==896602==     in use at exit: 0 bytes in 0 blocks",
+        "==896602==   total heap usage: 24,161 allocs, 24,161 frees, 2,360,993 bytes allocated",
+        "==896602== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ],
+      "normal-run1/memcheck-2.log": [
+        "==896615==     in use at exit: 0 bytes in 0 blocks",
+        "==896615==   total heap usage: 11,278 allocs, 11,278 frees, 1,379,670 bytes allocated",
+        "==896615== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ]
+    },
+    "build": {
+      "normal": {
+        "host_sha256": "73488f8ff7308174133042d789a7f05c399ad70d179083d16d225b8ca496d2a3",
+        "ctest": [
+          "100% tests passed, 0 tests failed out of 7"
+        ],
+        "warnings": []
+      },
+      "sanitize": {
+        "host_sha256": "21d5ac025ad78016689632435ad98577e95440186360606488a0209d032cfd07",
+        "ctest": [
+          "100% tests passed, 0 tests failed out of 7"
+        ],
+        "warnings": []
+      }
+    }
+  },
+  "memcheck_summary": {
+    "boots": 2,
+    "allocations": 35439,
+    "frees": 35439,
+    "errors": 0,
+    "live_bytes_at_exit": 0
+  },
+  "windows": {
+    "focused_ctests": 7,
+    "host_sha256": "53432474822486b36506c081bd4dd84839544aa44c0e0df04ede97722f44cedf",
+    "test_log_sha256": "b5352d17deefe5d0165a396e896be9a3db47d3b149c1d28ff121c7790126277d",
+    "paired_state_preserved": true,
+    "fabric_advertisements": 2,
+    "other_two_processes_not_restarted": true,
+    "three_processes_healthy_after_seconds": 57.0,
+    "diagnostic_stderr_bytes": 0
+  },
+  "apple_home_ui": {
+    "source": "user report after update and after successful removal/re-addition",
+    "visible": "123 T only",
+    "separate_import_export_fields_visible": false,
+    "reconnection": "initial failure later reported resolved by user",
+    "cause": "unresolved; no Apple request-path trace captured",
+    "live_store_snapshot": {
+      "method": "read-only production TLV decoder; only counters and transaction flags printed",
+      "fabrics": 2,
+      "pending": false,
+      "journal": false,
+      "eem_initialized": true,
+      "import_mWh": 12356265,
+      "export_mWh": 2345000
+    },
+    "limit": "Stored counters are not a live Apple wire read; independent CHIP acceptance is recorded separately."
+  },
+  "limits": [
+    "Display labels/unit selection and discovery of the newly added EEM cluster are controller behavior, not established by CHIP acceptance.",
+    "Both directions are simulated; export is a fixed historical register with no current export.",
+    "Fractions and time since the last accepted checkpoint are not promised after a crash.",
+    "No full CSA/native campaign rerun."
+  ],
+  "next": "Apple cumulative-energy UI remains unresolved; next CSA task remains CSA24 automatic TC_SU_2_5"
+}

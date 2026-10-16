@@ -1,5 +1,42 @@
 # Development status
 
+The minimal sensor now optionally adds EEM with `--sensor-energy`: separate
+cumulative import/export registers (initial synthetic 12.345/2.345 kWh) and
+CumulativeEnergyMeasured. Import grows coherently with +123 W; export is fixed
+history. CHIP verifies mixed subscriptions/events and retention across restart
+under Memcheck and separate sanitizers; seven focused CTests pass on Windows
+and both Linux builds. Only the paired minimal sensor was updated; other nodes
+kept running. Apple visibility of the preceding EPM-only value under `Energia`
+was confirmed. With EEM added, the user still sees only `123 T`, including
+after successful removal/re-addition. A read-only decode of the running node's
+stored state confirms distinct cumulative registers; no separate energy fields
+were observed in Apple Home. The cause is unresolved. CSA counts
+are unchanged. See [energy-register acceptance](sensor-energy-validation.md).
+
+The minimal `--power-sensor-only` node contains Root and one 123 W Electrical
+Sensor (endpoint 1), with no On/Off or EEM. It is separate from the earlier
+`--test-power-only` full-profile experiment. A dedicated mDNS host label avoids
+sharing the physical interface's host name with other simulated nodes. Exact
+inventory, Read/Subscribe, restart/fresh CASE and removal are checked by the
+optional CHIP runner. The user confirmed a value under `Energia` for this
+EPM-only snapshot; CSA counts and next
+CSA24 task remain unchanged. See [minimal profile](sensor-only-validation.md).
+
+The optional `--test-power-only` host mode adds Electrical Sensor endpoint 6
+with Descriptor/EPM/Power Topology, 123 W and no On/Off or EEM. The socket and
+existing endpoint numbers remain. Full CHIP Read/Subscribe, socket-state
+independence, restart and removal pass under Memcheck and separate sanitizers;
+seven focused CTests pass on Windows and both Linux builds. The paired Windows
+node runs both experiments with its fabrics retained. Apple Home shows only
+the socket, with no separate 123 W sensor. A second isolated instance was then
+freshly paired: the user again reports only On/Off and 600 with unit `T`.
+Its log confirms fabric advertisements and a socket On command, with endpoint 6
+active; the original instance remains running. This reproduces the UI result
+after fresh pairing, but does not establish the cause or behavior of a node
+containing only the sensor. Controller path tracing was not performed.
+CSA results are unchanged. See
+[power-only validation](power-only-validation.md).
+
 The optional metered socket now exposes EPM/EEM/Power Topology on the On/Off
 endpoint, using an independent synthetic 600 W / 0 W source and persistent
 cumulative import. A whole-profile Read reproduced the former 320-result

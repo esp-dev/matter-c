@@ -138,3 +138,23 @@ Subscribe suites cover 512/513 expanded-result limits, initial/growth allocation
 failure, Read plan allocation failure and cleanup. `test_energy_sim` covers
 fractional carry across short On/Off bursts. See
 [actual results](plug-energy-validation.md); these are not official CSA cases.
+
+The same runner's optional `--power-only` mode adds endpoint 6 to that host.
+Its inventory requires Electrical Sensor with exactly Descriptor/EPM/Power
+Topology, excluding On/Off and EEM. CASE reads and Subscribe priming verify
+123000 mW; reads after socket On, Off and restart verify source independence.
+The default runner mode and CSA profile are unchanged. See
+[power-only acceptance](power-only-validation.md).
+
+`test_plug_energy_chip.py --sensor-only` instead verifies the minimal
+`--power-sensor-only` node. Its full-tree inventory requires only endpoints
+0 and 1 and excludes On/Off/EEM throughout. It checks 123 W Read/Subscribe,
+restart/fresh CASE, last-fabric removal and rejection of five conflicting CLI
+profiles. Both modes remain external scenarios, not additional native CTests.
+See [minimal sensor evidence](sensor-only-validation.md).
+
+Adding `--sensor-energy` to that runner enables EEM in the minimal host and
+verifies FeatureMap 7, distinct import/export values, mixed power/energy/event
+Subscribe, import growth at constant positive power, unchanged historic export
+and retention of both registers after restart. The pure-EPM mode keeps its
+no-EEM inventory assertion. See [energy evidence](sensor-energy-validation.md).
