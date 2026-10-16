@@ -18,6 +18,8 @@
 #include "matter_host_identity.h"
 #include "matter_switch_sim.h"
 #include "matter_energy_sim.h"
+#include "matter_store_file.h"
+#include "codec/matter_tlv_writer.h"
 #include "matter_source_sim.h"
 #include "matter_time_host.h"
 #include "clusters/matter_identify.h"
@@ -28,6 +30,10 @@
 #define HOST_METER_SERVICES_COUNT 3
 #define HOST_UNIX_MATTER_EPOCH UINT64_C(946684800)
 #define HOST_NOC_NOT_BEFORE_TAG 4
+#define HOST_PLUG_ENDPOINT 2
+#define HOST_PLUG_POWER_MW UINT64_C(600000)
+#define HOST_PLUG_MW_MS_PER_MWH UINT64_C(3600000)
+#define HOST_PLUG_STATE_BYTES 32
 
 typedef struct { Matter_T owner; Matter_Mdns_Windows_T mdns; Matter_Discovery_T description; uint8_t index; } Operational;
 
@@ -50,6 +56,10 @@ typedef struct {
     Matter_Root_Config_T identity; Matter_Epm_Sample_T power; Matter_Eem_Sample_T energy;
     /* RAM cache; commissioned mode commits through the server store. */
     Matter_Eem_Checkpoint_T checkpoint; int64_t raw_base[2]; uint64_t high,rx_packets;
+    Matter_Cluster_T plug_power,plug_energy,plug_topology;
+    Matter_Energy_Sim_T plug_sim; Matter_Eem_Checkpoint_T plug_checkpoint;
+    Matter_Store_File_T plug_file; Matter_Store_Blob_Port_T plug_blob;
+    uint8_t plug_bytes[HOST_PLUG_STATE_BYTES]; bool plug_on,plug_fault,plug_ready;
     Matter_Server_T server; Operational operational[5]; uint16_t port,discriminator,advertised_discriminator; uint8_t random[8],cm_mode;
     uint8_t observed_cm_mode; bool discovery_stopping,discovery_rotate;
 } Node;
@@ -86,7 +96,81 @@ static void received(void* u,const Matter_Udp_Datagram_T* d) { Node* n=u; ++n->r
 static void sent(void* u,uint64_t id,Matter_Operation_Result_T result) { matter_server_sent(((Node*)u)->server,id,result); }
 static void text(Matter_Root_Text_T* t,const char* str) { t->size=strlen(str); memcpy(t->data,str,t->size); }
 static void switch_changed(void* u,bool on) {
-    Node* n=u; printf("TEST_SWITCH endpoint=2 on=%u\n",on?1:0); matter_server_changed(n->server);
+    Node* n=u;
+    /* Integrate the OLD state up to this transition, including sub-second use. */
+    if(matter_energy_sim_sample(&n->plug_sim,matter_host_now())!=MATTER_OK) n->plug_fault=true;
+    n->plug_sim.normal_mw[0]=on?HOST_PLUG_POWER_MW:0; n->plug_on=on;
+    printf("TEST_SWITCH endpoint=2 on=%u\n",on?1:0); matter_server_changed(n->server);
+}
+static Matter_Result_T plug_power(void* u,Matter_Epm_Sample_T* out) {
+    Node* n=u; *out=(Matter_Epm_Sample_T){.active_mw=n->plug_on?(int64_t)HOST_PLUG_POWER_MW:0,
+        .sampled_ms=n->plug_sim.last,.available=!n->plug_fault}; return MATTER_OK;
+}
+static Matter_Result_T plug_energy(void* u,Matter_Eem_Sample_T* out) {
+    Node* n=u; *out=(Matter_Eem_Sample_T){.raw_mwh={n->plug_sim.raw[0],0},.generation=1,
+        .sampled_ms=n->plug_sim.last,.available=!n->plug_fault}; return MATTER_OK;
+}
+static Matter_Result_T plug_load(void* u,Matter_Eem_Checkpoint_T* out) { *out=((Node*)u)->plug_checkpoint; return MATTER_OK; }
+static Matter_Result_T plug_store(void* u,const Matter_Eem_Checkpoint_T* in) {
+    Node* n=u;
+    if(n->plug_file) {
+        Matter_Tlv_Writer_T w; size_t size;
+        if(matter_tlv_writer_init(&w,n->plug_bytes,sizeof(n->plug_bytes),1)!=MATTER_TLV_OK) return MATTER_PORT_ERROR;
+        Matter_Tlv_Element_T e={.type=MATTER_TLV_STRUCTURE};
+        if(matter_tlv_write(&w,&e,0)!=MATTER_TLV_OK) return MATTER_PORT_ERROR;
+        const uint64_t fields[]={1,(uint64_t)in->raw_mwh[0],n->plug_sim.remainder[0]};
+        for(unsigned i=0;i<3;++i) {
+            e=(Matter_Tlv_Element_T){.type=MATTER_TLV_UNSIGNED,.tag={.control=1,.number=i},.unsigned_value=fields[i]};
+            if(matter_tlv_write(&w,&e,0)!=MATTER_TLV_OK) return MATTER_PORT_ERROR;
+        }
+        e=(Matter_Tlv_Element_T){.type=MATTER_TLV_END};
+        if(matter_tlv_write(&w,&e,0)!=MATTER_TLV_OK || matter_tlv_writer_finish(&w,&size)!=MATTER_TLV_OK) return MATTER_PORT_ERROR;
+        Matter_Result_T r=n->plug_blob.replace(n->plug_blob.user,n->plug_bytes,size); if(r!=MATTER_OK) return r;
+    }
+    n->plug_checkpoint=*in; return MATTER_OK;
+}
+static bool plug_model(Node* n,const char* state,uint64_t now) {
+    uint64_t remainder=0;
+    if(state) {
+        static const char suffix[]=".plug-energy"; size_t length=strlen(state);
+        if(length>SIZE_MAX-sizeof(suffix)) return false;
+        char* path=malloc(length+sizeof(suffix)); if(!path) return false;
+        memcpy(path,state,length); memcpy(path+length,suffix,sizeof(suffix));
+        n->plug_file=matter_store_file_new(path); free(path); if(!n->plug_file) return false;
+        n->plug_blob=matter_store_file_port(n->plug_file); size_t size=0;
+        Matter_Result_T r=n->plug_blob.read(n->plug_blob.user,n->plug_bytes,sizeof(n->plug_bytes),&size);
+        if(r==MATTER_OK) {
+            Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T e; uint64_t fields[3]={0}; unsigned seen=0;
+            if(!size || n->plug_bytes[0]!=0x15 || matter_tlv_init(&reader,n->plug_bytes,size,1)!=MATTER_TLV_OK ||
+                matter_tlv_next(&reader,&e)!=MATTER_TLV_OK) return false;
+            while(matter_tlv_next(&reader,&e)==MATTER_TLV_OK && e.type!=MATTER_TLV_END) {
+                if(e.type!=MATTER_TLV_UNSIGNED || e.tag.control!=1 || e.tag.number>2 || (seen&(1u<<e.tag.number))) return false;
+                seen|=1u<<e.tag.number; fields[e.tag.number]=e.unsigned_value;
+            }
+            if(seen!=7 || e.type!=MATTER_TLV_END || matter_tlv_next(&reader,&e)!=MATTER_TLV_DONE || fields[0]!=1 ||
+                fields[1]>(uint64_t)MATTER_EEM_LIMIT || fields[2]>=HOST_PLUG_MW_MS_PER_MWH) return false;
+            n->plug_checkpoint=(Matter_Eem_Checkpoint_T){.generation=1,.raw_mwh={(int64_t)fields[1],0},
+                .total_mwh={(int64_t)fields[1],0},.initialized=true,.registers=true,.register_mask=3}; remainder=fields[2];
+        } else if(r!=MATTER_OFFLINE) return false; /* Corrupt/unreadable state never silently resets. */
+    }
+    const uint64_t idle[]={0,0};
+    if(matter_energy_sim_init_rates(&n->plug_sim,n->plug_checkpoint.raw_mwh,idle,now)!=MATTER_OK) return false;
+    n->plug_sim.remainder[0]=remainder;
+    uint32_t versions[3]; if(!matter_host_random(versions,sizeof(versions))) return false;
+    Matter_Epm_Port_T pp={n,plug_power};
+    Matter_Epm_Config_T pc={.range_count=1,.measured=false,.data_version=versions[0],.max_age_ms=3000};
+    pc.ranges[0]=(Matter_Epm_Accuracy_Range_T){.min_mw=0,.max_mw=(int64_t)HOST_PLUG_POWER_MW,.fixed_max_mw=1,.fields=MATTER_EPM_FIXED_MAX};
+    n->plug_power=matter_epm_new(&pp,&pc,now);
+    Matter_Eem_Port_T pe={n,plug_energy,plug_load,plug_store};
+    Matter_Eem_Config_T ec={.endpoint=HOST_PLUG_ENDPOINT,.fixed_max_mwh=1,.data_version=versions[1],.max_age_ms=3000,.events=n->events};
+    n->plug_energy=matter_eem_new_registers(&pe,&ec,now);
+    n->plug_topology=matter_power_topology_new(versions[2]);
+    n->plug_ready=n->plug_power && n->plug_energy && n->plug_topology &&
+        matter_root_add_device_type_at(n->root,HOST_PLUG_ENDPOINT,0x510,1)==MATTER_OK &&
+        matter_root_attach_cluster_at(n->root,HOST_PLUG_ENDPOINT,n->plug_power)==MATTER_OK &&
+        matter_root_attach_cluster_at(n->root,HOST_PLUG_ENDPOINT,n->plug_energy)==MATTER_OK &&
+        matter_root_attach_cluster_at(n->root,HOST_PLUG_ENDPOINT,n->plug_topology)==MATTER_OK;
+    return n->plug_ready;
 }
 static uint8_t test_event_trigger(void* u,uint64_t event) {
     Node* n=u;
@@ -227,6 +311,7 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     if(n->source_enabled) c->configuration_version=n->switch_enabled?6:5;
     if(n->meter_services) c->configuration_version=7+(n->source_enabled?2:0)+(n->switch_enabled?1:0);
     c->configuration_version+=10; /* CSA03 changes Descriptor.DeviceTypeList. */
+    if(n->switch_enabled) c->configuration_version+=100; /* Metering on the existing plug endpoint. */
     c->capabilities=(Matter_Root_Capabilities_T)MATTER_HOST_CAPABILITIES;
     c->settings.location[0]='X'; c->settings.location[1]='X'; c->descriptor_version=versions[0]; c->basic_version=versions[1];
     if(credentials) {
@@ -259,11 +344,11 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
         } else if(matter_energy_sim_init(&n->energy_sim,n->raw_base,now)!=MATTER_OK) return false;
     }
     if(n->switch_enabled) {
-        /* Explicit UI experiment; additional required plug clusters are not implemented. */
+        /* Explicit UI experiment; mandatory Groups/Scenes/Lighting remain absent. */
         Matter_Root_Endpoint_Config_T sw={.endpoint=2,.revision=5,.device_type=0x10a,.data_version=versions[5]};
         n->test_switch=matter_switch_sim_new(versions[6],switch_changed,n);
         if(!n->test_switch || matter_root_add_endpoint(n->root,&sw)!=MATTER_OK ||
-            matter_root_attach_cluster_at(n->root,2,n->test_switch)!=MATTER_OK) return false;
+            matter_root_attach_cluster_at(n->root,2,n->test_switch)!=MATTER_OK || !plug_model(n,state,now)) return false;
     }
     if(n->source_enabled) {
         n->source_sim=calloc(1,sizeof(*n->source_sim)); if(!n->source_sim) return false;
@@ -276,6 +361,11 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
         matter_root_attach_cluster_at(n->root,1,n->epm)==MATTER_OK && matter_root_attach_cluster_at(n->root,1,n->eem)==MATTER_OK;
 }
 static bool sample(Node* n,uint64_t now,uint64_t seconds) {
+    if(n->switch_enabled) {
+        bool ready;
+        if(n->plug_fault || matter_energy_sim_sample(&n->plug_sim,now)!=MATTER_OK ||
+            matter_epm_refresh(n->plug_power,now,&ready)!=MATTER_OK || matter_eem_refresh(n->plug_energy,now,&ready)!=MATTER_OK) return false;
+    }
     n->power=(Matter_Epm_Sample_T){.active_mw=seconds%10<5?3600000:-1800000,.sampled_ms=now,.available=true};
     if(seconds>(uint64_t)(MATTER_EEM_LIMIT-n->raw_base[0])/1000 || seconds>(uint64_t)(MATTER_EEM_LIMIT-n->raw_base[1])/500) return false;
     n->energy=(Matter_Eem_Sample_T){.raw_mwh={n->raw_base[0]+(int64_t)(seconds*1000),n->raw_base[1]+(int64_t)(seconds*500)},
@@ -522,7 +612,7 @@ int main(int argc,char** argv) {
     printf("SIMULATION %s.\n",n->server?"PASE/CASE/IM, durable fabrics/EEM/event high-water; simulated source resumes at saved raw; development attestation":"discovery only, closed commissioning, volatile EPM/EEM");
     if(n->three_phase) puts("THREE_PHASE aggregate=1 phases=3,4,5 energy=physical-registers phase-energy=absent L3-unavailable=15..19s-of-20s synthetic-only");
     if(n->source) printf("SOURCE_REGISTERS endpoint=1 cluster=%08lx channels=%lu schema=1 synthetic-only\n",(unsigned long)matter_cluster_id(n->source),(unsigned long)n->source_sim->count);
-    if(n->switch_enabled) puts("TEST_SWITCH endpoint=2 on=0 profile=incomplete-ui-demo state=volatile");
+    if(n->switch_enabled) puts("TEST_SWITCH endpoint=2 on=0 profile=incomplete-ui-demo state=volatile energy=independent-600W-on-0W-off cumulative-import-export-persisted-with-state");
     if(energy_test) printf("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile endpoints=%s\n",three_phase?"1,3,4,5":"1");
     if(test_events && three_phase) puts("MTRID_TEST enabled=1 endpoint=1 key=not-persisted identity=volatile clear=base-snapshot");
     bool announced=false; uint64_t next_sample=now;
@@ -549,6 +639,17 @@ done:
             (void)matter_udp_windows_poll(n->udp); (void)matter_server_process(n->server,matter_host_now()); matter_host_sleep(1);
         }
     }
+    if(n->plug_ready && !n->plug_fault) {
+        /* Retain the final partial second and fractional mWh across clean
+         * restart; never count powered-off time while this process is absent. */
+        Matter_Eem_Checkpoint_T saved=n->plug_checkpoint;
+        if(matter_energy_sim_sample(&n->plug_sim,matter_host_now())!=MATTER_OK) result=1;
+        else {
+            saved=(Matter_Eem_Checkpoint_T){.generation=1,.raw_mwh={n->plug_sim.raw[0],0},.total_mwh={n->plug_sim.raw[0],0},
+                .initialized=true,.registers=true,.register_mask=3};
+            if(plug_store(n,&saved)!=MATTER_OK) result=1;
+        }
+    }
     for(;;) {
         (void)advertisements(n,matter_host_now(),true); bool pending=false;
         for(unsigned i=0;i<5;++i) pending|=n->operational[i].owner!=NULL;
@@ -573,6 +674,10 @@ done:
     if(matter_resolver_windows_delete(n->resolver)!=MATTER_OK) result=1;
     if(matter_cluster_delete(n->eem)!=MATTER_OK) result=1;
     if(n->test_switch && matter_cluster_delete(n->test_switch)!=MATTER_OK) result=1;
+    if(n->plug_power && matter_cluster_delete(n->plug_power)!=MATTER_OK) result=1;
+    if(n->plug_energy && matter_cluster_delete(n->plug_energy)!=MATTER_OK) result=1;
+    if(n->plug_topology && matter_cluster_delete(n->plug_topology)!=MATTER_OK) result=1;
+    if(n->plug_file && matter_store_file_delete(n->plug_file)!=MATTER_OK) result=1;
     if(n->source && matter_cluster_delete(n->source)!=MATTER_OK) result=1;
     free(n->source_sim);
     for(unsigned i=0;i<HOST_METER_SERVICES_COUNT;++i) if(n->utilities[i] && matter_cluster_delete(n->utilities[i])!=MATTER_OK) result=1;

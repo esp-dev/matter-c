@@ -73,6 +73,17 @@ buffers does not authorize larger UDP packets. Invoke, Write, the outbound IM
 client and other result/transport tables retain their separate budgets; migrating
 those is subsequent work, with interoperability tests after each subsystem.
 
+Read/Subscribe expanded attribute results now grow on the heap per interaction,
+starting at nine entries and doubling up to the 512-entry application ceiling.
+That ceiling is not a Matter protocol maximum. A full-tree Read of the metered
+socket profile reproduced ResourceExhausted with the former 320-entry table.
+Read also allocates its chunk plan from the output budget (capacity / 8 + 1,
+a conservative structural TLV lower bound). No unused full-size result table
+is embedded in either handler. Allocation failure returns ResourceExhausted;
+the owner retains old allocations until cleanup, then releases all entries.
+Subscribe retains its result table until deletion. Snapshot, value, selector
+and UDP budgets are unchanged. See [acceptance](oss/plug-energy-validation.md).
+
 TimeSnapshot reads UTCTime from the actual Time Synchronization cluster attached
 to Root and converts Matter-epoch microseconds to POSIX milliseconds. The
 application must process its external clock cluster with the same monotonic tick

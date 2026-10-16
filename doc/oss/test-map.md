@@ -1,6 +1,6 @@
 # Test inventory
 
-test-map.json enumerates 231 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 232 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
@@ -128,3 +128,13 @@ are checked. `test_bdx` and its allocation variant cover scoped file discard,
 stale/restarted ownership, removal failure and candidacy revocation. The eight
 focused BDX/Apply/update/runtime CTests and their allocation variants remain
 existing definitions. See [CSA23](csa23-validation.md) for actual runs and limits.
+
+`test_plug_energy_chip.py` exercises the disposable full-profile metered socket:
+verified attestation, exact whole-tree inventory, mixed EPM/EEM attribute/event
+subscription, 600 W / 0 W transitions, paused import while off, zero export,
+persistent import after restart/fresh CASE, and last-fabric removal. Run with
+`--memcheck`, then separately against a sanitizer executable. Native Read and
+Subscribe suites cover 512/513 expanded-result limits, initial/growth allocation
+failure, Read plan allocation failure and cleanup. `test_energy_sim` covers
+fractional carry across short On/Off bursts. See
+[actual results](plug-energy-validation.md); these are not official CSA cases.

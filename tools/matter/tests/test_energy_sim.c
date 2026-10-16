@@ -32,5 +32,16 @@ int main(void) {
     CHECK(s.raw[0]==before.raw[0] && s.raw[1]==before.raw[1]);
     CHECK(matter_energy_sim_sample(&s,8100)==MATTER_OK && s.raw[0]==11102 && s.raw[1]==25416);
     before=s; CHECK(matter_energy_sim_init_rates(&s,raw,NULL,8100)==MATTER_INVALID_ARGUMENT && !memcmp(&s,&before,sizeof(s)));
+    /* Plug transitions integrate the previous rate before changing it. The
+     * fraction survives OFF and short bursts, avoiding per-sample rounding. */
+    const uint64_t idle[]={0,0}; const int64_t zero[]={0,0};
+    CHECK(matter_energy_sim_init_rates(&s,zero,idle,0)==MATTER_OK);
+    CHECK(matter_energy_sim_sample(&s,1000)==MATTER_OK && !s.raw[0]);
+    s.normal_mw[0]=600000;
+    CHECK(matter_energy_sim_sample(&s,1001)==MATTER_OK && !s.raw[0] && s.remainder[0]==600000);
+    s.normal_mw[0]=0;
+    CHECK(matter_energy_sim_sample(&s,2000)==MATTER_OK && !s.raw[0] && s.remainder[0]==600000);
+    s.normal_mw[0]=600000;
+    CHECK(matter_energy_sim_sample(&s,2005)==MATTER_OK && s.raw[0]==1 && !s.remainder[0] && !s.raw[1]);
     puts("PASS energy simulation: integration, directions, stop, isolation, backwards time, overflow"); return 0;
 }

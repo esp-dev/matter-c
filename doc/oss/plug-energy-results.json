@@ -1,0 +1,317 @@
+{
+  "schema": 1,
+  "scope": "Local metered socket interoperability and memory checks; not new CSA acceptance or certification",
+  "source_manifest_sha256": "f6547c0e87884f72cb2ffbaca5c91fcb859fde30285fe5445ac2675d9adedff0",
+  "source_sha256": {
+    "tools/matter/host/matter_node.c": "92818f593f6c4003b7c78bf354e5cdd87052c8f6f0ffa54da20f675d02cc618a",
+    "main/apps/matter/model/matter_im_read.c": "3b2c0ad0f2e6d2a026e9f1a3a72a0b1d767dc2fc7b9b5fb64c2e662f12528081",
+    "main/apps/matter/model/matter_im_read.h": "76c133abc90a99fd800c8fff52a7afa4d4693e988b4042fb3099aac0125aaa60",
+    "main/apps/matter/model/matter_im_subscribe.c": "ae5bf68b5c031352cdc2e2f8140c477e176b138ccf4eb96a684896bed46c3790"
+  },
+  "controller": {
+    "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+    "linux_ctest_inventory": "Total Tests: 84"
+  },
+  "windows": {
+    "focused_ctest_passed": 7,
+    "test_log_sha256": "6dc81527c809b422a7e867a11d2040e1b5328d2142b6d4b1a8f6b66a005bd682",
+    "host_sha256": "aa17a46254382a098f6c491dfff6a8ea5bac7831d47539474a33a2c6487021d7"
+  },
+  "linux": {
+    "laboratory": {
+      "normal-run2": {
+        "result": {
+          "scope": "synthetic metered plug; not CSA certification or Apple UI acceptance",
+          "checks": [
+            {
+              "name": "verified-attestation",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "descriptor-and-whole-meter-preserved",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "new-plug-energy-zero",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "on-integrates-600W",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "off-freezes-import",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no-invented-export",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "energy-events-at-plug-endpoint",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "memcheck-clean-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "persistent-plug-register-after-fresh-CASE",
+              "passed": true,
+              "detail": {
+                "import_mWh": 836
+              }
+            },
+            {
+              "name": "restart-off-zero-power",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "memcheck-clean-2",
+              "passed": true,
+              "detail": null
+            }
+          ],
+          "host_sha256": "29cb73abf00048cfe2fddc0e700483f9971fcbc21fd415eca6d3a3eb12919f32",
+          "result": "PASS"
+        },
+        "evidence_sha256": {
+          "result.json": "38dbf2fcbf683111cf86b3cdf2f4b26deebf09d129a929b215d8d3cbb97bc246",
+          "node-2.log": "b57cbf7ceb85275a97355c3255e6cd280946496dc6e61746001c8d74b2f2e78b",
+          "node-1.log": "7f470b11e15725a784d248682c46bc5297901f5c7b7429c3f63369e147d79d36",
+          "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "memcheck-1.log": "c6d555762318d1c83424ac383d03e1a8b35c8b2a6b0e76c9d376c70e64daf9c4",
+          "memcheck-2.log": "4e2578b6fffee7d22e374e4d01f5549a5e0b749704c3ec39df4dff4f1b8a0375"
+        }
+      },
+      "sanitize-run2": {
+        "result": {
+          "scope": "synthetic metered plug; not CSA certification or Apple UI acceptance",
+          "checks": [
+            {
+              "name": "verified-attestation",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "descriptor-and-whole-meter-preserved",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "new-plug-energy-zero",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "on-integrates-600W",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "off-freezes-import",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no-invented-export",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "energy-events-at-plug-endpoint",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-1",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "persistent-plug-register-after-fresh-CASE",
+              "passed": true,
+              "detail": {
+                "import_mWh": 746
+              }
+            },
+            {
+              "name": "restart-off-zero-power",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "clean-stop-2",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "stderr-empty-2",
+              "passed": true,
+              "detail": null
+            }
+          ],
+          "host_sha256": "7d3332a99baad2320abc2e02cde41e5e22bbb4840822d7ee37abe2a58a4c30ba",
+          "result": "PASS"
+        },
+        "evidence_sha256": {
+          "result.json": "877cd9621a3972000bcb961b9e3c71e5bc5c496c258abb5b6f1adf702fcf0d97",
+          "node-2.log": "046d91af34faf0c9f9b12801254dfc8e5821b23d4bd4ce0ee75b8fc79e0324e0",
+          "node-1.log": "511ffccb70b0d61c1252089831684e685db4337c38d07b5938500c83bc94d1cc",
+          "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    "memcheck": {
+      "normal-run2/memcheck-1.log": [
+        "==884057==     in use at exit: 0 bytes in 0 blocks",
+        "==884057==   total heap usage: 24,528 allocs, 24,528 frees, 2,716,246 bytes allocated",
+        "==884057== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ],
+      "normal-run2/memcheck-2.log": [
+        "==884062==     in use at exit: 0 bytes in 0 blocks",
+        "==884062==   total heap usage: 11,199 allocs, 11,199 frees, 1,223,790 bytes allocated",
+        "==884062== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ],
+      "corrupt-normal-oversized/memcheck.log": [
+        "==884203==     in use at exit: 0 bytes in 0 blocks",
+        "==884203==   total heap usage: 4,296 allocs, 4,296 frees, 485,899 bytes allocated",
+        "==884203== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ],
+      "corrupt-normal-fraction-overflow/memcheck.log": [
+        "==884202==     in use at exit: 0 bytes in 0 blocks",
+        "==884202==   total heap usage: 4,300 allocs, 4,300 frees, 486,115 bytes allocated",
+        "==884202== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ],
+      "corrupt-normal-truncated/memcheck.log": [
+        "==884191==     in use at exit: 0 bytes in 0 blocks",
+        "==884191==   total heap usage: 4,295 allocs, 4,295 frees, 485,867 bytes allocated",
+        "==884191== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ],
+      "corrupt-normal-wrong-schema/memcheck.log": [
+        "==884201==     in use at exit: 0 bytes in 0 blocks",
+        "==884201==   total heap usage: 4,299 allocs, 4,299 frees, 486,040 bytes allocated",
+        "==884201== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+      ]
+    },
+    "build": {
+      "normal": {
+        "host_sha256": "29cb73abf00048cfe2fddc0e700483f9971fcbc21fd415eca6d3a3eb12919f32",
+        "ctest": [
+          "100% tests passed, 0 tests failed out of 7"
+        ],
+        "warnings": []
+      },
+      "sanitize": {
+        "host_sha256": "7d3332a99baad2320abc2e02cde41e5e22bbb4840822d7ee37abe2a58a4c30ba",
+        "ctest": [
+          "100% tests passed, 0 tests failed out of 7"
+        ],
+        "warnings": []
+      }
+    }
+  },
+  "corrupt_startup": [
+    {
+      "variant": "normal",
+      "case": "truncated",
+      "result": "PASS",
+      "unchanged_sha256": "33c07db5ff71ab2addc6fa3051118d908c16d5efd3b17b4cdf8a52de57675270"
+    },
+    {
+      "variant": "normal",
+      "case": "wrong-schema",
+      "result": "PASS",
+      "unchanged_sha256": "3ffcd03f801cfad4ae2b5133d8e0259ce710167eee88bd2f49556ddf9b6ff36c"
+    },
+    {
+      "variant": "normal",
+      "case": "fraction-overflow",
+      "result": "PASS",
+      "unchanged_sha256": "a9d4fc62a76e511610179f82cfad83d6253da12ae57fbd29ab08c9190a178ca8"
+    },
+    {
+      "variant": "normal",
+      "case": "oversized",
+      "result": "PASS",
+      "unchanged_sha256": "11ba55a3a7c1ee0f8eb8867dc40a62c67240eb4a5ea125ee5c383fe996b57cd6"
+    },
+    {
+      "variant": "sanitize",
+      "case": "truncated",
+      "result": "PASS",
+      "unchanged_sha256": "33c07db5ff71ab2addc6fa3051118d908c16d5efd3b17b4cdf8a52de57675270"
+    },
+    {
+      "variant": "sanitize",
+      "case": "wrong-schema",
+      "result": "PASS",
+      "unchanged_sha256": "3ffcd03f801cfad4ae2b5133d8e0259ce710167eee88bd2f49556ddf9b6ff36c"
+    },
+    {
+      "variant": "sanitize",
+      "case": "fraction-overflow",
+      "result": "PASS",
+      "unchanged_sha256": "a9d4fc62a76e511610179f82cfad83d6253da12ae57fbd29ab08c9190a178ca8"
+    },
+    {
+      "variant": "sanitize",
+      "case": "oversized",
+      "result": "PASS",
+      "unchanged_sha256": "11ba55a3a7c1ee0f8eb8867dc40a62c67240eb4a5ea125ee5c383fe996b57cd6"
+    }
+  ],
+  "memcheck_summary": {
+    "host_boots": 6,
+    "allocations": 52917,
+    "frees": 52917,
+    "errors": 0,
+    "live_bytes_at_exit": 0
+  },
+  "manual_apple_home": {
+    "ios": "27.0.1",
+    "source": "user report",
+    "online": true,
+    "power_display_after_on": 600,
+    "unit_label": "T",
+    "unit_label_cause": "unresolved; Matter value is 600000 mW, no unit text transmitted",
+    "cumulative_energy_ui": "unconfirmed"
+  },
+  "remaining": "CSA24 automatic TC_SU_2_5; UI unit label unresolved"
+}

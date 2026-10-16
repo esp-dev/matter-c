@@ -16,9 +16,12 @@ enum { MATTER_IM_REVISION = 13,
 	MATTER_IM_READ_MAX_PAYLOAD = MATTER_SECURE_MAX_PACKET - MATTER_SECURE_OVERHEAD - MATTER_IM_HEADER_BYTES,
 	MATTER_IM_READ_MAX_OUTPUT = MATTER_IM_READ_MAX_PAYLOAD - sizeof(uint32_t),
 	MATTER_IM_READ_MAX_PATHS = 9,
-	/* Root + aggregate + three phases + optional switch exceeds 256 attributes. These
-	 * bounded result tables belong to heap-owned Read/Subscribe handlers. */
-	MATTER_IM_READ_MAX_RESULTS = 320,
+	/* Application resource ceiling, NOT a Matter maximum. Result tables grow
+	 * per interaction; no allocation for unused entries up to this ceiling. */
+	MATTER_IM_READ_MAX_RESULTS = 512,
+	/* Even an empty AttributeReportIB needs at least eight TLV structural bytes.
+	 * This conservative lower bound sizes the chunk plan from output capacity. */
+	MATTER_IM_READ_MIN_REPORT_BYTES = 8,
 	/* Core 10.6.3: a minimal DataVersionFilterIB occupies 14 bytes (anonymous
 	 * structure, concrete ClusterPath LIST, version and both ENDs). Budget for
 	 * every filter that can fit in one request, including duplicate paths. */

@@ -29,7 +29,8 @@ struct Matter_Im_Subscribe {
     bool more,report_started;
     size_t count,cursor,snapshot_size,list_offset;
     struct { size_t item,start,end; bool prefix; } plan[MATTER_IM_READ_MAX_PATHS];
-    struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } items[MATTER_IM_READ_MAX_RESULTS];
+    struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } *items;
+    size_t item_capacity;
     Matter_Im_Selector_T requests[MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS];
     size_t request_count,request_cursor,filter_count,collected,valid;
     struct { uint16_t endpoint; uint32_t cluster,version; } *filters;
@@ -367,6 +368,17 @@ static int compare_path(const Matter_Im_Path_T* a,const Matter_Im_Path_T* b) {
     if(a->cluster!=b->cluster) return a->cluster<b->cluster?-1:1;
     return a->attribute==b->attribute?0:a->attribute<b->attribute?-1:1;
 }
+static bool reserve_items(Matter_Im_Subscribe_T s,size_t needed) {
+    if(needed<=s->item_capacity) return true;
+    if(needed>MATTER_IM_READ_MAX_RESULTS) return false;
+    size_t capacity=s->item_capacity?s->item_capacity*2:MATTER_IM_READ_MAX_PATHS;
+    if(capacity<needed) capacity=needed;
+    if(capacity>MATTER_IM_READ_MAX_RESULTS) capacity=MATTER_IM_READ_MAX_RESULTS;
+    if(capacity>SIZE_MAX/sizeof(*s->items)) return false;
+    void* items=calloc(capacity,sizeof(*s->items)); if(!items) return false;
+    if(s->count) memcpy(items,s->items,s->count*sizeof(*s->items));
+    free(s->items); s->items=items; s->item_capacity=capacity; return true;
+}
 static uint8_t expand(Matter_Im_Subscribe_T s) {
     for(unsigned step=0;step<MATTER_IM_READ_WORK_BATCH && s->request_cursor<s->request_count;++step) {
         const Matter_Im_Selector_T* q=&s->requests[s->request_cursor];
@@ -380,7 +392,7 @@ static uint8_t expand(Matter_Im_Subscribe_T s) {
                 (s->after_valid && compare_path(&s->path,&s->after)<=0)) return MATTER_IM_FAILURE;
             s->after=s->path; s->after_valid=true;
         } else { s->path=q->path; ++s->request_cursor; }
-        if(s->count==MATTER_IM_READ_MAX_RESULTS) return MATTER_IM_RESOURCE_EXHAUSTED;
+        if(!reserve_items(s,s->count+1)) return MATTER_IM_RESOURCE_EXHAUSTED;
         s->items[s->count].path=s->path; s->items[s->count++].wildcard=wildcard;
     }
     if(s->request_cursor==s->request_count) s->state=MATTER_IM_SUB_COLLECTING;
@@ -617,6 +629,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
                 if(!code) {
                     s->reserved=true; s->dirty=false; s->phase=PRIME; capture_begin(s,true);
                     if(s->expanding) s->state=MATTER_IM_SUB_EXPANDING;
+                    else if(!reserve_items(s,s->request_count)) code=MATTER_IM_RESOURCE_EXHAUSTED;
                     else { s->count=s->request_count; for(size_t i=0;i<s->count;++i) s->items[i].path=s->requests[i].path; }
                 }
                 else if(code!=MATTER_IM_RESOURCE_EXHAUSTED) code=MATTER_IM_FAILURE;
@@ -729,5 +742,5 @@ Matter_Im_Subscribe_State_T matter_im_subscribe_state(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_delete(Matter_Im_Subscribe_T s) {
     if(!s) return MATTER_OK;
     Matter_Result_T r=check(s); if(r) return r;
-    s->busy=true; release(s); free(s->input); free(s->output); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+    s->busy=true; release(s); free(s->items); free(s->input); free(s->output); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }

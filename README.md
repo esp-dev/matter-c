@@ -156,6 +156,14 @@ and a separate state file. The default host profile is preserved.
 Add `--source-registers` for the [manufacturer-specific source view](doc/meter-source.md):
 tariff/quadrant/demand registers, directional values, metadata and volume channels.
 
+`--test-switch` adds a simulated metered socket on endpoint 2: On/Off plus
+Electrical Sensor, Power Topology, EPM and EEM. It reports 600 W while on and
+0 W while off, with its own cumulative import register and zero export.
+With `--state`, a separate `.plug-energy` TLV sidecar retains that register
+and its fractional remainder. It starts off after restart. This UI experiment
+is an incomplete plug device profile, not certified hardware; see
+[validation and UI limitations](doc/oss/plug-energy-validation.md).
+
 The optional [OTA host laboratory](doc/ota-host.md) uses an unmodified CHIP
 provider to exercise QueryImage, Busy timing, BDX, a signed simulation image,
 restart and NotifyUpdateApplied. Its memory-tool modes cover both boots.

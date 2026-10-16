@@ -82,7 +82,7 @@ def main():
                                        '0xffffffff', 1, '0xffff,0xffff'], 'SuppressResponse = true')
                 time.sleep(.3)
                 data = client.text()[start:]
-                attrs = inventory(data, True, 0xfff1fc01, True)
+                attrs = inventory(data, True, 0xfff1fc01, True, metered_switch=True)
                 check('complete-inventory-' + str(attempt), len(attrs) > 256)
                 if attempt:
                     check('fresh-CASE-and-discovery', 'Sent Sigma3 msg' in data and 'Session was established' in data)

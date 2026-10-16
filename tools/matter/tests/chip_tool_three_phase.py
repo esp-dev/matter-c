@@ -14,7 +14,7 @@ from chip_tool_resources import Client
 from chip_tool_energy_profile import frames, ids, integer
 
 
-def inventory(text, test_switch=False, source_cluster=None, meter_services=False):
+def inventory(text, test_switch=False, source_cluster=None, meter_services=False, metered_switch=False):
     attrs = {f['path']: f for f in frames(text) if f['kind'] == 'Attribute'}
     endpoints = {0, 1, 3, 4, 5} | ({2} if test_switch else set())
     assert set(ids(attrs[0, 0x1d, 3]['body'], 'PartsList')) == endpoints - {0}
@@ -23,13 +23,17 @@ def inventory(text, test_switch=False, source_cluster=None, meter_services=False
     for ep in sorted(endpoints):
         clusters = ids(attrs[ep, 0x1d, 1]['body'], 'ServerList')
         device_types = [int(x) for x in re.findall(r'^DeviceType: (\d+)\b', attrs[ep, 0x1d, 0]['body'], re.M)]
-        wanted_types = ({0x16, 0x12} if ep == 0 else {0x10a} if ep == 2 else
+        wanted_types = ({0x16, 0x12} if ep == 0 else ({0x10a, 0x510} if metered_switch else {0x10a}) if ep == 2 else
                         {0x510, 0x511, 0x512} if ep == 1 and meter_services else {0x510})
         assert len(device_types) == len(wanted_types) and set(device_types) == wanted_types, (ep, device_types)
         assert set(ids(attrs[ep, 0x1d, 2]['body'], 'ClientList')) == ({0x29} if ep == 0 else set())
         if ep == 2:
             assert integer(attrs[ep, 0x1d, 0]['body'], 'DeviceType') == 0x10a
             assert 6 in clusters
+            if metered_switch:
+                assert set(clusters) == {0x1d, 6, 0x90, 0x91, 0x9c}
+                assert integer(attrs[ep, 0x90, 0xfffc]['body'], 'FeatureMap') == 2
+                assert integer(attrs[ep, 0x91, 0xfffc]['body'], 'FeatureMap') == 7
         elif ep:
             assert integer(attrs[ep, 0x1d, 0]['body'], 'DeviceType') == 0x510
             assert set(clusters) == (({0x1d, 0x90, 0x91, 0x9c} | ({source_cluster} if source_cluster else set()) | ({3, 0xb06} if meter_services else set())) if ep == 1 else {0x1d, 0x90, 0x9c})

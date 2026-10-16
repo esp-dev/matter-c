@@ -2438,6 +2438,14 @@
       "entrypoint": "python tools/matter/tests/test_im_version_filters_chip.py --help",
       "referenced_by": [],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
+    },
+    {
+      "path": "tools/matter/tests/test_plug_energy_chip.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_plug_energy_chip.py --help; disposable Linux host, unmodified chip-tool and development PAA/credentials required.",
+      "referenced_by": [],
+      "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     }
   ],
   "local_only_files": []

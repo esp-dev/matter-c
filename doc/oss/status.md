@@ -1,5 +1,18 @@
 # Development status
 
+The optional metered socket now exposes EPM/EEM/Power Topology on the On/Off
+endpoint, using an independent synthetic 600 W / 0 W source and persistent
+cumulative import. A whole-profile Read reproduced the former 320-result
+ceiling; Read/Subscribe results now grow dynamically to an application limit
+of 512. Seven focused CTests pass on Windows, Linux and separate Linux
+sanitizers. Full CHIP commissioning/Read/Subscribe/On/Off/restart/RemoveFabric
+passes under Memcheck and separately ASan/UBSan/LSan, including corrupt-state
+startup rejection. Manual Apple Home on iOS 27.0.1 recovered online and showed
+600 after On; the user reports its unit as `T`, unresolved UI labeling.
+Energy totals in that UI are not confirmed. These are interoperability results,
+not new CSA acceptance; counts and next CSA24 task below are unchanged.
+See [metered socket evidence and limits](plug-energy-validation.md).
+
 **CSA23: TC-SU-2.5 manual PASS, run446**, five verification steps and evidence
 upload. The previous binary returns Idle after Discontinue but retains the
 verified download; an optional application discard callback now removes the

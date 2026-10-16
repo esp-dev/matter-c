@@ -30,7 +30,8 @@ struct Matter_Im_Read {
 	uint8_t* snapshots;
 	size_t snapshot_size, list_offset;
 	/* Each planned IB either carries a whole attribute, a list prefix, or one ADD. */
-	struct { size_t item, start, end; bool prefix; } plan[MATTER_IM_READ_MAX_RESULTS];
+	struct { size_t item, start, end; bool prefix; } *plan;
+	size_t plan_capacity,item_capacity;
 	Matter_Im_Selector_T requests[MATTER_IM_READ_MAX_PATHS];
 	size_t request_count, request_cursor, collected, filter_count;
 	bool expanding, after_valid;
@@ -42,7 +43,7 @@ struct Matter_Im_Read {
 		Matter_Im_Value_T value;
 		Matter_Im_Status_T status;
 		bool wildcard, omit;
-	} items[MATTER_IM_READ_MAX_RESULTS];
+	} *items;
 	uint8_t opcode, response_opcode;
 	size_t input_size, output_size;
 	Matter_Im_Path_T path;
@@ -509,6 +510,17 @@ static bool matches(const Matter_Im_Selector_T* q, const Matter_Im_Path_T* p) {
 		(!(q->present & MATTER_IM_CLUSTER) || q->path.cluster==p->cluster) &&
 		(!(q->present & MATTER_IM_ATTRIBUTE) || q->path.attribute==p->attribute);
 }
+static bool reserve_items(Matter_Im_Read_T s,size_t needed) {
+    if(needed<=s->item_capacity) return true;
+    if(needed>MATTER_IM_READ_MAX_RESULTS) return false;
+    size_t capacity=s->item_capacity?s->item_capacity*2:MATTER_IM_READ_MAX_PATHS;
+    if(capacity<needed) capacity=needed;
+    if(capacity>MATTER_IM_READ_MAX_RESULTS) capacity=MATTER_IM_READ_MAX_RESULTS;
+    if(capacity>SIZE_MAX/sizeof(*s->items)) return false;
+    void* items=calloc(capacity,sizeof(*s->items)); if(!items) return false;
+    if(s->count) memcpy(items,s->items,s->count*sizeof(*s->items));
+    free(s->items); s->items=items; s->item_capacity=capacity; return true;
+}
 static Matter_Im_Status_T expand(Matter_Im_Read_T s) {
 	for (unsigned step=0; step<MATTER_IM_READ_WORK_BATCH && s->request_cursor<s->request_count; ++step) {
 		const Matter_Im_Selector_T* q=&s->requests[s->request_cursor];
@@ -520,7 +532,7 @@ static Matter_Im_Status_T expand(Matter_Im_Read_T s) {
 			if (!matches(q,&s->path) || (s->after_valid && compare_path(&s->path,&s->after)<=0)) return MATTER_IM_FAILURE;
 			s->after=s->path; s->after_valid=true;
 		} else { s->path=q->path; ++s->request_cursor; }
-		if (s->count==MATTER_IM_READ_MAX_RESULTS) return MATTER_IM_RESOURCE_EXHAUSTED;
+		if (!reserve_items(s,s->count+1)) return MATTER_IM_RESOURCE_EXHAUSTED;
 		s->items[s->count].path=s->path; s->items[s->count++].wildcard=wildcard;
 	}
 	if (s->request_cursor==s->request_count) s->state=MATTER_IM_READ_COLLECTING;
@@ -548,10 +560,15 @@ static size_t list_next(Matter_Im_Read_T s, size_t item, size_t offset) {
 static bool report_chunk(Matter_Im_Read_T s) {
     bool events=s->events && s->events->requested;
     if(s->cursor==s->count && events) return event_chunk(s);
+    if(!s->plan) {
+        s->plan_capacity=s->config.output_capacity/MATTER_IM_READ_MIN_REPORT_BYTES+1;
+        s->plan=calloc(s->plan_capacity,sizeof(*s->plan));
+        if(!s->plan) return status(s,MATTER_IM_RESOURCE_EXHAUSTED);
+    }
 	/* Rebuild only from bounded snapshots, never invoke providers speculatively
 	 * during packing. No dependence on private writer fields or rollback. */
 	size_t n=0, item=s->cursor, offset=s->list_offset;
-	while (item<s->count && n<MATTER_IM_READ_MAX_RESULTS) {
+	while (item<s->count && n<s->plan_capacity) {
 		s->plan[n].item=item; s->plan[n].start=offset; s->plan[n].prefix=false;
 		size_t stop=offset ? list_next(s,item,offset) : 0;
 		if (offset && !stop) return status(s,MATTER_IM_FAILURE);
@@ -607,6 +624,7 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 			if (code) { encoded=status(s,code); produce=true; }
 			else {
 				if (s->expanding) s->state=MATTER_IM_READ_EXPANDING;
+				else if(!reserve_items(s,s->request_count)) { encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED); produce=true; }
 				else {
 					for (size_t i=0; i<s->request_count; ++i) s->items[i].path=s->requests[i].path;
 					s->count=s->request_count; s->state=MATTER_IM_READ_COLLECTING;
@@ -699,7 +717,7 @@ Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	free(s->input); free(s->output); free(s->filters); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	free(s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

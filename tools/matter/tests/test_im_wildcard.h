@@ -65,6 +65,15 @@ static void test_im_wildcard(void) {
     m=wild_new(34,true); wild_start(m,0,0,0); CHECK(wild_reports(m,&errors,true)==20 && !errors && m->reads==24); wild_delete(m);
     m=wild_new(128,true); m->size=0; wild_start(m,0,0,0); CHECK(wild_reports(m,&errors,false)==0 && !errors); wild_delete(m);
     m=wild_new(128,true); m->size=MATTER_IM_READ_MAX_RESULTS; wild_start(m,0,0,0); CHECK(wild_reports(m,&errors,false)==MATTER_IM_READ_MAX_RESULTS && !errors && m->reads==MATTER_IM_READ_MAX_RESULTS); wild_delete(m);
+#ifdef MATTER_TEST_ALLOC
+    for(unsigned allocation=1;allocation<=2;++allocation) {
+        m=wild_new(128,true); wild_receive(m,model_request(m,0,(Matter_Im_Path_T){0},0));
+        fail_at=calls+allocation; model_process(m,0); fail_at=0;
+        Matter_Im_Read_Message_T out; CHECK(matter_im_read_output(m->active,&out)==MATTER_OK);
+        CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && !m->reads);
+        wild_delete(m); CHECK(!live); /* Both initial and later result growth. */
+    }
+#endif
     /* Near-full payload, >16 filters and >256 TLV tokens. Validate the final
      * entry too: a conflicting duplicate must prevent version suppression. */
     for(unsigned conflict=0;conflict<2;++conflict) {

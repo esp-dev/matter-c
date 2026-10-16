@@ -118,12 +118,17 @@ static void test_im_complex(void) {
         CHECK(m->reads==1); values_delete(m);
     }
 #ifdef MATTER_TEST_ALLOC
-    m=values_new(96,MATTER_TLV_ARRAY,40);
-    Matter_Rx_Decision_T initial=decision(im_request,sizeof(im_request));
-    CHECK(matter_im_read_receive(m->active,&initial)==MATTER_OK);
-    fail_at=calls+1; CHECK(matter_im_read_process(m->active,0)==MATTER_PENDING); fail_at=0;
-    CHECK(matter_im_read_output(m->active,&out)==MATTER_OK && out.opcode==5 && out.data[22]==MATTER_IM_RESOURCE_EXHAUSTED);
-    values_delete(m); CHECK(!live);
+    for(unsigned allocation=2;allocation<=3;++allocation) {
+        m=values_new(96,MATTER_TLV_ARRAY,40);
+        Matter_Rx_Decision_T initial=decision(im_request,sizeof(im_request));
+        CHECK(matter_im_read_receive(m->active,&initial)==MATTER_OK);
+        /* Owned results, then composite snapshot, then chunk plan. */
+        fail_at=calls+allocation; CHECK(matter_im_read_process(m->active,0)==MATTER_PENDING); fail_at=0;
+        CHECK(matter_im_read_output(m->active,&out)==MATTER_OK);
+        CHECK(allocation==2?(out.opcode==5 && out.data[22]==MATTER_IM_RESOURCE_EXHAUSTED):
+            (out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED));
+        values_delete(m); CHECK(!live);
+    }
 #endif
     puts("PASS IM composite: owned UTF8/bytes/structure, whole/prefix/ADD lists, reconstruction, malformed spans, limits, OOM and abort");
 }

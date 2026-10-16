@@ -177,12 +177,18 @@ static void selector_tests(void) {
     }
     /* Delete during collection and fail allocation of the first copied span. */
 #ifdef MATTER_TEST_ALLOC
+    for(unsigned allocation=1;allocation<=2;++allocation) {
+        s=selector_new(24,true); selector_request(s,1,false,0,false);
+        fail_at=calls+allocation; Matter_Im_Subscribe_Message_T error=selector_output(s); fail_at=0;
+        CHECK(error.opcode==1 && error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && !s->rich.model.reads);
+        rich_free(&s->rich); CHECK(!live); /* Initial/growing result allocation. */
+    }
     s=selector_new(12,true); selector_request(s,1,false,83,false); size_t filter_base=live; fail_at=calls+1;
     Matter_Im_Subscribe_Message_T filter_error=selector_output(s); fail_at=0;
     CHECK(filter_error.opcode==1 && filter_error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==filter_base);
     CHECK(!s->rich.model.reads && !s->rich.model.reserves); rich_free(&s->rich); CHECK(!live);
     s=selector_new(12,true); selector_request(s,1,false,83,false); filter_base=live;
-    selector_finish(s,true); CHECK(live==filter_base); /* Filters released before the live subscription idles. */
+    selector_finish(s,true); CHECK(live==filter_base+1); /* Filters released; one owned result table remains live. */
     rich_free(&s->rich); CHECK(!live);
     s=selector_new(12,true); selector_request(s,1,false,83,false);
     while(matter_im_subscribe_state(s->rich.model.active)!=MATTER_IM_SUB_COLLECTING) CHECK(matter_im_subscribe_process(s->rich.model.active,0)==MATTER_PENDING);
