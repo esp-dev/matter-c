@@ -45,7 +45,7 @@ typedef struct { Matter_T owner; Matter_Mdns_Windows_T mdns; Matter_Discovery_T 
 
 typedef struct {
     Matter_T owner; Matter_Root_T root; Matter_Cluster_T topology,epm,eem,test_switch;
-    bool switch_enabled,three_phase,wifi_sim_connected;
+    bool switch_enabled,three_phase,wifi_sim_connected; uint16_t subscriptions_per_fabric;
     bool source_enabled; Matter_Cluster_T source;
     Matter_Source_Sim_T* source_sim;
     bool meter_services,clock_fabrics_seen; Matter_Time_Host_T clock;
@@ -338,6 +338,7 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     if(n->power_sensor_only) c->configuration_version+=400; /* Root and one power sensor only. */
     if(n->sensor_energy) c->configuration_version+=800; /* Add cumulative import/export to that sensor. */
     c->capabilities=(Matter_Root_Capabilities_T)MATTER_HOST_CAPABILITIES;
+    c->capabilities.subscriptions=n->subscriptions_per_fabric;
     c->settings.location[0]='X'; c->settings.location[1]='X'; c->descriptor_version=versions[0]; c->basic_version=versions[1];
     if(credentials) {
         Matter_Server_Sim_Options_T options={.ota_public_key=ota_key,.wifi_connected=n->wifi_sim_connected,
@@ -557,6 +558,7 @@ int main(int argc,char** argv) {
     const char* credentials=NULL; const char* state=NULL; const char* ota_file=NULL; const char* ota_key=NULL; const char* ota_boot=NULL;
     Matter_Case_Resumption_Profile_T resumption_profile=MATTER_CASE_RESUMPTION_CHIP;
     bool gui_control=false; const char* instance_id=NULL;
+    unsigned long subscriptions=MATTER_HOST_SUBS_PER_FABRIC;
     bool chip_validity=false,test_switch=false,test_power_only=false,power_sensor_only=false,sensor_energy=false,three_phase=false,source_registers=false,meter_services=false,wifi_sim_connected=false;
     Matter_Diagnostics_Test_Trigger_T trigger={.trigger=test_event_trigger}; bool test_events=false;
     for(int i=1;i<argc;++i) {
@@ -599,11 +601,15 @@ int main(int argc,char** argv) {
         else if(!strcmp(argv[i],"--port")) { target=&port; max=65535; }
         else if(!strcmp(argv[i],"--discriminator")) { target=&disc; max=4095; }
         else if(!strcmp(argv[i],"--pin")) { target=&pin; max=99999998; }
+        else if(!strcmp(argv[i],"--subscriptions-per-fabric")) { target=&subscriptions; max=10000; }
         if(!target || ++i==argc || !number(argv[i],max,target)) {
-            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--test-power-only] [--power-sensor-only [--sensor-energy | --gui-control [--instance-id HEX16]]] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
+            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--subscriptions-per-fabric N] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--test-power-only] [--power-sensor-only [--sensor-energy | --gui-control [--instance-id HEX16]]] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
             "  --test-event-key: default profile routes energy triggers (legacy aggregate fixture);\n"
             "  with --three-phase --meter-services it enables targeted energy and Meter Identification change/reset triggers.\n"); return 2;
         }
+    }
+    if(!matter_host_transaction_capacity((uint16_t)subscriptions)) {
+        fprintf(stderr,"Subscription budget must be at least 3 and fit MATTER_TRANSPORT_CAPACITY=%u\n",(unsigned)MATTER_TRANSPORT_CAPACITY); return 2;
     }
     if(gui_control && (!power_sensor_only || sensor_energy || !credentials)) { fputs("--gui-control requires --power-sensor-only and credentials, without --sensor-energy\n",stderr); return 2; }
     if(gui_control && !instance_id) { fputs("--gui-control requires a persistent --instance-id HEX16\n",stderr); return 2; }
@@ -632,6 +638,7 @@ int main(int argc,char** argv) {
     n->energy_test_enabled=energy_test; trigger.user=n;
     int result=1; bool started=false; uint64_t start=matter_host_now(),now=start;
     if(matter_mdns_windows_interface((uint32_t)index,&n->iface)!=MATTER_OK) { fprintf(stderr,"Interface has no supported IPv6/MAC/multicast binding.\n"); goto done; }
+    n->subscriptions_per_fabric=(uint16_t)subscriptions;
     n->owner=matter_new(NULL); if(!n->owner || matter_start(n->owner)!=MATTER_OK) goto done;
     started=true;
     /* Receive on every advertised IPv6 address; the port enforces iface via pktinfo. */

@@ -179,6 +179,7 @@ def main():
     for name in ('exe', 'provider', 'chip-tool', 'paa', 'credentials', 'output'):
         p.add_argument('--' + name, required=True)
     p.add_argument('--interface', type=int, required=True)
+    p.add_argument('--subscriptions-per-fabric', type=int, default=3, help='Explicit requestor budget; must fit its compiled transport capacity.')
     p.add_argument('--mode', choices=('busy-update', 'update', 'busy-60', 'busy-180',
                    'not-available', 'same-version', 'older-version', 'invalid-uri',
                    'interrupt-retry', 'version-mismatch', 'apply-proceed-0',
@@ -205,7 +206,7 @@ def main():
     env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
     report = {'scope': 'CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification',
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-              'mode': a.mode, 'valgrind': a.valgrind, 'trace_required': need_trace,
+              'mode': a.mode, 'valgrind': a.valgrind, 'trace_required': need_trace, 'subscriptions_per_fabric': a.subscriptions_per_fabric,
               'checks': [], 'fixture': image_fixture(out, image_version, 2 if a.mode == 'version-mismatch' else None),
               'binaries': {n: hashlib.sha256(Path(v).read_bytes()).hexdigest() for n, v in
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
@@ -326,7 +327,7 @@ def main():
     def start_node():
         nonlocal phase, node
         phase += 1
-        argv = [a.exe, '--interface', str(a.interface), '--port', '5581', '--seconds', '900',
+        argv = [a.exe, '--interface', str(a.interface), '--subscriptions-per-fabric', str(a.subscriptions_per_fabric), '--port', '5581', '--seconds', '900',
                 '--discriminator', '3910', '--credentials', a.credentials, '--state', str(out / 'state.tlv'),
                 '--three-phase', '--source-registers', '--meter-services',
                 '--ota-file', str(out / 'download.ota'), '--ota-sim-key', str(out / 'public.sec1')]
@@ -385,6 +386,10 @@ def main():
                              targets=[dict(cluster=0x29, endpoint=0, deviceType=None)])]
         command(client, ['accesscontrol', 'write', 'acl', json.dumps(provider_acl), 2, 0], r'status = 0x00')
         check('provider-authorizes-requestor', True, 'CASE node 1, Operate, endpoint 0 cluster 0x29 only')
+        capabilities = command(client, ['basicinformation', 'read', 'capability-minima', 1, 0],
+                               r'SubscriptionsPerFabric: ' + str(a.subscriptions_per_fabric) + r'\b')
+        check('advertised-subscription-budget', bool(re.search(
+            r'SubscriptionsPerFabric: ' + str(a.subscriptions_per_fabric) + r'\b', capabilities)), a.subscriptions_per_fabric)
         identity = basic(client); report['basic_information'] = identity
         announce()
         wait(lambda: query_count() == 1)

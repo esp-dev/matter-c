@@ -254,8 +254,16 @@ under Memcheck and separate sanitizers. The official Python row is FAIL, not
 automatic acceptance; the suspected resource assumption is not confirmed by CSA.
 Counts become 97 PASS, 15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA. See
 [evidence and limits](oss/csa24-validation.md) and [delta](oss/csa24-results.json).
-**Next task: CSA24a — resolve the automatic test's subscription-capacity assumption
-without changing protocol semantics, then rerun the complete unchanged case.**
+CSA24a provisions the advertised per-instance subscription budget with a dynamic
+transaction table and a transport-capacity guard. Normal/sanitizer tests and
+full Memcheck/separate sanitizer scenarios pass with budget eight. Automatic
+run450 accepts the fourth subscription but remains FAIL at a later assertion:
+the original stateful matcher replays an old null after 1%, falsely declaring
+download complete before Apply. A source-preserving minimal reproduction confirms
+the behavior; it is not a CSA-approved test correction. Counts stay 97 PASS,
+15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA. See [evidence](oss/csa24a-validation.md).
+**Next task: CSA24b — prepare the progress-predicate evidence for CSA and agree
+accepted test execution without changing legitimate device progress semantics.**
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

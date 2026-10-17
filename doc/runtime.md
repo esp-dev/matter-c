@@ -50,6 +50,44 @@ the current count while preserving the lifetime total. Counts are per runtime,
 with separate current totals for the accessing fabric, and saturate at their
 wire type limits. PASE subscriptions contribute only to the node total.
 
+## Subscription resource budget
+
+Set `identity.capabilities.subscriptions` before `matter_runtime_new()`. It is
+both the Basic Information CapabilityMinima guarantee and the dispatcher's
+per-fabric admission limit; there is no separate hidden three-subscription cap.
+The existing default initializer still selects three. Core permits 3..10000,
+but this host composition also requires enough compiled transport slots.
+`matter_host_transaction_capacity()` validates both bounds. Runtime construction
+rejects an impossible configuration before calling platform initialization.
+Direct dispatcher construction reads the immutable budget from Root through
+`matter_root_capabilities()` and applies the same guard.
+
+The dispatcher allocates one transaction table sized for the selected budget,
+including every fabric/PASE bucket and protected Read, replacement, response
+drain, Invoke/Write, handshake and rejection capacity. With five fabrics it needs
+`6 * subscriptions + 34` slots: three needs 52, eight needs 82. The table remains
+at stable addresses until successful drain/delete; it is not reallocated during
+protocol callbacks. IM Subscribe handlers and their request data still allocate
+on demand. This is a bounded allocation at construction, not an unbounded or
+automatically growing pool. Table allocation failure releases the dispatcher
+context; failed subscription admission leaves existing subscriptions intact.
+`KeepSubscriptions=false` retains its verified fabric/node replacement scope.
+
+Each instance owns its own budget/table. Change the budget by stopping/draining
+and constructing a new instance; it is not a live mutable attribute. The shared
+transport ceiling remains a build option (`MATTER_TRANSPORT_CAPACITY`, 8..128);
+this change does not migrate the lower transport tables to dynamic storage.
+The default build's 56 slots support the original budget of three; a 128-slot
+build supports budgets through fifteen. These are implementation limits, not
+Matter's maximum. Existing wire/storage schemas and default admission stay intact.
+
+The host exposes `--subscriptions-per-fabric N`, validates it before opening the
+node, and advertises the chosen value. For example, configure with
+`-DMATTER_TRANSPORT_CAPACITY=128` and launch with `--subscriptions-per-fabric 8`.
+Other CLI options, credentials and state paths remain unchanged.
+
+## Request storage
+
 Read and Subscribe allocate DataVersionFilters for the exact validated entry
 count in each request. Empty/absent lists allocate nothing; Read owns the table
 until deletion, while Subscribe frees it after priming or on error/cancel/delete.

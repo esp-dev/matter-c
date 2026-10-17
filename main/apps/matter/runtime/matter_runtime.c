@@ -2,6 +2,7 @@
 #include "../clusters/matter_time_sync.h"
 #include "../storage/matter_store_tlv.h"
 #include "matter_store_host.h"
+#include "matter_host_limits.h"
 #include "clusters/matter_admin_commissioning.h"
 #include "clusters/matter_ota_query.h"
 #include "clusters/matter_ota_apply.h"
@@ -227,7 +228,8 @@ static bool fabric_live(void* u,uint8_t index) {
     return false;
 }
 Matter_Runtime_T matter_runtime_new(const Matter_Runtime_Config_T* c,uint32_t pin,uint64_t now) {
-    if(!c || !c->identity || !pin || pin>99999998 || pin==12345678 || pin==87654321 || pin%11111111==0 ||
+    if(!c || !c->identity || !matter_host_transaction_capacity(c->identity->capabilities.subscriptions) ||
+        !pin || pin>99999998 || pin==12345678 || pin==87654321 || pin%11111111==0 ||
         !c->utc || !c->timestamp || !c->regulatory || !c->storage.read || !c->storage.replace ||
         !c->wifi.initialize || !c->wifi.process || !c->wifi.observe || !c->wifi.control.load ||
         !c->wifi.control.configure || !c->wifi.control.start || !c->wifi.control.cancel || !c->wifi.control.restore ||

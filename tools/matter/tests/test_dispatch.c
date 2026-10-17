@@ -6,8 +6,8 @@
 #include <stdbool.h>
 #include "alloc.h"
 #define CHECK(x) do { if(!(x)) { fprintf(stderr,"dispatch:%d: %s\n",__LINE__,#x); exit(1); } } while(0)
-static size_t allocations; static bool fail_alloc;
-void* matter_test_calloc(size_t n,size_t size) { if(fail_alloc) return NULL; void* p=calloc(n,size); if(p) ++allocations; return p; }
+static size_t allocations,allocation_calls,fail_at; static bool fail_alloc;
+void* matter_test_calloc(size_t n,size_t size) { if(fail_alloc || (++allocation_calls==fail_at && fail_at)) return NULL; void* p=calloc(n,size); if(p) ++allocations; return p; }
 void matter_test_free(void* p) { if(p) { CHECK(allocations); --allocations; free(p); } }
 #define calloc matter_test_calloc
 #define free matter_test_free
@@ -18,11 +18,11 @@ void matter_test_free(void* p) { if(p) { CHECK(allocations); --allocations; free
 #include "crypto/matter_crypto_mbedtls.h"
 #include "session/matter_secure_internal.h"
 static Matter_Result_T load_root(void* user,Matter_Root_Config_T* c) {
-    (void)user; memset(c,0,sizeof(*c));
+    memset(c,0,sizeof(*c));
     c->vendor_name=(Matter_Root_Text_T){1,{'v'}}; c->product_name=(Matter_Root_Text_T){1,{'p'}};
     c->hardware_string=(Matter_Root_Text_T){1,{'h'}}; c->software_string=(Matter_Root_Text_T){1,{'s'}}; c->unique_id=(Matter_Root_Text_T){1,{'u'}};
     c->vendor_id=0xfff1; c->product_id=0x8001; c->configuration_version=1;
-    c->capabilities=(Matter_Root_Capabilities_T){3,3,1,1,9,3}; c->settings.location[0]=c->settings.location[1]='X'; return MATTER_OK;
+    c->capabilities=(Matter_Root_Capabilities_T){3,user?*(uint16_t*)user:3,1,1,9,3}; c->settings.location[0]=c->settings.location[1]='X'; return MATTER_OK;
 }
 static uint8_t denied(void* u,Matter_Exchange_Session_T s,const Matter_Im_Path_T* p,Matter_Im_Privilege_T v) { (void)u;(void)s;(void)p;(void)v; return MATTER_IM_UNSUPPORTED_ACCESS; }
 static Matter_Result_T store_root(void* u,const Matter_Root_Settings_T* s) { (void)u;(void)s; return MATTER_OK; }
@@ -58,7 +58,7 @@ static void diagnostic_counts(Matter_Dispatch_T d) {
     count_sent(d,t,MATTER_OPERATION_SUCCEEDED); CHECK(d->im_sent==3); /* CASE/BDX/ACK. */
     d->im_sent=d->subscriptions_established=UINT32_MAX; t->im_packet=true; t->sub_established=false;
     count_sent(d,t,MATTER_OPERATION_SUCCEEDED); CHECK(d->im_sent==UINT32_MAX && d->subscriptions_established==UINT32_MAX);
-    memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,sizeof(d->transactions));
+    memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
     d->im_sent=d->subscriptions_established=0;
     puts("PASS diagnostic load: local completion, retries/failures, reservations, fabric/PASE scope, cancellation and saturation");
 }
@@ -86,7 +86,7 @@ static void rotation(Matter_Dispatch_T d) {
         } else reply->closing=true; /* Reply construction/transport/handler failure. */
         reconcile(d); CHECK(d->connections[0].retiring && reply->closing);
         CHECK(!d->connections[2].retiring && !d->connections[3].retiring);
-        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,sizeof(d->transactions));
+        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
     }
     d->config.credential_revision=NULL;
     puts("PASS rotation: old sessions/subscriptions scoped by epoch; invoking exchange through MRP delivery/error; new CASE/other fabric retained");
@@ -119,7 +119,7 @@ static void removal(Matter_Dispatch_T d) {
         else c->removal_deadline=d->now; /* Missing ACK: finite wall-clock bound. */
         reconcile(d); CHECK(c->retiring && reply->closing && !matter_dispatch_removal_pending(d));
         CHECK(d->connections[2].retiring==reset);
-        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,sizeof(d->transactions));
+        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
     }
     d->config=saved;
     puts("PASS RemoveFabric: reply-only exchange through ACK/error/deadline; no new IM authority; other fabric preserved; last-fabric drain");
@@ -147,7 +147,7 @@ static void expiry_retirement(Matter_Dispatch_T d) {
             else if(mode==2) { t->sent=false; c->removal_deadline=d->now; }
             CHECK(matter_dispatch_retire_fabric(d,1)==MATTER_PENDING && c->retiring && t->closing);
         }
-        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,sizeof(d->transactions));
+        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
     }
     /* PASE retirement uses the same bounded exemption, irrespective of fabric. */
     Connection* c=&d->connections[0]; Transaction* t=&d->transactions[0];
@@ -463,7 +463,7 @@ static void policy(Matter_Dispatch_T d,Matter_T owner,Matter_Udp_Windows_T udp,c
     d->connections[1].operational=false; d->transactions[0].closing=d->transactions[1].closing=false;
     CHECK(reserve(t,101,false,&id)==0 && !d->transactions[0].closing && d->transactions[1].closing);
     d->connections[1].operational=true;
-    memset(d->transactions,0,sizeof(d->transactions)); t=&d->transactions[4]; t->owner=d;
+    memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions)); t=&d->transactions[4]; t->owner=d;
     CHECK(matter_secure_retain(d->connections[0].secure)==MATTER_OK);
     CHECK(available(d)==&d->connections[1]);
     d->sending=&d->connections[1]; CHECK(available(d)==&d->connections[2]); d->sending=NULL;
@@ -522,7 +522,7 @@ static void resources(Matter_Dispatch_T d,const Matter_Udp_Address_T* bind) {
     for(unsigned i=0;i<TRANSACTIONS;++i) {
         Matter_Exchange_Info_T ignored; CHECK(matter_rx_get(d->rx,d->transactions[i].handle,&ignored)!=MATTER_OK);
     }
-    memset(d->transactions,0,sizeof(d->transactions));
+    memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
     /* Fill every partition (including fabricless optional work). Other buckets
      * retain their guaranteed capacity while one fabric is at its limit. */
     unsigned used=0;
@@ -578,7 +578,7 @@ static void resources(Matter_Dispatch_T d,const Matter_Udp_Address_T* bind) {
     CHECK(!d->transactions[5].closing && replacement->subscription_id==id);
     unreserve(replacement,id+1); CHECK(replacement->subscription_id==id);
     unreserve(replacement,id); CHECK(!replacement->subscription_id);
-    memset(d->transactions,0,sizeof(d->transactions));
+    memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
     CHECK(admit_work(d,READ,1) && admit_work(d,SUBSCRIBE,254) && admit_work(d,TIMED,7));
     CHECK(matter_dispatch_retire(d,true)==MATTER_OK);
     /* An uninstalled reservation counts against its fabric across clear/drain. */
@@ -701,6 +701,56 @@ static void case_failure(Matter_Dispatch_T* current,Matter_T owner,Matter_Udp_Wi
     CHECK(matter_crypto_mbedtls_delete(crypto)==MATTER_OK);
     puts("PASS CASE rejection: StatusReport, immutable retry, no handshake restart/session, ACK/exhaustion/stop drain");
 }
+/* The advertised Root budget provisions each independent dispatcher; no live
+ * callback pointer moves when a slot is admitted or recycled. */
+static void subscription_budgets(Matter_T owner,Matter_Udp_Windows_T udp) {
+    bool rng_fail=false;
+    const uint16_t budgets[]={3,4,8,10000};
+    CHECK(!matter_host_transaction_capacity(0) && !matter_host_transaction_capacity(2) &&
+        !matter_host_transaction_capacity(10001));
+    CHECK(matter_root_capabilities(NULL,NULL)==MATTER_INVALID_ARGUMENT);
+    for(unsigned n=0;n<sizeof(budgets)/sizeof(budgets[0]);++n) {
+        uint16_t budget=budgets[n];
+        Matter_Root_Port_T rp={&budget,load_root,denied,store_root};
+        Matter_Root_T root=matter_root_new(&rp); CHECK(root);
+        Matter_Root_Capabilities_T copy; CHECK(matter_root_capabilities(root,&copy)==MATTER_OK && copy.subscriptions==budget);
+        copy.subscriptions=99; CHECK(matter_root_capabilities(root,&copy)==MATTER_OK && copy.subscriptions==budget);
+        Matter_Dispatch_Config_T cfg={.root=root,.crypto={.user=&rng_fail,.random=entropy}};
+        size_t count=matter_host_transaction_capacity(budget);
+        Matter_Dispatch_T d=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg);
+        if(!count) { CHECK(!d && !allocations); CHECK(matter_root_delete(root)==MATTER_OK); continue; }
+        CHECK(d && d->transaction_count==count && d->subscriptions_per_fabric==budget && allocations==2);
+        d->connections[0]=(Connection){.token=100,.operational=true,.fabric_index=1,.peer_node=1};
+        d->connections[1]=(Connection){.token=101,.operational=true,.fabric_index=2,.peer_node=1};
+        for(unsigned i=0;i<budget;++i) {
+            Transaction* t=&d->transactions[i];
+            *t=(Transaction){.owner=d,.handle=i+1,.key={100,1,false},.admission=SUBSCRIBE,.fabric_index=1,
+                .sub=(Matter_Im_Subscribe_T)d,.sub_established=true};
+            uint32_t id=0; CHECK(reserve(t,100,true,&id)==MATTER_IM_SUCCESS && id);
+        }
+        CHECK(matter_dispatch_load(d,1).current_for_fabric==budget);
+        Transaction* extra=&d->transactions[budget];
+        *extra=(Transaction){.owner=d,.handle=budget+1,.key={100,2,false},.admission=SUBSCRIBE,.fabric_index=1};
+        uint32_t id=99; CHECK(reserve(extra,100,true,&id)==MATTER_IM_RESOURCE_EXHAUSTED && id==99);
+        CHECK(matter_dispatch_load(d,1).current_for_fabric==budget);
+        extra->key.session=101; extra->fabric_index=2;
+        CHECK(reserve(extra,101,true,&id)==MATTER_IM_SUCCESS); /* Other fabric retains its guarantee. */
+        Transaction* replacement=&d->transactions[budget+1];
+        *replacement=(Transaction){.owner=d,.key={100,3,false},.fabric_index=1};
+        CHECK(reserve(replacement,100,false,&id)==MATTER_IM_SUCCESS);
+        for(unsigned i=0;i<budget;++i) CHECK(d->transactions[i].closing);
+        CHECK(!extra->closing); unreserve(replacement,id);
+        memset(d->transactions,0,count*sizeof(*d->transactions)); memset(d->connections,0,sizeof(d->connections));
+        for(unsigned i=0;i<20 && matter_dispatch_stop(d)!=MATTER_OK;++i) {
+            Matter_Result_T result=matter_dispatch_process(d,i); CHECK(result==MATTER_OK || result==MATTER_PENDING);
+        }
+        CHECK(matter_dispatch_delete(d)==MATTER_OK && !allocations);
+        allocation_calls=0; fail_at=2; /* Context allocated, table OOM: no callbacks or retained context. */
+        CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg) && !allocations);
+        fail_at=0; CHECK(matter_root_delete(root)==MATTER_OK);
+    }
+    puts("PASS subscription budgets: Root source of truth, dynamic table, range/transport guards, saturation, fabric isolation, replacement and table OOM");
+}
 int main(void) {
     Matter_T owner=matter_new(NULL); CHECK(owner && matter_start(owner)==MATTER_OK);
     Matter_Root_Port_T rp={NULL,load_root,denied,store_root}; Matter_Root_T root=matter_root_new(&rp); CHECK(root);
@@ -709,13 +759,14 @@ int main(void) {
     Matter_Udp_Listener_T listener={&d,udp_received,udp_sent};
     Matter_Udp_Windows_T udp=matter_udp_windows_new(owner,&bind,0,&listener); CHECK(udp);
     CHECK(matter_udp_start(matter_udp_windows_module(udp))==MATTER_OK && matter_udp_windows_local(udp,&bind)==MATTER_OK);
+    subscription_budgets(owner,udp);
     case_failure(&d,owner,udp,&bind,root);
     Matter_Dispatch_Config_T cfg={.root=root,.crypto={.user=&fail_random,.random=entropy},.user=&reset,.fabric_live=fabric_live};
     fail_alloc=true; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_alloc=false;
     fail_random=true; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_random=false;
     CHECK(!allocations && matter_get_state(owner)==MATTER_STATE_RUNNING);
     for(unsigned run=0;run<3;++run) {
-        d=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg); CHECK(d && allocations==1);
+        d=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg); CHECK(d && allocations==2);
         CHECK(matter_dispatch_delete(d)==MATTER_BUSY && !matter_dispatch_session(d,1));
         /* Removal can happen after another transaction queued a retry in this
          * same owner iteration. No ciphertext or ACK may leave a retired identity. */
@@ -729,7 +780,7 @@ int main(void) {
         CHECK(matter_dispatch_retire_fabric(d,1)==MATTER_PENDING && d->transactions[0].closing && !d->connections[1].retiring);
         d->connections[0].operational=false; reset=true; reconcile(d);
         CHECK(d->connections[0].retiring && d->connections[1].retiring); reset=false;
-        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,sizeof(d->transactions)); d->ack_waiting=false;
+        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions)); d->ack_waiting=false;
         diagnostic_counts(d); rotation(d);
         removal(d);
         expiry_retirement(d);

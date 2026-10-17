@@ -73,7 +73,14 @@ relocated package and starts two full runtimes using only public headers.
 For a library-only build use `-DMATTER_BUILD_HOST=OFF -DBUILD_TESTING=OFF`.
 For a small core-only configuration also set `-DMATTER_BUILD_RUNTIME=OFF` and
 `-DMATTER_TRANSPORT_CAPACITY=8`. The complete runtime needs at least 52 slots;
-the default is 56. `-DMATTER_SANITIZE=ON` enables
+the default is 56. Subscription capacity is configurable per instance through
+`identity.capabilities.subscriptions`, also exposed by the host as
+`--subscriptions-per-fabric N`. The dispatcher allocates its transaction table
+for that budget and advertises the same value. For eight per fabric, build with
+`-DMATTER_TRANSPORT_CAPACITY=128` and pass `--subscriptions-per-fabric 8`; the
+existing default remains three. Impossible configurations fail before startup.
+See [resource ownership and bounds](doc/runtime.md#subscription-resource-budget).
+`-DMATTER_SANITIZE=ON` enables
 ASan/UBSan and Linux leak detection in CTest. Do not run that build under Valgrind.
 
 [Test map](doc/oss/test-map.md) records every retained test and optional route.
@@ -225,6 +232,13 @@ This remains an official FAIL pending resource-capacity clarification. Query
 error states and actual download progress are corrected, with native tests,
 Memcheck and separate sanitizer acceptance. Rebuild OTA port consumers for the
 new optional progress callback. The separate manual CSA23 result is retained.
+
+The [CSA24a follow-up](doc/oss/csa24a-validation.md) adds a per-instance budget
+and dynamically sized transaction table, validated with eight subscriptions per
+fabric. Automatic run450 accepts the fourth subscription but remains FAIL on
+premature progress-history matching in the unmodified test. A minimal replay of
+the original helper/predicate reproduces that behavior; no CSA-approved test fix
+or automatic PASS is claimed. Defaults and existing paired Windows nodes remain.
 
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or

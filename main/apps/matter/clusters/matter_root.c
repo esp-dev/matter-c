@@ -51,6 +51,10 @@ struct Matter_Root {
     uint64_t now, expiry, cumulative, breadcrumb;
     struct { uint64_t breadcrumb; uint16_t seconds; uint8_t regulatory,country[2]; } args;
 };
+Matter_Result_T matter_root_capabilities(Matter_Root_T m,Matter_Root_Capabilities_T* out) {
+    if(!m || !out) return MATTER_INVALID_ARGUMENT;
+    *out=m->config.capabilities; return MATTER_OK;
+}
 Matter_Result_T matter_root_startup(Matter_Root_T m,Matter_Events_T events,uint64_t now) {
     if(!m || !events) return MATTER_INVALID_ARGUMENT;
     if(m->busy) return MATTER_BUSY;

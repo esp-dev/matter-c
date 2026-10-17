@@ -1,5 +1,25 @@
 # Development status
 
+**CSA24a: configurable per-instance subscription budget implemented.** Root's
+advertised CapabilityMinima provisions a dynamically allocated transaction table;
+per-fabric admission uses the same value. Transport feasibility is checked before
+startup, table OOM releases the context, and callback addresses stay stable until
+drain/delete. The host adds `--subscriptions-per-fabric N`; defaults remain three
+and 56 transport slots. Acceptance selects eight with a 128-slot transport build.
+Thirteen CTests pass in normal and sanitizer builds; two compatibility tests pass
+with 56 slots. Full Memcheck and separate ASan/UBSan/LSan OTA/restart scenarios
+pass 22 checks each; Memcheck has 55267 matched allocations/frees and no errors
+or live bytes. Run450 accepts the fourth subscription and passes both delays,
+but remains **FAIL**: the test replays an earlier null after 1% and checks Apply
+before any request exists. Original-method/predicate reproduction confirms false
+completion for `[null, 0, 1]`; CSA has not confirmed a correction. No official
+script, PICS or progress semantics were weakened. Counts remain **97 PASS,
+15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA**; other rows are inherited, not rerun for
+the larger budget. See [evidence and limits](csa24a-validation.md) and
+[delta](csa24a-results.json).
+**Next: CSA24b — prepare the progress-predicate report for CSA and agree an
+accepted correction/test version.**
+
 **CSA24: automatic TC_SU_2_5 FAIL, run449.** Both AwaitNextAction/provider-loss
 scenarios pass. The Discontinue step fails before OTA assertions when creating
 the fourth live subscription; two obsolete UpdateState subscriptions remain
@@ -13,7 +33,7 @@ pass; Memcheck has 55265 matched allocations/frees and zero errors/live bytes.
 Counts: **97 PASS, 15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA**. Only the Python row
 changes; manual CSA23 and other results are inherited. See
 [evidence and limits](csa24-validation.md) and [delta](csa24-results.json).
-**Next: CSA24a — resolve the automatic test's subscription-capacity assumption.**
+The capacity follow-up is recorded in CSA24a above.
 
 Native Windows desktop is implemented in C/Win32: independent node processes
 from one EXE, per-user state, integration selection/removal, ±10 kW slider and

@@ -10,9 +10,13 @@
  * thread or clock. Ports/root/UDP outlive delete. Receive/sent only copy events;
  * process performs protocol work outside UDP callbacks. All storage is owned.
  * Bounded host profile (matter_host_limits.h): 3 CASE sessions/fabric, one PASE,
- * 3 subscriptions/fabric, one Read/fabric, global one Invoke and one Write.
- * 52 transaction slots (including bounded delivery/replacement/rejection/handshake budgets), eight
- * unsecured routes. Tokens and wire session IDs never wrap/reuse per lifetime.
+ * configurable subscriptions/fabric, one Read/fabric, global one Invoke/Write.
+ * Root CapabilityMinima.subscriptions is the single source of that budget.
+ * new validates Core's range and the build's shared transport capacity, then
+ * allocates the derived transaction table once. It never moves live callback
+ * contexts; IM handlers still allocate on demand. Delete releases the table
+ * after drain. Delivery/replacement/rejection/handshake slots stay reserved.
+ * Eight unsecured routes. Tokens and wire IDs never wrap/reuse per lifetime.
  * On pressure reclaim same-fabric least-recently-used idle CASE only, after authenticating
  * the new handshake. PASE/live exchanges/subscriptions/I/O remain protected.
  * Send CloseSession and drain before reusing a reserved slot; all protected

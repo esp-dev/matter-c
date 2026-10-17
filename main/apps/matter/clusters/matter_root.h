@@ -70,6 +70,8 @@ typedef struct Matter_Root* Matter_Root_T;
  * no-op writes do not store. ConfigurationVersion is NOT changed by NodeLabel.
  */
 Matter_Root_T matter_root_new(const Matter_Root_Port_T*);
+/* Owner-thread copy of the immutable, advertised composition budget. */
+Matter_Result_T matter_root_capabilities(Matter_Root_T,Matter_Root_Capabilities_T*);
 /* Once per node boot, before other Data Model producers. Retry on error; repeat
  * success is a no-op. No event at mere construction or service restart. */
 Matter_Result_T matter_root_startup(Matter_Root_T,Matter_Events_T,uint64_t timestamp_ms);

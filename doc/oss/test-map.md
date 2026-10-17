@@ -17,6 +17,12 @@ separately sanitizers; this does not test Win32 painting or ecosystem UI.
 deferred removal and rapid window reopening with a deterministic backend.
 `test_dispatch` also drives malformed CASE input through ingress and the real
 engine into reliable failure-report delivery, retry and ACK/exhaustion/stop drain.
+It additionally provisions the transaction table from Root CapabilityMinima,
+checks budgets 3/4/8 when transport permits, rejects unsupported/range-exceeding
+budgets, checks full-budget rejection, fabric isolation and scoped replacement,
+and injects failure of the second constructor allocation (the table). The OTA
+CHIP provider runner accepts an explicit budget and reads its advertised value
+before exercising download, retry, restart and Notify.
 `test_discovery` covers service/subtype enumeration and shared-record suppression;
 `test_mdns_linux.py` verifies enumeration and known-answer thresholds on multicast
 alongside its existing TC/NSEC/address/duplicate-response checks.

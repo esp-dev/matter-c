@@ -1,0 +1,303 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa24-results.json",
+  "previous_sha256": "e4eb93e971e5f8e00b14ff7fd5b6015e12a70086a2f56c5d34616ec998e178ca",
+  "scope": "Per-instance subscription budgeting and dynamic transaction table; unmodified automatic TC_SU_2_5 run450 reaches the fourth subscription but remains FAIL on reproduced progress-history predicate behavior. Not certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 15,
+    "BLOCKED": 9,
+    "MANUAL": 37,
+    "NA": 704
+  },
+  "classification_changes": [],
+  "revalidated": [
+    {
+      "case": "TC_SU_2_5",
+      "collection": "SDK Python Tests",
+      "endpoint": 0,
+      "previous": "FAIL",
+      "status": "FAIL",
+      "run_id": 450,
+      "reason": "Fourth subscription accepted. Step5 falsely detects completion by replaying earlier null after 1%; provider Apply request count is still zero."
+    }
+  ],
+  "official_automatic": {
+    "run_id": 450,
+    "harness_state": "TestStateEnum.failed",
+    "case_states": [
+      {
+        "public_id": "TC_SU_2_5",
+        "state": "TestStateEnum.failed"
+      }
+    ],
+    "step_states": [
+      "TestStateEnum.passed",
+      "TestStateEnum.passed",
+      "TestStateEnum.passed",
+      "TestStateEnum.passed",
+      "TestStateEnum.failed",
+      "TestStateEnum.passed"
+    ],
+    "pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "source_sha256": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+    "helper_sha256": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322",
+    "official_log_sha256": "9efb81375b423f734885b90b184f2a351c274c645b3eb917a627a37f5ebf9fd9",
+    "raw_result_sha256": "2dc606a7a4d14bbd531858a33cc3007cb19a66ac5f9a823f8d27b80cdba9bbd5",
+    "artifacts": {
+      "requestor": {
+        "bytes": 2247528,
+        "sha256": "70f110177022aa93b6a80fd7f37d149a34bc2a4a3d1b27341729921b0411221b"
+      },
+      "provider": {
+        "bytes": 63959632,
+        "sha256": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40"
+      },
+      "image": {
+        "bytes": 262342,
+        "sha256": "cdb6c0ebcebaec34d292f081074b1aed39d81d3a50b21b3eb3bb542c9353ed62"
+      },
+      "public_signing_key": {
+        "bytes": 65,
+        "sha256": "4444cac01b1a55aa24556a0ff52a7fd20e62c3a05e5a95d7815be6bb88e0a619"
+      },
+      "file_mapping_wrapper": {
+        "bytes": 193,
+        "sha256": "4231bb10e585521b01054dd3cd74d56c5655be0b9076b09701bbcafcc22ac635"
+      }
+    },
+    "node_stderr_bytes": 0,
+    "subscribe_capacity": 8,
+    "transport_capacity": 128,
+    "fixture_node_stopped": true,
+    "node_stderr_bytes_after_stop": 0,
+    "private_evidence_sha256": {
+      "node.log": "5c4845e11ffafa000cddb50391e359b321f6da4dcdaaa45c6ba4bf3c2c4277cb",
+      "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "provider.log": "23db4d1d491e0213c8ca218ac547da9acea6f1f74a8378a43579e9034b551b8e"
+    }
+  },
+  "source_base_commit": "3125c5fad8c66489e0fdbd2294a7e4f21e241428",
+  "profile": {
+    "subscriptions_per_fabric": 8,
+    "transport_capacity": 128,
+    "default_budget": 3,
+    "default_transport_capacity": 56,
+    "core_subscription_range": [
+      3,
+      10000
+    ],
+    "maximum_budget_with_transport_128": 15,
+    "table_slots_for_budget_8": 82,
+    "other_resource_dependent_cases_not_rerun_for_budget_8": true
+  },
+  "build": {
+    "source_files": 360,
+    "source_manifest_sha256": "f8f054373df29e0dbc1876b5aeb5caed7851499a441a39d467c5d988ef696ffa",
+    "variants": {
+      "normal": {
+        "binary_sha256": "70f110177022aa93b6a80fd7f37d149a34bc2a4a3d1b27341729921b0411221b",
+        "warnings": [],
+        "ctest_summary": [
+          "100% tests passed, 0 tests failed out of 13"
+        ],
+        "evidence_sha256": {
+          "normal-build.log": "0caf946ff99f43c57c34f02ebec96d75af7b23294228934bfafe760bed42dcf5",
+          "normal-compile.log": "693de1a394abd952f1884d0f6e55c7fd9a913d7a731d27521d36360c19ce1511",
+          "normal-tests.log": "092bda91f3d4cb24b858ed132913391984062eb935e5e103c3e7f5a398e34e68"
+        }
+      },
+      "sanitize": {
+        "binary_sha256": "5411cdd991410dd54975cd1b8899ddd3800f994c6fc4e249e8ff0b1e10e4c361",
+        "warnings": [],
+        "ctest_summary": [
+          "100% tests passed, 0 tests failed out of 13"
+        ],
+        "evidence_sha256": {
+          "sanitize-build.log": "a4844da903eef82c0fc52cbc6408824af7bd6a70ef737acb6af4af7b35fb9513",
+          "sanitize-compile.log": "e1ec795d0968a80213cd2df953bece0877206c31b3943dccb52f4f144ab41dc1",
+          "sanitize-tests.log": "6e3ba1722a9c1a9ae79badfe83dbba932114cf256879ac3288b711d7f8475bc7"
+        }
+      }
+    },
+    "transport_capacity": 128,
+    "compatibility_56": {
+      "test_summary": [
+        "100% tests passed, 0 tests failed out of 2"
+      ],
+      "evidence_sha256": {
+        "compat56-configure.log": "c159aa44745a8633efcd21d823bb0c6b95753c2741c6f95abb7f96617d5cf0b2",
+        "compat56-compile.log": "777623150dde4e5dcdc83861a29f6a3e91fe072a69ed825f0276157b5da80b91",
+        "compat56-tests.log": "c7e5186614326513d6d6c0f8e0f943fc2112955cbfafd80020bdf70a14e0b22c"
+      }
+    },
+    "sizes": [
+      "sizeof dispatcher=8520 connection=144 transaction=1568"
+    ]
+  },
+  "laboratory_runs": {
+    "sanitize-await-60": {
+      "result": "PASS",
+      "checks": 22,
+      "boots": 2,
+      "budget": 8,
+      "valgrind": false,
+      "binaries": {
+        "requestor": "5411cdd991410dd54975cd1b8899ddd3800f994c6fc4e249e8ff0b1e10e4c361",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "delay": {
+        "minimum_seconds": 120,
+        "measured_ms": 120175,
+        "clock": "provider response-send-to-retry-receive"
+      },
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "47482cb65fad5ef58872a54f2167781b7a3e5abcfff0a905351ef75626ddc5c2",
+        "provider.log": "9a6b432bf840796714fb0acbeb83a89c71410d379f9ee9b729923a7ef3eb8e85",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "fb6b0396cb3fed0df65a2acde4e04a257280eed58ec7b097e2ee7c49e5f86d81",
+        "node-1.log": "4465e3f47dacc1a33587e1a92803d77d2266126bd4445a5fe681bcd9eb93fcc0",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "89fc1fa474f97fd5b87923bdce64e978f6c330966b2c63a77d0c2957edc7671e",
+        "fresh-reader/interactive.log": "582ca783dcde251ee3ba95ef7bd361e44730d0bbe6cc6bf281962ab63c53996c",
+        "controller/interactive.log": "9560adfca3797bb7f1d5337755699d147f5fe76f61c7fa3e5bb0858e471ac3ad"
+      }
+    },
+    "memcheck-await-60": {
+      "result": "PASS",
+      "checks": 22,
+      "boots": 2,
+      "budget": 8,
+      "valgrind": true,
+      "binaries": {
+        "requestor": "70f110177022aa93b6a80fd7f37d149a34bc2a4a3d1b27341729921b0411221b",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "delay": {
+        "minimum_seconds": 120,
+        "measured_ms": 120199,
+        "clock": "provider response-send-to-retry-receive"
+      },
+      "memcheck_summaries": {
+        "valgrind-1.log": [
+          "==920214==     in use at exit: 0 bytes in 0 blocks",
+          "==920214==   total heap usage: 35,698 allocs, 35,698 frees, 4,387,338 bytes allocated",
+          "==920214== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ],
+        "valgrind-2.log": [
+          "==921032==     in use at exit: 0 bytes in 0 blocks",
+          "==921032==   total heap usage: 19,569 allocs, 19,569 frees, 1,559,012 bytes allocated",
+          "==921032== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ]
+      },
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "a825721ec35a2c9e3557cb43e48e8506f7fd8d2eb5ba973c7ed79e8055866881",
+        "provider.log": "4985fbf41e5668d985561d9d172a9ebabc581382a987f14929805b8c62f00e03",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "49ffcf45eca3149f80b3283662d8ec6f3d7ae862e97c2291998bbc448bc8dbdd",
+        "node-1.log": "d86175819b4c2c68e9d050e4b405250ca8083c5eee1f4c9d1f8b7d3dfe5a4472",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "7b85251b0a1111c9782b48d77aa6d0e42d8f5120409b0997fdb5c6d551ac49cd",
+        "valgrind-2.log": "24c1a29ce8755d7fe5ce456dda3abc322c5abb3b482bc66923be7bed3234156b",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "89fc1fa474f97fd5b87923bdce64e978f6c330966b2c63a77d0c2957edc7671e",
+        "fresh-reader/interactive.log": "564b7a10f8c49f380fd35a9d3e936095a837f6e56651077199f4f1ed0b3a8657",
+        "controller/interactive.log": "96842c304eb4f25b77170785966b34b68a59eb98a177c9e05997538355168dee"
+      }
+    }
+  },
+  "matcher_reproduction": {
+    "scope": "Original method and original predicate extracted by AST without modifying either installed source; helper-only reproduction, not a CSA test PASS",
+    "input_reports": [
+      "null",
+      0,
+      1
+    ],
+    "false_completion": true,
+    "elapsed_seconds": 0.11149015591945499,
+    "calls": [
+      {
+        "value": "null",
+        "match": false
+      },
+      {
+        "value": 0,
+        "match": false
+      },
+      {
+        "value": 1,
+        "match": false
+      },
+      {
+        "value": "null",
+        "match": true
+      },
+      {
+        "value": 0,
+        "match": false
+      },
+      {
+        "value": 1,
+        "match": false
+      }
+    ],
+    "case_sha256": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+    "helper_sha256": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322"
+  },
+  "normative_basis": {
+    "revision": "Matter 1.6.1",
+    "subscription_minimum": "2.11.2.2",
+    "capability_struct": "11.1.4.4",
+    "progress": "11.20, UpdateStateProgress"
+  },
+  "unchanged_official_sources": true,
+  "unchanged_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+  "not_verified": [
+    "Automatic Discontinue completion after the failed predicate",
+    "Full CSA rerun with the eight-subscription profile",
+    "Windows execution of this snapshot",
+    "Physical firmware/bootloader or certification"
+  ],
+  "next": "CSA24b: prepare progress-history predicate evidence for CSA and agree corrected/accepted test execution before repeating automatic acceptance.",
+  "hash_encoding": "Previous report exact Git blob bytes; private evidence filesystem bytes; PICS sorted compact JSON; no private credentials, state, PINs or raw keys included.",
+  "cli_rejection_checks": [
+    {
+      "requested": 0,
+      "exit": 2,
+      "diagnostic": "unsupported budget"
+    },
+    {
+      "requested": 2,
+      "exit": 2,
+      "diagnostic": "unsupported budget"
+    },
+    {
+      "requested": 16,
+      "exit": 2,
+      "diagnostic": "unsupported budget"
+    },
+    {
+      "requested": 10000,
+      "exit": 2,
+      "diagnostic": "unsupported budget"
+    },
+    {
+      "requested": 10001,
+      "exit": 2,
+      "diagnostic": "numeric range exceeded"
+    }
+  ]
+}
