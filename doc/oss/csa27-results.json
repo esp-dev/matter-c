@@ -1,0 +1,624 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa26-results.json",
+  "previous_sha256": "fd57b6c72de2e456dfdcae2917ec470605d277d909bdaa2b9148799788d06b23",
+  "source_base_commit": "5e8fe96533f7f51b295fcbbd26b9ac5a1cd615da",
+  "scope": "CSA27: unchanged automatic TC_SU_4_1 FAIL at step5; independent two-fabric OTA attribute/readback/restart acceptance. No C/H, PICS or official source changes; not certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 17,
+    "BLOCKED": 5,
+    "MANUAL": 39,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC_SU_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "BLOCKED",
+      "status": "FAIL",
+      "run_id": 456
+    }
+  ],
+  "official_automatic": {
+    "case": "TC_SU_4_1",
+    "run_id": 456,
+    "harness_state": "failed",
+    "step_states": {
+      "passed": 7,
+      "failed": 1,
+      "pending": 3
+    },
+    "script_sha256": "644dde23f969393db842b84190978144a9279b02fa17e3d1e5ba4e0514811061",
+    "shared_helper_sha256": "9e9b2af9fcca6b039da12273b89560bd55121ec11fdb72de0f4973499318615b",
+    "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "raw_result_sha256": "859247522b2cd69d977be698ed06d8a2aa86191bedf7c41a4b0d9bc8933ef6b3",
+    "official_log_sha256": "2d4dc41481e87c0e43658777629513a96fbc4e137fdb145d02341d8a62c34f24",
+    "failure_step": 5,
+    "remaining_steps_not_executed": [
+      6,
+      7,
+      8
+    ],
+    "observed_write_statuses": [
+      0,
+      0,
+      135
+    ],
+    "test_assertion": "resp[0].Status == Status.ConstraintError",
+    "reason": "The three list IBs clear the list, append the first provider and reject the second. The original test inspects the first Success instead of the later ConstraintError.",
+    "certification_mode": false,
+    "official_source_modified": false,
+    "local_corrected_official_run": false,
+    "csa_correction_approved": false
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "11.20.7.5": "DefaultOTAProviders is fabric-scoped; at most one entry per fabric; adding another requires ConstraintError. Announcement must not replace defaults.",
+    "10.6.4.3.1": "List writes may be encoded as clear plus ordered append IBs and may leave partial changes on failure.",
+    "8.7.3.3": "Process data fields in order; generate statuses for changes and constraint violations.",
+    "8.7.3.4": "Include each generated AttributeStatusIB in WriteResponses."
+  },
+  "identity": {
+    "c_h_changed": false,
+    "compiled_c_h_files_match": 360,
+    "source_manifest_sha256": "9db63d4cf5f59325be22e388a7771e86614a1348d461e170f010226a642f864f",
+    "binary_sha256": {
+      "normal": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+      "sanitize": "9bc184e4a1ff2e9e993dea9a8ddfdb11757632f1e1ab4c6988d815a206eb1390"
+    },
+    "build_reused_from": "CSA26; no C/H changes, no rebuild or new CTest campaign claimed",
+    "sdk_commit": "3bcdd56ba54fb88b2afb4bfef575014671df7aa7",
+    "sdk_clean": true,
+    "controller_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+    "final_driver_sha256": "ea72dad1a2a787da850a0ca77c23627ba4cbb559eaf4140a1f530e0f2a373afc"
+  },
+  "local_acceptance": {
+    "normal": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "commission-alpha",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "initial-default-empty",
+          "status": "PASS",
+          "detail": []
+        },
+        {
+          "name": "fabric1-write-statuses",
+          "status": "PASS",
+          "detail": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "fabric1-provider-and-index",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "enhanced-window",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-beta",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fabric2-default-empty",
+          "status": "PASS",
+          "detail": []
+        },
+        {
+          "name": "fabric2-write-statuses",
+          "status": "PASS",
+          "detail": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "fabric2-provider-and-index",
+          "status": "PASS",
+          "detail": [
+            [
+              3,
+              0,
+              2
+            ]
+          ]
+        },
+        {
+          "name": "fabric1-unaffected-by-fabric2",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "two-provider-full-status-vector",
+          "status": "PASS",
+          "detail": [
+            0,
+            0,
+            135
+          ]
+        },
+        {
+          "name": "partial-write-retains-first-provider",
+          "status": "PASS",
+          "detail": [
+            [
+              4,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "constraint-error-isolated-to-fabric1",
+          "status": "PASS",
+          "detail": [
+            [
+              3,
+              0,
+              2
+            ]
+          ]
+        },
+        {
+          "name": "clear-fabric2-status",
+          "status": "PASS",
+          "detail": [
+            0
+          ]
+        },
+        {
+          "name": "fabric2-cleared",
+          "status": "PASS",
+          "detail": []
+        },
+        {
+          "name": "fabric1-survives-fabric2-clear",
+          "status": "PASS",
+          "detail": [
+            [
+              4,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "update-possible",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "update-state-enum",
+          "status": "PASS",
+          "detail": 2
+        },
+        {
+          "name": "no-download-progress-null",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "announcement-status",
+          "status": "PASS",
+          "detail": [
+            0
+          ]
+        },
+        {
+          "name": "announcement-does-not-replace-default",
+          "status": "PASS",
+          "detail": [
+            [
+              4,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "clean-stop-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fabric1-default-persists-after-restart",
+          "status": "PASS",
+          "detail": [
+            [
+              4,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "fabric2-clear-persists-after-restart",
+          "status": "PASS",
+          "detail": []
+        },
+        {
+          "name": "clean-stop-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memcheck-clean-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memcheck-clean-2",
+          "status": "PASS",
+          "detail": null
+        }
+      ],
+      "check_count": 29,
+      "memcheck": [
+        {
+          "allocations": 172974,
+          "frees": 172974,
+          "total_bytes_allocated": 9809912,
+          "errors": 0,
+          "live_bytes": 0
+        },
+        {
+          "allocations": 18000,
+          "frees": 18000,
+          "total_bytes_allocated": 1501607,
+          "errors": 0,
+          "live_bytes": 0
+        }
+      ],
+      "artifact_sha256": {
+        "command-1.log": "20ae0ada5b41ce6852a9bf6d1fc240694bc79d7863067734f5692edcecb4e09e",
+        "command-10.log": "3b2ab6ddddc29ffe15ed00bc630cba8e9367f1059df145fb580354fa83529346",
+        "command-11.log": "59c823e798dcfad3ebf02c2fa823c13da2091233399e95212539fbaa5cb4e67c",
+        "command-12.log": "cad91af7a74dfcae7ebc06b2c7421673117fa44c50560bd99552a08833dba62d",
+        "command-13.log": "3bebc3663a913c5786d4cc91555e7325233322830115c980e1bf6ab608aabc80",
+        "command-14.log": "b815b86dec2e3f9f06abff5f3f97d72a6f676bb2e9f81de3c32134e241533834",
+        "command-15.log": "d09cf002c6d259e6fd7173b94223167b70b5019cca4ab357fd4ce850879b25e3",
+        "command-16.log": "c0aeee82cc85211c5c6617be4e2f03039f3a114e7544526a9ce74706d814b99f",
+        "command-17.log": "ac014fd958f432b21cfe0ca7920be54dd05892fca2dc0ffd3fdb3321f37add82",
+        "command-18.log": "f00a7d3fc193485b6d0daea9d7597ef0b86f19581e031197616f978b22898f26",
+        "command-19.log": "9aefea3c67003876fa6b55826e895083036dd27d9ff111449050e89dccde91a1",
+        "command-2.log": "77dcc7143bf0b5d7b38e93667aa22c8cdc9cbe5c99c43c7ef29b2fcadee38b83",
+        "command-20.log": "49ae5f156a9d3084ca04595db234dd39258f010bf824687090c2b0e5fbe19d16",
+        "command-21.log": "3512213c48a23be7c047914cbd58aa883c595fe38faa3c15f50e1f4949770caa",
+        "command-22.log": "00a12f9b6ce55d658fcec2b6509c5f629ed29bb5b5cb02a945591dbfadc21c7d",
+        "command-23.log": "4e816c33a3f93e909f6b2a0857fa12bea70e9f946c0a5c0b699e1b965025f4e5",
+        "command-3.log": "1d9bfdc30e420842f2bab5598c2e755c94f23d1c057d9d095cb6f162b5ca5ea0",
+        "command-4.log": "9ffb8395e4e02a8ec6bc2b689cf0586ced763ae24edfdfca4851aed3da7c1a97",
+        "command-5.log": "01809169a4fff5d1b2c32e6d049b6e6664edf0265f1d38675c97e3e38599e09c",
+        "command-6.log": "abc8411dd6f3e9dcef08e5715d3029d480063449f88ee85a3c4e1218e5a5d1b2",
+        "command-7.log": "6a9235c08d93aec7af8b1c7754c7626390dca1a0aaf82402e631fffe84622263",
+        "command-8.log": "c00e9a8315d297cfa9627aef89791ea5855d3f3d7c6884dc2d702379ddab09fa",
+        "command-9.log": "cb29106062e409175f6579e641686d01eee6b0361b79da1a9ba6fe8b5c6c547e",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-1.log": "9889bfba277d1863d86976ffd86ed0cba7e7f294602881b92b386d54c3e10266",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "c77000ad2fde50e29816acc1534a670a9483f3904c596f2225783f6feeec1b63",
+        "result.json": "1512247c447997ca3f9a02e504abba6f739b18346bf7b475f274e9f754087f23",
+        "valgrind-1.log": "779c7d1e961ce710874adaa0c4dd188132f511a74f5d4b7b6b33cce30167067a",
+        "valgrind-2.log": "3e88c05acaea3b51609db17d628c2c14f263e0130f4536660e227fd889f9d78a"
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "commission-alpha",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "initial-default-empty",
+          "status": "PASS",
+          "detail": []
+        },
+        {
+          "name": "fabric1-write-statuses",
+          "status": "PASS",
+          "detail": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "fabric1-provider-and-index",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "enhanced-window",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-beta",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fabric2-default-empty",
+          "status": "PASS",
+          "detail": []
+        },
+        {
+          "name": "fabric2-write-statuses",
+          "status": "PASS",
+          "detail": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "fabric2-provider-and-index",
+          "status": "PASS",
+          "detail": [
+            [
+              3,
+              0,
+              2
+            ]
+          ]
+        },
+        {
+          "name": "fabric1-unaffected-by-fabric2",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "two-provider-full-status-vector",
+          "status": "PASS",
+          "detail": [
+            0,
+            0,
+            135
+          ]
+        },
+        {
+          "name": "partial-write-retains-first-provider",
+          "status": "PASS",
+          "detail": [
+            [
+              4,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "constraint-error-isolated-to-fabric1",
+          "status": "PASS",
+          "detail": [
+            [
+              3,
+              0,
+              2
+            ]
+          ]
+        },
+        {
+          "name": "clear-fabric2-status",
+          "status": "PASS",
+          "detail": [
+            0
+          ]
+        },
+        {
+          "name": "fabric2-cleared",
+          "status": "PASS",
+          "detail": []
+        },
+        {
+          "name": "fabric1-survives-fabric2-clear",
+          "status": "PASS",
+          "detail": [
+            [
+              4,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "update-possible",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "update-state-enum",
+          "status": "PASS",
+          "detail": 2
+        },
+        {
+          "name": "no-download-progress-null",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "announcement-status",
+          "status": "PASS",
+          "detail": [
+            0
+          ]
+        },
+        {
+          "name": "announcement-does-not-replace-default",
+          "status": "PASS",
+          "detail": [
+            [
+              4,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "clean-stop-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fabric1-default-persists-after-restart",
+          "status": "PASS",
+          "detail": [
+            [
+              4,
+              0,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "fabric2-clear-persists-after-restart",
+          "status": "PASS",
+          "detail": []
+        },
+        {
+          "name": "clean-stop-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-2",
+          "status": "PASS",
+          "detail": null
+        }
+      ],
+      "check_count": 27,
+      "memcheck": [],
+      "artifact_sha256": {
+        "command-1.log": "e07bff9ac41b91cdffe3500620957e195c09d7842ba555e5198cbf6dfd1508a4",
+        "command-10.log": "eb0a0152699f79723d38fed8b10a1ed33a272cc0221506a31af29c11fc023d61",
+        "command-11.log": "9e818faeadcf8ad8ea65f94dd6e04f442b9f495a359d056897cde758aaa5f6d2",
+        "command-12.log": "71604684d5d088fb234fd0ab91f566c35bb4dd89207e33fded6805855e2c26f1",
+        "command-13.log": "8a4714810e120d677e76b67bea356af6e0b72695dc204c0186b7d817084c012a",
+        "command-14.log": "29910acc51533d28e1549476ee2bf58426796b7e6c7b42d4bbbdd36754a050a9",
+        "command-15.log": "174465b8099ec1ea12a9cbe1b627ded35032c1d4f860915b9fd4bdb16935e290",
+        "command-16.log": "cda816ac5710fd346e7fca5f3cacf778b15345fef7d45ff675096768117f35ae",
+        "command-17.log": "c742bf17c2060cd970dcf138aec820b2cee3b3463ca4d8bb3c190e75983c2d4b",
+        "command-18.log": "aa9d29d51294e55a92dcb6a7421b6a3b1e2cdb80bf5f7b30c9f30535c7eda702",
+        "command-19.log": "25bae49af0552d7ed6cc58c8751ceb8938ad1e01ef405004e49a40f10df93d27",
+        "command-2.log": "43ed63ecc52ecf38693bdfe619d11bf7bc3d6d1e82945bb3b2cbc57d7f701b19",
+        "command-20.log": "1497466a6c422ab9c5ca802f8e77661221491e6d2160ef8d2e6264198a3aeff5",
+        "command-21.log": "ac748eec7a7e1d8afdcf726bf5e47bfb41acab3a8e06cbc30bb2bc5ab79961e5",
+        "command-22.log": "524a86c4727264a6e031555932bfe2f4e958af6de65fad873b9cb9cb0cba7004",
+        "command-23.log": "7290aff72612ba50498ac91b90ba53aea7d42ebe38b1dbb2747695bc503c9756",
+        "command-3.log": "7245a6c7eaab511dae6dfacf60a384be12c204f4c568e493cbe8abf70887f007",
+        "command-4.log": "3bbe886f2440ceeb2264b76f82bb3cbac529605b50a2c70443b5bd08ca35345a",
+        "command-5.log": "b226e5685a8d278c5c68edfcbede6e2d0498bdf17019806ac40176b82cdeafe4",
+        "command-6.log": "00c6eed53664dcc04ea76885622045fa4d1b9b54fb6d164b68031b47c85d65b6",
+        "command-7.log": "32938423546258809351816064cde276dcd3eca6f4530869dd8ca4e59c927d56",
+        "command-8.log": "14f7878061dd672a51ac5fca5ed59118be6e35a66c5abe75cc789ddbf0fa78d0",
+        "command-9.log": "63910e1bf61197e22b7da184d1f26a2ffea6cde18d517f8d1b753f3346aef276",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-1.log": "4b3330d0ac354d2e86acc21bc616ff88f2458c6d0297b3c7aa80fada0d69e33a",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "779ac88e53c7fd9577cce4890a2757aebe5caa8b0163665215e15ddce1c225a1",
+        "result.json": "1ee5244c2ab743e890be07c1541463f6c03dcceb339f36c359cb4189fc04e4bd"
+      }
+    }
+  },
+  "memory": {
+    "memcheck_boots": 2,
+    "allocations": 190974,
+    "frees": 190974,
+    "errors": 0,
+    "live_bytes": 0,
+    "suppressions": false,
+    "separate_sanitizer_boots": 2,
+    "all_host_stderr_empty": true,
+    "scope": "C host only, not external controller processes"
+  },
+  "final_oracle_review": {
+    "capture_rechecks": 34,
+    "negative_controls": {
+      "wrong-provider": "REJECTED",
+      "wrong-fabric": "REJECTED",
+      "wrong-endpoint": "REJECTED",
+      "missing-field": "REJECTED",
+      "wrong-count": "REJECTED",
+      "missing-report": "REJECTED",
+      "constraint-missing": "REJECTED",
+      "constraint-misplaced": "REJECTED"
+    },
+    "note": "Attribute-kind and declared-list-count guards were tightened after network execution. Final parser replayed over both actual captures; network scenarios were not rerun."
+  },
+  "cleanup": {
+    "th_state": "idle",
+    "fixture_port_released": 5581,
+    "th_fixture_port_released": 5581,
+    "original_sources_sha256": {
+      "TC_SU_4_1.py": "644dde23f969393db842b84190978144a9279b02fa17e3d1e5ba4e0514811061",
+      "TC_SUTestBase.py": "9e9b2af9fcca6b039da12273b89560bd55121ec11fdb72de0f4973499318615b"
+    },
+    "sdk_clean": true,
+    "paired_windows_nodes_untouched": true
+  },
+  "limits": [
+    "No original automatic PASS, local-corrected official run or certification.",
+    "No physical firmware, Windows build, ecosystem UI, OTA install or 128 kB RAM fit tested.",
+    "All other matrix rows inherited, not rerun.",
+    "The source-level status-vector mismatch awaits CSA/test-maintainer review."
+  ],
+  "next": {
+    "task": "CSA28",
+    "case": "TC_SU_2_2",
+    "scope": "Original automatic QueryImageResponse scenarios; manual counterpart accepted in CSA20. Automatic row remains BLOCKED.",
+    "script_sha256": "d5e9fbf867982ba7b1c8c8305c70a6fc6b04f018b521562d2e7028b6e672b8e4"
+  },
+  "hash_encoding": "Previous report uses committed Git blob bytes; artifacts use exact filesystem bytes; PICS uses sorted compact JSON."
+}

@@ -256,6 +256,14 @@ were required. Only this manual row changes, giving 97 PASS, 15 FAIL, 8 BLOCKED,
 38 MANUAL and 704 NA. Other rows are inherited; this is not automatic CSA
 assertions or certification. OTA event acceptance is recorded below.
 
+The [CSA27 attribute acceptance](doc/oss/csa27-validation.md) records original
+TC_SU_4_1 FAIL at step5: the test examines the first Success instead of the later
+ConstraintError in a list write. Two-fabric chip-tool acceptance passes 29
+Memcheck and 27 sanitizer checks, including partial writes, fabric isolation and
+restart persistence. No C/H, PICS or official test changes were required.
+Current counts: **97 PASS, 17 FAIL, 5 BLOCKED, 39 MANUAL, 704 NA**. This is not
+certification; retain the response-status observation for CSA review.
+
 The [CSA26 event acceptance](doc/oss/csa26-validation.md) fixes spurious Idle
 handoffs and null progress on known-length download errors. Manual TC-SU-2.7
 passes in run455; unchanged automatic TC_SU_2_7 fails in run454 because it misses
@@ -263,7 +271,7 @@ an initial query transition during setup. Seven independent scenarios pass 156
 checks, including actual BDX idle timing/recovery, with clean Memcheck/separate
 sanitizers and 15 focused tests per build. Counts become 97 PASS, 16 FAIL,
 6 BLOCKED, 39 MANUAL and 704 NA; other rows are inherited. No certification or
-automatic PASS is claimed. Next: TC_SU_4_1 OTA Requestor attributes.
+automatic PASS is claimed. Attribute acceptance is recorded in CSA27 above.
 
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or

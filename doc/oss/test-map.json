@@ -1705,6 +1705,14 @@
       "allocation_variant": "native"
     },
     {
+      "path": "tools/matter/tests/test_ota_attributes_chip.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_ota_attributes_chip.py --help; unmodified chip-tool, development PAA and disposable Linux node state required.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
       "path": "tools/matter/tests/test_ota_chip_provider.py",
       "kind": "external-chip-tool",
       "ctest": [],

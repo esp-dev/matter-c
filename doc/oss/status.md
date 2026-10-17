@@ -1,5 +1,19 @@
 # Development status
 
+**CSA27: original automatic TC_SU_4_1 FAIL, TH run456, step5.**
+The host returns Success for clearing its list, Success for the first append
+and ConstraintError for the second append. The test checks only the first
+status. Core 8.7.3.3/8.7.3.4 require per-operation status generation; no response
+or official assertion was changed to force PASS. Independent chip-tool
+acceptance passes 29 Memcheck and 27 sanitizer checks across two fabrics,
+including partial write/readback, clearing one fabric and persistence after
+restart. Memcheck has 190974 matched allocations/frees, zero errors/live bytes;
+ASan/UBSan/LSan host stderr is empty. The final parser passes 34 capture rechecks
+and rejects eight negative controls. C/H and PICS are unchanged.
+Counts: **97 PASS, 17 FAIL, 5 BLOCKED, 39 MANUAL, 704 NA**; only this row changes.
+See [evidence and limits](csa27-validation.md) and [record](csa27-results.json).
+**Next: CSA28 — original automatic TC_SU_2_2, QueryImageResponse scenarios.**
+
 **CSA26: TC-SU-2.7 manual PASS, run455; TC_SU_2_7 automatic FAIL, run454.**
 Direct Querying/Downloading/Applying handoffs and known DownloadError progress
 are fixed. Seven independent scenarios pass 156 checks, including real BDX Idle
@@ -11,7 +25,7 @@ The unchanged Python test fails at step1 after missing the query transition that
 occurred during its setup; later steps are not claimed. This is not certification.
 Counts: **97 PASS, 16 FAIL, 6 BLOCKED, 39 MANUAL, 704 NA**; other rows inherited.
 See [evidence and limits](csa26-validation.md) and [record](csa26-results.json).
-**Next: CSA27 — TC_SU_4_1, OTA Requestor cluster attributes.**
+Attribute acceptance follows in CSA27 above.
 
 **CSA25: TC-SU-2.6 manual PASS in TH run452.** One verification step plus evidence
 upload pass, evaluated against real CHIP Provider traces; this is not automatic

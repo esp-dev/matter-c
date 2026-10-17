@@ -285,8 +285,15 @@ and PICS remain unchanged. Seven independent scenarios pass 156 checks, includin
 live-MRP BDX Idle timing/recovery. Memcheck, separate sanitizers and 15 focused
 tests per build pass. Only these two rows change: 97 PASS, 16 FAIL, 6 BLOCKED,
 39 MANUAL, 704 NA. See [evidence and limits](oss/csa26-validation.md).
-**Next task: CSA27 — TC_SU_4_1, OTA Requestor cluster attributes**, retaining
-original failures and SDK observations for CSA review.
+CSA27 runs the unchanged TC_SU_4_1: FAIL in run456 because step5 expects the
+constraint error in the first status rather than after successful clear/append.
+Core requires every generated status; no C or test workaround is introduced.
+Independent chip-tool acceptance passes 29 Memcheck and 27 sanitizer checks,
+including two fabrics, partial write/readback and persistence after restart.
+The cumulative counts become 97 PASS, 17 FAIL, 5 BLOCKED, 39 MANUAL, 704 NA;
+all other rows are inherited. See [evidence and limits](oss/csa27-validation.md).
+**Next task: CSA28 — original automatic TC_SU_2_2, QueryImageResponse scenarios**,
+retaining original failures and SDK observations for CSA review.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

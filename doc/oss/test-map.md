@@ -1,8 +1,14 @@
 # Test inventory
 
-test-map.json enumerates 235 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 236 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+`test_ota_attributes_chip.py` is an optional two-fabric OTA attribute scenario
+using unmodified chip-tool. It checks every WriteResponse status, partial list
+updates, fabric isolation, mandatory state attributes and persistence after
+restart. Run separately with Memcheck and sanitizers. This local acceptance does
+not replace the original TC_SU_4_1 result; see `csa27-validation.md`.
 
 `test_csa24_progress.py` is an optional offline regression for an externally
 supplied SDK test/helper source. It executes the actual progress-wait AST using
