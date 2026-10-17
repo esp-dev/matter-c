@@ -243,8 +243,10 @@ or automatic PASS is claimed. Defaults and existing paired Windows nodes remain.
 The [CSA24b correction](doc/oss/csa24b-validation.md) is an explicit local SDK
 test patch with 11 passing source regressions and preserved original assertions.
 It consumes progress reports chronologically and cleans up scenario subscriptions.
-Full TH execution awaits the operator step on its root-owned test file; no new
-official CSA PASS is claimed.
+Full corrected run451 passes with budget three/transport 56, including both delay
+scenarios and Discontinue/image disposal. The original SDK source is restored
+exactly and the isolated node is stopped. This is LOCAL-PATCH PASS; no new
+unmodified official CSA PASS is claimed. Next: TC-SU-2.6 NotifyUpdateApplied.
 
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or

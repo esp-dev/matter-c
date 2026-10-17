@@ -1,9 +1,9 @@
 # CSA24b: chronological progress and subscription cleanup in the SDK test
 
-**Prepared and regression-tested; full TH rerun awaits the operator step.**
+**Full corrected TH run451: LOCAL-PATCH PASS, budget three/transport 56.**
 This is a local correction of an external SDK test, not a CSA-approved release.
-The unmodified Python TC_SU_2_5 campaign result remains FAIL from run450. No
-automatic PASS or change to cumulative official counts is claimed here.
+The unmodified Python TC_SU_2_5 campaign result remains FAIL from run450.
+The local corrected result is separate; cumulative official counts do not change.
 
 The memory requirement is recorded separately in commit `9a793f1`: allocate
 individual live contexts on demand, with limits used for admission rather than
@@ -52,8 +52,8 @@ invalid percentages, a null-only stream and repeated reports through timeout.
 The inventory check passes with 235 mapped files, 87 native definitions, 59 core
 sources and 75 public headers. The C/H files retain the CSA24a source-manifest
 hashes. Its native/Memcheck/sanitizer results are prior evidence, not new runs of
-this corrected TH case. The unchanged C host has been built with transport 56
-for the planned three-subscription test; building it is not commissioning proof.
+this corrected TH case. The unchanged C host uses transport 56 and the default
+three subscriptions per fabric for the full acceptance below.
 
 ```sh
 python tools/matter/tests/test_csa24_progress.py \
@@ -63,26 +63,47 @@ python tools/matter/tests/test_csa24_progress.py \
 python tools/matter/check_test_map.py
 ```
 
-## Pending full acceptance
+## Full local acceptance
 
-The installed SDK file is root-owned and not writable by the test account. A
-reviewable local operator script is prepared to check the pinned original/patch,
-arm automatic restoration, and apply only this test-file correction. The regular
-launcher then verifies the source regression, starts an isolated node/state with
-budget three/transport 56 and labels the TH run **LOCAL-PATCH**. Only readiness
-prompts are answered. The guard restores the original source after the run and
-stops only that fixture node. If no run starts, restoration occurs after 3 minutes.
+Run451, titled `CSA24b-LOCAL-PATCH-progress-order-budget3`, passed all six TH
+steps. It ran from **2026-10-17 14:29:03 UTC to 14:38:12 UTC**. The unchanged
+requestor binary, provider, signed image and PICS are pinned in the
+[result record](csa24b-results.json). The launcher repeated all 11 source
+regression checks on TH before commissioning. The node used isolated state;
+the subscription budget was three and transport capacity was 56 throughout.
 
-Until that operator step and full rerun finish, the canonical source is unchanged
-and this patch has no full TH result. Any subsequent corrected-run PASS must be
-recorded separately from unmodified CSA acceptance. CSA confirmation is still
-needed before replacing the official campaign result. Other CSA cases have not
-been rerun, and no Windows ecosystem, physical firmware, 128 kB fit or certification
-is claimed. User-paired Windows nodes remain untouched.
+The full automatic case verified:
+
+- Both AwaitNextAction/provider-loss scenarios, with provider delays of 60 and
+  180 seconds and unchanged-version observation windows of 120 and 180 seconds.
+- Three complete, authenticated downloads of the 262342-byte image.
+- Chronological progress reports in the final scenario: initial null reports,
+  positive progress from 1 through 100, then a later null. There were 130 reports;
+  the final sequence was `97, 98, 99, 99, 100, null`.
+- The real provider IPC response: Discontinue (action 2), exactly one Apply request.
+- Image disposal (file absent, size zero), final Idle, null progress and unchanged
+  SoftwareVersion 1. Every original assertion remained enabled.
+
+The operator applied the pinned patch to the root-owned SDK source after arming
+automatic restoration. The first install reverted before launch because its
+three-minute start window expired; no TH run started in that attempt. The retry
+used an unprivileged waiting launcher so applying the patch automatically started
+the prepared run, with a 30-minute fallback restoration window before start.
+Only readiness prompts were answered during the test.
+
+After the run, the root watcher restored the exact original source SHA-256
+`91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb`.
+The reporting helper was unchanged. Ownership remained root and permissions 0644.
+The guard stopped only the isolated fixture node, its stderr was empty, and TH
+returned to idle. User-paired Windows nodes remain untouched.
+
+CSA confirmation is still needed before replacing the official campaign result.
+Other CSA cases have not been rerun, and no physical firmware, 128 kB fit or
+certification is claimed. No C/H source was changed for this acceptance, and
+Memcheck/sanitizers were not rerun for this test-only step.
 
 Counts stay **97 PASS, 15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA**; see the
-[prepared-change record](csa24b-results.json).
+[result record](csa24b-results.json).
 
-Next: **finish the explicitly labelled corrected TH run, verify restoration and
-then proceed to TC-SU-2.6 NotifyUpdateApplied**, retaining the original failures
+Next: **CSA25 — TC-SU-2.6 NotifyUpdateApplied**, retaining the original failures
 and patch evidence for CSA review.

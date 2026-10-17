@@ -262,16 +262,17 @@ the original stateful matcher replays an old null after 1%, falsely declaring
 download complete before Apply. A source-preserving minimal reproduction confirms
 the behavior; it is not a CSA-approved test correction. Counts stay 97 PASS,
 15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA. See [evidence](oss/csa24a-validation.md).
-**Next task: CSA24b — prepare the progress-predicate evidence for CSA and agree
-accepted test execution without changing legitimate device progress semantics.**
 CSA24b now has a pinned local patch: chronological FIFO progress, a bounded
 monotonic wait and scenario subscription cleanup. The original predicate and
 assertions are retained. Source regressions pass 11/11 on Windows/Linux, with
-negative original-source controls. Full LOCAL-PATCH acceptance awaits the
-operator action on the root-owned SDK file; no official result is relabelled.
-See [record and pending verification](oss/csa24b-validation.md).
-The immediate next action is that corrected full run with budget three/transport
-56 and exact source restoration, followed by TC-SU-2.6 NotifyUpdateApplied.
+negative original-source controls and another preflight run on TH. Full run451
+passes all six steps with budget three/transport 56, including both delays and
+Discontinue, chronological progress, image disposal and unchanged version. The
+original SDK source is restored exactly and the isolated node is stopped.
+This is LOCAL-PATCH PASS; no official result is relabelled pending CSA approval.
+See [full-run evidence and limits](oss/csa24b-validation.md).
+**Next task: CSA25 — TC-SU-2.6 NotifyUpdateApplied**, retaining the original
+failures and the local patch evidence for CSA review.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

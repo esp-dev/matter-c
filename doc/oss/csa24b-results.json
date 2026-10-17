@@ -3,7 +3,7 @@
   "baseline": "csa01-matrix.json",
   "previous": "csa24a-results.json",
   "previous_sha256": "4af270d9ad5aaa3c20d11c06cf67be1c6b424dd1103fac753a789f4b505797d3",
-  "scope": "Local SDK test correction and source regressions only; full TH rerun pending operator install. Not unmodified CSA acceptance or certification.",
+  "scope": "Full isolated TC_SU_2_5 run with the pinned local test correction; LOCAL_PATCHED_PASS only, not unmodified CSA acceptance or certification.",
   "latest_counts": {
     "PASS": 97,
     "FAIL": 15,
@@ -15,22 +15,29 @@
   "source_base_commit": "9a793f15a8ef20e8cba6b0ce61774c3290cc5f11",
   "local_corrected": {
     "case": "TC_SU_2_5",
-    "run_id": null,
-    "state": "not_run",
-    "reason": "Root-owned SDK source requires the prepared operator step before the full corrected run.",
+    "run_id": 451,
+    "state": "LOCAL_PATCHED_PASS",
+    "reason": "All six TH steps and all original OTA assertions passed with a three-subscription budget. The canonical unmodified run450 remains FAIL pending CSA acceptance of the correction.",
     "original_sha256": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
     "patched_sha256": "cb0e16c451093f51e153bd9d56c8d780bc8f1b7ceeaf06b94bad9136b929b588",
     "unchanged_helper_sha256": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322",
     "original_assertions_preserved": true,
-    "original_progress_predicate_preserved": true
-  },
-  "planned_profile": {
-    "subscriptions_per_fabric": 3,
-    "transport_capacity": 56,
-    "same_provider_image_as_csa24a": true,
-    "isolated_state": true,
-    "run_title_marks_local_patch": true,
-    "automatic_original_restoration": true
+    "original_progress_predicate_preserved": true,
+    "title": "CSA24b-LOCAL-PATCH-progress-order-budget3",
+    "harness_state": "TestStateEnum.passed",
+    "certification_mode": false,
+    "started_at_utc": "2026-10-17T14:29:03.029649Z",
+    "completed_at_utc": "2026-10-17T14:38:12.835180Z",
+    "step_states": [
+      "TestStateEnum.passed",
+      "TestStateEnum.passed",
+      "TestStateEnum.passed",
+      "TestStateEnum.passed",
+      "TestStateEnum.passed",
+      "TestStateEnum.passed"
+    ],
+    "official_log_sha256": "596bc15d2adb4e5021de9a7c5258efade9b9cc1f69a87ed93e20bad20a844607",
+    "raw_result_sha256": "d7194b2a3678c11c1b631f43fc27feb6038b6e62e9d1528d6f89884df959f909"
   },
   "source_regression": {
     "original_failed_controls": [
@@ -118,7 +125,8 @@
       "green-regression.json": "aeb19f2fab629458cc2ee11aca08a0b599ae887b8d98c40a6b7f6f17e4b8627b",
       "green-linux.log": "dbe355e26c99e86c17688db464ce4b8cd8fbcf2753f5d79db6a2f836b77d3ac0",
       "red-linux.log": "30e8faf6427a8aff3773f122eeee7d7b0214c3a9a6f91114adb579f4b155a4fe"
-    }
+    },
+    "th_preflight_corrected_checks": 11
   },
   "public_artifacts_sha256": {
     "tools/matter/patches/TC_SU_2_5-progress-order.patch": "709a5042ce3e668e8dde688cfc05fd1848e39e515e37f01363cdc09bfe76d08d",
@@ -138,10 +146,94 @@
     "interim_eager_table_not_final_embedded_design": true
   },
   "not_verified": [
-    "Full local-corrected TH acceptance",
-    "CSA approval of test correction",
-    "Full suite, physical firmware or 128 kB device fit"
+    "CSA approval of test correction and unmodified official TC_SU_2_5 PASS",
+    "Full suite rerun, physical firmware or 128 kB device fit",
+    "New Memcheck or sanitizer run for this test-only step; prior CSA24a evidence is unchanged"
   ],
-  "next": "Finish operator install and LOCAL-PATCH TH run, verify exact restoration, then TC-SU-2.6.",
-  "hash_encoding": "Previous report exact Git blob bytes; source/patch/regression evidence filesystem bytes. Private state, credentials and administrator helpers excluded."
+  "next": "CSA25: TC-SU-2.6 NotifyUpdateApplied. Retain the original CSA24/CSA24a failures and seek CSA acceptance of the local TC_SU_2_5 correction.",
+  "hash_encoding": "Previous report exact Git blob bytes; source/patch/regression evidence filesystem bytes. Private state, credentials and administrator helpers excluded.",
+  "execution_profile": {
+    "subscriptions_per_fabric": 3,
+    "transport_capacity": 56,
+    "same_provider_image_as_csa24a": true,
+    "isolated_state": true,
+    "run_title_marks_local_patch": true,
+    "automatic_original_restoration": true,
+    "pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb"
+  },
+  "runtime_acceptance": {
+    "await_next_action_provider_delays_seconds": [
+      60,
+      180
+    ],
+    "unchanged_version_observation_windows_seconds": [
+      120,
+      180
+    ],
+    "both_delay_and_provider_loss_scenarios_passed": true,
+    "authenticated_complete_downloads": 3,
+    "download_image_bytes": 262342,
+    "discontinue_provider_action": 2,
+    "discontinue_apply_request_count": 1,
+    "final_update_state": "Idle",
+    "final_progress": "Null",
+    "final_software_version": 1,
+    "download_file_present_after_run": false,
+    "progress_reports": {
+      "reports": 130,
+      "initial": [
+        "Null",
+        "Null",
+        "Null",
+        "Null",
+        "Null",
+        "Null"
+      ],
+      "last": [
+        "97",
+        "98",
+        "99",
+        "99",
+        "100",
+        "Null"
+      ],
+      "min_positive": 1,
+      "max_positive": 100,
+      "final_null_follows_positive_progress": true
+    },
+    "unchanged_artifacts": {
+      "provider": {
+        "bytes": 63959632,
+        "sha256": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40"
+      },
+      "image": {
+        "bytes": 262342,
+        "sha256": "cdb6c0ebcebaec34d292f081074b1aed39d81d3a50b21b3eb3bb542c9353ed62"
+      },
+      "public_signing_key": {
+        "bytes": 65,
+        "sha256": "4444cac01b1a55aa24556a0ff52a7fd20e62c3a05e5a95d7815be6bb88e0a619"
+      }
+    },
+    "file_mapping_wrapper": {
+      "bytes": 193,
+      "sha256": "cbf865046c6077065e4db2ad75803d00d1b22013f3c51ecc99a022beabf13350"
+    },
+    "private_evidence_sha256": {
+      "node.log": "cb7990f8b60614b25e3b8a7f10cc0610b1034070289657db7c31d4bbc9bc6690",
+      "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "provider.log": "118d6f1e5835332846be00103488ef10563623a1cd819d35dedce8991989ff7e"
+    }
+  },
+  "cleanup": {
+    "source_restored": true,
+    "source_after_sha256": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+    "helper_after_sha256": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322",
+    "restored_owner_uid": 0,
+    "restored_mode": "0o644",
+    "fixture_node_stopped": true,
+    "node_stderr_bytes": 0,
+    "harness_state": "idle",
+    "paired_windows_nodes_untouched": true
+  }
 }
