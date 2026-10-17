@@ -217,6 +217,15 @@ images remain available for inspection. Memcheck and separate sanitizer runs
 cover retry/restart and disposal. Rebuild consumers for the appended runtime OTA
 port field. This is simulated host OTA, not firmware installation or certification.
 
+The [CSA24 report](doc/oss/csa24-validation.md) records automatic Python
+TC_SU_2_5 run449: both delay/provider-loss scenarios pass; Discontinue fails
+before its OTA assertions on a fourth live subscription. The host supports the
+Core minimum of three per fabric; the test retains earlier state handlers.
+This remains an official FAIL pending resource-capacity clarification. Query
+error states and actual download progress are corrected, with native tests,
+Memcheck and separate sanitizer acceptance. Rebuild OTA port consumers for the
+new optional progress callback. The separate manual CSA23 result is retained.
+
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or
 `build/matter-host/gcc/matter-node.exe`. An unknown option prints usage and exits 2.

@@ -141,6 +141,14 @@ PASE failures; later-stage commissioning failures need separate acceptance.
 Custom PASE owners can install `matter_pase_on_failure` before starting an attempt
 and must keep its borrowed callback context alive through engine deletion.
 
+An optional `Matter_Runtime_Ota_Port_T.progress` callback supplies active download
+percentage (-1 unknown, otherwise 0..100) on the owner thread. It must not block,
+perform I/O or reenter the runtime. The runtime normalizes out-of-range values to
+unknown and marks the Requestor cluster changed only when the integer percentage
+changes. The file adapter uses validated size/received counters; the portable
+runtime knows no file path. Rebuild consumers and zero-initialize absent optional
+fields. See the [OTA host contract](ota-host.md).
+
 Descriptor, Basic Information and General Commissioning use their existing
 DataVersion for subscription change reporting. Unrelated application measurement
 notifications no longer repeat unchanged built-in values. Reads still return the

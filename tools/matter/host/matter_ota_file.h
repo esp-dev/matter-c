@@ -9,6 +9,9 @@ typedef struct Matter_Ota_File* Matter_Ota_File_T;
 Matter_Ota_File_T matter_ota_file_new(const char* path,uint16_t vendor,uint16_t product,uint32_t current);
 Matter_Result_T matter_ota_file_prepare(Matter_Ota_File_T,uint32_t expected_version);
 Matter_Bdx_Sink_T matter_ota_file_sink(Matter_Ota_File_T);
+/* No I/O. Unknown until the header is validated; 0..100 of whole-file bytes
+ * while receiving/staged. Unknown again after commit or cancellation. */
+int matter_ota_file_progress(Matter_Ota_File_T);
 Matter_Result_T matter_ota_file_commit(Matter_Ota_File_T);
 /* Volatile artifact identity, issued only by commit. Whole-file digest binds
  * header and payload; check rereads current path, but does not authenticate

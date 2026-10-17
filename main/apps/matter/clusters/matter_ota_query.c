@@ -130,12 +130,14 @@ static void finish(Matter_Ota_Query_T q,bool ok,uint8_t im) {
      * it across announcements, not only in the current retry's due time. */
     q->floor=maximum(q->floor,maximum(after(q->now,120000),q->provider_floor));
     if(ok && !q->image.status && q->image.version>q->config.version && uri(q)) {
-        q->image_pending=true; q->due=q->provider_floor; q->state=3; q->reason=4; q->failures=0; return;
+        q->image_pending=true; q->due=q->provider_floor; q->state=1; q->reason=q->image.delay?4:1; q->failures=0; return;
     }
     if(busy || !ok) {
         if(q->failures<6) ++q->failures;
         uint64_t backoff=UINT64_C(120000)<<(q->failures-1); if(backoff>3600000) backoff=3600000;
-        q->due=maximum(after(q->now,backoff),maximum(q->floor,q->provider_floor)); q->state=3; q->reason=busy?4:2;
+        /* Core UpdateStateEnum reserves DelayedOnQuery for a Busy response.
+         * A failed query waits in Idle, retaining the same retry/rate limits. */
+        q->due=maximum(after(q->now,backoff),maximum(q->floor,q->provider_floor)); q->state=busy?3:1; q->reason=busy?4:2;
     } else { q->failures=0; q->due=maximum(after(q->now,86400000),maximum(q->floor,q->provider_floor)); q->state=1; q->reason=1; }
 }
 Matter_Result_T matter_ota_query_process(Matter_Ota_Query_T q,uint64_t now) {

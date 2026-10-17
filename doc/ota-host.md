@@ -139,6 +139,23 @@ zero and does not declare transfer resumption, HTTPS or requestor user consent.
 
 ## Relationship to Test Harness
 
+`Matter_Runtime_Ota_Port_T.progress` is an optional synchronous application
+callback for the active download: -1 means unknown and 0..100 is percentage
+complete. It must not block, perform I/O or reenter the runtime. Invalid values
+are exposed as unknown. Consumers must rebuild and zero-initialize omitted
+callbacks. The file adapter derives progress from validated whole-file size and
+received bytes, without extra file reads. The runtime publishes changed integer
+percentages through the existing Requestor attribute and normal IM scheduling;
+it does not emit a StateTransition event for each percentage. Commit/cancel
+ends the file adapter's progress indication. Other application sinks remain
+independent of the file adapter.
+
+Query retry timing and state indication are separate. An unsuccessful query
+waits in Idle during its existing bounded backoff; DelayedOnQuery denotes a
+Busy response. A successful delayed UpdateAvailable response also waits in Idle
+until download starts. Neither correction changes the global 120-second query
+floor, provider delay, retry backoff or ApplyUpdateResponse policy.
+
 For TC-SU-2.4 use `--mode update --apply-binding --image-version 2`, then a fresh
 fixture/output directory with `--image-version 3`. This enables peer JSON traces
 and compares the UpdateToken bytes and NewVersion received in ApplyUpdateRequest

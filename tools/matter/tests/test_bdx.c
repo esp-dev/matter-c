@@ -79,8 +79,10 @@ static size_t image(Test* t) {
 static void file(Test* t,const char* path) {
     CHECK(strlen(path)<sizeof(t->path)-1); strcpy(t->path,path); snprintf(t->partial,sizeof(t->partial),"%s.part",path);
     Matter_Ota_File_T f=matter_ota_file_new(path,0xfff1,0x8001,1); CHECK(f); Matter_Bdx_Sink_T s=matter_ota_file_sink(f);
+    CHECK(matter_ota_file_progress(NULL)==-1 && matter_ota_file_progress(f)==-1);
     for(unsigned which=0;which<8;++which) {
         size_t n=image(t); CHECK(matter_ota_file_prepare(f,which==7?3:2)==MATTER_OK && s.open(s.user)==MATTER_OK);
+        CHECK(matter_ota_file_progress(f)==-1);
         /* A second instance cannot truncate the partial file. */
         if(!which) { Matter_Ota_File_T other=matter_ota_file_new(path,0xfff1,0x8001,1); CHECK(other); CHECK(matter_ota_file_prepare(other,2)==MATTER_OK); Matter_Bdx_Sink_T o=matter_ota_file_sink(other); CHECK(o.open(o.user)!=MATTER_OK); matter_ota_file_delete(other); }
         if(which==1) t->image[n-1]^=1;
@@ -90,11 +92,23 @@ static void file(Test* t,const char* path) {
         if(which==5) t->image[13]=5;
         if(which==6) t->image[19]^=1;
         Matter_Result_T r=MATTER_OK;
-        for(size_t i=0;i<n && r==MATTER_OK;++i) r=s.write(s.user,t->image+i,1); /* Every header boundary split. */
+        int previous_progress=-1;
+        for(size_t i=0;i<n && r==MATTER_OK;++i) {
+            r=s.write(s.user,t->image+i,1); /* Every header boundary split. */
+            if(!which) {
+                int progress=matter_ota_file_progress(f);
+                CHECK(progress>=previous_progress && progress<=100);
+                if(i<15) CHECK(progress==-1); /* An incomplete fixed header is untrusted. */
+                if(i==n-2) CHECK(progress>0 && progress<100);
+                previous_progress=progress;
+            }
+        }
         if(r==MATTER_OK) r=s.finish(s.user,n);
         if(!which) {
+            CHECK(matter_ota_file_progress(f)==100);
             CHECK(!matter_ota_file_artifact(f));
             CHECK(r==MATTER_OK && matter_ota_file_commit(f)==MATTER_OK);
+            CHECK(matter_ota_file_progress(f)==-1);
             uint64_t artifact=matter_ota_file_artifact(f); CHECK(artifact && matter_ota_file_check(f,artifact)==MATTER_OK);
             CHECK(matter_ota_file_check(f,artifact+1)==MATTER_INVALID_STATE);
 #ifdef MATTER_TEST_ALLOC
@@ -121,7 +135,7 @@ static void file(Test* t,const char* path) {
             matter_ota_file_invalidate(f); CHECK(!matter_ota_file_artifact(f) && matter_ota_file_check(f,artifact)==MATTER_INVALID_STATE);
             CHECK(!remove(path));
         }
-        else { CHECK(r!=MATTER_OK); s.cancel(s.user); CHECK(fopen(t->partial,"rb")==NULL); }
+        else { CHECK(r!=MATTER_OK); s.cancel(s.user); CHECK(matter_ota_file_progress(f)==-1 && fopen(t->partial,"rb")==NULL); }
     }
     for(unsigned missing=0;missing<2;++missing) {
         size_t n=image(t);

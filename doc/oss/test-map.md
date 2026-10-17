@@ -135,6 +135,13 @@ stale/restarted ownership, removal failure and candidacy revocation. The eight
 focused BDX/Apply/update/runtime CTests and their allocation variants remain
 existing definitions. See [CSA23](csa23-validation.md) for actual runs and limits.
 
+The existing `test_ota_query` and allocation variant distinguish a Busy response
+from transport/IM/malformed-response/timeout failures. They retain retry timing
+checks while requiring Idle for non-Busy backoff. `test_bdx` and its allocation
+variant also check unknown progress before a validated header, monotonic bounded
+progress across byte-wise writes, completion and reset after commit/cancel.
+These extend existing definitions rather than adding CTest entries.
+
 `test_plug_energy_chip.py` exercises the disposable full-profile metered socket:
 verified attestation, exact whole-tree inventory, mixed EPM/EEM attribute/event
 subscription, 600 W / 0 W transitions, paused import while off, zero export,

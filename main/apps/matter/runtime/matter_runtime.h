@@ -35,6 +35,10 @@ typedef struct {
      * failure if cleanup fails; runtime still revokes candidacy and stays Idle.
      * An omitted callback leaves disposal to the application. */
     Matter_Result_T (*discard)(void*,uint64_t artifact);
+    /* Optional bounded owner-thread read: -1 unknown, otherwise 0..100 percent
+     * of this download. No I/O/reentry. Invalid values are reported unknown.
+     * Zero-initialize omitted callbacks; consumers must rebuild for this field. */
+    int (*progress)(void*);
 } Matter_Runtime_Ota_Port_T;
 typedef struct {
     const Matter_Root_Config_T* identity; /* Copied, including caller's UniqueID. */

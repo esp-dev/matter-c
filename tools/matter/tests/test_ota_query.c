@@ -11,7 +11,8 @@ void matter_test_free(void* p) { if(p) { CHECK(live); --live; } free(p); }
 #endif
 typedef struct {
     uint64_t generation,job,now; uint32_t random;
-    unsigned starts,cancels,available,expected_token; uint8_t state,im; bool ready,fail_state;
+    unsigned starts,cancels,available,expected_token; uint8_t state,reason,im; bool ready,fail_state;
+    Matter_Result_T take_result;
     uint8_t response[1024]; size_t size; Matter_Tlv_Writer_T writer;
     uint8_t extra[513]; char uri[258],version[66];
     Matter_Ota_Offer_T offer; Matter_Ota_Query_T query;
@@ -24,12 +25,12 @@ static Matter_Result_T start(void* u,const Matter_Ota_Provider_T* p,const uint8_
 }
 static Matter_Result_T take(void* u,uint64_t id,uint8_t* im,const uint8_t** d,size_t* n) {
     Test* t=u; CHECK(id==t->job); if(!t->ready) return MATTER_PENDING;
-    t->ready=false; t->job=0; *im=t->im; *d=t->response; *n=t->size; return MATTER_OK;
+    t->ready=false; t->job=0; *im=t->im; *d=t->response; *n=t->size; return t->take_result;
 }
 static void cancel(void* u,uint64_t id) { Test* t=u; CHECK(id==t->job); ++t->cancels; }
 static Matter_Result_T state(void* u,uint8_t s,uint8_t reason,uint64_t now) {
     Test* t=u; CHECK(reason<=4); CHECK(now>=t->now); if(t->fail_state) return MATTER_PORT_ERROR;
-    t->state=s; return MATTER_OK;
+    t->state=s; t->reason=reason; return MATTER_OK;
 }
 static void available(void* u,const Matter_Ota_Provider_T* p,const Matter_Ota_Image_T* i) {
     Test* t=u; CHECK(p->node==42); CHECK(i->version==2 && i->token_size==(t->expected_token?t->expected_token:8)); ++t->available;
@@ -93,15 +94,17 @@ static void policy(void) {
     t->generation=2; pump(t,1); CHECK(t->cancels==1); pump(t,2); CHECK(t->cancels==1);
     CHECK(matter_ota_query_delete(t->query)==MATTER_BUSY); response(t,0,0,true); pump(t,3); CHECK(!t->available && t->state==1); destroy(t);
     t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0); pump(t,65000); CHECK(t->cancels==1);
-    response(t,2,0,false); pump(t,65001); CHECK(t->state==3); destroy(t);
+    response(t,2,0,false); pump(t,65001); CHECK(t->state==1); destroy(t);
     t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0));
     t->fail_state=true; CHECK(matter_ota_query_process(t->query,0)==MATTER_PENDING);
     CHECK(matter_ota_query_process(t->query,0)==MATTER_PORT_ERROR && !t->starts); t->fail_state=false; pump(t,1); CHECK(t->starts==1); destroy(t);
-    t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0); response(t,1,-1,false); pump(t,1); CHECK(t->state==3);
+    /* Busy without its required delay is malformed, not a valid Busy reply. */
+    t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0); response(t,1,-1,false); pump(t,1); CHECK(t->state==1);
     pump(t,120000); CHECK(t->starts==1); pump(t,120001); CHECK(t->starts==2); destroy(t);
     for(unsigned bdx=0;bdx<2;++bdx) {
         t=setup(bdx!=0); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
-        response(t,0,10,true); pump(t,1); pump(t,10000); CHECK(!t->available); pump(t,10001); CHECK(t->available==bdx); destroy(t);
+        response(t,0,10,true); pump(t,1); CHECK(t->state==1);
+        pump(t,10000); CHECK(!t->available); pump(t,10001); CHECK(t->available==bdx); destroy(t);
     }
     t=setup(true); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0); response(t,0,UINT32_MAX,true);
     pump(t,1); pump(t,UINT64_C(4294967295000)); CHECK(!t->available); pump(t,UINT64_C(4294967295001)); CHECK(t->available==1); destroy(t);
@@ -118,6 +121,26 @@ static void policy(void) {
         pump(t,1); CHECK(!t->available); destroy(t);
     }
     puts("PASS OTA policy: normal/Busy/delay/urgent/global floor/generation/cancel/timeout/state failure/available");
+}
+static void retry_states(void) {
+    /* Core 11.20.7.4 UpdateStateEnum: DelayedOnQuery denotes a Busy response,
+     * not a transport/IM/decoding error. Backoff still applies while Idle. */
+    for(unsigned mode=0;mode<6;++mode) {
+        Test* t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
+        response(t,mode==0?1:2,mode==0?180:0,false);
+        if(mode==1) t->im=0x9c;
+        if(mode==2) t->take_result=MATTER_PORT_ERROR;
+        if(mode==3) t->im=MATTER_IM_FAILURE;
+        if(mode==4) t->size=1;
+        if(mode==5) { t->ready=false; pump(t,65000); CHECK(t->cancels==1); t->ready=true; }
+        uint64_t now=mode==5?65001:1;
+        pump(t,now);
+        CHECK(t->state==(mode<2?3:1) && t->reason==(mode<2?4:2));
+        uint64_t due=now+(mode==0?180000:120000);
+        pump(t,due-1); CHECK(t->starts==1 && t->state==(mode<2?3:1));
+        pump(t,due); CHECK(t->starts==2 && t->state==2); destroy(t);
+    }
+    puts("PASS OTA retry state: Busy remains DelayedOnQuery; transport/IM/TLV/timeout errors remain Idle during unchanged backoff");
 }
 static void client(void) {
     const uint8_t fields[]={0x15,0x24,0,2,0x18};
@@ -186,7 +209,7 @@ static void boundaries(void) {
     }
     puts("PASS QueryImageResponse URI256/version64/token32/metadata512 and each over-limit rejection");
 }
-int main(void) { client(); policy(); boundaries();
+int main(void) { client(); policy(); retry_states(); boundaries();
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live); puts("PASS Query/Invoke constructor OOM and allocation ownership");
 #endif

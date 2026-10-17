@@ -246,7 +246,16 @@ the preceding binary retains it. All five real-time scenarios pass under Memchec
 with separate sanitizer acceptance of retry/restart and disposal. The existing
 Apply delay policy remains unchanged. Counts become 97 PASS, 14 FAIL,
 10 BLOCKED, 37 MANUAL, 704 NA. See [evidence and limits](oss/csa23-validation.md).
-**Next task: CSA24 — automatic TC_SU_2_5, provider IPC, subscriptions and interruption.**
+CSA24 executes unmodified automatic TC_SU_2_5 (run449): both delay/provider-loss
+scenarios pass, but Discontinue fails when its progress subscription exceeds
+the host's three-per-fabric budget after earlier state handlers are retained.
+Query backoff state and actual download progress are corrected and validated
+under Memcheck and separate sanitizers. The official Python row is FAIL, not
+automatic acceptance; the suspected resource assumption is not confirmed by CSA.
+Counts become 97 PASS, 15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA. See
+[evidence and limits](oss/csa24-validation.md) and [delta](oss/csa24-results.json).
+**Next task: CSA24a — resolve the automatic test's subscription-capacity assumption
+without changing protocol semantics, then rerun the complete unchanged case.**
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

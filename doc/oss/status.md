@@ -1,5 +1,20 @@
 # Development status
 
+**CSA24: automatic TC_SU_2_5 FAIL, run449.** Both AwaitNextAction/provider-loss
+scenarios pass. The Discontinue step fails before OTA assertions when creating
+the fourth live subscription; two obsolete UpdateState subscriptions remain
+active in the unmodified script. The host declares/supports three per fabric,
+the Core minimum. This resource assumption needs clarification; it is not a
+CSA-confirmed test defect. No PICS, capacity or assertions were changed for PASS.
+Query errors now wait in Idle with unchanged retry limits, and an optional OTA
+callback provides real download progress. Ten focused Linux tests pass in each
+build. Full Memcheck and separate ASan/UBSan/LSan retry/update/restart scenarios
+pass; Memcheck has 55265 matched allocations/frees and zero errors/live bytes.
+Counts: **97 PASS, 15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA**. Only the Python row
+changes; manual CSA23 and other results are inherited. See
+[evidence and limits](csa24-validation.md) and [delta](csa24-results.json).
+**Next: CSA24a — resolve the automatic test's subscription-capacity assumption.**
+
 Native Windows desktop is implemented in C/Win32: independent node processes
 from one EXE, per-user state, integration selection/removal, ±10 kW slider and
 runtime-gated QR/status. The interface is English and includes a transparent
@@ -9,7 +24,7 @@ boots, 59064 matched allocations/frees, zero errors/live bytes) and separately
 ASan/UBSan/LSan. Eight focused Linux tests pass per build; Windows QR CTest passes.
 GUI choice/QR/slider and restore were inspected; exhaustive Win32 memory stress
 and ecosystem UI acceptance remain unperformed. REST sources are not implemented.
-CSA counts/next CSA24 task are unchanged. See [usage](../desktop.md) and
+The desktop changes did not alter CSA counts. See [usage](../desktop.md) and
 [evidence](desktop-validation.md).
 
 The minimal sensor now optionally adds EEM with `--sensor-energy`: separate
@@ -31,8 +46,8 @@ Sensor (endpoint 1), with no On/Off or EEM. It is separate from the earlier
 sharing the physical interface's host name with other simulated nodes. Exact
 inventory, Read/Subscribe, restart/fresh CASE and removal are checked by the
 optional CHIP runner. The user confirmed a value under `Energia` for this
-EPM-only snapshot; CSA counts and next
-CSA24 task remain unchanged. See [minimal profile](sensor-only-validation.md).
+EPM-only snapshot; that experiment did not alter CSA counts.
+See [minimal profile](sensor-only-validation.md).
 
 The optional `--test-power-only` host mode adds Electrical Sensor endpoint 6
 with Descriptor/EPM/Power Topology, 123 W and no On/Off or EEM. The socket and
@@ -59,7 +74,7 @@ passes under Memcheck and separately ASan/UBSan/LSan, including corrupt-state
 startup rejection. Manual Apple Home on iOS 27.0.1 recovered online and showed
 600 after On; the user reports its unit as `T`, unresolved UI labeling.
 Energy totals in that UI are not confirmed. These are interoperability results,
-not new CSA acceptance; counts and next CSA24 task below are unchanged.
+not new CSA acceptance; that experiment did not alter CSA counts.
 See [metered socket evidence and limits](plug-energy-validation.md).
 
 **CSA23: TC-SU-2.5 manual PASS, run446**, five verification steps and evidence
@@ -76,7 +91,7 @@ CTests. Counts: **97 PASS, 14 FAIL, 10 BLOCKED, 37 MANUAL, 704 NA**; this is man
 acceptance, not automatic CSA coverage or certification. Other rows are inherited.
 Consumers must rebuild for the appended optional OTA port callback. See
 [CSA23 evidence and limits](csa23-validation.md) and [delta](csa23-results.json).
-**Next: CSA24 — automatic TC_SU_2_5, provider IPC, subscriptions and interruption.**
+The separate automatic Python case is now recorded in CSA24 above.
 
 **CSA22: TC-SU-2.4 manual PASS, run445**, with its required verification step
 and evidence upload. Peer JSON traces prove ApplyUpdateRequest uses the latest

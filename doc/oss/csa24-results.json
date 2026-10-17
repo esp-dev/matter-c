@@ -1,0 +1,231 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa23-results.json",
+  "previous_sha256": "c82cb3d70f40b499ba44df406511b1b47175a87a1de865ee6138348a2e0d238f",
+  "scope": "Unmodified SDK Python TC_SU_2_5 with isolated C requestor and CHIP provider IPC; official FAIL on fourth concurrent subscription, not certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 15,
+    "BLOCKED": 9,
+    "MANUAL": 37,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC_SU_2_5",
+      "collection": "SDK Python Tests",
+      "endpoint": 0,
+      "previous": "BLOCKED",
+      "status": "FAIL",
+      "run_id": 449,
+      "reason": "Discontinue step cannot create UpdateStateProgress subscription: RESOURCE_EXHAUSTED after retaining three UpdateState subscriptions; host budget is three per fabric."
+    }
+  ],
+  "official_automatic": {
+    "case": "TC_SU_2_5",
+    "run_id": 449,
+    "harness_state": "failed",
+    "step_states": {
+      "passed": 5,
+      "failed": 1
+    },
+    "await_60_provider_loss": "passed",
+    "await_180_provider_loss": "passed",
+    "discontinue": "failed before progress subscription and OTA assertions",
+    "failure": "IM RESOURCE_EXHAUSTED (0x89), TC_SU_2_5.py:382",
+    "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "official_log_sha256": "d0a905416cc3b3131a172268a5850405ea10c10ffd7643b7fe99dc8026894126",
+    "raw_result_sha256": "8f074de0775e4785c33afd0f6cf0d0823a7ddc854d37b3f80c56609ae0a5167d",
+    "source_sha256": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+    "subscription_helper_sha256": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322",
+    "artifacts": {
+      "matter-node-final": {
+        "bytes": 2244688,
+        "sha256": "5731b242362edc2ad617bf1ec9e584251ce5c5ea306b928a94f7210c904301c0"
+      },
+      "chip-ota-provider-app": {
+        "bytes": 63959632,
+        "sha256": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40"
+      },
+      "source-final.ota": {
+        "bytes": 262342,
+        "sha256": "cdb6c0ebcebaec34d292f081074b1aed39d81d3a50b21b3eb3bb542c9353ed62"
+      },
+      "public-final.sec1": {
+        "bytes": 65,
+        "sha256": "4444cac01b1a55aa24556a0ff52a7fd20e62c3a05e5a95d7815be6bb88e0a619"
+      },
+      "provider-wrapper-final": {
+        "bytes": 192,
+        "sha256": "85efe55184f4a240742e83cbf6f60d416217b5636d92d633d0945fabe9f6944e"
+      },
+      "attempt3/node.log": {
+        "bytes": 70409,
+        "sha256": "3379461f9288f1c674cc043ee748bb5aae8c5943c20eb18fe997c57e7771669a"
+      },
+      "attempt3/node.err": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "attempt3/provider.log": {
+        "bytes": 1029200,
+        "sha256": "10574ce82f734b2aa761051c071fdb5f57ade4635bb8862fd8fe58012f5e9f4f"
+      }
+    },
+    "fixture_node_stopped": true,
+    "node_stderr_bytes_after_stop": 0
+  },
+  "source_base_commit": "de425fca5e651160825062a609a908f94592b8a4",
+  "build": {
+    "source_files": 360,
+    "source_manifest_sha256": "211855c128f2023aa65af82cb590a7ff0616fa120af05fe2d6056384224ff3cb",
+    "variants": {
+      "normal": {
+        "binary_sha256": "5731b242362edc2ad617bf1ec9e584251ce5c5ea306b928a94f7210c904301c0",
+        "warnings": [],
+        "ctest_summary": [
+          "100% tests passed, 0 tests failed out of 10"
+        ],
+        "evidence_sha256": {
+          "normal-build.log": "7ad438e8ac3a118c2749118c7d1402175b675b7d10843e97c918c9b2aa4ec4d2",
+          "normal-compile.log": "83c4e5b2bf6d43cff53bd64af315f4670e0307e740b43ceb4cb32dc87b3e0331",
+          "normal-tests.log": "a4c412d6f9f1b6f405f558a484401dfa9a590ab35745836abb5a261f8c77b5ad"
+        }
+      },
+      "sanitize": {
+        "binary_sha256": "ae2ef6236afd15ed6f21208be568c2b71827c1b8eb684d0070874228d94b2701",
+        "warnings": [],
+        "ctest_summary": [
+          "100% tests passed, 0 tests failed out of 10"
+        ],
+        "evidence_sha256": {
+          "sanitize-build.log": "768cb326b60d7110ec912460be633528e047c160a1663cd5f29225c6f2e13776",
+          "sanitize-compile.log": "73ca849044b24037142cf72c253857e355d386949b7684f77253f5c032ddaeeb",
+          "sanitize-tests.log": "dcd875e7b96a12e16b7c38d993a1f0f2f623ee33c5051d410850592d33b22741"
+        }
+      }
+    }
+  },
+  "normative_basis": {
+    "revision": "Matter 1.6.1",
+    "query_state": "11.20.7.4, UpdateStateEnum",
+    "progress": "11.20, UpdateStateProgress",
+    "subscribe_minimum": "2.11.2.2, at least three per fabric",
+    "resource_status": "8.2.5.3",
+    "capability_minima": "11.1.4.4, SubscriptionsPerFabric"
+  },
+  "classification_limit": "Suspected harness resource assumption, not a CSA-confirmed test defect. No host capacity, PICS or official assertions changed to obtain PASS. Separate manual TC-SU-2.5 retains CSA23 result.",
+  "external_tools": {
+    "harness_sdk_commit": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+    "provider_source_commit": "3bcdd56ba54fb88b2afb4bfef575014671df7aa7",
+    "provider_source_clean_at_fixture_preparation": true,
+    "mbedtls": "official upstream v3.6.0"
+  },
+  "laboratory_runs": {
+    "final-memcheck-await-60": {
+      "result": "PASS",
+      "checks": 21,
+      "boots": 2,
+      "valgrind": true,
+      "binaries": {
+        "requestor": "5731b242362edc2ad617bf1ec9e584251ce5c5ea306b928a94f7210c904301c0",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "delay": {
+        "minimum_seconds": 120,
+        "measured_ms": 120193,
+        "clock": "provider response-send-to-retry-receive"
+      },
+      "memcheck_summaries": {
+        "valgrind-1.log": [
+          "==915789==     in use at exit: 0 bytes in 0 blocks",
+          "==915789==   total heap usage: 35,692 allocs, 35,692 frees, 4,231,420 bytes allocated",
+          "==915789== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ],
+        "valgrind-2.log": [
+          "==915797==     in use at exit: 0 bytes in 0 blocks",
+          "==915797==   total heap usage: 19,573 allocs, 19,573 frees, 1,498,867 bytes allocated",
+          "==915797== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ]
+      },
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "1ebabccc165d3837b333ff7433fd0d72a8fc80ab46f731b2aa3ce5b19dc2d964",
+        "provider.log": "3cfc11fce93d7eb367751ea15270801e6df17dc159537dbb5c59d9313245e652",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "0572530deafa8ac20a174bf87df68a028685addedef6e8866dad5e635d120553",
+        "node-1.log": "af16d6054328cfb27009addcc8dd3594258abf8fd8d7ed3c683d8dbf157962af",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "47a5301fe5edcc2e2c83b6b3311516af7cc49a43da60c9707a2d9044a66f40a6",
+        "valgrind-2.log": "3f00499f7d60e53e600ba67df2ea7af01fc763895b02ffd47acc8055ccbac39b",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "dcba0e54227efea450e023a73db2702fab151c4777bfdf648b1832335a55f9f7",
+        "fresh-reader/interactive.log": "c7094348b42a6eb95771fbf22708e54164b95a1ab55a294494532cbd30e0a2d6",
+        "controller/interactive.log": "5d4da5f4e0887a0adb2ada218dad7fd2549bb3108f1bf6cf15668bc896394752"
+      }
+    },
+    "final-sanitize-await-60": {
+      "result": "PASS",
+      "checks": 21,
+      "boots": 2,
+      "valgrind": false,
+      "binaries": {
+        "requestor": "ae2ef6236afd15ed6f21208be568c2b71827c1b8eb684d0070874228d94b2701",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "delay": {
+        "minimum_seconds": 120,
+        "measured_ms": 120177,
+        "clock": "provider response-send-to-retry-receive"
+      },
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "c59bd9eae02225138ed3b3d042f08b3393dc731e2d36256fbe9010b43d3b3917",
+        "provider.log": "2d6c4d13439f3aadab76007c91269de3a8f631be044940fe189f5868d1cc1bda",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "a40c7c614fe01eb1a969403e8d4bcf5f054b49e0fbf6e32d1e7856c7cd85c997",
+        "node-1.log": "b061f0f9e0e74a54c6459fc55a92e7fd45b4efd2c0bba11407f9484cdffd2b95",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "controller/commands.txt": "dcba0e54227efea450e023a73db2702fab151c4777bfdf648b1832335a55f9f7",
+        "fresh-reader/interactive.log": "72b491a99760e54fb4538cb2d77e620513361f11e33706efc87511df1178f0e6",
+        "controller/interactive.log": "0e051da9ac55dd394dbcb3e1d14a7e6ddcdddeb03d44e91537999dd18d8539a0"
+      }
+    }
+  },
+  "red_regression": {
+    "original_library_exit": 1,
+    "failed_assertion": "query:97 t->state==1",
+    "log_sha256": "19b5cdeb4a5c4e011a4ec4c92f843d33ac361a40962e71271191bbd91c46ce69"
+  },
+  "superseded_official_runs": [
+    {
+      "run_id": 447,
+      "state": "aborted",
+      "reason": "diagnosed original non-Busy backoff state; not PASS or FAIL"
+    },
+    {
+      "run_id": 448,
+      "state": "aborted",
+      "reason": "first delay scenario passed; stopped before completion to include progress fix; not full PASS or FAIL"
+    }
+  ],
+  "not_verified": [
+    "Automatic Discontinue/progress assertions after subscription rejection",
+    "Windows OTA execution for this snapshot",
+    "Physical firmware installation/bootloader",
+    "Full CSA campaign or certification"
+  ],
+  "next": "CSA24a: resolve automatic subscription-capacity assumption, then rerun unchanged complete case.",
+  "hash_encoding": "Previous report exact Git blob bytes; private evidence filesystem bytes; PICS sorted compact JSON. Raw keys, state, PINs and controller credentials excluded."
+}

@@ -28,7 +28,7 @@ struct Matter_Runtime {
     Matter_Cluster_T admin,ota; uint16_t enhanced_discriminator;
     Matter_Resolver_Port_T resolver; Matter_Case_Resumption_Profile_T resumption_profile;
     Matter_Udp_Path_T outbound; Matter_Ota_Query_T query; uint64_t now;
-    Matter_Runtime_Ota_Port_T ota_port; bool has_ota; uint64_t download; uint32_t download_version;
+    Matter_Runtime_Ota_Port_T ota_port; bool has_ota; uint64_t download; uint32_t download_version; int download_progress;
     Matter_Ota_Apply_T apply; Matter_Ota_Apply_Context_T candidate;
     Matter_Ota_Update_T update; Matter_Ota_Signed_T proof;
     uint64_t notify; uint8_t notify_args[48]; bool ota_reboot,applied_event;
@@ -437,7 +437,8 @@ static void query_available(void* u,const Matter_Ota_Provider_T* p,const Matter_
     Matter_Result_T r=s->ota_port.prepare(s->ota_port.user,image->version);
     if(r==MATTER_OK) r=matter_dispatch_bdx(s->dispatch,p->fabric,p->node,fd,strlen((const char*)fd),&sink,s->ota_port.limit,&s->download);
     if(r==MATTER_PENDING) {
-        (void)matter_ota_requestor_state(s->ota,s->update!=NULL,4,0,1,image->version,s->now); matter_dispatch_changed(s->dispatch);
+        s->download_progress=s->ota_port.progress?-1:0;
+        (void)matter_ota_requestor_state(s->ota,s->update!=NULL,4,s->download_progress,1,image->version,s->now); matter_dispatch_changed(s->dispatch);
         runtime_log(s,"OTA_DOWNLOAD version=%lu\n",(unsigned long)image->version);
     } else { s->download=0; erase(&s->candidate,sizeof(s->candidate)); s->ota_port.cancel(s->ota_port.user); runtime_log(s,"OTA_DOWNLOAD_FAILED start=%d\n",r); }
 }
@@ -445,7 +446,17 @@ static void download_process(Matter_Runtime_T s) {
     if(!s->download) return;
     if(s->stopping || s->reset) matter_dispatch_invoke_cancel(s->dispatch,s->download);
     uint64_t bytes=0; Matter_Result_T r=matter_dispatch_bdx_take(s->dispatch,s->download,&bytes);
-    if(r==MATTER_PENDING) return;
+    if(r==MATTER_PENDING) {
+        if(s->ota_port.progress) {
+            int progress=s->ota_port.progress(s->ota_port.user);
+            if(progress< -1 || progress>100) progress=-1;
+            if(progress!=s->download_progress &&
+                matter_ota_requestor_state(s->ota,s->update!=NULL,4,progress,1,s->download_version,s->now)==MATTER_OK) {
+                s->download_progress=progress; matter_dispatch_changed(s->dispatch);
+            }
+        }
+        return;
+    }
     s->download=0;
     if(r==MATTER_OK && !s->stopping && !s->reset && s->candidate.generation &&
         ota_generation(s,s->candidate.provider.fabric)==s->candidate.generation) r=s->ota_port.commit(s->ota_port.user);

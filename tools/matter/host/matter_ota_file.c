@@ -103,6 +103,11 @@ static Matter_Result_T finish_file(void* u,uint64_t bytes) {
 }
 static void cancel_file(void* u) { matter_ota_file_cancel(u); }
 Matter_Bdx_Sink_T matter_ota_file_sink(Matter_Ota_File_T f) { return (Matter_Bdx_Sink_T){f,open_file,write_file,finish_file,cancel_file}; }
+int matter_ota_file_progress(Matter_Ota_File_T f) {
+    if(!f || (!f->owned && !f->ready) || !f->parsed || !f->total || f->total>MATTER_OTA_FILE_LIMIT || f->received>f->total) return -1;
+    /* Header/write validation bounds both counters to 64 MiB. */
+    return (int)(f->received*100/f->total);
+}
 Matter_Result_T matter_ota_file_commit(Matter_Ota_File_T f) {
     if(!f || !f->ready || !f->owned || f->file || f->serial==UINT64_MAX) return MATTER_INVALID_STATE;
     if(rename(f->partial,f->path)) return MATTER_PORT_ERROR;
