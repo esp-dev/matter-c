@@ -1,0 +1,77 @@
+--- a/TC_SU_2_5.py
++++ b/TC_SU_2_5.py
+@@ -52,6 +52,7 @@
+ 
+ import asyncio
+ import logging
++import time
+ 
+ from mobly import asserts
+ from TC_SUTestBase import SoftwareUpdateBaseTest
+@@ -210,7 +211,7 @@
+             expected_attribute=Clusters.OtaSoftwareUpdateRequestor.Attributes.UpdateState
+         )
+         await software_version_attr_handler.start(dev_ctrl=self.controller, node_id=self.requestor_node_id, endpoint=0,
+-                                                  fabric_filtered=False, min_interval_sec=0, max_interval_sec=5)
++                                                  fabric_filtered=False, min_interval_sec=0, max_interval_sec=5, keepSubscriptions=False)
+         await update_state_attr_handler.start(dev_ctrl=self.controller, node_id=self.requestor_node_id, endpoint=0,
+                                               fabric_filtered=False, min_interval_sec=0, max_interval_sec=5)
+         await self.announce_ota_provider(self.controller, self.provider_node_id, self.requestor_node_id)
+@@ -267,6 +268,9 @@
+ 
+         # Software version should stay the same as the second ApplyUpdateRequest was not sent when the provider was terminated before re-sending the ApplyUpdateRequest
+         await self.verify_version_applied_basic_information(controller=self.controller, node_id=self.requestor_node_id, target_version=current_sw_version)
++
++        # The next scenario owns a fresh subscription; stop automatic resubscription.
++        update_state_attr_handler.cancel()
+ 
+         self.step(4)
+         delayed_apply_action_time = 180
+@@ -298,7 +302,7 @@
+             expected_attribute=Clusters.OtaSoftwareUpdateRequestor.Attributes.UpdateState
+         )
+         await update_state_attr_handler.start(dev_ctrl=self.controller, node_id=self.requestor_node_id, endpoint=0,
+-                                              fabric_filtered=False, min_interval_sec=0, max_interval_sec=5)
++                                              fabric_filtered=False, min_interval_sec=0, max_interval_sec=5, keepSubscriptions=False)
+         await software_version_attr_handler.start(dev_ctrl=self.controller, node_id=self.requestor_node_id, endpoint=0,
+                                                   fabric_filtered=False, min_interval_sec=0, max_interval_sec=5)
+         await self.announce_ota_provider(self.controller, self.provider_node_id, self.requestor_node_id)
+@@ -351,6 +355,9 @@
+ 
+         # Verify the version is the same as the second ApplyUpdateRequest was not sent.
+         await self.verify_version_applied_basic_information(controller=self.controller, node_id=self.requestor_node_id, target_version=current_sw_version)
++
++        # The next scenario owns a fresh subscription; stop automatic resubscription.
++        update_state_attr_handler.cancel()
+ 
+         self.step(5)
+         extra_arguments = ['--applyUpdateAction', 'discontinue'] + self.provider_pipe_arguments
+@@ -378,7 +385,7 @@
+             expected_attribute=Clusters.OtaSoftwareUpdateRequestor.Attributes.UpdateStateProgress
+         )
+         await update_state_attr_handler.start(dev_ctrl=self.controller, node_id=self.requestor_node_id, endpoint=0,
+-                                              fabric_filtered=False, min_interval_sec=0, max_interval_sec=5)
++                                              fabric_filtered=False, min_interval_sec=0, max_interval_sec=5, keepSubscriptions=False)
+         await download_progress_attr_handler.start(dev_ctrl=self.controller, node_id=self.requestor_node_id, endpoint=0,
+                                                    fabric_filtered=False, min_interval_sec=0, max_interval_sec=5)
+ 
+@@ -419,10 +426,15 @@
+                     progress_seen = True
+             return bool(value is NullValue and progress_seen)
+ 
+-        download_progress_attr_matcher_obj = AttributeMatcher.from_callable(
+-            description="Waiting Download to Complete ", matcher=check_ota_download_matcher)
+-        download_progress_attr_handler.await_all_expected_report_matches(
+-            [download_progress_attr_matcher_obj], timeout_sec=self.ota_image_download_timeout)
++        # A stateful predicate must see each report once, in receive order.
++        # Replaying history can mistake an initial null for completion after 1%.
++        deadline = time.monotonic() + self.ota_image_download_timeout
++        while True:
++            remaining = deadline - time.monotonic()
++            asserts.assert_greater(remaining, 0, "Timed out waiting for OTA download completion")
++            report = download_progress_attr_handler.wait_next_report(timeout_sec=remaining)
++            if check_ota_download_matcher(report):
++                break
+         download_progress_attr_handler.reset()
+         download_progress_attr_handler.cancel()
+ 

@@ -1,8 +1,15 @@
 # Test inventory
 
-test-map.json enumerates 234 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 235 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+`test_csa24_progress.py` is an optional offline regression for an externally
+supplied SDK test/helper source. It executes the actual progress-wait AST using
+deterministic report queues and clocks, checks negative/positive chronological
+sequences and bounded timeout, and verifies preservation of original assertions
+and scenario subscription ownership. It is not a default CTest or official CSA
+result; see the local patch contract in `tools/matter/patches/README.md`.
 
 CMake defines 87 native test variants, with explicit platform/privilege filters.
 Default CTest totals: 88 on Windows, 85 on Linux, including inventory, crash

@@ -1,3 +1,5 @@
 * text=auto eol=lf
 # Preserve the exact upstream bytes recorded in the export inventory.
 tools/matter/host/vendor/mdns/* -text
+# Unified diff context deliberately contains space-prefixed empty lines.
+tools/matter/patches/*.patch whitespace=-blank-at-eol,-blank-at-eof

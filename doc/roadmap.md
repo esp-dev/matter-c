@@ -264,6 +264,14 @@ the behavior; it is not a CSA-approved test correction. Counts stay 97 PASS,
 15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA. See [evidence](oss/csa24a-validation.md).
 **Next task: CSA24b — prepare the progress-predicate evidence for CSA and agree
 accepted test execution without changing legitimate device progress semantics.**
+CSA24b now has a pinned local patch: chronological FIFO progress, a bounded
+monotonic wait and scenario subscription cleanup. The original predicate and
+assertions are retained. Source regressions pass 11/11 on Windows/Linux, with
+negative original-source controls. Full LOCAL-PATCH acceptance awaits the
+operator action on the root-owned SDK file; no official result is relabelled.
+See [record and pending verification](oss/csa24b-validation.md).
+The immediate next action is that corrected full run with budget three/transport
+56 and exact source restoration, followed by TC-SU-2.6 NotifyUpdateApplied.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

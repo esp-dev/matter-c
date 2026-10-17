@@ -1,5 +1,19 @@
 # Development status
 
+**CSA24b: local SDK test correction prepared; full TH run pending operator step.**
+The patch consumes progress FIFO reports once under one monotonic deadline and
+cleans up scenario subscriptions so the intended live set fits the default
+budget of three. The original predicate and every original assertion remain.
+The original source fails three regression controls; the corrected source passes
+all 11 on Windows and Linux. The installed SDK file is root-owned; the prepared
+operator action is needed before the isolated LOCAL-PATCH run can start.
+The original official result/counts are unchanged; a corrected local PASS will
+remain separate from unmodified CSA acceptance. See
+[prepared patch, evidence and limits](csa24b-validation.md) and
+[record](csa24b-results.json).
+**Next: complete the operator step, full corrected TH run and source restoration;
+then TC-SU-2.6 NotifyUpdateApplied.**
+
 **Memory target: 128 kB device RAM.** The CSA24a transaction table still reserves
 the entire configured budget at construction. This is an interim host mechanism.
 The planned embedded migration must allocate individual live contexts/buffers

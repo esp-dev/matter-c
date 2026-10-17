@@ -2466,6 +2466,14 @@
       "entrypoint": "python tools/matter/tests/test_gui_host_chip.py --help; Memcheck, then separate sanitizers; disposable profiles only.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_csa24_progress.py",
+      "kind": "optional-source-regression",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_csa24_progress.py --test-source /path/to/TC_SU_2_5.py --helper-source /path/to/event_attribute_reporting.py --original-source /path/to/original/TC_SU_2_5.py",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
     }
   ],
   "local_only_files": []

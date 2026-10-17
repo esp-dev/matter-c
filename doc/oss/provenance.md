@@ -3,6 +3,11 @@
 First-party code: Apache-2.0, selected by the project owner. See root LICENSE.
 Retained third-party material keeps its original terms; see NOTICE.
 
+- Optional SDK test correction: `tools/matter/patches/TC_SU_2_5-progress-order.patch`
+  modifies Apache-2.0 `TC_SU_2_5.py`, Copyright (c) 2025 Project CHIP Authors.
+  Exact original/patched hashes, scope and local-only acceptance rules are in
+  `tools/matter/patches/README.md`. The complete test/TH distribution is not bundled.
+
 - Desktop QR image generator: nayuki/QR-Code-generator v1.8.0, commit
   720f62bddb7226106071d4728c292cb1df519ceb; MIT. Unmodified C/header, full
   copyright/license and SHA-256 inventory in third_party/qrcodegen.

@@ -240,6 +240,12 @@ premature progress-history matching in the unmodified test. A minimal replay of
 the original helper/predicate reproduces that behavior; no CSA-approved test fix
 or automatic PASS is claimed. Defaults and existing paired Windows nodes remain.
 
+The [CSA24b correction](doc/oss/csa24b-validation.md) is an explicit local SDK
+test patch with 11 passing source regressions and preserved original assertions.
+It consumes progress reports chronologically and cleans up scenario subscriptions.
+Full TH execution awaits the operator step on its root-owned test file; no new
+official CSA PASS is claimed.
+
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or
 `build/matter-host/gcc/matter-node.exe`. An unknown option prints usage and exits 2.

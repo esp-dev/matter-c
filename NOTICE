@@ -4,6 +4,9 @@ The project owner's first-party code is licensed under the Apache License,
 Version 2.0. See LICENSE. This does not relicense third-party material.
 
 Third-party notices:
+- Optional TC_SU_2_5 test patch: Copyright (c) 2025 Project CHIP Authors,
+  Apache-2.0. This repository supplies local modifications as a patch;
+  see tools/matter/patches/README.md. The full SDK/TH source is not bundled.
 - Nayuki QR Code generator v1.8.0: MIT; copyright and full license are retained
   in third_party/qrcodegen/qrcodegen.c and qrcodegen.h. Desktop executable only.
 - mjansson/mdns: Unlicense; see tools/matter/host/vendor/mdns/LICENSE and mdns.h.
