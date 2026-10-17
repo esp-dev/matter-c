@@ -1,5 +1,12 @@
 # Development status
 
+**Memory target: 128 kB device RAM.** The CSA24a transaction table still reserves
+the entire configured budget at construction. This is an interim host mechanism.
+The planned embedded migration must allocate individual live contexts/buffers
+on demand and free them after drain; a configured limit is an admission ceiling,
+not an upfront allocation count. This applies to other large pools as well.
+See the [memory-stage requirements](../roadmap.md#3-memory-and-code-size-optimization).
+
 **CSA24a: configurable per-instance subscription budget implemented.** Root's
 advertised CapabilityMinima provisions a dynamically allocated transaction table;
 per-fabric admission uses the same value. Transport feasibility is checked before

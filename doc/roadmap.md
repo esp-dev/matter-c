@@ -282,15 +282,29 @@ Invoke/Write/outbound-IM buffers, expanded-result tables and connection/transpor
 tables. Migrate one subsystem at a time with its error-path, protocol and memory
 tests; preserve the transport ceiling instead of increasing arbitrary capacities.
 
+The target device has **128 kB RAM**. CSA24a's table allocated for the entire
+configured transaction budget is an interim host implementation, not the final
+memory model. A capacity is an admission ceiling, not a request to allocate that
+many contexts. Allocate one transaction/subscription context only when work is
+admitted, keep its address stable while referenced, and release it after its
+last callback/I/O/ACK drain. Apply the same rule to other large tables and payload
+buffers: allocate for actual live use, not the maximum configured capacity.
+Moving a full static array into `calloc(limit, ...)` does not complete this work.
+Any retained cache or upfront reservation needs a measured, documented reason.
+Keep quotas, fabric isolation, OOM rollback and bounded lifetime behavior.
+
 Measure an accepted baseline (flash/text/rodata, stack, steady-state and peak
 heap). Replace oversized fixed-capacity arrays with per-instance dynamic
-allocations sized to actual configuration, with explicit ownership, bounded
+allocations sized to actual live demand, with explicit ownership, bounded
 limits, overflow checks, OOM handling and complete cleanup. Do not introduce
 unbounded allocation in latency-sensitive paths. Replace unexplained numeric
 literals with named `#define` limits/IDs/units; retain intentional protocol
 constants with documented meanings. Avoid changing wire behavior or public
 contracts unnecessarily. Re-run affected CSA and ecosystem cases plus memory
 and multi-instance checks, and compare measured savings to the baseline.
+Account for idle, commissioning, CASE, concurrent subscriptions and OTA peaks,
+including crypto, storage, application and task-stack headroom; host acceptance
+alone does not demonstrate that the complete device fits 128 kB.
 
 Unify duplicated monotonic-time primitives in this stage: checked/saturating
 deadline arithmetic, unit conversion and earliest-deadline selection. Preserve
