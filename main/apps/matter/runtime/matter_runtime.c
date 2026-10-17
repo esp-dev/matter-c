@@ -430,7 +430,10 @@ static void apply_done(void* u,const Matter_Ota_Apply_Context_T* c,Matter_Ota_Ap
 }
 static void query_available(void* u,const Matter_Ota_Provider_T* p,const Matter_Ota_Image_T* image) {
     Matter_Runtime_T s=u;
-    if(!s->has_ota || s->download || matter_ota_apply_busy(s->apply) || image->consent_needed || s->stopping || s->reset) return;
+    if(!s->has_ota || s->download || matter_ota_apply_busy(s->apply) || image->consent_needed || s->stopping || s->reset) {
+        if(!s->download && !matter_ota_apply_busy(s->apply)) (void)query_state(s,1,1,s->now);
+        return;
+    }
     s->download_version=image->version;
     s->candidate=(Matter_Ota_Apply_Context_T){.provider=*p,.generation=ota_generation(s,p->fabric),.version=image->version,.token_size=image->token_size};
     memcpy(s->candidate.token,image->token,image->token_size);
@@ -442,7 +445,10 @@ static void query_available(void* u,const Matter_Ota_Provider_T* p,const Matter_
         s->download_progress=s->ota_port.progress?-1:0;
         (void)matter_ota_requestor_state(s->ota,s->update!=NULL,4,s->download_progress,1,image->version,s->now); matter_dispatch_changed(s->dispatch);
         runtime_log(s,"OTA_DOWNLOAD version=%lu\n",(unsigned long)image->version);
-    } else { s->download=0; erase(&s->candidate,sizeof(s->candidate)); s->ota_port.cancel(s->ota_port.user); runtime_log(s,"OTA_DOWNLOAD_FAILED start=%d\n",r); }
+    } else {
+        s->download=0; erase(&s->candidate,sizeof(s->candidate)); s->ota_port.cancel(s->ota_port.user);
+        (void)query_state(s,1,2,s->now); runtime_log(s,"OTA_DOWNLOAD_FAILED start=%d\n",r);
+    }
 }
 static void download_process(Matter_Runtime_T s) {
     if(!s->download) return;
@@ -459,6 +465,8 @@ static void download_process(Matter_Runtime_T s) {
         }
         return;
     }
+    int progress=s->ota_port.progress?s->ota_port.progress(s->ota_port.user):-1;
+    if(progress< -1 || progress>100) progress=-1;
     s->download=0;
     if(r==MATTER_OK && !s->stopping && !s->reset && s->candidate.generation &&
         ota_generation(s,s->candidate.provider.fabric)==s->candidate.generation) r=s->ota_port.commit(s->ota_port.user);
@@ -470,14 +478,17 @@ static void download_process(Matter_Runtime_T s) {
     }
     if(r!=MATTER_OK) {
         s->ota_port.cancel(s->ota_port.user);
-        (void)matter_ota_requestor_error(s->ota,s->download_version,bytes,-1,NULL,s->now);
+        (void)matter_ota_requestor_error(s->ota,s->download_version,bytes,progress,NULL,s->now);
+        (void)matter_ota_requestor_state(s->ota,s->update!=NULL,1,-1,2,0,s->now);
     }
-    (void)matter_ota_requestor_state(s->ota,s->update!=NULL,1,-1,r==MATTER_OK?1:2,0,s->now);
     matter_dispatch_changed(s->dispatch);
     runtime_log(s,"OTA_DOWNLOAD_%s bytes=%llu version=%lu\n",r==MATTER_OK?"SAVED":"FAILED",(unsigned long long)bytes,(unsigned long)s->download_version);
     if(r==MATTER_OK) {
         s->candidate.artifact=s->ota_port.artifact(s->ota_port.user);
-        if(matter_ota_apply_begin(s->apply,&s->candidate,s->now)!=MATTER_OK) s->ota_port.invalidate(s->ota_port.user);
+        if(matter_ota_apply_begin(s->apply,&s->candidate,s->now)!=MATTER_OK) {
+            s->ota_port.invalidate(s->ota_port.user);
+            (void)matter_ota_requestor_state(s->ota,s->update!=NULL,1,-1,2,0,s->now);
+        }
     }
     erase(&s->candidate,sizeof(s->candidate));
 }

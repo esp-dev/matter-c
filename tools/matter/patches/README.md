@@ -66,3 +66,38 @@ and the original predicate, and verify that each scenario retains its second
 subscription. The original source fails the two replay controls and the scenario
 subscription-lifecycle control; the patched source passes all eleven checks.
 These source regressions are not official CSA acceptance.
+
+## BdxOtaSender-idle-stall.patch
+
+This is a **fault-injection provider**, not a Test Harness correction. It changes
+only a separately built laboratory peer. The C requestor, its timers and the
+official TC-SU-2.7/TC_SU_2_7 sources are not patched by it.
+
+Target: Project CHIP SDK commit `3bcdd56ba54fb88b2afb4bfef575014671df7aa7`,
+`examples/ota-provider-app/ota-provider-common/BdxOtaSender.cpp`, original SHA-256
+`aba5601bcbbde23db6e136742f44e3d749a63bc736dfdee090028ebe9e1b363f`.
+Copyright (c) 2021 Project CHIP Authors, Apache-2.0. The upstream notice is retained
+in the target source; see root LICENSE and NOTICE. Patched-copy SHA-256:
+`f7a859bee28bd95d5d551944f0423ffff71cc87406cf0e8f33edad80ea117e49`.
+
+The patched peer accepts a BlockQuery normally but stops supplying data after
+5120 sent bytes. Secure exchange processing, automatic MRP ACKs and BDX polling
+continue. It does not forge a reply, skip a DUT assertion, accelerate time or
+change the requestor. This permits observing an actual BDX idle timeout;
+terminating the provider instead can cause earlier MRP delivery failure.
+
+Apply only to a separate disposable SDK checkout or compile a copied translation
+unit into a differently named provider. Keep the ordinary provider and SDK source
+unchanged. From the disposable SDK root:
+
+```sh
+patch --dry-run --fuzz=0 -p1 -i /path/to/matter-c/tools/matter/patches/BdxOtaSender-idle-stall.patch
+patch --fuzz=0 -p1 -i /path/to/matter-c/tools/matter/patches/BdxOtaSender-idle-stall.patch
+# Build the provider with the existing SDK recipe/tracing settings into a new output.
+```
+
+Use the separate executable with the laboratory runner's `--stall-provider`
+option and `--mode interrupt-retry --events`. It is used for the first transfer
+only; recovery uses the ordinary provider with the same disposable KVS/image.
+The result records both binary hashes and distinguishes live-MRP stall from
+provider termination. It must not be presented as an unmodified provider run.

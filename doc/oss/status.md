@@ -1,5 +1,18 @@
 # Development status
 
+**CSA26: TC-SU-2.7 manual PASS, run455; TC_SU_2_7 automatic FAIL, run454.**
+Direct Querying/Downloading/Applying handoffs and known DownloadError progress
+are fixed. Seven independent scenarios pass 156 checks, including real BDX Idle
+failure after 300.327 s with MRP alive and successful recovery. Full Memcheck
+has 55192 matched allocations/frees and zero errors/live bytes; separate
+sanitizers are clean. Fifteen focused CTests pass per build. The manual procedure
+has six PASS verifications, consent NOT APPLICABLE and a passed evidence upload.
+The unchanged Python test fails at step1 after missing the query transition that
+occurred during its setup; later steps are not claimed. This is not certification.
+Counts: **97 PASS, 16 FAIL, 6 BLOCKED, 39 MANUAL, 704 NA**; other rows inherited.
+See [evidence and limits](csa26-validation.md) and [record](csa26-results.json).
+**Next: CSA27 — TC_SU_4_1, OTA Requestor cluster attributes.**
+
 **CSA25: TC-SU-2.6 manual PASS in TH run452.** One verification step plus evidence
 upload pass, evaluated against real CHIP Provider traces; this is not automatic
 CSA assertions or certification. Two independent signed simulation updates to
@@ -11,7 +24,7 @@ No C/H, PICS or official test changes were needed. Only this manual row moves
 from BLOCKED to MANUAL/PASS. Counts are **97 PASS, 15 FAIL, 8 BLOCKED, 38 MANUAL,
 704 NA**. Other rows, including the original TC_SU_2_5 FAIL, are inherited.
 See [evidence and limits](csa25-validation.md) and [record](csa25-results.json).
-**Next: CSA26 — TC-SU-2.7 / TC_SU_2_7, OTA Requestor events.**
+Event acceptance follows in CSA26 above.
 
 **CSA24b: full local-corrected TC_SU_2_5 PASS, run451, budget three/transport 56.**
 The patch consumes progress FIFO reports once under one monotonic deadline and

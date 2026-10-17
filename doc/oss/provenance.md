@@ -8,6 +8,12 @@ Retained third-party material keeps its original terms; see NOTICE.
   Exact original/patched hashes, scope and local-only acceptance rules are in
   `tools/matter/patches/README.md`. The complete test/TH distribution is not bundled.
 
+- Optional provider fault fixture: `tools/matter/patches/BdxOtaSender-idle-stall.patch`
+  modifies Apache-2.0 `BdxOtaSender.cpp`, Copyright (c) 2021 Project CHIP Authors.
+  It is for a separate laboratory peer, not the C library or an SDK test change.
+  Its purpose, upstream commit/hashes and build separation are documented in
+  `tools/matter/patches/README.md`; the original SDK is not bundled or modified.
+
 - Desktop QR image generator: nayuki/QR-Code-generator v1.8.0, commit
   720f62bddb7226106071d4728c292cb1df519ceb; MIT. Unmodified C/header, full
   copyright/license and SHA-256 inventory in third_party/qrcodegen.

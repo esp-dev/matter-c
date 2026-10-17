@@ -278,8 +278,15 @@ Memcheck and separate sanitizers pass; no stack, PICS or official test change
 was required. Only this row moves from BLOCKED to MANUAL/PASS; counts become
 97 PASS, 15 FAIL, 8 BLOCKED, 38 MANUAL, 704 NA. Other rows are inherited.
 See [evidence and limits](oss/csa25-validation.md).
-**Next task: CSA26 — TC-SU-2.7 / TC_SU_2_7, OTA Requestor events**, retaining
-the original failures and local patch evidence for CSA review.
+CSA26 fixes event handoff states and known-length DownloadError progress.
+Manual TC-SU-2.7 passes in run455; automatic TC_SU_2_7 fails at step1 in run454
+because its subscription starts after the host's initial query. Official sources
+and PICS remain unchanged. Seven independent scenarios pass 156 checks, including
+live-MRP BDX Idle timing/recovery. Memcheck, separate sanitizers and 15 focused
+tests per build pass. Only these two rows change: 97 PASS, 16 FAIL, 6 BLOCKED,
+39 MANUAL, 704 NA. See [evidence and limits](oss/csa26-validation.md).
+**Next task: CSA27 — TC_SU_4_1, OTA Requestor cluster attributes**, retaining
+original failures and SDK observations for CSA review.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

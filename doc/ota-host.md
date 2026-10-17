@@ -140,21 +140,40 @@ zero and does not declare transfer resumption, HTTPS or requestor user consent.
 ## Relationship to Test Harness
 
 `Matter_Runtime_Ota_Port_T.progress` is an optional synchronous application
-callback for the active download: -1 means unknown and 0..100 is percentage
-complete. It must not block, perform I/O or reenter the runtime. Invalid values
+callback for the active download: -1 means unknown and 0..100 is nearest integer
+percentage complete. It must not block, perform I/O or reenter the runtime. Invalid values
 are exposed as unknown. Consumers must rebuild and zero-initialize omitted
 callbacks. The file adapter derives progress from validated whole-file size and
 received bytes, without extra file reads. The runtime publishes changed integer
 percentages through the existing Requestor attribute and normal IM scheduling;
-it does not emit a StateTransition event for each percentage. Commit/cancel
-ends the file adapter's progress indication. Other application sinks remain
-independent of the file adapter.
+it does not emit a StateTransition event for each percentage. The published
+progress becomes null after the transfer ends. The port retains the terminal
+snapshot through sink cancellation until the next prepare, so DownloadError
+can report known progress. The host uses `matter_ota_file_last_progress()` for
+this snapshot; the older `matter_ota_file_progress()` API still reports unknown
+after commit/cancel. Other application sinks remain independent of the file adapter.
 
 Query retry timing and state indication are separate. An unsuccessful query
 waits in Idle during its existing bounded backoff; DelayedOnQuery denotes a
 Busy response. A successful delayed UpdateAvailable response also waits in Idle
 until download starts. Neither correction changes the global 120-second query
 floor, provider delay, retry backoff or ApplyUpdateResponse policy.
+
+With an immediately usable image, query handoff publishes Downloading directly;
+successful download handoff publishes Applying directly. No transient Idle is
+inserted while the update is still in progress. An owner that declines a query
+handoff must publish Idle itself; the runtime does this on prepare/dispatch failure
+or an unsupported image. Error/cancellation paths still return to Idle.
+
+`--events` subscribes to OTA events before announcement and checks actual
+StateTransition fields, VersionApplied versus fresh Basic Information, and
+DownloadError byte count/nearest percentage for interruption scenarios. Use
+`--mode query-timeout --events` with the ordinary provider's ignore-query option
+to check the failure-to-Idle event without terminating the peer. For a real BDX
+Idle timeout, supply the separate [stall provider](../tools/matter/patches/README.md)
+via `--stall-provider` with `--mode interrupt-retry --events`; it keeps MRP alive.
+Provider termination remains a separate fault scenario. Neither changes the
+requestor's clock, MRP behavior or 300-second BDX idle timer.
 
 For TC-SU-2.4 use `--mode update --apply-binding --image-version 2`, then a fresh
 fixture/output directory with `--image-version 3`. This enables peer JSON traces

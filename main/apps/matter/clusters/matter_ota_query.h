@@ -24,7 +24,9 @@ typedef struct {
     void (*cancel)(void*,uint64_t);
     Matter_Result_T (*state)(void*,uint8_t state,uint8_t reason,uint64_t now);
     /* Metadata only. No installation grant. Callback may copy; no reentry.
-     * Called only for newer, supported bdx URI after DelayedActionTime. */
+     * Called only for newer, supported bdx URI after DelayedActionTime. Owner
+     * publishes its next state (or Idle if it cannot accept the image); no
+     * intermediate Idle callback is published before this handoff. */
     void (*available)(void*,const Matter_Ota_Provider_T*,const Matter_Ota_Image_T*);
 } Matter_Ota_Query_Port_T;
 /* Application owns time, ports and scheduling. One allocation, no workers.

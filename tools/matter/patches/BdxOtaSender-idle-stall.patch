@@ -1,0 +1,16 @@
+--- a/examples/ota-provider-app/ota-provider-common/BdxOtaSender.cpp
++++ b/examples/ota-provider-app/ota-provider-common/BdxOtaSender.cpp
+@@ -155,6 +155,13 @@
+     }
+     case TransferSession::OutputEventType::kQueryReceived:
+     case TransferSession::OutputEventType::kQueryWithSkipReceived: {
++        // Laboratory fault only: keep the secure exchange/MRP running,
++        // but stop supplying BDX data after five complete 1024-byte blocks.
++        if (mNumBytesSent >= 5120)
++        {
++            ChipLogProgress(BDX, "CSA26_BDX_STALL bytes=%" PRIu32, mNumBytesSent);
++            return;
++        }
+         TransferSession::BlockData blockData;
+         uint16_t blockSize   = mTransfer.GetTransferBlockSize();
+         uint16_t bytesToRead = blockSize;

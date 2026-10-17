@@ -12,6 +12,9 @@ Matter_Bdx_Sink_T matter_ota_file_sink(Matter_Ota_File_T);
 /* No I/O. Unknown until the header is validated; 0..100 of whole-file bytes
  * while receiving/staged. Unknown again after commit or cancellation. */
 int matter_ota_file_progress(Matter_Ota_File_T);
+/* Nearest integer percent of the last validated transfer, including after sink
+ * cancellation/commit. No I/O. Unknown until header validation/next prepare. */
+int matter_ota_file_last_progress(Matter_Ota_File_T);
 Matter_Result_T matter_ota_file_commit(Matter_Ota_File_T);
 /* Volatile artifact identity, issued only by commit. Whole-file digest binds
  * header and payload; check rereads current path, but does not authenticate

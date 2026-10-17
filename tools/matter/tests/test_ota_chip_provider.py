@@ -174,6 +174,24 @@ def apply_binding(paths, version, require_notify=True):
     return applied
 
 
+def ota_event_reports(text):
+    """Read the independent chip-tool decoder's OTA event structures."""
+    fields = {'StateTransition': {'PreviousState', 'NewState', 'Reason', 'TargetSoftwareVersion'},
+              'VersionApplied': {'SoftwareVersion', 'ProductID'},
+              'DownloadError': {'SoftwareVersion', 'BytesDownloaded', 'ProgressPercent', 'PlatformCode'}}
+    result = []
+    for match in re.finditer(r'\b(StateTransition|VersionApplied|DownloadError):\s*\{(.*?)\n[^\n]*?\[TOO\]\s*\}', text, re.S):
+        values = {}
+        for name in fields[match[1]]:
+            value = re.search(r'\b' + name + r':\s*(null|-?0x[0-9a-fA-F]+|-?\d+)\b', match[2])
+            if value is None:
+                raise ValueError('Missing event field ' + name)
+            token = value[1]
+            values[name] = None if token == 'null' else int(token, 16 if '0x' in token else 10)
+        result.append(dict(event=match[1], fields=values))
+    return result
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     for name in ('exe', 'provider', 'chip-tool', 'paa', 'credentials', 'output'):
@@ -184,7 +202,9 @@ def main():
                    'not-available', 'same-version', 'older-version', 'invalid-uri',
                    'interrupt-retry', 'version-mismatch', 'apply-proceed-0',
                    'apply-proceed-180', 'apply-await-60', 'apply-await-180',
-                   'apply-discontinue'), default='busy-update')
+                   'apply-discontinue', 'query-timeout'), default='busy-update')
+    p.add_argument('--stall-provider', help='Separate laboratory provider that stalls BDX data but keeps MRP alive; interrupt-retry only.')
+    p.add_argument('--events', action='store_true', help='Subscribe to actual OTA events before announcement and verify their fields/sequences.')
     p.add_argument('--valgrind', action='store_true')
     p.add_argument('--require-trace', action='store_true', help='Require and verify actual QueryImageResponse fields, also in update mode.')
     p.add_argument('--apply-binding', action='store_true', help='Verify UpdateToken/NewVersion from peer Query/Apply/Notify traces.')
@@ -193,15 +213,17 @@ def main():
     apply_policy = {'apply-proceed-0': (0, 0), 'apply-proceed-180': (0, 180),
                     'apply-await-60': (1, 60), 'apply-await-180': (1, 180),
                     'apply-discontinue': (2, 180)}.get(a.mode)
-    negative = a.mode in ('not-available', 'same-version', 'older-version', 'invalid-uri', 'version-mismatch', 'apply-discontinue')
+    negative = a.mode in ('not-available', 'same-version', 'older-version', 'invalid-uri', 'version-mismatch', 'apply-discontinue', 'query-timeout')
     busy_mode = a.mode in ('busy-update', 'busy-60', 'busy-180')
     delay = {'busy-60': 60, 'busy-180': 180, 'not-available': 60}.get(a.mode, 150 if a.mode == 'busy-update' else 0)
     if a.image_version != 2 and a.mode != 'update':
         p.error('--image-version=3 requires --mode update')
+    if a.stall_provider and a.mode != 'interrupt-retry':
+        p.error('--stall-provider requires --mode interrupt-retry')
     if a.apply_binding and a.mode != 'update':
         p.error('--apply-binding requires --mode update')
     image_version = {'same-version': 1, 'older-version': 0, 'version-mismatch': 3}.get(a.mode, a.image_version)
-    need_trace = a.require_trace or a.apply_binding or a.mode not in ('busy-update', 'update')
+    need_trace = a.events or a.require_trace or a.apply_binding or a.mode not in ('busy-update', 'update')
     out = Path(a.output).resolve(); out.mkdir(parents=True, exist_ok=False)
     env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
     report = {'scope': 'CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification',
@@ -210,6 +232,8 @@ def main():
               'checks': [], 'fixture': image_fixture(out, image_version, 2 if a.mode == 'version-mismatch' else None),
               'binaries': {n: hashlib.sha256(Path(v).read_bytes()).hexdigest() for n, v in
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
+    if a.stall_provider:
+        report['fault_provider_sha256'] = hashlib.sha256(Path(a.stall_provider).read_bytes()).hexdigest()
     provider = node = client = reader = None
     logs = []; phase = 0; provider_phase = 0
 
@@ -355,13 +379,14 @@ def main():
     def start_provider():
         nonlocal provider, provider_phase
         provider_phase += 1
-        provider = subprocess.Popen([a.provider, '--secured-device-port', '5561', '--discriminator', '3991',
+        provider = subprocess.Popen([a.stall_provider if a.stall_provider and provider_phase == 1 else a.provider, '--secured-device-port', '5561', '--discriminator', '3991',
                     '--passcode', '20202021', '--KVS', str(out / 'provider.kvs'),
                     '--filepath', str(out / 'source.ota'), '--queryImageStatus', 'busy' if busy_mode else
                     'updateNotAvailable' if a.mode == 'not-available' else 'updateAvailable',
                     '--delayedQueryActionTimeSec', str(delay),
                     *(['--applyUpdateAction', ('proceed', 'awaitNextAction', 'discontinue')[apply_policy[0]],
                        '--delayedApplyActionTimeSec', str(apply_policy[1])] if apply_policy else []),
+                    *(['--ignoreQueryImage', '100'] if a.mode == 'query-timeout' else []),
                     *(['--pollInterval', '500'] if a.mode == 'interrupt-retry' and provider_phase == 1 else []),
                     *(['--imageUri', 'bdx://0000000000000001'] if a.mode == 'invalid-uri' else []),
                     *(['--trace-to', 'json:log'] if need_trace else [])],
@@ -391,38 +416,49 @@ def main():
         check('advertised-subscription-budget', bool(re.search(
             r'SubscriptionsPerFabric: ' + str(a.subscriptions_per_fabric) + r'\b', capabilities)), a.subscriptions_per_fabric)
         identity = basic(client); report['basic_information'] = identity
+        if a.events:
+            command(client, ['any', 'subscribe-event-by-id', '0x2a', '0xffffffff', 0, 2, 1, 0,
+                             '--keepSubscriptions', 0, '--is-urgent', 'true'], r'Subscription established')
+            check('ota-event-subscription-before-announcement', True)
         announce()
-        wait(lambda: query_count() == 1)
-        observed = time.monotonic()
-        wait(lambda: 'RequestorCanConsent:' in provider_text())
-        first = provider_text().split('OTA Provider received QueryImage', 1)[1]
-        query_fields = {}
-        for name in ('VendorID', 'ProductID', 'SoftwareVersion', 'HardwareVersion'):
-            match = re.search(name + r':\s*(0x[0-9a-fA-F]+|\d+)', first)
-            assert match, name
-            query_fields[name] = int(match[1], 0) if match[1].startswith('0x') else int(match[1])
-        # Inspect only the protocol list, not other numeric lines in the log.
-        protocols = re.search(r'ProtocolsSupported:\s*\[\s*\n(.*?)\[ZCL\]\s+\]', first, re.S)
-        protocol_ids = [int(x) for x in re.findall(r'\[ZCL\]\s+(\d+)\s*$', protocols[1], re.M)] if protocols else []
-        has_bdx = 0 in protocol_ids
-        consent = re.search(r'RequestorCanConsent:\s*(\d+)', first)
-        report['query_fields'] = query_fields
-        report['location'] = 'omitted (optional under Core 11.20.6.5.1)' if not re.search(r'\bLocation:', first) else 'present'
-        check('query-image-fields', query_fields == identity and has_bdx and consent is not None and consent[1] == '0',
-              {'identity': query_fields, 'bdx_synchronous': has_bdx, 'consent': consent[1] if consent else None})
-        # TC-SU-2.2 must observe the actual response, not infer it from CLI flags.
-        if need_trace:
-            wait(lambda: len(responses()) >= 1)
-            first_response = responses()[0]; report['first_response'] = first_response
-            check('query-response-fields', first_response['status'] == (1 if busy_mode else 2 if a.mode == 'not-available' else 0)
-                  # The official provider emits DelayedActionTime only for Busy;
-                  # omission for NotAvailable/UpdateAvailable is conformant.
-                  and first_response['delay'] == (delay if busy_mode else 0) and (first_response['status'] != 0 or
-                  first_response['version'] == image_version), first_response)
-            if first_response['status'] == 0 and a.mode != 'invalid-uri':
-                check('response-has-usable-bdx-location', isinstance(first_response['uri'], str)
-                      and first_response['uri'].startswith('bdx://0000000000000002/')
-                      and len(first_response['uri']) >= 24)
+        if a.mode == 'query-timeout':
+            wait(lambda: bool(ota_messages(out / 'provider.log', 0, True)))
+            check('provider-received-query-before-ignoring-response', True)
+            wait(lambda: 'OTA_STATE state=1 reason=2' in node_text(), 100)
+            check('query-failure-idle-without-download', 'OTA_DOWNLOAD' not in node_text()
+                  and not responses() and node.poll() is None)
+        else:
+            wait(lambda: query_count() == 1)
+            observed = time.monotonic()
+            wait(lambda: 'RequestorCanConsent:' in provider_text())
+            first = provider_text().split('OTA Provider received QueryImage', 1)[1]
+            query_fields = {}
+            for name in ('VendorID', 'ProductID', 'SoftwareVersion', 'HardwareVersion'):
+                match = re.search(name + r':\s*(0x[0-9a-fA-F]+|\d+)', first)
+                assert match, name
+                query_fields[name] = int(match[1], 0) if match[1].startswith('0x') else int(match[1])
+            # Inspect only the protocol list, not other numeric lines in the log.
+            protocols = re.search(r'ProtocolsSupported:\s*\[\s*\n(.*?)\[ZCL\]\s+\]', first, re.S)
+            protocol_ids = [int(x) for x in re.findall(r'\[ZCL\]\s+(\d+)\s*$', protocols[1], re.M)] if protocols else []
+            has_bdx = 0 in protocol_ids
+            consent = re.search(r'RequestorCanConsent:\s*(\d+)', first)
+            report['query_fields'] = query_fields
+            report['location'] = 'omitted (optional under Core 11.20.6.5.1)' if not re.search(r'\bLocation:', first) else 'present'
+            check('query-image-fields', query_fields == identity and has_bdx and consent is not None and consent[1] == '0',
+                  {'identity': query_fields, 'bdx_synchronous': has_bdx, 'consent': consent[1] if consent else None})
+            # TC-SU-2.2 must observe the actual response, not infer it from CLI flags.
+            if need_trace:
+                wait(lambda: len(responses()) >= 1)
+                first_response = responses()[0]; report['first_response'] = first_response
+                check('query-response-fields', first_response['status'] == (1 if busy_mode else 2 if a.mode == 'not-available' else 0)
+                      # The official provider emits DelayedActionTime only for Busy;
+                      # omission for NotAvailable/UpdateAvailable is conformant.
+                      and first_response['delay'] == (delay if busy_mode else 0) and (first_response['status'] != 0 or
+                      first_response['version'] == image_version), first_response)
+                if first_response['status'] == 0 and a.mode != 'invalid-uri':
+                    check('response-has-usable-bdx-location', isinstance(first_response['uri'], str)
+                          and first_response['uri'].startswith('bdx://0000000000000002/')
+                          and len(first_response['uri']) >= 24)
         if busy_mode:
             wait(lambda: 'OTA_STATE state=3 reason=4' in node_text())
             announce()  # A repeated announcement must not bypass Busy's floor.
@@ -457,9 +493,12 @@ def main():
                   and 'Transfer completed, got AckEOF' not in provider_text()
                   and 'OTA_AUTH' not in node_text() and 'OTA_SIM_REBOOT' not in node_text(),
                   {'visible_prefix_bytes': len(prefix), 'prefix_sha256': hashlib.sha256(prefix).hexdigest()})
-            provider.kill(); provider.wait(timeout=10)
+            if not a.stall_provider:
+                provider.kill(); provider.wait(timeout=10)
+                report['provider_kill_exit'] = provider.returncode
             killed = time.monotonic(); failure_elapsed = None; next_progress = 30
-            report['provider_kill_exit'] = provider.returncode
+            report['interruption_start_utc_ms'] = round(time.time() * 1000)
+            report['interruption_fault'] = 'BDX-data-stall-with-live-MRP' if a.stall_provider else 'provider-kill'
             # Official step 4 requires a real five-minute observation. An MRP
             # delivery failure can terminate the transfer sooner than its BDX
             # idle timer; record that separately instead of calling it idle expiry.
@@ -474,6 +513,10 @@ def main():
                 if elapsed >= next_progress:
                     print(f'OBSERVE interrupted transfer {elapsed:.1f}s', flush=True); next_progress += 30
                 time.sleep(.1)
+            if a.stall_provider:
+                check('bdx-idle-not-before-five-minutes', failure_elapsed is not None and failure_elapsed >= 300,
+                      {'failure_after_seconds': failure_elapsed, 'provider_still_running': provider.poll() is None})
+                check('bdx-stall-provider-retains-live-process', provider.poll() is None and 'CSA26_BDX_STALL bytes=' in provider_text())
             report['interruption'] = {'observation_seconds': time.monotonic() - killed,
                                       'failure_observed_after_seconds': failure_elapsed}
             wait(lambda: 'OTA_DOWNLOAD_FAILED' in node_text(), 45, allow_provider_exit=True)
@@ -481,9 +524,13 @@ def main():
             check('idle-after-five-real-minutes', bool(re.search(r'UpdateState: 1\b', idle))
                   and not partial.exists() and not (out / 'download.ota').exists(), report['interruption'])
             check('version-retained-after-interruption', basic(client)['SoftwareVersion'] == 1)
+            if provider.poll() is None:
+                provider.terminate(); provider.wait(timeout=10)
             start_provider()  # Same image, KVS, node/fabric and requestor process.
             announce()
-            wait(lambda: query_count() == 2, 90, allow_node_exit=True)
+            # A still-live BDX peer can restart with its old CASE session lost.
+            # Allow one failed Invoke and the unchanged 120 s query backoff.
+            wait(lambda: query_count() == 2, 240 if a.stall_provider else 90, allow_node_exit=True)
             wait(lambda: len(responses()) == 2, allow_node_exit=True)
             check('retry-query-update-available', responses()[1]['status'] == 0 and responses()[1]['version'] == 2,
                   responses()[1])
@@ -507,6 +554,8 @@ def main():
             check('no-apply-or-notify-for-rejected-version',
                   not any(ota_messages(path, command, True) for path in provider_logs() for command in (2, 4))
                   and 'OTA_SIM_REBOOT' not in node_text() and node.poll() is None)
+        elif a.mode == 'query-timeout':
+            pass
         elif negative:
             wait(lambda: 'OTA_STATE state=1 reason=1' in node_text())
             if a.mode != 'not-available':
@@ -537,6 +586,42 @@ def main():
         boot = command(reader, ['generaldiagnostics', 'read', 'boot-reason', 1, 0])
         check('fresh-case-version-and-boot' if negative else 'fresh-case-after-restart', restored['SoftwareVersion'] == (1 if negative else image_version)
               and bool(re.search(r'BootReason: ' + ('1' if negative else '5') + r'\b', boot)), restored)
+        if a.events:
+            command(reader, ['any', 'read-event-by-id', '0x2a', '0xffffffff', 1, 0])
+            time.sleep(.2)  # Let chip-tool finish printing the last decoded structure.
+            records = ota_event_reports(client.text()) + ota_event_reports(reader.text())
+            report['ota_events'] = records
+            transitions = [r['fields'] for r in records if r['event'] == 'StateTransition']
+            check('state-transition-target-version-fields', bool(transitions) and all(
+                t['TargetSoftwareVersion'] == (image_version if t['NewState'] in (4, 5, 7) else None)
+                for t in transitions), transitions)
+            sequence = [(t['PreviousState'], t['NewState']) for t in transitions]
+            prefix = [(1, 2), (2, 1)] if a.mode in ('query-timeout', 'not-available', 'same-version', 'older-version', 'invalid-uri') else (
+                [(1, 2), (2, 3), (3, 2), (2, 4), (4, 5)] if busy_mode else [(1, 2), (2, 4)])
+            check('ota-event-transition-sequence', sequence[:len(prefix)] == prefix, sequence)
+            if not negative:
+                check('downloading-directly-to-applying', (4, 5) in sequence and (4, 1) not in sequence
+                      if a.mode != 'interrupt-retry' else (4, 5) in sequence, sequence)
+                applied = [r['fields'] for r in records if r['event'] == 'VersionApplied']
+                check('version-applied-event-matches-basic-information', bool(applied) and all(
+                    r == {'SoftwareVersion': restored['SoftwareVersion'], 'ProductID': restored['ProductID']}
+                    for r in applied), applied)
+            if busy_mode:
+                check('delayed-on-query-event', any(t['NewState'] == 3 and t['Reason'] == 4 for t in transitions))
+            if apply_policy and apply_policy[0] == 1:
+                check('delayed-on-apply-event', any(t['PreviousState'] == 5 and t['NewState'] == 6
+                                                  and t['Reason'] == 4 for t in transitions))
+            if a.mode == 'query-timeout':
+                check('query-failure-event-reason', any(t['PreviousState'] == 2 and t['NewState'] == 1
+                                                       and t['Reason'] == 2 for t in transitions))
+            if a.mode == 'interrupt-retry':
+                errors = [r['fields'] for r in records if r['event'] == 'DownloadError']
+                all_node_logs = ''.join((out / f'node-{i}.log').read_text() for i in range(1, phase + 1))
+                failed_bytes = int(re.search(r'OTA_DOWNLOAD_FAILED bytes=(\d+)', all_node_logs)[1])
+                percent = (failed_bytes * 100 + report['fixture']['image_bytes'] // 2) // report['fixture']['image_bytes']
+                check('download-error-exact-bytes-and-nearest-percent', bool(errors) and all(
+                    r == {'SoftwareVersion': image_version, 'BytesDownloaded': failed_bytes,
+                          'ProgressPercent': percent, 'PlatformCode': None} for r in errors), errors)
         node.terminate(); check('clean-requestor-stop', node.wait(timeout=30) == 0)
         for i in range(1, phase + 1):
             assert not (out / f'node-{i}.err').read_text()

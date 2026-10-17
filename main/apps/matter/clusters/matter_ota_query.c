@@ -154,16 +154,19 @@ Matter_Result_T matter_ota_query_process(Matter_Ota_Query_T q,uint64_t now) {
         }
     }
     if(!live || q->stopped) { q->generation=0; q->image_pending=false; memset(&q->image,0,sizeof(q->image)); q->state=1; q->reason=2; }
+    if(!q->job && live && !q->stopped && q->image_pending && now>=q->due) {
+        /* The owner takes over the update state during handoff. Publishing
+         * Idle first would create a spurious Querying -> Idle -> Downloading. */
+        q->port.available(q->port.user,&q->provider,&q->image); q->image_pending=false;
+        memset(&q->image,0,sizeof(q->image)); q->due=after(now,86400000);
+        q->state=q->published=1; q->reason=1; return MATTER_OK;
+    }
     if(q->state!=q->published) {
         Matter_Result_T r=q->port.state(q->port.user,q->state,q->reason,now); if(r!=MATTER_OK) return r;
         q->published=q->state;
     }
     if(q->job) return MATTER_PENDING;
     if(q->stopped || !live || now<q->due) return MATTER_OK;
-    if(q->image_pending) {
-        q->port.available(q->port.user,&q->provider,&q->image); q->image_pending=false;
-        memset(&q->image,0,sizeof(q->image)); q->due=after(now,86400000); q->state=1; q->reason=1; return MATTER_OK;
-    }
     if(q->published!=2) { q->state=2; q->reason=1; return MATTER_PENDING; }
     Matter_Result_T r=q->port.start(q->port.user,&q->provider,q->args,q->args_size,&q->job);
     if(r==MATTER_BUSY || r==MATTER_WOULD_BLOCK) return MATTER_PENDING;

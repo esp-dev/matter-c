@@ -1,0 +1,1022 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa25-results.json",
+  "previous_sha256": "96d1326c1afc6519d4bddce0023b9cbcca7bc0072e33ee186b37a4f514210349",
+  "source_base_commit": "aad57724bcb0de500e740a4c8afa5d7cfeb83938",
+  "scope": "CSA26 OTA Requestor events: runtime event-state/progress corrections, unchanged automatic TC_SU_2_7 FAIL, unchanged manual TC-SU-2.7 PASS; not certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 16,
+    "BLOCKED": 6,
+    "MANUAL": 39,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC_SU_2_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "BLOCKED",
+      "status": "FAIL",
+      "run_id": 454
+    },
+    {
+      "case": "TC-SU-2.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "BLOCKED",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 455
+    }
+  ],
+  "official_automatic": {
+    "case": "TC_SU_2_7",
+    "run_id": 454,
+    "baseline_run_id": 453,
+    "harness_state": "failed",
+    "step_states": {
+      "passed": 3,
+      "failed": 1,
+      "pending": 5
+    },
+    "script_sha256": "9a8b0ffa278180cf3aaa772dae3d2d3a1650114c3260a035d784db11a4f8dd31",
+    "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "reason": "Step1 expects Idle->Querying after subscribing, but the default-provider query already started during setup; first live event is Querying->Downloading. No source/assertion/PICS change was made to force PASS.",
+    "remaining_steps_not_executed": true,
+    "raw_result_sha256": "7ee59c45df2eea4bdc4b008690c5a4265367fb0fed142375d0f0aa91ec81031c",
+    "official_log_sha256": "6dff183fb01a9132dcab2bc631fe3a99544aa682cf4aa3497d02e9e59893e732",
+    "baseline_result_sha256": "2f309fe663b713d9743b0c5af5362d273e6a72da75e6d7611264cc7d40725c9c",
+    "baseline_log_sha256": "7a08fcccf0e893e8b62d9fa1a0ccd70f33ad072d66a3e7e2a59e2ef0b76e75e1"
+  },
+  "official_manual": {
+    "case": "TC-SU-2.7",
+    "run_id": 455,
+    "harness_state": "passed",
+    "execution_mode": "Agent-evaluated manual procedure using actual peer reports and per-step evidence; not automatic assertions",
+    "step_states": {
+      "passed": 7,
+      "not_applicable": 1
+    },
+    "script_sha256": "903dd6166909d7255ac46d4560fdacd7b0747fd73f51009e22199be7f907d6f9",
+    "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "raw_result_sha256": "913da13cc5b46d50cd1e1949b865615e9c09ecb7bfd5919479383a0d9ee0cc8d",
+    "official_log_sha256": "7dc36826838bc542d63fea45a92e10f81ccedafc1c14b0460ee1fbb209b12ac3",
+    "upload_sha256": "831b3f931b3687150aabd48d27ea81b55a0a33f721e7fa182c5544fb800dc9cc",
+    "certification_mode": false
+  },
+  "profile": {
+    "features": {
+      "MCORE.OTA.Requestor": true,
+      "MCORE.OTA.RequestorConsent": false,
+      "MCORE.OTA.HTTPS": false,
+      "MCORE.OTA.Resume": false
+    },
+    "pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "yaml_sha256": "903dd6166909d7255ac46d4560fdacd7b0747fd73f51009e22199be7f907d6f9",
+    "collection": "SDK YAML Tests",
+    "suite": "FirstManualSuite",
+    "case": "TC-SU-2.7",
+    "verification_steps": 7,
+    "disabled_yaml_verification": true
+  },
+  "build": {
+    "source_files": 360,
+    "source_manifest_sha256": "9db63d4cf5f59325be22e388a7771e86614a1348d461e170f010226a642f864f",
+    "binaries": {
+      "normal": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+      "sanitize": "9bc184e4a1ff2e9e993dea9a8ddfdb11757632f1e1ab4c6988d815a206eb1390"
+    },
+    "warnings": {
+      "normal": [],
+      "sanitize": []
+    },
+    "focused": {
+      "normal": [
+        "100% tests passed, 0 tests failed out of 15"
+      ],
+      "sanitize": [
+        "100% tests passed, 0 tests failed out of 15"
+      ]
+    },
+    "evidence_sha256": {
+      "source-manifest.json": "9db63d4cf5f59325be22e388a7771e86614a1348d461e170f010226a642f864f",
+      "normal-build.log": "e0e87b6811d9c23c69c6936f63ed8ae11398c7958594f5e074f8684604c3c177",
+      "normal-compile.log": "8d25238f13000745de031324a985d012f3c9cb577fce4ea04f5810a212b8c784",
+      "normal-tests.log": "f340dd63a849223dee239622f070730a4449f4a720555c41706bbfd3fc4e7b87",
+      "sanitize-build.log": "31a17092c93d11a6267dbd36b9aa4aabd5f701bb804359e00f310fc1901b76df",
+      "sanitize-compile.log": "d7b2c0ba4f5d915de326f10c5a61eebe46be57acde9c05d44904454a1cf66dba",
+      "sanitize-tests.log": "b3a23a0f3cabc9f39489b0de0e2c00e3c55f7ec2cfdb60799b6aec73f2a4b768"
+    }
+  },
+  "normative_basis": {
+    "revision": "Matter Core R1.6.1",
+    "state_values": "11.20.7.4 UpdateStateEnum: Idle is not yet in update processing; Downloading/Applying describe ongoing work",
+    "events": "11.20.7.7 StateTransition, VersionApplied, DownloadError; known progress uses nearest integer, otherwise null",
+    "bdx_idle": "11.20.3.5 minimum five-minute idle timeout",
+    "transport_error": "11.22.2.6 SHOULD abort BDX on delivery failure; 11.22.4 requires reliable BDX transport, including MRP over UDP",
+    "provider_selection": "11.20.3.1 leaves query timing/provider selection to the requestor; writing defaults is not a subscription barrier"
+  },
+  "manual_step_evidence": {
+    "1": {
+      "result": "PASS",
+      "evidence": [
+        "memcheck-update",
+        "sanitizer-update"
+      ],
+      "checks": [
+        "ota-event-transition-sequence",
+        "downloading-directly-to-applying"
+      ]
+    },
+    "2": {
+      "result": "PASS",
+      "evidence": [
+        "busy-events"
+      ],
+      "checks": [
+        "delayed-on-query-event"
+      ]
+    },
+    "3": {
+      "result": "PASS",
+      "evidence": [
+        "query-timeout-events"
+      ],
+      "checks": [
+        "query-failure-event-reason"
+      ]
+    },
+    "4": {
+      "result": "NOT APPLICABLE",
+      "reason": "MCORE.OTA.RequestorConsent=false; unchanged PICS"
+    },
+    "5": {
+      "result": "PASS",
+      "evidence": [
+        "bdx-idle-retry"
+      ],
+      "checks": [
+        "bdx-idle-not-before-five-minutes",
+        "bdx-stall-provider-retains-live-process",
+        "download-error-exact-bytes-and-nearest-percent"
+      ]
+    },
+    "6": {
+      "result": "PASS",
+      "evidence": [
+        "await-events"
+      ],
+      "checks": [
+        "delayed-on-apply-event"
+      ]
+    },
+    "7": {
+      "result": "PASS",
+      "evidence": [
+        "memcheck-update",
+        "sanitizer-update"
+      ],
+      "checks": [
+        "version-applied-event-matches-basic-information"
+      ]
+    }
+  },
+  "laboratory_runs": {
+    "memcheck-update": {
+      "mode": "update",
+      "checks_passed": 20,
+      "driver_sha256": "395127d394d7aaabef98c66a93cfc8c65c07bfc83a1ccc0de125fa17e7cbf794",
+      "valgrind": true,
+      "binaries": {
+        "requestor": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": null,
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "4cf08761a46a42cf349ba459d4933ae66adfeeae9df640299000dfa48fbe932b",
+        "public_key_sha256": "97f1d58e9da1feefee598802bf14d3af4c40e4c80760a034c0ab0653c675c2d6"
+      },
+      "subscriptions_per_fabric": 3,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "Reason": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "Reason": 1,
+            "NewState": 4,
+            "TargetSoftwareVersion": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 4,
+            "Reason": 1,
+            "NewState": 5,
+            "TargetSoftwareVersion": 2
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "ProductID": 32769,
+            "SoftwareVersion": 2
+          }
+        }
+      ],
+      "interruption": null,
+      "interruption_fault": null,
+      "restarts": 1,
+      "memcheck_summaries": {
+        "valgrind-1.log": [
+          "==929086==     in use at exit: 0 bytes in 0 blocks",
+          "==929086==   total heap usage: 35,628 allocs, 35,628 frees, 2,658,070 bytes allocated",
+          "==929086== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ],
+        "valgrind-2.log": [
+          "==929090==     in use at exit: 0 bytes in 0 blocks",
+          "==929090==   total heap usage: 19,564 allocs, 19,564 frees, 1,553,545 bytes allocated",
+          "==929090== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"
+        ]
+      },
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "7117ee0a5da1b14a8cec084b8fb20e1afacad02f53505eeeb6a9240980f7a06d",
+        "provider.log": "14a194acb6ce7b18b0cbff879c5b0090b61a70acf43c30236bea812f277939c3",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "8a886920d3d1840b7d04b246d3c5cec7235e9da62c251fbfa697bc030432f798",
+        "node-1.log": "1786c40fb9302a8376c0f651ced9c61e627f51828e69ccf10cf14109fe85cad6",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "b54a18497713e67ad132a93bb626ac86ad526fc949e8cd0f12633779029149e7",
+        "valgrind-2.log": "10b881a7caa38ca42033021027d132f02ca436d303942721a07c2567730c4799",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "201aeb650321aa39f3025a35fe00231299519bcfc18542562f8219c903fbc449",
+        "fresh-reader/interactive.log": "2e6ab701f7261318294f9f96ee9fbc98c6dc8be3a59ea5f9415ca2cb912a5a15",
+        "controller/interactive.log": "834ecc554b0e6e24dad5c974f8ab189e567d735cf120fc437fd8c47539e9db5e"
+      }
+    },
+    "sanitizer-update": {
+      "mode": "update",
+      "checks_passed": 20,
+      "driver_sha256": "395127d394d7aaabef98c66a93cfc8c65c07bfc83a1ccc0de125fa17e7cbf794",
+      "valgrind": false,
+      "binaries": {
+        "requestor": "9bc184e4a1ff2e9e993dea9a8ddfdb11757632f1e1ab4c6988d815a206eb1390",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": null,
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 3,
+        "signed_version": 3,
+        "image_bytes": 16585,
+        "image_sha256": "5f74df72b27d14e46db7be763c818d90704527ae4b9baed650f9ecb1bef89c14",
+        "public_key_sha256": "d8d63c833f32cc565bf32c24b94db136b80ab93190efe4018e2223ea8ad04315"
+      },
+      "subscriptions_per_fabric": 3,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 2,
+            "NewState": 4,
+            "TargetSoftwareVersion": 3
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 4,
+            "NewState": 5,
+            "TargetSoftwareVersion": 3
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "SoftwareVersion": 3,
+            "ProductID": 32769
+          }
+        }
+      ],
+      "interruption": null,
+      "interruption_fault": null,
+      "restarts": 1,
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "47c129df858043baf6e2085c03506d84674ccd95da9bcdace7d4eace1c8e7b9f",
+        "provider.log": "ec2c126f66c5fd0736530f08861130c9dd7cd4d878465abac0747a59ddc0d522",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "76f4e1a691605c7d784c787d4902eb7d8f68872d8138a1e0699eeb986ad82a57",
+        "node-1.log": "5df72d34abedeb407e7d464ace199d20bfbab20cbb58e03796ba8a70e1e93821",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "201aeb650321aa39f3025a35fe00231299519bcfc18542562f8219c903fbc449",
+        "fresh-reader/interactive.log": "e58ad222dc611c5a0eea555781fde27fecf7b6d7abacd8dbf5f836012dce1ecd",
+        "controller/interactive.log": "2944209d60342c86831bac14eb075bacabb0c096d49eb5bf018e63800e39cf77"
+      }
+    },
+    "busy-events": {
+      "mode": "busy-60",
+      "checks_passed": 23,
+      "driver_sha256": "395127d394d7aaabef98c66a93cfc8c65c07bfc83a1ccc0de125fa17e7cbf794",
+      "valgrind": false,
+      "binaries": {
+        "requestor": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": null,
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "dad52c1a5d192a59675f15a994a4a30f5f9905491bb175c8e09e250e171516ad",
+        "public_key_sha256": "3f549fb7d0b17587e152e313da1b50a84058b6c2cf78fa3ece45bdfd0648050e"
+      },
+      "subscriptions_per_fabric": 3,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 1,
+            "Reason": 1,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 2,
+            "Reason": 4,
+            "NewState": 3
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 3,
+            "Reason": 1,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": 2,
+            "PreviousState": 2,
+            "Reason": 1,
+            "NewState": 4
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": 2,
+            "PreviousState": 4,
+            "Reason": 1,
+            "NewState": 5
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "SoftwareVersion": 2,
+            "ProductID": 32769
+          }
+        }
+      ],
+      "interruption": null,
+      "interruption_fault": null,
+      "restarts": 1,
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "41e3a0cfc655ae0dcc2b23be3e3673c8f2808c57d9c6e45b983db5cbcbd6354e",
+        "provider.log": "c22353b7cbb7932eba195ddcadf4276d0a0750ce4987a7c17970b0d0b46e37a0",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "b024def5066fee951fa4cd2c47e2402b0f296e2a5c5e645ef76003c7e43f194f",
+        "node-1.log": "683808130a4acec56556fb12ffe58bcc75789e38dc8e86cc55e3318b60222642",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "046f81e3845a90e28ebb3e8f829f8edc90ebf64f24645759ea6d254aea3354d6",
+        "fresh-reader/interactive.log": "96392d8397121037cbb22fe7bc1d4fc25a60513b7f9ec42ebaadf710507ab2c4",
+        "controller/interactive.log": "70727b716469f78bf953af7244a0bd69b808cb08847614afa3bf77a9ec0b9615"
+      }
+    },
+    "await-events": {
+      "mode": "apply-await-60",
+      "checks_passed": 28,
+      "driver_sha256": "395127d394d7aaabef98c66a93cfc8c65c07bfc83a1ccc0de125fa17e7cbf794",
+      "valgrind": false,
+      "binaries": {
+        "requestor": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": null,
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "d1d17d0ae2f36b488f0e443d489630690ffe9ba61355e19028b949e207ef5647",
+        "public_key_sha256": "128e00cc27c41bf0b940a9fd40c2bc4efbe3f52fc412b424756475d99a6a97ea"
+      },
+      "subscriptions_per_fabric": 3,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 2,
+            "NewState": 4,
+            "TargetSoftwareVersion": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 4,
+            "NewState": 5,
+            "TargetSoftwareVersion": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 4,
+            "PreviousState": 5,
+            "NewState": 6,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 6,
+            "NewState": 5,
+            "TargetSoftwareVersion": 2
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "ProductID": 32769,
+            "SoftwareVersion": 2
+          }
+        }
+      ],
+      "interruption": null,
+      "interruption_fault": null,
+      "restarts": 1,
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "b5a67f2460834763d135e7ad543d5bc77866d6af29ffedd3975c6bc537ba8a59",
+        "provider.log": "cff54c3edc0e80b419f8a449b82659fe759481f953a1a2ebd6445cbc44c49328",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "67e6d26710430a9c66f86bc5648e593e2cd26c809768a3621fca5753006078b6",
+        "node-1.log": "50dd06a512cc33576eec198fb283ad1621fdab428964f480af55d4f844d757e7",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "32ad1c92a2f2c73d2da5bafb2a8119e5b3a0a8c1bf2173f9911d6e58267f925a",
+        "fresh-reader/interactive.log": "b50e555ca063873c776632c4de507d98da590e63c7d385fcd4ad09ce1d53ae3e",
+        "controller/interactive.log": "5f9a2d00a8260f26bc7201dc03de232494706391ce77d66203998153e5538fc0"
+      }
+    },
+    "query-timeout-events": {
+      "mode": "query-timeout",
+      "checks_passed": 13,
+      "driver_sha256": "395127d394d7aaabef98c66a93cfc8c65c07bfc83a1ccc0de125fa17e7cbf794",
+      "valgrind": false,
+      "binaries": {
+        "requestor": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": null,
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "e62f12ab660cf582b4e6d6fd3a82f5061da06fca88f6cc8d0710b4ad46ec367f",
+        "public_key_sha256": "11ee059ea0297150c8bd1b19950383ebb11003f2485f507c56fe462b63edc160"
+      },
+      "subscriptions_per_fabric": 3,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 2,
+            "PreviousState": 2,
+            "NewState": 1,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 2,
+            "PreviousState": 2,
+            "NewState": 1,
+            "TargetSoftwareVersion": null
+          }
+        }
+      ],
+      "interruption": null,
+      "interruption_fault": null,
+      "restarts": 0,
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "e3e7aa1b21c518642bdafa5968ed0b9106157b34772fd567579c16046b4725cf",
+        "provider.log": "1344f6b711de1b8166e2c68bae4d672c4610eca6edfb1efbfa2504b1fe28d89e",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-1.log": "419bf6291dba81d32e1038d96412cd00bac3f1416b2fdb17150c099bb0e5fd3a",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "201aeb650321aa39f3025a35fe00231299519bcfc18542562f8219c903fbc449",
+        "fresh-reader/interactive.log": "a76e287a87b1f0f30cf971c2baab4fa8760d318f2644eca43f8c4452ef1f2526",
+        "controller/interactive.log": "2e9cbd8b4e6e46b851f8f9c225a20f6a109f55ddc009c0bf309f777f4710fa65"
+      }
+    },
+    "interrupted-events": {
+      "mode": "interrupt-retry",
+      "checks_passed": 25,
+      "driver_sha256": "395127d394d7aaabef98c66a93cfc8c65c07bfc83a1ccc0de125fa17e7cbf794",
+      "valgrind": false,
+      "binaries": {
+        "requestor": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": null,
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "1abf24039b80c56d9d0089f9399f8ad045781ebc50321a65041e7a9e6ae51454",
+        "public_key_sha256": "a9a17a0e066f56a458d314707043f8e942144b7e0629dc85df072e0f74902b3d"
+      },
+      "subscriptions_per_fabric": 3,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "Reason": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "Reason": 1,
+            "TargetSoftwareVersion": 2,
+            "NewState": 4
+          }
+        },
+        {
+          "event": "DownloadError",
+          "fields": {
+            "ProgressPercent": 31,
+            "SoftwareVersion": 2,
+            "BytesDownloaded": 5120,
+            "PlatformCode": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 4,
+            "Reason": 2,
+            "TargetSoftwareVersion": null,
+            "NewState": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "Reason": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "Reason": 1,
+            "TargetSoftwareVersion": 2,
+            "NewState": 4
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 4,
+            "Reason": 1,
+            "TargetSoftwareVersion": 2,
+            "NewState": 5
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "SoftwareVersion": 2,
+            "ProductID": 32769
+          }
+        }
+      ],
+      "interruption": {
+        "observation_seconds": 301.052167262882,
+        "failure_observed_after_seconds": 10.65057718893513
+      },
+      "interruption_fault": null,
+      "restarts": 1,
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "006bc780d1c559d738412215df78c37fb4233244e909a6e7d188538ecd47d7cd",
+        "provider-2.log": "e568f3472f88f08ea9d680202b311cfc82bea2c0c541d13dea262c3131b2a297",
+        "provider.log": "3ca1945497e57c625f8b5152aee9705ab24dec8c27aa5c1c086d41186cb9741d",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "8af03017993d1ca7d2fda71e9d785962f9557bd18da2ec4ec52eb54a2f00b3ae",
+        "node-1.log": "eb2ffa36ef5c7c8098c5f6860b8a20e8df0cc36e4ca687ddcd413b786910428b",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "381209c2f1988ff2efe6058786eeb5850f47196eacc18d62b20d52074708834d",
+        "fresh-reader/interactive.log": "bd8dc233628dc9dc860e905bf5ed52ef957ad723a80951b06b3fa77dc342230b",
+        "controller/interactive.log": "f74da11e402d69f2ed3673b10599e5991fa279e47652db897301c26bdffcb4c2"
+      }
+    },
+    "bdx-idle-retry": {
+      "mode": "interrupt-retry",
+      "checks_passed": 27,
+      "driver_sha256": "73f7950f11f27ba21fddcd30bbdee4e73a850313a85a79a3571f44495a72236a",
+      "valgrind": false,
+      "binaries": {
+        "requestor": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": "9f7e9aed9b7638aee2f2f563d273a7219c22624fc2c63a692f63e8bded52c6b9",
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "a31682b3834dc3b4ba504ca79f53d5fe4932216238c856b83e0755d446ae740f",
+        "public_key_sha256": "9b8d1dcd6de94426feef3d8b07606ffeaceb95d953220e36d97146a23d2db695"
+      },
+      "subscriptions_per_fabric": 3,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "TargetSoftwareVersion": 2,
+            "NewState": 4,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "DownloadError",
+          "fields": {
+            "PlatformCode": null,
+            "ProgressPercent": 31,
+            "SoftwareVersion": 2,
+            "BytesDownloaded": 5120
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 4,
+            "TargetSoftwareVersion": null,
+            "NewState": 1,
+            "Reason": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null,
+            "NewState": 1,
+            "Reason": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "TargetSoftwareVersion": 2,
+            "NewState": 4,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 4,
+            "TargetSoftwareVersion": 2,
+            "NewState": 5,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "ProductID": 32769,
+            "SoftwareVersion": 2
+          }
+        }
+      ],
+      "interruption": {
+        "observation_seconds": 301.0926370252855,
+        "failure_observed_after_seconds": 300.32650783332065
+      },
+      "interruption_fault": "BDX-data-stall-with-live-MRP",
+      "restarts": 1,
+      "memcheck_summaries": {},
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "evidence_sha256": {
+        "result.json": "4f6da21bbe175e6d68a4fe5582dc930e31f42852d3ad6e54704516b5f5b0de81",
+        "provider-2.log": "f7fb43d20bb98e3b12314f2bfdf24b516a4621921b4b29159320077f5badc5ee",
+        "provider.log": "5be4e6296e247dd122751669ab7d2e35c85736387dd5c6079c4a81838bdd2c05",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "a303c8b36fad95cd4ea711bf3d58ff1e6ea7a0c9c0e7dde6c358264ee1b9550c",
+        "node-1.log": "fa6fedd539f8c0264c52013c4a7e175c9897285f7674ea349ecb4363ecaba14b",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "381209c2f1988ff2efe6058786eeb5850f47196eacc18d62b20d52074708834d",
+        "fresh-reader/interactive.log": "1ff6e85f764a40b6c9e3306fb41548fbf9a222d5c1968f8a823555dba6778e5d",
+        "controller/interactive.log": "ea4bb8c38ce966e19e7ec4a650ee173a25c645571a9bf6ff9b025acea9242f98"
+      }
+    }
+  },
+  "total_laboratory_checks": 156,
+  "memcheck": {
+    "result": "PASS",
+    "requestor_boots": 2,
+    "allocations": 55192,
+    "frees": 55192,
+    "errors": 0,
+    "bytes_at_exit": 0,
+    "suppressions": 0
+  },
+  "sanitizers": {
+    "result": "PASS",
+    "requestor_boots": 2,
+    "separate_from_memcheck": true,
+    "host_stderr_empty": true
+  },
+  "oracle_review": {
+    "driver_sha256": "73f7950f11f27ba21fddcd30bbdee4e73a850313a85a79a3571f44495a72236a",
+    "source": "actual final event-check block and parser AST, replayed over captured chip-tool logs; no network or replacement device data",
+    "rechecks": {
+      "memcheck-update": [
+        "state-transition-target-version-fields",
+        "ota-event-transition-sequence",
+        "downloading-directly-to-applying",
+        "version-applied-event-matches-basic-information"
+      ],
+      "sanitizer-update": [
+        "state-transition-target-version-fields",
+        "ota-event-transition-sequence",
+        "downloading-directly-to-applying",
+        "version-applied-event-matches-basic-information"
+      ],
+      "busy-events": [
+        "state-transition-target-version-fields",
+        "ota-event-transition-sequence",
+        "downloading-directly-to-applying",
+        "version-applied-event-matches-basic-information",
+        "delayed-on-query-event"
+      ],
+      "await-events": [
+        "state-transition-target-version-fields",
+        "ota-event-transition-sequence",
+        "downloading-directly-to-applying",
+        "version-applied-event-matches-basic-information",
+        "delayed-on-apply-event"
+      ],
+      "query-timeout-events": [
+        "state-transition-target-version-fields",
+        "ota-event-transition-sequence",
+        "query-failure-event-reason"
+      ],
+      "interrupted-events": [
+        "state-transition-target-version-fields",
+        "ota-event-transition-sequence",
+        "downloading-directly-to-applying",
+        "version-applied-event-matches-basic-information",
+        "download-error-exact-bytes-and-nearest-percent"
+      ],
+      "bdx-idle-retry": [
+        "state-transition-target-version-fields",
+        "ota-event-transition-sequence",
+        "downloading-directly-to-applying",
+        "version-applied-event-matches-basic-information",
+        "download-error-exact-bytes-and-nearest-percent"
+      ]
+    },
+    "rejected_controls": [
+      "target-version",
+      "missing-downloading",
+      "missing-version-applied",
+      "wrong-product-id",
+      "wrong-error-percent",
+      "wrong-error-bytes"
+    ]
+  },
+  "query_red_control": {
+    "old_query_sha256": "7840317a5858afe9a5ca46efea27627aa3f269b0c1044ac9bd7c1739a937d6a8",
+    "test_source_sha256": "180c28381d6a1561fa0a5f59c6d9219cbfe01c55fc217da1e5028529e00d2260",
+    "exit": 1,
+    "stderr": "query:151 t->available==1 && t->available_state==(delayed?1:2) && t->state==4\n",
+    "unchanged_normal_binary_sha256": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae"
+  },
+  "fault_provider": {
+    "purpose": "Laboratory BDX data stall after 5120 bytes; original secure session, MRP and timers continue unchanged",
+    "source_relative": "examples/ota-provider-app/ota-provider-common/BdxOtaSender.cpp",
+    "original_source_sha256": "aba5601bcbbde23db6e136742f44e3d749a63bc736dfdee090028ebe9e1b363f",
+    "modified_copy_sha256": "f7a859bee28bd95d5d551944f0423ffff71cc87406cf0e8f33edad80ea117e49",
+    "stall_binary_sha256": "9f7e9aed9b7638aee2f2f563d273a7219c22624fc2c63a692f63e8bded52c6b9",
+    "upstream_binary_sha256": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+    "sdk_clean": true,
+    "compiler_warnings": []
+  },
+  "fault_patch": {
+    "path": "tools/matter/patches/BdxOtaSender-idle-stall.patch",
+    "sha256": "af80ecce30e39150639095342c95fdcca00dfde4d8658a1485554b5a23701f3c",
+    "exact_application_checked": true
+  },
+  "retained_failed_fixture": {
+    "result": "FAIL",
+    "error": "OTA condition timed out",
+    "driver_sha256": "2a4b734097fba4dadacd9ece945701b0abd4cd77fe311c9efbc0f4f304504d4b",
+    "interruption": {
+      "observation_seconds": 301.0689339847304,
+      "failure_observed_after_seconds": 300.3072559107095
+    },
+    "passed_checks": [
+      "commission-provider",
+      "commission-requestor",
+      "provider-authorizes-requestor",
+      "advertised-subscription-budget",
+      "ota-event-subscription-before-announcement",
+      "query-image-fields",
+      "query-response-fields",
+      "response-has-usable-bdx-location",
+      "partial-transfer-before-kill",
+      "bdx-idle-not-before-five-minutes",
+      "bdx-stall-provider-retains-live-process",
+      "idle-after-five-real-minutes",
+      "version-retained-after-interruption"
+    ],
+    "raw_result_sha256": "af388ed9cf7833aa9b5732109c327c7fce956dc349ec1d05dde452dea10a1ece",
+    "cause": "The initial extra recovery wait was only 90 s after provider restart. A stale CASE attempt and normal 120 s OTA backoff can exceed it. Only the fixture wait was extended to 240 s; the fresh repeated case passes."
+  },
+  "cleanup": {
+    "fixture_ports_released": [
+      5540,
+      5561,
+      5581
+    ],
+    "harness_state": "idle",
+    "original_sdk_clean": true,
+    "original_provider_sha256": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+    "paired_windows_nodes_untouched": true,
+    "official_yaml_sha256": "903dd6166909d7255ac46d4560fdacd7b0747fd73f51009e22199be7f907d6f9",
+    "official_python_sha256": "9a8b0ffa278180cf3aaa772dae3d2d3a1650114c3260a035d784db11a4f8dd31",
+    "uploaded_evidence_sha256": "831b3f931b3687150aabd48d27ea81b55a0a33f721e7fa182c5544fb800dc9cc"
+  },
+  "limits": [
+    "Only these two rows change; other campaign results are inherited, not rerun.",
+    "Automatic run454 fails at step1; later steps are not claimed as automatic coverage. SDK/CSA has not confirmed a correction.",
+    "Manual run455 was evaluated by the coding agent, with one consent-inapplicable step; not certification or accredited laboratory acceptance.",
+    "The BDX Idle scenario uses an explicitly patched separate provider copy. Normal provider/SDK, requestor timers, MRP and official tests are unchanged.",
+    "Earlier failed automatic runs and the initial 90 s recovery fixture are retained, not relabelled PASS.",
+    "Positive updates execute signed host-simulation manifests and restart the same binary; no physical firmware/bootloader, 128 kB target fit, ecosystem UI or full suite acceptance is claimed.",
+    "Native memory checks instrument the C host, not CHIP. The long timing scenarios use the normal host; only the full update path is repeated separately under Memcheck and sanitizers.",
+    "Earlier captures use their recorded driver hashes; all seven event sets were rechecked with the final parser/assertion AST after optional fault-fixture support was added."
+  ],
+  "next": "CSA27: TC_SU_4_1, OTA Requestor cluster attributes. Retain TC_SU_2_7 subscription-order observations for CSA review.",
+  "hash_encoding": "Previous report exact Git blob bytes; evidence filesystem bytes; PICS sorted compact JSON. Tokens, credentials, controllers and private captures stay outside Git; BDX image locations are redacted."
+}

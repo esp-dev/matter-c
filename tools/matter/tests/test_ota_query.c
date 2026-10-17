@@ -11,7 +11,7 @@ void matter_test_free(void* p) { if(p) { CHECK(live); --live; } free(p); }
 #endif
 typedef struct {
     uint64_t generation,job,now; uint32_t random;
-    unsigned starts,cancels,available,expected_token; uint8_t state,reason,im; bool ready,fail_state;
+    unsigned starts,cancels,available,expected_token; uint8_t state,reason,im,available_state; bool ready,fail_state;
     Matter_Result_T take_result;
     uint8_t response[1024]; size_t size; Matter_Tlv_Writer_T writer;
     uint8_t extra[513]; char uri[258],version[66];
@@ -33,7 +33,8 @@ static Matter_Result_T state(void* u,uint8_t s,uint8_t reason,uint64_t now) {
     t->state=s; t->reason=reason; return MATTER_OK;
 }
 static void available(void* u,const Matter_Ota_Provider_T* p,const Matter_Ota_Image_T* i) {
-    Test* t=u; CHECK(p->node==42); CHECK(i->version==2 && i->token_size==(t->expected_token?t->expected_token:8)); ++t->available;
+    Test* t=u; CHECK(p->node==42); CHECK(i->version==2 && i->token_size==(t->expected_token?t->expected_token:8));
+    t->available_state=t->state; t->state=4; ++t->available;
 }
 static void put(Test* t,Matter_Tlv_Type_T type,int tag,uint64_t value,const char* data,size_t n) {
     Matter_Tlv_Element_T e={.type=type,.tag={.control=tag<0?0:1,.number=tag<0?0:(uint32_t)tag},.unsigned_value=value,.data=(const uint8_t*)data,.size=n};
@@ -142,6 +143,16 @@ static void retry_states(void) {
     }
     puts("PASS OTA retry state: Busy remains DelayedOnQuery; transport/IM/TLV/timeout errors remain Idle during unchanged backoff");
 }
+static void handoff(void) {
+    for(unsigned delayed=0;delayed<2;++delayed) {
+        Test* t=setup(true); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
+        response(t,0,delayed?10:0,true); pump(t,1);
+        if(delayed) { CHECK(!t->available && t->state==1); pump(t,10001); }
+        CHECK(t->available==1 && t->available_state==(delayed?1:2) && t->state==4);
+        pump(t,10002); CHECK(t->available==1 && t->state==4); destroy(t);
+    }
+    puts("PASS OTA handoff: immediate Querying -> Downloading, delayed Idle -> Downloading, no spurious Idle or repeated callback");
+}
 static void client(void) {
     const uint8_t fields[]={0x15,0x24,0,2,0x18};
     const uint8_t reply[]={0x15,0x29,0,0x36,1,0x15,0x35,0,0x37,0,0x24,0,1,0x24,1,0x29,0x24,2,1,0x18,
@@ -209,7 +220,7 @@ static void boundaries(void) {
     }
     puts("PASS QueryImageResponse URI256/version64/token32/metadata512 and each over-limit rejection");
 }
-int main(void) { client(); policy(); retry_states(); boundaries();
+int main(void) { client(); policy(); retry_states(); handoff(); boundaries();
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live); puts("PASS Query/Invoke constructor OOM and allocation ownership");
 #endif

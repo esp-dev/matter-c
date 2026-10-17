@@ -141,7 +141,7 @@ static Matter_Result_T signed_image(void* u,uint64_t id,Matter_Ota_Signed_T* out
 static void invalidate(void* u) { matter_ota_file_invalidate(u); }
 static void cancel(void* u) { matter_ota_file_cancel(u); }
 static Matter_Result_T discard(void* u,uint64_t id) { return matter_ota_file_discard(u,id); }
-static int progress(void* u) { return matter_ota_file_progress(u); }
+static int progress(void* u) { return matter_ota_file_last_progress(u); }
 Matter_Result_T matter_server_set_ota_file(Matter_Server_T s,const char* path) {
     if(!s || s->ota_file) return MATTER_INVALID_STATE;
     Matter_Ota_File_T file=matter_ota_file_new(path,s->identity.vendor_id,s->identity.product_id,s->identity.software_version);

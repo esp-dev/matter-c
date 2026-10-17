@@ -108,6 +108,12 @@ int matter_ota_file_progress(Matter_Ota_File_T f) {
     /* Header/write validation bounds both counters to 64 MiB. */
     return (int)(f->received*100/f->total);
 }
+int matter_ota_file_last_progress(Matter_Ota_File_T f) {
+    if(!f || !f->parsed || !f->total || f->total>MATTER_OTA_FILE_LIMIT || f->received>f->total) return -1;
+    /* Counts survive cancellation; prepare clears them for the next transfer.
+     * The validated 64 MiB limit bounds multiplication and nearest rounding. */
+    return (int)((f->received*100+f->total/2)/f->total);
+}
 Matter_Result_T matter_ota_file_commit(Matter_Ota_File_T f) {
     if(!f || !f->ready || !f->owned || f->file || f->serial==UINT64_MAX) return MATTER_INVALID_STATE;
     if(rename(f->partial,f->path)) return MATTER_PORT_ERROR;
