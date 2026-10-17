@@ -246,7 +246,15 @@ It consumes progress reports chronologically and cleans up scenario subscription
 Full corrected run451 passes with budget three/transport 56, including both delay
 scenarios and Discontinue/image disposal. The original SDK source is restored
 exactly and the isolated node is stopped. This is LOCAL-PATCH PASS; no new
-unmodified official CSA PASS is claimed. Next: TC-SU-2.6 NotifyUpdateApplied.
+unmodified official CSA PASS is claimed. Notify acceptance is recorded below.
+
+The [CSA25 acceptance](doc/oss/csa25-validation.md) records manual TC-SU-2.6 PASS
+in TH run452. Two independent updates to versions 2/3 verify actual Notify token
+and version against Query/Apply and fresh CASE Basic Information/BootReason.
+Full Memcheck and separate sanitizers are clean; no C/H, PICS or SDK test changes
+were required. Only this manual row changes, giving 97 PASS, 15 FAIL, 8 BLOCKED,
+38 MANUAL and 704 NA. Other rows are inherited; this is not automatic CSA
+assertions or certification. Next: TC-SU-2.7 OTA Requestor events.
 
 The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
 Legacy builders keep `build/matter-host/linux-gcc/matter-node` or

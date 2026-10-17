@@ -164,6 +164,17 @@ NotifyUpdateApplied is checked against the same token/version. Published results
 contain only the token length and SHA-256, not the token itself. The official
 provider does not validate this binding for us; the independent trace oracle does.
 
+For TC-SU-2.6, the same `update --apply-binding` modes with image versions 2 and
+3 exercise Notify after simulated restart. Compare the decoded command's token
+to the latest Query/Apply and its version to fresh CASE Basic Information; check
+BootReason SoftwareUpdateCompleted as well. Use separate fresh fixtures for
+Memcheck and sanitizers. The installed TH case is a manual YAML procedure:
+record its verification and evidence upload separately from automatic tests.
+One observed Notify in a loss-free run does not prove behavior under a missing
+response. The runtime durably claims the notification context before dispatch;
+Core 11.20.3.6 prohibits application retry if no response is received, while MRP
+retry remains within the same exchange. See [CSA25 evidence and limits](oss/csa25-validation.md).
+
 The `version-mismatch` mode offers/header-encodes version 3 but signs version 2
 inside the simulation payload. It requires authentication rejection, no Apply or
 Notify, no simulated reboot, and fresh CASE readback of the original version 1.

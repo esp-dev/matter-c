@@ -271,8 +271,15 @@ Discontinue, chronological progress, image disposal and unchanged version. The
 original SDK source is restored exactly and the isolated node is stopped.
 This is LOCAL-PATCH PASS; no official result is relabelled pending CSA approval.
 See [full-run evidence and limits](oss/csa24b-validation.md).
-**Next task: CSA25 — TC-SU-2.6 NotifyUpdateApplied**, retaining the original
-failures and the local patch evidence for CSA review.
+CSA25 completes manual TC-SU-2.6 in TH run452: evidence verification and upload
+pass. Actual Notify commands after two independent signed simulation updates
+carry the latest token and versions 2/3, matching fresh CASE readback. Full
+Memcheck and separate sanitizers pass; no stack, PICS or official test change
+was required. Only this row moves from BLOCKED to MANUAL/PASS; counts become
+97 PASS, 15 FAIL, 8 BLOCKED, 38 MANUAL, 704 NA. Other rows are inherited.
+See [evidence and limits](oss/csa25-validation.md).
+**Next task: CSA26 — TC-SU-2.7 / TC_SU_2_7, OTA Requestor events**, retaining
+the original failures and local patch evidence for CSA review.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

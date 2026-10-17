@@ -1,5 +1,18 @@
 # Development status
 
+**CSA25: TC-SU-2.6 manual PASS in TH run452.** One verification step plus evidence
+upload pass, evaluated against real CHIP Provider traces; this is not automatic
+CSA assertions or certification. Two independent signed simulation updates to
+versions 2 and 3 pass 15 checks each: Notify token/version binding, restart and
+fresh CASE version/BootReason readback. Full Memcheck has 55118 matched
+allocations/frees, zero errors/live bytes; separate ASan/UBSan/LSan is clean.
+Six negative oracle controls are rejected; two journal CTests pass per build.
+No C/H, PICS or official test changes were needed. Only this manual row moves
+from BLOCKED to MANUAL/PASS. Counts are **97 PASS, 15 FAIL, 8 BLOCKED, 38 MANUAL,
+704 NA**. Other rows, including the original TC_SU_2_5 FAIL, are inherited.
+See [evidence and limits](csa25-validation.md) and [record](csa25-results.json).
+**Next: CSA26 — TC-SU-2.7 / TC_SU_2_7, OTA Requestor events.**
+
 **CSA24b: full local-corrected TC_SU_2_5 PASS, run451, budget three/transport 56.**
 The patch consumes progress FIFO reports once under one monotonic deadline and
 cleans up scenario subscriptions so the intended live set fits the default
@@ -14,7 +27,7 @@ were needed. This is **LOCAL-PATCH PASS**; the original official result/counts
 are unchanged pending CSA approval of the test correction. See
 [patch, full-run evidence and limits](csa24b-validation.md) and
 [record](csa24b-results.json).
-**Next: CSA25 — TC-SU-2.6 NotifyUpdateApplied; retain the local correction for CSA review.**
+Notify acceptance is recorded in CSA25 above; retain the local correction for CSA review.
 
 **Memory target: 128 kB device RAM.** The CSA24a transaction table still reserves
 the entire configured budget at construction. This is an interim host mechanism.
