@@ -237,3 +237,19 @@ Run the official case unchanged, evaluate each prompt against captured evidence,
 and attach the laboratory log. A manually entered TH result remains manual
 acceptance; the Python scenario is supplementary automation, not a replacement
 for CSA assertions or certification. See [CSA19 evidence](oss/csa19-validation.md).
+
+For QueryImageResponse coverage with `UpdateAvailable` announcements, add
+`--default-provider` to `test_ota_chip_provider.py`. This optional fixture writes
+and reads back DefaultOTAProviders after subscribing to events, then announces
+with reason1. Configuring the default supplies an initial query opportunity;
+repeated reason1 announcements retain the normal query/retry schedule. Without
+the option, the existing SimpleAnnouncement route (reason0) is unchanged.
+Neither route shortens the requestor's 120-second floor or provider delays.
+
+Use fresh directories for `update` (Memcheck, then separately sanitizers),
+`busy-60`, `busy-180`, `not-available`, `invalid-uri` and `same-version`, with
+`--events --default-provider`. Actual peer trace fields and state transitions
+are checked, not just the provider CLI arguments. These independent scenarios
+do not replace the unchanged automatic TC_SU_2_2 result; see
+[CSA28](oss/csa28-validation.md). The optional runner requires Python cryptography
+and the existing Linux laboratory dependencies.

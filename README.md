@@ -256,12 +256,21 @@ were required. Only this manual row changes, giving 97 PASS, 15 FAIL, 8 BLOCKED,
 38 MANUAL and 704 NA. Other rows are inherited; this is not automatic CSA
 assertions or certification. OTA event acceptance is recorded below.
 
+The [CSA28 QueryImageResponse acceptance](doc/oss/csa28-validation.md) records
+original automatic TC_SU_2_2 FAIL in run457: its initial UpdateAvailable
+announcement does not arrange a normal query opportunity for this daily policy.
+The independent lab adds an explicit default-provider fixture while retaining
+the same production schedule and 120/180-second limits. Seven scenarios pass
+134 local checks with clean Memcheck/separate sanitizers. Original test/PICS/C/H
+sources remain unchanged. Current counts: **97 PASS, 18 FAIL, 4 BLOCKED,
+39 MANUAL, 704 NA**; local acceptance is separate from official results and certification.
+
 The [CSA27 attribute acceptance](doc/oss/csa27-validation.md) records original
 TC_SU_4_1 FAIL at step5: the test examines the first Success instead of the later
 ConstraintError in a list write. Two-fabric chip-tool acceptance passes 29
 Memcheck and 27 sanitizer checks, including partial writes, fabric isolation and
 restart persistence. No C/H, PICS or official test changes were required.
-Current counts: **97 PASS, 17 FAIL, 5 BLOCKED, 39 MANUAL, 704 NA**. This is not
+CSA27 counts: **97 PASS, 17 FAIL, 5 BLOCKED, 39 MANUAL, 704 NA**. This is not
 certification; retain the response-status observation for CSA review.
 
 The [CSA26 event acceptance](doc/oss/csa26-validation.md) fixes spurious Idle

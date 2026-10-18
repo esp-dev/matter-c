@@ -1,0 +1,2168 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa27-results.json",
+  "previous_sha256": "8981521fb249b4a6f96aa2a2b813864ee7e0e57ef676d6ea9bfce328d6502616",
+  "source_base_commit": "12e484f19eb6082e670168aa5cf5d70d8f53d088",
+  "scope": "CSA28 original automatic TC_SU_2_2 FAIL at the initial-query precondition; independent QueryImageResponse scenarios with explicitly configured default provider. No C/H/PICS/official test change; not certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 4,
+    "MANUAL": 39,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC_SU_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "BLOCKED",
+      "status": "FAIL",
+      "run_id": 457
+    }
+  ],
+  "official_automatic": {
+    "case": "TC_SU_2_2",
+    "run_id": 457,
+    "harness_state": "failed",
+    "failure_step": 1,
+    "remaining_steps_not_executed": [
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "step_states": {
+      "passed": 3,
+      "failed": 1,
+      "pending": 5
+    },
+    "script_sha256": "d5e9fbf867982ba7b1c8c8305c70a6fc6b04f018b521562d2e7028b6e672b8e4",
+    "shared_helper_sha256": "9e9b2af9fcca6b039da12273b89560bd55121ec11fdb72de0f4973499318615b",
+    "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "raw_result_sha256": "884cad0992262c6d80d283a5861b5b89ad40c017a77e9cecd272d0b2cac0cd72",
+    "official_log_sha256": "47558360e7cef4871a85e39385c45576c38a449b90673899e41bc06b4d093371",
+    "node_evidence_sha256": {
+      "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "node-1.log": "309111330154bf76bd42d4e6a718c63588dbb049ad3d9547e29e6bc8f030a3af"
+    },
+    "reason": "The helper announces a newly selected provider with reason1 UpdateAvailable without configuring a default or initial normal query. The current daily policy retains Idle; the 120s DelayedOnQuery wait expires before any QueryImageResponse.",
+    "official_source_modified": false,
+    "csa_correction_approved": false,
+    "certification_mode": false,
+    "reboot_supervisor_prepared": true,
+    "reboot_observed": false
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "11.20.7.4": "AnnouncementReasonEnum UpdateAvailable recommends contacting a provider at the next upcoming normal query; UrgentUpdateAvailable has separate jitter.",
+    "11.20.3.1": "Commissioners should configure a known default provider to reduce delay before the first query.",
+    "11.20.3.2": "Daily query recommendation; 120-second minimum, Busy/NotAvailable policy and rejection of same/older version or unusable URI.",
+    "11.20.6.5.2": "DelayedActionTime is required for Busy and optional otherwise; measure it from the response."
+  },
+  "fixture_change": {
+    "file": "tools/matter/tests/test_ota_chip_provider.py",
+    "option": "--default-provider",
+    "behavior": "Write/read back DefaultOTAProviders after subscribing, then send UpdateAvailable reason1. Without the flag, retain existing SimpleAnnouncement reason0. No production timer changes.",
+    "script_sha256": "fc68737f4f9ec5eca6008114fa835666de111cb51d3b39b621849f5e1e5c785b"
+  },
+  "identity": {
+    "compiled_c_h_files_match": 360,
+    "source_manifest_sha256": "9db63d4cf5f59325be22e388a7771e86614a1348d461e170f010226a642f864f",
+    "binary_sha256": {
+      "normal": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+      "sanitize": "9bc184e4a1ff2e9e993dea9a8ddfdb11757632f1e1ab4c6988d815a206eb1390"
+    },
+    "provider_sha256": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+    "official_image_sha256": "cdb6c0ebcebaec34d292f081074b1aed39d81d3a50b21b3eb3bb542c9353ed62",
+    "official_image_verification_key_sha256": "4444cac01b1a55aa24556a0ff52a7fd20e62c3a05e5a95d7815be6bb88e0a619",
+    "sdk_commit": "3bcdd56ba54fb88b2afb4bfef575014671df7aa7",
+    "sdk_clean": true,
+    "build_reused_from": "CSA26, C/H unchanged; no rebuild or new CTest campaign claimed"
+  },
+  "local_acceptance": {
+    "memcheck-update": {
+      "result": "PASS",
+      "mode": "update",
+      "check_count": 21,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278164339,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS",
+          "detail": [
+            {
+              "time_ms": 1792278167295,
+              "new_version": 2,
+              "token_size": 32,
+              "token_sha256": "0598c814c5d7a1ab0a2f00789bd5615a73a8c0c3997f94d3f9ccf5c8f94d7374"
+            }
+          ]
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 2,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS",
+          "detail": [
+            {
+              "PreviousState": 1,
+              "NewState": 2,
+              "TargetSoftwareVersion": null,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 2,
+              "NewState": 4,
+              "TargetSoftwareVersion": 2,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 4,
+              "NewState": 5,
+              "TargetSoftwareVersion": 2,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 1,
+              "NewState": 2,
+              "TargetSoftwareVersion": null,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 2,
+              "NewState": 1,
+              "TargetSoftwareVersion": null,
+              "Reason": 1
+            }
+          ]
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS",
+          "detail": [
+            {
+              "SoftwareVersion": 2,
+              "ProductID": 32769
+            }
+          ]
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=2; Memcheck"
+        }
+      ],
+      "default_provider": true,
+      "announcement_reason": 1,
+      "first_response": {
+        "time_ms": 1792278164339,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "second_response": null,
+      "restarts": 1,
+      "provider_query_times": null,
+      "apply_requests": [
+        {
+          "time_ms": 1792278167295,
+          "new_version": 2,
+          "token_size": 32,
+          "token_sha256": "0598c814c5d7a1ab0a2f00789bd5615a73a8c0c3997f94d3f9ccf5c8f94d7374"
+        }
+      ],
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "NewState": 4,
+            "TargetSoftwareVersion": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 4,
+            "NewState": 5,
+            "TargetSoftwareVersion": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "SoftwareVersion": 2,
+            "ProductID": 32769
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "NewState": 1,
+            "TargetSoftwareVersion": null,
+            "Reason": 1
+          }
+        }
+      ],
+      "memcheck": [
+        {
+          "allocations": 35651,
+          "frees": 35651,
+          "total_bytes_allocated": 2746213,
+          "errors": 0,
+          "live_bytes": 0
+        },
+        {
+          "allocations": 19584,
+          "frees": 19584,
+          "total_bytes_allocated": 1561179,
+          "errors": 0,
+          "live_bytes": 0
+        }
+      ],
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "artifact_sha256": {
+        "result.json": "dc4c4dd103fd0958425f2fa890226acd667d5f73954be9f2ec0c635faf671229",
+        "provider.log": "89a5895d085f35925df4cae3480e2b6822596c7a5c0c1889457a38b3b7367926",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "0bb94a9a56f19c44d7af18f61c9abaa71dd6c304eadf4e289072e22a36756eb4",
+        "node-1.log": "c3b47be6716361378dfeeb6a118474aa863a7a7e2388380a93eb9ccc5e162193",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "1a66c8b570f70f9a93c4798197203d98ee685fb1faa54d61f046ad8b61a29e3d",
+        "valgrind-2.log": "d5a2a9eb75064c6ec369f98e2b823a0ce715cfb800f3dc23d6c86e96235b89f4",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "7cd1b937cdc3d832e157802263d500c3ac1c9dd24689248af03b54a488bf2828",
+        "fresh-reader/interactive.log": "a23bcd4ad7fd0ffd02661610b91a922f4bb0617ff021e3ea93959153a1b19c71",
+        "controller/interactive.log": "e96fb98e5fa3dd22e8e5e56c22e611c5652f45d20e5b35de2992e975f1293349"
+      }
+    },
+    "sanitize-update": {
+      "result": "PASS",
+      "mode": "update",
+      "check_count": 21,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278187271,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS",
+          "detail": [
+            {
+              "time_ms": 1792278189776,
+              "new_version": 2,
+              "token_size": 32,
+              "token_sha256": "99c5ede07fc35cb6b929685938aebfaa07363dd7d5f9821d5f9501e2f5f6c58b"
+            }
+          ]
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 2,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS",
+          "detail": [
+            {
+              "PreviousState": 1,
+              "Reason": 1,
+              "TargetSoftwareVersion": null,
+              "NewState": 2
+            },
+            {
+              "PreviousState": 2,
+              "Reason": 1,
+              "TargetSoftwareVersion": 2,
+              "NewState": 4
+            },
+            {
+              "PreviousState": 4,
+              "Reason": 1,
+              "TargetSoftwareVersion": 2,
+              "NewState": 5
+            },
+            {
+              "PreviousState": 1,
+              "Reason": 1,
+              "TargetSoftwareVersion": null,
+              "NewState": 2
+            },
+            {
+              "PreviousState": 2,
+              "Reason": 1,
+              "TargetSoftwareVersion": null,
+              "NewState": 1
+            }
+          ]
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS",
+          "detail": [
+            {
+              "SoftwareVersion": 2,
+              "ProductID": 32769
+            }
+          ]
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=2; stderr logs empty"
+        }
+      ],
+      "default_provider": true,
+      "announcement_reason": 1,
+      "first_response": {
+        "time_ms": 1792278187271,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "second_response": null,
+      "restarts": 1,
+      "provider_query_times": null,
+      "apply_requests": [
+        {
+          "time_ms": 1792278189776,
+          "new_version": 2,
+          "token_size": 32,
+          "token_sha256": "99c5ede07fc35cb6b929685938aebfaa07363dd7d5f9821d5f9501e2f5f6c58b"
+        }
+      ],
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "Reason": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "Reason": 1,
+            "TargetSoftwareVersion": 2,
+            "NewState": 4
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 4,
+            "Reason": 1,
+            "TargetSoftwareVersion": 2,
+            "NewState": 5
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "SoftwareVersion": 2,
+            "ProductID": 32769
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "Reason": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "Reason": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 1
+          }
+        }
+      ],
+      "memcheck": [],
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "artifact_sha256": {
+        "result.json": "032cf896e2331c86ffd0e4f820c03a4481ae2fd07f1109c6950d95b5d1f322a9",
+        "provider.log": "7e6307ae8ffcea4aafc2237f9b482da3a938c0d6ccb8da98740d50ce940696a6",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "d7e502cda60dc70b32ccca9784daabd2dd9c0eb532db974711dcb7cf35969a8e",
+        "node-1.log": "1cc12e5b6c6958df1e5c560586a8fc43de6378e23c9cfb913c894cee445dee45",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "7cd1b937cdc3d832e157802263d500c3ac1c9dd24689248af03b54a488bf2828",
+        "fresh-reader/interactive.log": "8572c10d3ef9cb51484062b601973aacc14a6502a78a0ec6d660bfe8da165110",
+        "controller/interactive.log": "cc0564e74f52f4a5c2e67914c06cc1646c70d6793bdb42b0392a2e166de0434d"
+      }
+    },
+    "busy60": {
+      "result": "PASS",
+      "mode": "busy-60",
+      "check_count": 24,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278201086,
+            "status": 1,
+            "delay": 60,
+            "uri": null,
+            "version": null
+          }
+        },
+        {
+          "name": "busy-observation-no-early-query",
+          "status": "PASS",
+          "detail": {
+            "observed_seconds": 119.80464950902387
+          }
+        },
+        {
+          "name": "announcement-next-query",
+          "status": "PASS",
+          "detail": {
+            "seconds_from_first_observed": 120.19001469109207
+          }
+        },
+        {
+          "name": "busy-delay-respected",
+          "status": "PASS",
+          "detail": {
+            "query_interval_ms": 120203,
+            "response_to_next_query_ms": 120203
+          }
+        },
+        {
+          "name": "busy-retry-update-available",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278321291,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 2,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS",
+          "detail": [
+            {
+              "TargetSoftwareVersion": null,
+              "PreviousState": 1,
+              "NewState": 2,
+              "Reason": 1
+            },
+            {
+              "TargetSoftwareVersion": null,
+              "PreviousState": 2,
+              "NewState": 3,
+              "Reason": 4
+            },
+            {
+              "TargetSoftwareVersion": null,
+              "PreviousState": 3,
+              "NewState": 2,
+              "Reason": 1
+            },
+            {
+              "TargetSoftwareVersion": 2,
+              "PreviousState": 2,
+              "NewState": 4,
+              "Reason": 1
+            },
+            {
+              "TargetSoftwareVersion": 2,
+              "PreviousState": 4,
+              "NewState": 5,
+              "Reason": 1
+            },
+            {
+              "TargetSoftwareVersion": null,
+              "PreviousState": 1,
+              "NewState": 2,
+              "Reason": 1
+            },
+            {
+              "TargetSoftwareVersion": null,
+              "PreviousState": 2,
+              "NewState": 1,
+              "Reason": 1
+            }
+          ]
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS",
+          "detail": [
+            {
+              "SoftwareVersion": 2,
+              "ProductID": 32769
+            }
+          ]
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=2; stderr logs empty"
+        }
+      ],
+      "default_provider": true,
+      "announcement_reason": 1,
+      "first_response": {
+        "time_ms": 1792278201086,
+        "status": 1,
+        "delay": 60,
+        "uri": null,
+        "version": null
+      },
+      "second_response": {
+        "time_ms": 1792278321291,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "restarts": 1,
+      "provider_query_times": [
+        1792278201.086,
+        1792278321.29
+      ],
+      "apply_requests": null,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 1,
+            "NewState": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 2,
+            "NewState": 3,
+            "Reason": 4
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 3,
+            "NewState": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": 2,
+            "PreviousState": 2,
+            "NewState": 4,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": 2,
+            "PreviousState": 4,
+            "NewState": 5,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "SoftwareVersion": 2,
+            "ProductID": 32769
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 1,
+            "NewState": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 2,
+            "NewState": 1,
+            "Reason": 1
+          }
+        }
+      ],
+      "memcheck": [],
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "artifact_sha256": {
+        "result.json": "b0eb1cf81ea01f1a3278850683cb6a9e5df86e2d79080788d8bf7946979b2847",
+        "provider.log": "c0b7de5fc8a2abd1aac82fc16a62500e8a4defa58be34aac66cd946d57d1c654",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "f85eb08d82ce0a04d8a2b7b3e9d21956005bba8a55437d4589137e93d4c9b1ff",
+        "node-1.log": "6ba4e175cd899627585cd1c2f2570f135377daf8fc7eaed03037e27258e4d642",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "e92d7c05c0dc599e3c4c9727103fd1784b328702750106fd07bdf26e32936d47",
+        "fresh-reader/interactive.log": "732efcbe4b7d5f1e684aa941858b67d29124185c36060ed9dd40b594c28b167b",
+        "controller/interactive.log": "56cd5f2436c11b4371f9b49b9eaab1dee249a7b493a119b4a5ff1764cde92a11"
+      }
+    },
+    "busy180": {
+      "result": "PASS",
+      "mode": "busy-180",
+      "check_count": 24,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278334548,
+            "status": 1,
+            "delay": 180,
+            "uri": null,
+            "version": null
+          }
+        },
+        {
+          "name": "busy-observation-no-early-query",
+          "status": "PASS",
+          "detail": {
+            "observed_seconds": 179.9142095958814
+          }
+        },
+        {
+          "name": "announcement-next-query",
+          "status": "PASS",
+          "detail": {
+            "seconds_from_first_observed": 180.17006327211857
+          }
+        },
+        {
+          "name": "busy-delay-respected",
+          "status": "PASS",
+          "detail": {
+            "query_interval_ms": 180200,
+            "response_to_next_query_ms": 180198
+          }
+        },
+        {
+          "name": "busy-retry-update-available",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278514747,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 2,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS",
+          "detail": [
+            {
+              "PreviousState": 1,
+              "NewState": 2,
+              "TargetSoftwareVersion": null,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 2,
+              "NewState": 3,
+              "TargetSoftwareVersion": null,
+              "Reason": 4
+            },
+            {
+              "PreviousState": 3,
+              "NewState": 2,
+              "TargetSoftwareVersion": null,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 2,
+              "NewState": 4,
+              "TargetSoftwareVersion": 2,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 4,
+              "NewState": 5,
+              "TargetSoftwareVersion": 2,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 1,
+              "NewState": 2,
+              "TargetSoftwareVersion": null,
+              "Reason": 1
+            },
+            {
+              "PreviousState": 2,
+              "NewState": 1,
+              "TargetSoftwareVersion": null,
+              "Reason": 1
+            }
+          ]
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS",
+          "detail": [
+            {
+              "ProductID": 32769,
+              "SoftwareVersion": 2
+            }
+          ]
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=2; stderr logs empty"
+        }
+      ],
+      "default_provider": true,
+      "announcement_reason": 1,
+      "first_response": {
+        "time_ms": 1792278334548,
+        "status": 1,
+        "delay": 180,
+        "uri": null,
+        "version": null
+      },
+      "second_response": {
+        "time_ms": 1792278514747,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "restarts": 1,
+      "provider_query_times": [
+        1792278334.548,
+        1792278514.746
+      ],
+      "apply_requests": null,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "NewState": 3,
+            "TargetSoftwareVersion": null,
+            "Reason": 4
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 3,
+            "NewState": 2,
+            "TargetSoftwareVersion": null,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "NewState": 4,
+            "TargetSoftwareVersion": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 4,
+            "NewState": 5,
+            "TargetSoftwareVersion": 2,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "ProductID": 32769,
+            "SoftwareVersion": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 1,
+            "NewState": 2,
+            "TargetSoftwareVersion": null,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "PreviousState": 2,
+            "NewState": 1,
+            "TargetSoftwareVersion": null,
+            "Reason": 1
+          }
+        }
+      ],
+      "memcheck": [],
+      "stderr_bytes": {
+        "node-1.err": 0,
+        "node-2.err": 0
+      },
+      "artifact_sha256": {
+        "result.json": "fff9cce160cb536b96285150493acfc7f0a976dc211e11e702dc6052ed0974ca",
+        "provider.log": "7f37b9bb764e5c559af3fe61fb7d27654e1a3d4a8d359a26aaf61edb60c3f1a8",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "0b01c6e44a5e9a2f5a9e8591b5a3aa7b4ecf833f381e9453808179563a41c5a3",
+        "node-1.log": "86da80c514a66e02bdd2cb087fac5c87daef41c849238ba39ebab968d786d9fb",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "e92d7c05c0dc599e3c4c9727103fd1784b328702750106fd07bdf26e32936d47",
+        "fresh-reader/interactive.log": "ec5415aa1b072af7b23e416e798b6a4ecc69deda820cb72991ba8c0d77471f07",
+        "controller/interactive.log": "5be9d07e72d70d173cbe283aa8503e6cccddbbec45278028a08e38dd922d1a7f"
+      }
+    },
+    "not-available": {
+      "result": "PASS",
+      "mode": "not-available",
+      "check_count": 14,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278527745,
+            "status": 2,
+            "delay": 0,
+            "uri": null,
+            "version": null
+          }
+        },
+        {
+          "name": "rejected-without-bdx-or-install",
+          "status": "PASS",
+          "detail": {
+            "observed_seconds": 120.29068580036983
+          }
+        },
+        {
+          "name": "fresh-case-version-and-boot",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 1,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS",
+          "detail": [
+            {
+              "Reason": 1,
+              "PreviousState": 1,
+              "TargetSoftwareVersion": null,
+              "NewState": 2
+            },
+            {
+              "Reason": 1,
+              "PreviousState": 2,
+              "TargetSoftwareVersion": null,
+              "NewState": 1
+            },
+            {
+              "Reason": 1,
+              "PreviousState": 1,
+              "TargetSoftwareVersion": null,
+              "NewState": 2
+            },
+            {
+              "Reason": 1,
+              "PreviousState": 2,
+              "TargetSoftwareVersion": null,
+              "NewState": 1
+            }
+          ]
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=1; stderr logs empty"
+        }
+      ],
+      "default_provider": true,
+      "announcement_reason": 1,
+      "first_response": {
+        "time_ms": 1792278527745,
+        "status": 2,
+        "delay": 0,
+        "uri": null,
+        "version": null
+      },
+      "second_response": null,
+      "restarts": 0,
+      "provider_query_times": null,
+      "apply_requests": null,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null,
+            "NewState": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null,
+            "NewState": 1
+          }
+        }
+      ],
+      "memcheck": [],
+      "stderr_bytes": {
+        "node-1.err": 0
+      },
+      "artifact_sha256": {
+        "result.json": "bb5f01ca45da07411ad03fead050f6c859d1d59d7ddad8d588b11bac42058575",
+        "provider.log": "9c831d0ad2214a334062d14a728e9c36f5bc9a1b4377b52039b01b7c376dda28",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-1.log": "644a8ac31370ca13a9318ec2120ef93123a1d697ea692b8591706133d2d50983",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "7cd1b937cdc3d832e157802263d500c3ac1c9dd24689248af03b54a488bf2828",
+        "fresh-reader/interactive.log": "d78952a57b46fe5591bfed47a966576d05c9a9a1270914e2ed876a7aeae48d5f",
+        "controller/interactive.log": "064f039e2ddf625d3f27fe287ad493027ab83da4e18ff8e0da53f05bf402b822"
+      }
+    },
+    "invalid-uri": {
+      "result": "PASS",
+      "mode": "invalid-uri",
+      "check_count": 15,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278656002,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000001",
+            "version": 2
+          }
+        },
+        {
+          "name": "rejected-without-bdx-or-install",
+          "status": "PASS",
+          "detail": {
+            "observed_seconds": 3.050236268900335
+          }
+        },
+        {
+          "name": "invalid-uri-was-sent",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-case-version-and-boot",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 1,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS",
+          "detail": [
+            {
+              "NewState": 2,
+              "Reason": 1,
+              "PreviousState": 1,
+              "TargetSoftwareVersion": null
+            },
+            {
+              "NewState": 1,
+              "Reason": 1,
+              "PreviousState": 2,
+              "TargetSoftwareVersion": null
+            },
+            {
+              "NewState": 2,
+              "Reason": 1,
+              "PreviousState": 1,
+              "TargetSoftwareVersion": null
+            },
+            {
+              "NewState": 1,
+              "Reason": 1,
+              "PreviousState": 2,
+              "TargetSoftwareVersion": null
+            }
+          ]
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=1; stderr logs empty"
+        }
+      ],
+      "default_provider": true,
+      "announcement_reason": 1,
+      "first_response": {
+        "time_ms": 1792278656002,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000001",
+        "version": 2
+      },
+      "second_response": null,
+      "restarts": 0,
+      "provider_query_times": null,
+      "apply_requests": null,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 1,
+            "Reason": 1,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 1,
+            "Reason": 1,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null
+          }
+        }
+      ],
+      "memcheck": [],
+      "stderr_bytes": {
+        "node-1.err": 0
+      },
+      "artifact_sha256": {
+        "result.json": "c74cc96ec78aa22f5d1ee8e61703ecfa0185b9cfa2613519c451f9bd63db27ea",
+        "provider.log": "3780f12382627d3fa6f76f69806b3309bca37780fe7f184fcedc404c6a53be28",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-1.log": "862f9d96469493f76948b7f7d6016b244d2ac2943a7cd644a0102fe74be20b5d",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "fabdb3e2d4b2dd30a9f067f73994dd8b7e7f41a27199db0ffc11ee87cb9344c5",
+        "fresh-reader/interactive.log": "20792f0067a90ac31c7bcad98b91b09be8dff0c5d31105e054907cd03868ce04",
+        "controller/interactive.log": "ea12efcbeae2e105f290a3c6715b27408d667b6afaa909b74e5b44deac7b000e"
+      }
+    },
+    "same-version": {
+      "result": "PASS",
+      "mode": "same-version",
+      "check_count": 15,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792278666969,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 1
+          }
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "rejected-without-bdx-or-install",
+          "status": "PASS",
+          "detail": {
+            "observed_seconds": 3.0486658923327923
+          }
+        },
+        {
+          "name": "fresh-case-version-and-boot",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 1,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS",
+          "detail": [
+            {
+              "TargetSoftwareVersion": null,
+              "Reason": 1,
+              "NewState": 2,
+              "PreviousState": 1
+            },
+            {
+              "TargetSoftwareVersion": null,
+              "Reason": 1,
+              "NewState": 1,
+              "PreviousState": 2
+            },
+            {
+              "TargetSoftwareVersion": null,
+              "Reason": 1,
+              "NewState": 2,
+              "PreviousState": 1
+            },
+            {
+              "TargetSoftwareVersion": null,
+              "Reason": 1,
+              "NewState": 1,
+              "PreviousState": 2
+            }
+          ]
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS",
+          "detail": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=1; stderr logs empty"
+        }
+      ],
+      "default_provider": true,
+      "announcement_reason": 1,
+      "first_response": {
+        "time_ms": 1792278666969,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 1
+      },
+      "second_response": null,
+      "restarts": 0,
+      "provider_query_times": null,
+      "apply_requests": null,
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "Reason": 1,
+            "NewState": 2,
+            "PreviousState": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "Reason": 1,
+            "NewState": 1,
+            "PreviousState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "Reason": 1,
+            "NewState": 2,
+            "PreviousState": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "Reason": 1,
+            "NewState": 1,
+            "PreviousState": 2
+          }
+        }
+      ],
+      "memcheck": [],
+      "stderr_bytes": {
+        "node-1.err": 0
+      },
+      "artifact_sha256": {
+        "result.json": "4b3e0aa11bdb154b73183531e154fc171155d11d13e2c5abc93987fe39124f04",
+        "provider.log": "b81f37b640280704cbc1dd9034b6c6985c3aade744924fa70a7b75a8eccf0ce6",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-1.log": "274b03259d644c8ed7fed6e9b1454b133ac533ae99dea775210e3cf549dbc1ba",
+        "fresh-reader/commands.txt": "438f0c97253c71c64dbf0320ce11bdfdc330ad612263ad8d1f6e9cb44ca16865",
+        "controller/commands.txt": "fabdb3e2d4b2dd30a9f067f73994dd8b7e7f41a27199db0ffc11ee87cb9344c5",
+        "fresh-reader/interactive.log": "ef3042b12f92db9d5b2a20a6b98ee17fcffd6f7e4b4a4a92c51951e2adf12e7f",
+        "controller/interactive.log": "043f8247c6b95be2cde40e47aa8601395030370a771941b5ae38f3679c7ef8cf"
+      }
+    }
+  },
+  "total_local_checks": 134,
+  "memory": {
+    "memcheck_boots": 2,
+    "allocations": 55235,
+    "frees": 55235,
+    "errors": 0,
+    "live_bytes": 0,
+    "suppressions": false,
+    "separate_sanitizer_boots": 2,
+    "all_host_stderr_empty": true,
+    "scope": "C host, not independent CHIP processes"
+  },
+  "oracle_review": {
+    "final_driver_sha256": "fc68737f4f9ec5eca6008114fa835666de111cb51d3b39b621849f5e1e5c785b",
+    "actual_response_rechecks": 7,
+    "negative_controls": {
+      "wrong-query-status": "REJECTED",
+      "shorter-provider-delay": "REJECTED",
+      "wrong-offered-version": "REJECTED",
+      "missing-offered-version": "REJECTED",
+      "query-before-120s": "REJECTED",
+      "query-before-provider-180s": "REJECTED"
+    },
+    "positive_delay_boundaries": 2
+  },
+  "cleanup": {
+    "th_state": "idle",
+    "official_sources_sha256": {
+      "TC_SU_2_2.py": "d5e9fbf867982ba7b1c8c8305c70a6fc6b04f018b521562d2e7028b6e672b8e4",
+      "TC_SUTestBase.py": "9e9b2af9fcca6b039da12273b89560bd55121ec11fdb72de0f4973499318615b"
+    },
+    "fixture_ports_released": [
+      5540,
+      5561,
+      5581
+    ],
+    "th_fixture_port_released": 5581,
+    "sdk_clean": true,
+    "paired_windows_nodes_untouched": true
+  },
+  "limits": [
+    "Original automatic FAIL remains; later original assertions not executed and no CSA-approved correction.",
+    "No one-day wall-clock query, physical firmware/bootloader, ecosystem UI, Windows host build or 128 kB RAM fit tested.",
+    "NotAvailable peer omits optional delay; this does not test the optional field when present.",
+    "Invalid/same-version cases have a short post-decision observation; no exhaustive future-polling claim.",
+    "Local Windows CLI help lacks Python cryptography; Linux CLI and network scenarios are executed.",
+    "Other matrix results inherited, not rerun.",
+    "Same-version control uses fresh version1/offer1, not the original sequential post-update version2/offer2 case. Fresh scenarios do not prove all original sequential subscription/provider-restart interactions."
+  ],
+  "next": {
+    "task": "CSA29",
+    "case": "TC-I-2.2",
+    "scope": "Identify timing and x86 observation fixture. Review operator prompts against declared IdentifyType0; do not assume a physical indicator.",
+    "script_sha256": "819e24eeda8cb353aa7de759aeffee28b1496b7d38e9739971a5641670d6ca03"
+  },
+  "hash_encoding": "Previous report uses committed Git blob bytes; artifacts use exact filesystem bytes; PICS uses sorted compact JSON. Public URI paths are redacted with exact URI digests.",
+  "validation_commands": {
+    "linux_cli": {
+      "linux_cli_help": "PASS",
+      "linux_py_compile": "PASS",
+      "sha256": "fc68737f4f9ec5eca6008114fa835666de111cb51d3b39b621849f5e1e5c785b"
+    },
+    "windows_python_syntax": "PASS: python -m py_compile tools/matter/tests/test_ota_chip_provider.py",
+    "inventory": "PASS: python tools/matter/check_test_map.py; 236 files, 87 native definitions, 59 core sources, 75 public headers",
+    "diff_check": "PASS: git diff --check"
+  }
+}

@@ -1,5 +1,22 @@
 # Development status
 
+**CSA28: original automatic TC_SU_2_2 FAIL, TH run457, step1.**
+The test announces a new provider with UpdateAvailable but does not arrange the
+initial normal query; the host's daily policy remains Idle, and the 120-second
+DelayedOnQuery wait expires. Later original assertions were not executed. Core
+11.20.7.4 recommends the next normal query for that reason; production timing,
+C/H, PICS and official test sources are unchanged. The independent laboratory
+adds `--default-provider`: configure/read back a default before reason1
+announcements, preserving actual retry floors and provider delays.
+Seven independent scenarios pass 134 checks. Busy/60 re-queries after 120203 ms;
+Busy/180 waits 180198 ms after the response. Memcheck has 55235 matched
+allocations/frees, zero errors/live bytes; separate ASan/UBSan/LSan is clean.
+Seven captured response predicates, six negative and two boundary controls pass.
+Counts: **97 PASS, 18 FAIL, 4 BLOCKED, 39 MANUAL, 704 NA**; only this row changes.
+See [actual scenarios, memory evidence and limits](csa28-validation.md) and
+[record](csa28-results.json). This is not an automatic PASS or certification.
+**Next: CSA29 — TC-I-2.2, Identify timing and the x86 observation fixture.**
+
 **CSA27: original automatic TC_SU_4_1 FAIL, TH run456, step5.**
 The host returns Success for clearing its list, Success for the first append
 and ConstraintError for the second append. The test checks only the first
@@ -12,7 +29,7 @@ ASan/UBSan/LSan host stderr is empty. The final parser passes 34 capture recheck
 and rejects eight negative controls. C/H and PICS are unchanged.
 Counts: **97 PASS, 17 FAIL, 5 BLOCKED, 39 MANUAL, 704 NA**; only this row changes.
 See [evidence and limits](csa27-validation.md) and [record](csa27-results.json).
-**Next: CSA28 — original automatic TC_SU_2_2, QueryImageResponse scenarios.**
+QueryImageResponse acceptance follows in CSA28 above.
 
 **CSA26: TC-SU-2.7 manual PASS, run455; TC_SU_2_7 automatic FAIL, run454.**
 Direct Querying/Downloading/Applying handoffs and known DownloadError progress

@@ -205,6 +205,7 @@ def main():
                    'apply-discontinue', 'query-timeout'), default='busy-update')
     p.add_argument('--stall-provider', help='Separate laboratory provider that stalls BDX data but keeps MRP alive; interrupt-retry only.')
     p.add_argument('--events', action='store_true', help='Subscribe to actual OTA events before announcement and verify their fields/sequences.')
+    p.add_argument('--default-provider', action='store_true', help='Configure DefaultOTAProviders before UpdateAvailable announcements; existing default uses SimpleAnnouncement.')
     p.add_argument('--valgrind', action='store_true')
     p.add_argument('--require-trace', action='store_true', help='Require and verify actual QueryImageResponse fields, also in update mode.')
     p.add_argument('--apply-binding', action='store_true', help='Verify UpdateToken/NewVersion from peer Query/Apply/Notify traces.')
@@ -229,6 +230,7 @@ def main():
     report = {'scope': 'CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification',
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               'mode': a.mode, 'valgrind': a.valgrind, 'trace_required': need_trace, 'subscriptions_per_fabric': a.subscriptions_per_fabric,
+              'default_provider': a.default_provider, 'announcement_reason': 1 if a.default_provider else 0,
               'checks': [], 'fixture': image_fixture(out, image_version, 2 if a.mode == 'version-mismatch' else None),
               'binaries': {n: hashlib.sha256(Path(v).read_bytes()).hexdigest() for n, v in
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
@@ -374,7 +376,7 @@ def main():
                 [(2, 'VendorID'), (4, 'ProductID'), (9, 'SoftwareVersion'), (7, 'HardwareVersion')]}
 
     def announce():
-        command(client, ['otasoftwareupdaterequestor', 'announce-otaprovider', 2, 0xfff1, 0, 0, 1, 0], r'status = 0x00')
+        command(client, ['otasoftwareupdaterequestor', 'announce-otaprovider', 2, 0xfff1, 1 if a.default_provider else 0, 0, 1, 0], r'status = 0x00')
 
     def start_provider():
         nonlocal provider, provider_phase
@@ -420,6 +422,12 @@ def main():
             command(client, ['any', 'subscribe-event-by-id', '0x2a', '0xffffffff', 0, 2, 1, 0,
                              '--keepSubscriptions', 0, '--is-urgent', 'true'], r'Subscription established')
             check('ota-event-subscription-before-announcement', True)
+        if a.default_provider:
+            command(client, ['otasoftwareupdaterequestor', 'write', 'default-otaproviders',
+                             json.dumps([{'providerNodeID': 2, 'endpoint': 0}]), 1, 0], r'status = 0x00')
+            selected = command(client, ['otasoftwareupdaterequestor', 'read', 'default-otaproviders', 1, 0])
+            check('default-provider-readback-before-update-available', bool(re.search(r'ProviderNodeID: 2\b', selected))
+                  and 'Endpoint: 0' in selected and 'FabricIndex: 1' in selected)
         announce()
         if a.mode == 'query-timeout':
             wait(lambda: bool(ota_messages(out / 'provider.log', 0, True)))

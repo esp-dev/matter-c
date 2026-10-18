@@ -292,8 +292,17 @@ Independent chip-tool acceptance passes 29 Memcheck and 27 sanitizer checks,
 including two fabrics, partial write/readback and persistence after restart.
 The cumulative counts become 97 PASS, 17 FAIL, 5 BLOCKED, 39 MANUAL, 704 NA;
 all other rows are inherited. See [evidence and limits](oss/csa27-validation.md).
-**Next task: CSA28 — original automatic TC_SU_2_2, QueryImageResponse scenarios**,
-retaining original failures and SDK observations for CSA review.
+CSA28 runs original automatic TC_SU_2_2: FAIL in run457 at the initial
+DelayedOnQuery wait. Its UpdateAvailable announcement does not arrange a normal
+query opportunity for the host's daily policy. The independent lab explicitly
+configures a default provider before reason1 announcements, preserving protocol
+timers and production behavior. Seven scenarios pass 134 local checks, including
+full Memcheck and separate sanitizer update/restart acceptance. Only this row changes: 97 PASS, 18 FAIL,
+4 BLOCKED, 39 MANUAL, 704 NA. Other rows are inherited. See
+[scenarios, evidence and limits](oss/csa28-validation.md).
+**Next task: CSA29 — TC-I-2.2, Identify timing and the x86 observation fixture**.
+Review its unchanged manual prompts against declared IdentifyType0; do not
+claim physical indication on x86. Retain original failures for CSA review.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 
