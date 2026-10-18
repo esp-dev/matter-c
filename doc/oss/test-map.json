@@ -261,7 +261,6 @@
       "ctest": [],
       "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
       "referenced_by": [
-        "tools/matter/tests/test_identify_chip.py",
         "tools/matter/tests/test_ota_chip_provider.py"
       ],
       "allocation_variant": "not applicable"
@@ -296,6 +295,8 @@
       "ctest": [],
       "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
       "referenced_by": [
+        "tools/matter/tests/test_general_diagnostics_chip.py",
+        "tools/matter/tests/test_identify_chip.py",
         "tools/matter/tests/test_ota_chip_provider.py"
       ],
       "allocation_variant": "not applicable"
@@ -1359,6 +1360,14 @@
       "referenced_by": [
         "tools/matter/tests/test_im_read.c"
       ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_general_diagnostics_chip.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_general_diagnostics_chip.py --help; Linux node, chip-tool, development PAA and credentials required; compares selected NIC with OS data.",
+      "referenced_by": [],
       "allocation_variant": "not applicable"
     },
     {

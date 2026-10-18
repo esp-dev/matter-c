@@ -1,5 +1,27 @@
 # Development status
 
+**CSA30: original semi-automated TC-DGGEN-2.1 ERROR, TH run463.**
+The host now supplies Node-relative monotonic time instead of OS uptime, and an
+optional application callback supplies actual selected transport NIC diagnostics.
+Independent chip-tool acceptance passes 31 Memcheck and 28 sanitizer checks;
+Memcheck has 59140 matched allocations/frees, zero errors/live bytes. Six focused
+Linux CTests pass per build, the installed consumer passes, and Windows host/
+desktop builds plus four focused CTests pass. Runtime regressions cover network
+callback failure, oversized/invalid data, recovery and instance isolation.
+Original test/PICS and both 2h05/1h05 waits are unchanged. Final states are
+28 passed, 5 not applicable, 1 error and 12 pending. After the first full 2h05
+wait, the next read encountered a TH/chip-tool WebSocket keepalive timeout;
+no second hours value was received. The second long wait was not executed.
+This does not establish a wrong DUT hours value. **No official PASS.** Counts remain
+**97 PASS, 18 FAIL, 3 BLOCKED, 40 MANUAL, 704 NA**, inherited from CSA29.
+The disposable TH node is stopped, its temporary PAA removed, port released and
+TH idle; final evidence was collected. Existing paired Windows instances
+were not replaced/restarted. Type is Unspecified; NIC addresses are a startup
+snapshot. See [fixes, execution error and limits](csa30-validation.md) and
+[record](csa30-results.json).
+**Next: reproduce and diagnose the TH/chip-tool WebSocket loss with a short
+fixture, then repeat the unchanged full case once the infrastructure is stable.**
+
 **CSA29: original semi-automated TC-I-2.2 PASS, TH run460, 15/15 step entries.**
 Two agent-evaluated operator prompts use live callbacks under IdentifyType0
 (None, no physical presentation), followed by evidence upload. This is not a
@@ -15,7 +37,7 @@ its temporary public PAA removed. User-paired Windows nodes are unchanged.
 Counts: **97 PASS, 18 FAIL, 3 BLOCKED, 40 MANUAL, 704 NA**; other rows inherited.
 See [evidence, setup attempts and limits](csa29-validation.md) and
 [record](csa29-results.json). No certification is claimed.
-**Next: CSA30 — TC-DGGEN-2.1, General Diagnostics and its x86 operator fixture.**
+General Diagnostics execution and its infrastructure error are recorded in CSA30 above.
 
 **CSA28: original automatic TC_SU_2_2 FAIL, TH run457, step1.**
 The test announces a new provider with UpdateAvailable but does not arrange the

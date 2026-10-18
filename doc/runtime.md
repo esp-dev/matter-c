@@ -35,6 +35,33 @@ profile still waives only validity dates, preserving signatures/root/identity.
 The host retains its DAC-derived UniqueID behavior; generic runtime preserves
 the caller's UniqueID. Event time uses the latest supplied monotonic time.
 
+Supply node System Time consistently to construction, processing, shutdown and
+application clusters. For the x86 host executable each process represents one
+simulated Node: it subtracts its own monotonic boot origin before passing time
+to any module, including callbacks and shutdown. OS uptime must not become a
+fresh Node's UpTime or TotalOperationalHours. Wall-clock UTC remains separate.
+Restarting a service on an actual device is not a Node reboot; such applications
+must retain their existing node clock and reboot/persistence semantics.
+Previously persisted operational-hour counters are preserved, even if the old
+host clock inflated them; this fix does not silently reset lifetime telemetry.
+Factory reset retains its existing responsibility for clearing those counters.
+
+`Matter_Runtime_Config_T.network` optionally supplies the complete live logical
+interface list for General Diagnostics. The callback runs synchronously on the
+owner thread into runtime-owned heap storage; it must not block, reenter, retain
+output pointers or write past capacity. Errors, an excessive count or invalid
+descriptions invalidate live diagnostics instead of serving stale data. Users
+outlive runtime deletion. Omission retains the existing iface/radio-derived
+snapshot. Zero-initialize omitted optional fields and rebuild consumers for the
+extended configuration structure.
+
+The host wires this port to its selected transport NIC, separately from the
+simulated Wi-Fi commissioning backend. It reports the real padded MAC and
+startup address snapshot, including link-local IPv6, with live operational mDNS
+publication state. Type is explicitly Unspecified because the shared I/O snapshot
+does not expose OS link type. This does not enumerate unused host adapters or
+track address changes while the process runs; restart after changing NIC setup.
+
 General Diagnostics uses the runtime's live dispatcher statistics. Successfully
 completed local IM sends and admitted incoming IM messages are counted once;
 MRP retries, standalone ACKs and CASE/BDX traffic do not inflate these counters.

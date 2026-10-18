@@ -8,6 +8,14 @@ typedef struct {
     /* Hardware address in wire order, zero-prefixed for six-byte MACs. */
     bool operational; int8_t reachable4,reachable6; /* -1=null, 0=false, 1=true */
 } Matter_Diagnostics_Interface_T;
+
+/* Optional live logical-interface snapshot, copied on the owner thread. Output
+ * storage belongs to the runtime; never retain it or block/reenter. Report the
+ * full count, returning an error rather than truncating an oversized list. */
+typedef struct {
+    void* user;
+    Matter_Result_T (*snapshot)(void*,Matter_Diagnostics_Interface_T*,size_t capacity,size_t* count);
+} Matter_Diagnostics_Network_Port_T;
 typedef struct { uint8_t index; uint16_t current; } Matter_Diagnostics_Subscriptions_T;
 typedef struct {
     Matter_Diagnostics_Interface_T interfaces[8]; uint8_t interface_count,boot_reason;

@@ -58,6 +58,7 @@ Matter_Server_T matter_server_new_sim(const char* directory,const char* path,con
     const char* public_key=options?options->ota_public_key:NULL;
     Matter_Server_T s=calloc(1,sizeof(*s)); if(!s) return NULL;
     s->identity=*identity; Matter_Runtime_Config_T* c=&s->config; c->identity=&s->identity;
+    if(options) c->network=options->network;
     s->backend=matter_crypto_mbedtls_new(NULL);
     if(!s->backend || matter_crypto_mbedtls_port(s->backend,&c->crypto)!=MATTER_OK ||
         matter_crypto_mbedtls_credentials(s->backend,&c->credentials)!=MATTER_OK) goto fail;

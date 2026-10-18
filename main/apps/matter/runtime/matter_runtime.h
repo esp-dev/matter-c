@@ -61,10 +61,14 @@ typedef struct {
     void (*log)(void*,const char*);
     /* Pure regulatory capability check; runtime persists settings on success. */
     Matter_Result_T (*regulatory)(void*,const Matter_Root_Settings_T*,uint8_t,bool* supported);
+    /* Optional live replacement of iface/radio-derived NetworkInterfaces.
+     * Zero-initialize when unused; borrowed user outlives delete. Rebuild
+     * consumers after this configuration extension. Other diagnostics unchanged. */
+    Matter_Diagnostics_Network_Port_T network;
 } Matter_Runtime_Config_T;
 /* Builds complete commissioning/fabric/ACL/diagnostics composition. No I/O
  * implementation, socket, OS clock, scheduler or crypto backend is created.
- * All ports above (except log/update) required. new calls load/initialize/UTC
+ * All ports above (except log/update/network) required. new calls load/initialize/UTC
  * and derives PASE on the owner thread. Failure releases owned allocations.
  * Public spans/users, crypto, storage, radio, update outlive successful delete.
  * Monotonic time is supplied by the caller, including all process/stop calls.

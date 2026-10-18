@@ -1,8 +1,14 @@
 # Test inventory
 
-test-map.json enumerates 237 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 238 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+`test_general_diagnostics_chip.py` checks process-relative node time, restart
+and factory-reset counters, live NIC MAC/addresses, empty fault lists and the
+disabled test-trigger default. It compares NetworkInterfaces against Linux OS
+data. Run the full three-boot scenario separately under Memcheck and sanitizers.
+This short acceptance does not replace the original TC-DGGEN-2.1 hour-long waits.
 
 `test_identify_chip.py` checks Identify command60, real countdown, command0,
 write15, expiry, quiet countdown reporting and fresh CASE after restart against

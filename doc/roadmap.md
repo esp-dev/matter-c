@@ -309,9 +309,18 @@ fresh CASE after restart. No C/H or official sources/PICS changed. TH networking
 and existing services are restored after the laboratory outage. Counts become
 97 PASS, 18 FAIL, 3 BLOCKED, 40 MANUAL, 704 NA; other rows inherited. See
 [evidence and limits](oss/csa29-validation.md).
-**Next task: CSA30 — TC-DGGEN-2.1, General Diagnostics and its x86 operator fixture**.
-Review original factory-reset/reboot/network-interface prompts before assessing
-them on x86. Retain original failures for CSA review; no certification is claimed.
+CSA30 fixes host OS uptime being passed as Node System Time and replaces the
+constant simulated-interface description with an optional application network
+snapshot callback. Independent chip-tool acceptance passes 59 checks across
+Memcheck/separate sanitizers; focused native/package checks also pass. Original
+semi-automated TC-DGGEN-2.1 ends ERROR in run463 after its full original 2h05 wait:
+the next read hits a TH/chip-tool WebSocket keepalive timeout. It obtains no
+second hours value; the 1h05 segment and later steps remain unexecuted. Source/
+PICS are unchanged; final evidence and cleanup are complete. **No official PASS;
+cumulative counts remain unchanged.** See [evidence and limits](oss/csa30-validation.md).
+**Next task: diagnose the TH/chip-tool WebSocket loss using a short fixture**,
+then repeat the unchanged full case once the infrastructure is stable. Retain
+original failures; no certification is claimed.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

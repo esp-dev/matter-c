@@ -80,6 +80,13 @@ static Matter_Result_T diagnostics_snapshot(void* u,Matter_Diagnostics_Snapshot_
     Matter_Runtime_T s=u; Matter_Diagnostics_Port_T base=matter_diagnostics_host_port(s->diagnostics_host);
     Matter_Result_T r=base.snapshot(base.user,out); if(r!=MATTER_OK) return r;
     Matter_Diagnostics_General_T* g=&out->general;
+    if(s->platform.network.snapshot) {
+        size_t count=0,capacity=sizeof(g->interfaces)/sizeof(g->interfaces[0]);
+        memset(g->interfaces,0,sizeof(g->interfaces));
+        r=s->platform.network.snapshot(s->platform.network.user,g->interfaces,capacity,&count);
+        if(r!=MATTER_OK || count>capacity) return MATTER_PORT_ERROR;
+        g->interface_count=(uint8_t)count;
+    }
     Matter_Dispatch_Load_T load=matter_dispatch_load(s->dispatch,0);
     g->im_sent=load.sent; g->im_received=load.received; g->total_subscriptions=load.established;
     g->unfabric_subscriptions=load.current;

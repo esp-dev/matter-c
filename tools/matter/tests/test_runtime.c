@@ -25,6 +25,7 @@ typedef struct {
     unsigned stores,pumps,clocks,logs; uint64_t event_high,epoch;
     bool accept_packets; uint64_t pending_packet;
     bool fail_store,fail_clock,fail_initialize,fail_snapshot;
+    bool fail_network,oversized_network,invalid_network,network_online;
     uint64_t wifi_token; bool cancelling,hold_cancel;
     Matter_Cluster_T time_sync; Matter_Time_Sync_Sample_T time_sample;
 } Node;
@@ -65,6 +66,14 @@ static Matter_Result_T pump(void* u,Matter_Wifi_T w,uint64_t now) {
 }
 static Matter_Result_T observe(void* u,Matter_Wifi_Ap_T* ap,bool* online) {
     (void)u; memset(ap,0,sizeof(*ap)); *online=false; return MATTER_OK;
+}
+static Matter_Result_T network_snapshot(void* u,Matter_Diagnostics_Interface_T* out,size_t capacity,size_t* count) {
+    Node* n=u; if(n->fail_network) return MATTER_PORT_ERROR;
+    *count=n->oversized_network?capacity+1:1; if(!capacity) return MATTER_LIMIT_REACHED;
+    out[0]=n->config.iface; out[0].type=n->invalid_network?5:2;
+    out[0].operational=n->network_online; out[0].hardware[2]=2;
+    out[0].ipv6_count=1; out[0].ipv6[0][0]=0xfe; out[0].ipv6[0][1]=0x80; out[0].ipv6[0][15]=7;
+    return MATTER_OK;
 }
 static Matter_Result_T utc(void* u,Matter_Cert_Time_T* t) {
     Node* n=u; ++n->clocks; if(n->fail_clock) return MATTER_OFFLINE;
@@ -158,6 +167,33 @@ static void diagnostic_time(Node* a,Node* b) {
     check_snapshot(a,false,0);
     puts("PASS runtime TimeSnapshot: absent/unsynchronized UTC, Matter-to-POSIX conversion, maximum value and clock isolation");
 }
+static void diagnostic_network(Node* a,Node* b) {
+    Matter_Cluster_T diag=matter_root_cluster(matter_runtime_root(a->runtime),MATTER_DIAGNOSTICS_GENERAL);
+    Matter_Im_Value_T value; Matter_Cluster_Request_T request={0};
+    for(unsigned attempt=0;attempt<5;++attempt) {
+        a->fail_network=attempt==1; a->oversized_network=attempt==2; a->invalid_network=attempt==3;
+        a->network_online=attempt==4;
+        run(a,19);
+        uint8_t result=matter_cluster_read(diag,0,&request,&value);
+        if(attempt>0 && attempt<4) { CHECK(result==MATTER_IM_FAILURE); continue; }
+        CHECK(result==MATTER_IM_SUCCESS && value.type==MATTER_TLV_ARRAY);
+        Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T e; unsigned seen=0;
+        CHECK(matter_tlv_init(&reader,value.data,value.size,4)==MATTER_TLV_OK);
+        while(matter_tlv_next(&reader,&e)==MATTER_TLV_OK) {
+            if(e.type==MATTER_TLV_BOOL && e.tag.control==1 && e.tag.number==1) {
+                CHECK(e.unsigned_value==a->network_online); ++seen;
+            }
+            if(e.type==MATTER_TLV_BYTES && e.tag.control==1 && e.tag.number==4) {
+                CHECK(e.size==8 && e.data[2]==2); ++seen;
+            }
+        }
+        CHECK(seen==2);
+    }
+    /* Default radio-derived composition on B remains independent and valid. */
+    diag=matter_root_cluster(matter_runtime_root(b->runtime),MATTER_DIAGNOSTICS_GENERAL);
+    CHECK(matter_cluster_read(diag,0,&request,&value)==MATTER_IM_SUCCESS);
+    puts("PASS runtime network callback: live state, padded MAC, failure/oversize/malformed rejection, recovery and default isolation");
+}
 static void close_runtime(Node* n,uint64_t now) {
     CHECK(matter_runtime_delete(n->runtime)==MATTER_BUSY);
     Matter_Result_T result=matter_runtime_stop(n->runtime,now);
@@ -212,10 +248,12 @@ static void commissioning_failures(void) {
 }
 int main(void) {
     Node* a=node_new(0); Node* b=node_new(1);
+    a->config.network=(Matter_Diagnostics_Network_Port_T){a,network_snapshot};
     CHECK(!matter_runtime_new(NULL,20202021,0)); CHECK(!matter_runtime_new(&a->config,11111111,0));
     a->fail_clock=true; CHECK(!matter_runtime_new(&a->config,20202021,0)); a->fail_clock=false;
     a->fail_initialize=true; CHECK(!matter_runtime_new(&a->config,20202021,0)); a->fail_initialize=false;
     a->fail_snapshot=true; CHECK(!matter_runtime_new(&a->config,20202021,0)); a->fail_snapshot=false;
+    a->fail_network=true; CHECK(!matter_runtime_new(&a->config,20202021,0)); a->fail_network=false;
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live); calls=0;
     a->runtime=matter_runtime_new(&a->config,20202021,0); CHECK(a->runtime);
@@ -243,6 +281,7 @@ int main(void) {
     for(uint64_t now=1;now<20;++now) { run(a,now); run(b,now*2); }
     CHECK(a->pumps==19 && b->pumps==19);
     diagnostic_time(a,b);
+    diagnostic_network(a,b);
     Matter_Store_Host_T sa=matter_runtime_store(a->runtime),sb=matter_runtime_store(b->runtime);
     uint64_t ha,hb; CHECK(matter_store_host_event_load(sa,&ha)==MATTER_OK && matter_store_host_event_load(sb,&hb)==MATTER_OK);
     CHECK(matter_store_host_event_store(sa,ha+100)==MATTER_OK);

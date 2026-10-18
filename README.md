@@ -256,6 +256,17 @@ were required. Only this manual row changes, giving 97 PASS, 15 FAIL, 8 BLOCKED,
 38 MANUAL and 704 NA. Other rows are inherited; this is not automatic CSA
 assertions or certification. OTA event acceptance is recorded below.
 
+The [CSA30 General Diagnostics work](doc/oss/csa30-validation.md) corrects host
+OS uptime leaking into Node time and connects actual selected-NIC diagnostics
+through an optional application callback. Independent chip-tool acceptance
+passes 59 checks with clean Memcheck and separate sanitizers; focused Linux,
+Windows and installed-package checks pass. Original semi-automated TC-DGGEN-2.1
+ended as **ERROR in TH run463**: after its original 2h05 wait, the next read
+encountered a TH/chip-tool WebSocket keepalive timeout. No second hours value
+was obtained; later steps were not executed. **No official PASS; cumulative
+CSA counts are unchanged.** See the [result record](doc/oss/csa30-results.json)
+and [callback contract](doc/runtime.md).
+
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator
 verifications use live x86 callbacks with IdentifyType0 (None); no physical

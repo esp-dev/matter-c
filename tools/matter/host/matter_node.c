@@ -56,6 +56,7 @@ typedef struct {
     Matter_Epm_Multi_Sample_T measurements[4];
     Matter_Epm_Measurement_T measurement_config[4];
     bool energy_test_enabled; Matter_Energy_Sim_T energy_sim;
+    uint64_t boot_ms; /* Host clock origin of this simulated Node, not OS boot. */
     Matter_Events_T events; Matter_Udp_Windows_T udp; Matter_Mdns_Windows_T mdns;
     Matter_Discovery_T discovery; Matter_Mdns_Windows_Interface_T iface; uint8_t discovery_mac[6];
     Matter_Resolver_Windows_T resolver;
@@ -72,6 +73,34 @@ typedef struct {
     Matter_Server_T server; Operational operational[5]; uint16_t port,discriminator,advertised_discriminator; uint8_t random[8],cm_mode;
     uint8_t observed_cm_mode; bool discovery_stopping,discovery_rotate;
 } Node;
+static uint64_t node_now(const Node* n) { return matter_host_now()-n->boot_ms; }
+static Matter_Result_T network_snapshot(void* u,Matter_Diagnostics_Interface_T* out,size_t capacity,size_t* count) {
+    Node* n=u; *count=1; if(!capacity) return MATTER_LIMIT_REACHED;
+    Matter_Diagnostics_Interface_T* a=&out[0]; memset(a,0,sizeof(*a));
+    int size=snprintf((char*)a->name,sizeof(a->name),"host-interface-%lu",(unsigned long)n->iface.index);
+    if(size<0 || (size_t)size>=sizeof(a->name)) return MATTER_PORT_ERROR;
+    a->name_size=(uint8_t)size; a->reachable4=a->reachable6=-1;
+    /* The shared I/O snapshot does not expose the OS link type: leave Type
+     * Unspecified rather than describing the simulated radio as this NIC. */
+    memcpy(a->hardware+2,n->iface.mac,sizeof(n->iface.mac));
+    for(unsigned i=0;i<n->iface.address_count;++i) {
+        const Matter_Mdns_Host_Address_T* address=&n->iface.addresses[i];
+        if(address->ipv4) {
+            if(a->ipv4_count>=sizeof(a->ipv4)/sizeof(a->ipv4[0])) return MATTER_LIMIT_REACHED;
+            memcpy(a->ipv4[a->ipv4_count++],address->bytes,4);
+        } else {
+            if(a->ipv6_count>=sizeof(a->ipv6)/sizeof(a->ipv6[0])) return MATTER_LIMIT_REACHED;
+            memcpy(a->ipv6[a->ipv6_count++],address->bytes,16);
+        }
+    }
+    if(!n->iface.address_count) {
+        memcpy(a->ipv6[a->ipv6_count++],n->iface.ipv6,16);
+        if(n->iface.has_ipv4) memcpy(a->ipv4[a->ipv4_count++],n->iface.ipv4,4);
+    }
+    for(unsigned i=0;i<sizeof(n->operational)/sizeof(n->operational[0]);++i)
+        if(n->operational[i].mdns && matter_mdns_is_published(matter_mdns_windows_module(n->operational[i].mdns))) a->operational=true;
+    return MATTER_OK;
+}
 static volatile sig_atomic_t interrupted;
 static void stop_signal(int sig) { (void)sig; interrupted=1; }
 static Matter_Result_T load(void* u,Matter_Root_Config_T* out) { *out=((Node*)u)->identity; return MATTER_OK; }
@@ -108,7 +137,7 @@ static void text(Matter_Root_Text_T* t,const char* str) { t->size=strlen(str); m
 static void switch_changed(void* u,bool on) {
     Node* n=u;
     /* Integrate the OLD state up to this transition, including sub-second use. */
-    if(matter_energy_sim_sample(&n->plug_sim,matter_host_now())!=MATTER_OK) n->plug_fault=true;
+    if(matter_energy_sim_sample(&n->plug_sim,node_now(n))!=MATTER_OK) n->plug_fault=true;
     n->plug_sim.normal_mw[0]=on?HOST_PLUG_POWER_MW:0; n->plug_on=on;
     printf("TEST_SWITCH endpoint=2 on=%u\n",on?1:0); matter_server_changed(n->server);
 }
@@ -206,7 +235,7 @@ static uint8_t test_event_trigger(void* u,uint64_t event) {
     if(n->three_phase && endpoint>=3 && endpoint<=5) target=&n->phase_energy_sim[endpoint-3];
     else if(endpoint>1) return MATTER_IM_INVALID_COMMAND;
     /* Validate the target before normalizing the legacy energy helper's event. */
-    uint8_t status=matter_energy_sim_trigger(target,event&~(UINT64_C(0xffff)<<32),matter_host_now());
+    uint8_t status=matter_energy_sim_trigger(target,event&~(UINT64_C(0xffff)<<32),node_now(n));
     printf("ENERGY_TEST event=%016llx status=%u\n",(unsigned long long)event,status); return status;
 }
 static Matter_Result_T multi_sample(void* u,Matter_Epm_Multi_Sample_T* out) { *out=*(Matter_Epm_Multi_Sample_T*)u; return MATTER_OK; }
@@ -341,7 +370,7 @@ static bool model(Node* n,uint64_t now,const char* credentials,const char* state
     c->capabilities.subscriptions=n->subscriptions_per_fabric;
     c->settings.location[0]='X'; c->settings.location[1]='X'; c->descriptor_version=versions[0]; c->basic_version=versions[1];
     if(credentials) {
-        Matter_Server_Sim_Options_T options={.ota_public_key=ota_key,.wifi_connected=n->wifi_sim_connected,
+        Matter_Server_Sim_Options_T options={.ota_public_key=ota_key,.wifi_connected=n->wifi_sim_connected,.network={n,network_snapshot},
             .unique_id=n->gui_enabled?&c->unique_id:NULL};
         n->server=matter_server_new_sim(credentials,state,c,pin,now,&options); if(!n->server) return false;
         n->root=matter_server_root(n->server);
@@ -636,7 +665,8 @@ int main(int argc,char** argv) {
     n->source_enabled=source_registers;
     n->meter_services=meter_services;
     n->energy_test_enabled=energy_test; trigger.user=n;
-    int result=1; bool started=false; uint64_t start=matter_host_now(),now=start;
+    n->boot_ms=matter_host_now();
+    int result=1; bool started=false; uint64_t start=node_now(n),now=start;
     if(matter_mdns_windows_interface((uint32_t)index,&n->iface)!=MATTER_OK) { fprintf(stderr,"Interface has no supported IPv6/MAC/multicast binding.\n"); goto done; }
     n->subscriptions_per_fabric=(uint16_t)subscriptions;
     n->owner=matter_new(NULL); if(!n->owner || matter_start(n->owner)!=MATTER_OK) goto done;
@@ -688,7 +718,7 @@ int main(int argc,char** argv) {
     if(!n->mdns || matter_mdns_start(matter_mdns_windows_module(n->mdns))!=MATTER_OK) goto done;
     if(matter_server_ota_trial(n->server) && ota_boot) {
         puts("OTA_SIM_TRIAL_WAIT");
-        if(!strcmp(ota_boot,"hold")) while(!interrupted && matter_host_now()-start<seconds*1000) matter_host_sleep(10);
+        if(!strcmp(ota_boot,"hold")) while(!interrupted && node_now(n)-start<seconds*1000) matter_host_sleep(10);
         puts("OTA_SIM_BOOT_FAILED"); result=0; goto done;
     }
     if(matter_server_ota_boot_ready(n->server)!=MATTER_OK) goto done;
@@ -704,7 +734,7 @@ int main(int argc,char** argv) {
     if(energy_test) printf("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile endpoints=%s\n",three_phase?"1,3,4,5":"1");
     if(test_events && three_phase) puts("MTRID_TEST enabled=1 endpoint=1 key=not-persisted identity=volatile clear=base-snapshot");
     bool announced=false; uint64_t next_sample=now,next_status=now;
-    while(!interrupted && (now=matter_host_now(),(!seconds || now-start<seconds*1000))) {
+    while(!interrupted && (now=node_now(n),(!seconds || now-start<seconds*1000))) {
         if(n->gui_enabled) {
             uint64_t generation=n->gui.generation;
             if(!matter_gui_control_poll(&n->gui)) { fputs("GUI control pipe failed\n",stderr); goto done; }
@@ -737,16 +767,16 @@ int main(int argc,char** argv) {
     result=(announced || (n->gui_enabled && n->gui.stop))?0:1;
 done:
     if(n->server) {
-        while(matter_server_stop(n->server,matter_host_now())==MATTER_PENDING) {
-            if(n->resolver) (void)matter_resolver_windows_poll(n->resolver,matter_host_now());
-            (void)matter_udp_windows_poll(n->udp); (void)matter_server_process(n->server,matter_host_now()); matter_host_sleep(1);
+        while(matter_server_stop(n->server,node_now(n))==MATTER_PENDING) {
+            if(n->resolver) (void)matter_resolver_windows_poll(n->resolver,node_now(n));
+            (void)matter_udp_windows_poll(n->udp); (void)matter_server_process(n->server,node_now(n)); matter_host_sleep(1);
         }
     }
     if(n->plug_ready && !n->plug_fault) {
         /* Retain the final partial second and fractional mWh across clean
          * restart; never count powered-off time while this process is absent. */
         Matter_Eem_Checkpoint_T saved=n->plug_checkpoint;
-        if(matter_energy_sim_sample(&n->plug_sim,matter_host_now())!=MATTER_OK) result=1;
+        if(matter_energy_sim_sample(&n->plug_sim,node_now(n))!=MATTER_OK) result=1;
         else {
             saved=(Matter_Eem_Checkpoint_T){.generation=1,.raw_mwh={n->plug_sim.raw[0],0},.total_mwh={n->plug_sim.raw[0],0},
                 .initialized=true,.registers=true,.register_mask=3};
@@ -754,7 +784,7 @@ done:
         }
     }
     for(;;) {
-        (void)advertisements(n,matter_host_now(),true); bool pending=false;
+        (void)advertisements(n,node_now(n),true); bool pending=false;
         for(unsigned i=0;i<5;++i) pending|=n->operational[i].owner!=NULL;
         if(!pending) break;
         matter_host_sleep(10);
@@ -764,7 +794,7 @@ done:
         while(matter_get_state(n->owner)==MATTER_STATE_STOPPING) {
             if(n->mdns) {
                 (void)matter_mdns_process(matter_mdns_windows_module(n->mdns));
-                (void)matter_mdns_windows_poll(n->mdns,matter_host_now());
+                (void)matter_mdns_windows_poll(n->mdns,node_now(n));
             }
             if(n->udp) { (void)matter_udp_windows_poll(n->udp); (void)matter_udp_process(matter_udp_windows_module(n->udp)); }
             matter_host_sleep(10);

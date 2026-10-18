@@ -23,6 +23,8 @@ typedef struct {
     /* Optional copied desktop identity (1..32 bytes); default remains DAC hash.
      * Each simulated node sharing development credentials needs its own ID. */
     const Matter_Root_Text_T* unique_id;
+    /* Optional actual transport interfaces, independent of simulated Wi-Fi. */
+    Matter_Diagnostics_Network_Port_T network;
 } Matter_Server_Sim_Options_T;
 Matter_Server_T matter_server_new_sim(const char* credentials,const char* state,
     const Matter_Root_Config_T*,uint32_t pin,uint64_t now,const Matter_Server_Sim_Options_T*);

@@ -1,0 +1,641 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa29-results.json",
+  "previous_sha256": "06391a1351969d7d1585cec36c3ded29b7b44f9231c3c265f2eaaac272c93ac2",
+  "source_base_commit": "1387bd0e5171967cc15e251ff720db2ece270a2f",
+  "scope": "CSA30 Node-time and actual-network integration fixes; independent acceptance completed. Original TC-DGGEN-2.1 run463 ends ERROR on TH/chip-tool WebSocket keepalive after the first full 2h05 wait; later assertions unexecuted. Not official PASS or certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 3,
+    "MANUAL": 40,
+    "NA": 704
+  },
+  "classification_changes": [],
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "11.12.6.3": "UpTime is since Node reboot and shares server System Time.",
+    "11.12.6.4": "TotalOperationalHours tracks Node lifetime operation and resets at factory reset.",
+    "11.12.5.6": "NetworkInterface fields describe operational publication/receive capability, padded current MAC and unicast addresses including link-local IPv6.",
+    "11.12.6.1": "Every logical interface on the Node is represented once."
+  },
+  "defects_fixed": [
+    "Host OS uptime incorrectly used as fresh simulated Node System Time and accumulated hours.",
+    "Actual selected transport NIC missing from General Diagnostics; constant simulated radio description returned instead."
+  ],
+  "baseline_independent": {
+    "scope": "General Diagnostics on a disposable x86 node, using unmodified chip-tool.\n\nProcess lifetime is the simulated Node lifetime. Checks real elapsed time,\nrestart/persistence, factory reset and the declared simulated interface.\nRun Memcheck and ASan/UBSan/LSan separately. Not official CSA acceptance.\n",
+    "checks": [
+      {
+        "name": "first-attestation",
+        "status": "PASS",
+        "detail": null
+      },
+      {
+        "name": "fresh-reboot-count",
+        "status": "PASS",
+        "detail": null
+      },
+      {
+        "name": "fresh-node-uptime-not-os-uptime",
+        "status": "FAIL",
+        "detail": {
+          "uptime_s": 3412724,
+          "process_elapsed_s": 3.776786263100803
+        }
+      }
+    ],
+    "valgrind": false,
+    "driver_sha256": "c2c15d30291f656e7dae2f3788e454b79ac2c86ab63cff9c016e3fab5a250766",
+    "node_sha256": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+    "result": "FAIL",
+    "error": "fresh-node-uptime-not-os-uptime: {'uptime_s': 3412724, 'process_elapsed_s': 3.776786263100803}"
+  },
+  "identity": {
+    "source_manifest_files": 362,
+    "source_manifest_sha256": "39775f232be8825dba2f08d7ff6fa48a18c16798cc8f1c00e0c2a14bff0c1fa9",
+    "manifest_scope": "All tracked C/H files in exported source tree; not a claim every file was compiled on Linux.",
+    "binary_sha256": {
+      "normal": "fdb1b4e90b1013cffb46c4da27c6f609bc22c8240d4aa8971627a44d133b6a33",
+      "sanitize": "7fb4e422b7efcd0c8b8544eb32bfd38eb7ff709fcec4553c2588a2d2e331dfb9"
+    },
+    "public_api": "Optional network port appended to runtime/host configuration; zero-initialize and rebuild consumers. Function signatures retained."
+  },
+  "local_acceptance": {
+    "normal": {
+      "result": {
+        "scope": "General Diagnostics on a disposable x86 node, using unmodified chip-tool.\n\nProcess lifetime is the simulated Node lifetime. Checks real elapsed time,\nrestart/persistence, factory reset and the declared simulated interface.\nRun Memcheck and ASan/UBSan/LSan separately. Not official CSA acceptance.\n",
+        "checks": [
+          {
+            "name": "first-attestation",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "fresh-reboot-count",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "fresh-node-uptime-not-os-uptime",
+            "status": "PASS",
+            "detail": {
+              "uptime_s": 11,
+              "process_elapsed_s": 12.26355975586921
+            }
+          },
+          {
+            "name": "fresh-operational-hours-zero",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "power-on-boot-reason",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "actual-selected-interface",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "actual-ipv4-addresses",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "actual-ipv6-including-link-local",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "active-hardware-faults-empty-list",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "active-radio-faults-empty-list",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "active-network-faults-empty-list",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "test-event-triggers-disabled",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "uptime-after-real10s",
+            "status": "PASS",
+            "detail": {
+              "uptime_s": 22,
+              "process_elapsed_s": 22.878346701618284
+            }
+          },
+          {
+            "name": "uptime-increments-with-elapsed-time",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "clean-stop-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "reboot-count-increments-after-restart",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "uptime-resets-after-restart",
+            "status": "PASS",
+            "detail": {
+              "uptime_s": 5,
+              "process_elapsed_s": 6.195055809803307
+            }
+          },
+          {
+            "name": "restart-uptime-below-pre-restart-value",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "hours-retained-after-restart",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "clean-stop-2",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "factory-reset-attestation",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "factory-reset-reboot-count",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "factory-reset-hours-zero",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "factory-reset-uptime",
+            "status": "PASS",
+            "detail": {
+              "uptime_s": 11,
+              "process_elapsed_s": 12.29680422320962
+            }
+          },
+          {
+            "name": "clean-stop-3",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memcheck-clean-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-2",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memcheck-clean-2",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-3",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memcheck-clean-3",
+            "status": "PASS",
+            "detail": null
+          }
+        ],
+        "valgrind": true,
+        "driver_sha256": "45d11a619da69d4f6bd7e06d0af830105b4de96991c264e9f93dfe158931b4fd",
+        "node_sha256": "fdb1b4e90b1013cffb46c4da27c6f609bc22c8240d4aa8971627a44d133b6a33",
+        "network_capture_sha256": "672c19dab4a3fd299bc61e212f5c14534b29493ddc0842947d3c521ae470486a",
+        "result": "PASS"
+      },
+      "memcheck": [
+        {
+          "allocations": 24026,
+          "frees": 24026,
+          "errors": 0,
+          "live_bytes": 0
+        },
+        {
+          "allocations": 11191,
+          "frees": 11191,
+          "errors": 0,
+          "live_bytes": 0
+        },
+        {
+          "allocations": 23923,
+          "frees": 23923,
+          "errors": 0,
+          "live_bytes": 0
+        }
+      ],
+      "artifact_sha256": {
+        "node-3.log": "79805d0a66eb9461d43d7e4183a6c73986439e8a4c1e1469a1ee633511b67762",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "c30abb98b91e9dceba21aa682fb0f1137ae47f6aa10fe83a2774154eed935625",
+        "valgrind-2.log": "0527eca61bea4fb9dbbc6563566a04b359c3ed4beebac4e587478c9beb5aa9b3",
+        "node-2.log": "a1f8505438e09021e3365e1782ce1562bdb147e0170bab9bc5874db5a9278ee2",
+        "valgrind-3.log": "1cea3ee42e75bf977368b52b6dcaa0e855e4fe5b158bb2fcb76fcacc2fa90435",
+        "result.json": "923f587722bcf8cce31472364216ee72bbed0e72e39acf5810ed1990c305aa80",
+        "node-1.log": "f11282d4c9355ae9b5081ca2761234e245cb19ac581d3fbab3aa94268a34740c",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-3.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "restart/interactive.log": "cfb521c5059f83f51c8bad4d4bc526f6f6e419025fd4eeeae0d3353975fc84ff",
+        "factory-reset/interactive.log": "04e977a28883b2664ad19d815b40fb502e496336db5f75687ed86b40f5879096",
+        "first/interactive.log": "84f8191778f43829cc8b8a489d97a4c6fd10f0d8ef04a50f17bfcbe90a3adff2"
+      }
+    },
+    "sanitize": {
+      "result": {
+        "scope": "General Diagnostics on a disposable x86 node, using unmodified chip-tool.\n\nProcess lifetime is the simulated Node lifetime. Checks real elapsed time,\nrestart/persistence, factory reset and the declared simulated interface.\nRun Memcheck and ASan/UBSan/LSan separately. Not official CSA acceptance.\n",
+        "checks": [
+          {
+            "name": "first-attestation",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "fresh-reboot-count",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "fresh-node-uptime-not-os-uptime",
+            "status": "PASS",
+            "detail": {
+              "uptime_s": 4,
+              "process_elapsed_s": 4.143587596248835
+            }
+          },
+          {
+            "name": "fresh-operational-hours-zero",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "power-on-boot-reason",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "actual-selected-interface",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "actual-ipv4-addresses",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "actual-ipv6-including-link-local",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "active-hardware-faults-empty-list",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "active-radio-faults-empty-list",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "active-network-faults-empty-list",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "test-event-triggers-disabled",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "uptime-after-real10s",
+            "status": "PASS",
+            "detail": {
+              "uptime_s": 14,
+              "process_elapsed_s": 14.728414181154221
+            }
+          },
+          {
+            "name": "uptime-increments-with-elapsed-time",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "clean-stop-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "reboot-count-increments-after-restart",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "uptime-resets-after-restart",
+            "status": "PASS",
+            "detail": {
+              "uptime_s": 1,
+              "process_elapsed_s": 1.963451970834285
+            }
+          },
+          {
+            "name": "restart-uptime-below-pre-restart-value",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "hours-retained-after-restart",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "clean-stop-2",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "factory-reset-attestation",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "factory-reset-reboot-count",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "factory-reset-hours-zero",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "factory-reset-uptime",
+            "status": "PASS",
+            "detail": {
+              "uptime_s": 4,
+              "process_elapsed_s": 4.258846205193549
+            }
+          },
+          {
+            "name": "clean-stop-3",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-2",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-3",
+            "status": "PASS",
+            "detail": null
+          }
+        ],
+        "valgrind": false,
+        "driver_sha256": "45d11a619da69d4f6bd7e06d0af830105b4de96991c264e9f93dfe158931b4fd",
+        "node_sha256": "7fb4e422b7efcd0c8b8544eb32bfd38eb7ff709fcec4553c2588a2d2e331dfb9",
+        "network_capture_sha256": "e6b70b02cd8a6c11caf801e7983ff92d03d967d5f134ce0b1005a64d12b3bfad",
+        "result": "PASS"
+      },
+      "memcheck": [],
+      "artifact_sha256": {
+        "node-3.log": "86d645c20e91672acaefeda1d78ced100e6069e200b2e8b2c3ed0d836b4b3922",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "5e0fcd4dd29927e3918753a45508bfd0e28a5f196791b27215afc5223a6aae68",
+        "result.json": "d49a3d09cc4e3ee0924a01a1080818e0f31d9cd78e9659a0e707716bf14fcc5d",
+        "node-1.log": "430f0bae12bdfbf062b953f638a1f011cea65ed19f4a618440023dadcf209890",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-3.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "restart/interactive.log": "e65e26dd2cd235d6ff08935b5df21c76aef7e4225b056dc6fb4f97d6b9013bd2",
+        "factory-reset/interactive.log": "f19ee8639c6c3377fb55c53447efef690b0d5af1fb5fb00b17b53187d5677b75",
+        "first/interactive.log": "d184a134f8552824dd912d0b15aeb3dd4f21e05cabe1d25d76b332abd7cd445b"
+      }
+    }
+  },
+  "memory_summary": {
+    "matched_allocations_and_frees": 59140,
+    "errors": 0,
+    "live_bytes": 0,
+    "suppressions_used": false,
+    "sanitizers": "Separate ASan/UBSan/LSan, three boots, empty host stderr.",
+    "scope": "C host only; external CHIP controller not instrumented."
+  },
+  "oracle_review": {
+    "driver_sha256": "45d11a619da69d4f6bd7e06d0af830105b4de96991c264e9f93dfe158931b4fd",
+    "actual_capture_rechecks": 14,
+    "negative_controls_rejected": [
+      "os-uptime-in-fresh-node",
+      "uptime-ahead-of-elapsed",
+      "uptime-fails-to-advance",
+      "wrong-mac",
+      "not-operational",
+      "missing-link-local",
+      "incorrect-address-count"
+    ]
+  },
+  "native_validation": {
+    "linux_normal": 6,
+    "linux_sanitize": 6,
+    "linux_compiler_warnings": 0,
+    "linux_build_log_sha256": "840010d9f9a113950528a7c2f18a8b5337608fa2e95dedabde92ff93a5a20775",
+    "installed_consumer": "PASS",
+    "windows_tests": 4,
+    "windows_built": [
+      "matter-node",
+      "matter-desktop"
+    ],
+    "windows_test_log_sha256": "418188a476bbbd8b38ec3752119c7ff5bcb8d1221c0a4ece22bf668d74c15da2"
+  },
+  "retained_setup_attempts": {
+    "harness": [
+      {
+        "run_id": 461,
+        "state": "TestStateEnum.cancelled",
+        "result_sha256": "5baba21b3ac32b24e7b0a0202c724607a2100cfd14443dfe3d341062c0443b17",
+        "log_sha256": "599a6a6d3e740cd7ce8ba6088eefab1e4996521d68f6de61d7500a1b779dec5f"
+      },
+      {
+        "run_id": 462,
+        "state": "TestStateEnum.error",
+        "result_sha256": "53ae9aff3b13bfb7c6c5f0320d9705d1a28308afd41b5174c6a76ea7a8d29859",
+        "log_sha256": "ca20a57afed879d3fb42bd616cea153102d2fba13281a6d3e6257129ceb5eb5a"
+      }
+    ],
+    "run461": "External operator wrapper did not recognize TH step-label prefix; cancelled.",
+    "run462": "Original YAML QR discriminator3840 differed from fixture3919 after factory reset; error. Retry matches original QR without changing source.",
+    "local_helper": "Initial expected simulated interface and six-byte MAC; retained failure, final assertions use actual NIC and correct padded eight-byte MAC.",
+    "build_setup": "First invocation named two nonexistent targets; final invocation uses actual targets and retained transport128 build."
+  },
+  "inventory": {
+    "mapped_files": 238,
+    "native_definitions": 87,
+    "core_sources": 59,
+    "public_headers": 75
+  },
+  "limits": [
+    "Original TC-DGGEN-2.1 infrastructure-interrupted after first full wait; no second hours readback or later segment, cumulative classification unchanged.",
+    "Only selected Node transport NIC, startup address snapshot; Type Unspecified because shared I/O snapshot lacks OS link type.",
+    "No physical radio/firmware, ecosystem GUI, complete catalog rerun or 128 kB RAM-fit acceptance.",
+    "Existing paired Windows applications unchanged; raw logs, controller stores and credentials outside Git."
+  ],
+  "next": {
+    "stage": "CSA30 infrastructure follow-up",
+    "action": "Reproduce and diagnose TH/chip-tool WebSocket loss with a short fixture, then repeat the unchanged full case when stable."
+  },
+  "official_manual": {
+    "case": "TC-DGGEN-2.1",
+    "endpoint": 0,
+    "collection": "SDK YAML Tests",
+    "suite": "FirstChipToolSuite",
+    "run_id": 463,
+    "status": "ERROR",
+    "observed_utc": "2026-10-18T18:59:50.991015+00:00",
+    "harness_state": {
+      "state": "idle"
+    },
+    "database_run_state": "TestStateEnum.error",
+    "database_step_states": {
+      "TestStateEnum.passed": 28,
+      "TestStateEnum.not_applicable": 5,
+      "TestStateEnum.error": 1,
+      "TestStateEnum.pending": 12
+    },
+    "script_sha256": "695593b7bd95e321167e4c0e5b5ebc0a0bdd0078b388923c17014200bb447830",
+    "execution_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "official_source_modified": false,
+    "pics_changed": false,
+    "certification_mode": false,
+    "original_waits_ms": [
+      7500000,
+      3900000
+    ],
+    "execution_timeout_s": 12500,
+    "test_event_triggers_enabled": false,
+    "enabled_trigger_branch_executed": false,
+    "network_readback_sha256": "3db8f79e14ad4bdda5562427ae6a8cec1c735654ac3202bc4a4abbd2fd2dc401",
+    "operator_read_used_isolated_controller_configuration": true,
+    "temporary_public_paa_sha256": "7b1a773695da4da446189d19fede0219f0d8d0fe78c22583cbcc065346ffc559",
+    "attestation_verification_bypassed": false,
+    "node_stopped": true,
+    "temporary_paa_removed": true,
+    "completed_at_utc": "2026-10-18 17:47:39.479505",
+    "failure_step": "Step 10a: TH reads the TotalOperationalHours attribute from the DUT. Verify that operational_hours2 is greater than operational_hours1.",
+    "errors": [
+      "Error occurred during execution of test case TC-DGGEN-2.1. sent 1011 (unexpected error) keepalive ping timeout; no close frame received"
+    ],
+    "dut_second_hours_value_obtained": false,
+    "original_waits_completed_ms": [
+      7500000
+    ],
+    "original_waits_not_executed_ms": [
+      3900000
+    ],
+    "operator_audit": [
+      {
+        "action": "factory-reset",
+        "previous_pid": 478159,
+        "pid": 478201,
+        "boot": 2,
+        "previous_store_sha256": "e96a20d899fb5b074bf6fa88a75d944e13f3b48af422c0452610e074d1ee834f",
+        "state_preserved": false,
+        "utc_ms": 1792338036845
+      },
+      {
+        "action": "reboot",
+        "previous_pid": 478201,
+        "pid": 478205,
+        "boot": 3,
+        "previous_store_sha256": "76d3583a634fd8eae1d38e22f6df833bf49b0e0852479f1f51d3411b8db2a542",
+        "state_preserved": true,
+        "utc_ms": 1792338044636
+      },
+      {
+        "action": "independent-CASE-read-network-interfaces",
+        "capture_sha256": "3db8f79e14ad4bdda5562427ae6a8cec1c735654ac3202bc4a4abbd2fd2dc401",
+        "actual_interface_matched": true,
+        "physical_radio_tested": false,
+        "utc_ms": 1792338046513
+      },
+      {
+        "action": "reboot",
+        "previous_pid": 478205,
+        "pid": 478288,
+        "boot": 4,
+        "previous_store_sha256": "9308ca059f45205b496ef124b501942a2c2764d2e3e2616f031ff480d91dc35b",
+        "state_preserved": true,
+        "utc_ms": 1792338060559
+      },
+      {
+        "action": "reboot",
+        "previous_pid": 478288,
+        "pid": 478289,
+        "boot": 5,
+        "previous_store_sha256": "646f853353b1688643223c8164c36cc6e036e9b09db47ad0631ae9eb87480d40",
+        "state_preserved": true,
+        "utc_ms": 1792338064687
+      }
+    ],
+    "manual_evidence_upload_completed": false,
+    "official_log_sha256": "b111bedd771d02b3c582cdafad022b253cf7a0ec6e5317a710794bf607e1aa35",
+    "raw_result_sha256": "46dada9769331edafcb6637c5bfef1b0a50585523fc1119bd2ebc628ac70c929",
+    "node_evidence_sha256": {
+      "node-3.log": "59aa27744a993306dd32d46b981b70e06524a25a0ff2868ead491492550be025",
+      "node-5.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "node-5.log": "b265906413359abbed11c3367dd61b07ee7ce4cde3df3c8e07ca1dcae34da249",
+      "node-4.log": "469dd677e1e5a59e07f7c3a93c35f0741a9d82e31d2581ee4140b75b44cb911f",
+      "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "node-2.log": "0ca7afe002d7e6d3c56837713d50f03bc88b5bce1db9a1f094615a41dad4018d",
+      "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "node-4.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "node-3.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "node-1.log": "cca780aa320d4e2b8a50a25ac974e16b28b8e1bde0f314cc0ca54ac0d6cb4bce"
+    },
+    "fixture_port_released": 5581,
+    "final_collection_and_cleanup_completed": true,
+    "failure_interpretation": "Controller WebSocket connection error before obtaining the second hours value; no DUT counter assertion result. Exact disconnection cause not yet diagnosed.",
+    "additional_observation": "Late prompt-timeout/Step1a entry occurs during the long wait; origin and causal relation unestablished."
+  }
+}
