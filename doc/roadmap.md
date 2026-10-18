@@ -300,9 +300,18 @@ timers and production behavior. Seven scenarios pass 134 local checks, including
 full Memcheck and separate sanitizer update/restart acceptance. Only this row changes: 97 PASS, 18 FAIL,
 4 BLOCKED, 39 MANUAL, 704 NA. Other rows are inherited. See
 [scenarios, evidence and limits](oss/csa28-validation.md).
-**Next task: CSA29 — TC-I-2.2, Identify timing and the x86 observation fixture**.
-Review its unchanged manual prompts against declared IdentifyType0; do not
-claim physical indication on x86. Retain original failures for CSA review.
+CSA29 completes original semi-automated TC-I-2.2 in run460: all 15 step entries
+pass, including two agent-evaluated operator prompts and evidence upload. The
+declared IdentifyType0 has no physical presentation; live callbacks provide
+simulation evidence only. Independent chip-tool acceptance passes 34 checks
+under Memcheck and separate sanitizers, including quiet countdown reporting and
+fresh CASE after restart. No C/H or official sources/PICS changed. TH networking
+and existing services are restored after the laboratory outage. Counts become
+97 PASS, 18 FAIL, 3 BLOCKED, 40 MANUAL, 704 NA; other rows inherited. See
+[evidence and limits](oss/csa29-validation.md).
+**Next task: CSA30 — TC-DGGEN-2.1, General Diagnostics and its x86 operator fixture**.
+Review original factory-reset/reboot/network-interface prompts before assessing
+them on x86. Retain original failures for CSA review; no certification is claimed.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

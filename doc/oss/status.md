@@ -1,5 +1,22 @@
 # Development status
 
+**CSA29: original semi-automated TC-I-2.2 PASS, TH run460, 15/15 step entries.**
+Two agent-evaluated operator prompts use live callbacks under IdentifyType0
+(None, no physical presentation), followed by evidence upload. This is not a
+fully automatic case or physical indicator acceptance. Independent chip-tool
+passes 18 Memcheck and 16 separate sanitizer checks: real countdown, explicit
+stop, natural expiry, quiet subscription and fresh CASE after clean restart.
+Memcheck has 35219 matched allocations/frees, zero errors/live bytes; all host
+stderr is empty. Four captured conditions and six negative controls check the
+test predicates. No C/H or official test/PICS changes were needed. Docker
+networking and existing TH services are restored after the laboratory outage;
+frontend HTTP200, API responsive, TH idle. The isolated node is stopped and
+its temporary public PAA removed. User-paired Windows nodes are unchanged.
+Counts: **97 PASS, 18 FAIL, 3 BLOCKED, 40 MANUAL, 704 NA**; other rows inherited.
+See [evidence, setup attempts and limits](csa29-validation.md) and
+[record](csa29-results.json). No certification is claimed.
+**Next: CSA30 — TC-DGGEN-2.1, General Diagnostics and its x86 operator fixture.**
+
 **CSA28: original automatic TC_SU_2_2 FAIL, TH run457, step1.**
 The test announces a new provider with UpdateAvailable but does not arrange the
 initial normal query; the host's daily policy remains Idle, and the 120-second
@@ -15,7 +32,7 @@ Seven captured response predicates, six negative and two boundary controls pass.
 Counts: **97 PASS, 18 FAIL, 4 BLOCKED, 39 MANUAL, 704 NA**; only this row changes.
 See [actual scenarios, memory evidence and limits](csa28-validation.md) and
 [record](csa28-results.json). This is not an automatic PASS or certification.
-**Next: CSA29 — TC-I-2.2, Identify timing and the x86 observation fixture.**
+Identify acceptance follows in CSA29 above.
 
 **CSA27: original automatic TC_SU_4_1 FAIL, TH run456, step5.**
 The host returns Success for clearing its list, Success for the first append

@@ -1,8 +1,14 @@
 # Test inventory
 
-test-map.json enumerates 236 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 237 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+`test_identify_chip.py` checks Identify command60, real countdown, command0,
+write15, expiry, quiet countdown reporting and fresh CASE after restart against
+live application callbacks. IdentifyType0 has no physical presentation. Run
+separately under Memcheck and sanitizers; official mixed manual/automatic TH
+acceptance is reported independently in `csa29-validation.md`.
 
 `test_ota_attributes_chip.py` is an optional two-fabric OTA attribute scenario
 using unmodified chip-tool. It checks every WriteResponse status, partial list

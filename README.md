@@ -256,13 +256,23 @@ were required. Only this manual row changes, giving 97 PASS, 15 FAIL, 8 BLOCKED,
 38 MANUAL and 704 NA. Other rows are inherited; this is not automatic CSA
 assertions or certification. OTA event acceptance is recorded below.
 
+The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
+semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator
+verifications use live x86 callbacks with IdentifyType0 (None); no physical
+indicator is claimed. Independent chip-tool acceptance passes 34 checks with
+clean Memcheck and separate ASan/UBSan/LSan, including countdown reporting and
+fresh CASE after restart. The TH laboratory is responsive after Docker recovery.
+No C/H or official test changes were needed. Current counts: **97 PASS, 18 FAIL,
+3 BLOCKED, 40 MANUAL, 704 NA**. This is not fully automatic acceptance or
+certification. See the [result record](doc/oss/csa29-results.json).
+
 The [CSA28 QueryImageResponse acceptance](doc/oss/csa28-validation.md) records
 original automatic TC_SU_2_2 FAIL in run457: its initial UpdateAvailable
 announcement does not arrange a normal query opportunity for this daily policy.
 The independent lab adds an explicit default-provider fixture while retaining
 the same production schedule and 120/180-second limits. Seven scenarios pass
 134 local checks with clean Memcheck/separate sanitizers. Original test/PICS/C/H
-sources remain unchanged. Current counts: **97 PASS, 18 FAIL, 4 BLOCKED,
+sources remain unchanged. CSA28 counts: **97 PASS, 18 FAIL, 4 BLOCKED,
 39 MANUAL, 704 NA**; local acceptance is separate from official results and certification.
 
 The [CSA27 attribute acceptance](doc/oss/csa27-validation.md) records original

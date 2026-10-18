@@ -1,0 +1,492 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa28-results.json",
+  "previous_sha256": "328d7df910be5192096e32e808178944c727aec7837b1dc1f7aa9540d209d4fd",
+  "source_base_commit": "f59af1f0f0b7e738d6d10bdcbd04737f804f192e",
+  "scope": "CSA29 original TC-I-2.2 semi-automated PASS on headless IdentifyType0; independent chip-tool countdown/reporting/restart acceptance. No C/H changes or certification.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 3,
+    "MANUAL": 40,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC-I-2.2",
+      "endpoint": 1,
+      "collection": "SDK YAML Tests",
+      "previous": "BLOCKED",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 460
+    }
+  ],
+  "official_manual": {
+    "case": "TC-I-2.2",
+    "run_id": 460,
+    "harness_state": "passed",
+    "execution_mode": "Original semi-automated FirstChipToolSuite with two agent-evaluated ManualVerification prompts and evidence upload",
+    "step_states": {
+      "passed": 15
+    },
+    "identify_type": 0,
+    "identify_time_readbacks": [
+      60,
+      50,
+      0,
+      0
+    ],
+    "callbacks": [
+      60,
+      0,
+      15,
+      0
+    ],
+    "prompt_audit": [
+      {
+        "prompt": 1,
+        "callbacks": [
+          60
+        ],
+        "identify_type": 0,
+        "observation": "Logical x86 presentation callback; declared None, no physical indicator",
+        "utc_ms": 1792335562639
+      },
+      {
+        "prompt": 2,
+        "callbacks": [
+          60,
+          0,
+          15
+        ],
+        "identify_type": 0,
+        "observation": "Logical x86 presentation callback; declared None, no physical indicator",
+        "utc_ms": 1792335574604
+      }
+    ],
+    "official_script_sha256": "819e24eeda8cb353aa7de759aeffee28b1496b7d38e9739971a5641670d6ca03",
+    "execution_pics_sha256": "3e72bfe682df61f2e389a958e2c52618fad584736dea52d51093f9da60ad0dec",
+    "raw_result_sha256": "ae61fb1e9ad6df30296747a9de2b704596ac633ba9667de5f826755e77cd2b38",
+    "official_log_sha256": "97f873868158dadcf09c7f1dd478e6cdad4d6adf21b4e69eaaeb0d4665822ec1",
+    "node_log_sha256": "7b0e3f152ae1d2f961dde7a4ae902ee95c7174fe9a745820bd15471fcc2afac4",
+    "upload_sha256": "c34ce642d8ebe8f2678534292abb5c98816d2f37b6efc16a137303179d04c3a5",
+    "official_source_modified": false,
+    "certification_mode": false,
+    "physical_presentation_verified": false
+  },
+  "profile": {
+    "endpoint": 1,
+    "collection": "SDK YAML Tests",
+    "suite": "FirstChipToolSuite",
+    "identify_type": 0,
+    "presentation": "None, logical x86 callback only",
+    "enabled_identify_pics": [
+      "I.S",
+      "I.S.A0000",
+      "I.S.A0001",
+      "I.S.C00.Rsp"
+    ],
+    "PICS_USER_PROMPT": true,
+    "pics_sha256": "3e72bfe682df61f2e389a958e2c52618fad584736dea52d51093f9da60ad0dec",
+    "existing_endpoint1_profile_reused": true
+  },
+  "normative_basis": {
+    "specification": "Matter Application Cluster R1.6.1",
+    "1.2.4.1": "IdentifyType0 is None, with no presentation.",
+    "1.2.5.2": "None is not allowed when another defined presentation method is supported.",
+    "1.2.5.1": "IdentifyTime counts down each second; command/write changes and zero transitions are reportable, countdown ticks alone are not.",
+    "1.2.6.1": "Identify command sets IdentifyTime; nonzero starts identification and zero stops it."
+  },
+  "identity": {
+    "compiled_c_h_files_match": 360,
+    "source_manifest_sha256": "9db63d4cf5f59325be22e388a7771e86614a1348d461e170f010226a642f864f",
+    "binary_sha256": {
+      "normal": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+      "sanitize": "9bc184e4a1ff2e9e993dea9a8ddfdb11757632f1e1ab4c6988d815a206eb1390"
+    },
+    "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+    "build_reused_from": "CSA26; matching C/H manifest, no rebuild or new CTest campaign"
+  },
+  "local_acceptance": {
+    "normal": {
+      "result": {
+        "scope": "Identify x86 callbacks/CASE/countdown, no physical indication or CSA certification",
+        "driver_sha256": "72839e9eb6249bbdafdd2de733a4ccd756313c4c2a389e6eec6bed1b092d0e8e",
+        "node_sha256": "2cf003ce5e4c1b3a449590a1bda5d71a32df40542575f26c26dafa7a2550f7ae",
+        "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+        "valgrind": true,
+        "checks": [
+          {
+            "name": "attested-commissioning",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "identify-type-none",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "initial-time-zero",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "command60-callback",
+            "status": "PASS",
+            "detail": [
+              60
+            ]
+          },
+          {
+            "name": "immediate-time-51-to-60",
+            "status": "PASS",
+            "detail": 60
+          },
+          {
+            "name": "real10s-countdown-42-to-58",
+            "status": "PASS",
+            "detail": {
+              "seconds": 10.07506825774908,
+              "value": 50
+            }
+          },
+          {
+            "name": "command0-callback-and-time",
+            "status": "PASS",
+            "detail": [
+              60,
+              0
+            ]
+          },
+          {
+            "name": "write15-callback",
+            "status": "PASS",
+            "detail": [
+              60,
+              0,
+              15
+            ]
+          },
+          {
+            "name": "natural-expiry-at15s",
+            "status": "PASS",
+            "detail": {
+              "seconds": 15.095629455056041,
+              "callbacks": [
+                60,
+                0,
+                15,
+                0
+              ]
+            }
+          },
+          {
+            "name": "quiet-countdown-subscription-reports15-and0",
+            "status": "PASS",
+            "detail": [
+              15,
+              0
+            ]
+          },
+          {
+            "name": "time-zero-after-expiry",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "clean-stop-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "fresh-case-read-after-restart",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "clean-stop-2",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memcheck-clean-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-2",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "memcheck-clean-2",
+            "status": "PASS",
+            "detail": null
+          }
+        ],
+        "result": "PASS"
+      },
+      "memcheck": [
+        {
+          "allocations": 24052,
+          "frees": 24052,
+          "total_bytes_allocated": 2573846,
+          "errors": 0,
+          "live_bytes": 0
+        },
+        {
+          "allocations": 11167,
+          "frees": 11167,
+          "total_bytes_allocated": 1137370,
+          "errors": 0,
+          "live_bytes": 0
+        }
+      ],
+      "callbacks": [
+        60,
+        0,
+        15,
+        0
+      ],
+      "artifact_sha256": {
+        "result.json": "0c484ec2962609bc0cd57a00fcb5d3f23e049cf1dc998b9a35026939b16ba2a2",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "7d5eee7b60f608f351b3ec296cd3190d9a760615c78690ea73befd50e77a0ecb",
+        "node-1.log": "dc85778345caef5d202fa049b47edcec044eee26870ba71ffc45c286abced250",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "ddb575886535f134dc475c20da4c129fe2e35b3e599a3fed6f52857536b301a8",
+        "valgrind-2.log": "53bae7cb708a10b6015f176278987480ebe11907eaf516c8e76d6741dea250b7",
+        "restart/interactive.log": "05f30adac123b098afaf42b1adf7d2c50bebd898fbad9def4241f783962f7ab8",
+        "controller/interactive.log": "afa82627141429cc367839afb903eb97c926f6ef679f7b19f771357fd4e97851",
+        "restart/commands.txt": "b1fac1946e7bc25b688fecbdd9fe081ee9fefe419a1e22353691cd5e68ba8886",
+        "controller/commands.txt": "5a92bd42b572bcb4783dd0a19bdefdd6d3dfd20528418eb95fcedb7affb4f8e8"
+      }
+    },
+    "sanitize": {
+      "result": {
+        "scope": "Identify x86 callbacks/CASE/countdown, no physical indication or CSA certification",
+        "driver_sha256": "72839e9eb6249bbdafdd2de733a4ccd756313c4c2a389e6eec6bed1b092d0e8e",
+        "node_sha256": "9bc184e4a1ff2e9e993dea9a8ddfdb11757632f1e1ab4c6988d815a206eb1390",
+        "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+        "valgrind": false,
+        "checks": [
+          {
+            "name": "attested-commissioning",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "identify-type-none",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "initial-time-zero",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "command60-callback",
+            "status": "PASS",
+            "detail": [
+              60
+            ]
+          },
+          {
+            "name": "immediate-time-51-to-60",
+            "status": "PASS",
+            "detail": 60
+          },
+          {
+            "name": "real10s-countdown-42-to-58",
+            "status": "PASS",
+            "detail": {
+              "seconds": 10.064952139742672,
+              "value": 50
+            }
+          },
+          {
+            "name": "command0-callback-and-time",
+            "status": "PASS",
+            "detail": [
+              60,
+              0
+            ]
+          },
+          {
+            "name": "write15-callback",
+            "status": "PASS",
+            "detail": [
+              60,
+              0,
+              15
+            ]
+          },
+          {
+            "name": "natural-expiry-at15s",
+            "status": "PASS",
+            "detail": {
+              "seconds": 15.065021760761738,
+              "callbacks": [
+                60,
+                0,
+                15,
+                0
+              ]
+            }
+          },
+          {
+            "name": "quiet-countdown-subscription-reports15-and0",
+            "status": "PASS",
+            "detail": [
+              15,
+              0
+            ]
+          },
+          {
+            "name": "time-zero-after-expiry",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "clean-stop-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "fresh-case-read-after-restart",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "clean-stop-2",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-1",
+            "status": "PASS",
+            "detail": null
+          },
+          {
+            "name": "empty-host-stderr-2",
+            "status": "PASS",
+            "detail": null
+          }
+        ],
+        "result": "PASS"
+      },
+      "memcheck": [],
+      "callbacks": [
+        60,
+        0,
+        15,
+        0
+      ],
+      "artifact_sha256": {
+        "result.json": "0d3148b5eeaa00eedc22a0ef7d6409ef88ad1bc991d5ea76833e174355d94921",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "7c4c06d1daff18b36e15b3a00c51504e057549e446b9733c413594e28fe3bb3d",
+        "node-1.log": "2748c961ccba3d49eec5ed13cb0997fd6fd64f9669956d984f5450393d970734",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "restart/interactive.log": "b83685e103c40e9db70d758893f42d732504ec235a93f843a7987a4f4065cb97",
+        "controller/interactive.log": "e2e9bd884f6e522439d75e1ffeaa60374ac45aaf1ea66bc711f5e837f63e0b32",
+        "restart/commands.txt": "b1fac1946e7bc25b688fecbdd9fe081ee9fefe419a1e22353691cd5e68ba8886",
+        "controller/commands.txt": "5a92bd42b572bcb4783dd0a19bdefdd6d3dfd20528418eb95fcedb7affb4f8e8"
+      }
+    }
+  },
+  "memory_summary": {
+    "matched_allocations_and_frees": 35219,
+    "errors": 0,
+    "live_bytes": 0,
+    "suppressions_used": false,
+    "sanitizers": "Separate ASan/UBSan/LSan run; all host stderr empty",
+    "scope": "C host only; external CHIP controller not instrumented"
+  },
+  "oracle_review": {
+    "driver_sha256": "72839e9eb6249bbdafdd2de733a4ccd756313c4c2a389e6eec6bed1b092d0e8e",
+    "actual_capture_rechecks": 4,
+    "negative_controls": {
+      "expiry-too-early": "REJECTED",
+      "expiry-too-late": "REJECTED",
+      "missing-stop-callback": "REJECTED",
+      "countdown-tick-report": "REJECTED",
+      "missing-zero-report": "REJECTED",
+      "only-stale-zero": "REJECTED"
+    },
+    "sampled_countdown_agrees_with_elapsed_seconds": true
+  },
+  "laboratory_recovery": {
+    "failure": "Docker bridges lacked IPv4 addresses and routes; published TH HTTP services timed out.",
+    "operator_actions": [
+      "Restart Docker service",
+      "Start existing TH Compose services"
+    ],
+    "images_rebuilt_or_downloaded": false,
+    "persistent_autostart_change_claimed": false,
+    "frontend_http_status": 200,
+    "final_th_state": {
+      "state": "idle"
+    },
+    "fixture_port_released": 5581,
+    "temporary_public_paa_sha256": "7b1a773695da4da446189d19fede0219f0d8d0fe78c22583cbcc065346ffc559",
+    "temporary_public_paa_removed": true,
+    "attestation_verification_bypassed": false,
+    "existing_roots_overwritten": false
+  },
+  "retained_setup_attempts": {
+    "harness": [
+      {
+        "run_id": 458,
+        "state": "TestStateEnum.cancelled",
+        "raw_result_sha256": "241415130cb59516a1e8e658a5ac5c5724931e182c8b08feec17bb73446e6d79",
+        "official_log_sha256": "660d78789b60cc77548d1c263fbc6bf57c8a4c9d16484558fc15b767a75f09ba"
+      },
+      {
+        "run_id": 459,
+        "state": "TestStateEnum.cancelled",
+        "raw_result_sha256": "5b0e2c174bba28cdd8de489981db44490aa08116fb72a5289227d8b87a42833f",
+        "official_log_sha256": "264f70425841d6736401e118af50dfd90581c0dad2b2cef85d824f4248d60b00"
+      }
+    ],
+    "run458_reason": "Missing laboratory PAA in recreated YAML runner trust store; cancelled before test assertions.",
+    "run459_reason": "Runner expected literal YAML text rather than TH ManualVerification; cancelled at first operator prompt.",
+    "independent_failed_fixture": {
+      "result_sha256": "e815d40908549850783b33a0314931a2a84ed33dfce2857affaebcc3b7e6afe3",
+      "cause": "Initial helper expected a colon and 0x00; actual chip-tool reports Status=0x0. C command/callback succeeded. No production correction."
+    },
+    "intermediate_fixture": "Driver interrupted on same status-format mismatch; output-directory reuse rejected before node launch. Fresh final directories passed."
+  },
+  "inventory": {
+    "mapped_files": 237,
+    "native_definitions": 87,
+    "core_sources": 59,
+    "public_headers": 75
+  },
+  "remaining_blocked_cases": [
+    "TC-DGGEN-2.1",
+    "TC-GRPKEY-2.2",
+    "TC_DA_1_1"
+  ],
+  "limits": [
+    "Inherited rows were not rerun.",
+    "Not physical indicator validation or certification.",
+    "No Windows GUI, consumer ecosystem, firmware installation or 128 kB RAM-fit acceptance.",
+    "Paired Windows nodes unchanged; private credentials, raw logs and state remain outside Git."
+  ],
+  "next": {
+    "stage": "CSA30",
+    "case": "TC-DGGEN-2.1",
+    "script_sha256": "695593b7bd95e321167e4c0e5b5ebc0a0bdd0078b388923c17014200bb447830",
+    "scope": "General Diagnostics and x86 operator fixture; inspect original prompts before assessment."
+  }
+}
