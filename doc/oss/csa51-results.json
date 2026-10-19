@@ -1,0 +1,481 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa50-results.json",
+  "previous_sha256": "c01a0ca1b4de29f10399f64b935b334be2c54757f6034d9e9625aa8e6a0cb8d4",
+  "source_base_commit": "13152a5f653554381680b72f43983a871ce45918",
+  "scope": "Repair attributed CSA39 native defect: deliver terminal PASE error through MRP, protect queued packet from late handshake data and close after ACK/failure. Original TC-SC-2.3 now manual PASS; historical FAIL retained.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 488
+    }
+  ],
+  "official_receipt": {
+    "run_id": 488,
+    "state": "TestStateEnum.passed",
+    "completed_at_utc": "2026-10-19 17:14:29.537802",
+    "observed_utc": "2026-10-19T17:14:31.035087+00:00",
+    "cases": [
+      {
+        "case": "TC-SC-2.3",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 9
+        },
+        "details": [
+          {
+            "title": "TH generates and sends PBKDFParamRequest with an invalid passcodeID",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT verifies the passcodeID.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH generates and sends PBKDFParamRequest with a valid passcodeID",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT verifies the passcodeID.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH generates and sends Pake1",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT generates and sends Pake2",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH generates and sends Pake3 with an invalid key confirmation message (cA)",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT verifies Pake3.cA.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "9355df43653fdb5f4433b1d918ba654a8ec89eca33967485318248cfef9bd700",
+    "raw_result_sha256": "16b7b4e5fee7563b356a86c805cb264453ca235772902314524b27b707af44d1",
+    "identity": {
+      "source_sha256": "c4c6e486ef286792d63b6d7c31fdee6a9287d6e756b09c8133ffb739e64b163f",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "Unmodified controller request forwarded with only passcodeID0 changed to1. Typed TLV and headers stay valid; DUT sends matching standalone ACK.",
+        "utc_ms": 1792430069422
+      },
+      {
+        "step": 2,
+        "answer": "PASS",
+        "note": "Actual StatusReport(FAILURE1,SECURE_CHANNEL0,INVALID_PARAMETER2) received by the controller; exact payload and same exchange validated. Late Pake1 does not revive exchange.",
+        "utc_ms": 1792430069440
+      },
+      {
+        "step": 3,
+        "answer": "PASS",
+        "note": "Fresh actual request with passcodeID0; responder returns matching PBKDFParamResponse.",
+        "utc_ms": 1792430069455
+      },
+      {
+        "step": 4,
+        "answer": "PASS",
+        "note": "Actual valid PBKDFParamResponse received by the unmodified controller; request random echoes and parameter/identifier TLV fields are valid.",
+        "utc_ms": 1792430069465
+      },
+      {
+        "step": 5,
+        "answer": "PASS",
+        "note": "Actual unmodified controller Pake1 forwarded and received, followed by real Pake2.",
+        "utc_ms": 1792430069472
+      },
+      {
+        "step": 6,
+        "answer": "PASS",
+        "note": "Actual valid-shaped Pake2 received by the unmodified controller, which computes Pake3.",
+        "utc_ms": 1792430069480
+      },
+      {
+        "step": 7,
+        "answer": "PASS",
+        "note": "Only one cA bit is changed in otherwise valid 32-byte confirmation TLV. Actual modified datagram is forwarded to DUT; matching ACK is observed.",
+        "utc_ms": 1792430069487
+      },
+      {
+        "step": 8,
+        "answer": "PASS",
+        "note": "Actual FAILURE1/SECURE_CHANNEL0/INVALID_PARAMETER2 StatusReport received with exact payload. Late correct cA does not revive exchange; two fresh commissioning/CASE operations succeed without DUT restart.",
+        "utc_ms": 1792430069492
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "supersedes": {
+    "evidence": "csa39-results.json",
+    "run_id": 474,
+    "manual_result": "FAIL",
+    "reason": "Required terminal error reports were dropped by dispatcher; actual unchanged procedure now passes9 steps."
+  },
+  "native_changes": {
+    "main/apps/matter/runtime/matter_dispatch.c": {
+      "before_sha256": "1cd5a4e48d3ee7e11478719d9a199ad6ce0eb57d978eefcee80c4f1ef2fe39e0",
+      "after_sha256": "6fe2a53d0a734fc314226d481cbf6de1cd408f63dafda0d15f82cef538d5129e"
+    },
+    "tools/matter/tests/test_dispatch.c": {
+      "before_sha256": "5b817e5f75bc459fc5e484c7f526d979ff8a506e6d706ad3940b66a5ac7651e1",
+      "after_sha256": "1f13539a9df5b7f5da41f9e9096c5d0b15664c58f35334331ef1ac85b3cf24d7"
+    },
+    "tools/matter/tests/test_runtime.c": {
+      "before_sha256": "0d126c2eab225a73d2c2483983b967615c08263fc5541cd9f383edd2ac4047b7",
+      "after_sha256": "56bf78c8a4b2fd30b3a831598ef5526a2353f01480ee0e5586dd2505dc05a8f0"
+    }
+  },
+  "build": {
+    "normal": {
+      "log_sha256": "d7a1492554147804a3ee254d7ed01c5d7e76dc14d46f8854a84c7dcde93ee30e",
+      "tests": 5,
+      "node_sha256": "36b9fc2f289a3a1bda62f91fbdf185936b22a15086c936ff610ded86eed9ce8d"
+    },
+    "sanitize": {
+      "log_sha256": "a6d5c4d8fde00e833b1f7c20f83300d4e387d2c873b74c41129cfa2ea0a5ee43",
+      "tests": 5,
+      "node_sha256": "52b92d5b1635fa1a4d391e9c77fcaa8687edab2c386bf6c8271bfa4bf75cd137"
+    },
+    "build": {
+      "log_sha256": "fb0c44d397cb380d54e219b460e7b5acabd26d8236af13e2d5e57ad535696735",
+      "warnings": []
+    }
+  },
+  "independent_acceptance": {
+    "memcheck": {
+      "result": "PASS",
+      "Core_result": "PASS",
+      "driver_sha256": "b5d3bed4fe3477fc9a422b76e0bf551fb0ce7de5e090ab9864ed9933d42fa43e",
+      "node_sha256": "36b9fc2f289a3a1bda62f91fbdf185936b22a15086c936ff610ded86eed9ce8d",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_SC_2_3": {
+        "result": "PASS",
+        "negative_exchanges": [
+          {
+            "case": "passcodeID",
+            "exchange_id": 52977,
+            "opcodes": [
+              32,
+              64
+            ],
+            "response_observation_limit_seconds": 12,
+            "controller_completed_before_abort": true,
+            "expected_opcodes": [
+              32,
+              64
+            ],
+            "observed_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "expected_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "result": "PASS"
+          },
+          {
+            "case": "cA",
+            "exchange_id": 48008,
+            "opcodes": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              64
+            ],
+            "response_observation_limit_seconds": 12,
+            "controller_completed_before_abort": true,
+            "expected_opcodes": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              64
+            ],
+            "observed_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "expected_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "result": "PASS"
+          }
+        ],
+        "late_correct_messages_do_not_revive": true,
+        "observation_seconds": 0.6,
+        "key_memory_inspection": "NOT_PERFORMED; full new commissioning checks resource recovery."
+      },
+      "node_exit": 0,
+      "functional_checks": 26,
+      "conformance_checks": 2
+    },
+    "sanitize": {
+      "result": "PASS",
+      "Core_result": "PASS",
+      "driver_sha256": "b5d3bed4fe3477fc9a422b76e0bf551fb0ce7de5e090ab9864ed9933d42fa43e",
+      "node_sha256": "52b92d5b1635fa1a4d391e9c77fcaa8687edab2c386bf6c8271bfa4bf75cd137",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_SC_2_3": {
+        "result": "PASS",
+        "negative_exchanges": [
+          {
+            "case": "passcodeID",
+            "exchange_id": 24503,
+            "opcodes": [
+              32,
+              64
+            ],
+            "response_observation_limit_seconds": 12,
+            "controller_completed_before_abort": true,
+            "expected_opcodes": [
+              32,
+              64
+            ],
+            "observed_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "expected_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "result": "PASS"
+          },
+          {
+            "case": "cA",
+            "exchange_id": 21721,
+            "opcodes": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              64
+            ],
+            "response_observation_limit_seconds": 12,
+            "controller_completed_before_abort": true,
+            "expected_opcodes": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              64
+            ],
+            "observed_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "expected_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "result": "PASS"
+          }
+        ],
+        "late_correct_messages_do_not_revive": true,
+        "observation_seconds": 0.6,
+        "key_memory_inspection": "NOT_PERFORMED; full new commissioning checks resource recovery."
+      },
+      "node_exit": 0,
+      "functional_checks": 26,
+      "conformance_checks": 2
+    }
+  },
+  "wire_and_memory_receipts": {
+    "memcheck": {
+      "result": "PASS",
+      "error": null,
+      "node_exit": 0,
+      "driver_sha256": "b5d3bed4fe3477fc9a422b76e0bf551fb0ce7de5e090ab9864ed9933d42fa43e",
+      "functional_checks": 26,
+      "result_sha256": "33e12ad78894b4f912de20a130eeb814da033dd92bea5cb9aeb1a219c671bb95",
+      "packets_sha256": "85ae491ecaa723cdfb9661e393892666175d8557627cf4ebd80a6f0cfd06e203",
+      "stderr_empty": true,
+      "memory": {
+        "allocations": 48274,
+        "frees": 48274,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "0b7cf1f49d28a286182d8b35a59fcb84e7b6518f250563de240833045080a0a0"
+      },
+      "wire_injection_receipts": [
+        {
+          "case": "passcodeID",
+          "opcode": 32,
+          "exchange_id": 52977,
+          "counter": 167875617,
+          "matching_ACK": true,
+          "one_bit_only": true,
+          "original_sha256": "92ee6e6b8c043d5c7975a07652f0eca86f8c8cfee4f2be3feaac6260de2af311",
+          "modified_sha256": "3a823316b0676017e17b9a5934c5db5fc854f31e7f98457dacb6a1f5bd360610",
+          "late_probe_fresh_counter": 167875619
+        },
+        {
+          "case": "cA",
+          "opcode": 36,
+          "exchange_id": 48008,
+          "counter": 54178946,
+          "matching_ACK": true,
+          "one_bit_only": true,
+          "original_sha256": "c0b48a724de52aced1f43c3aa0da3c8a22a0cd36dcdd3532aaee10adecbae168",
+          "modified_sha256": "f55512010265d60e4325850f145a24a491e9ed5fb5f1b6e142d0f56db6408c48",
+          "late_probe_fresh_counter": 167875620
+        }
+      ]
+    },
+    "sanitize": {
+      "result": "PASS",
+      "error": null,
+      "node_exit": 0,
+      "driver_sha256": "b5d3bed4fe3477fc9a422b76e0bf551fb0ce7de5e090ab9864ed9933d42fa43e",
+      "functional_checks": 26,
+      "result_sha256": "e8a680986afda161c96c47a685fb85ff6b3c4b01424fc83e0437e340a7b68ff1",
+      "packets_sha256": "9ff5257c5c47eb220f046a4c8fc4f51384a443c02c6fad6ec3e00e43c7fd3b24",
+      "stderr_empty": true,
+      "wire_injection_receipts": [
+        {
+          "case": "passcodeID",
+          "opcode": 32,
+          "exchange_id": 24503,
+          "counter": 176237947,
+          "matching_ACK": true,
+          "one_bit_only": true,
+          "original_sha256": "e58588d95296c9cbd5cc3a874126426d1fec11a1ad7a490751f780c02279c1ad",
+          "modified_sha256": "933381f83f1331fde9ab2f25f81641b0a435773a010d1be7a7c53cfa5f35b1b0",
+          "late_probe_fresh_counter": 176237949
+        },
+        {
+          "case": "cA",
+          "opcode": 36,
+          "exchange_id": 21721,
+          "counter": 27399987,
+          "matching_ACK": true,
+          "one_bit_only": true,
+          "original_sha256": "aad62a3541995c53d422617f519782df24d0b6ffc789268117ac92d917c5765b",
+          "modified_sha256": "68353b6daa6ec899c710686b5fbc80df98db59e057c498478c12887f6ed9861e",
+          "late_probe_fresh_counter": 176237950
+        }
+      ]
+    }
+  },
+  "normative_basis": {
+    "specification": "Core R1.6.1",
+    "sections": [
+      "4.14.1.2 invalid passcodeID and Pake3.cA rejection",
+      "4.12 reliable delivery, ACK and bounded retransmission lifecycle"
+    ],
+    "same_basis_as": "csa39-results.json"
+  },
+  "regression_coverage": [
+    "Shared real CASE/PASE dispatcher test: malformed initial request produces exact FAILURE1/SECURE_CHANNEL0/INVALID_PARAMETER2 report, no session installation, immutable retry after missing ACK, late data cannot cancel queued report.",
+    "PASE failure callback exactly once across processing/retry/ACK and deletion. Separate ACK completion, complete MRP exhaustion and stop with borrowed UDP completion all release resources.",
+    "Full runtime20 failed admitted attempts still closes initial window, duplicates do not increase failures and independent runtime remains commissionable. Simulated peer now ACKs actual terminal reports; admission BUSY does not count as PASE failure.",
+    "Wire fixture injects invalid passcodeID and one-bit invalid cA into real controller exchange. Both actual exact failure reports arrive; late structurally valid work cannot revive failure. Two subsequent real full commissions/CASE reads succeed without restarting node."
+  ],
+  "tester_corrections": [
+    "Initial broader CTest run exposed old20-attempt fake peer never ACKing previously missing terminal reports. Pending reliable responses now correctly occupy handshake budget, causing occasional admission BUSY. Corrected peer encodes real ACKs with increasing message counters; no production budget/timeout weakening. Initial failing CTest log retained privately."
+  ],
+  "coverage": {
+    "applicable": 155,
+    "NA": 707,
+    "completed_positions": 150,
+    "unresolved_prerequisites": 5,
+    "manual_PASS": 23,
+    "manual_FAIL": 10,
+    "manual_BLOCKED": 4,
+    "manual_NOT_RUN": 0
+  },
+  "commands": [
+    "cmake configure Debug with pinned official mbedTLS, normal and MATTER_SANITIZE=ON",
+    "cmake --build BUILD --target matter-node test_dispatch test_pase test_secure test_runtime test_runtime_alloc -j3",
+    "ctest --test-dir BUILD --output-on-failure -R ^(test_dispatch|test_pase|test_secure|test_runtime|test_runtime_alloc)$",
+    "python tools/matter/tests/test_pase_exchange_chip.py --pase-errors --valgrind; separately sanitizer node without --valgrind",
+    "Original unchanged TC-SC-2.3 manual procedure in TH",
+    "python tools/matter/check_test_map.py",
+    "python tools/matter/csa_campaign.py --write",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "native_scenarios_exit0": true,
+    "private_traces_ignored": true,
+    "paired_Windows_nodes_untouched": true
+  },
+  "limits": [
+    "Original manual PASS from actual wire/operator evidence, not automatic CSA result or certification.",
+    "Finite late-probe observation0.6s; no live key-memory inspection, all loss patterns, physical/Windows/Home UI, embedded RAM fit or full matrix rerun.",
+    "Process lifecycle tests separately exercise ACK loss, MRP exhaustion and borrowed-send stop; no production timing constants changed.",
+    "First-pass external prerequisites and unrelated historical failures remain. No GitHub push."
+  ],
+  "next": {
+    "stage": "CSA52",
+    "scope": "Repair attributed CSA41 authenticated IM R=0 admission; preserve reliable PASE/CASE and request ACK rules; rerun original TC-SC-1.2."
+  }
+}

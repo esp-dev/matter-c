@@ -658,7 +658,8 @@ static void dispatch(Matter_Dispatch_T d) {
     if(t->im_busy || t->busy_reply) return; /* Retransmits must not restart admission. */
     /* A rejected handshake may still owe its reliable StatusReport. RX/MRP
      * already handled control ACKs; further handshake data must not cancel it. */
-    if(t->case_attempt && matter_case_state(t->case_attempt)==MATTER_CASE_FAILED) return;
+    if((t->pase && matter_pase_state(t->pase)==MATTER_PASE_FAILED) ||
+        (t->case_attempt && matter_case_state(t->case_attempt)==MATTER_CASE_FAILED)) return;
     if(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE) { t->received_counter=in->message_counter; t->has_ack=true; }
     Matter_Result_T r=MATTER_INVALID_ARGUMENT;
     if(t->outbound && !t->case_attempt && d->outgoing.bdx && !in->header.vendor_id &&
@@ -693,7 +694,10 @@ static void confirm(Transaction* t) {
     if(t->write) r=matter_im_write_confirm(t->write,now);
     if(t->invoke) r=matter_im_invoke_confirm(t->invoke,now);
     if(t->sub) r=matter_im_subscribe_confirm(t->sub,now);
-    if(t->final && t->pase) r=matter_pase_confirm_delivery(t->pase,now);
+    if(t->final && t->pase) {
+        if(matter_pase_state(t->pase)==MATTER_PASE_FAILED) { t->closing=true; return; }
+        r=matter_pase_confirm_delivery(t->pase,now);
+    }
     if(t->final && t->case_attempt) {
         if(matter_case_state(t->case_attempt)==MATTER_CASE_FAILED) { t->closing=true; return; }
         r=matter_case_confirm_delivery(t->case_attempt,now);
@@ -774,7 +778,15 @@ static void process_transaction(Transaction* t) {
     static const uint8_t im_busy[]={0x15,0x24,0,0x9c,0x24,0xff,MATTER_IM_REVISION,0x18};
     if(t->im_busy) out=(Matter_Im_Read_Message_T){im_busy,sizeof(im_busy),1};
     if(t->pase) { r=matter_pase_process(t->pase,d->now); if(matter_pase_state(t->pase)==MATTER_PASE_COMPLETE) { (void)handoff(t); t->closing=true; return; }
-        if(matter_pase_output(t->pase,&hs)==MATTER_OK) out=(Matter_Im_Read_Message_T){hs.data,hs.size,hs.opcode}; }
+        if(matter_pase_output(t->pase,&hs)==MATTER_OK) out=(Matter_Im_Read_Message_T){hs.data,hs.size,hs.opcode};
+        if(matter_pase_state(t->pase)==MATTER_PASE_FAILED) {
+            /* Crypto is terminal, but an error StatusReport still owes reliable
+             * delivery. MRP retains its packet until ACK or bounded failure. */
+            if(t->pending) return;
+            if(!out.data) { t->closing=true; return; }
+            r=MATTER_OK;
+        }
+    }
     if(t->case_attempt) { r=matter_case_process(t->case_attempt,d->now); if(matter_case_state(t->case_attempt)==MATTER_CASE_COMPLETE) {
             /* Activate after first transport submission, not its ACK. Keep the
              * final immutable MRP packet alive while secure IM runs separately.

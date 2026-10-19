@@ -55,8 +55,8 @@ Original DA1.1 factory reset/recommissioning passes. GroupKey2.2 completes with 
 FAIL because its hardcodedID3 already exists; Core requires overwrite success.
 Independent overflow/restart/reset acceptance passes; do not turn it into CSA PASS.
 
-Available first-pass coverage is exhausted at these boundaries. Begin CSA51 with
-terminal PASE failure replies, then authenticated IM R=0 admission. Retain the
+Available first-pass coverage is exhausted at these boundaries. CSA51 repaired terminal PASE failure replies; original TC-SC-2.3 is now PASS.
+Continue CSA52 with authenticated IM R=0 admission. Retain the
 owner's deferred multi-hour DGGEN run and physical/client prerequisites explicitly;
 do not loop on an unverified harness. After attributed fixes, triage remaining
 FAILs by actual assertion and rerun originals where meaningful.
@@ -92,8 +92,8 @@ Separate native implementation defects, missing test prerequisites, development
 identity/provisioning limits, harness failures and specification/test questions.
 The generated triage table intentionally leaves unreviewed failures UNTRIAGED.
 
-The confirmed native queue already includes terminal PASE error replies (CSA39)
-and blanket rejection of authenticated IM R=0 requests (CSA41). Preserve correct
+Terminal PASE error delivery (CSA39) is repaired and original TC-SC-2.3 passes
+in CSA51. The confirmed queue retains authenticated IM R=0 rejection (CSA41). Preserve correct
 security/reliability rules while fixing those mechanisms. Do not reduce a
 standards-correct retransmission count or weaken certificate/access checks to
 match a questionable procedure. Keep such CSA clarification items open.

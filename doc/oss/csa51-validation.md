@@ -1,0 +1,13 @@
+# CSA51: terminal PASE error delivery
+
+Original **TC-SC-2.3 now PASS in TH run488:9 passed steps**, unchanged test/support/PICS. Supersedes the native defect recorded in run474; the historical FAIL remains. [Receipts and commands](csa51-results.json).
+
+Runtime previously discarded the error prepared by PASE when process returned PORT_ERROR. It now queues that terminal StatusReport through the existing reliable transport, retains its immutable packet until ACK or bounded failure, and closes without attempting secure-session handoff. Further handshake data cannot cancel the queued error. Crypto failure, secret cleanup and one-time failure notification remain terminal. Public APIs, quotas and timing constants are unchanged.
+
+The shared real-engine dispatcher regression covers PASE and CASE: exact error payload, missing-ACK retry, no session installation, late data, ACK completion, exhausted retries and stop while UDP still borrows a packet. PASE failure notification remains exactly once. The broader runtime test's fake peer previously never ACKed the missing error; now it builds actual ACKs. This restores20 admitted failures rather than counting capacity BUSY as a failed PASE. Duplicate requests and the independent runtime remain checked. The initial test failure is retained, not hidden by a budget increase.
+
+Full actual-controller wire scenarios pass under Memcheck and separately ASan/UBSan/LSan. Each has26 functional and2 required-status checks PASS: invalid passcodeID and one-bit invalid cA receive exact FAILURE1/SECURE_CHANNEL0/INVALID_PARAMETER2, late correct work does not revive the exchange, and two later commissions with CASE reads succeed without node restart. Memcheck:48,274 allocations/frees, zero errors/live bytes. Both nodes exit0 with empty stderr. Five focused CTests pass per build, including allocation-failure runtime; no compiler warnings observed in the final build.
+
+Files changed: portable dispatcher (terminal reply lifecycle), existing dispatcher regression (same delivery checks for both engines), existing runtime test (real peer ACK). This report and campaign state record the superseding manual PASS. Three of362 native inputs change; new Linux normal/sanitizer hosts were compiled. No Windows/Home UI, hardware, all-loss-pattern or embedded RAM-fit acceptance; no live key-memory audit or full-matrix rerun. Private traces remain ignored, TH idle, disposable nodes stopped and paired Windows nodes untouched. No push.
+
+Category totals stay98 automatic PASS/19 FAIL/1 BLOCKED,37 MANUAL,707 NA. Manual becomes23 PASS/10 FAIL/4 BLOCKED. Five external prerequisites remain. Next:CSA52, authenticated IM R=0 admission and original TC-SC-1.2 rerun.

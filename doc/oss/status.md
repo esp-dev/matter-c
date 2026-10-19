@@ -7,6 +7,12 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA51: terminal PASE failure delivery repaired; original TC-SC-2.3 PASS.**
+Run488 passes9 steps. Real retry/ACK/exhaustion/stop regressions, full Memcheck
+and separate sanitizer commissioning recovery pass; five CTests per build.
+[Report](csa51-validation.md). Manual23 PASS/10 FAIL/4 BLOCKED.
+Next:CSA52, authenticated IM R=0 admission and original TC-SC-1.2.
+
 **CSA50: original DA1.1 PASS; GroupKey2.2 FAIL on an existing keyset ID.**
 Actual capacity fill, isolated operator, factory reset/recommissioning and
 independent persistent restart accepted; original FAIL retained for clarification.

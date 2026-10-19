@@ -24,6 +24,7 @@ typedef struct {
     uint8_t key[32],*blob; size_t blob_size;
     unsigned stores,pumps,clocks,logs; uint64_t event_high,epoch;
     bool accept_packets; uint64_t pending_packet;
+    bool ack_pase_failures,pending_failure_ack; uint32_t failure_counter; uint16_t failure_exchange;
     bool fail_store,fail_clock,fail_initialize,fail_snapshot;
     bool fail_network,oversized_network,invalid_network,network_online;
     uint64_t wifi_token; bool cancelling,hold_cancel;
@@ -89,7 +90,17 @@ static Matter_Result_T event_store(void* u,uint64_t v) { return matter_store_hos
 static Matter_Result_T activate(void* u,Matter_Operation_Id_T epoch) { ((Node*)u)->epoch=epoch; return MATTER_OK; }
 static void deactivate(void* u,Matter_Operation_Id_T epoch) { Node* n=u; CHECK(n->epoch==epoch); n->epoch=0; }
 static Matter_Result_T send_packet(void* u,uint64_t id,const Matter_Udp_Datagram_T* d) {
-    (void)d; Node* n=u; if(!n->accept_packets) return MATTER_OFFLINE;
+    Node* n=u; if(!n->accept_packets) return MATTER_OFFLINE;
+    if(n->ack_pase_failures) {
+        Matter_Message_Header_T mh; Matter_Protocol_Header_T ph; size_t m,h;
+        CHECK(matter_message_header_read(d->data,d->size,&mh,&m)==MATTER_MESSAGE_OK && !mh.session_id);
+        CHECK(matter_protocol_header_read(d->data+m,d->size-m,&ph,&h)==MATTER_MESSAGE_OK);
+        if(!ph.protocol_id && ph.opcode==0x40 && (ph.exchange_flags&MATTER_PROTOCOL_RELIABLE)) {
+            const uint8_t failure[]={1,0,0,0,0,0,2,0};
+            CHECK(d->size==m+h+sizeof(failure) && !memcmp(d->data+m+h,failure,sizeof(failure)));
+            n->failure_counter=mh.message_counter; n->failure_exchange=ph.exchange_id; n->pending_failure_ack=true;
+        }
+    }
     CHECK(!n->pending_packet); n->pending_packet=id; return MATTER_OK;
 }
 static void cancel_packet(void* u,uint64_t id) { (void)u; (void)id; CHECK(false); }
@@ -214,13 +225,13 @@ static void close_runtime(Node* n,uint64_t now) {
 }
 static void free_node(Node* n) { CHECK(!n->runtime && !n->owner); free(n->blob); CHECK(matter_crypto_mbedtls_delete(n->crypto)==MATTER_OK); memset(n,0,sizeof(*n)); free(n); }
 static void commissioning_failures(void) {
-    Node* a=node_new(0); Node* b=node_new(1); start_node(a); start_node(b); a->accept_packets=true;
-    uint64_t now=0; uint8_t bytes[40]; size_t n,h;
+    Node* a=node_new(0); Node* b=node_new(1); start_node(a); start_node(b); a->accept_packets=true; a->ack_pase_failures=true;
+    uint64_t now=0; uint32_t peer_counter=100; uint8_t bytes[40],ack[40]; size_t n,h;
     Matter_Udp_Datagram_T packet={.path={.local={.address={0xfe,0x80},.port=5541},
         .peer={.address={0xfe,0x80},.port=6000},.interface_id=1},.data=bytes};
     packet.path.local.address[15]=1; packet.path.peer.address[15]=2;
     for(unsigned attempt=0;attempt<21;++attempt) {
-        Matter_Message_Header_T mh={.message_flags=MATTER_MESSAGE_SOURCE_PRESENT,.source_node_id=123,.message_counter=100+attempt};
+        Matter_Message_Header_T mh={.message_flags=MATTER_MESSAGE_SOURCE_PRESENT,.source_node_id=123,.message_counter=++peer_counter};
         Matter_Protocol_Header_T ph={.opcode=0x20,.exchange_id=(uint16_t)(1+attempt),
             .exchange_flags=MATTER_PROTOCOL_INITIATOR|MATTER_PROTOCOL_RELIABLE};
         CHECK(matter_message_header_write(&mh,bytes,sizeof(bytes),&n)==MATTER_MESSAGE_OK);
@@ -236,6 +247,17 @@ static void commissioning_failures(void) {
                     CHECK(matter_udp_complete(a->udp,id,MATTER_OPERATION_SUCCEEDED)==MATTER_OK);
                 }
                 (void)matter_udp_process(a->udp); now+=1000; run(a,now);
+                if(a->pending_failure_ack) {
+                    a->pending_failure_ack=false;
+                    Matter_Message_Header_T ah={.message_flags=MATTER_MESSAGE_SOURCE_PRESENT,.source_node_id=123,.message_counter=++peer_counter};
+                    Matter_Protocol_Header_T ap={.opcode=0x10,.exchange_id=a->failure_exchange,
+                        .exchange_flags=MATTER_PROTOCOL_INITIATOR|MATTER_PROTOCOL_ACK,.acknowledged_message_counter=a->failure_counter};
+                    size_t an,apn;
+                    CHECK(matter_message_header_write(&ah,ack,sizeof(ack),&an)==MATTER_MESSAGE_OK);
+                    CHECK(matter_protocol_header_write(&ap,ack+an,sizeof(ack)-an,&apn)==MATTER_MESSAGE_OK);
+                    Matter_Udp_Datagram_T reply={.path=packet.path,.data=ack,.size=an+apn};
+                    matter_runtime_received(a->runtime,&reply); run(a,now);
+                }
             }
             if(matter_runtime_commissionable(a->runtime)!=(attempt<19))
                 fprintf(stderr,"commissioning attempt=%u duplicate=%u open=%u\n",attempt+1,repeat,matter_runtime_commissionable(a->runtime));

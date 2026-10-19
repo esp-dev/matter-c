@@ -1187,14 +1187,6 @@
   "triage": [
     {
       "cases": [
-        "TC-SC-2.3"
-      ],
-      "kind": "NATIVE_DEFECT",
-      "evidence": "csa39-validation.md",
-      "action": "Drain terminal PASE error StatusReport through UDP/MRP before disposal; preserve bounded teardown and failure notification."
-    },
-    {
-      "cases": [
         "TC-SC-1.2"
       ],
       "kind": "NATIVE_DEFECT",
