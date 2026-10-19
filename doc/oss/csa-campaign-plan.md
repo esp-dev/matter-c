@@ -58,7 +58,9 @@ Independent overflow/restart/reset acceptance passes; do not turn it into CSA PA
 Available first-pass coverage is exhausted at these boundaries. CSA51 repaired terminal PASE failure replies; original TC-SC-2.3 is now PASS.
 CSA52 repaired authenticated IM R=0 admission; original TC-SC-1.2 is now PASS.
 CSA53 groups remaining assertions using original sources and earlier reports; bounded
-GroupKey/BINFO reruns retain FAIL. Continue CSA54 with actual two-device setup codes. Retain the
+GroupKey/BINFO reruns retain FAIL. CSA54 supplies actual two-device setup codes;
+original automatic TC_SC_7_1 passes. Continue CSA55 with independent GroupKeyMap
+write-status and optional Leave EventStatus attribution. Retain the
 owner's deferred multi-hour DGGEN run and physical/client prerequisites explicitly;
 do not loop on an unverified harness. After attributed fixes, triage remaining
 FAILs by actual assertion and rerun originals where meaningful.

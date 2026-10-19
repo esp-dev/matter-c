@@ -7,6 +7,13 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA54: original automatic TC_SC_7_1 PASS with two actual setup codes.**
+Run492 passes6 steps; two simultaneous native nodes, actual PASE/empty roots,
+different configured factory inputs, no original/PICS or native change.
+[Report](csa54-validation.md).99 automatic PASS/18 FAIL/1 BLOCKED;
+manual24 PASS/9 FAIL/4 BLOCKED. Total123 PASS/27 FAIL/5 prerequisites.
+Next:CSA55, GroupKeyMap/optional Leave wire status attribution.
+
 **CSA53: remaining assertions grouped; bounded GroupKey/BINFO reruns retain FAIL.**
 Zero-group profile/write status and optional Leave result handling remain explicit
 review items. Prior ACL/root/Revoke/scan/Wi-Fi/identity analysis reused.

@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa53-results.json",
+  "previous_sha256": "fa8d9d882a6860b7534a0efad41f4a0dc7dc947e2340717af848d8b94a34a43f",
+  "source_base_commit": "1506ad8a2bdd9bbcd64f1f6708059d1e0a334c21",
+  "scope": "Original automatic TC_SC_7_1 PASS with actual two-device setup-code inputs; unchanged native/test/PICS. Corrects fixture, not manufacturing certification.",
+  "latest_counts": {
+    "PASS": 99,
+    "FAIL": 18,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC_SC_7_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "FAIL",
+      "status": "PASS",
+      "run_id": 492
+    }
+  ],
+  "official_receipt": {
+    "run_id": 492,
+    "state": "TestStateEnum.passed",
+    "completed_at_utc": "2026-10-19 17:31:05.267896",
+    "observed_utc": "2026-10-19T17:31:09.048745+00:00",
+    "cases": [
+      {
+        "case": "TC_SC_7_1",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 6
+        },
+        "details": [
+          {
+            "title": "Start Python test",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH establishes a PASE session to DUT1 using the provided setup code and reads the TrustedRootCertificates attribute from the operational credentials cluster over PASE",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH establishes a PASE session to DUT2 using the provided setup code and reads the TrustedRootCertificates attribute from the operational credentials cluster over PASE",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH compares the discriminators from the provided setup codes",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH compares the passcodes from the provided setup codes",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Show test logs",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "68927daf68aa4d13c01f594340362a6737d7126b052fd8a040ca7da9b2d277f4",
+    "raw_result_sha256": "1033febad0701b0822b0b71d55b1deb40083d1ac3f3979e1171ccc6cbaf2a702",
+    "identity": {
+      "source_sha256": "a247726d986d6208d77d6cd14335c8d41ca73c6dd6573acc57b14e2dec28ed19",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/python_testing/models/utils.py": "a499f71a49f7004f50bf833f501bc0c2b917921e5530f75d7a6e9c8d995cc362",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [],
+    "harness_state": {
+      "state": "idle"
+    },
+    "run_log_checks": {
+      "two_PASE_steps_passed": true,
+      "no_discriminator_argument": false,
+      "no_post_cert_override": true
+    },
+    "cleanup": [
+      {
+        "exit": 0,
+        "stderr_empty": true
+      },
+      {
+        "exit": 0,
+        "stderr_empty": true
+      }
+    ],
+    "fixture": {
+      "two_distinct_pins": true,
+      "two_distinct_discriminators": true,
+      "QR_codes_sha256": [
+        "d9914df272babbce9efadd236bae0d5f85becda9a38cbf81fdc7552a37232cbd",
+        "2965656f1de234e904869b953f9297d82020cb7cc5dec3f052d8c55150d273e6"
+      ],
+      "simultaneous_nodes": 2,
+      "C_payload": true,
+      "fresh_private_stores": true,
+      "native_node_sha256": "950dbdeb75d88e4d20f19ba70f73aedc7f0d2e5e603520d08211359dab616a5d"
+    }
+  },
+  "supersedes": {
+    "case": "TC_SC_7_1",
+    "run_id": 208,
+    "state": "FAIL",
+    "reason": "Original requires two QR/manual codes; old discriminator-only invocation failed before protocol checks."
+  },
+  "fixture": {
+    "C_payload_sha256": "3c4e11ebc3c73baeabec9b6cc799f830a854e69a0ee9a3ffce648b952d26da4c",
+    "C_source_sha256": {
+      "tools/matter/tests/test_gui_pairing.c": "ddf5bb13346836c13fc75aa90e93ec2d5b1c1c2bc83b4852544fb47734f340c8",
+      "tools/matter/host/matter_gui_pairing.c": "e94b86eeba4c18d6e19a66d9bc2332ee6316a8ff25b6e0a8845a5c221f7ea50f"
+    },
+    "compile_warnings": [],
+    "reused_native_build": "csa52-results.json",
+    "new_native_source_or_build": false,
+    "configured_fields": [
+      "two separate startup PINs",
+      "two distinct full discriminators",
+      "separate listener ports/private stores"
+    ],
+    "post_cert_single_device_shortcut": false,
+    "QR_or_private_state_exported": false
+  },
+  "observations": [
+    "Two real simultaneous native processes publish discovery; original unmodified SDK script resolves both codes and establishes real independent PASE sessions.",
+    "Each node returns empty TrustedRootCertificates over PASE before fabric installation. Original compares distinct discriminator and PIN from actual supplied payloads. All6 steps PASS.",
+    "QR payloads generated by current C GUI pairing helper compiled with gcc C99 O2 Wall Wextra Werror, no warnings. Code/source hashes retained; no QR/PIN values published.",
+    "TH documented qr-code test_parameter supplies both payloads and suppresses discriminator/passcode arguments; no original script/assertion patch, post-cert override or PICS change.",
+    "This demonstrates configured simulator factory inputs and protocol behavior. Product manufacturing randomness, unique secret provisioning, labels/radio and certification remain outside this acceptance."
+  ],
+  "coverage": {
+    "applicable": 155,
+    "NA": 707,
+    "completed_positions": 150,
+    "unresolved_prerequisites": 5,
+    "automatic_PASS": 99,
+    "automatic_FAIL": 18,
+    "automatic_BLOCKED": 1,
+    "manual_PASS": 24,
+    "manual_FAIL": 9,
+    "manual_BLOCKED": 4,
+    "all_PASS_positions": 123,
+    "all_FAIL_positions": 27
+  },
+  "validation": {
+    "new_native_Memcheck_or_sanitizer_run": false,
+    "reason": "No native/runtime or public tester change. Actual original two-process TH acceptance uses byte-identical CSA52 host; memory/recovery8 focused CTests per build remain separately inherited CSA52 evidence.",
+    "commands": [
+      "gcc -std=c99 -O2 -Wall -Wextra -Werror test_gui_pairing.c matter_gui_pairing.c -o private-payload-helper",
+      "Run current C helper twice with separate private factory inputs",
+      "Original SDK Python Tests / Python Testing Suite - No commissioning / TC_SC_7_1",
+      "python tools/matter/csa_campaign.py --write",
+      "python tools/matter/check_test_map.py",
+      "git diff --check"
+    ]
+  },
+  "cleanup": {
+    "two_native_nodes_exit0_empty_stderr": true,
+    "TH_idle": true,
+    "paired_Windows_nodes_untouched": true
+  },
+  "limits": [
+    "Automatic original PASS concerns two configured x86 simulator nodes; not proof of production unit uniqueness or CSA certification.",
+    "No new native build, memory sanitizer scenario, physical onboarding artifact or full matrix rerun. Prior failures and five prerequisites remain.",
+    "No push; QR values, setup credentials, state, project configuration and raw logs stay ignored."
+  ],
+  "next": {
+    "stage": "CSA55",
+    "scope": "Independent wire attribution of GroupKeyMap InvalidAction and unsupported optional Leave EventStatus, then repair only demonstrated native defects. Keep CSA clarification, production identity, physical Wi-Fi and deferred long DGGEN boundaries explicit."
+  }
+}

@@ -1314,14 +1314,6 @@
     },
     {
       "cases": [
-        "TC_SC_7_1"
-      ],
-      "kind": "TWO_SETUP_CODE_FIXTURE",
-      "evidence": "csa53-validation.md",
-      "action": "Unchanged script needs QR/manual codes for two fresh devices, no discriminator-only arguments. Prepare two disposable instances/codes without post-cert bypass."
-    },
-    {
-      "cases": [
         "TC_BINFO_2_2"
       ],
       "kind": "OPTIONAL_LEAVE_RESPONSE_REVIEW",
