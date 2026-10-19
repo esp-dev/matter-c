@@ -330,6 +330,16 @@ payload tests.** Retain the controller stall as an open issue for later short
 reproduction, and preserve both original ERROR results. No complete PASS or
 certification is claimed.
 
+CSA31 completes original TC-DD-1.1/1.2 in TH run465 with agent-supplied observed
+QR/manual-code inputs: 9 and 3 passed steps, one inapplicable 21-digit branch.
+Independent C bitmap scanning, chip-tool decoding and live mDNS pass 24 checks;
+the existing C payload self-test passes Memcheck. Runtime C/H are unchanged.
+Both rows remain MANUAL with manual_result=PASS; other results are inherited.
+The manual card is CHIP-generated laboratory data, not a new GUI field; physical
+labels and DCL validation remain outside this acceptance. See
+[evidence and limits](oss/csa31-validation.md). **Next: CSA32, TC-OPCREDS-3.6,
+last-fabric removal and discovery.** CSA30 remains unsuccessful/deferred.
+
 ## 2. Google Test Suite and manual ecosystem acceptance
 
 After the CSA matrix is complete, run the applicable Google Test Suite and manual

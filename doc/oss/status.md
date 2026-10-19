@@ -1,5 +1,20 @@
 # Development status
 
+**CSA31: original TC-DD-1.1 and TC-DD-1.2 PASS, TH run465.**
+The QR case passes 9 steps; the manual case passes 3 with its 21-digit branch
+not applicable. Three operator inputs come from a scanned C-generated QR bitmap,
+captured live mDNS and a CHIP-generated development manual card. Original
+test/support sources and profile PICS are unchanged. Independent acceptance
+passes 24 checks; the existing C payload boundary self-test passes Memcheck.
+No C/H, runtime/API or persistence changes were needed. Physical labels, native
+GUI rendering, DCL certification and a native manual-code display are not
+accepted by this run; known official-helper coverage gaps are documented.
+The evidence node is stopped and TH idle. Both matrix rows remain MANUAL with
+manual_result=PASS: category counts stay unchanged, documented manual PASS
+increases from 8 to 10. See [evidence and limits](csa31-validation.md) and
+[record](csa31-results.json). **Next: CSA32, TC-OPCREDS-3.6, last-fabric removal
+and discovery. CSA30 stays unsuccessful/deferred; no more long retry this pass.**
+
 **CSA30 retry: original TC-DGGEN-2.1 ERROR, TH run464.**
 Commit `5c3e730` preserves the implementation fixes and run463 ERROR. The idle
 laboratory was restarted cleanly; the original WebSocket runner passes command

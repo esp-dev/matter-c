@@ -1506,7 +1506,9 @@
       "kind": "external-network-or-runner",
       "ctest": [],
       "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
-      "referenced_by": [],
+      "referenced_by": [
+        "tools/matter/tests/test_onboarding_payload_chip.py"
+      ],
       "allocation_variant": "not applicable"
     },
     {
@@ -2498,6 +2500,14 @@
       "kind": "optional-source-regression",
       "ctest": [],
       "entrypoint": "python tools/matter/tests/test_csa24_progress.py --test-source /path/to/TC_SU_2_5.py --helper-source /path/to/event_attribute_reporting.py --original-source /path/to/original/TC_SU_2_5.py",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_onboarding_payload_chip.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_onboarding_payload_chip.py --help; Linux node, C payload executable, shared qrcodegen library, chip-tool, Pillow and zxing-cpp 2.3.0 required. Private development artifacts only.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
     }

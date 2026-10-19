@@ -274,6 +274,14 @@ CSA30 is unsuccessful; further investigation is deferred by the owner, with
 no further long retry in this pass. The next campaign is CSA31 onboarding
 QR/manual pairing payload tests.
 
+[CSA31 onboarding acceptance](doc/oss/csa31-validation.md) completes original
+TC-DD-1.1/1.2 in TH run465: 9 and 3 passed steps, respectively, with the 21-digit
+manual branch not applicable. Operator inputs come from a scanned C QR bitmap,
+live mDNS and a CHIP-generated development manual card. Independent acceptance
+passes 24 checks, and the existing C payload self-test passes Memcheck. No runtime
+changes, physical-label/GUI acceptance, DCL verification or certification are
+claimed. Next is CSA32 last-fabric removal/discovery; CSA30 remains deferred.
+
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator
 verifications use live x86 callbacks with IdentifyType0 (None); no physical
