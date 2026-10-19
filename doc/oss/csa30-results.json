@@ -4,7 +4,7 @@
   "previous": "csa29-results.json",
   "previous_sha256": "06391a1351969d7d1585cec36c3ded29b7b44f9231c3c265f2eaaac272c93ac2",
   "source_base_commit": "1387bd0e5171967cc15e251ff720db2ece270a2f",
-  "scope": "CSA30 Node-time and actual-network integration fixes; independent acceptance completed. Original TC-DGGEN-2.1 run463 ends ERROR on TH/chip-tool WebSocket keepalive after the first full 2h05 wait; later assertions unexecuted. Not official PASS or certification.",
+  "scope": "CSA30 Node-time and actual-network integration fixes; independent acceptance completed. Original TC-DGGEN-2.1 run463 ends ERROR on TH/chip-tool WebSocket keepalive after the first full 2h05 wait; later assertions unexecuted. Not official PASS or certification. Retry run464 ends ERROR during commissioning after factory reset; the full first wait and the 0-to-2 hours assertion pass; final evidence and cleanup collected.",
   "latest_counts": {
     "PASS": 97,
     "FAIL": 18,
@@ -522,8 +522,8 @@
     "Existing paired Windows applications unchanged; raw logs, controller stores and credentials outside Git."
   ],
   "next": {
-    "stage": "CSA30 infrastructure follow-up",
-    "action": "Reproduce and diagnose TH/chip-tool WebSocket loss with a short fixture, then repeat the unchanged full case when stable."
+    "stage": "CSA31",
+    "action": "Original TC-DD-1.1 and TC-DD-1.2 onboarding QR/manual pairing payload tests; check actual node/desktop artifacts against controller parsing and operator observations."
   },
   "official_manual": {
     "case": "TC-DGGEN-2.1",
@@ -637,5 +637,137 @@
     "final_collection_and_cleanup_completed": true,
     "failure_interpretation": "Controller WebSocket connection error before obtaining the second hours value; no DUT counter assertion result. Exact disconnection cause not yet diagnosed.",
     "additional_observation": "Late prompt-timeout/Step1a entry occurs during the long wait; origin and causal relation unestablished."
+  },
+  "official_retry": {
+    "run_id": 464,
+    "project_id": 33,
+    "status": "ERROR",
+    "implementation_commit": "5c3e730",
+    "original_run463_error_preserved": true,
+    "case_sha256": "695593b7bd95e321167e4c0e5b5ebc0a0bdd0078b388923c17014200bb447830",
+    "pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "same_accepted_binary": true,
+    "original_waits_ms": [
+      7500000,
+      3900000
+    ],
+    "laboratory_recovery": "Clean restart of idle backend and managed SDK; no source/PICS or assertion changes.",
+    "transport_probe": {
+      "runner": "Unmodified installed WebSocketRunner; stateless command before/after idle; no DUT conformance claim.",
+      "checks": [
+        {
+          "phase": "before-idle",
+          "result": "PASS",
+          "connected": true,
+          "elapsed_s": 0.03261968900915235,
+          "reply_sha256": "7dbcb69d34df81f5d2a0cbc38b26119439d888aada136dc0fa9db11174037672"
+        },
+        {
+          "phase": "after-idle",
+          "result": "PASS",
+          "connected": true,
+          "elapsed_s": 165.04721380700357,
+          "reply_sha256": "7dbcb69d34df81f5d2a0cbc38b26119439d888aada136dc0fa9db11174037672"
+        }
+      ],
+      "stdout_sha256": "a4b9f5b901d096fb28ca1d976b6061f212921b063c29ee2aaade9a70d2f689a2"
+    },
+    "control_capture": {
+      "scope": "Ping/pong and TCP connection-control only; interface duplicates possible.",
+      "sha256": "89598105a42203be2c2ac8c597d6a67409614656e89cb7091d5b4101557df65c",
+      "counts": {
+        "syn": 20,
+        "ping": 790,
+        "pong": 788,
+        "fin": 10
+      },
+      "last_by_kind": {
+        "ping": {
+          "utc": "2026-10-18T21:28:21.440101+00:00",
+          "kind": "ping",
+          "direction": "to-chip-tool",
+          "peer_port": 49414
+        },
+        "pong": {
+          "utc": "2026-10-18T21:28:01.436913+00:00",
+          "kind": "pong",
+          "direction": "from-chip-tool",
+          "peer_port": 49414
+        },
+        "fin": {
+          "utc": "2026-10-18T21:31:57.610729+00:00",
+          "kind": "fin",
+          "direction": "to-chip-tool",
+          "peer_port": 43726
+        },
+        "rst": null
+      }
+    },
+    "collector": "Completed: final original result/log and unchanged test/PICS hashes retained; node/PAA/port cleanup confirmed.",
+    "limitations": "Controller stalls during commissioning following the post-wait factory reset; precise mechanism unproven. Later 1h05/reset-persistence assertions unexecuted. No complete official PASS or certification.",
+    "initial_live_snapshot_utc": "2026-10-18T19:24:02.302118+00:00",
+    "initial_live_progress": {
+      "source": "Operator CLI stream, not the unflushed database case snapshot. Not a completed result.",
+      "step_markers": {
+        "PASSED": 27,
+        "NOT_APPLICABLE": 5,
+        "ERROR": 0,
+        "FAILED": 0
+      },
+      "current_step": "Wait for 2 hours and 5 minutes.",
+      "operator_audits": 5
+    },
+    "observed_utc": "2026-10-19T10:09:08.141667+00:00",
+    "started_at_utc": "2026-10-18 19:22:37.427652 UTC",
+    "completed_at_utc": "2026-10-18 21:32:11.644509 UTC",
+    "final_step_states": {
+      "TestStateEnum.passed": 30,
+      "TestStateEnum.not_applicable": 6,
+      "TestStateEnum.error": 1,
+      "TestStateEnum.pending": 9
+    },
+    "failure_step": "Step 10b: TH starts a commissioning process with DUT",
+    "errors": [
+      "Error occurred during execution of test case TC-DGGEN-2.1. sent 1011 (unexpected error) keepalive ping timeout; no close frame received"
+    ],
+    "total_operational_hours_values": [
+      0,
+      2
+    ],
+    "total_operational_hours_increase_assertion": "PASS",
+    "original_waits_completed_ms": [
+      7500000
+    ],
+    "original_waits_not_executed_ms": [
+      3900000
+    ],
+    "operator_actions_completed": 6,
+    "manual_evidence_upload_completed": false,
+    "official_log_sha256": "ef7413efb9f04d1310cce3783b360419331a45bb662e154c895c09b3115f1a14",
+    "raw_result_sha256": "9022aac8aa0f8ae5b49ee05201ac094b9fae085566d05a7a4d71dff918f79d92",
+    "bounded_watchers": {
+      "capture_sha256": "89598105a42203be2c2ac8c597d6a67409614656e89cb7091d5b4101557df65c",
+      "capture_exit": 0,
+      "operator_exit": 0,
+      "runner_finished": true,
+      "utc": "2026-10-18T21:32:14.544590+00:00"
+    },
+    "harness_state": {
+      "state": "idle"
+    },
+    "node_stopped": true,
+    "temporary_paa_removed": true,
+    "fixture_port_released": 5581,
+    "final_collection_and_cleanup_completed": true
+  },
+  "campaign_disposition": {
+    "outcome": "UNSUCCESSFUL",
+    "further_investigation": "DEFERRED_BY_OWNER",
+    "reason": "Owner prioritizes other CSA coverage over repeated long-duration infrastructure failures.",
+    "official_results_preserved": [
+      "run463 ERROR",
+      "run464 ERROR"
+    ],
+    "future_prerequisite": "Short reset/recommissioning controller-stall reproduction before any future long retry."
   }
 }

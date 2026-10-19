@@ -318,9 +318,17 @@ the next read hits a TH/chip-tool WebSocket keepalive timeout. It obtains no
 second hours value; the 1h05 segment and later steps remain unexecuted. Source/
 PICS are unchanged; final evidence and cleanup are complete. **No official PASS;
 cumulative counts remain unchanged.** See [evidence and limits](oss/csa30-validation.md).
-**Next task: diagnose the TH/chip-tool WebSocket loss using a short fixture**,
-then repeat the unchanged full case once the infrastructure is stable. Retain
-original failures; no certification is claimed.
+The idle laboratory has since been restarted cleanly, and the unchanged
+WebSocket runner passes a 165-second idle check. Retry **run464 ends ERROR**
+after its full 2h05 wait and a passed TotalOperationalHours **0-to-2** assertion.
+Commissioning after the following factory reset encounters a controller
+WebSocket keepalive timeout; the later 1h05 segment is unexecuted. Final
+collection and cleanup complete; the exact stall mechanism remains unproven.
+**CSA30 is unsuccessful; the owner deferred further investigation and long
+retries in this pass. Next: CSA31, TC-DD-1.1/1.2 onboarding QR/manual pairing
+payload tests.** Retain the controller stall as an open issue for later short
+reproduction, and preserve both original ERROR results. No complete PASS or
+certification is claimed.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

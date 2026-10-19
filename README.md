@@ -266,6 +266,13 @@ encountered a TH/chip-tool WebSocket keepalive timeout. No second hours value
 was obtained; later steps were not executed. **No official PASS; cumulative
 CSA counts are unchanged.** See the [result record](doc/oss/csa30-results.json)
 and [callback contract](doc/runtime.md).
+The unchanged case's retry **run464 also ends ERROR**, after passing the full
+2h05 wait and verifying TotalOperationalHours **0 to 2**. A controller WebSocket
+keepalive timeout interrupts commissioning after the following factory reset;
+the later 1h05 segment is unexecuted. Final evidence and cleanup are complete.
+CSA30 is unsuccessful; further investigation is deferred by the owner, with
+no further long retry in this pass. The next campaign is CSA31 onboarding
+QR/manual pairing payload tests.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

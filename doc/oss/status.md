@@ -1,5 +1,20 @@
 # Development status
 
+**CSA30 retry: original TC-DGGEN-2.1 ERROR, TH run464.**
+Commit `5c3e730` preserves the implementation fixes and run463 ERROR. The idle
+laboratory was restarted cleanly; the original WebSocket runner passes command
+checks before and after 165.047 seconds of idle time. Run464 uses unchanged test,
+PICS, binary and full wait durations. It completes the 2h05 wait and verifies
+TotalOperationalHours **0 to 2**. After factory reset, Step10b commissioning hits
+a controller WebSocket keepalive timeout. The 1h05 segment is not executed.
+Final states: **30 passed, 6 not applicable, 1 error, 9 pending**. The control
+capture shows ping/pong through the long wait and an unanswered ping after reset;
+the exact stall mechanism is not proven. Final evidence is collected, the node
+stopped, its port released, PAA removed and TH idle. **No complete PASS**; matrix
+counts remain unchanged. Existing paired Windows instances are untouched.
+See the [retry and retained error](csa30-validation.md) and
+[record](csa30-results.json).
+
 **CSA30: original semi-automated TC-DGGEN-2.1 ERROR, TH run463.**
 The host now supplies Node-relative monotonic time instead of OS uptime, and an
 optional application callback supplies actual selected transport NIC diagnostics.
@@ -19,8 +34,10 @@ TH idle; final evidence was collected. Existing paired Windows instances
 were not replaced/restarted. Type is Unspecified; NIC addresses are a startup
 snapshot. See [fixes, execution error and limits](csa30-validation.md) and
 [record](csa30-results.json).
-**Next: reproduce and diagnose the TH/chip-tool WebSocket loss with a short
-fixture, then repeat the unchanged full case once the infrastructure is stable.**
+**Campaign unsuccessful; further investigation deferred by the owner. No more
+long-duration retries in this pass. Next: CSA31, TC-DD-1.1/1.2 onboarding
+QR/manual pairing payload tests.** The controller stall stays open for a later
+short reproduction; this decision does not change the official ERROR results.
 
 **CSA29: original semi-automated TC-I-2.2 PASS, TH run460, 15/15 step entries.**
 Two agent-evaluated operator prompts use live callbacks under IdentifyType0

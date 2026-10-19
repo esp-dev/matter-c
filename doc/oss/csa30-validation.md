@@ -1,5 +1,42 @@
 # CSA30: General Diagnostics, Node time and transport interfaces
 
+**Campaign outcome: unsuccessful; further investigation deferred by the owner.**
+Both original executions remain ERROR. No further long-duration retry is planned
+in this pass. Continue with CSA31 onboarding payload tests (TC-DD-1.1/1.2).
+
+## Retry result: run464 ERROR
+
+The implementation and the completed run463 evidence were committed as
+**`5c3e730`**. After a clean restart of the idle TH backend and its managed SDK
+environment, the unchanged WebSocket runner successfully executed the same
+stateless command before and after **165.047 seconds** of idle time. This checks
+transport recovery, not Matter conformance or the cause of the old failure.
+The abandoned controller previously failed a bounded connection probe; the exact
+original failure mechanism remains unproven.
+
+Original **TC-DGGEN-2.1 run464 ended ERROR** at **2026-10-18 21:32:11 UTC**,
+using the same accepted executable, test source and PICS. Final step states are
+**30 passed, 6 not applicable, 1 error and 9 pending**. The first full **2h05**
+wait and subsequent hours assertion pass: **TotalOperationalHours increases
+from 0 to 2**. The following factory reset completes, but Step10b commissioning
+encounters `keepalive ping timeout; no close frame received` on the controller
+WebSocket. The later **1h05** wait and reset/persistence assertions are not
+executed. Six lifecycle/NIC operator actions complete; final evidence upload is
+not reached. No required wait or assertion was shortened or disabled.
+
+A bounded laboratory watcher records only WebSocket ping/pong and TCP connection
+control packets, with no ordinary application-data capture. Ping/pong exchanges
+continue through the long wait; the capture then records an unanswered ping
+after the post-wait factory reset. The precise controller-stall mechanism is
+still unproven. This is no longer a failure to obtain the second hours value.
+The collector retained final result/log hashes and unchanged source/PICS hashes.
+The isolated node is stopped, its port released, temporary PAA removed and TH
+idle; both bounded helpers completed successfully. Existing paired Windows nodes
+are unchanged. **No complete official PASS; matrix counts remain unchanged.**
+Run463's ERROR below is retained independently.
+
+## Earlier execution: run463
+
 CSA29 was committed as **`1387bd0`**. CSA30 fixes two integration defects and
 executes original semi-automated **TC-DGGEN-2.1**, TH run **463**.
 **Final result: ERROR**, completed 2026-10-18 17:47:39 UTC. The full first
@@ -167,6 +204,8 @@ outside Git. The inventory contains 238 files, 87 native definitions, 59 core
 sources and 75 public headers. No full CTest/catalog rerun or certification is
 claimed.
 
-**Next action: reproduce and diagnose the TH/chip-tool WebSocket loss with a
-short fixture, then repeat the unchanged full case once the infrastructure is
-stable.** Preserve run463's ERROR; do not classify local checks as official PASS.
+**Deferred issue:** reproduce the controller WebSocket stall around factory
+reset/recommissioning with a short fixture before any future full-duration run.
+Preserve run463/run464 ERROR results; the real-time 0-to-2 hours assertion has
+passed, but the later reset/persistence checks remain unexecuted.
+**Next campaign: CSA31, onboarding QR/manual pairing payload tests.**
