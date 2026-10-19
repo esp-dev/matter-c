@@ -1228,9 +1228,9 @@
       "cases": [
         "TC-BDX-2.3"
       ],
-      "kind": "RECOVERY_TRIGGER_FIXTURE_REVIEW",
-      "evidence": "csa56-results.json",
-      "action": "Earlier no-query failure preceded CASE: reason1 retained daily due time. Choose an explicit recovery trigger and prove real restart while preserving300s idle timeout and120s query floor; previous FAIL remains."
+      "kind": "RECOVERY_PASS_OPTIONAL_BLOCKACK_CSA_QUESTION",
+      "evidence": "csa57-results.json",
+      "action": "Actual interrupted-transfer recovery passes on the same node under Memcheck and separate sanitizers. Original step still requires optional ordinary BlockAck in receiver-drive; preserve literal FAIL pending CSA clarification."
     },
     {
       "cases": [

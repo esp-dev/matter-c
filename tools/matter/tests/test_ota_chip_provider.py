@@ -278,6 +278,8 @@ def main():
                    'apply-proceed-180', 'apply-await-60', 'apply-await-180',
                    'apply-discontinue', 'query-timeout'), default='busy-update')
     p.add_argument('--stall-provider', help='Separate laboratory provider that stalls BDX data but keeps MRP alive; interrupt-retry only.')
+    p.add_argument('--recovery-announcement-reason', type=int, choices=(0, 1),
+                   help='Explicit AnnounceOTAProvider reason after provider restart; interrupt-retry only. Omitted preserves the initial announcement reason.')
     p.add_argument('--events', action='store_true', help='Subscribe to actual OTA events before announcement and verify their fields/sequences.')
     p.add_argument('--default-provider', action='store_true', help='Configure DefaultOTAProviders before UpdateAvailable announcements; existing default uses SimpleAnnouncement.')
     p.add_argument('--valgrind', action='store_true')
@@ -296,6 +298,8 @@ def main():
         p.error('--image-version=3 requires --mode update')
     if a.stall_provider and a.mode != 'interrupt-retry':
         p.error('--stall-provider requires --mode interrupt-retry')
+    if a.recovery_announcement_reason is not None and a.mode != 'interrupt-retry':
+        p.error('--recovery-announcement-reason requires --mode interrupt-retry')
     if a.apply_binding and a.mode != 'update':
         p.error('--apply-binding requires --mode update')
     if a.bdx_profile and a.mode not in ('update', 'interrupt-retry'):
@@ -452,8 +456,10 @@ def main():
         return {name: integer(attrs[identifier], name) for identifier, name in
                 [(2, 'VendorID'), (4, 'ProductID'), (9, 'SoftwareVersion'), (7, 'HardwareVersion')]}
 
-    def announce():
-        command(client, ['otasoftwareupdaterequestor', 'announce-otaprovider', 2, 0xfff1, 1 if a.default_provider else 0, 0, 1, 0], r'status = 0x00')
+    def announce(reason=None):
+        if reason is None:
+            reason = 1 if a.default_provider else 0
+        command(client, ['otasoftwareupdaterequestor', 'announce-otaprovider', 2, 0xfff1, reason, 0, 1, 0], r'status = 0x00')
 
     def start_provider():
         nonlocal provider, provider_phase
@@ -612,13 +618,22 @@ def main():
             if provider.poll() is None:
                 provider.terminate(); provider.wait(timeout=10)
             start_provider()  # Same image, KVS, node/fabric and requestor process.
-            announce()
+            recovery_started = time.monotonic()
+            report['recovery_trigger'] = {
+                'announcement_reason': a.recovery_announcement_reason if a.recovery_announcement_reason is not None
+                else (1 if a.default_provider else 0),
+                'requestor_pid': node.pid, 'requestor_restarts_before_trigger': phase - 1,
+                'provider_restarts': provider_phase - 1}
+            announce(a.recovery_announcement_reason)
             # A still-live BDX peer can restart with its old CASE session lost.
             # Allow one failed Invoke and the unchanged 120 s query backoff.
             wait(lambda: query_count() == 2, 240 if a.stall_provider else 90, allow_node_exit=True)
             wait(lambda: len(responses()) == 2, allow_node_exit=True)
             check('retry-query-update-available', responses()[1]['status'] == 0 and responses()[1]['version'] == 2,
                   responses()[1])
+            report['recovery_trigger']['query_observed_after_seconds'] = time.monotonic() - recovery_started
+            check('retry-retains-query-rate-floor', responses()[1]['time_ms'] - responses()[0]['time_ms'] >= 120000,
+                  {'response_gap_ms': responses()[1]['time_ms'] - responses()[0]['time_ms']})
             wait(lambda: 'Start Offset:' in provider_logs()[-1].read_text(errors='replace'), allow_node_exit=True)
             receive = ANSI.sub('', provider_logs()[-1].read_text(errors='replace')).split('[ATM] ReceiveInit', 1)[1]
             offset = re.search(r'Start Offset:\s*(0x[0-9a-fA-F]+)', receive)

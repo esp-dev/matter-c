@@ -64,8 +64,10 @@ and confirms optional Leave EventStatus; original positive-capacity test remains
 FAIL. CSA56 repairs host RX starvation; all four resource scenarios pass under
 Memcheck and separate sanitizers. Original overflow-status question remains.
 Earlier BDX no-query failure is a reason1/daily-schedule fixture mismatch.
-Continue CSA57 with actual BDX restart using an explicit recovery trigger. Retain the
-owner's deferred multi-hour DGGEN run and physical/client prerequisites explicitly;
+CSA57 proves actual same-node BDX recovery with an explicit reason0 trigger; the
+original optional BlockAck wording remains a CSA question. Continue CSA58 with a
+bounded stable rerun of previously passing automatic suites, grouped by reset and
+commissioning lifecycle. Retain the owner's deferred multi-hour DGGEN run and physical/client prerequisites explicitly;
 do not loop on an unverified harness. After attributed fixes, triage remaining
 FAILs by actual assertion and rerun originals where meaningful.
 

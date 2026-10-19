@@ -1,0 +1,831 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa56-results.json",
+  "previous_sha256": "aa19e29b0baa6f2cdd6aa048b49efac59339f755ba43f0979436e3a491c01c85",
+  "source_base_commit": "c4d7facf55e77eb194307f5128dd936bb28847fd",
+  "scope": "Actual BDX stalled-transfer recovery on the same native requestor, with an explicit post-restart SimpleAnnouncement. Recovery passes; original TC-BDX-2.3 retains a literal optional-BlockAck mismatch.",
+  "latest_counts": {
+    "PASS": 99,
+    "FAIL": 18,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC-BDX-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 495
+    }
+  ],
+  "official_receipt": {
+    "run_id": 495,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 19:07:17.704976",
+    "observed_utc": "2026-10-19T19:07:19.115609+00:00",
+    "cases": [
+      {
+        "case": "TC-BDX-2.3",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 3,
+          "TestStateEnum.failed": 1
+        },
+        "details": [
+          {
+            "title": "DUT sends a ReceiveInit message to TH + TH sends a ReceiveAccept message back to DUT",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH sends a Block message to DUT + DUT sends a BlockAck message back to TH",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH sends a BlockEOF message to DUT + DUT sends a BlockAckEOF message back to TH",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "e95aed947d93f5029e67391fa64931d8aca77709fecc10ff46bff6a43523f2d7",
+    "raw_result_sha256": "db42a54f632f49a15e4b575ba9f95bc99bde49300e241c3b40a18b739462af2a",
+    "identity": {
+      "source_sha256": "d383c621b31867ae31faef1a3656598573c59cce265fb312c2a7c3e7751ef2bd",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "case": "TC-BDX-2.3",
+        "step": 1,
+        "answer": "PASS",
+        "note": "Same requestor process survives actual >=300s live-MRP BDX stall, discards partial image, retains old version, then recovers after provider restart and explicit SimpleAnnouncement. Actual restarted ReceiveInit/Accept: receiver-drive0x20, offset absent/effective0, max block1024 and nonempty file designator; fresh CASE confirmed. Memcheck and separate sanitizers pass.",
+        "utc_ms": 1792436837611
+      },
+      {
+        "case": "TC-BDX-2.3",
+        "step": 2,
+        "answer": "FAIL",
+        "note": "Restarted binary trace has Blocks0..15 and next BlockQuery1..16, which implicitly acknowledge each preceding Block under Core1.6.1 11.22.6.2. No standalone ordinary BlockAck0x13 is emitted. Core11.22.6.6 makes it optional in receiver-drive; original step explicitly requires that message/counter. Preserve literal discrepancy pending CSA clarification, not a transfer failure.",
+        "utc_ms": 1792436837620
+      },
+      {
+        "case": "TC-BDX-2.3",
+        "step": 3,
+        "answer": "PASS",
+        "note": "Restarted complete16585-byte image/hash match; BlockEOF16 receives matching BlockAckEOF16. Authentication, simulated apply/reboot, latest-token Apply/Notify binding and fresh CASE version2/BootReason5 pass in both memory variants.",
+        "utc_ms": 1792436837625
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "previous_original": {
+    "run_id": 481,
+    "result": "FAIL",
+    "reference": "csa45-results.json",
+    "difference": "Previous no-query recovery used UpdateAvailable reason1 and ended before the next daily query; original three steps failed. The new live recovery passes; only ordinary BlockAck is absent in the original rerun."
+  },
+  "changes": {
+    "files": [
+      "tools/matter/tests/test_ota_chip_provider.py",
+      "tools/matter/patches/README.md",
+      "doc/oss/test-map.json"
+    ],
+    "explicit_trigger": "--recovery-announcement-reason 0 sets SimpleAnnouncement after provider restart. Omitted retains the prior initial-reason behavior; incompatible modes fail parsing before any fixture side effect. Initial --default-provider still uses UpdateAvailable reason1.",
+    "recovery_receipt": "Same requestor process/no pre-recovery reboot, one provider restart, observed recovery delay and >=120s actual query gap are recorded.",
+    "native_C_H_policy_API_or_PICS_changes": []
+  },
+  "independent_acceptance": {
+    "memcheck": {
+      "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+      "driver_sha256": "5e5fe89adf6b29f1fe3374555fd4ffcf2bcaaa2a1fc8aa6ebf4179beeb4370eb",
+      "mode": "interrupt-retry",
+      "valgrind": true,
+      "trace_required": true,
+      "subscriptions_per_fabric": 3,
+      "default_provider": true,
+      "announcement_reason": 1,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792435899804,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "partial-transfer-before-kill",
+          "status": "PASS",
+          "detail": {
+            "visible_prefix_bytes": 4096,
+            "prefix_sha256": "6091090bfb357acdbd552a9cf28ed4790231e40b5b89a7dbb3460910be54be74"
+          }
+        },
+        {
+          "name": "bdx-idle-not-before-five-minutes",
+          "status": "PASS",
+          "detail": {
+            "failure_after_seconds": 300.20069153094664,
+            "provider_still_running": true
+          }
+        },
+        {
+          "name": "bdx-stall-provider-retains-live-process",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "idle-after-five-real-minutes",
+          "status": "PASS",
+          "detail": {
+            "observation_seconds": 301.0535360816866,
+            "failure_observed_after_seconds": 300.20069153094664
+          }
+        },
+        {
+          "name": "version-retained-after-interruption",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "retry-query-update-available",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792436337965,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "retry-retains-query-rate-floor",
+          "status": "PASS",
+          "detail": {
+            "response_gap_ms": 438161
+          }
+        },
+        {
+          "name": "retry-receive-init-starts-at-zero",
+          "status": "PASS",
+          "detail": {
+            "start_offset": 0,
+            "range_control": 0
+          }
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 2,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=2; Memcheck"
+        }
+      ],
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "ff438625186db1e277036d121dca3d7fec87438e0c715a335e26b29c7b6184df",
+        "public_key_sha256": "4ba099cf0299411100d349ee162eb31199b7091189de652fbfde1e0aab1eb411"
+      },
+      "binaries": {
+        "requestor": "a86841888db781d2766a09bce78bd7d467831c88089057e44544026a0e860906",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": "9f7e9aed9b7638aee2f2f563d273a7219c22624fc2c63a692f63e8bded52c6b9",
+      "basic_information": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "query_fields": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "location": "omitted (optional under Core 11.20.6.5.1)",
+      "first_response": {
+        "time_ms": 1792435899804,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "interruption_start_utc_ms": 1792435905985,
+      "interruption_fault": "BDX-data-stall-with-live-MRP",
+      "interruption": {
+        "observation_seconds": 301.0535360816866,
+        "failure_observed_after_seconds": 300.20069153094664
+      },
+      "recovery_trigger": {
+        "announcement_reason": 0,
+        "requestor_pid": 1001463,
+        "requestor_restarts_before_trigger": 0,
+        "provider_restarts": 1,
+        "query_observed_after_seconds": 130.85875622928143
+      },
+      "BDX_profile": {
+        "result": "PASS",
+        "transfer_control": 32,
+        "range_control": 0,
+        "proposed_max_block_size": 1024,
+        "accepted_max_block_size": 1024,
+        "start_offset_field": null,
+        "effective_start_offset": 0,
+        "proposed_length_field": null,
+        "accepted_length": null,
+        "file_designator_length": 1,
+        "metadata_bytes": 0,
+        "block_counters": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "eof_counter": 16,
+        "ack_eof_counter": 16,
+        "bytes": 16585,
+        "image_sha256": "ff438625186db1e277036d121dca3d7fec87438e0c715a335e26b29c7b6184df",
+        "ordinary_BlockAck": false,
+        "limits": "Negotiated synchronous receiver drive: next BlockQuery acknowledges prior block; no sender-driven or nonzero-offset transfer claimed."
+      },
+      "result": "PASS",
+      "restarts": 1,
+      "provider_restarts": 1,
+      "result_sha256": "a9afcd0f893156962e89eb59ffd113f550153644aca7bdeb66e688146a9a0718",
+      "log_sha256": {
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "provider-2.log": "ccd424e85b9e72bc95d84fb9006410bfb992488dd7b430751bf326445beeb744",
+        "valgrind-1.log": "a4cc599e118831e3f4d15dfd6f2b18d08dcd8918c545dcdca1ba28ecc3d87b7b",
+        "valgrind-2.log": "80642f5d99025db9824a9fc804c4f25cfeb1bc0a32e7c4a9948ba40c96139035",
+        "node-2.log": "b05d40a1ae3eefcbaec9fe081492bbf3def211efe42ecd30dbd5fc2d919dd1fd",
+        "provider.log": "412d1ef70fd2a557e5b8751c3ea287e9e5dd0855423edbdc75a89ade322b8e1a",
+        "node-1.log": "0ea821023a589b6b5004784edc735ef4a8a1cd89d57c1788a3fb21ca2030c042",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "fresh-reader/interactive.log": "85d9e97cff6d8b744a6b452dfed66bc054490026d5d22b2ad69a03e7f8a9758a",
+        "controller/commands.txt": "b20d513afc40f2e96ab5da6d139cc3187ffa75b5d49c53262247dc9411f3a70b",
+        "controller/interactive.log": "ceb1296ae6501d0f9dfc4b2f95dd20a7a9a3da537e01eb8ba7de641e369d9507"
+      },
+      "memory": [
+        {
+          "log": "valgrind-1.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            36574,
+            36574
+          ]
+        },
+        {
+          "log": "valgrind-2.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            19546,
+            19546
+          ]
+        }
+      ],
+      "stderr_empty": true,
+      "latest_token_binding": [
+        {
+          "time_ms": 1792436341503,
+          "new_version": 2,
+          "token_size": 32,
+          "token_sha256": "c0b152f0984d0cbe86a143108d6a9e744d48ffc4b14d014f7469b525cef51730"
+        }
+      ],
+      "actual_query_requests_utc_ms": [
+        1792435899804,
+        1792436337963,
+        1792436352488
+      ],
+      "first_two_received_queries_gap_ms": 438159,
+      "provider_restart_received_SC_messages": {
+        "48": 2,
+        "50": 1,
+        "51": 0
+      },
+      "node1_query_attempts": 3
+    },
+    "sanitize": {
+      "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+      "driver_sha256": "5e5fe89adf6b29f1fe3374555fd4ffcf2bcaaa2a1fc8aa6ebf4179beeb4370eb",
+      "mode": "interrupt-retry",
+      "valgrind": false,
+      "trace_required": true,
+      "subscriptions_per_fabric": 3,
+      "default_provider": true,
+      "announcement_reason": 1,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792436365814,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "partial-transfer-before-kill",
+          "status": "PASS",
+          "detail": {
+            "visible_prefix_bytes": 4096,
+            "prefix_sha256": "d576b5460f649c8fc9b792114c8a595fd9a9e8b2744ab62c5f885b112130c75a"
+          }
+        },
+        {
+          "name": "bdx-idle-not-before-five-minutes",
+          "status": "PASS",
+          "detail": {
+            "failure_after_seconds": 300.3102739737369,
+            "provider_still_running": true
+          }
+        },
+        {
+          "name": "bdx-stall-provider-retains-live-process",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "idle-after-five-real-minutes",
+          "status": "PASS",
+          "detail": {
+            "observation_seconds": 301.08098021289334,
+            "failure_observed_after_seconds": 300.3102739737369
+          }
+        },
+        {
+          "name": "version-retained-after-interruption",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "retry-query-update-available",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792436803794,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "retry-retains-query-rate-floor",
+          "status": "PASS",
+          "detail": {
+            "response_gap_ms": 437980
+          }
+        },
+        {
+          "name": "retry-receive-init-starts-at-zero",
+          "status": "PASS",
+          "detail": {
+            "start_offset": 0,
+            "range_control": 0
+          }
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 2,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=2; stderr logs empty"
+        }
+      ],
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "de953f15f7d4cccfd4c1311678cc7fa6b6eeb993793cb3459d041f55493e7135",
+        "public_key_sha256": "9fc12dc33bd327eec9d6792ec1d9f4f49a642c2b6888a78e81cc866c665b0c6e"
+      },
+      "binaries": {
+        "requestor": "bee62f9a615af340b0ee73957cee148bb57fd5a3b5c35b20bd55bb60e2cc5a95",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": "9f7e9aed9b7638aee2f2f563d273a7219c22624fc2c63a692f63e8bded52c6b9",
+      "basic_information": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "query_fields": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "location": "omitted (optional under Core 11.20.6.5.1)",
+      "first_response": {
+        "time_ms": 1792436365814,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "interruption_start_utc_ms": 1792436371973,
+      "interruption_fault": "BDX-data-stall-with-live-MRP",
+      "interruption": {
+        "observation_seconds": 301.08098021289334,
+        "failure_observed_after_seconds": 300.3102739737369
+      },
+      "recovery_trigger": {
+        "announcement_reason": 0,
+        "requestor_pid": 1002230,
+        "requestor_restarts_before_trigger": 0,
+        "provider_restarts": 1,
+        "query_observed_after_seconds": 130.614415360149
+      },
+      "BDX_profile": {
+        "result": "PASS",
+        "transfer_control": 32,
+        "range_control": 0,
+        "proposed_max_block_size": 1024,
+        "accepted_max_block_size": 1024,
+        "start_offset_field": null,
+        "effective_start_offset": 0,
+        "proposed_length_field": null,
+        "accepted_length": null,
+        "file_designator_length": 1,
+        "metadata_bytes": 0,
+        "block_counters": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "eof_counter": 16,
+        "ack_eof_counter": 16,
+        "bytes": 16585,
+        "image_sha256": "de953f15f7d4cccfd4c1311678cc7fa6b6eeb993793cb3459d041f55493e7135",
+        "ordinary_BlockAck": false,
+        "limits": "Negotiated synchronous receiver drive: next BlockQuery acknowledges prior block; no sender-driven or nonzero-offset transfer claimed."
+      },
+      "result": "PASS",
+      "restarts": 1,
+      "provider_restarts": 1,
+      "result_sha256": "0bdba3133d72a7a134a9b6bb5df2a97c2d2ac137015c1ae2e06afafbfa4457d7",
+      "log_sha256": {
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "provider-2.log": "c6b1b7e4818c5ea6b4e7ae7fb0ddebb3955a82cbe02ae0c4c359ff2fa8595534",
+        "node-2.log": "6895bcf1438c0ffda1020dc57d91854e18a4ce2c535e1fa5c462a7d54b82ca07",
+        "provider.log": "352a6bfbf196369a1886f71d50b6bddd61541614b924460f3832fdf9e69fa17c",
+        "node-1.log": "857a3610e15db61fc35c6de8c8ff9fb53203f3f03980add691d794e3f7800a65",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/commands.txt": "fb1f98fe22e5c77272730416c1c50b400b186a220dda51c50eedb138773e3b7b",
+        "fresh-reader/interactive.log": "9e7cdc6dbf8f7909b456c55b7b597769a5598396a1b8448fbfabe1bc373f951f",
+        "controller/commands.txt": "b20d513afc40f2e96ab5da6d139cc3187ffa75b5d49c53262247dc9411f3a70b",
+        "controller/interactive.log": "fa3df9ef78d113f651d2f469b8c481926a4e7ae38dbd5a907a2404ae1da0cda0"
+      },
+      "memory": [],
+      "stderr_empty": true,
+      "latest_token_binding": [
+        {
+          "time_ms": 1792436806278,
+          "new_version": 2,
+          "token_size": 32,
+          "token_sha256": "41064e10adaea0ce61e196f011a9a31f0811a1630a34f218addd23ae198dedba"
+        }
+      ],
+      "actual_query_requests_utc_ms": [
+        1792436365812,
+        1792436803793,
+        1792436809219
+      ],
+      "first_two_received_queries_gap_ms": 437981,
+      "provider_restart_received_SC_messages": {
+        "48": 2,
+        "50": 1,
+        "51": 0
+      },
+      "node1_query_attempts": 3
+    }
+  },
+  "provenance": {
+    "binaries": {
+      "normal": "a86841888db781d2766a09bce78bd7d467831c88089057e44544026a0e860906",
+      "sanitize": "bee62f9a615af340b0ee73957cee148bb57fd5a3b5c35b20bd55bb60e2cc5a95",
+      "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+      "stall_provider": "9f7e9aed9b7638aee2f2f563d273a7219c22624fc2c63a692f63e8bded52c6b9",
+      "chip_tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+    },
+    "driver_sha256": "5e5fe89adf6b29f1fe3374555fd4ffcf2bcaaa2a1fc8aa6ebf4179beeb4370eb",
+    "native_inputs_count": 362,
+    "native_inputs_sha256": "c03230568c22497b3e38f598fa5eae43a86d2dc64e02f31f405d2ebd63464a1e",
+    "native_inputs_match_current_checkout": true,
+    "host_build": "Frozen copies of the verified CSA56 hosts; no rebuild/replacement during the four final host process lifetimes. Focused test targets build separately.",
+    "fault_peer": "Only first provider lifetime uses the existing laboratory BDX stall binary after5120 bytes with live MRP. Recovery uses unmodified upstream provider with the same KVS/image. See tools/matter/patches/README.md; no TH source is patched."
+  },
+  "normative_basis": {
+    "trigger": [
+      "Core1.6.1 11.20.7.4:UpdateAvailable uses the next scheduled query",
+      "Core1.6.1 11.20.3.2:120s query floor",
+      "Core1.6.1 11.20.3.5:>=5-minute BDX idle expiry, optional range-based continuation"
+    ],
+    "acknowledgement": [
+      "Core1.6.1 11.22.6.2:next BlockQuery implicitly acknowledges the preceding block",
+      "Core1.6.1 11.22.6.6:ordinary BlockAck is optional for synchronous receiver-drive",
+      "Core1.6.1 11.22.6.7:BlockAckEOF counter matches BlockEOF"
+    ],
+    "original_discrepancy": "The unchanged second TC-BDX-2.3 step requires an explicit BlockAck and matching counter. This profile negotiates receiver-drive and uses the permitted implicit acknowledgement. No BlockAck0x13 was observed, so the literal step is FAIL, not silently waived or relabeled PASS."
+  },
+  "validation": {
+    "focused_Linux": {
+      "normal": {
+        "passed": 4,
+        "failed": 0,
+        "log_sha256": "77f5dabcab1169c083bc91a73c7793063ff5adcf558170050e6329f28294bd26"
+      },
+      "sanitize": {
+        "passed": 4,
+        "failed": 0,
+        "log_sha256": "d5ab6b10882ceed1b8fd8ca80e70e3e8d087d0c78b4db3e2c367a96877592cd4"
+      }
+    },
+    "argument_validation": {
+      "help_exit": 0,
+      "incompatible_mode_exit": 2,
+      "expected_error": true
+    },
+    "warnings": [],
+    "checks_per_variant": 24,
+    "additional_postdecoded_acceptance": "Existing apply_binding oracle confirms ApplyUpdateRequest and NotifyUpdateApplied use the latest actually offered token/version. Actual received-query timestamps and fresh CASE messages are decoded from reference-provider traces; no session keys are exported.",
+    "commands": [
+      "python tools/matter/tests/test_ota_chip_provider.py --exe NODE --provider PROVIDER --stall-provider STALL_PROVIDER --chip-tool CHIP_TOOL --paa PAA --credentials CREDENTIALS --interface INDEX --output OUTPUT --mode interrupt-retry --bdx-profile --default-provider --recovery-announcement-reason 0 --valgrind",
+      "Same full scenario separately with the frozen ASan/UBSan/LSan host, without --valgrind",
+      "cmake --build BUILD --target test_bdx test_bdx_alloc test_ota_query test_ota_query_alloc -j3",
+      "ctest --test-dir BUILD --output-on-failure -R '^(test_bdx|test_bdx_alloc|test_ota_query|test_ota_query_alloc)$'",
+      "Original unchanged TC-BDX-2.3 manual/operator TH procedure",
+      "python -m py_compile tools/matter/tests/test_ota_chip_provider.py",
+      "python tools/matter/check_test_map.py",
+      "python tools/matter/csa_campaign.py --write",
+      "git diff --check"
+    ]
+  },
+  "cleanup": {
+    "disposable_CSA57_processes_running": [],
+    "no_test_processes_remaining": true,
+    "TH_idle": true,
+    "paired_Windows_instances_untouched": true
+  },
+  "coverage": {
+    "applicable": 155,
+    "NA": 707,
+    "all_PASS_positions": 123,
+    "all_FAIL_positions": 27,
+    "unresolved_prerequisites": 5,
+    "manual_PASS": 24,
+    "manual_FAIL": 9,
+    "manual_BLOCKED": 4
+  },
+  "limits": [
+    "Full live recovery is independent functional acceptance; original manual TH run remains FAIL for the optional-BlockAck wording. No automatic CSA/certification claim or approved CSA waiver.",
+    "Restarted transfer is from effective offset0 with complete image verification. No nonzero-offset continuation, sender-drive or physical executable firmware/bootloader installation is claimed.",
+    "No Windows/Home UI, physical radio, production provisioning/label, embedded RAM-fit, deferred multi-hour DGGEN2.1 or stable full-matrix rerun.",
+    "Local Windows Python lacks cryptography; help/argument validation and all external scenarios ran on Linux with that dependency. Local syntax compilation passed. No push."
+  ],
+  "next": {
+    "stage": "CSA58",
+    "scope": "Prepare and execute a bounded stable rerun of previously passing automatic suites on a frozen current host, grouped by commissioning/reset lifecycle. Preserve unchanged known-failure receipts, CSA questions, physical/provisioning prerequisites and deferred DGGEN2.1; do not rerun multi-hour failure loops."
+  },
+  "session_recovery_attribution": {
+    "memcheck": {
+      "unknown_session_datagrams": 5,
+      "first_boot_query_attempts": 3
+    },
+    "sanitize": {
+      "unknown_session_datagrams": 5,
+      "first_boot_query_attempts": 3
+    }
+  }
+}

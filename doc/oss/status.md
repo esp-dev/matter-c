@@ -7,6 +7,14 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA57: actual stalled BDX recovery passes; original optional-ACK question remains.**
+Same requestor, real300s idle expiry, provider restart, explicit reason0, new CASE,
+full offset0 transfer, signed simulated apply/reboot and Notify all pass.
+24 checks per memory variant; clean Memcheck/sanitizers and four CTests per build.
+Original TC-BDX-2.3 run495 retains FAIL only for ordinary BlockAck wording.
+[Report](csa57-validation.md). Counts unchanged:123 PASS/27 FAIL/5 prerequisites.
+Next:CSA58, bounded stable automatic-suite rerun grouped by lifecycle.
+
 **CSA56: UDP RX starvation repaired; full load scenarios pass.**
 Both host pollers receive peer ACKs even while TX completions stay queued.
 399 actual-controller checks per variant across four resets pass under Memcheck

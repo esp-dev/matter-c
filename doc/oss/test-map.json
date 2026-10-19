@@ -1747,7 +1747,7 @@
       "path": "tools/matter/tests/test_ota_chip_provider.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP OTA provider, chip-tool, Python cryptography and disposable Linux lab required.",
+      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP provider plus an optional separate live-MRP stall peer. Explicit --recovery-announcement-reason selects the post-restart trigger; Python cryptography, chip-tool and disposable Linux lab required.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
     },

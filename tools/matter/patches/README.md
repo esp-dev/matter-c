@@ -101,3 +101,10 @@ option and `--mode interrupt-retry --events`. It is used for the first transfer
 only; recovery uses the ordinary provider with the same disposable KVS/image.
 The result records both binary hashes and distinguishes live-MRP stall from
 provider termination. It must not be presented as an unmodified provider run.
+
+The runner accepts `--recovery-announcement-reason 0` to select
+SimpleAnnouncement explicitly after the provider restart. With `--default-provider`,
+the initial announcement remains UpdateAvailable (reason1). Omitting the override
+preserves the existing behavior: recovery inherits the initial reason, and
+UpdateAvailable waits for the next scheduled query. The override does not shorten
+the requestor's BDX idle timeout or 120-second query floor.
