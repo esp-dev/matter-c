@@ -264,7 +264,8 @@
       "referenced_by": [
         "tools/matter/tests/test_ota_chip_provider.py",
         "tools/matter/tests/test_general_diagnostics_chip.py",
-        "tools/matter/tests/test_subscription_fabrics_chip.py"
+        "tools/matter/tests/test_subscription_fabrics_chip.py",
+        "tools/matter/tests/test_im_event_fabric_chip.py"
       ],
       "allocation_variant": "not applicable"
     },
@@ -289,7 +290,9 @@
       "kind": "external-chip-tool",
       "ctest": [],
       "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
-      "referenced_by": [],
+      "referenced_by": [
+        "tools/matter/tests/test_im_event_fabric_chip.py"
+      ],
       "allocation_variant": "not applicable"
     },
     {
@@ -302,7 +305,8 @@
         "tools/matter/tests/test_identify_chip.py",
         "tools/matter/tests/test_ota_chip_provider.py",
         "tools/matter/tests/test_last_fabric_discovery_chip.py",
-        "tools/matter/tests/test_subscription_fabrics_chip.py"
+        "tools/matter/tests/test_subscription_fabrics_chip.py",
+        "tools/matter/tests/test_im_event_fabric_chip.py"
       ],
       "allocation_variant": "not applicable"
     },
@@ -2548,6 +2552,14 @@
       "entrypoint": "python tools/matter/tests/test_subscription_fabrics_chip.py --help; disposable Linux node, five independent real chip-tool fabrics and three subscriptions each; four fresh-store scenarios, Memcheck and sanitizers separately.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_im_event_fabric_chip.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_im_event_fabric_chip.py --help; disposable Linux node with development PAA/credentials and unmodified chip-tool; actual events, chunk timing and two-fabric raw privacy. Original manual TH outcome remains separate.",
+      "referenced_by": [],
+      "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     }
   ],
   "local_only_files": []

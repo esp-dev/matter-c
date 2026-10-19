@@ -1255,6 +1255,20 @@
       "kind": "BLE_PREREQUISITE_AND_PROCEDURE_ARITHMETIC",
       "evidence": "csa46-validation.md",
       "action": "Clarify BLE precondition for IP-only simulated profile and repeat-count arithmetic. Actual reorder/Breadcrumb/rollback/commit passes; no native fault attributed."
+    },
+    {
+      "cases": [
+        "TC-IDM-6.2"
+      ],
+      "kind": "EMPTY_PATH_SUBSCRIBE_CSA_CLARIFICATION",
+      "evidence": "csa49-results.json"
+    },
+    {
+      "cases": [
+        "TC-IDM-7.1"
+      ],
+      "kind": "LOAD_TIMING_AND_OVERFLOW_STATUS_REVIEW",
+      "evidence": "csa48-results.json"
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."

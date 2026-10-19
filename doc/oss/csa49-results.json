@@ -1,0 +1,1741 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa48-results.json",
+  "previous_sha256": "cf9915a74a97091fb172f894387fd1ab72ec067e8ff0b90c157604891d5d65d2",
+  "source_base_commit": "71c4efd3d5fc988026846d1a7c4558467d46e98f",
+  "scope": "Original event Read and fabric-sensitive procedures PASS; Subscribe FAIL retains empty-path/global status questions. Native unchanged. Corrected tester parsing is separately replayed on immutable full Memcheck and sanitizer traces.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 3,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC-IDM-6.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 484
+    },
+    {
+      "case": "TC-IDM-6.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 484
+    },
+    {
+      "case": "TC-IDM-8.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 484
+    }
+  ],
+  "official_receipt": {
+    "run_id": 484,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 16:46:23.168632",
+    "observed_utc": "2026-10-19T16:46:25.140899+00:00",
+    "cases": [
+      {
+        "case": "TC-IDM-6.1",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 13
+        },
+        "details": [
+          {
+            "title": "Step 1: TH sends Read Request Message to DUT with EventRequests set to a specific event from a specific cluster on a specific endpoint on a specific node that is, [Node = Specific, Endpoint = Specific, Cluster = Specific, Event = Specific].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: TH sends Read Request Message to DUT with EventRequests set to all events from a specific cluster on a specific endpoint on a specific node that is, [Node = Specific, Endpoint = Specific, Cluster = Specific, Event = Wildcard].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: TH sends Read Request Message to DUT with EventRequests set to all events from all clusters on a specific endpoint on a specific node that is, [Node = Specific, Endpoint = Specific, Cluster = Wildcard, Event = Wildcard].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: TH sends Read Request Message to DUT with EventRequests set to a specific event from a specific cluster on all endpoints on a specific node that is, [Node = Specific, Endpoint = Wildcard, Cluster = Specific, Event = Specific].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: TH sends Read Request Message to DUT with EventRequests set to all events from a specific cluster on all endpoints on a specific node that is, [Node = Specific, Endpoint = Wildcard, Cluster = Specific, Event = Wildcard].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 6: TH sends Read Request Message to DUT with EventRequests set to all events from all clusters on all endpoints on a specific node that is, [Node = Specific, Endpoint = Wildcard, Cluster = Wildcard, Event = Wildcard].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 7: TH sends Read Request Message to DUT with EventRequests set to path which indicates a cluster event that is not supported.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 8: TH sends Read Request Message to DUT with EventRequests set to path which requires a privilege that is not granted for the cluster in the path.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 9: TH sends Read Request Message to DUT with EventRequests set to Wildcard path where reading an event in the path requires a privilege that is not granted for the cluster in the path.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 10: TH sends a Read Request Message to the DUT to read back events. Note down the largest event number received in the report data message sent back from the DUT. TH sends Read Request Message to DUT with the EventMin field set to a number less than what was received in the previous step.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 11: TH sends a Read Request Message to the DUT to read back events. Note down the largest event number received in the report data message sent back from the DUT. TH sends Read Request Message to DUT with the EventMin field set to a number much greater than what was received in the previous step.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 12: [Testing Chunked Event Data] TH sends Read Request Message to DUT with EventRequests set to all events so as to create a very large event data. For every chunked data message received, DUT sends a status response.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 17,
+          "TestStateEnum.not_applicable": 3,
+          "TestStateEnum.failed": 2
+        },
+        "details": [
+          {
+            "title": "Note",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Precondition",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: TH sends Subscribe Request Message to DUT with EventRequests set to a specific event from a specific cluster on a specific endpoint on a specific node that is, [Node = Specific, Endpoint = Specific, Cluster = Specific, Event = Specific].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: TH sends Subscribe Request Message to DUT with EventRequests set to all events from a specific cluster on a specific endpoint on a specific node that is, [Node = Specific, Endpoint = Specific, Cluster = Specific, Event = Wildcard].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: TH sends Subscribe Request Message to DUT with EventRequests set to all events from all clusters on a specific endpoint on a specific node that is, [Node = Specific, Endpoint = Specific, Cluster = Wildcard, Event = Wildcard].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: TH sends Subscribe Request Message to DUT with EventRequests set to a specific event from a specific cluster on all endpoints on a specific node that is, [Node = Specific, Endpoint = Wildcard, Cluster = Specific, Event = Specific].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: TH sends Subscribe Request Message to DUT with EventRequests set to all events from a specific cluster on all endpoints on a specific node that is, [Node = Specific, Endpoint = Wildcard, Cluster = Specific, Event = Wildcard].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 6: TH sends Subscribe Request Message to DUT with EventRequests set to all events from all clusters on all endpoints on a specific node that is, [Node = Specific, Endpoint = Wildcard, Cluster = Wildcard, Event = Wildcard].",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 7: Activate Event subscription from TH to DUT and trigger the subscribed event on the DUT before minimum interval.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 8: Activate Event subscription from TH to DUT and and trigger the subscribed event on the DUT before minimum interval. 'IsUrgent' flag is set to True for a particular event path in the EventPathIB in the SubscribeRequestMessage.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 9: Activate Event subscription from TH to DUT with no change in event triggering attribute values before maximum interval.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 10: With an active Event subscription from TH to DUT, TH sends another Subscribe Request Message to DUT with KeepSubscriptions as False.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 11: TH sends Subscribe Request Message to DUT + DUT sends Report Data message to DUT. TH sends Status Response Message with a success Status code.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 12: TH sends Subscribe Request Message to DUT. DUT sends Report Data message to DUT + TH sends Status Response Message with an error Status.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 13: TH sends Subscribe Request Message to DUT with EventRequests set to path which indicates a cluster event that is not supported.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 14: TH sends Subscribe Request Message to DUT with EventRequests set to path which requires a privilege that is not granted for the cluster in the path.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 16: TH sends Subscribe Request Message to DUT with EventRequests set to Wildcard path where reading an event in the path requires a privilege that is not granted for the cluster in the path.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 15: TH sends Subscribe Request Message to DUT with EventFilterIB Node information field matching the node indicated in the path and EventMin field.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 16: TH sends Subscribe Request Message to DUT with EventFilterIB Node information field matching the node indicated in the path and the event number is less than the EventMin field.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 17: With an active Event subscription from TH to DUT, trigger events on DUT multiple times.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 18: With an active Event subscription from TH to DUT, change attribute values on DUT to create events multiple times. Perform a factory data reset on DUT, re-subscribe to events and continue to change attribute values on DUT to create events multiple times.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      },
+      {
+        "case": "TC-IDM-8.1",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 8
+        },
+        "details": [
+          {
+            "title": "Note",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Precondition",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Send a Read Request Message from RC1 and RC2 to read the ACL attribute, which is a fabric scoped list, from the DUT. Fabric filtered should be set to false.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Use Access control cluster to verify this test case. Send a fabric-filtered Read Request Message from each of RC1 and RC2 to read the ACL attribute, which is a fabric scoped list, from the DUT. From RC1 send a Write Request message to the DUT to write to an entry in the fabric scoped list associated with its own fabric. Send a fabric-filtered Read Request Message from each of RC1 and RC2 to read the fabric scoped list from the DUT.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Send a Read Request Message to the DUT from RC1 and RC2 to read the fabric scoped list Fabrics from OperationalCredentialsCluster. Fabric filtered should be set to false. RC1 sends an Invoke command(UpdateFabricLabel) to update the label of its fabric. Send a non-filtered Read Request Message from RC1 and RC2 to read the fabric scoped list from the DUT.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Activate the subscription between RC1 and DUT for an attribute1 whose value is a list of structs which contain some fabric-sensitive data Activate the subscription between RC2 and DUT for the same attribute1 whose value is a list of structs which contain some fabric-sensitive data. Modify attribute1 on the DUT.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Activate the subscription between RC1 and DUT for an Event1 which is fabric sensitive Activate the subscription between RC2 and DUT for the same Event1 which is fabric sensitive. Trigger Event1 on DUT on the fabric where RC1 is present.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "ff20ae620082180862a086e43837da85c9b06c602b1db7b7ce648cc36cba8ea0",
+    "raw_result_sha256": "5f803c2a2f1e4fde9f71169a819c65889bca2b25ef7b8517e75812f270b1aab8",
+    "identity": {
+      "source_sha256": {
+        "TC_IDM_6_1": "ba185236d097bcaf69d0e6048ea8bfd79be0ef1ba15c5bcf08f522d6cc585298",
+        "TC_IDM_6_2": "c9cbafd9aacc6298d9ad72674f653cb19051df1be09a804e07b17cb09675dae4",
+        "TC_IDM_8_1": "b6486e0dcc0df66496d63c1cbefd756efd0e9f927a223d1a52afdbc23936f24f"
+      },
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "case": "TC-IDM-6.1",
+        "step": 1,
+        "answer": "PASS",
+        "note": "Specific ACL event returns ordered records.",
+        "utc_ms": 1792428382489
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 2,
+        "answer": "PASS",
+        "note": "Wildcard event within ACL returns records.",
+        "utc_ms": 1792428382496
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 3,
+        "answer": "PASS",
+        "note": "Root cluster wildcard includes accessible events.",
+        "utc_ms": 1792428382501
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 4,
+        "answer": "PASS",
+        "note": "Specific ACL event across endpoints returns concrete event paths.",
+        "utc_ms": 1792428382509
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 5,
+        "answer": "PASS",
+        "note": "ACL cluster/event wildcard across endpoints returns records.",
+        "utc_ms": 1792428382519
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 6,
+        "answer": "PASS",
+        "note": "Full Node selector returns ordered events.",
+        "utc_ms": 1792428382528
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 7,
+        "answer": "PASS",
+        "note": "Unsupported explicit event returns EventStatusIB0xc7, final ACK complete.",
+        "utc_ms": 1792428382538
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 8,
+        "answer": "PASS",
+        "note": "Explicit denied event Read returns EventStatusIB0x7e, ACK complete.",
+        "utc_ms": 1792428382548
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 9,
+        "answer": "PASS",
+        "note": "Wildcard omits inaccessible StartUp/EEM, retains granted ACL event without per-path statuses.",
+        "utc_ms": 1792428382558
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 10,
+        "answer": "PASS",
+        "note": "EventMin is inclusive, below latest retained record; exact expected suffix.",
+        "utc_ms": 1792428382571
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 11,
+        "answer": "PASS",
+        "note": "Future EventMin gives empty report.",
+        "utc_ms": 1792428382585
+      },
+      {
+        "case": "TC-IDM-6.1",
+        "step": 12,
+        "answer": "PASS",
+        "note": "Twelve real ACL changes produce more than20 event records, multiple Event-only chunks and successful per-chunk controller StatusResponse.",
+        "utc_ms": 1792428382601
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 13,
+        "answer": "PASS",
+        "note": "Use supported ACL/StartUp/BootReason/EEM event paths, permitted by original Note.",
+        "utc_ms": 1792428382714
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 14,
+        "answer": "PASS",
+        "note": "Real interactive chip-tool, actual commissioned CASE session.",
+        "utc_ms": 1792428382728
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 15,
+        "answer": "PASS",
+        "note": "Specific ACL event prime and subscription.",
+        "utc_ms": 1792428382739
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 16,
+        "answer": "PASS",
+        "note": "Wildcard ACL event prime.",
+        "utc_ms": 1792428382746
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 17,
+        "answer": "PASS",
+        "note": "Root wildcard event prime.",
+        "utc_ms": 1792428382753
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 18,
+        "answer": "PASS",
+        "note": "Specific event over endpoint wildcard.",
+        "utc_ms": 1792428382759
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 19,
+        "answer": "PASS",
+        "note": "ACL wildcard over endpoints.",
+        "utc_ms": 1792428382765
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 20,
+        "answer": "PASS",
+        "note": "Full Node event wildcard prime.",
+        "utc_ms": 1792428382771
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 21,
+        "answer": "PASS",
+        "note": "Nonurgent event queued before min; report at max measured from last prime Data action.",
+        "utc_ms": 1792428382776
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 22,
+        "answer": "PASS",
+        "note": "Urgent event starts report after minimum5 seconds from first prime chunk. Entire cycles consumed before timing another report.",
+        "utc_ms": 1792428382781
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 23,
+        "answer": "PASS",
+        "note": "No-change heartbeat contains no events and arrives near maximum8 seconds.",
+        "utc_ms": 1792428382786
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 24,
+        "answer": "PASS",
+        "note": "KeepSubscriptionsfalse generates new ID; fresh events arrive on new subscription, never retired ID. Old CHIP ReadClient liveness callbacks are logged independently.",
+        "utc_ms": 1792428382793
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 25,
+        "answer": "PASS",
+        "note": "Actual successful StatusResponse follows prime and precedes SubscribeResponse.",
+        "utc_ms": 1792428382800
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 26,
+        "answer": "NOT APPLICABLE",
+        "note": "Original procedure explicitly out of scope, SDK issue23990.",
+        "utc_ms": 1792428382806
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 27,
+        "answer": "NOT APPLICABLE",
+        "note": "Original procedure explicitly out of scope, SDK issue23990.",
+        "utc_ms": 1792428382812
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 28,
+        "answer": "FAIL",
+        "note": "Original expects EventStatusIB UnsupportedAccess7e for only denied paths. Actual global InvalidAction80 because no error-free existent paths; Core8.4.3.2 steps5/7. Keep FAIL and clarification.",
+        "utc_ms": 1792428382818
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 29,
+        "answer": "FAIL",
+        "note": "Partial-grant wildcard omits denied data. Literal all-denied example returns global InvalidAction80, no ReportData, unlike original empty-report expectation. Keep FAIL and clarification.",
+        "utc_ms": 1792428382824
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 30,
+        "answer": "PASS",
+        "note": "EventMin prime contains exact inclusive retained suffix.",
+        "utc_ms": 1792428382831
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 31,
+        "answer": "PASS",
+        "note": "Future EventMin gives empty prime; actual subsequent ACL events delivered as current events.",
+        "utc_ms": 1792428382836
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 32,
+        "answer": "PASS",
+        "note": "Multiple real ACL changes, full Node subscription: actual event numbers consecutive and strictly increasing.",
+        "utc_ms": 1792428382841
+      },
+      {
+        "case": "TC-IDM-6.2",
+        "step": 33,
+        "answer": "NOT APPLICABLE",
+        "note": "Original procedure explicitly marks factory-reset subscription step out of scope.",
+        "utc_ms": 1792428382847
+      },
+      {
+        "case": "TC-IDM-8.1",
+        "step": 34,
+        "answer": "PASS",
+        "note": "Use actual supported ACL struct list and ACL change event.",
+        "utc_ms": 1792428382919
+      },
+      {
+        "case": "TC-IDM-8.1",
+        "step": 35,
+        "answer": "PASS",
+        "note": "Two actual distinct attested fabrics over CASE.",
+        "utc_ms": 1792428382929
+      },
+      {
+        "case": "TC-IDM-8.1",
+        "step": 36,
+        "answer": "PASS",
+        "note": "Both unfiltered ACL reads contain own complete fields and foreign FabricIndex only in raw generic TLV.",
+        "utc_ms": 1792428382936
+      },
+      {
+        "case": "TC-IDM-8.1",
+        "step": 37,
+        "answer": "PASS",
+        "note": "Each filtered ACL has own entries only; RC1 modification changes own count1to2 while RC2 remains1.",
+        "utc_ms": 1792428382944
+      },
+      {
+        "case": "TC-IDM-8.1",
+        "step": 38,
+        "answer": "PASS",
+        "note": "Both Fabrics reads contain2 descriptors; UpdateFabricLabel changes one label and both observe it.",
+        "utc_ms": 1792428382956
+      },
+      {
+        "case": "TC-IDM-8.1",
+        "step": 39,
+        "answer": "PASS",
+        "note": "Both unfiltered ACL subscribers retain sensitive omission on actual RC1 modification; actual changed subject visible only to owner.",
+        "utc_ms": 1792428382979
+      },
+      {
+        "case": "TC-IDM-8.1",
+        "step": 40,
+        "answer": "PASS",
+        "note": "ACL event triggered on RC1 fabric reaches RC1, never RC2; RC2 heartbeat proves active subscription.",
+        "utc_ms": 1792428383060
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "native_identity": {
+    "native_inputs_unchanged": 362,
+    "remote_source_receipt": {
+      "count": 362,
+      "all_match": true
+    },
+    "new_host_compilation": false,
+    "reused_binary_build": "csa35-results.json"
+  },
+  "focused_tests": {
+    "normal": {
+      "exit": 0,
+      "log_sha256": "f27ed963c39c27a723a9b814d3a6370fd8b2eccae150007b47119feb91f41f78",
+      "build_log_sha256": "2f2b1c57f72542153ae924c6553e8d343cd0b48b5c5728b2345b489a1caf0e0c",
+      "warnings": []
+    },
+    "sanitize": {
+      "exit": 0,
+      "log_sha256": "0442b9859ec21b87f4aebd0041613f78ad4de5b4d6bf23324c379e01109c623e",
+      "build_log_sha256": "2f2b1c57f72542153ae924c6553e8d343cd0b48b5c5728b2345b489a1caf0e0c",
+      "warnings": []
+    }
+  },
+  "independent_attempts": {
+    "memcheck-events-fabrics": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "FAIL",
+          "error": "command-any-read-event-by-id"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL",
+          "error": "no-change-max-heartbeat-False"
+        },
+        "TC_IDM_8_1": {
+          "result": "FAIL",
+          "error": "ACL-subscriber-own-update"
+        }
+      },
+      "driver_sha256": "96b36ae12402712f357a0d89c4e674b763db7052d28a9ad3e77f653ac3f687c2",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "0141efcb6039bd824a5c82ef8974cece17054c378ba2399ca23f2ee0d0a955f6",
+      "logs_sha256": {
+        "node.log": "89e1657079926509e267827988cddd7c3c823bb5daa48f5679e4ed21242edd3e",
+        "memcheck.log": "0ec7e0fc5e1a2e748c4c0542a4638ec72b7670885b7bf61e131733e711515fbb",
+        "RC1/interactive.log": "26810ebfd98444797b0835fde0ef5fce872f1c562e8e524a70e292a1274af69e",
+        "RC2/interactive.log": "e5b5ed2b6f532b7e2298050bd59d083836aa936b74a2832ccaeec3496761034a"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 70,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_1",
+          "name": "command-any-read-event-by-id",
+          "status": "FAIL"
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "FAIL",
+          "detail": {
+            "seconds": 0.04399991035461426
+          }
+        },
+        {
+          "group": "TC_IDM_8_1",
+          "name": "ACL-subscriber-own-update",
+          "status": "FAIL"
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.079999923706055,
+            "minimum": 5,
+            "maximum": 8
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "FAIL",
+          "detail": {
+            "seconds": 0.04399991035461426
+          }
+        }
+      ],
+      "memory": {
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations": 44344,
+        "frees": 44344
+      },
+      "finished_tester_exception": false
+    },
+    "memcheck-complete-events-fabrics": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL",
+          "error": "urgent-minimum-True"
+        },
+        "TC_IDM_8_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "b3c15c86b625996440fa8f087778d1e0421380d841e9bb5e8052df5ec927cb8d",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "03816b5e8320b719659363046c0d562b2ff469aff53cf130e52748172679e08b",
+      "logs_sha256": {
+        "node.log": "b858ead1f8d4bd3f799daae8a132394bf1e794e9bb2642542fedd27266ab49d1",
+        "memcheck.log": "194e4e83e9077917d05415cad5477dec8ac4d730b06b651852089ac9d6972468",
+        "RC1/interactive.log": "28dc8e5e71bb9c9188885c9b20db9f48b48a326f078e75a0b83521cc9c5b1a75",
+        "RC2/interactive.log": "fb767413253cc9666e3509573f10073529879fa8976ba44a77057cd46fdc3acf"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 115,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-True",
+          "status": "FAIL",
+          "detail": {
+            "seconds": 3.2939999103546143,
+            "minimum": 5,
+            "maximum": 8
+          }
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.032000064849854,
+            "minimum": 5,
+            "maximum": 8
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.037000179290771
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-True",
+          "status": "FAIL",
+          "detail": {
+            "seconds": 3.2939999103546143,
+            "minimum": 5,
+            "maximum": 8
+          }
+        }
+      ],
+      "memory": {
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations": 46887,
+        "frees": 46887
+      },
+      "finished_tester_exception": false
+    },
+    "memcheck-final-events-fabrics": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL",
+          "error": "denied-subscribe-status"
+        },
+        "TC_IDM_8_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "c0844846d1cb802619b28d2f9ccf52e15855b16ba11f5c500398ed29df2525e0",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "2edd81fe0462eef7c3e628f62ce0367e5751968052c7f2109cecb156d498d431",
+      "logs_sha256": {
+        "node.log": "8f7846138b9de32039eef28ff3bcfdca214876ea33625c66f2915d4b6e4d226e",
+        "memcheck.log": "06628105c82aa3fc3290a799005554f31b5b4ac167ea0563ccd01d53ccfd3da9",
+        "RC1/interactive.log": "dcdfa0a64290ff118cf04a4282448f616aa79452bcaa33c89d66766088d51021",
+        "RC2/interactive.log": "9c7288a69820f8f1e252582f75a574b551ff80e6695507b60ecdaafc8bccdc64"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 124,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "denied-subscribe-status",
+          "status": "FAIL"
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 9.615999937057495,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.553999900817871
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.141000032424927
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 5.0299999713897705,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.6599998474121094
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.078999996185303
+          }
+        }
+      ],
+      "memory": {
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations": 47207,
+        "frees": 47207
+      },
+      "finished_tester_exception": false
+    },
+    "memcheck-literal-complete": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL",
+          "error": "command-any-subscribe-event-by-id"
+        },
+        "TC_IDM_8_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "f53da1e5c31396f0bcf889d6a0c3923c88cf7ca2b2f0f2048de084bb77067bdb",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "8696e3e69c03575f4d86bf7f633e284dab582f6168c487eebf8fdb13cf01206a",
+      "logs_sha256": {
+        "node.log": "c10aa377fa5ec667a8211800304b2476f6ccf684400630f35455d242e919321b",
+        "memcheck.log": "c5d90b427b62cd5aa660040d74eb1a62a38922d2a59efd09452768a076f121d5",
+        "RC1/interactive.log": "87ee645777344ccbac0c03a1e3f41a3018de18a742f0c616586e9f8509bbd71b",
+        "RC2/interactive.log": "af6317a83f045f05289d21bff2c976a8b9ec7173424f615a7091bd26d26803b6"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 126,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "denied-subscribe-status",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "EventStatusIB UNSUPPORTED_ACCESS0x7e",
+            "actual_statuses": [
+              "0x80"
+            ]
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "command-any-subscribe-event-by-id",
+          "status": "FAIL"
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "literal-all-denied-wildcard-empty-report",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "empty ReportData",
+            "actual": "INVALID_ACTION0x80; no error-free existent paths"
+          }
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 9.563000202178955,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.5210001468658447
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.078999996185303
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 5.017999887466431,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.690000057220459
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.075000047683716
+          }
+        }
+      ],
+      "memory": {
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations": 47492,
+        "frees": 47492
+      },
+      "finished_tester_exception": false
+    },
+    "memcheck-wide-interval": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL",
+          "error": "command-any-subscribe-event-by-id"
+        },
+        "TC_IDM_8_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "0153796542f14ffaa4ca9afb90ce0bbe2a61a8fe086c0c94088980475b12abe9",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "948981c004fe2fb5041ada5d666bc5ffcc164a5e2fc36bf794c04b0936bf20e5",
+      "logs_sha256": {
+        "node.log": "9bc6f2565e181bf8de819c97393a385897b1160aac355bc7dab9bfd5e0005c9f",
+        "memcheck.log": "91d884efb9db3cb79f4f559a2c71664db65236135fa1ca72d1628f04936a0781",
+        "RC1/interactive.log": "5ca357553c95b466bd561b9f528d964c4822f01a88e58f0b237dcaee5be3f3a8",
+        "RC2/interactive.log": "128af467c4bdbd275c5400f0c1c89b815d6b2d9bc5e0518e3d8a21497623e476"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 114,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "command-any-subscribe-event-by-id",
+          "status": "FAIL"
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "literal-all-denied-wildcard-empty-report",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "empty ReportData",
+            "actual": "INVALID_ACTION0x80; no error-free existent paths"
+          }
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 9.453999996185303,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.4049999713897705
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.085000038146973
+          }
+        }
+      ],
+      "memory": {
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations": 46770,
+        "frees": 46770
+      },
+      "finished_tester_exception": false
+    },
+    "memcheck-response-correlated": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL"
+        },
+        "TC_IDM_8_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "f990943b1022215787eb14ca5d012af4a8910a00bd24e765e6a96456bb00b07c",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "ca1d132e69c083f4813ba3144ef72460cf7ac8883172d015ccef622236adebe5",
+      "logs_sha256": {
+        "node.log": "0914bebc4e5ac564d7042564d63d942782d8df9fadf8d20e326e6916d797e54f",
+        "memcheck.log": "79fc1991334d4edabfe8cc42591d672f486cf343ffcc73d5b0e9774d9c36c9bf",
+        "RC1/interactive.log": "fac54a7a3faf2556cfffb0b23440d4023d8ab487d45dd05ace04f0fbbff5e9c9",
+        "RC2/interactive.log": "45760209043e518eed7bc612c49b7d8b652f147955372423015d74d0e6899016"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 146,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "denied-subscribe-status",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "EventStatusIB UNSUPPORTED_ACCESS0x7e",
+            "actual_statuses": [
+              "0x80"
+            ]
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "literal-all-denied-wildcard-empty-report",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "empty ReportData",
+            "actual": "INVALID_ACTION0x80; no error-free existent paths"
+          }
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 9.63100004196167,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.5929999351501465
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.059000015258789
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 5.01800012588501,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.696000099182129
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.067999839782715
+          }
+        }
+      ],
+      "memory": {
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations": 48795,
+        "frees": 48795
+      },
+      "finished_tester_exception": false
+    },
+    "sanitize-events-fabrics": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL",
+          "error": "node-wide-consecutive-event-numbers"
+        },
+        "TC_IDM_8_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "f990943b1022215787eb14ca5d012af4a8910a00bd24e765e6a96456bb00b07c",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "9ce51dbb29280ac7bb0c79e91847044c1bbb99a1cd37da95ccac6e44017c2cf4",
+      "logs_sha256": {
+        "node.log": "86aed4b22c955091a13f7af9e1e0767b8c1db0e7bd0cc2c60b803654419da2b6",
+        "RC1/interactive.log": "9a335300391cbc606253e31b5b0ec3830ebbf3eb00c7f74202d9613ed04f1649",
+        "RC2/interactive.log": "be3ae63062c686b8468569348f0876cb3280d2c883c3c6ebe8b99771cb134f35"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 145,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "denied-subscribe-status",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "EventStatusIB UNSUPPORTED_ACCESS0x7e",
+            "actual_statuses": [
+              "0x80"
+            ]
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "node-wide-consecutive-event-numbers",
+          "status": "FAIL",
+          "detail": [
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115
+          ]
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "literal-all-denied-wildcard-empty-report",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "empty ReportData",
+            "actual": "INVALID_ACTION0x80; no error-free existent paths"
+          }
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 9.345999956130981,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.3289999961853027
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.075999975204468
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 5.016000032424927,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.4200000762939453
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.062999963760376
+          }
+        }
+      ],
+      "memory": null,
+      "finished_tester_exception": false
+    },
+    "memcheck-final-scoped": {
+      "result": "RUNNING",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "1e0317f71adb36b1c8f55d06d6d833d2ac5dcf0b1e46d07fe060a3260b8ee41f",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "fbbff7f75d85e31a5ec5f633fb881f1c0ebe2f5d4658a5472b1f782d79d67222",
+      "logs_sha256": {
+        "node.log": "aa113e183fe2ded24203dd8e3a25d5f8cfa57613151e77e47375aee134934f7f",
+        "memcheck.log": "3dee3e142e963b4dfcfb7ff4459c5574d93138a134d53216ac1f02aba0365ffc",
+        "RC1/interactive.log": "10b1e44d4c0cc49d6f35605d459e7c220603a1b69c8821a9205c54263ef83da7"
+      },
+      "controller_exits": {
+        "RC1": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 66,
+      "failed_checks": [],
+      "timing": [],
+      "memory": {
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations": 26235,
+        "frees": 26235
+      },
+      "finished_tester_exception": true
+    },
+    "memcheck-final-correlated-ack": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL",
+          "error": "node-wide-consecutive-event-numbers"
+        },
+        "TC_IDM_8_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "3ee4986fb8962fd228c7c49b46b0a23a0ac3fe0c5df733e85de0b36a2bf3482a",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "c4de8a218a0e8242ff267dc920ff8a4c6aa991fb18f75008ab4e8a5fe3acd33d",
+      "logs_sha256": {
+        "node.log": "f6aa324821394c6a03a7f9e8858dca50ccfecb9ed48b8aa172604be566709fb5",
+        "memcheck.log": "def6964b15b39d2549850f50e52b04c91d7549f60a2dea4485d444aedecda2e8",
+        "RC1/interactive.log": "b9cb001d06c45d009ce007ec3d3002b63d6e6b0a13f6d1d5e6a2447856d2b999",
+        "RC2/interactive.log": "a6ae4fe93011dbd31e41a02eaae63d3f04a04dda6d229dc0d3ec10d54c171cd8"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 147,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "denied-subscribe-status",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "EventStatusIB UNSUPPORTED_ACCESS0x7e",
+            "actual_statuses": [
+              "0x80"
+            ]
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "node-wide-consecutive-event-numbers",
+          "status": "FAIL",
+          "detail": [
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123
+          ]
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "literal-all-denied-wildcard-empty-report",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "empty ReportData",
+            "actual": "INVALID_ACTION0x80; no error-free existent paths"
+          }
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 9.486999988555908,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.437999963760376
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.077999830245972
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 5.016999959945679,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.6419999599456787
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.082000017166138
+          }
+        }
+      ],
+      "memory": {
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations": 48780,
+        "frees": 48780
+      },
+      "finished_tester_exception": false
+    },
+    "sanitize-final-scoped": {
+      "result": "FAIL",
+      "groups": {
+        "TC_IDM_6_1": {
+          "result": "PASS"
+        },
+        "TC_IDM_6_2": {
+          "result": "FAIL",
+          "error": "node-wide-consecutive-event-numbers"
+        },
+        "TC_IDM_8_1": {
+          "result": "PASS"
+        }
+      },
+      "driver_sha256": "83090a54d7be589fc8f96ce1fde938c4706c506b4f8a2ca5ca692c5d2836e47e",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "8515c22a8ea3bce82e5f8fdcf20795b433c39cc5c2e702c015e5505f041f7920",
+      "logs_sha256": {
+        "node.log": "faae85cc6377bf9862169722f004d5c4bd707fa0601ace2269f0ea37f0519818",
+        "RC1/interactive.log": "1755134195b83de976193e81fd2bf21baa587f67fd874e553ade2ff3902869cd",
+        "RC2/interactive.log": "5053ddd463a7b227cf5a9018b8c7ee3659de9107be1ddff22ca9073a90bd965d"
+      },
+      "controller_exits": {
+        "RC1": 0,
+        "RC2": 0
+      },
+      "node_exit": 0,
+      "checks_PASS": 147,
+      "failed_checks": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "denied-subscribe-status",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "EventStatusIB UNSUPPORTED_ACCESS0x7e",
+            "actual_statuses": [
+              "0x80"
+            ]
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "node-wide-consecutive-event-numbers",
+          "status": "FAIL",
+          "detail": [
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114
+          ]
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "literal-all-denied-wildcard-empty-report",
+          "status": "FAIL",
+          "detail": {
+            "literal_expected": "empty ReportData",
+            "actual": "INVALID_ACTION0x80; no error-free existent paths"
+          }
+        }
+      ],
+      "timing": [
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 9.390000104904175,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.3610000610351562
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-False",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.061000108718872
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "urgent-minimum-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 5.016000032424927,
+            "minimum": 5,
+            "maximum": 8,
+            "prime_chunk_span": 1.4520001411437988
+          }
+        },
+        {
+          "group": "TC_IDM_6_2",
+          "name": "no-change-max-heartbeat-True",
+          "status": "PASS",
+          "detail": {
+            "seconds": 8.077000141143799
+          }
+        }
+      ],
+      "memory": null,
+      "finished_tester_exception": false
+    }
+  },
+  "postdecode": {
+    "memcheck-final-correlated-ack": {
+      "subscription_id": 14,
+      "prime_watermark": 111,
+      "new_numbers": [
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123
+      ],
+      "result": "PASS",
+      "excluded_other_ID_records": 0,
+      "controller_log_sha256": "b9cb001d06c45d009ce007ec3d3002b63d6e6b0a13f6d1d5e6a2447856d2b999"
+    },
+    "sanitize-final-scoped": {
+      "subscription_id": 14,
+      "prime_watermark": 103,
+      "new_numbers": [
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114
+      ],
+      "result": "PASS",
+      "excluded_other_ID_records": 0,
+      "controller_log_sha256": "1755134195b83de976193e81fd2bf21baa587f67fd874e553ade2ff3902869cd"
+    }
+  },
+  "final_predicate_replay": {
+    "memcheck-final-correlated-ack": {
+      "actual_final_predicate": "PASS",
+      "numbers": [
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123
+      ],
+      "negative_controls_rejected": [
+        "gap",
+        "duplicate",
+        "reorder",
+        "empty",
+        "too_short"
+      ]
+    },
+    "sanitize-final-scoped": {
+      "actual_final_predicate": "PASS",
+      "numbers": [
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114
+      ],
+      "negative_controls_rejected": [
+        "gap",
+        "duplicate",
+        "reorder",
+        "empty",
+        "too_short"
+      ]
+    }
+  },
+  "final_public_driver_sha256": "156c3da8f33397ca6ce28a64ac5ffdcb35340b688a1f4f8c31e80fc1617f512c",
+  "observations": [
+    "Six valid Read and six Subscribe event selector forms, inclusive EventMin, future empty prime followed by new events, concrete denied Read, wildcard omission and unsupported-event status. Event-only large Read uses acknowledged chunks.",
+    "Actual two-fabric raw generic TLV omits foreign sensitive ACL fields; filtered views and subscriptions isolate changes. Both see one updated Fabric label. Own ACL event delivered only to owner; other fabric heartbeat remains active.",
+    "Nonurgent event waits near maximum after last prime Data chunk; urgent report starts after minimum5 seconds from report start. Complete cycles consumed before heartbeat timing; no-change heartbeat near8 seconds.",
+    "KeepSubscriptionsfalse produces a new subscription ID and retires earlier subscriptions. Retained controller ReadClients emit later liveness timeouts; those callbacks are recorded separately from actual response of new command.",
+    "Original only-denied Subscribe expects EventStatus UnsupportedAccess7e; all-denied wildcard example expects empty ReportData. Actual global InvalidAction80 follows Core8.4.3.2 steps5/7 when no error-free existent path remains. Preserve original two FAIL prompts; no native patch.",
+    "Original factory-reset Subscribe and two error-prime/unsupported Subscribe steps explicitly out of scope: NA, not fabricated acceptance."
+  ],
+  "tester_corrections": [
+    "Read error callback precedes final ACK; collect both without treating expected error as native failure.",
+    "Consume complete multi-chunk report before heartbeat; minimum from report start, maximum from last Data action.",
+    "Scope each subscription by actual ID. Preserve timestamps under repeated selection; oracle checked for idempotence on both prior full logs.",
+    "Late interactive logging around prime caused one additional sequence FAIL in raw final receipts. Original receipts are untouched. Exact final source predicate replayed on actual event numbers and five negative controls per variant; independent full-log postdecode confirms consecutive new records after actual prime watermark.",
+    "One intermediate timestamp-decoder exception left raw result RUNNING although finally stopped Node and Memcheck was clean. Recorded as finished tester exception; not a still-running scenario or DUT acceptance."
+  ],
+  "normative_basis": {
+    "specification": "Core R1.6.1",
+    "sections": [
+      "8.4.3.2 incoming event paths, empty Subscribe request processing",
+      "8.4.3.3 fabric-sensitive field omission",
+      "8.5 Report transactions, minimum/maximum intervals and IsUrgent",
+      "8.9.3 valid event paths"
+    ],
+    "PDF_SHA256": "d7b078a4b80e8faf345205af0ba4773686e15097b2e6b6caecb5810585875b91"
+  },
+  "coverage": {
+    "positions": 862,
+    "applicable": 155,
+    "NA": 707,
+    "manual_PASS": 22,
+    "manual_FAIL": 11,
+    "manual_BLOCKED": 4,
+    "manual_NOT_RUN": 0,
+    "automatic_BLOCKED": 3,
+    "completed_positions": 148
+  },
+  "commands": [
+    "python tools/matter/tests/test_im_event_fabric_chip.py with disposable Linux node/controllers --valgrind; separately ASan/UBSan/LSan",
+    "Replay exact final sequence predicate from AST against immutable captured values and five poisoned controls per variant",
+    "cmake --build BUILD --target test_im_read test_im_subscribe test_acl -j2",
+    "ctest --test-dir BUILD --output-on-failure -R ^(test_im_read|test_im_subscribe|test_acl)$",
+    "python tools/matter/csa_campaign.py --write",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "all_disposable_nodes_exited": true,
+    "paired_Windows_nodes_untouched": true,
+    "private_traces_and_state_ignored": true
+  },
+  "limits": [
+    "Manual/operator original outcomes remain separate from independent trace acceptance; no automatic CSA or certification claim.",
+    "The raw final Memcheck/sanitizer receipts include three FAIL checks: two literal CSA statuses plus a tester boundary condition. The third was corrected and replayed on saved evidence; raw receipts were not overwritten or silently called PASS.",
+    "Final source edits after end-to-end runs affect sequence predicate and exception guard only; exact sequence predicate replay passes both actual traces and negative controls, py_compile passes. No additional full end-to-end run of that final text is claimed.",
+    "No native/API/PICS change, new host build, physical radio/label, Home UI or embedded RAM acceptance.",
+    "Earlier setup/timing/client callback problems are retained. All native process memory evidence is separate from functional case results."
+  ],
+  "next": {
+    "stage": "CSA50",
+    "cases": [
+      "TC-GRPKEY-2.2",
+      "TC_DA_1_1",
+      "TC-DGGEN-2.1"
+    ],
+    "status": "PREREQUISITE_REVIEW",
+    "scope": "Execute actual operator keyset-fill and disposable factory reset. DGGEN long waits stay deferred until bounded post-reset controller transport is proven; then native repair pass."
+  }
+}

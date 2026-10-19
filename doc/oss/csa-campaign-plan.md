@@ -46,6 +46,20 @@ checks separately. An unavailable fixture or required human operation gets a
 specific blocker, prerequisite and next action. Do not silently mark it NA,
 claim it ran, or change the profile to remove inconvenient coverage.
 
+## Coverage checkpoint after CSA49
+
+All previously unrun manual IM server procedures now have original TH outcomes.
+Of155 applicable positions,148 have completed outcomes;7 have explicit unresolved
+prerequisites (4 manual and3 earlier automatic BLOCKED). No remaining MANUAL/NOT_RUN.
+These are catalog/endpoint positions, not independent requirements or certification.
+
+Next resolve Group Key2.2's actual capacity-fill action and DA1.1's disposable
+factory reset. Recheck their original sources and perform real actions before
+answering operator prompts. DGGEN2.1 retains the owner's deferred long-run ERROR:
+prove bounded post-reset controller transport before another multi-hour attempt.
+Keep final label artifacts and limited-client role prerequisites explicit. Once
+available coverage is exhausted, take the attributed native repair queue.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

@@ -7,6 +7,13 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA49: original TH run484, event Read and fabric isolation PASS; Subscribe FAIL.**
+Six selectors, EventMin, chunking, urgency/timing and real two-fabric raw privacy
+covered. Two all-denied Subscribe expectations need CSA clarification; no native
+change. Tester boundary corrections replayed on immutable traces; see
+[report](csa49-validation.md). Manual22 PASS/11 FAIL/4 BLOCKED/0 not run.
+Next:CSA50, keyset-fill/reset boundaries and earlier BLOCKED review.
+
 **CSA48: TC-IDM-7.1 original manual FAIL, TH run483.**
 Five fabrics/15 live three-path subscriptions and four-path support confirmed.
 Memcheck misses a second Identify update after overflow and actor2 CASE times
