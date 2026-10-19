@@ -10,6 +10,7 @@ response MIC, then release the original packets after a real quiet interval.
 --mrp-size records TC-SC-1.1 at the complete IPv6 packet size boundary.
 --mrp-flows records TC-SC-1.2 ACK/data flows, including encrypted R=0 reads.
 --mrp-retries records TC-SC-1.3 complete ACK loss and bounded retransmissions.
+--mrp-duplicates records TC-SC-1.4 matching ACKs without repeated PASE work.
 Keep output private.
 """
 import argparse
@@ -530,6 +531,60 @@ def mrp_retry_probes(ipv6, interface, target, check, packets, lock):
             'terminal_scope': 'No retries after full wait+guard, no restart on late ACK, then fresh commissioning. Internal timeout/eviction callback is not instrumented on the wire.'}
 
 
+def mrp_duplicate_probes(ipv6, interface, target, check, packets, lock):
+    """Exact reliable repeats after the original data reply was ACKed."""
+    import secrets
+    source = secrets.randbelow(0xffffffeffffffffe) + 1
+    counter = 0x54000001; exchange = 0x7600; next_counter = counter
+    random = secrets.token_bytes(32)
+    payload = b'\x15\x30\x01\x20' + random + b'\x25\x02\x03\x7a\x24\x03\x00\x28\x04\x18'
+    packet = struct.pack('<BHBIQBBHH', 4, 0, 0, counter, source, 5, 0x20, exchange, 0) + payload
+    receipts = []
+    with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as sock:
+        sock.bind((ipv6, 0, 0, interface)); sock.settimeout(.05)
+
+        def record(data, direction, index):
+            with lock:
+                packets.append({'lane': -4, 'direction': direction, 'duplicate_probe': index, 'data': data.hex()})
+
+        for index in range(4):
+            check('duplicate-request-sent-' + str(index), sock.sendto(packet, target) == len(packet))
+            record(packet, 'initiator', index); rows = []
+            until = time.monotonic() + .7
+            while time.monotonic() < until:
+                try:
+                    data, peer = sock.recvfrom(65535)
+                except socket.timeout:
+                    continue
+                assert peer[0] == target[0] and peer[1] == target[1]
+                h = message(data); rows.append(h); record(data, 'responder', index)
+                assert h['session'] == h['protocol'] == h['vendor'] == 0 and h['exchange'] == exchange and h['destination'] == source
+                if h['exchange_flags'] & 4:
+                    next_counter += 1
+                    ack = struct.pack('<BHBIQBBHHI', 4, 0, 0, next_counter, source, 3, 0x10, exchange, 0, h['counter'])
+                    assert sock.sendto(ack, target) == len(ack); record(ack, 'initiator-ACK', index)
+            acked = [h for h in rows if h.get('acknowledged_counter') == counter and h['exchange_flags'] & 2]
+            check('duplicate-matching-ACK-' + str(index), bool(acked))
+            if index == 0:
+                data_replies = [h for h in rows if h['opcode'] == 0x21]
+                check('duplicate-original-application-reply', len(data_replies) == 1 and fields(data_replies[0]['payload'])[1]['value'] == random)
+            else:
+                check('duplicate-standalone-ACK-only-' + str(index), bool(rows) and
+                      all(h['opcode'] == 0x10 and h['exchange_flags'] == 2 and not h['payload'] and
+                          h.get('acknowledged_counter') == counter for h in rows))
+            receipts.append({'index': index, 'same_request_counter': counter, 'matching_ACKs': len(acked),
+                             'application_responses': sum(h['opcode'] == 0x21 for h in rows),
+                             'received_opcodes': [h['opcode'] for h in rows], 'result': 'PASS'})
+        # Terminate only this unfinished handshake; do not assert CSA39 error
+        # status behavior. Subsequent full chip-tool commissioning proves liveness.
+        cleanup = struct.pack('<BHBIQBBHH', 4, 0, 0, next_counter + 1, source, 5, 0x22, exchange, 0) + b'\x15\x18'
+        sock.sendto(cleanup, target); record(cleanup, 'cleanup', 4); time.sleep(.7)
+    return {'Core_result': 'PASS', 'literal_procedure_result': 'PASS', 'reliable_inputs': 4,
+            'exact_duplicates': 3, 'request_sha256': hashlib.sha256(packet).hexdigest(),
+            'receipts': receipts, 'observation_seconds_per_request': .7,
+            'side_effect_scope': 'One original PBKDF response, none for exact duplicates after ACKing original. Core duplicate drop before application delivery is also source-reviewed; no live internal allocation/callback tracing claimed.'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('node', 'chip-tool', 'paa', 'credentials', 'output'):
@@ -542,8 +597,9 @@ def main():
     parser.add_argument('--mrp-size', action='store_true', help='TC-SC-1.1: full IPv6 MTU boundary, then valid commissioning')
     parser.add_argument('--mrp-flows', action='store_true', help='TC-SC-1.2: ACK/data flows and five authenticated unreliable reads')
     parser.add_argument('--mrp-retries', action='store_true', help='TC-SC-1.3: drop all replies, measure immutable retransmissions and stop')
+    parser.add_argument('--mrp-duplicates', action='store_true', help='TC-SC-1.4: repeat reliable requests and require ACK without application re-execution')
     args = parser.parse_args(); out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
-    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows, args.mrp_retries)) > 1:
+    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows, args.mrp_retries, args.mrp_duplicates)) > 1:
         parser.error('Choose one fault-injection mode')
     report = {'result': 'RUNNING', 'checks': [], 'exchanges': [],
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -656,6 +712,8 @@ def main():
         for lane in range(2):
             create_client('controller-' + str(lane))
         address = args.ipv6 + '%' + str(args.interface)
+        if args.mrp_duplicates:
+            report['TC_SC_1_4'] = mrp_duplicate_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.mrp_retries:
             report['TC_SC_1_3'] = mrp_retry_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.mrp_flows:
@@ -761,7 +819,7 @@ def main():
         check('proxy-forwarding', not failures)
         groups = {}; encrypted = []
         for index, row in enumerate(captured):
-            if 'size_probe' in row or 'flow_probe' in row or 'retry_probe' in row:
+            if any(key in row for key in ('size_probe', 'flow_probe', 'retry_probe', 'duplicate_probe')):
                 continue
             p = message(bytes.fromhex(row['data'])); p.update(direction=row['direction'], index=index)
             if p['session']:

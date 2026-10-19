@@ -1,0 +1,693 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa42-results.json",
+  "previous_sha256": "14158ee97befd9535ddf5bbe8ab97315dc522b36492c1ebad4843aba83d3dedf",
+  "source_base_commit": "8b195ba35566caa6bf029961f3571a5e2176fca1",
+  "scope": "Original manual TC-SC-1.4 PASS: original reliable request and three exact repeats get matching ACKs; only original generates a PBKDF data response. No native/PICS changes.",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-1.4",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 478
+    }
+  ],
+  "official_receipt": {
+    "run_id": 478,
+    "state": "TestStateEnum.passed",
+    "completed_at_utc": "2026-10-19 14:31:46.987136",
+    "observed_utc": "2026-10-19T14:31:48.302933+00:00",
+    "cases": [
+      {
+        "case": "TC-SC-1.4",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 3
+        },
+        "details": [
+          {
+            "title": "TH sends a message to DUT with the R flag set to 1.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH sends a duplicate message to the DUT, with the R flag set to 1 and the same message counter as the message in step 1.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "c2d97e4291bf78b55f2b8914e0aee2855f1c2a5c82652e836d223a72d950adb0",
+    "raw_result_sha256": "ddb58504f2b7eeb00c91e548fbf6bd13091a3fa6d0d2393e82b2a65533b263fd",
+    "identity": {
+      "source_sha256": "c1e48e27ce38f1e887498c34eaab0ce7d1ac0b4478051f5e582488c86bd7ca03",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "Actual valid PBKDFParamRequest has R1. DUT returns matching exchange/destination, A1 and acknowledged counter equal to the request counter; original PBKDF response echoes request random. Reliable data response is ACKed before duplicate probes.",
+        "utc_ms": 1792420306939
+      },
+      {
+        "step": 2,
+        "answer": "PASS",
+        "note": "Three byte-identical repeats of that request, same original counter/exchange/path. Each receives only empty standalone ACK A1/R0 with that original counter; no PBKDFParamResponse or other application output during0.7-second observation per repeat. Source duplicate path drops before application delivery. Incomplete PASE is explicitly ended, then two fresh full commissions/CASE reads succeed without DUT restart; memory receipts retained.",
+        "utc_ms": 1792420306946
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": "c1e48e27ce38f1e887498c34eaab0ce7d1ac0b4478051f5e582488c86bd7ca03",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_observations": {
+    "normal": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-request-sent-0",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-matching-ACK-0",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-original-application-reply",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-request-sent-1",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-matching-ACK-1",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-standalone-ACK-only-1",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-request-sent-2",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-matching-ACK-2",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-standalone-ACK-only-2",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-request-sent-3",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-matching-ACK-3",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-standalone-ACK-only-3",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 10638,
+          "responder_session_id": 2,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 52582
+        },
+        {
+          "initiator_session_id": 40226,
+          "responder_session_id": 4,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 29884
+        }
+      ],
+      "driver_sha256": "2b7fde17c28b3595461ed0dcd15c1ca5da216ae10ae97c3b7486404ce6fa3458",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_SC_1_4": {
+        "Core_result": "PASS",
+        "literal_procedure_result": "PASS",
+        "reliable_inputs": 4,
+        "exact_duplicates": 3,
+        "request_sha256": "b254e71d06ed7d6c8ceb905ed8b7315b9b70ba351e41020444461e182079aa69",
+        "receipts": [
+          {
+            "index": 0,
+            "same_request_counter": 1409286145,
+            "matching_ACKs": 2,
+            "application_responses": 1,
+            "received_opcodes": [
+              33,
+              16
+            ],
+            "result": "PASS"
+          },
+          {
+            "index": 1,
+            "same_request_counter": 1409286145,
+            "matching_ACKs": 1,
+            "application_responses": 0,
+            "received_opcodes": [
+              16
+            ],
+            "result": "PASS"
+          },
+          {
+            "index": 2,
+            "same_request_counter": 1409286145,
+            "matching_ACKs": 1,
+            "application_responses": 0,
+            "received_opcodes": [
+              16
+            ],
+            "result": "PASS"
+          },
+          {
+            "index": 3,
+            "same_request_counter": 1409286145,
+            "matching_ACKs": 1,
+            "application_responses": 0,
+            "received_opcodes": [
+              16
+            ],
+            "result": "PASS"
+          }
+        ],
+        "observation_seconds_per_request": 0.7,
+        "side_effect_scope": "One original PBKDF response, none for exact duplicates after ACKing original. Core duplicate drop before application delivery is also source-reviewed; no live internal allocation/callback tracing claimed."
+      },
+      "live_first_CASE_session_id": 3,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "PASS",
+      "node_exit": 0,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-request-sent-0",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-matching-ACK-0",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-original-application-reply",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-request-sent-1",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-matching-ACK-1",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-standalone-ACK-only-1",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-request-sent-2",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-matching-ACK-2",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-standalone-ACK-only-2",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-request-sent-3",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-matching-ACK-3",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate-standalone-ACK-only-3",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 20398,
+          "responder_session_id": 2,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 37131
+        },
+        {
+          "initiator_session_id": 42732,
+          "responder_session_id": 4,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 59147
+        }
+      ],
+      "driver_sha256": "2b7fde17c28b3595461ed0dcd15c1ca5da216ae10ae97c3b7486404ce6fa3458",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_SC_1_4": {
+        "Core_result": "PASS",
+        "literal_procedure_result": "PASS",
+        "reliable_inputs": 4,
+        "exact_duplicates": 3,
+        "request_sha256": "8c333f284a925c29ac3d9081430e1d0cf96a4502b7d679c3ca4380988e95312f",
+        "receipts": [
+          {
+            "index": 0,
+            "same_request_counter": 1409286145,
+            "matching_ACKs": 2,
+            "application_responses": 1,
+            "received_opcodes": [
+              33,
+              16
+            ],
+            "result": "PASS"
+          },
+          {
+            "index": 1,
+            "same_request_counter": 1409286145,
+            "matching_ACKs": 1,
+            "application_responses": 0,
+            "received_opcodes": [
+              16
+            ],
+            "result": "PASS"
+          },
+          {
+            "index": 2,
+            "same_request_counter": 1409286145,
+            "matching_ACKs": 1,
+            "application_responses": 0,
+            "received_opcodes": [
+              16
+            ],
+            "result": "PASS"
+          },
+          {
+            "index": 3,
+            "same_request_counter": 1409286145,
+            "matching_ACKs": 1,
+            "application_responses": 0,
+            "received_opcodes": [
+              16
+            ],
+            "result": "PASS"
+          }
+        ],
+        "observation_seconds_per_request": 0.7,
+        "side_effect_scope": "One original PBKDF response, none for exact duplicates after ACKing original. Core duplicate drop before application delivery is also source-reviewed; no live internal allocation/callback tracing claimed."
+      },
+      "live_first_CASE_session_id": 3,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "PASS",
+      "node_exit": 0
+    }
+  },
+  "independent_receipts": {
+    "normal": {
+      "result": "PASS",
+      "checks_PASS": 32,
+      "node_exit": 0,
+      "stderr_empty": true,
+      "driver_sha256": "2b7fde17c28b3595461ed0dcd15c1ca5da216ae10ae97c3b7486404ce6fa3458",
+      "result_sha256": "f70639b629962629c92a37691c64edca81684565d2f603cfae0861ffa2859d87",
+      "raw_packets_sha256": "416e7545a64db23990b0d8df3dc761e191b93cef4c614963f256d4c3e0fd9e74",
+      "wire_receipt": {
+        "four_identical_inputs": true,
+        "matching_ACK_on_all_inputs": true,
+        "application_responses_per_input": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "duplicate_standalone_ACK_only": true,
+        "subsequent_full_commissions": 2
+      },
+      "memory": {
+        "allocations": 43506,
+        "frees": 43506,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "94283eb612b535b580cd7f98a0ecb7dc90ae25243289541386d475bfe61da24d"
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks_PASS": 32,
+      "node_exit": 0,
+      "stderr_empty": true,
+      "driver_sha256": "2b7fde17c28b3595461ed0dcd15c1ca5da216ae10ae97c3b7486404ce6fa3458",
+      "result_sha256": "5f1331ccfe36dbf76ba4fbb0ea67a4565a2392c2aeb4095043689c40e84c8f50",
+      "raw_packets_sha256": "1d2d4356a3e1b24518cb23a141479cd5dd3f66fb59352fc1138b3d3d0cf1c14f",
+      "wire_receipt": {
+        "four_identical_inputs": true,
+        "matching_ACK_on_all_inputs": true,
+        "application_responses_per_input": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "duplicate_standalone_ACK_only": true,
+        "subsequent_full_commissions": 2
+      }
+    }
+  },
+  "memory": {
+    "allocations": 43506,
+    "frees": 43506,
+    "zero_errors": true,
+    "zero_live": true,
+    "log_sha256": "94283eb612b535b580cd7f98a0ecb7dc90ae25243289541386d475bfe61da24d"
+  },
+  "native_identity": {
+    "source_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_inputs_unchanged": 362,
+    "remote_source_receipt": {
+      "count": 362,
+      "all_match": true
+    },
+    "binary_compiled_in": "csa35-results.json",
+    "new_host_compilation": false,
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 3,
+        "warnings": [],
+        "log_sha256": "b168a273092e78fabfa29cc710e26769660d330fac89d010cc4728428b1b5afd",
+        "build_log_sha256": "4e59e7d57e1d2f0552c173646c73366c8bf6b1032ca0ca136b244a662b064be6"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 3,
+        "warnings": [],
+        "log_sha256": "84d07256dfc96aa0141b839ebf34e9b8cfeba0188132ff85ff1360416554059d",
+        "build_log_sha256": "4e59e7d57e1d2f0552c173646c73366c8bf6b1032ca0ca136b244a662b064be6"
+      }
+    }
+  },
+  "normative_basis": {
+    "specification": "Core R1.6.1",
+    "sections": [
+      "4.12.1",
+      "4.12.5.2.2"
+    ],
+    "duplicate_policy": "Same counter/exchange/path, R1: repeat matching standalone ACK, discard before application delivery. Original data response is ACKed first to distinguish outstanding retransmission from duplicate application work."
+  },
+  "coverage": {
+    "independent_checks_PASS": 64,
+    "original_inputs": 2,
+    "exact_duplicates": 6,
+    "subsequent_full_commissions": 4,
+    "manual_PASS": 14,
+    "manual_FAIL": 6,
+    "manual_without_outcome": 19,
+    "positions": 862
+  },
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --mrp-duplicates --valgrind with disposable node/controller/credentials and selected IPv6; repeat sanitizer separately",
+    "cmake --build BUILD --target test_reception test_rx test_rx_policy -j2",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_reception|test_rx|test_rx_policy)$'",
+    "python tools/matter/csa_campaign.py --write",
+    "python tools/matter/csa_campaign.py",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "secrets_and_raw_traces_outside_Git": true
+  },
+  "limits": [
+    "Original manual/operator acceptance, not fully automated CSA or certification.",
+    "No repeated PBKDF output during0.7s per duplicate plus source duplicate-drop review; no live internal allocation/callback instrumentation or all-future-state proof.",
+    "Incomplete test handshake ended with malformed Pake1; CSA39 terminal status bug is not repaired or waived.",
+    "No native code/API/PICS mutation, new host compilation, full matrix, physical/radio/Home UI or embedded RAM-fit test. Earlier failures remain deferred."
+  ],
+  "next": {
+    "stage": "CSA44",
+    "case": "TC-DESC-2.1",
+    "status": "NOT_RUN",
+    "scope": "Full current-profile Descriptor attributes, device types, server/client lists and endpoint hierarchy; retain original procedure discrepancies."
+  }
+}

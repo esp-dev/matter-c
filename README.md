@@ -388,7 +388,15 @@ terminal silence and no restart on late ACK. Both full scenarios pass64 checks
 under Memcheck/separate sanitizers; memory is clean and two focused CTests pass
 per variant. No native/PICS change; no native count defect is established. MANUAL
 now has13 PASS,6 FAIL and20 without an outcome; category totals stay unchanged.
-Next: CSA43, TC-SC-1.4 counters/duplicates; earlier native failures stay deferred.
+The counter/duplicate acceptance follows below; earlier failures stay deferred.
+
+[CSA43 counters and duplicates](doc/oss/csa43-validation.md): original manual
+TC-SC-1.4 PASS, TH run478. Exact repeat requests receive matching standalone ACKs
+without repeating the original PBKDF data response. Both full scenarios pass64
+checks with clean native memory instrumentation and successful subsequent CASE.
+Three focused tests pass per variant. MANUAL now has14 PASS,6 FAIL,19 unexecuted.
+Continue with CSA44 Descriptor and the generated campaign queue; no native fix
+or certification claim is made by this acceptance.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

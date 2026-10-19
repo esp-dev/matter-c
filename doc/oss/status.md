@@ -7,6 +7,16 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA43: original TC-SC-1.4 manual PASS, TH run478.**
+Original reliable PBKDF input and three exact repeats receive matching ACKs;
+duplicates produce only empty standalone ACKs and no repeated application reply.
+Both full scenarios pass32 checks under Memcheck/separate sanitizers, followed by
+two-fabric commissioning/CASE without restart. Memory is clean:43506 matched
+allocations/frees; three focused replay/RX CTests pass per variant. No native,
+PICS or original-test changes. MANUAL now has14 PASS,6 FAIL,19 without an outcome;
+category totals are unchanged. See [receipts/limits](csa43-validation.md).
+**Continue with CSA44, TC-DESC-2.1**, and then the remaining campaign queue.
+
 **CSA42: original TC-SC-1.3 literal manual FAIL, TH run477; Core retries PASS.**
 Step4 says total MAX-1 messages. At max5, Core requires five total sends/four
 retries; both wire scenarios do exactly that. The original FAIL is retained for

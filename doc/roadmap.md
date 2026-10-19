@@ -448,9 +448,13 @@ pass64 independent checks with clean Memcheck/separate sanitizers and subsequent
 commissioning/CASE. Two table/sender CTests pass per build; no native/PICS change.
 See [evidence and limits](oss/csa42-validation.md). MANUAL now has13 PASS,6 FAIL
 and20 without an outcome; category totals stay unchanged.
-**Next: CSA43, TC-SC-1.4 MRP message counters and duplicate handling**, including
-matching ACKs and no repeated application effects. Continue the initial
-coverage pass (20 manual plus 3 blocked); resolve the 18 automatic and 6 manual
+CSA43 executes TC-SC-1.4, run478 PASS: matching ACKs for original and three exact
+duplicates, one original PBKDF data response and none for repeats. Both full
+memory-instrumented scenarios and three focused replay/RX tests per variant pass;
+no native/PICS change. See [evidence](oss/csa43-validation.md). MANUAL has14 PASS,
+6 FAIL,19 without an outcome. **Next: CSA44, TC-DESC-2.1**, current Descriptor
+attributes/device types/server/client lists/hierarchy, then continue the campaign.
+Continue the initial coverage pass (19 manual plus3 blocked); resolve the18 automatic and6 manual
 FAIL results afterward as requested. Keep clarification items open and CSA30
 deferred.
 

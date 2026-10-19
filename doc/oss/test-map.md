@@ -57,6 +57,11 @@ Equal intervals isolate timing but do not prove state selection. Keep original
 TC-SC-1.3 Step4's total-versus-retry wording result separate from independent
 Core acceptance. See [CSA42 evidence and limits](csa42-validation.md).
 
+CSA43 adds `--mrp-duplicates`: ACK the original reliable PBKDF response, then
+repeat the same request/counter three times. Require matching standalone ACKs
+and no repeated data output, followed by two fresh full commissions/CASE without
+DUT restart. See [CSA43 evidence](csa43-validation.md).
+
 `test_commissionable_announcement_chip.py` supplies CSA34 wire/controller evidence
 for unsolicited announcements, actual unfiltered chip-tool browsing and complete
 basic/closed/enhanced Commissionable Node Discovery records, addresses, subtypes
