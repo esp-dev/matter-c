@@ -1,5 +1,20 @@
 # Development status
 
+**CSA36: Commissioner Discovery / UDC declaration corrected; TC-SC-4.7 is NA.**
+Core1.6.1 4.3.3 makes this feature optional; the reference runtime has no
+`_matterd._udp` commissioner discovery or UDC protocol0x0003 implementation.
+`MCORE.DD.COMM_DISCOVERY` is now false. Commissionable/operational discovery,
+PH/Extended Discovery and the limited OTA controller role remain unchanged.
+The unmodified TH applicability endpoint removes only TC-SC-4.7 (164 to 163
+eligible titles in the root project); the original project is preserved.
+No new test execution or PASS is claimed. Five actual endpoint CLI exports
+preserve every other PICS/project value. Current cumulative totals are **97 PASS,
+18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL has **12 PASS, 1 FAIL, 26 without
+an outcome**. No native/runtime changes or paired-node restart. See
+[audit and limits](csa36-validation.md) and [record](csa36-results.json).
+**Next: CSA37, TC-SC-2.1 manual PASE exchange acceptance. CSA30 remains deferred;
+CSA32 remains open.**
+
 **CSA35: PH/privacy policy fixed; original discovery rechecks PASS.**
 Automatic TC_SC_4_1 run469 passes 21 entries (9 NA), TC_SC_4_3 run470 passes 15;
 manual TC-DD-2.1 run471 passes 11 (15 NA). The host supplies PH1 before commissioning

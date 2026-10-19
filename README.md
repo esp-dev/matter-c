@@ -319,7 +319,16 @@ including its newly declared PH/Extended Discovery branches. Three policy modes
 pass full Memcheck and separate sanitizer scenarios; restored disabled boots
 accept fresh CASE. Four accepted Memcheck processes have zero errors/live bytes.
 The manual category now has 12 PASS, 1 FAIL and 27 without an outcome; category
-totals remain unchanged. Next: CSA36, audit Commissioner Discovery/UDC applicability.
+totals remain unchanged. Its Commissioner Discovery declaration is audited below.
+
+[CSA36 Commissioner Discovery / UDC audit](doc/oss/csa36-validation.md) corrects
+the unsupported optional `MCORE.DD.COMM_DISCOVERY` declaration to false.
+The original TH applicability endpoint excludes only TC-SC-4.7; ordinary
+commissionable/operational discovery remains supported. No protocol test PASS
+is claimed. Five endpoint CLI exports preserve all other PICS/project values.
+Current totals: **97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL contains
+12 PASS, 1 FAIL and 26 without an outcome. No native code or paired-node changes.
+Next: CSA37, original manual TC-SC-2.1 PASE exchange acceptance.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

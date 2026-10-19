@@ -31,7 +31,9 @@ CORE = {
     'MCORE.IDM.C.InvokeRequest': True, 'MCORE.IDM.C.InvokeRequest.BatchCommands': False,
     'MCORE.IDM.C.ReadRequest': False, 'MCORE.IDM.C.WriteRequest': False,
     'MCORE.IDM.C.SubscribeRequest': False, 'MCORE.IDM.S.PersistentSubscription': False,
-    'MCORE.DD.COMM_DISCOVERY': True, 'MCORE.DD.UI': False,
+    # Commissioner Discovery (_matterd._udp) / UDC is optional and unsupported.
+    # Commissionable (_matterc._udp) and operational discovery remain enabled.
+    'MCORE.DD.COMM_DISCOVERY': False, 'MCORE.DD.UI': False,
     'MCORE.DD.EXTENDED_DISCOVERY': True, 'MCORE.DD.TXT_KEY_PH': True,
     'MCORE.DD.DISCOVERY_PAF': False,
     'MCORE.DD.TXT_KEY_VP': False, 'MCORE.DD.TXT_KEY_DT': False,

@@ -382,9 +382,17 @@ TC-DD-2.1 pass with updated discovery PICS. Six full memory-instrumented policy
 scenarios and two restored disabled boots pass, alongside focused native/package/
 CLI validation. MANUAL now contains 12 PASS, 1 FAIL and 27 without an outcome;
 category totals remain unchanged. See [evidence and limits](oss/csa35-validation.md).
-**Next: CSA36, MCORE.DD.COMM_DISCOVERY and TC-SC-4.7 applicability**: distinguish
-Commissioner Discovery/UDC from already implemented Commissionable Node Discovery.
-Keep CSA32's discrepancy open and CSA30 deferred.
+CSA36 distinguishes optional Commissioner Discovery/UDC from the implemented
+commissionable/operational discovery. The reference runtime has no `_matterd`
+commissioner browsing or UDC handler; its incorrect `MCORE.DD.COMM_DISCOVERY`
+declaration becomes false. The original TH eligibility endpoint removes only
+TC-SC-4.7; no new test execution or PASS is claimed. The five endpoint CLI exports
+preserve every other declaration and project field. Current matrix: 97 PASS,
+18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA; MANUAL contains 12 PASS, 1 FAIL and 26
+without an outcome. See [audit and limits](oss/csa36-validation.md).
+**Next: CSA37, original TC-SC-2.1 manual PASE exchange acceptance**, with real
+PBKDF/Pake/header/final-status evidence and explicit review of any wording
+discrepancy against Core1.6.1. Keep CSA32 open and CSA30 deferred.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

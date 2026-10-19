@@ -1,0 +1,270 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa35-results.json",
+  "previous_sha256": "885002f6ab7f6a38971191447a2961e14e8a9d6795e4f5be522d84549fa625be",
+  "source_base_commit": "d86016b63fff54fd7dd98d48f3cc30b5bd59a029",
+  "scope": "CSA36 specification/source/PICS audit of optional Commissioner Discovery and UDC. Original TH eligibility endpoint excludes TC-SC-4.7; no new official test execution or PASS.",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-4.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "NA",
+      "reason": "Optional Commissioner Discovery/UDC is not implemented by the reference runtime; MCORE.DD.COMM_DISCOVERY corrected to false. Confirmed by original TH applicability endpoint, not a test PASS."
+    }
+  ],
+  "official_test_executed": false,
+  "run_id": null,
+  "official_identity": {
+    "utc": "2026-10-19T12:17:58.510901+00:00",
+    "previous_pics_sha256": "59328df7bff8136b17bb507c4e45618c5c510e10f38d911a74e70b4a76e1bb05",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "PICS_changes": [
+      {
+        "number": "MCORE.DD.COMM_DISCOVERY",
+        "previous": true,
+        "enabled": false
+      }
+    ],
+    "official_source_sha256": {
+      "yaml_tests/yaml/sdk/Test_TC_DD_3_3.yaml": "d5626042dd18ece3b401c027305fc513acee596704c0c7f17f370baaffcb28df",
+      "yaml_tests/yaml/sdk/Test_TC_DD_3_4.yaml": "a1185955454743604704417888cf31c230b4f9bab91c79d6024609d6759f1263",
+      "yaml_tests/yaml/sdk/Test_TC_SC_4_6.yaml": "a5318a564bf66b46ffc8ce765891c8980dd2d80f0ac3e4df9138adea707d2034",
+      "yaml_tests/yaml/sdk/Test_TC_SC_4_7.yaml": "7cecf2dffbb570067280bae88bd16654edd171aa859eb85df779b07e1072c58f",
+      "yaml_tests/yaml/sdk/PICS.yaml": "215b12dbacff1578aa7157821fa2a6157b8bf84b3550f910f928f3b7c6bd8cd4"
+    },
+    "support_sha256": {
+      "app/pics_applicable_test_cases.py": "f4325050cb7b8d7fb9fa28b795a116895cd41e1e8504464db69afc6c636575ec",
+      "app/api/api_v1/endpoints/projects.py": "f39836a3cf54a73d639a293cda0719db4d417d5ac41af1c1b2af5a4193e5e9d3",
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6"
+    },
+    "official_applicability": {
+      "method": "GET projects/{id}/applicable_test_cases, unmodified installed TH evaluator",
+      "before_count": 164,
+      "after_count": 163,
+      "removed": [
+        "TC-SC-4.7"
+      ],
+      "added": [],
+      "before_receipt_sha256": "9a90bca9f14629ab4782a4633ea77db5b29ec28206893d6ff582ac13ecb87fcc",
+      "after_receipt_sha256": "b65385ba50b25352a99d8e9a163011bc150726b3216f17c457303e7c0a75d108",
+      "guards": {
+        "Test_TC_DD_3_3.yaml": [
+          "MCORE.ROLE.COMMISSIONEE",
+          "MCORE.DD.UI",
+          "MCORE.DD.COMM_DISCOVERY"
+        ],
+        "Test_TC_DD_3_4.yaml": [
+          "MCORE.ROLE.COMMISSIONER",
+          "MCORE.DD.UI",
+          "MCORE.DD.COMM_DISCOVERY"
+        ],
+        "Test_TC_SC_4_6.yaml": [
+          "MCORE.ROLE.COMMISSIONER",
+          "MCORE.DD.COMM_DISCOVERY"
+        ],
+        "Test_TC_SC_4_7.yaml": [
+          "MCORE.ROLE.COMMISSIONEE",
+          "MCORE.DD.COMM_DISCOVERY"
+        ]
+      }
+    },
+    "previous_project_preserved": true,
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_recheck": {
+    "utc": "2026-10-19T12:20:07.401113+00:00",
+    "eligibility_controls": {
+      "TC-SC-4.1": true,
+      "TC-SC-4.3": true,
+      "TC-DD-2.1": true,
+      "TC-SC-4.7": false,
+      "TC-DD-3.3": false,
+      "TC-DD-3.4": false,
+      "TC-SC-4.6": false,
+      "TC-SC-2.1": true
+    },
+    "old_project_unchanged": true,
+    "official_sources_unchanged": true,
+    "TH_idle": true
+  },
+  "affected_guard_audit": [
+    {
+      "case": "TC-DD-3.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "NA",
+      "status": "NA",
+      "pics_required": [
+        "MCORE.ROLE.COMMISSIONEE",
+        "MCORE.DD.UI",
+        "MCORE.DD.COMM_DISCOVERY"
+      ],
+      "source": "yaml_tests/yaml/sdk/Test_TC_DD_3_3.yaml",
+      "source_sha256": "d5626042dd18ece3b401c027305fc513acee596704c0c7f17f370baaffcb28df",
+      "effect": "Already NA due to UI and/or Commissioner-role guards; remains NA"
+    },
+    {
+      "case": "TC-DD-3.4",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "NA",
+      "status": "NA",
+      "pics_required": [
+        "MCORE.ROLE.COMMISSIONER",
+        "MCORE.DD.UI",
+        "MCORE.DD.COMM_DISCOVERY"
+      ],
+      "source": "yaml_tests/yaml/sdk/Test_TC_DD_3_4.yaml",
+      "source_sha256": "a1185955454743604704417888cf31c230b4f9bab91c79d6024609d6759f1263",
+      "effect": "Already NA due to UI and/or Commissioner-role guards; remains NA"
+    },
+    {
+      "case": "TC-SC-4.6",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "NA",
+      "status": "NA",
+      "pics_required": [
+        "MCORE.ROLE.COMMISSIONER",
+        "MCORE.DD.COMM_DISCOVERY"
+      ],
+      "source": "yaml_tests/yaml/sdk/Test_TC_SC_4_6.yaml",
+      "source_sha256": "a5318a564bf66b46ffc8ce765891c8980dd2d80f0ac3e4df9138adea707d2034",
+      "effect": "Already NA due to UI and/or Commissioner-role guards; remains NA"
+    },
+    {
+      "case": "TC-SC-4.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "NA",
+      "pics_required": [
+        "MCORE.ROLE.COMMISSIONEE",
+        "MCORE.DD.COMM_DISCOVERY"
+      ],
+      "source": "yaml_tests/yaml/sdk/Test_TC_SC_4_7.yaml",
+      "source_sha256": "7cecf2dffbb570067280bae88bd16654edd171aa859eb85df779b07e1072c58f",
+      "effect": "MANUAL to NA; no prior manual outcome"
+    }
+  ],
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "sections": [
+      "4.3.1",
+      "4.3.2",
+      "4.3.3",
+      "4.4.3.4 Table 14",
+      "5.2.2.4",
+      "5.3",
+      "5.3.2"
+    ],
+    "local_specification_sha256": "d7b078a4b80e8faf345205af0ba4773686e15097b2e6b6caecb5810585875b91",
+    "decision": "Commissioner Discovery is optional for Commissionee and Commissioner. It discovers _matterd._udp; UDC uses protocol0x0003. Neither is implied by ordinary commissionable/operational discovery or limited OTA controller support."
+  },
+  "source_audit": {
+    "sha256": {
+      "main/apps/matter/matter_discovery.h": "d2bf043da7869646cd182fb522fd72ad21d68e5c032e9102a14d63156e07a423",
+      "main/apps/matter/matter_discovery.c": "03b6e4ddc905f9aa72f43eb1e17144da784138336e8e4dacc461755804dba393",
+      "main/apps/matter/ports/matter_resolver_port.h": "7a1c4f57d6f6acfd531e7f50028aa9552c0039075ba6645f2da59d0480e2c6f1",
+      "main/apps/matter/runtime/matter_dispatch.c": "1cd5a4e48d3ee7e11478719d9a199ad6ce0eb57d978eefcee80c4f1ef2fe39e0",
+      "tools/matter/host/matter_node.c": "7e5f2a68b651cf5dd9d22f1b9831731aca584805c69fc7fd3ef12b4d622f8cc8"
+    },
+    "discovery_builders": "Commissionable _matterc._udp and operational _matter._tcp only.",
+    "resolver": "Operational compressed-fabric/node query; no commissioner browse/selection API.",
+    "dispatcher": "Registers protocols0,1,2; handles PASE/CASE, IM and outbound OTA IM/BDX, no UDC0x0003.",
+    "original_procedure_note": "TC-SC-4.7 requires Commissioner Discovery in its top-level guards and precondition, uses _matterd in Step2, but includes a commissionable _matterc example in Step3. The inconsistent example does not redefine the normative capability."
+  },
+  "local_verification": {
+    "generator": [
+      {
+        "endpoint": 0,
+        "only_changed_declaration": "MCORE.DD.COMM_DISCOVERY",
+        "other_project_fields_and_PICS_preserved": true
+      },
+      {
+        "endpoint": 1,
+        "only_changed_declaration": "MCORE.DD.COMM_DISCOVERY",
+        "other_project_fields_and_PICS_preserved": true
+      },
+      {
+        "endpoint": 3,
+        "only_changed_declaration": "MCORE.DD.COMM_DISCOVERY",
+        "other_project_fields_and_PICS_preserved": true
+      },
+      {
+        "endpoint": 4,
+        "only_changed_declaration": "MCORE.DD.COMM_DISCOVERY",
+        "other_project_fields_and_PICS_preserved": true
+      },
+      {
+        "endpoint": 5,
+        "only_changed_declaration": "MCORE.DD.COMM_DISCOVERY",
+        "other_project_fields_and_PICS_preserved": true
+      }
+    ],
+    "matrix_positions": 862,
+    "latest_counts": {
+      "MANUAL": 39,
+      "NA": 705,
+      "PASS": 97,
+      "BLOCKED": 3,
+      "FAIL": 18
+    },
+    "manual": {
+      "PASS": 12,
+      "without_outcome": 26,
+      "FAIL": 1
+    },
+    "native_source_changes": false,
+    "generator_sha256": "4fa2af9fcfd811f1f5fb4a15cbe90a7a9f39f6d2a6add6ad8d0453e3406b7f67"
+  },
+  "coverage": {
+    "positions": 862,
+    "manual_PASS": 12,
+    "manual_FAIL": 1,
+    "manual_without_outcome": 26,
+    "manual_without_PASS": 27,
+    "changed_category_rows": 1,
+    "new_protocol_PASS": 0,
+    "remaining_existing_NA_guard_rows": 3,
+    "other_results": "Inherited from CSA35, not rerun."
+  },
+  "commands": [
+    "Five endpoint before/after runs of full_profile_project.py --base PRIVATE --profile PRIVATE --output PRIVATE --endpoint 0|1|3|4|5 --discriminator VALUE",
+    "GET /api/v1/projects/{id}/applicable_test_cases before and after the one-value PICS change",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "previous_project_preserved": true,
+    "official_sources_unchanged": true,
+    "DUT_started": false,
+    "paired_Windows_nodes_touched": false,
+    "raw_configuration_and_receipts_outside_Git": true
+  },
+  "limits": [
+    "Applicability audit only: no new original TH execution, UDC protocol acceptance or certification.",
+    "No C/H/runtime/API/persistence changes; native build, Memcheck, sanitizers, full matrix and Home UI not rerun for a declaration correction.",
+    "TH eligible-title counts163/164 are distinct from862 cumulative endpoint/collection positions.",
+    "CSA30 remains unsuccessful/deferred; CSA32 separate discrepancy remains open."
+  ],
+  "next": {
+    "stage": "CSA37",
+    "case": "TC-SC-2.1",
+    "status": "NOT_RUN",
+    "scope": "Original manual PASE exchange: real PBKDF/Pake1/Pake2/Pake3 header/payload/final-status evidence. Review original wording against Core1.6.1 and retain discrepancies explicitly."
+  }
+}
