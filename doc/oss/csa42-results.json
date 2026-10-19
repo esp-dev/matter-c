@@ -1,0 +1,805 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa41-results.json",
+  "previous_sha256": "25f8bee6c61557d90d429975f8f335e5868e79ebbe4d6e0deff3c7fc9c09896d",
+  "tracked_document_hash_encoding": "Previous report hash uses committed Git blob bytes at6a8692f.",
+  "source_base_commit": "6a8692f904bb99b35462ac45e5149d56a45cef9a",
+  "scope": "Original TC-SC-1.3 literal manual FAIL run477 kept for total-versus-retry wording clarification. Independent Core acceptance PASS:5 immutable transmissions total,4 retries, bounded backoff/tail silence/no late-ACK revival and fresh commissioning. No native defect established or native/PICS/test change.",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-1.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 477
+    }
+  ],
+  "official_receipt": {
+    "run_id": 477,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 14:17:32.936113",
+    "observed_utc": "2026-10-19T14:17:34.394048+00:00",
+    "cases": [
+      {
+        "case": "TC-SC-1.3",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 4,
+          "TestStateEnum.failed": 1
+        },
+        "details": [
+          {
+            "title": "Simulate TH to ignore all messages received by DUT (100% message loss)",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT sends a message to TH with the R flag set to 1",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT sends a retransmission of the message in step 2",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT continues to send retransmissions of the message in step 2 up to MRP_MAX_TRANSMISSIONS times.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "fc11a2749029130f562a6f6a06669f1c04a0930e305a1ca4c6a84ee1b6276416",
+    "raw_result_sha256": "add504e83dcc44392555c108b13a0fe1dde0562847bd7938d13db082182db424",
+    "identity": {
+      "source_sha256": "beded47fe104dbd4ccb5f26b5ee2978174e21b26a7fdfe4e0d8e1c2f935cadcb",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "One valid reliable PBKDF request triggers DUT response. During the subsequent12-second loss observation the receiver sends nothing: no ACK, continuation or reply to any DUT message, including standalone ACKs. Every DUT PBKDF response is recorded and discarded.",
+        "utc_ms": 1792419452869
+      },
+      {
+        "step": 2,
+        "answer": "PASS",
+        "note": "Actual PBKDFParamResponse has R1, same exchange, matching request ACK and echoed random. No reply is sent to DUT during loss.",
+        "utc_ms": 1792419452880
+      },
+      {
+        "step": 3,
+        "answer": "PASS",
+        "note": "First duplicate response is byte-identical with the same message counter. Peer advertises idle=active500ms, so the procedure idle base is unambiguous. Each observed retry gap is checked against Core4.12.2.1 margin1.1, exponential base1.6/threshold1, jitter0..25 percent, with explicit receive-scheduling tolerance. No reply reaches DUT.",
+        "utc_ms": 1792419452887
+      },
+      {
+        "step": 4,
+        "answer": "FAIL",
+        "note": "Literal verification says total MRP_MAX_TRANSMISSIONS-1 messages sent. DUT configured max5 sends5 total: initial plus4 retransmissions, as Core4.12.2.1/4.12.6/Table22 require. Thus the literal total4 is not met, while retransmissions-only count4 and Core checks pass. Silence continues beyond final maximum wait plus1-second guard; late ACK does not restart the train. Retain original FAIL for total-versus-retransmission wording clarification, not a native count fix.",
+        "utc_ms": 1792419452895
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": "beded47fe104dbd4ccb5f26b5ee2978174e21b26a7fdfe4e0d8e1c2f935cadcb",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_observations": {
+    "normal": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-initial-request-sent",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-five-total-transmissions",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-identical-bytes-and-counter",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-reliable-response-and-matching-request-ACK",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-backoff-gap-1",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-backoff-gap-2",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-backoff-gap-3",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-backoff-gap-4",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-silence-beyond-final-wait-and-guard",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-no-peer-replies-during-loss",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-late-ACK-sent",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-late-ACK-does-not-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 22963,
+          "responder_session_id": 2,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 48765
+        },
+        {
+          "initiator_session_id": 15563,
+          "responder_session_id": 4,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 28250
+        }
+      ],
+      "driver_sha256": "5361b2ebb15361505368fd1f2782472a487fe3126d7aa3bd8015d30872cd5d1a",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_SC_1_3": {
+        "Core_result": "PASS",
+        "literal_step4_result": "FAIL",
+        "procedure_issue": "Step4 verification says total MRP_MAX_TRANSMISSIONS-1 messages. Observed/Core:5 total,4 retransmissions. Literal total4 is not met; clarify total versus retry count without altering DUT/test.",
+        "maximum_transmissions": 5,
+        "total_transmissions": 5,
+        "retransmissions": 4,
+        "peer_advertised_idle_ms": 500,
+        "peer_advertised_active_ms": 500,
+        "idle_active_selection_proved": false,
+        "gaps": [
+          {
+            "after_send_index": 0,
+            "observed_ms": 579.351577,
+            "Core_min_ms": 550,
+            "Core_max_ms": 688,
+            "receive_tolerance_below_ms": 25,
+            "receive_tolerance_above_ms": 125
+          },
+          {
+            "after_send_index": 1,
+            "observed_ms": 632.36882,
+            "Core_min_ms": 550,
+            "Core_max_ms": 688,
+            "receive_tolerance_below_ms": 25,
+            "receive_tolerance_above_ms": 125
+          },
+          {
+            "after_send_index": 2,
+            "observed_ms": 1066.208864,
+            "Core_min_ms": 880,
+            "Core_max_ms": 1100,
+            "receive_tolerance_below_ms": 25,
+            "receive_tolerance_above_ms": 125
+          },
+          {
+            "after_send_index": 3,
+            "observed_ms": 1734.399897,
+            "Core_min_ms": 1408,
+            "Core_max_ms": 1760,
+            "receive_tolerance_below_ms": 25,
+            "receive_tolerance_above_ms": 125
+          }
+        ],
+        "loss_observation_seconds": 12,
+        "tail_silence_ms": 7948.831712,
+        "final_wait_max_ms": 2816,
+        "expiry_guard_ms": 1000,
+        "peer_messages_during_loss": 1,
+        "peer_replies_during_loss": 0,
+        "late_ACK_restarted": false,
+        "response_packet_sha256": "be08f663376e887a7ae1dc49eca98a51bfbf64772be9fc0ee6a81021869e2e99",
+        "terminal_scope": "No retries after full wait+guard, no restart on late ACK, then fresh commissioning. Internal timeout/eviction callback is not instrumented on the wire."
+      },
+      "live_first_CASE_session_id": 3,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "PASS",
+      "node_exit": 0,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-initial-request-sent",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-five-total-transmissions",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-identical-bytes-and-counter",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-reliable-response-and-matching-request-ACK",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-backoff-gap-1",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-backoff-gap-2",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-backoff-gap-3",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-backoff-gap-4",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-silence-beyond-final-wait-and-guard",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-no-peer-replies-during-loss",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-late-ACK-sent",
+          "status": "PASS"
+        },
+        {
+          "name": "retry-late-ACK-does-not-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 12907,
+          "responder_session_id": 2,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 32695
+        },
+        {
+          "initiator_session_id": 31783,
+          "responder_session_id": 4,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 29937
+        }
+      ],
+      "driver_sha256": "5361b2ebb15361505368fd1f2782472a487fe3126d7aa3bd8015d30872cd5d1a",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_SC_1_3": {
+        "Core_result": "PASS",
+        "literal_step4_result": "FAIL",
+        "procedure_issue": "Step4 verification says total MRP_MAX_TRANSMISSIONS-1 messages. Observed/Core:5 total,4 retransmissions. Literal total4 is not met; clarify total versus retry count without altering DUT/test.",
+        "maximum_transmissions": 5,
+        "total_transmissions": 5,
+        "retransmissions": 4,
+        "peer_advertised_idle_ms": 500,
+        "peer_advertised_active_ms": 500,
+        "idle_active_selection_proved": false,
+        "gaps": [
+          {
+            "after_send_index": 0,
+            "observed_ms": 613.386915,
+            "Core_min_ms": 550,
+            "Core_max_ms": 688,
+            "receive_tolerance_below_ms": 25,
+            "receive_tolerance_above_ms": 125
+          },
+          {
+            "after_send_index": 1,
+            "observed_ms": 651.10087,
+            "Core_min_ms": 550,
+            "Core_max_ms": 688,
+            "receive_tolerance_below_ms": 25,
+            "receive_tolerance_above_ms": 125
+          },
+          {
+            "after_send_index": 2,
+            "observed_ms": 983.447441,
+            "Core_min_ms": 880,
+            "Core_max_ms": 1100,
+            "receive_tolerance_below_ms": 25,
+            "receive_tolerance_above_ms": 125
+          },
+          {
+            "after_send_index": 3,
+            "observed_ms": 1533.749932,
+            "Core_min_ms": 1408,
+            "Core_max_ms": 1760,
+            "receive_tolerance_below_ms": 25,
+            "receive_tolerance_above_ms": 125
+          }
+        ],
+        "loss_observation_seconds": 12,
+        "tail_silence_ms": 8216.401069,
+        "final_wait_max_ms": 2816,
+        "expiry_guard_ms": 1000,
+        "peer_messages_during_loss": 1,
+        "peer_replies_during_loss": 0,
+        "late_ACK_restarted": false,
+        "response_packet_sha256": "ae60d034b2c843aec9152a3b238bd0a12b0bd4137f38e0712698f08deaa89a26",
+        "terminal_scope": "No retries after full wait+guard, no restart on late ACK, then fresh commissioning. Internal timeout/eviction callback is not instrumented on the wire."
+      },
+      "live_first_CASE_session_id": 3,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "PASS",
+      "node_exit": 0
+    }
+  },
+  "independent_receipts": {
+    "normal": {
+      "result": "PASS",
+      "checks_PASS": 32,
+      "node_exit": 0,
+      "stderr_empty": true,
+      "driver_sha256": "5361b2ebb15361505368fd1f2782472a487fe3126d7aa3bd8015d30872cd5d1a",
+      "result_sha256": "9c8eef12e7b729e9cce04583843019ed32b4439d8c9dcf0dbb28c429219aacdc",
+      "raw_packets_sha256": "308fd44bf66b12751d80c2d7fe52b790666fbfebdbdf0e5aabba2a98a9be5f1d",
+      "wire_receipt": {
+        "loss_phase_peer_transmissions": 1,
+        "loss_phase_peer_replies": 0,
+        "identical_reliable_response_transmissions": 5,
+        "retransmissions": 4,
+        "matching_request_counter_and_random": true,
+        "all_gaps_match_independent_formula": true,
+        "gaps_inside_Core_bounds_without_receive_tolerance": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "tail_exceeds_final_wait_plus_guard": true,
+        "late_ACK_valid_fresh_counter_no_revival": true,
+        "post_loss_full_commissions": 2
+      },
+      "memory": {
+        "allocations": 43530,
+        "frees": 43530,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "0b17b56856173106bfcaaaed2ec654d11bc599bbdeaa2bf0137777b3cb484cc4"
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks_PASS": 32,
+      "node_exit": 0,
+      "stderr_empty": true,
+      "driver_sha256": "5361b2ebb15361505368fd1f2782472a487fe3126d7aa3bd8015d30872cd5d1a",
+      "result_sha256": "91d6110417fb3a6d7ef9081fc5c2f3f9d89d6393466480a55dba16ac3772b999",
+      "raw_packets_sha256": "850a90da145cfe955fa1ccd7008c46f55be04b89695d62b91756e1b67bb7af7c",
+      "wire_receipt": {
+        "loss_phase_peer_transmissions": 1,
+        "loss_phase_peer_replies": 0,
+        "identical_reliable_response_transmissions": 5,
+        "retransmissions": 4,
+        "matching_request_counter_and_random": true,
+        "all_gaps_match_independent_formula": true,
+        "gaps_inside_Core_bounds_without_receive_tolerance": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "tail_exceeds_final_wait_plus_guard": true,
+        "late_ACK_valid_fresh_counter_no_revival": true,
+        "post_loss_full_commissions": 2
+      }
+    }
+  },
+  "memory": {
+    "allocations": 43530,
+    "frees": 43530,
+    "zero_errors": true,
+    "zero_live": true,
+    "log_sha256": "0b17b56856173106bfcaaaed2ec654d11bc599bbdeaa2bf0137777b3cb484cc4"
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "sections": [
+      "4.12.2.1 Retransmissions",
+      "4.12.5 Reliable Message Processing",
+      "4.12.6 Message Retransmission Table",
+      "4.12.8 Table22 MRP parameters"
+    ],
+    "maximum_transmissions_configured": 5,
+    "total_transmissions_expected": 5,
+    "retransmissions_expected": 4,
+    "backoff": "i *1.1 *1.6^max(0,n-1) *(1+random[0,1]*0.25), n=attempts before current send. Peer active/idle both500ms. Exact rational arithmetic in independent oracle.",
+    "observed_gap_ranges_without_receive_tolerance_ms": [
+      [
+        550,
+        688
+      ],
+      [
+        550,
+        688
+      ],
+      [
+        880,
+        1100
+      ],
+      [
+        1408,
+        1760
+      ]
+    ],
+    "final_wait_max_ms": 2816
+  },
+  "procedure_issue": {
+    "step": 4,
+    "original_verification": "Verify that the DUT stops sending messages after a total of MRP_MAX_TRANSMISSIONS - 1 messages have been sent.",
+    "literal_expected_total": 4,
+    "observed_total": 5,
+    "observed_retransmissions": 4,
+    "decision": "Retain FAIL under literal total-message reading. Core requires five total sends at max5, so reducing native transmissions to four is not justified. Four is the number of retransmissions; clarification may permit that intended reading. No CSA clarification received or test source rewritten.",
+    "native_defect_established": false,
+    "status": "OPEN_FOR_CLARIFICATION"
+  },
+  "scenario": {
+    "mode": "--mrp-retries",
+    "loss_observation_seconds": 12,
+    "peer_idle_ms": 500,
+    "peer_active_ms": 500,
+    "idle_active_selection_proved": false,
+    "reason_for_equal_intervals": "Eliminate state-selection ambiguity in the procedure idle timing base. This is an explicit peer SessionParameters advertisement, not a DUT timer override.",
+    "loss": "One valid reliable PBKDFParamRequest triggers the response. During loss, receiver only records/discards every DUT datagram; no ACK, continuation or other reply is sent.",
+    "wire_assertions": "Five byte-identical R1 PBKDF responses, same counter/exchange/destination, request random and piggyback counter. Standalone request ACKs are excluded from data-transmission count.",
+    "timing": "Actual monotonic receive timestamps, no scaled clocks. Oracle declares-25/+125ms receive-scheduling tolerance; all eight measured gaps also meet strict Core bounds without that tolerance.",
+    "termination": "Observe silence after fifth send for longer than2816ms final maximum wait plus1000ms guard. Then send a valid late ACK with fresh peer counter; no response/restart for0.7 seconds.",
+    "expiry_vs_handshake": "Loss/expiry observation finishes before the native30-second PASE attempt deadline; not a substituted handshake-timeout check.",
+    "recovery": "Without DUT restart, two actual chip-tool fabrics fully commission with attestation/CommissioningComplete; CASE reads and enhanced window reopening work."
+  },
+  "native_build_identity": {
+    "host_compiled_in": "csa35-results.json",
+    "native_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_source_header_count": 362,
+    "local_and_remote_manifest_entries_unchanged": true,
+    "new_host_compilation": false,
+    "focused_CMake_build_requests_successful": true,
+    "normal_binary_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+    "sanitizer_binary_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "8d0de41bd07235a712eadcf465ab5c653ccc2f94040369276ef252c47a47bf2b",
+        "build_log_sha256": "911534dbd904768956b4e201f161586d5a6b40bff740449e3f8069472d2c8076"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "b38c9a673e38cf9582d64823f8dd0aa6fb39e4a0822f73ae3f15866098f5682a",
+        "build_log_sha256": "911534dbd904768956b4e201f161586d5a6b40bff740449e3f8069472d2c8076"
+      }
+    },
+    "note": "Incremental CMake targets checked, existing CTests executed; no fresh compiler-validation claim for unchanged host.",
+    "relevant_source_sha256": {
+      "main/apps/matter/transport/matter_retransmission.c": "9636043c71d5c9691e511a808fa0e633a7e093f9643f531a5edf8d5e7a4b1bf1",
+      "main/apps/matter/transport/matter_retransmission_sender.c": "dbcd6e1cd9d2e3c479271f182461e8795af7970d857289d6297484fa63c0048a",
+      "main/apps/matter/runtime/matter_dispatch.c": "1cd5a4e48d3ee7e11478719d9a199ad6ce0eb57d978eefcee80c4f1ef2fe39e0",
+      "main/apps/matter/runtime/matter_runtime.c": "ff1d2aea972a504cde1e8217823f0fc85afac6fe154560c4e579db95d8d0e94b"
+    }
+  },
+  "coverage": {
+    "positions": 862,
+    "manual_PASS": 13,
+    "manual_FAIL": 6,
+    "manual_without_outcome": 20,
+    "manual_without_PASS": 26,
+    "remaining_initial_coverage": {
+      "manual_without_outcome": 20,
+      "BLOCKED_positions": 3
+    },
+    "deferred_failures": {
+      "automatic": 18,
+      "manual": 6
+    },
+    "independent_Core_checks_PASS": 64,
+    "loss_trains": 2,
+    "observed_data_transmissions": 10,
+    "observed_retransmissions": 8,
+    "timed_inter_send_gaps": 8,
+    "late_ACK_probes": 2,
+    "subsequent_full_commissions": 4,
+    "new_automatic_CSA_PASS": 0,
+    "category_totals_unchanged": true
+  },
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --help",
+    "python tools/matter/tests/test_pase_exchange_chip.py --node NORMAL_NODE --chip-tool CHIP_TOOL --paa PRIVATE_PAA --credentials PRIVATE_CREDENTIALS --interface INTERFACE --ipv6 IPV6 --output PRIVATE_FRESH_OUTPUT --mrp-retries --valgrind",
+    "Repeat full scenario with SANITIZER_NODE without --valgrind",
+    "cmake --build BUILD --target test_retransmission test_retransmission_sender -j2",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_retransmission|test_retransmission_sender)$'",
+    "Original manual TH TC-SC-1.3 with unchanged source/PICS; steps1..3 PASS, literal step4 FAIL with count clarification",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "raw_packets_logs_codes_keys_and_state_outside_Git": true
+  },
+  "limits": [
+    "Original literal TH manual result remains FAIL, independent Core results PASS; no fully automatic CSA acceptance or certification.",
+    "Count wording is an open interpretation/clarification issue, not confirmed CSA guidance or justification for changing standards-correct native count.",
+    "Observed receive times include OS/VM scheduling; raw gaps/bounds retained. Equal active/idle intervals do not prove independent state selection, all parameter ranges or RNG distribution.",
+    "Host timeout callback and actual table-slot eviction are not live-instrumented. Wire stop/late-ACK/recovery plus existing table/sender unit tests are complementary, not identical evidence.",
+    "No fresh host compilation, native repair, all partial-loss/counter/resource scenarios, full matrix, physical firmware/radio, Windows/Home UI or embedded RAM-fit test.",
+    "Legacy TC-SC-2.1 literal fields remain private and are not this case verdict. Earlier native failures and clarification items remain deferred."
+  ],
+  "next": {
+    "stage": "CSA43",
+    "case": "TC-SC-1.4",
+    "scope": "MRP message counters and duplicate handling: matching ACKs and no repeated application side effects.",
+    "status": "NOT_RUN"
+  }
+}

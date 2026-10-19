@@ -9,6 +9,7 @@ response MIC, then release the original packets after a real quiet interval.
 --pase-errors records TC-SC-2.3 invalid passcodeID/cA and terminal exchanges.
 --mrp-size records TC-SC-1.1 at the complete IPv6 packet size boundary.
 --mrp-flows records TC-SC-1.2 ACK/data flows, including encrypted R=0 reads.
+--mrp-retries records TC-SC-1.3 complete ACK loss and bounded retransmissions.
 Keep output private.
 """
 import argparse
@@ -436,6 +437,99 @@ def mrp_flow_probes(ipv6, interface, target, check, packets, lock):
             'keys_exported': False, 'peer': 'Independent Python affine SPAKE2+ fixture and cryptography AES-CCM; valid reliable PASE, then IM ReadRequest R=0/1 controls'}
 
 
+def mrp_retry_probes(ipv6, interface, target, check, packets, lock):
+    """No replies during loss: five total sends vs four retransmissions.
+
+    Peer advertises idle=active=500ms so choice of active/idle cannot confound
+    the procedure's idle base. Observe real monotonic time, no clock scaling.
+    Fixed default backoff constants come from Core1.6.1 Table22, not DUT code.
+    """
+    from fractions import Fraction
+    import math
+    import secrets
+
+    interval = 500; transmissions = 5; observation = 12
+    source = secrets.randbelow(0xffffffeffffffffe) + 1
+    counter = 0x53000001; exchange = 0x7500; random = secrets.token_bytes(32)
+    payload = b'\x15\x30\x01\x20' + random + b'\x25\x02\x02\x7a\x24\x03\x00\x28\x04'
+    payload += b'\x35\x05\x25\x01\xf4\x01\x25\x02\xf4\x01\x25\x03\xa0\x0f\x18\x18'
+    doc = fields(payload)
+    assert doc[5]['value'][1]['value'] == doc[5]['value'][2]['value'] == interval
+    request = struct.pack('<BHBIQBBHH', 4, 0, 0, counter, source, 5, 0x20, exchange, 0) + payload
+    responses = []; late_responses = []; records = []
+    with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as sock:
+        sock.bind((ipv6, 0, 0, interface)); sock.settimeout(.05)
+
+        def record(data, direction, phase):
+            row = {'lane': -3, 'direction': direction, 'retry_probe': phase,
+                   'monotonic_ns': time.monotonic_ns(), 'data': data.hex()}
+            with lock:
+                packets.append(row)
+            records.append(row)
+            return row
+
+        start = time.monotonic()
+        check('retry-initial-request-sent', sock.sendto(request, target) == len(request))
+        record(request, 'initiator', 'loss')
+        until = start + observation
+        while time.monotonic() < until:
+            try:
+                data, address = sock.recvfrom(65535)
+            except socket.timeout:
+                continue
+            assert address[0] == target[0] and address[1] == target[1]
+            row = record(data, 'responder', 'loss'); h = message(data)
+            assert h['session'] == h['protocol'] == h['vendor'] == 0 and h['exchange'] == exchange and h['destination'] == source
+            if h['opcode'] == 0x21:
+                responses.append((row, h))
+            else:
+                assert h['opcode'] == 0x10 and h.get('acknowledged_counter') == counter
+            # Deliberately send nothing: drop every DUT message, including ACKs.
+        observed_end = time.monotonic_ns()
+        check('retry-five-total-transmissions', len(responses) == transmissions)
+        first = bytes.fromhex(responses[0][0]['data'])
+        check('retry-identical-bytes-and-counter', all(bytes.fromhex(row['data']) == first for row, _ in responses))
+        check('retry-reliable-response-and-matching-request-ACK', all(h['exchange_flags'] == 6 and
+              h.get('acknowledged_counter') == counter and fields(h['payload'])[1]['value'] == random for _, h in responses))
+        gaps = []
+        for n, ((previous, _), (current, _)) in enumerate(zip(responses, responses[1:])):
+            factor = Fraction(11, 10) * Fraction(8, 5) ** max(0, n - 1)
+            lower = math.ceil(interval * factor); upper = math.ceil(interval * factor * Fraction(5, 4))
+            actual = (current['monotonic_ns'] - previous['monotonic_ns']) / 1_000_000
+            # Receive timestamps include OS/VM scheduling. Preserve raw values
+            # and explicit -25/+125ms tolerance; do not adjust protocol timers.
+            check('retry-backoff-gap-' + str(n + 1), lower - 25 <= actual <= upper + 125)
+            gaps.append({'after_send_index': n, 'observed_ms': actual, 'Core_min_ms': lower,
+                         'Core_max_ms': upper, 'receive_tolerance_below_ms': 25, 'receive_tolerance_above_ms': 125})
+        final_max = math.ceil(interval * Fraction(11, 10) * Fraction(8, 5) ** 3 * Fraction(5, 4))
+        quiet_ms = (observed_end - responses[-1][0]['monotonic_ns']) / 1_000_000
+        check('retry-silence-beyond-final-wait-and-guard', quiet_ms >= final_max + 1000)
+        check('retry-no-peer-replies-during-loss', sum(row['direction'] == 'initiator' for row in records) == 1)
+        # ACK only after the bounded retry train and expiry guard. It must not
+        # restart the exhausted exchange. Full fresh commissioning follows.
+        ack = struct.pack('<BHBIQBBHHI', 4, 0, 0, counter + 1, source, 3, 0x10, exchange, 0, responses[0][1]['counter'])
+        check('retry-late-ACK-sent', sock.sendto(ack, target) == len(ack))
+        record(ack, 'initiator', 'late-ACK')
+        until = time.monotonic() + .7
+        while time.monotonic() < until:
+            try:
+                data, address = sock.recvfrom(65535)
+            except socket.timeout:
+                continue
+            assert address[0] == target[0] and address[1] == target[1]
+            record(data, 'responder', 'late-ACK'); late_responses.append(data)
+        check('retry-late-ACK-does-not-restart', not late_responses)
+    return {'Core_result': 'PASS', 'literal_step4_result': 'FAIL',
+            'procedure_issue': 'Step4 verification says total MRP_MAX_TRANSMISSIONS-1 messages. Observed/Core:5 total,4 retransmissions. Literal total4 is not met; clarify total versus retry count without altering DUT/test.',
+            'maximum_transmissions': transmissions, 'total_transmissions': len(responses), 'retransmissions': len(responses) - 1,
+            'peer_advertised_idle_ms': interval, 'peer_advertised_active_ms': interval,
+            'idle_active_selection_proved': False, 'gaps': gaps, 'loss_observation_seconds': observation,
+            'tail_silence_ms': quiet_ms, 'final_wait_max_ms': final_max, 'expiry_guard_ms': 1000,
+            'peer_messages_during_loss': 1, 'peer_replies_during_loss': 0, 'late_ACK_restarted': bool(late_responses),
+            'response_packet_sha256': hashlib.sha256(first).hexdigest(),
+            'terminal_scope': 'No retries after full wait+guard, no restart on late ACK, then fresh commissioning. Internal timeout/eviction callback is not instrumented on the wire.'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('node', 'chip-tool', 'paa', 'credentials', 'output'):
@@ -447,8 +541,9 @@ def main():
     parser.add_argument('--pase-errors', action='store_true', help='TC-SC-2.3: invalid passcodeID/cA, terminal probes, then valid commissioning')
     parser.add_argument('--mrp-size', action='store_true', help='TC-SC-1.1: full IPv6 MTU boundary, then valid commissioning')
     parser.add_argument('--mrp-flows', action='store_true', help='TC-SC-1.2: ACK/data flows and five authenticated unreliable reads')
+    parser.add_argument('--mrp-retries', action='store_true', help='TC-SC-1.3: drop all replies, measure immutable retransmissions and stop')
     args = parser.parse_args(); out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
-    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows)) > 1:
+    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows, args.mrp_retries)) > 1:
         parser.error('Choose one fault-injection mode')
     report = {'result': 'RUNNING', 'checks': [], 'exchanges': [],
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -561,6 +656,8 @@ def main():
         for lane in range(2):
             create_client('controller-' + str(lane))
         address = args.ipv6 + '%' + str(args.interface)
+        if args.mrp_retries:
+            report['TC_SC_1_3'] = mrp_retry_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.mrp_flows:
             report['TC_SC_1_2'] = mrp_flow_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.mrp_size:
@@ -664,7 +761,7 @@ def main():
         check('proxy-forwarding', not failures)
         groups = {}; encrypted = []
         for index, row in enumerate(captured):
-            if 'size_probe' in row or 'flow_probe' in row:
+            if 'size_probe' in row or 'flow_probe' in row or 'retry_probe' in row:
                 continue
             p = message(bytes.fromhex(row['data'])); p.update(direction=row['direction'], index=index)
             if p['session']:

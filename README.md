@@ -375,7 +375,16 @@ after in the same session. Runtime admission applies a blanket R requirement;
 repair is deferred. Both full scenarios retain FAIL despite clean Memcheck/
 separate sanitizers and successful later commissioning/CASE. Five focused tests
 build/pass per variant; no native/PICS change. MANUAL now has13 PASS,5 FAIL and21
-without an outcome; category totals stay unchanged. Next: CSA42, TC-SC-1.3 retries.
+without an outcome; category totals stay unchanged. The retry review follows below.
+
+[CSA42 MRP retries](doc/oss/csa42-validation.md) records original TC-SC-1.3
+**literal manual FAIL**, TH run477, for Step4's total MAX-1 wording. Core acceptance
+passes: five total immutable transmissions/four retries, correct timed backoff,
+terminal silence and no restart on late ACK. Both full scenarios pass64 checks
+under Memcheck/separate sanitizers; memory is clean and two focused CTests pass
+per variant. No native/PICS change; no native count defect is established. MANUAL
+now has13 PASS,6 FAIL and20 without an outcome; category totals stay unchanged.
+Next: CSA43, TC-SC-1.4 counters/duplicates; earlier native failures stay deferred.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

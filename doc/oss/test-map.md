@@ -49,6 +49,14 @@ The peer closes its PASE session before the usual two chip-tool commissions/
 CASE reads, without DUT restart. Keys are never exported; raw state stays
 private. See [CSA41 diagnosis and limits](csa41-validation.md).
 
+CSA42 adds mutually exclusive `--mrp-retries`: advertise idle=active500ms, send
+one valid PBKDF request and discard all DUT replies for12 seconds. Check five
+identical data transmissions/four retries, real Core backoff gaps, terminal tail
+silence and no revival on a late ACK, followed by two full commissions/CASE.
+Equal intervals isolate timing but do not prove state selection. Keep original
+TC-SC-1.3 Step4's total-versus-retry wording result separate from independent
+Core acceptance. See [CSA42 evidence and limits](csa42-validation.md).
+
 `test_commissionable_announcement_chip.py` supplies CSA34 wire/controller evidence
 for unsolicited announcements, actual unfiltered chip-tool browsing and complete
 basic/closed/enhanced Commissionable Node Discovery records, addresses, subtypes

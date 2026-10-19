@@ -433,9 +433,18 @@ full memory-instrumented scenarios retain FAIL; later commissioning/CASE and
 five focused tests per variant pass. No native/PICS change. See
 [evidence and deferred repair](oss/csa41-validation.md). MANUAL now has13 PASS,
 5 FAIL and21 without an outcome; category totals are unchanged.
-**Next: CSA42, TC-SC-1.3 MRP Retransmissions**, reviewing outbound loss, actual
-retry intervals/counts and final eviction against Core. Continue the initial
-coverage pass (21 manual plus 3 blocked); repair the 18 automatic and 5 manual
+CSA42 executes original manual TC-SC-1.3, run477: four entries pass and one fails
+under Step4's literal total MAX-1 wording. Core requires five total sends/four
+retries at max5; actual immutable transmissions, eight measured gaps, terminal
+silence and late-ACK behavior comply in both variants. Retain FAIL for wording
+clarification; do not reduce a standards-correct native count. Full scenarios
+pass64 independent checks with clean Memcheck/separate sanitizers and subsequent
+commissioning/CASE. Two table/sender CTests pass per build; no native/PICS change.
+See [evidence and limits](oss/csa42-validation.md). MANUAL now has13 PASS,6 FAIL
+and20 without an outcome; category totals stay unchanged.
+**Next: CSA43, TC-SC-1.4 MRP message counters and duplicate handling**, including
+matching ACKs and no repeated application effects. Continue the initial
+coverage pass (20 manual plus 3 blocked); resolve the 18 automatic and 6 manual
 FAIL results afterward as requested. Keep clarification items open and CSA30
 deferred.
 

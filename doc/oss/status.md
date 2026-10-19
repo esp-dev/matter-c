@@ -1,5 +1,21 @@
 # Development status
 
+**CSA42: original TC-SC-1.3 literal manual FAIL, TH run477; Core retries PASS.**
+Step4 says total MAX-1 messages. At max5, Core requires five total sends/four
+retries; both wire scenarios do exactly that. The original FAIL is retained for
+wording clarification, not justification to change the native count. All four
+gaps per run fit Core margin/backoff/jitter bounds, without receive tolerance.
+No peer replies during12-second loss; retries stop beyond final wait+guard and
+late ACK does not restart them. Fresh two-fabric commissioning/CASE works without
+DUT restart. Independent acceptance passes32 checks per Memcheck/sanitizer run;
+43530 matched allocations/frees, zero errors/live bytes, clean DUT exits/stderr.
+Existing table/sender CTests pass2/2 per variant. No native/PICS/test mutation or
+new host compilation. TH idle, disposable nodes stopped; Windows pairings intact.
+Totals stay **97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL now has
+**13 PASS, 6 FAIL, 20 without an outcome**. See [scope/clarification](csa42-validation.md)
+and [receipts](csa42-results.json). **Next: CSA43, TC-SC-1.4 MRP counters and
+duplicates. Continue initial coverage; earlier native repairs remain deferred.**
+
 **CSA41: original manual TC-SC-1.2 FAIL, TH run476: R=0 requests rejected.**
 Reliable PBKDF data replies piggyback the correct ACK; exact duplicates receive
 only standalone ACKs. Five independently authenticated R=0 VendorID ReadRequests
