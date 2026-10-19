@@ -1,5 +1,21 @@
 # Development status
 
+**CSA37: original manual TC-SC-2.1 FAIL, TH run472; Core wire checks pass.**
+Five original steps conflict with Core1.6.1 addressing/boolean/byte-size rules;
+the final success verification and evidence upload pass. The literal FAIL is
+retained for clarification without changing test/PICS or the native stack.
+Full first-fabric CASE/enhanced-window/second-fabric scenarios pass 20 checks under
+Memcheck and 20 separately under ASan/UBSan/LSan, with four complete PASE exchanges.
+Memcheck has 43510 matched allocations/frees, zero errors/live bytes; both node
+stderr files are empty. All 362 native source/header entries match the previously
+built CSA35 inputs. TH is idle and disposable nodes stopped; paired Windows nodes
+untouched. Totals remain **97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**.
+MANUAL now has **12 PASS, 2 FAIL, 25 without an outcome**. Continue the initial
+coverage pass (25 manual plus 3 blocked); return to failures later as requested.
+See [evidence/discrepancies](csa37-validation.md) and [record](csa37-results.json).
+**Next: CSA38, TC-SC-2.2 bidirectional PASE/error handling. CSA30 remains deferred;
+CSA32 remains open.**
+
 **CSA36: Commissioner Discovery / UDC declaration corrected; TC-SC-4.7 is NA.**
 Core1.6.1 4.3.3 makes this feature optional; the reference runtime has no
 `_matterd._udp` commissioner discovery or UDC protocol0x0003 implementation.

@@ -1,0 +1,692 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa36-results.json",
+  "previous_sha256": "ffc06b490bb27119978cde93c4f7c8503adde2f31b7ffd0faae9c359a3d2b2f4",
+  "tracked_document_hash_encoding": "Previous report hash uses committed Git blob bytes at d4811e6; working-copy CRLF normalization does not change the public document.",
+  "source_base_commit": "d4811e6bd96709516eee4d308d658902d75a54de",
+  "scope": "Original TC-SC-2.1 operator-reviewed manual FAIL retained for Core1.6.1/header/boolean/byte-size discrepancies. Separate independent wire/commissioning evidence passes under Memcheck and sanitizers; no native changes.",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 472
+    }
+  ],
+  "official_receipt": {
+    "run_id": 472,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 12:44:49.519005",
+    "observed_utc": "2026-10-19T12:44:50.967025+00:00",
+    "cases": [
+      {
+        "case": "TC-SC-2.1",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.failed": 5,
+          "TestStateEnum.passed": 2
+        },
+        "details": [
+          {
+            "title": "Initiator constructs and sends a TLV-encoded PBKDFParamRequest message",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Responder verifies the passcodeID, constructs and sends a TLV-encoded PBKDFParamResponse message",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Initiator constructs and sends a TLV-encoded Pake1 message",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Responder constructs and sends a TLV-encoded Pake2 message",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Initiator constructs and sends a TLV-encoded Pake3 message",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Responder validates Pake3, then constructs and sends a status report (PakeFinished) message",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "6f946217ede5bf966d93ca95659e29b6c3e99e6e9590d63ae73365c2efef3560",
+    "raw_result_sha256": "67cd5c32e7fa08b994ed953e9b280870548419d72c093728678acfdfc0eba977",
+    "identity": {
+      "source_sha256": "30c643085fa69ca258bbe1d6ea67496aaa3ae612804c8798aaf7e3f23736b94e",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/test_case.py": "792eb1e735d7ac51c715a9bd74d1b504d8179480a5b13122b8a77ddd062a4de3"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "FAIL",
+        "note": "Observed S1/DSIZ0,32-byte random,hasPBKDFParameters=false requests parameters. Core1.6.1 4.14.1.2 agrees; original procedure demands S0, describes32-bit random and reverses boolean meaning.",
+        "utc_ms": 1792413889438
+      },
+      {
+        "step": 2,
+        "answer": "FAIL",
+        "note": "Observed S0/DSIZ1,echoed32-byte random,fresh responder32-byte random,salt and iteration within Core bounds. Core agrees; original procedure demands DSIZ0 and describes bit rather than byte lengths.",
+        "utc_ms": 1792413889445
+      },
+      {
+        "step": 3,
+        "answer": "FAIL",
+        "note": "Observed S1/DSIZ0 and65-byte uncompressed PA. Core agrees; original procedure demands S0 and65-bit octet string.",
+        "utc_ms": 1792413889453
+      },
+      {
+        "step": 4,
+        "answer": "FAIL",
+        "note": "Observed S0/DSIZ1,65-byte PB and32-byte CB. Core agrees; original procedure demands DSIZ0 and bit lengths.",
+        "utc_ms": 1792413889464
+      },
+      {
+        "step": 5,
+        "answer": "FAIL",
+        "note": "Observed S1/DSIZ0 and32-byte CA. Core agrees; original procedure demands S0 and32-bit octet string.",
+        "utc_ms": 1792413889470
+      },
+      {
+        "step": 6,
+        "answer": "PASS",
+        "note": "Two exchanges per instrumented variant have unsecured StatusReport success(0,0,0). Forwarding order and controller success precede encrypted PASE application messages; full attested commissioning and CASE reads succeed.",
+        "utc_ms": 1792413889477
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": "30c643085fa69ca258bbe1d6ea67496aaa3ae612804c8798aaf7e3f23736b94e",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/test_case.py": "792eb1e735d7ac51c715a9bd74d1b504d8179480a5b13122b8a77ddd062a4de3"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_acceptance": {
+    "accepted-normal": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 1652,
+          "responder_session_id": 1,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 61605
+        },
+        {
+          "initiator_session_id": 20261,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 30723
+        }
+      ],
+      "driver_sha256": "edd64914dbc2b3cd5f6fbd3e1d3d84470e441e69ab70aea180c0313a63c0c40d",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "live_first_CASE_session_id": 2,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "literal_procedure_discrepancies": [
+        {
+          "step": 1,
+          "field": "S/DSIZ",
+          "procedure": "S=0,DSIZ=0",
+          "Core1.6.1": "Initiator S=1,DSIZ=0",
+          "observed": "S=1,DSIZ=0"
+        },
+        {
+          "step": 1,
+          "field": "hasPBKDFParameters",
+          "procedure": "true means unknown; false means known",
+          "Core1.6.1": "true means known; false requests parameters",
+          "observed": "false; parameters returned"
+        },
+        {
+          "step": 2,
+          "field": "S/DSIZ",
+          "procedure": "S=0,DSIZ=0",
+          "Core1.6.1": "Responder S=0,DSIZ=1",
+          "observed": "S=0,DSIZ=1"
+        },
+        {
+          "steps": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "field": "octet string sizes",
+          "procedure": "32-bit random,16..32-bit salt,65-bit points,32-bit confirmations",
+          "Core1.6.1": "32-byte random,16..32-byte salt,65-byte points,32-byte confirmations",
+          "observed": "Core byte lengths; no procedure source edited"
+        },
+        {
+          "steps": [
+            3,
+            4,
+            5
+          ],
+          "field": "S/DSIZ",
+          "procedure": "S=0,DSIZ=0",
+          "Core1.6.1": "Initiator S=1,DSIZ=0; responder S=0,DSIZ=1",
+          "observed": "Core addressing"
+        }
+      ],
+      "Core_result": "PASS",
+      "literal_procedure_result": "FAIL",
+      "node_exit": 0,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "accepted-sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 39675,
+          "responder_session_id": 1,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 59734
+        },
+        {
+          "initiator_session_id": 54673,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 12010
+        }
+      ],
+      "driver_sha256": "edd64914dbc2b3cd5f6fbd3e1d3d84470e441e69ab70aea180c0313a63c0c40d",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "live_first_CASE_session_id": 2,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "literal_procedure_discrepancies": [
+        {
+          "step": 1,
+          "field": "S/DSIZ",
+          "procedure": "S=0,DSIZ=0",
+          "Core1.6.1": "Initiator S=1,DSIZ=0",
+          "observed": "S=1,DSIZ=0"
+        },
+        {
+          "step": 1,
+          "field": "hasPBKDFParameters",
+          "procedure": "true means unknown; false means known",
+          "Core1.6.1": "true means known; false requests parameters",
+          "observed": "false; parameters returned"
+        },
+        {
+          "step": 2,
+          "field": "S/DSIZ",
+          "procedure": "S=0,DSIZ=0",
+          "Core1.6.1": "Responder S=0,DSIZ=1",
+          "observed": "S=0,DSIZ=1"
+        },
+        {
+          "steps": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "field": "octet string sizes",
+          "procedure": "32-bit random,16..32-bit salt,65-bit points,32-bit confirmations",
+          "Core1.6.1": "32-byte random,16..32-byte salt,65-byte points,32-byte confirmations",
+          "observed": "Core byte lengths; no procedure source edited"
+        },
+        {
+          "steps": [
+            3,
+            4,
+            5
+          ],
+          "field": "S/DSIZ",
+          "procedure": "S=0,DSIZ=0",
+          "Core1.6.1": "Initiator S=1,DSIZ=0; responder S=0,DSIZ=1",
+          "observed": "Core addressing"
+        }
+      ],
+      "Core_result": "PASS",
+      "literal_procedure_result": "FAIL",
+      "node_exit": 0
+    }
+  },
+  "independent_receipts": {
+    "accepted-normal": {
+      "result": "PASS",
+      "node_exit": 0,
+      "driver_sha256": "edd64914dbc2b3cd5f6fbd3e1d3d84470e441e69ab70aea180c0313a63c0c40d",
+      "checks": 20,
+      "error": null,
+      "result_sha256": "0f29e7dc999a3ae1a8214fe201bdf90473128ab604ac0cde807b6037bb6ef792",
+      "packets_sha256": "0cb9ba7a844f0341ad3cb68a00804f965e3f0f672dd3c17ea5b6821af74e87b9",
+      "stderr_empty": true,
+      "memory": {
+        "allocations": 43510,
+        "frees": 43510,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "115713f956863158b42b32ac53c8c8d67d4cb631d5fe9c02cc6a2be3c1f29980"
+      }
+    },
+    "accepted-sanitize": {
+      "result": "PASS",
+      "node_exit": 0,
+      "driver_sha256": "edd64914dbc2b3cd5f6fbd3e1d3d84470e441e69ab70aea180c0313a63c0c40d",
+      "checks": 20,
+      "error": null,
+      "result_sha256": "e26a895f05b7c771ae11d5d228d6c6e7d3eb1520e3779a5c98b327a09d8910e4",
+      "packets_sha256": "ff2c34e2b301b219ae7278eb1cca37c0ce2600b67f922f13de14b216ccad84f1",
+      "stderr_empty": true
+    }
+  },
+  "memory": {
+    "allocations": 43510,
+    "frees": 43510,
+    "zero_errors": true,
+    "zero_live": true,
+    "log_sha256": "115713f956863158b42b32ac53c8c8d67d4cb631d5fe9c02cc6a2be3c1f29980"
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "sections": [
+      "3.9",
+      "3.10",
+      "4.4",
+      "4.14.1.2",
+      "Appendix A.11.1",
+      "Appendix B.5.7"
+    ],
+    "decision": "Initiator S1/DSIZ0, responder S0/DSIZ1; known PBKDF flag semantics; octet-string byte lengths and numeric ranges agree with actual exchange. Original literal assertions differ; preserve FAIL pending clarification."
+  },
+  "native_build_identity": {
+    "compiled_in": "csa35-results.json",
+    "native_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_source_header_count": 362,
+    "all_manifest_entries_unchanged": true,
+    "normal_binary_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+    "sanitizer_binary_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+    "new_native_compilation": false
+  },
+  "fixture_history": {
+    "accepted_driver_sha256": "edd64914dbc2b3cd5f6fbd3e1d3d84470e441e69ab70aea180c0313a63c0c40d",
+    "current_driver_sha256": "d223bfd02a70a9df3b2f4d44678b38108db2f810b1d0da2cce2ac8a856b0b4d3",
+    "post_run_change": "Comment-only correction B.3.5 to B.5.7; reconstructed executed bytes match both accepted hashes and AST is identical. No repeated runtime test for this citation edit.",
+    "AST_identical_after_comment_correction": true,
+    "previous_attempts": {
+      "normal": {
+        "result": "FAIL",
+        "node_exit": 0,
+        "driver_sha256": "84743f95e33722da0c45de240c216b6f42050af006fca52b7f4048b4198f1f12",
+        "checks": 2,
+        "error": "command-pairing-already-discovered",
+        "result_sha256": "6b8b58c4936b330c6f90e88c694a4a72a1b2facd843388025b1d998b6ff4cb59",
+        "packets_sha256": "f2f424827bbb6a1d51c828575b6a799f3253869677398abc2c28a88db18e9dfe",
+        "stderr_empty": true,
+        "memory": {
+          "allocations": 9145,
+          "frees": 9145,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "0ad9c90bf4c93810599c5b8ba61c38c582b2c59eb9ef0eeb48fe99162490946c"
+        }
+      },
+      "normal-final": {
+        "result": "FAIL",
+        "node_exit": 0,
+        "driver_sha256": "0891dac0c1a4f4f3b488a44a523e4d4b6be22dbb47ddefa2f84a527e04daf36c",
+        "checks": 3,
+        "error": "command-pairing-already-discovered",
+        "result_sha256": "405b88234d2f9649a5006ea374cdd745bb65dcd750258dbdde0f7af4a45637ef",
+        "packets_sha256": "9f4d383652e8628b94ff6d0fab6be43e20bc5d854e38e9cdf9d481259b0ccd69",
+        "stderr_empty": true,
+        "memory": {
+          "allocations": 13849,
+          "frees": 13849,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "3df95ecadb9c5b026e856b7cdea5701cdc7795a08889a3c183463524fbc6f8b8"
+        }
+      },
+      "core-normal": {
+        "result": "FAIL",
+        "node_exit": 0,
+        "driver_sha256": "a9ba56268912b9ad066aa9a74b0d5594858e3ff8eaa46688694a2e87603e13c4",
+        "checks": 7,
+        "error": "command-payload-parse-setup-payload",
+        "result_sha256": "71ee3b9d3cf08a32faae98c399a6028be607404a6f6a01b30274784edf42ca85",
+        "packets_sha256": "7247285b8b0f16961ca231b92e3de8cfd7230294755b10c34d1545ed76498d92",
+        "stderr_empty": true,
+        "memory": {
+          "allocations": 23991,
+          "frees": 23991,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "54afe48295665745ac1a354fc14bbf623243068bb563cafab47131decfe1370d"
+        }
+      },
+      "core-normal-final": {
+        "result": "FAIL",
+        "node_exit": 0,
+        "driver_sha256": "97690326a9761f15067d45bdcfefe2d6faad46539849135e28c2077217ec67f2",
+        "checks": 14,
+        "error": "",
+        "result_sha256": "9d843d1560c8ad85dd0caedb6218a871afece48361d3da2f4a6210b46f41a64a",
+        "packets_sha256": "1d31036ae6a5cbbe804bd708ed94702130d86cdcef987f6f87328dcd153830e5",
+        "stderr_empty": true,
+        "memory": {
+          "allocations": 43491,
+          "frees": 43491,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "4c4844b9f7cce09686b981108c8d6d5e8caa7b44fca96763a554bd95f32d77f2"
+        }
+      }
+    },
+    "notes": [
+      "Initial PASE-success log pattern did not recognize the actual success line.",
+      "The initial concurrent-PASE-only extension received Busy; multiple concurrent PASE contexts are not required by this original procedure. Final scenario uses CASE and a newly opened window.",
+      "Payload parser field is Passcode, not Setup PIN code.",
+      "An exact TLV integer-width assertion was removed in favor of semantic range validation required by Core Appendix A.11.1 and numeric range qualifiers. Both final full runs repeat on the corrected fixture."
+    ]
+  },
+  "coverage": {
+    "positions": 862,
+    "manual_PASS": 12,
+    "manual_FAIL": 2,
+    "manual_without_outcome": 25,
+    "manual_without_PASS": 27,
+    "remaining_initial_coverage": {
+      "manual_without_outcome": 25,
+      "BLOCKED_positions": 3
+    },
+    "deferred_failures": {
+      "automatic": 18,
+      "manual": 2
+    },
+    "Core_checks": 40,
+    "observed_PASE_exchanges": 4,
+    "full_commissions": 4,
+    "new_automatic_CSA_PASS": 0,
+    "category_totals_unchanged": true
+  },
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --help",
+    "python tools/matter/tests/test_pase_exchange_chip.py --node NORMAL_NODE --chip-tool CHIP_TOOL --paa PRIVATE_PAA --credentials PRIVATE_CREDENTIALS --interface INTERFACE --ipv6 IPV6 --output PRIVATE_FRESH_OUTPUT --valgrind",
+    "Repeat complete fixture with SANITIZER_NODE without --valgrind",
+    "Original TH manual TC-SC-2.1, unchanged source/PICS; operator reviews retained wire and controller evidence",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "raw_packets_logs_codes_and_keys_outside_Git": true
+  },
+  "limits": [
+    "Original TH result is manual operator FAIL; independent Core checks are not CSA PASS/certification.",
+    "Two sampled transcripts per variant do not prove entropy, all identifier collisions/wraparound, true/known-PBKDF suppression or every error path.",
+    "Oracle mutations occur in memory only, not against the DUT. Failed early fixtures remain private and are not accepted passes.",
+    "No native build, full CSA rerun, physical firmware/radio, embedded RAM-fit or Home UI acceptance this step.",
+    "All other official results inherited. Failures deferred as requested; CSA30 remains deferred and CSA32 open. No CSA clarification response claimed."
+  ],
+  "next": {
+    "stage": "CSA38",
+    "case": "TC-SC-2.2",
+    "scope": "Bidirectional encrypted PASE and decryption-error handling; review original negative assertions against Core before choosing packet injection.",
+    "status": "NOT_RUN"
+  }
+}

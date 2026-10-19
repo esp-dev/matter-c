@@ -2522,6 +2522,14 @@
       "allocation_variant": "not applicable"
     },
     {
+      "path": "tools/matter/tests/test_pase_exchange_chip.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_pase_exchange_chip.py --help; disposable Linux node, selected IPv6/interface, development credentials/PAA and unmodified chip-tool; run Memcheck then separate sanitizers. Private UDP observations, two fabrics and Core/literal-manual outcomes kept separate.",
+      "referenced_by": [],
+      "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
+    },
+    {
       "path": "tools/matter/tests/test_commissionable_announcement_chip.py",
       "kind": "external-chip-tool",
       "ctest": [],

@@ -390,9 +390,18 @@ TC-SC-4.7; no new test execution or PASS is claimed. The five endpoint CLI expor
 preserve every other declaration and project field. Current matrix: 97 PASS,
 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA; MANUAL contains 12 PASS, 1 FAIL and 26
 without an outcome. See [audit and limits](oss/csa36-validation.md).
-**Next: CSA37, original TC-SC-2.1 manual PASE exchange acceptance**, with real
-PBKDF/Pake/header/final-status evidence and explicit review of any wording
-discrepancy against Core1.6.1. Keep CSA32 open and CSA30 deferred.
+CSA37 executes original manual TC-SC-2.1 in TH run472: FAIL on five literal
+addressing/boolean/byte-size requirements that conflict with Core1.6.1; final
+success verification and log upload pass. Independent full PASE/commissioning/
+CASE/enhanced-window/second-fabric scenarios pass under Memcheck and separate
+sanitizers, with no native or original test/PICS changes. The original FAIL stays
+open for clarification. Counts are unchanged; MANUAL now contains 12 PASS, 2 FAIL
+and 25 without an outcome. See [evidence and limits](oss/csa37-validation.md).
+Continue first-pass coverage of 25 manual and 3 BLOCKED positions; revisit the 18
+automatic and 2 manual FAIL results afterward, as requested.
+**Next: CSA38, TC-SC-2.2 bidirectional encrypted PASE/decryption-error handling**;
+review the original negative-path assertions against Core before injection.
+Keep CSA32 open and CSA30 deferred.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

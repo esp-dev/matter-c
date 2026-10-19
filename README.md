@@ -328,7 +328,17 @@ commissionable/operational discovery remains supported. No protocol test PASS
 is claimed. Five endpoint CLI exports preserve all other PICS/project values.
 Current totals: **97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL contains
 12 PASS, 1 FAIL and 26 without an outcome. No native code or paired-node changes.
-Next: CSA37, original manual TC-SC-2.1 PASE exchange acceptance.
+The original PASE procedure is reviewed below.
+
+[CSA37 PASE exchange review](doc/oss/csa37-validation.md) records original manual
+TC-SC-2.1 **FAIL**, run472: five steps conflict with Core1.6.1 addressing/boolean/
+byte-size rules; final success verification and upload pass. Two full scenarios
+pass 40 independent checks across Memcheck and separate sanitizers, including four
+complete PASE exchanges and two fabrics per scenario. Memcheck has 43510 matched
+allocations/frees and zero errors/live bytes. No native/test-source/PICS change.
+Category totals are unchanged; MANUAL now contains 12 PASS, 2 FAIL and 25 without
+an outcome, plus 3 BLOCKED positions outside MANUAL. The original FAIL is retained.
+Next: CSA38, TC-SC-2.2 bidirectional PASE and decryption-error handling.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

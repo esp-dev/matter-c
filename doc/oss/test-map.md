@@ -1,8 +1,18 @@
 # Test inventory
 
-test-map.json enumerates 241 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 242 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+`test_pase_exchange_chip.py` records unmodified chip-tool's actual PASE UDP
+datagrams across two full commissions, with the first fabric's CASE active when
+opening the second window. Typed TLV, message/exchange headers, success status,
+encrypted-data ordering and sampled session-ID/random separation are checked
+against Core1.6.1; four altered in-memory captures test oracle rejection. The
+original TC-SC-2.1 wording is evaluated separately, without rewriting its
+addressing, hasPBKDF or byte-size discrepancies. Raw packets, setup codes and
+controller state stay private. Run Memcheck and sanitizers separately; independent
+Core evidence is not an automatic or manual CSA PASS.
 
 `test_commissionable_announcement_chip.py` supplies CSA34 wire/controller evidence
 for unsolicited announcements, actual unfiltered chip-tool browsing and complete
