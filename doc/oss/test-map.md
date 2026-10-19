@@ -14,6 +14,14 @@ addressing, hasPBKDF or byte-size discrepancies. Raw packets, setup codes and
 controller state stay private. Run Memcheck and sanitizers separately; independent
 Core evidence is not an automatic or manual CSA PASS.
 
+CSA38 adds `--tamper-pase`: send a one-bit MIC corruption before the first valid
+encrypted request and response, hold originals/retransmissions for at least 0.6
+seconds per direction, then release them. Observe no encrypted peer progression
+during the hold and successful commissioning in the same PASE session afterward.
+This demonstrates message rejection/recovery required by Core4.8.3. Original
+TC-SC-2.2 Step5's stronger session-termination/key-clear expectation is evaluated
+separately; no key-memory dump or wire proof of key erasure is claimed.
+
 `test_commissionable_announcement_chip.py` supplies CSA34 wire/controller evidence
 for unsolicited announcements, actual unfiltered chip-tool browsing and complete
 basic/closed/enhanced Commissionable Node Discovery records, addresses, subtypes

@@ -3,7 +3,10 @@
 Unmodified chip-tool commissions two independent fabrics, opening the second
 window over the first fabric's live CASE session. No packets are altered. Core1.6.1 checks
 and literal original-procedure discrepancies are reported separately. This is
-independent operator evidence, not an automatic CSA result. Keep output private.
+independent operator evidence, not an automatic CSA result. --tamper-pase also
+records TC-SC-2.2 bidirectional traffic: alter the first encrypted request and
+response MIC, then release the original packets after a real quiet interval.
+Keep output private.
 """
 import argparse
 import copy
@@ -181,6 +184,7 @@ def main():
     parser.add_argument('--interface', type=int, required=True)
     parser.add_argument('--ipv6', required=True)
     parser.add_argument('--valgrind', action='store_true')
+    parser.add_argument('--tamper-pase', action='store_true', help='TC-SC-2.2: corrupt one MIC in each direction, then release originals')
     args = parser.parse_args(); out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
     report = {'result': 'RUNNING', 'checks': [], 'exchanges': [],
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -188,6 +192,7 @@ def main():
               'chip_tool_sha256': hashlib.sha256(args.chip_tool.read_bytes()).hexdigest()}
     packets = []; lock = threading.Lock(); stop = threading.Event(); failures = []
     proxies = []; threads = []; clients = []; child = None
+    tamper = []; quiet_seconds = .6
     target = (args.ipv6, 5587, 0, args.interface)
 
     def save():
@@ -200,9 +205,17 @@ def main():
             raise AssertionError(name)
 
     def forward(sock, lane):
-        peer = None
+        peer = None; gate = None; changed = set(); request_counter = None
         try:
             while not stop.is_set():
+                if gate and time.monotonic() >= gate['deadline']:
+                    sock.sendto(gate['original'], gate['target'])
+                    for held in dict.fromkeys(gate['held']):
+                        if held != gate['original']:
+                            sock.sendto(held, gate['target'])
+                    gate['evidence']['original_released'] = True
+                    gate['evidence']['quiet_elapsed_seconds'] = time.monotonic() - gate['started']
+                    gate = None
                 try:
                     data, address = sock.recvfrom(65535)
                 except socket.timeout:
@@ -214,6 +227,32 @@ def main():
                     peer = address
                 with lock:
                     packets.append({'lane': lane, 'direction': direction, 'data': data.hex()})
+                if args.tamper_pase and lane == 0:
+                    header = message(data)
+                    if header['session']:
+                        if direction == 'initiator' and request_counter is None:
+                            request_counter = header['counter']
+                        if gate:
+                            if direction == gate['direction']:
+                                gate['held'].append(data)
+                                continue
+                            if gate['direction'] == 'initiator' or header['counter'] != request_counter:
+                                gate['evidence']['unexpected_peer_progress'] = True
+                        if direction not in changed and gate is None:
+                            changed.add(direction)
+                            damaged = data[:-1] + bytes([data[-1] ^ 1])
+                            evidence = {'direction': direction, 'session_id': header['session'],
+                                'counter': header['counter'], 'MIC_only_one_bit_changed': True,
+                                'original_sha256': hashlib.sha256(data).hexdigest(),
+                                'damaged_sha256': hashlib.sha256(damaged).hexdigest(),
+                                'original_released': False, 'unexpected_peer_progress': False}
+                            tamper.append(evidence)
+                            destination = peer if direction == 'responder' else target
+                            sock.sendto(damaged, destination)
+                            now = time.monotonic()
+                            gate = {'original': data, 'target': destination, 'direction': direction,
+                                    'held': [], 'started': now, 'deadline': now + quiet_seconds, 'evidence': evidence}
+                            continue
                 sock.sendto(data, peer if direction == 'responder' else target)
         except Exception as error:
             if not stop.is_set():
@@ -293,6 +332,20 @@ def main():
               p['session'] in {s['responder_session_id'] for s in sessions} for _, p in encrypted))
         randoms = [fields(g[0]['payload'])[1]['value'] for g in groups.values()]
         check('sampled-request-randoms-distinct', len(set(randoms)) == 2)
+        if args.tamper_pase:
+            check('both-PASE-directions-tampered', [t['direction'] for t in tamper] == ['initiator', 'responder'])
+            for t in tamper:
+                check('bad-MIC-silent-before-original-' + t['direction'],
+                      t['original_released'] and not t['unexpected_peer_progress'] and
+                      t['quiet_elapsed_seconds'] >= quiet_seconds)
+            first_session = next(s for s in sessions if s['lane'] == 0)
+            check('same-PASE-session-ID-after-I2R-error', tamper[0]['session_id'] == first_session['responder_session_id'])
+            check('same-PASE-session-ID-after-R2I-error', tamper[1]['session_id'] == first_session['initiator_session_id'])
+            report['tamper'] = tamper
+            report['TC_SC_2_2'] = {'bidirectional_encrypted_commissioning': 'PASS',
+                'Core4.8.3_bad_MIC_drop_and_same_session_recovery': 'PASS',
+                'literal_step5_terminate_session_and_clear_keys': 'FAIL',
+                'key_memory_inspection': 'NOT_PERFORMED; continued use of the same session disproves mandatory termination.'}
         first = next(iter(groups.values())); rejected = 0
         for mode in ('addressing', 'session', 'opcode', 'payload'):
             altered = copy.deepcopy(first)

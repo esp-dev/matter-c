@@ -1,0 +1,637 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa37-results.json",
+  "previous_sha256": "25c71a0ffead6f0780f3afc64f2ad6e53deb17c773f27161eedd4b134e02d2eb",
+  "tracked_document_hash_encoding": "Previous report hash uses committed Git blob bytes at c0ac3f0.",
+  "source_base_commit": "c0ac3f0f7930041a2ce8eb42397cd718bb1d62e4",
+  "scope": "Original TC-SC-2.2 operator-reviewed manual FAIL: four encrypted communication steps pass; immediate session termination/key clearing after bad MIC does not occur. Independent Core4.8.3 message rejection and same-session recovery pass. No native changes.",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 473
+    }
+  ],
+  "official_receipt": {
+    "run_id": 473,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 13:26:07.360802",
+    "observed_utc": "2026-10-19T13:26:09.337275+00:00",
+    "cases": [
+      {
+        "case": "TC-SC-2.2",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 5,
+          "TestStateEnum.failed": 1
+        },
+        "details": [
+          {
+            "title": "Initiator uses I2RKey to encrypt and send a message",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Responder uses I2RKey to decrypt the message",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Responder uses R2IKey to encrypt and send a message",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Initiator uses R2IKey to decrypt the message",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "An error is encountered in initiator or responder decryption",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "a1b0938c8d6dc2bc8b38b5eef3c6db391719e3e3c5bfd69ab3fd9fa8c4af557b",
+    "raw_result_sha256": "0e66f87cf4982d20be7ef8838ef1dc387433153fa77e402187353c53a28c4225",
+    "identity": {
+      "source_sha256": "20544ce5190ad455b0fca8c9efec818d4bff6f265d665e73ab026bfb19c1bbfb",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "Actual encrypted PASE commissioning requests reach the responder. Directional key assignment agrees with Core4.14.1.2 and source; no session keys are extracted/logged.",
+        "utc_ms": 1792416367152
+      },
+      {
+        "step": 2,
+        "answer": "PASS",
+        "note": "After the corrupted MIC is dropped, the original request with the same session/counter is accepted; authenticated commissioning commands execute and receive responses.",
+        "utc_ms": 1792416367184
+      },
+      {
+        "step": 3,
+        "answer": "PASS",
+        "note": "Actual encrypted responder messages are captured. The first responder MIC is corrupted, valid original and queued replies are held for at least0.6 seconds, then forwarded.",
+        "utc_ms": 1792416367204
+      },
+      {
+        "step": 4,
+        "answer": "PASS",
+        "note": "The unmodified controller accepts the valid original response in the same PASE session; attestation and full CommissioningComplete succeed, followed by CASE reads.",
+        "utc_ms": 1792416367228
+      },
+      {
+        "step": 5,
+        "answer": "FAIL",
+        "note": "Bad MIC is silently rejected in both directions. The same session/counter accepts the subsequent original and encrypted commissioning continues, so immediate session termination required by this step does not occur. Core1.6.1 4.8.3 requires failed-message processing to stop, not mandatory session/key destruction. No key-memory inspection or erasure claim.",
+        "utc_ms": 1792416367251
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": "20544ce5190ad455b0fca8c9efec818d4bff6f265d665e73ab026bfb19c1bbfb",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_acceptance": {
+    "accepted-normal": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "both-PASE-directions-tampered",
+          "status": "PASS"
+        },
+        {
+          "name": "bad-MIC-silent-before-original-initiator",
+          "status": "PASS"
+        },
+        {
+          "name": "bad-MIC-silent-before-original-responder",
+          "status": "PASS"
+        },
+        {
+          "name": "same-PASE-session-ID-after-I2R-error",
+          "status": "PASS"
+        },
+        {
+          "name": "same-PASE-session-ID-after-R2I-error",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 36121,
+          "responder_session_id": 1,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 9960
+        },
+        {
+          "initiator_session_id": 22520,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 50554
+        }
+      ],
+      "driver_sha256": "83c3a470b882e89004142a98c358d764d6652b9fc6cfbd0f6fd02c382068cd7d",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "live_first_CASE_session_id": 2,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "tamper": [
+        {
+          "direction": "initiator",
+          "session_id": 1,
+          "counter": 93922368,
+          "MIC_only_one_bit_changed": true,
+          "original_sha256": "cc985bd08badaea252f6f63dc5d32ef4c541311bbabe4c109e7b007c89075d32",
+          "damaged_sha256": "9a3e5fe0b982bd3d2445fc43dda0c00bbfa0506f3ee8174466e400b4c9f4b145",
+          "original_released": true,
+          "unexpected_peer_progress": false,
+          "quiet_elapsed_seconds": 0.7061993749812245
+        },
+        {
+          "direction": "responder",
+          "session_id": 36121,
+          "counter": 217974044,
+          "MIC_only_one_bit_changed": true,
+          "original_sha256": "ffecce79939f5a86fe832098fbd41efa5278a1f46f168acac914f59ba3b51728",
+          "damaged_sha256": "1f1107026984263e95c8000843dd56c0d987b13c97f053f2874c9e27b1da5c7c",
+          "original_released": true,
+          "unexpected_peer_progress": false,
+          "quiet_elapsed_seconds": 0.6019311919808388
+        }
+      ],
+      "TC_SC_2_2": {
+        "bidirectional_encrypted_commissioning": "PASS",
+        "Core4.8.3_bad_MIC_drop_and_same_session_recovery": "PASS",
+        "literal_step5_terminate_session_and_clear_keys": "FAIL",
+        "key_memory_inspection": "NOT_PERFORMED; continued use of the same session disproves mandatory termination."
+      },
+      "Core_result": "PASS",
+      "node_exit": 0,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "accepted-sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "both-PASE-directions-tampered",
+          "status": "PASS"
+        },
+        {
+          "name": "bad-MIC-silent-before-original-initiator",
+          "status": "PASS"
+        },
+        {
+          "name": "bad-MIC-silent-before-original-responder",
+          "status": "PASS"
+        },
+        {
+          "name": "same-PASE-session-ID-after-I2R-error",
+          "status": "PASS"
+        },
+        {
+          "name": "same-PASE-session-ID-after-R2I-error",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 22994,
+          "responder_session_id": 1,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 41491
+        },
+        {
+          "initiator_session_id": 29726,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 58222
+        }
+      ],
+      "driver_sha256": "83c3a470b882e89004142a98c358d764d6652b9fc6cfbd0f6fd02c382068cd7d",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "live_first_CASE_session_id": 2,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "tamper": [
+        {
+          "direction": "initiator",
+          "session_id": 1,
+          "counter": 150440765,
+          "MIC_only_one_bit_changed": true,
+          "original_sha256": "59269c90e2386acd99a086b205f6a3fb5394bf3ce0bc370f6f81b36c0874bd29",
+          "damaged_sha256": "0463d4e779a969edca89acf73502571f77888ce1259eb62e0a264a467e1c7ff7",
+          "original_released": true,
+          "unexpected_peer_progress": false,
+          "quiet_elapsed_seconds": 0.61348393606022
+        },
+        {
+          "direction": "responder",
+          "session_id": 22994,
+          "counter": 109073195,
+          "MIC_only_one_bit_changed": true,
+          "original_sha256": "e3cb7d3e010ef3bc58b0d82d9249e2d6a1467574017e82fc4032d3c119753a84",
+          "damaged_sha256": "9bf5ab64b6270178eb5d8d545077157eb20bbc09476b41a1d1124e2839cecc2d",
+          "original_released": true,
+          "unexpected_peer_progress": false,
+          "quiet_elapsed_seconds": 0.6131325187161565
+        }
+      ],
+      "TC_SC_2_2": {
+        "bidirectional_encrypted_commissioning": "PASS",
+        "Core4.8.3_bad_MIC_drop_and_same_session_recovery": "PASS",
+        "literal_step5_terminate_session_and_clear_keys": "FAIL",
+        "key_memory_inspection": "NOT_PERFORMED; continued use of the same session disproves mandatory termination."
+      },
+      "Core_result": "PASS",
+      "node_exit": 0
+    }
+  },
+  "independent_receipts": {
+    "accepted-normal": {
+      "result": "PASS",
+      "node_exit": 0,
+      "driver_sha256": "83c3a470b882e89004142a98c358d764d6652b9fc6cfbd0f6fd02c382068cd7d",
+      "checks": 25,
+      "result_sha256": "2d34d612e218f7b770cc88dab6a12fe6f8029a28483e2a9b4fe8f8896ab6aaf4",
+      "packets_sha256": "b859839fa68605abcd95d9240f5893849d9616c283c55fe34d373d3c1445b8e7",
+      "stderr_empty": true,
+      "memory": {
+        "allocations": 43536,
+        "frees": 43536,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "c48ae8ba674e9b7255cec4ad9cc93f646a99b174ca91540d8d335492b15216e0"
+      }
+    },
+    "accepted-sanitize": {
+      "result": "PASS",
+      "node_exit": 0,
+      "driver_sha256": "83c3a470b882e89004142a98c358d764d6652b9fc6cfbd0f6fd02c382068cd7d",
+      "checks": 25,
+      "result_sha256": "4c23bc1d5815cb973b1fd2ebacf02f0e5c0589447f1d61c0985b95372dcaa9fe",
+      "packets_sha256": "f2346f24a36d090e21fca0c672d57c49c51a11859ed6f3ceea92834bad243498",
+      "stderr_empty": true
+    }
+  },
+  "memory": {
+    "allocations": 43536,
+    "frees": 43536,
+    "zero_errors": true,
+    "zero_live": true,
+    "log_sha256": "c48ae8ba674e9b7255cec4ad9cc93f646a99b174ca91540d8d335492b15216e0"
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "sections": [
+      "3.6.2",
+      "4.8.3 Step4a",
+      "4.14.1.2 Session Encryption Keys"
+    ],
+    "decision": "Failed verification stops processing that message. The cited Core rule does not mandate session destruction on each unauthenticated bad MIC. Original manual Step5 expects termination/key clearing, so retain literal FAIL pending clarification.",
+    "key_direction_source": "matter_pase.c role-specific halves copied into send_key/receive_key; matter_secure.c uses them for CCM. No live keys extracted."
+  },
+  "native_build_identity": {
+    "host_compiled_in": "csa35-results.json",
+    "native_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_source_header_count": 362,
+    "all_manifest_entries_unchanged": true,
+    "normal_binary_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+    "sanitizer_binary_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+    "native_host_recompiled": false,
+    "focused_test_targets_compiled": [
+      "test_pase",
+      "test_secure"
+    ],
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "log_sha256": "074c270b3046485e9b352f0d57ff4f4a0d96b2bbfb2105a7f525025106bd8c64",
+        "passed": 2,
+        "build_log_sha256": "bdfaa4d9e25eff20811890ca7edac641a863db97fbaef004c26f32e36865a434",
+        "compiler_warnings_observed": 0
+      },
+      "sanitize": {
+        "exit": 0,
+        "log_sha256": "b42b23139d8e7a916ee85847836ba3fedc75e4d281ff0555644ba38152e4b67a",
+        "passed": 2,
+        "build_log_sha256": "bdfaa4d9e25eff20811890ca7edac641a863db97fbaef004c26f32e36865a434",
+        "compiler_warnings_observed": 0
+      }
+    },
+    "initial_test_setup": "First CTest execution could not launch missing test executables. Built the two existing targets, then2/2 tests passed per variant. Initial setup failure is not counted as a PASS."
+  },
+  "fault_injection": {
+    "mode": "--tamper-pase",
+    "real_bad_MIC_deliveries": 4,
+    "mutation": "One bit in last MIC byte; headers/ciphertext body unchanged.",
+    "minimum_hold_seconds": 0.6,
+    "observed_hold_seconds": [
+      0.7061993749812245,
+      0.6019311919808388,
+      0.61348393606022,
+      0.6131325187161565
+    ],
+    "recovery": "Release identical original packet/counter/session after quiet hold, then finish authenticated commissioning in the same PASE session.",
+    "memory_erasure_inspected": false,
+    "in_memory_oracle_controls": "Four existing mutated capture controls per scenario; separate from the actual wire injections."
+  },
+  "coverage": {
+    "positions": 862,
+    "manual_PASS": 12,
+    "manual_FAIL": 3,
+    "manual_without_outcome": 24,
+    "manual_without_PASS": 27,
+    "remaining_initial_coverage": {
+      "manual_without_outcome": 24,
+      "BLOCKED_positions": 3
+    },
+    "deferred_failures": {
+      "automatic": 18,
+      "manual": 3
+    },
+    "independent_checks": 50,
+    "PASE_exchanges": 4,
+    "full_commissions": 4,
+    "new_automatic_CSA_PASS": 0,
+    "category_totals_unchanged": true
+  },
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --help",
+    "python tools/matter/tests/test_pase_exchange_chip.py --node NORMAL_NODE --chip-tool CHIP_TOOL --paa PRIVATE_PAA --credentials PRIVATE_CREDENTIALS --interface INTERFACE --ipv6 IPV6 --output PRIVATE_FRESH_OUTPUT --tamper-pase --valgrind",
+    "Repeat full fixture with SANITIZER_NODE and without --valgrind",
+    "cmake --build BUILD --target test_pase test_secure -j 2",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_pase|test_secure)$'",
+    "Original manual TH TC-SC-2.2 with unchanged source/PICS and retained real packet/controller observations",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "raw_datagrams_logs_setup_codes_and_keys_outside_Git": true
+  },
+  "limits": [
+    "Original TH result is manual operator FAIL; independent Core checks are not automatic CSA PASS or certification.",
+    "No live key-memory inspection; same-session recovery disproves immediate termination but is not a physical erasure audit.",
+    "One MIC bit per direction, finite0.6-second observation; not all malformed encrypted packets or proof of every internal side effect.",
+    "No full CSA campaign, physical firmware/radio, embedded RAM-fit or Home UI rerun. Native host binaries reused after full source/hash verification.",
+    "Legacy TC-SC-2.1 discrepancy fields remain only in private full fixture reports; this record projects TC-SC-2.2 evidence with raw-result hashes retained.",
+    "Other official results inherited; failures deferred as requested. No clarification sent or CSA response claimed."
+  ],
+  "next": {
+    "stage": "CSA39",
+    "case": "TC-SC-2.3",
+    "scope": "PASE error handling: invalid passcodeID and Pake3.cA; actual failure statuses, bounded cleanup and valid-session recovery.",
+    "status": "NOT_RUN"
+  }
+}

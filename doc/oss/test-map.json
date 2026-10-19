@@ -2525,7 +2525,7 @@
       "path": "tools/matter/tests/test_pase_exchange_chip.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_pase_exchange_chip.py --help; disposable Linux node, selected IPv6/interface, development credentials/PAA and unmodified chip-tool; run Memcheck then separate sanitizers. Private UDP observations, two fabrics and Core/literal-manual outcomes kept separate.",
+      "entrypoint": "python tools/matter/tests/test_pase_exchange_chip.py --help; disposable Linux node, selected IPv6/interface, development credentials/PAA and unmodified chip-tool; run Memcheck then separate sanitizers. Private UDP observations, two fabrics and Core/literal-manual outcomes kept separate. --tamper-pase injects bad MICs in both directions, holds originals for at least0.6 seconds and verifies same-session recovery for TC-SC-2.2.",
       "referenced_by": [],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     },

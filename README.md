@@ -338,7 +338,16 @@ complete PASE exchanges and two fabrics per scenario. Memcheck has 43510 matched
 allocations/frees and zero errors/live bytes. No native/test-source/PICS change.
 Category totals are unchanged; MANUAL now contains 12 PASS, 2 FAIL and 25 without
 an outcome, plus 3 BLOCKED positions outside MANUAL. The original FAIL is retained.
-Next: CSA38, TC-SC-2.2 bidirectional PASE and decryption-error handling.
+The bidirectional/error procedure is reviewed below.
+
+[CSA38 PASE decryption-error review](doc/oss/csa38-validation.md) records original
+manual TC-SC-2.2 **FAIL**, run473: four communication steps/upload pass; its
+session-termination/key-clear expectation after bad MIC is not met. Core4.8.3
+message rejection and subsequent same-session recovery pass 50 independent checks
+across Memcheck/separate sanitizers. Memcheck has 43536 matched allocations/frees,
+zero errors/live bytes; two focused tests pass per build. No native/PICS change.
+Totals are unchanged; MANUAL now has 12 PASS, 3 FAIL and 24 without an outcome.
+Next: CSA39, TC-SC-2.3 invalid passcodeID and Pake3.cA; failures remain deferred.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

@@ -1,5 +1,22 @@
 # Development status
 
+**CSA38: original manual TC-SC-2.2 FAIL, TH run473; bad-MIC recovery passes.**
+Four bidirectional encrypted PASE steps and log upload pass; Step5 requires
+session termination/key clearing, but both receivers retain their session after
+dropping the damaged message. Core1.6.1 4.8.3 requires failed-message processing
+to stop, without mandating session destruction. The original FAIL is retained
+for clarification. Full scenarios pass 25 checks under Memcheck and 25 separately
+under ASan/UBSan/LSan, including four actual bad-MIC deliveries, unchanged-counter/
+session recovery and full commissioning/CASE. Memcheck has 43536 matched
+allocations/frees, zero errors/live bytes; both node stderr files are empty.
+Two existing PASE/secure targets were built and pass 2/2 CTests per build;
+no compiler warnings observed. No native source/API/PICS change or live key dump.
+TH is idle, disposable nodes stopped and paired Windows nodes untouched.
+Totals remain **97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL now has
+**12 PASS, 3 FAIL, 24 without an outcome**. See [evidence](csa38-validation.md)
+and [record](csa38-results.json). **Next: CSA39, TC-SC-2.3 invalid passcodeID/cA.
+Continue initial coverage; failures remain deferred as requested.**
+
 **CSA37: original manual TC-SC-2.1 FAIL, TH run472; Core wire checks pass.**
 Five original steps conflict with Core1.6.1 addressing/boolean/byte-size rules;
 the final success verification and evidence upload pass. The literal FAIL is

@@ -399,9 +399,19 @@ open for clarification. Counts are unchanged; MANUAL now contains 12 PASS, 2 FAI
 and 25 without an outcome. See [evidence and limits](oss/csa37-validation.md).
 Continue first-pass coverage of 25 manual and 3 BLOCKED positions; revisit the 18
 automatic and 2 manual FAIL results afterward, as requested.
-**Next: CSA38, TC-SC-2.2 bidirectional encrypted PASE/decryption-error handling**;
-review the original negative-path assertions against Core before injection.
-Keep CSA32 open and CSA30 deferred.
+CSA38 executes original manual TC-SC-2.2, run473: four encrypted communication
+steps and upload pass; the required session termination/key clearing after bad
+MIC fails. Core4.8.3 stops processing the damaged message without mandating
+session destruction. Two full fault-injection scenarios pass under Memcheck and
+separate sanitizers (50 checks, four bad-MIC deliveries), followed by same-session
+recovery, full commissioning and CASE. Focused PASE/secure tests pass per build.
+No native or original-test/PICS changes. MANUAL now has 12 PASS, 3 FAIL and 24
+without an outcome; category totals stay unchanged. See
+[evidence and limits](oss/csa38-validation.md).
+**Next: CSA39, TC-SC-2.3 invalid passcodeID and Pake3.cA**, with actual failure
+statuses, bounded cleanup and valid-session recovery. Continue the initial
+coverage pass (24 manual plus 3 blocked); revisit failures later as requested.
+Keep prior discrepancies open and CSA30 deferred.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 
