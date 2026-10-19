@@ -98,11 +98,8 @@ def tlv_document(data):
     return dict(value)
 
 
-def ota_messages(path, command_id, requests=False):
-    """Decode one OTA command from actual peer trace, including its field types.
-
-    Raw token bytes remain in memory/private traces; public results use digests.
-    """
+def trace_messages(path):
+    """Reassemble actual peer JSON trace records split into ATM log chunks."""
     if not path.exists():
         return []
     decoder = json.JSONDecoder(); result = []; pending = ''; stamp = 0
@@ -125,6 +122,14 @@ def ota_messages(path, command_id, requests=False):
         assert not pending.lstrip()[end:].strip(), 'extra trace record data'
         pending = ''
         record['time_ms'] = stamp  # SDK log prefix; no time_ms in json:log mode.
+        result.append(record)
+    return result
+
+
+def ota_messages(path, command_id, requests=False):
+    """Decode OTA fields; raw tokens remain in private traces, never reports."""
+    result = []
+    for record in trace_messages(path):
         header = record.get('payloadHeader', {})
         if record.get('event') != ('MessageReceived' if requests else 'MessageSend') or header.get('protocolId') != 1 or header.get('messageType') != (8 if requests else 9):
             continue
@@ -139,6 +144,75 @@ def ota_messages(path, command_id, requests=False):
             fields = dict(command[1])
             result.append({'time_ms': record['time_ms'], 'fields': fields})
     return result
+
+
+def bdx_profile(path, image):
+    """Validate a complete negotiated receiver-driven transfer from peer octets.
+
+    BDX itself is a binary protocol, not Matter TLV. The JSON trace holds its
+    actual payload octets; never infer BlockAck from an MRP standalone ACK.
+    """
+    messages = [r for r in trace_messages(path) if r.get('payloadHeader', {}).get('protocolId') == 2]
+    assert messages, 'No BDX trace'
+    decoded = []
+    for r in messages:
+        h = r['payloadHeader']; data = bytes.fromhex(r['payload']['hex'])
+        decoded.append((r['event'], h['messageType'], h['exchangeId'], data))
+    initial = [d for event, op, _, d in decoded if event == 'MessageReceived' and op == 4]
+    accept = [d for event, op, _, d in decoded if event == 'MessageSend' and op == 5]
+    assert len(initial) == len(accept) == 1, 'Expected one ReceiveInit/Accept'
+    assert len({exchange for _, _, exchange, _ in decoded}) == 1, 'Mixed BDX exchanges'
+    init = initial[0]; reply = accept[0]
+    assert len(init) >= 6 and len(reply) >= 4
+    ptc, rc, proposed = struct.unpack_from('<BBH', init)
+    assert ptc == 0x20 and rc & ~0x13 == 0 and proposed > 0, 'Not synchronous receiver drive'
+    width = 8 if rc & 0x10 else 4; pos = 4; offset = length = None
+    if rc & 2:
+        assert len(init) >= pos + width
+        offset = int.from_bytes(init[pos:pos + width], 'little'); pos += width
+    if rc & 1:
+        assert len(init) >= pos + width
+        length = int.from_bytes(init[pos:pos + width], 'little'); pos += width
+    assert len(init) >= pos + 2
+    fdl = int.from_bytes(init[pos:pos + 2], 'little'); pos += 2
+    assert fdl and len(init) >= pos + fdl
+    tc, accepted_rc, block_size = struct.unpack_from('<BBH', reply)
+    assert tc == 0x20 and accepted_rc & ~0x11 == 0 and 0 < block_size <= proposed
+    accepted_length = None
+    if accepted_rc & 1:
+        size = 8 if accepted_rc & 0x10 else 4
+        assert len(reply) >= 4 + size
+        accepted_length = int.from_bytes(reply[4:4 + size], 'little')
+    queries = []; blocks = []; eof = []; acks = []
+    for event, op, _, data in decoded:
+        if op in (0x10, 0x11, 0x12, 0x14):
+            assert len(data) >= 4
+            counter = int.from_bytes(data[:4], 'little')
+            if op in (0x10, 0x14):
+                assert event == 'MessageReceived' and len(data) == 4
+                (queries if op == 0x10 else acks).append(counter)
+            else:
+                assert event == 'MessageSend' and len(data) - 4 <= block_size
+                blocks.append((counter, data[4:]))
+                if op == 0x12:
+                    eof.append(counter)
+        else:
+            assert op in (4, 5), 'Unexpected BDX opcode'
+    assert queries == [n for n, _ in blocks] == list(range(len(blocks))) and len(blocks) > 1
+    assert eof == acks == [len(blocks) - 1], 'EOF and AckEOF counters differ'
+    body = b''.join(data for _, data in blocks)
+    expected = image.read_bytes()[offset or 0:]
+    if length:
+        expected = expected[:length]
+    assert body == expected and (accepted_length in (None, 0, len(body))), 'Transferred image/range mismatch'
+    return {'result': 'PASS', 'transfer_control': ptc, 'range_control': rc,
+            'proposed_max_block_size': proposed, 'accepted_max_block_size': block_size,
+            'start_offset_field': offset, 'effective_start_offset': offset or 0,
+            'proposed_length_field': length, 'accepted_length': accepted_length,
+            'file_designator_length': fdl, 'metadata_bytes': len(init) - pos - fdl,
+            'block_counters': queries, 'eof_counter': eof[0], 'ack_eof_counter': acks[0],
+            'bytes': len(body), 'image_sha256': hashlib.sha256(body).hexdigest(),
+            'ordinary_BlockAck': False, 'limits': 'Negotiated synchronous receiver drive: next BlockQuery acknowledges prior block; no sender-driven or nonzero-offset transfer claimed.'}
 
 
 def query_messages(path, requests=False):
@@ -209,6 +283,7 @@ def main():
     p.add_argument('--valgrind', action='store_true')
     p.add_argument('--require-trace', action='store_true', help='Require and verify actual QueryImageResponse fields, also in update mode.')
     p.add_argument('--apply-binding', action='store_true', help='Verify UpdateToken/NewVersion from peer Query/Apply/Notify traces.')
+    p.add_argument('--bdx-profile', action='store_true', help='Verify ReceiveInit/Accept, all block counters, image bytes and AckEOF from actual peer traces.')
     p.add_argument('--image-version', type=int, choices=(2, 3), default=2, help='Positive update fixture version; enables a nonconstant NewVersion control.')
     a = p.parse_args()
     apply_policy = {'apply-proceed-0': (0, 0), 'apply-proceed-180': (0, 180),
@@ -223,8 +298,10 @@ def main():
         p.error('--stall-provider requires --mode interrupt-retry')
     if a.apply_binding and a.mode != 'update':
         p.error('--apply-binding requires --mode update')
+    if a.bdx_profile and a.mode not in ('update', 'interrupt-retry'):
+        p.error('--bdx-profile requires --mode update or interrupt-retry')
     image_version = {'same-version': 1, 'older-version': 0, 'version-mismatch': 3}.get(a.mode, a.image_version)
-    need_trace = a.events or a.require_trace or a.apply_binding or a.mode not in ('busy-update', 'update')
+    need_trace = a.events or a.require_trace or a.apply_binding or a.bdx_profile or a.mode not in ('busy-update', 'update')
     out = Path(a.output).resolve(); out.mkdir(parents=True, exist_ok=False)
     env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
     report = {'scope': 'CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification',
@@ -580,6 +657,9 @@ def main():
             check('signed-download-and-reboot', node.wait(timeout=30) == 0 and 'authenticated=1 installed=1' in node_text())
             check('download-matches-image', hashlib.sha256((out / 'download.ota').read_bytes()).hexdigest() == report['fixture']['image_sha256'])
             check('provider-received-final-block-ack', 'Transfer completed, got AckEOF' in provider_text())
+            if a.bdx_profile:
+                report['BDX_profile'] = bdx_profile(provider_logs()[-1], out / 'source.ota')
+                check('bdx-peer-binary-transfer-profile', report['BDX_profile']['result'] == 'PASS')
             start_node()
             wait(lambda: 'OTA_NOTIFY_DONE' in node_text(), 90)
             check('notify-update-applied', 'OTA_NOTIFY_DONE success=1' in node_text()

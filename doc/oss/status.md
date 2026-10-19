@@ -7,6 +7,13 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA45: TH run481, BDX1.2/2.2 and IDM1.1 manual PASS; BDX2.3 FAIL.**
+Fresh complete transfer and genuine DUT Invoke evidence pass under Memcheck and
+separate sanitizers. Stalled transfer expires safely, but provider restart does
+not start a new download in the bounded observation. Attribution is pending;
+fresh positive nodes do not waive recovery failure. See [report](csa45-validation.md).
+MANUAL:17 PASS,8 FAIL,14 without outcome. **Next: CSA46 diagnostic/network/group-key coverage.**
+
 **CSA44: original TC-DESC-2.1 manual FAIL, TH run480.**
 Two distinct causes: literal flat PartsList wording conflicts with permitted phased
 hierarchy, and whole-cluster acceptance is still incomplete. Independent Descriptor

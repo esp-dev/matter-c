@@ -1,0 +1,1090 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "previous": "csa44-results.json",
+  "previous_sha256": "2823f2f88967ecb6483806a5cd9b2cf12f0d13024f73cec1437f2604d12f660a",
+  "source_base_commit": "777ae97fa149e8fb77ede430e101f17bc48663ea",
+  "scope": "Original manual BDX1.2/2.2 and IDM1.1 PASS; BDX2.3 FAIL after interrupted transfer does not restart within bounded observation. Complete fresh transfers are separate positive controls, not a waiver of recovery failure.",
+  "classification_changes": [
+    {
+      "case": "TC-BDX-1.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 481
+    },
+    {
+      "case": "TC-BDX-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 481
+    },
+    {
+      "case": "TC-BDX-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 481
+    },
+    {
+      "case": "TC-IDM-1.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 481
+    }
+  ],
+  "official_receipt": {
+    "run_id": 481,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 15:04:08.189264",
+    "observed_utc": "2026-10-19T15:04:09.666324+00:00",
+    "cases": [
+      {
+        "case": "TC-BDX-1.2",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 3
+        },
+        "details": [
+          {
+            "title": "Preconditions",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: DUT sends a ReceiveInit message to TH.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      },
+      {
+        "case": "TC-BDX-2.2",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 5,
+          "TestStateEnum.not_applicable": 2
+        },
+        "details": [
+          {
+            "title": "Preconditions",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: TH sends the first Block message to DUT + DUT sends a BlockAck message back to TH.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: DUT sends the first BlockQuery message to TH + TH sends a Block message back to DUT.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: DUT sends further BlockQuery messages to TH + TH sends further Block messages back to DUT.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: DUT sends a BlockQueryWithSkip message to TH + TH sends a Block message back to DUT.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: TH sends a BlockEOF message to DUT + DUT sends a BlockAckEOF message back to TH",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      },
+      {
+        "case": "TC-BDX-2.3",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.failed": 3,
+          "TestStateEnum.passed": 1
+        },
+        "details": [
+          {
+            "title": "DUT sends a ReceiveInit message to TH + TH sends a ReceiveAccept message back to DUT",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH sends a Block message to DUT + DUT sends a BlockAck message back to TH",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH sends a BlockEOF message to DUT + DUT sends a BlockAckEOF message back to TH",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      },
+      {
+        "case": "TC-IDM-1.1",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 4,
+          "TestStateEnum.not_applicable": 1
+        },
+        "details": [
+          {
+            "title": "Note",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: DUT sends the Invoke Request Message to the TH. The Message should contain one valid CommandDataIB, which has the specific Endpoint, Specific Cluster and Specific Command.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: DUT sends the Invoke Request Message to the TH. The Message should contain the wildcard for Endpoint, specific Cluster and Specific Command in the CommandDataIB.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: DUT sends the Invoke Request Message to the TH. The Message should contain one valid CommandDataIB, which has the specific Endpoint, Specific Cluster and Specific Command. Send 2 more Invoke Request Messages to the TH.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "5b255584b672a5d49d8f835b5b887cbc48c59ede2619ef2d12fe4898777380ae",
+    "raw_result_sha256": "b1646855376ba32196b70a57d380d866d3745868598ca0a4de1fbefa0d7ce82d",
+    "identity": {
+      "source_sha256": {
+        "TC-IDM-1.1": "98b92bd059e5fc5b1d7394e4d07d44a3e3ad7a478b94b562c5e62a1bf2775fbc",
+        "TC-BDX-1.2": "97618039f9641ba928093a13c53456cd79215115a62295b359cf635165414229",
+        "TC-BDX-2.2": "4041459dc91d4f5d99c67b10537a80f127f35a8f1efdd4f6f7548b5596ee520f",
+        "TC-BDX-2.3": "d383c621b31867ae31faef1a3656598573c59cce265fb312c2a7c3e7751ef2bd"
+      },
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "case": "TC-BDX-1.2",
+        "step": 1,
+        "answer": "PASS",
+        "note": "Real provider/requestor OTA setup, interrupted transfer recovery, signed image and restart; original procedure explicitly references TC-SU-2.3.",
+        "utc_ms": 1792422247875
+      },
+      {
+        "case": "TC-BDX-1.2",
+        "step": 2,
+        "answer": "PASS",
+        "note": "Actual binary ReceiveInit: receiver drive0x20, valid range flags, max block1024, nonempty length-delimited file designator. Optional offset/length/metadata absent, effective offset0. Fresh ReceiveAccept agrees with proposed mode and block bound.",
+        "utc_ms": 1792422247878
+      },
+      {
+        "case": "TC-BDX-2.2",
+        "step": 3,
+        "answer": "PASS",
+        "note": "Actual received synchronous receiver-driven OTA transfer after interrupted-transfer timeout; unmodified upstream provider used for successful transfer.",
+        "utc_ms": 1792422247983
+      },
+      {
+        "case": "TC-BDX-2.2",
+        "step": 4,
+        "answer": "NOT APPLICABLE",
+        "note": "Original verification explicitly says Out of scope. Negotiated receiver-drive uses BlockQuery, not ordinary BlockAck.",
+        "utc_ms": 1792422247989
+      },
+      {
+        "case": "TC-BDX-2.2",
+        "step": 5,
+        "answer": "PASS",
+        "note": "Binary peer trace first BlockQuery counter0, followed by Block0 in same exchange.",
+        "utc_ms": 1792422247992
+      },
+      {
+        "case": "TC-BDX-2.2",
+        "step": 6,
+        "answer": "PASS",
+        "note": "Every query and block counter is ascending sequential0..16; complete image bytes/hash match the source, not merely the final log phrase.",
+        "utc_ms": 1792422247995
+      },
+      {
+        "case": "TC-BDX-2.2",
+        "step": 7,
+        "answer": "NOT APPLICABLE",
+        "note": "Original verification explicitly says Out of scope; unsupported BlockQueryWithSkip PICS remains false.",
+        "utc_ms": 1792422247998
+      },
+      {
+        "case": "TC-BDX-2.2",
+        "step": 8,
+        "answer": "PASS",
+        "note": "Final BlockEOF counter16 matches DUT BlockAckEOF counter16; exact transferred image16585 bytes.",
+        "utc_ms": 1792422248001
+      },
+      {
+        "case": "TC-BDX-2.3",
+        "step": 9,
+        "answer": "FAIL",
+        "note": "No new ReceiveInit/Accept appeared within the240s recovery observation after live-stall peer restart and new announcement. Initial stall timeout/discard passed; restarted transfer did not begin. Cause is not yet attributed to native code versus fixture/session prerequisites.",
+        "utc_ms": 1792422248060
+      },
+      {
+        "case": "TC-BDX-2.3",
+        "step": 10,
+        "answer": "FAIL",
+        "note": "Restarted transfer did not begin, so this required restarted-transfer block/ACK observation was not obtained. A separate fresh complete transfer succeeds; that does not turn the restart procedure PASS.",
+        "utc_ms": 1792422248067
+      },
+      {
+        "case": "TC-BDX-2.3",
+        "step": 11,
+        "answer": "FAIL",
+        "note": "Restarted transfer did not begin, so this required restarted-transfer block/ACK observation was not obtained. A separate fresh complete transfer succeeds; that does not turn the restart procedure PASS.",
+        "utc_ms": 1792422248071
+      },
+      {
+        "case": "TC-IDM-1.1",
+        "step": 12,
+        "answer": "PASS",
+        "note": "Use supported OTAProvider commands as original procedure permits. Real C DUT acts Invoke client and the reference provider is the TH peer.",
+        "utc_ms": 1792422248124
+      },
+      {
+        "case": "TC-IDM-1.1",
+        "step": 13,
+        "answer": "PASS",
+        "note": "First actual DUT QueryImage command targets endpoint0/cluster0x29/command0 with exactly one CommandDataIB, verified from incoming provider trace.",
+        "utc_ms": 1792422248132
+      },
+      {
+        "case": "TC-IDM-1.1",
+        "step": 14,
+        "answer": "NOT APPLICABLE",
+        "note": "Original verification explicitly says Out of Scope; no wildcard Invoke is claimed.",
+        "utc_ms": 1792422248137
+      },
+      {
+        "case": "TC-IDM-1.1",
+        "step": 15,
+        "answer": "PASS",
+        "note": "Three further actual DUT invokes target provider endpoint0/cluster0x29: ApplyUpdateRequest2, NotifyUpdateApplied4, then a new QueryImage0 after simulated reboot with preserved fabric. Both captured variants have exactly [0,2,4,0], single CommandDataIB per request, suppressResponse=false, timedRequest=false, IMrevision13. Commands are genuinely sent by C DUT, not chip-tool sent toward DUT.",
+        "utc_ms": 1792422248141
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": {
+      "TC-IDM-1.1": "98b92bd059e5fc5b1d7394e4d07d44a3e3ad7a478b94b562c5e62a1bf2775fbc",
+      "TC-BDX-1.2": "97618039f9641ba928093a13c53456cd79215115a62295b359cf635165414229",
+      "TC-BDX-2.2": "4041459dc91d4f5d99c67b10537a80f127f35a8f1efdd4f6f7548b5596ee520f",
+      "TC-BDX-2.3": "d383c621b31867ae31faef1a3656598573c59cce265fb312c2a7c3e7751ef2bd"
+    },
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_observations": {
+    "memcheck-transfer": {
+      "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+      "driver_sha256": "e2d6aa5451f5fa12bbdd928ba6a5846c68bc2a5c3792ea2700a46d5cff137152",
+      "mode": "update",
+      "valgrind": true,
+      "trace_required": true,
+      "subscriptions_per_fabric": 3,
+      "default_provider": true,
+      "announcement_reason": 1,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792422146561,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 2,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=2; Memcheck"
+        }
+      ],
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "68c7e4849a210291066205f74ad8582e53661f1019c98eb19c34c58d47da7a56",
+        "public_key_sha256": "dd9ed94413078f0e201e46b98cc3a92d1263867c9c189815a8dbba569cfc3a00"
+      },
+      "binaries": {
+        "requestor": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "basic_information": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "query_fields": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "location": "omitted (optional under Core 11.20.6.5.1)",
+      "first_response": {
+        "time_ms": 1792422146561,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "BDX_profile": {
+        "result": "PASS",
+        "transfer_control": 32,
+        "range_control": 0,
+        "proposed_max_block_size": 1024,
+        "accepted_max_block_size": 1024,
+        "start_offset_field": null,
+        "effective_start_offset": 0,
+        "proposed_length_field": null,
+        "accepted_length": null,
+        "file_designator_length": 1,
+        "metadata_bytes": 0,
+        "block_counters": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "eof_counter": 16,
+        "ack_eof_counter": 16,
+        "bytes": 16585,
+        "image_sha256": "68c7e4849a210291066205f74ad8582e53661f1019c98eb19c34c58d47da7a56",
+        "ordinary_BlockAck": false,
+        "limits": "Negotiated synchronous receiver drive: next BlockQuery acknowledges prior block; no sender-driven or nonzero-offset transfer claimed."
+      },
+      "result": "PASS",
+      "restarts": 1,
+      "provider_restarts": 0,
+      "IM_Invoke_client": {
+        "result": "PASS",
+        "commands": [
+          0,
+          2,
+          4,
+          0
+        ],
+        "endpoint": 0,
+        "cluster": 41,
+        "single_command_per_request": true,
+        "suppress_response": false,
+        "timed_request": false,
+        "IM_revision": 13,
+        "scope": "Actual C DUT incoming invokes at provider; First QueryImage and subsequent supported single-command invokes; only a four-request capture covers separate step1 plus three further requests. Post-reboot default-provider query is an additional genuine DUT request.. No wildcard, batched or timed client capability claimed."
+      }
+    },
+    "sanitize-transfer": {
+      "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+      "driver_sha256": "e2d6aa5451f5fa12bbdd928ba6a5846c68bc2a5c3792ea2700a46d5cff137152",
+      "mode": "update",
+      "valgrind": false,
+      "trace_required": true,
+      "subscriptions_per_fabric": 3,
+      "default_provider": true,
+      "announcement_reason": 1,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792422169208,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS",
+          "detail": {
+            "VendorID": 65521,
+            "ProductID": 32769,
+            "SoftwareVersion": 2,
+            "HardwareVersion": 1
+          }
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS",
+          "detail": "boots=2; stderr logs empty"
+        }
+      ],
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "73dc9a6012dc42e2ea7101a3ccf18f6f61ddb124751036c8a4195cfc7f15a3ab",
+        "public_key_sha256": "55b1dcb4812b51c479ad709d3004d6dbfb2934c328c6532a93225fa78c4ec0e3"
+      },
+      "binaries": {
+        "requestor": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "basic_information": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "query_fields": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "location": "omitted (optional under Core 11.20.6.5.1)",
+      "first_response": {
+        "time_ms": 1792422169208,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "BDX_profile": {
+        "result": "PASS",
+        "transfer_control": 32,
+        "range_control": 0,
+        "proposed_max_block_size": 1024,
+        "accepted_max_block_size": 1024,
+        "start_offset_field": null,
+        "effective_start_offset": 0,
+        "proposed_length_field": null,
+        "accepted_length": null,
+        "file_designator_length": 1,
+        "metadata_bytes": 0,
+        "block_counters": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "eof_counter": 16,
+        "ack_eof_counter": 16,
+        "bytes": 16585,
+        "image_sha256": "73dc9a6012dc42e2ea7101a3ccf18f6f61ddb124751036c8a4195cfc7f15a3ab",
+        "ordinary_BlockAck": false,
+        "limits": "Negotiated synchronous receiver drive: next BlockQuery acknowledges prior block; no sender-driven or nonzero-offset transfer claimed."
+      },
+      "result": "PASS",
+      "restarts": 1,
+      "provider_restarts": 0,
+      "IM_Invoke_client": {
+        "result": "PASS",
+        "commands": [
+          0,
+          2,
+          4,
+          0
+        ],
+        "endpoint": 0,
+        "cluster": 41,
+        "single_command_per_request": true,
+        "suppress_response": false,
+        "timed_request": false,
+        "IM_revision": 13,
+        "scope": "Actual C DUT incoming invokes at provider; First QueryImage and subsequent supported single-command invokes; only a four-request capture covers separate step1 plus three further requests. Post-reboot default-provider query is an additional genuine DUT request.. No wildcard, batched or timed client capability claimed."
+      }
+    },
+    "restart": {
+      "scope": "CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification",
+      "driver_sha256": "e2d6aa5451f5fa12bbdd928ba6a5846c68bc2a5c3792ea2700a46d5cff137152",
+      "mode": "interrupt-retry",
+      "valgrind": true,
+      "trace_required": true,
+      "subscriptions_per_fabric": 3,
+      "default_provider": true,
+      "announcement_reason": 1,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS",
+          "detail": "CASE node 1, Operate, endpoint 0 cluster 0x29 only"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS",
+          "detail": 3
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS",
+          "detail": {
+            "identity": {
+              "VendorID": 65521,
+              "ProductID": 32769,
+              "SoftwareVersion": 1,
+              "HardwareVersion": 1
+            },
+            "bdx_synchronous": true,
+            "consent": "0"
+          }
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS",
+          "detail": {
+            "time_ms": 1792421501634,
+            "status": 0,
+            "delay": 0,
+            "uri": "bdx://0000000000000002/0",
+            "version": 2
+          }
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "partial-transfer-before-kill",
+          "status": "PASS",
+          "detail": {
+            "visible_prefix_bytes": 4096,
+            "prefix_sha256": "c0e41a16b776a00fade772455b46e5b8b09100bea565ce033dc4446ae74096f7"
+          }
+        },
+        {
+          "name": "bdx-idle-not-before-five-minutes",
+          "status": "PASS",
+          "detail": {
+            "failure_after_seconds": 300.30496033700183,
+            "provider_still_running": true
+          }
+        },
+        {
+          "name": "bdx-stall-provider-retains-live-process",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "idle-after-five-real-minutes",
+          "status": "PASS",
+          "detail": {
+            "observation_seconds": 301.0805323109962,
+            "failure_observed_after_seconds": 300.30496033700183
+          }
+        },
+        {
+          "name": "version-retained-after-interruption",
+          "status": "PASS",
+          "detail": null
+        }
+      ],
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "3a0b493bd4da790804aa8ab56c0a6d846d496ecc74d80174a2d4adca3d04571d",
+        "public_key_sha256": "f33edfac66ac43d9bbe0de38099a23daba4186468538172659eafbb993981c13"
+      },
+      "binaries": {
+        "requestor": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fault_provider_sha256": "9f7e9aed9b7638aee2f2f563d273a7219c22624fc2c63a692f63e8bded52c6b9",
+      "basic_information": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "query_fields": {
+        "VendorID": 65521,
+        "ProductID": 32769,
+        "SoftwareVersion": 1,
+        "HardwareVersion": 1
+      },
+      "location": "omitted (optional under Core 11.20.6.5.1)",
+      "first_response": {
+        "time_ms": 1792421501634,
+        "status": 0,
+        "delay": 0,
+        "uri": "bdx://0000000000000002/0",
+        "version": 2
+      },
+      "interruption_start_utc_ms": 1792421507766,
+      "interruption_fault": "BDX-data-stall-with-live-MRP",
+      "interruption": {
+        "observation_seconds": 301.0805323109962,
+        "failure_observed_after_seconds": 300.30496033700183
+      },
+      "result": "FAIL",
+      "error": "OTA condition timed out"
+    }
+  },
+  "independent_receipts": {
+    "memcheck-transfer": {
+      "result": "PASS",
+      "checks_PASS": 16,
+      "driver_sha256": "e2d6aa5451f5fa12bbdd928ba6a5846c68bc2a5c3792ea2700a46d5cff137152",
+      "binaries": {
+        "requestor": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "result_sha256": "be5abe66bc5aac6517d12d892575399fd799e94e8a88c4f24460cf13c77897f8",
+      "node_stderr_empty": true,
+      "provider_logs_sha256": {
+        "provider.log": "3a5b567eb52a08e357882f59ea1633796b6c15cf99420615eea21db3e24b46db"
+      },
+      "memory": [
+        {
+          "boot": 1,
+          "allocations": 35599,
+          "frees": 35599,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "13e1d6adad6c5494f45469185ddc89cc40c160f9afc554727df6c8118cd1cb24"
+        },
+        {
+          "boot": 2,
+          "allocations": 19573,
+          "frees": 19573,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "f08367e26e7660b72fab3021849c3bb387eacd570fc13cab4e63ebc091ff2e41"
+        }
+      ]
+    },
+    "sanitize-transfer": {
+      "result": "PASS",
+      "checks_PASS": 16,
+      "driver_sha256": "e2d6aa5451f5fa12bbdd928ba6a5846c68bc2a5c3792ea2700a46d5cff137152",
+      "binaries": {
+        "requestor": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "result_sha256": "a2c1d55c741a73f88d490a2b18ff27c3ad7b65ef0dd4d8478bfc37e33107da90",
+      "node_stderr_empty": true,
+      "provider_logs_sha256": {
+        "provider.log": "14f5f1c24af52f7e0d183cb393f31b0bb7aed527fe917f04267641f4baeace12"
+      },
+      "memory": []
+    },
+    "memcheck-restart": {
+      "result": "FAIL",
+      "checks_PASS": 13,
+      "driver_sha256": "e2d6aa5451f5fa12bbdd928ba6a5846c68bc2a5c3792ea2700a46d5cff137152",
+      "binaries": {
+        "requestor": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "result_sha256": "0d5cdc9169497515b09a7508ffd32a75507bc19a9143455e29d5861149101667",
+      "node_stderr_empty": true,
+      "provider_logs_sha256": {
+        "provider-2.log": "23d86fb59b257549b7f6180bead0422a1515164cbf58fcbb63467228209efa5b",
+        "provider.log": "b243fd7f7a141db8bf264ea6062280b64ad8e382823784e7182dc16af221974f"
+      },
+      "memory": [
+        {
+          "boot": 1,
+          "allocations": 31317,
+          "frees": 31317,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "276198e6d27878128cf08dac92bba0860af03a41fbfb3cdf7f21299bcae54d88"
+        }
+      ]
+    },
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "4a870b63b8f4de2633c6eb42c984446809e38fbedffed4b93bf1abad463fe184",
+        "build_log_sha256": "0c1acb5cae5d2163fa58daf9361004a51edc4de6b83cc9134683eb522bb235e7"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "8d4dbf3155d82d1596f4eb406a0d6b73ddfe46ba277df4a62a6844c0594a8d34",
+        "build_log_sha256": "0c1acb5cae5d2163fa58daf9361004a51edc4de6b83cc9134683eb522bb235e7"
+      }
+    },
+    "disposable_nodes_stopped": true
+  },
+  "oracle_controls": {
+    "rejected_controls": [
+      "counter",
+      "final-ACK",
+      "image-byte",
+      "negotiated-mode"
+    ],
+    "count": 4,
+    "fixture": "Retained real successful OTA trace; mutated in-memory counter, final ACK, image octet and mode."
+  },
+  "native_identity": {
+    "source_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_inputs_unchanged": 362,
+    "remote_source_receipt": {
+      "count": 362,
+      "all_match": true
+    },
+    "binary_compiled_in": "csa35-results.json",
+    "new_host_compilation": false,
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "4a870b63b8f4de2633c6eb42c984446809e38fbedffed4b93bf1abad463fe184",
+        "build_log_sha256": "0c1acb5cae5d2163fa58daf9361004a51edc4de6b83cc9134683eb522bb235e7"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "8d4dbf3155d82d1596f4eb406a0d6b73ddfe46ba277df4a62a6844c0594a8d34",
+        "build_log_sha256": "0c1acb5cae5d2163fa58daf9361004a51edc4de6b83cc9134683eb522bb235e7"
+      }
+    }
+  },
+  "normative_basis": {
+    "specification": "Core R1.6.1",
+    "sections": [
+      "8.8 Invoke interaction",
+      "11.22.5 Send/ReceiveInit and Accept",
+      "11.22.6 binary blocks and counters",
+      "11.22.6.2 implicit ACK through next BlockQuery"
+    ],
+    "profile": "Negotiated synchronous receiver-drive0x20, 1024-byte blocks, absent optional range offset/length, effective start0. Nonzero resume/sender drive not declared as tested."
+  },
+  "coverage": {
+    "complete_transfer_checks_PASS": 32,
+    "failed_restart_preliminary_checks_PASS": 13,
+    "manual_PASS": 17,
+    "manual_FAIL": 8,
+    "manual_without_outcome": 14,
+    "positions": 862,
+    "image_bytes_per_complete_transfer": 16585,
+    "blocks_per_complete_transfer": 17,
+    "mutated_oracle_controls_rejected": 4
+  },
+  "commands": [
+    "python tools/matter/tests/test_ota_chip_provider.py --mode interrupt-retry --bdx-profile --default-provider --valgrind --stall-provider LAB_PROVIDER with disposable files and existing binaries",
+    "python tools/matter/tests/test_ota_chip_provider.py --mode update --bdx-profile --default-provider --valgrind; separately repeat sanitizer without Valgrind",
+    "Post-decode actual incoming DUT InvokeRequest documents through trace_messages/tlv_document: exact single CommandDataIB, endpoint0/cluster0x29, commands[0,2,4,0], booleans and revision13",
+    "cmake --build BUILD --target test_bdx test_ota_requestor -j2",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_bdx|test_ota_requestor)$'",
+    "python tools/matter/csa_campaign.py --write",
+    "python tools/matter/csa_campaign.py",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "secrets_and_raw_traces_outside_Git": true
+  },
+  "limits": [
+    "Original manual/operator outcomes, not fully automated certification.",
+    "Restart scenario is FAIL and not rerun under sanitizers: no new QueryImage within240s after provider restart/announcement. Only the ordinary complete transfer gets separate sanitizer repetition.",
+    "Initial live-MRP BDX stall expires after at least300 real seconds, partial image discarded and old version retained. Restart failure attribution to native behavior versus fixture/session prerequisites is deferred.",
+    "Fresh positive nodes use separate disposable state; they are not successful recovery of the failed node. Operator precondition shorthand about the interrupted scenario must not be read as successful restart.",
+    "No sender drive, nonzero-offset resume, BlockQueryWithSkip or wildcard Invoke coverage claimed. Original explicitly out-of-scope steps answered NOT APPLICABLE.",
+    "No native/PICS/API change or new host compilation; no physical/Home UI, embedded RAM or full-matrix run."
+  ],
+  "next": {
+    "stage": "CSA46",
+    "cases": [
+      "TC-DGGEN-2.2",
+      "TC-DGWIFI-2.2",
+      "TC-CNET-4.13",
+      "TC-GRPKEY-5.4"
+    ],
+    "status": "NOT_RUN",
+    "scope": "Existing restart diagnostics plus actual BootReason events, frozen optional-event PICS, WiFi reorder simulation and CacheAndSync rejection; preserve physical/BLE limits."
+  }
+}

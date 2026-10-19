@@ -513,3 +513,7 @@ CSA44 records original TC-DESC-2.1 FAIL, TH run480: flat PartsList wording and
 incomplete whole-device cluster acceptance. Independent five-endpoint Descriptor/
 served-catalog acceptance passes 117 checks per memory variant without native changes.
 See [CSA44 evidence](doc/oss/csa44-validation.md). Continue with BDX receiver coverage.
+
+CSA45 records TH run481: BDX1.2/2.2 and IDM1.1 manual PASS; BDX2.3 restart FAIL.
+Real binary transfer/image/counter checks and four DUT-originated invokes are
+separate from the failed recovery. See [CSA45 evidence](doc/oss/csa45-validation.md).
