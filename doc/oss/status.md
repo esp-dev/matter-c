@@ -7,6 +7,13 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA46: TH run482, DGGEN2.2/DGWIFI2.2/GRPKEY5.4 manual PASS; CNET4.13 FAIL.**
+BootReason, simulated network reorder/rollback/commit and unsupported policy
+rejection pass50 Memcheck and47 separate sanitizer checks. Optional physical fault
+and Wi-Fi event steps are NOT APPLICABLE from frozen PICS. CNET retains absent
+BLE precondition and add-loop arithmetic discrepancy. See [report](csa46-validation.md).
+MANUAL:20 PASS,9 FAIL,10 without outcome. **Next: CSA47 applicability/prerequisite review.**
+
 **CSA45: TH run481, BDX1.2/2.2 and IDM1.1 manual PASS; BDX2.3 FAIL.**
 Fresh complete transfer and genuine DUT Invoke evidence pass under Memcheck and
 separate sanitizers. Stalled transfer expires safely, but provider restart does

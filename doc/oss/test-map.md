@@ -300,3 +300,7 @@ See [CSA44 evidence](csa44-validation.md). Continue with BDX receiver coverage.
 CSA45 records TH run481: BDX1.2/2.2 and IDM1.1 manual PASS; BDX2.3 restart FAIL.
 Real binary transfer/image/counter checks and four DUT-originated invokes are
 separate from the failed recovery. See [CSA45 evidence](csa45-validation.md).
+
+CSA46 records TH run482: DGGEN2.2/DGWIFI2.2/GRPKEY5.4 manual PASS with explicit
+optional-event NAs; CNET4.13 FAIL retains BLE/arithmetic limits. Functional BootReason,
+network reorder/rollback/commit and policy rejection pass. See [CSA46 evidence](csa46-validation.md).

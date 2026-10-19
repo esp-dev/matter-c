@@ -1,0 +1,1481 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "previous": "csa45-results.json",
+  "previous_sha256": "7c58e10e7492001de25bab4a7514bcff5f3d9341abe7976d5d1169810ff65049",
+  "source_base_commit": "fef4df82ce7cbc82f47f49a6a05dfa670b4b0f52",
+  "scope": "Original DGGEN2.2/DGWIFI2.2/GRPKEY5.4 manual PASS, CNET4.13 FAIL for absent BLE precondition and inconsistent add-loop arithmetic. Functional Wi-Fi reorder/rollback/commit, BootReason and unsupported CacheAndSync rejection pass on x86.",
+  "classification_changes": [
+    {
+      "case": "TC-CNET-4.13",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 482
+    },
+    {
+      "case": "TC-DGGEN-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 482
+    },
+    {
+      "case": "TC-DGWIFI-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 482
+    },
+    {
+      "case": "TC-GRPKEY-5.4",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 482
+    }
+  ],
+  "official_receipt": {
+    "run_id": 482,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 15:16:00.331893",
+    "observed_utc": "2026-10-19T15:16:01.796720+00:00",
+    "cases": [
+      {
+        "case": "TC-CNET-4.13",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.failed": 3,
+          "TestStateEnum.passed": 23
+        },
+        "details": [
+          {
+            "title": "Preconditions",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Commission TH and DUT over BLE to setup the Wi-Fi",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: TH sendsArmFailSafecommand to theDUT withExpiryLengthSeconds set to 900",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: TH readsNetworksattribute from theDUT and saves thenumber of entries as 'NumNetworks'",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: TH calculates thenumber ofremainingnetwork slots as'MaxNetworksValue' -'NumNetworks'and saves as'RemainingNetworkSlots'",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: TH1 sends AddOrUpdateWiFiNetwork command to the DUT with SSID argument value as 'Userwifi_ssid2', Credentials argument value as 'Userwifi_Credentials' and Breadcrumb argument value as 1",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: TH calculates the midpoint of the network list as floor(('MaxNetwor ksValue' + 1)/2) and saves as 'Midpoint'",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: TH sends ArmFailSafe command to the DUT with the ExpiryLengthSeco nds field set to 900",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: TH sendsAddOrUpdateWiFiNetworkcommand to theDUT. This stepshould be repeated'RemainingNetworkSlots' times usingDIFFERENT SSIDand credentialvalues and theBreadcrumb fieldset to 1. Note thatthese credentialsare NOT requiredto be connectable.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 6: TH readsNetworksattribute from theDUT and saves thelist as'OriginalNetworkList'",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 7: TH sends ReorderNetwo rk Command to the DUT with the following fields: 1. NetworkID is PIXIT.CNET .WIFI_1ST_ ACCESSPOI NT_SSID 2. NetworkIn dex is 'MaxNetwo rksValue' 3. Breadcrum b is 2",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 8: TH reads Breadcumb attribute from the General Commissioning Cluster",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 9: TH sendsReorderNetwork Commandto the DUTwith thefollowingfields: 1. NetworkIDis aNetworkIDvalue NOTpresent in'OriginalNetworkList'2.NetworkIn dex is'Midpoint'3.Breadcrumb is 2",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 10: TH reads Breadcumb attribute from the General Commissioning Cluster",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 11: TH sends ReorderNetwo rk Command to the DUT with the following fields: 1. NetworkID is PIXIT.CNET .WIFI_1ST_ ACCESSPOI NT_SSID 2. NetworkIn dex is 'Midpoint' 3. Breadcrum b is 2",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 12: TH readsBreadcumbattribute from theGeneralCommissioningCluster",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 13: TH readsNetworksattribute list fromthe DUT",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 14: TH sendsArmFailSafecommand to theDUT withExpiryLengthSeconds set to 0",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 15: TH readsNetworksattribute list fromthe DUT",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 16: TH sends ArmFailSafe command to the DUT with ExpiryLengthSeco nds set to 900",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 17: TH sendsAddOrUpdateWiFiNetworkcommand to theDUT. This stepshould be repeated'RemainingNetworkSlots' times usingDIFFERENT SSIDand credentialvalues and Breadcrumb fieldset to 1. Note thatthese credentialsare NOT requiredto be connectable.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 18: TH sendsReorderNetwork Commandto the DUTwith thefollowingfields: 1. NetworkIDisPIXIT.CNET.WIFI_1ST_ACCESSPOINT_SSID2.NetworkIndex is 'Midpoint'3.Breadcrumb is 2",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 19: TH sends the CommissioningCo mplete command to the DUT",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 20: TH sendsArmFailSafecommand to theDUT withExpiryLengthSeconds set to 0",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 21: TH readsNetworksattribute list fromthe DUT",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      },
+      {
+        "case": "TC-DGGEN-2.2",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 4,
+          "TestStateEnum.not_applicable": 3
+        },
+        "details": [
+          {
+            "title": "Note",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: Commission DUT to TH",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: Induce a DUT hardware failure two times as addressed in HardwareFault ENUM table 11.11.6.1. (Ex. Pull the DUT power plug off causing power source failure, and rejoin DUT back to previous TH fabric. Next, repeat power plug off and rejoining DUT back to previous TH fabric one more time.)",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: Induce a DUT radio failure two times as addressed in RadioFault ENUM table 11.11.6.2. (Ex. Put the DUT under metallic cover causing WiFi failure. Uncover DUT and make DUT rejoining DUT back to previous TH fabric. Repeat the radio failure one more time and rejoin DUT back to previous TH fabric.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: Induce a DUT radio failure two times as addressed in NetworkFault ENUM table 11.11.6.3. (Ex. Put the DUT under metallic cover causing network failure. Uncover DUT and rejoin DUT back to previous TH fabric. Pull the DUT power plug off causing power source failure. rejoining DUT back to previous TH fabric.)",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: Reboot DUT with a normal reboot process. Rejoin DUT back to previous TH fabric.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      },
+      {
+        "case": "TC-DGWIFI-2.2",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 2,
+          "TestStateEnum.not_applicable": 3
+        },
+        "details": [
+          {
+            "title": "Step 1: Commission DUT to TH",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: Disconnect node WiFi as a result of de-authentication or dis-association.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: Disconnect node WiFi as a result of de-authentication or dis-association. DUT exhausts all internal retries.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: Disconnect and reconnect node WiFi.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      },
+      {
+        "case": "TC-GRPKEY-5.4",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 2,
+          "TestStateEnum.not_applicable": 3
+        },
+        "details": [
+          {
+            "title": "Step 1: Admin sends KeySetWrite command by setting GroupKeySecurityPolicy to CacheAndSync to GroupKeyManagement cluster on the DUT Note: KeySetWrite command is sent by setting the following fields to the corresponding values. Values given below are for reference purpose. groupKeySetID: 0x01a3 groupKeySecurityPolicy: CacheAndSync (1) epochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf epochStartTime0: 1 epochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf epochStartTime1: 2220001 epochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf epochStartTime2: 2220002",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: Admin sends KeySetWrite command by setting the values as given in Step 1",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: Admin maps GroupId 0x0103 with GroupKeySetID 0x01a3 in the GroupKeyMap attribute list on GroupKeyManagement cluster on the DUT",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: Admin sends KeySetRead Command to DUT",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "43e9e0e59104372f49ddcedcf20b70da4f53af43631e8a0a55decc37f3b8ba2b",
+    "raw_result_sha256": "1db610239293f1b6323cca66f0475f52a66f798272cd7a61dc53e298f11023a4",
+    "identity": {
+      "source_sha256": {
+        "TC-DGGEN-2.2": "d25e62b89a33ec487a981d1304577e810841124a92c7e55d42c9d8b74b4bc4fb",
+        "TC-DGWIFI-2.2": "7173185acf142342ca43ec3fe9cde038a21edf9e4d543c952c78f769efa8f7cc",
+        "TC-CNET-4.13": "e41504240ec78e1e53cfdca7c79d98846a142eb27f3526b4540e79b133b08b9e",
+        "TC-GRPKEY-5.4": "ddab7bab1e19f3d11522218e22349e568b0fdad3753d7ebfee39aabe8881a82d"
+      },
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "case": "TC-CNET-4.13",
+        "step": 1,
+        "answer": "FAIL",
+        "note": "Literal BLE commissioning precondition was not executed: host is IP-only with a simulated Wi-Fi backend. Independently read root ServerList includes0x31, FeatureMap1 and MaxNetworks4. These do not prove BLE.",
+        "utc_ms": 1792422959764
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 2,
+        "answer": "FAIL",
+        "note": "No physical BLE commissioning of the Wi-Fi backend was performed. A real CASE connection to the x86 Node is used for functional commands.",
+        "utc_ms": 1792422959773
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 3,
+        "answer": "PASS",
+        "note": "ArmFailSafe900 succeeds after committed primary setup.",
+        "utc_ms": 1792422959779
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 4,
+        "answer": "PASS",
+        "note": "Baseline Networks has one connected primary; NumNetworks1.",
+        "utc_ms": 1792422959787
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 5,
+        "answer": "PASS",
+        "note": "MaxNetworks4 minus baseline1 gives3 initially remaining slots.",
+        "utc_ms": 1792422959792
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 6,
+        "answer": "PASS",
+        "note": "First additional SSID written with Breadcrumb1.",
+        "utc_ms": 1792422959798
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 7,
+        "answer": "PASS",
+        "note": "floor((4+1)/2)=2, used as networkIndex2.",
+        "utc_ms": 1792422959805
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 8,
+        "answer": "PASS",
+        "note": "ArmFailSafe900 is sent again before remaining additions.",
+        "utc_ms": 1792422959811
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 9,
+        "answer": "FAIL",
+        "note": "Literal original count says repeat3 additions after already adding one network, which exceeds the original3 free slots. Functional fixture fills the2 actually remaining slots and verifies capacity4; literal3-new-ID loop at this point is not performed. Preserve procedure arithmetic discrepancy, not a native failure.",
+        "utc_ms": 1792422959819
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 10,
+        "answer": "PASS",
+        "note": "OriginalNetworkList contains4 distinct network IDs.",
+        "utc_ms": 1792422959825
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 11,
+        "answer": "PASS",
+        "note": "Existing primary, index4 (outside count4), Breadcrumb2: networkingStatus1 OutOfRange; list unchanged.",
+        "utc_ms": 1792422959831
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 12,
+        "answer": "PASS",
+        "note": "Breadcrumb remains1 after rejected index.",
+        "utc_ms": 1792422959836
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 13,
+        "answer": "PASS",
+        "note": "Absent network ID at index2: networkingStatus3 NetworkIDNotFound; list unchanged.",
+        "utc_ms": 1792422959842
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 14,
+        "answer": "PASS",
+        "note": "Breadcrumb remains1 after absent-ID rejection.",
+        "utc_ms": 1792422959849
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 15,
+        "answer": "PASS",
+        "note": "Primary moved successfully to index2, networkingStatus0.",
+        "utc_ms": 1792422959855
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 16,
+        "answer": "PASS",
+        "note": "Successful reorder changes Breadcrumb to2.",
+        "utc_ms": 1792422959861
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 17,
+        "answer": "PASS",
+        "note": "Actual full list matches the stable move of primary to index2.",
+        "utc_ms": 1792422959865
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 18,
+        "answer": "PASS",
+        "note": "ArmFailSafe0 disarms and rolls back tentative network additions/order.",
+        "utc_ms": 1792422959870
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 19,
+        "answer": "PASS",
+        "note": "Networks equals the original committed one-entry baseline.",
+        "utc_ms": 1792422959878
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 20,
+        "answer": "PASS",
+        "note": "ArmFailSafe900 arms a fresh transaction.",
+        "utc_ms": 1792422959883
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 21,
+        "answer": "PASS",
+        "note": "All3 available network slots filled with distinct SSIDs and Breadcrumb1.",
+        "utc_ms": 1792422959891
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 22,
+        "answer": "PASS",
+        "note": "Primary successfully moved to index2 again with Breadcrumb2.",
+        "utc_ms": 1792422959898
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 23,
+        "answer": "PASS",
+        "note": "CommissioningComplete returns errorCode0.",
+        "utc_ms": 1792422959905
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 24,
+        "answer": "PASS",
+        "note": "ArmFailSafe0 after commit succeeds.",
+        "utc_ms": 1792422959912
+      },
+      {
+        "case": "TC-CNET-4.13",
+        "step": 25,
+        "answer": "PASS",
+        "note": "All4 networks and committed order remain; primary still at index2.",
+        "utc_ms": 1792422959919
+      },
+      {
+        "case": "TC-DGGEN-2.2",
+        "step": 26,
+        "answer": "PASS",
+        "note": "Use equivalent native host boot-event interface rather than all-clusters-app FIFO. No hardware/radio fault induced; PICS disables those optional events.",
+        "utc_ms": 1792422959975
+      },
+      {
+        "case": "TC-DGGEN-2.2",
+        "step": 27,
+        "answer": "PASS",
+        "note": "Actual unmodified chip-tool commissions native DUT with attestation, CASE and CommissioningComplete; commissioning retained on process restart.",
+        "utc_ms": 1792422959982
+      },
+      {
+        "case": "TC-DGGEN-2.2",
+        "step": 28,
+        "answer": "NOT APPLICABLE",
+        "note": "DGGEN.S.E00=false in unchanged PICS; HardwareFaultChange not supported or claimed.",
+        "utc_ms": 1792422959994
+      },
+      {
+        "case": "TC-DGGEN-2.2",
+        "step": 29,
+        "answer": "NOT APPLICABLE",
+        "note": "DGGEN.S.E01=false; RadioFaultChange not supported or claimed.",
+        "utc_ms": 1792422959999
+      },
+      {
+        "case": "TC-DGGEN-2.2",
+        "step": 30,
+        "answer": "NOT APPLICABLE",
+        "note": "DGGEN.S.E02=false; NetworkFaultChange not supported or claimed.",
+        "utc_ms": 1792422960007
+      },
+      {
+        "case": "TC-DGGEN-2.2",
+        "step": 31,
+        "answer": "PASS",
+        "note": "After normal simulated Node process restart, CASE reads BootReason event at path0/0x33/3, reason1 matches attribute and permitted enum. EventNumber advances1 to33 with retained fabric. Factory reset/recommission gives fresh BootReason1/event1. No physical-device reboot claimed.",
+        "utc_ms": 1792422960014
+      },
+      {
+        "case": "TC-DGWIFI-2.2",
+        "step": 32,
+        "answer": "PASS",
+        "note": "Actual native host is commissioned and reachable over CASE; network diagnostics profile uses simulated backend.",
+        "utc_ms": 1792422960064
+      },
+      {
+        "case": "TC-DGWIFI-2.2",
+        "step": 33,
+        "answer": "NOT APPLICABLE",
+        "note": "DGWIFI.S.E00=false: optional Disconnection event not declared, no physical deauthentication tested.",
+        "utc_ms": 1792422960075
+      },
+      {
+        "case": "TC-DGWIFI-2.2",
+        "step": 34,
+        "answer": "NOT APPLICABLE",
+        "note": "DGWIFI.S.E01=false: optional AssociationFailure event not declared, no radio retries claimed.",
+        "utc_ms": 1792422960088
+      },
+      {
+        "case": "TC-DGWIFI-2.2",
+        "step": 35,
+        "answer": "NOT APPLICABLE",
+        "note": "DGWIFI.S.E02=false: optional ConnectionStatus event not declared, no reconnect-event payload tested.",
+        "utc_ms": 1792422960094
+      },
+      {
+        "case": "TC-GRPKEY-5.4",
+        "step": 36,
+        "answer": "PASS",
+        "note": "FeatureMap0 confirms CacheAndSync absent. Actual valid KeySetWrite with policy1 and three fixed public epoch-key fixtures returns IM InvalidCommand0x85. KeySetRead of that ID returns NotFound0x8b, proving the rejected set was not created.",
+        "utc_ms": 1792422960175
+      },
+      {
+        "case": "TC-GRPKEY-5.4",
+        "step": 37,
+        "answer": "NOT APPLICABLE",
+        "note": "GRPKEY.S.F00=false: CacheAndSync-specific positive write not applicable.",
+        "utc_ms": 1792422960195
+      },
+      {
+        "case": "TC-GRPKEY-5.4",
+        "step": 38,
+        "answer": "NOT APPLICABLE",
+        "note": "CacheAndSync feature absent; no positive map for unsupported CacheAndSync asserted.",
+        "utc_ms": 1792422960215
+      },
+      {
+        "case": "TC-GRPKEY-5.4",
+        "step": 39,
+        "answer": "NOT APPLICABLE",
+        "note": "CacheAndSync feature absent; no positive read of such a set asserted. Independent absent-set read returned NotFound.",
+        "utc_ms": 1792422960235
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": {
+      "TC-DGGEN-2.2": "d25e62b89a33ec487a981d1304577e810841124a92c7e55d42c9d8b74b4bc4fb",
+      "TC-DGWIFI-2.2": "7173185acf142342ca43ec3fe9cde038a21edf9e4d543c952c78f769efa8f7cc",
+      "TC-CNET-4.13": "e41504240ec78e1e53cfdca7c79d98846a142eb27f3526b4540e79b133b08b9e",
+      "TC-GRPKEY-5.4": "ddab7bab1e19f3d11522218e22349e568b0fdad3753d7ebfee39aabe8881a82d"
+    },
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_observations": {
+    "complete-memcheck-profile": {
+      "scope": "General Diagnostics on a disposable x86 node, using unmodified chip-tool.\n\nProcess lifetime is the simulated Node lifetime. Checks real elapsed time,\nrestart/persistence, factory reset and the declared simulated interface.\nRun Memcheck and ASan/UBSan/LSan separately. Not official CSA acceptance.\n",
+      "checks": [
+        {
+          "name": "first-attestation",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "groupkey-cache-sync-feature-absent",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "groupkey-cache-sync-invalid-command",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "groupkey-rejected-set-not-created",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-wifi-cluster-feature",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-original-network-count",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-full-network-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-out-of-range-preserves-breadcrumb",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-absent-id-preserves-breadcrumb",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-moves-network-and-breadcrumb",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-disarm-rolls-back-added-networks",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-complete-persists-after-disarm",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "first-boot-event-present",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "first-boot-event-matches-attribute",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-reboot-count",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-node-uptime-not-os-uptime",
+          "status": "PASS",
+          "detail": {
+            "uptime_s": 14,
+            "process_elapsed_s": 15.423241537995636
+          }
+        },
+        {
+          "name": "fresh-operational-hours-zero",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "power-on-boot-reason",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-selected-interface",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-ipv4-addresses",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-ipv6-including-link-local",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "active-hardware-faults-empty-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "active-radio-faults-empty-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "active-network-faults-empty-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "test-event-triggers-disabled",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "uptime-after-real10s",
+          "status": "PASS",
+          "detail": {
+            "uptime_s": 25,
+            "process_elapsed_s": 26.06016651634127
+          }
+        },
+        {
+          "name": "uptime-increments-with-elapsed-time",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-stop-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "restart-boot-event-present",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "restart-boot-event-matches-attribute",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "restart-emits-new-boot-event-number",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reboot-count-increments-after-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "uptime-resets-after-restart",
+          "status": "PASS",
+          "detail": {
+            "uptime_s": 5,
+            "process_elapsed_s": 6.514955798629671
+          }
+        },
+        {
+          "name": "restart-uptime-below-pre-restart-value",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "hours-retained-after-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-stop-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-attestation",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-boot-event-present",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-boot-event-matches-attribute",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-reboot-count",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-hours-zero",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-uptime",
+          "status": "PASS",
+          "detail": {
+            "uptime_s": 11,
+            "process_elapsed_s": 12.284982596989721
+          }
+        },
+        {
+          "name": "clean-stop-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memcheck-clean-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memcheck-clean-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "memcheck-clean-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "csa-related-functionality",
+          "status": "PASS",
+          "detail": {
+            "TC_GRPKEY_5_4": {
+              "result": "PASS",
+              "CacheAndSync": false,
+              "write_status": 133,
+              "read_status": 139
+            },
+            "TC_CNET_4_13": {
+              "functional_result": "PASS",
+              "BLE_precondition": "NOT_PERFORMED",
+              "backend": "simulated Wi-Fi over real CASE/IPv6",
+              "max_networks": 4,
+              "midpoint": 2,
+              "rollback": true,
+              "commit": true
+            }
+          }
+        }
+      ],
+      "valgrind": true,
+      "driver_sha256": "48bf299bc6994acb5c11cec56840eb9bd49ab983c2b0ce9e8c864bd9d948a597",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "application_profile": {
+        "TC_GRPKEY_5_4": {
+          "result": "PASS",
+          "CacheAndSync": false,
+          "write_status": 133,
+          "read_status": 139
+        },
+        "TC_CNET_4_13": {
+          "functional_result": "PASS",
+          "BLE_precondition": "NOT_PERFORMED",
+          "backend": "simulated Wi-Fi over real CASE/IPv6",
+          "max_networks": 4,
+          "midpoint": 2,
+          "rollback": true,
+          "commit": true
+        }
+      },
+      "boot_events": [
+        {
+          "event_number": 1,
+          "boot_reason": 1,
+          "scope": "Restart of simulated Node process, not hardware reboot."
+        },
+        {
+          "event_number": 33,
+          "boot_reason": 1,
+          "scope": "Restart of simulated Node process, not hardware reboot."
+        },
+        {
+          "event_number": 1,
+          "boot_reason": 1,
+          "scope": "Restart of simulated Node process, not hardware reboot."
+        }
+      ],
+      "network_capture_sha256": "70923cc1f6b1b01230b67f19ee4d32b1acff68ff65c8dfdf5dbca14042b4747f",
+      "result": "PASS"
+    },
+    "complete-sanitize-profile": {
+      "scope": "General Diagnostics on a disposable x86 node, using unmodified chip-tool.\n\nProcess lifetime is the simulated Node lifetime. Checks real elapsed time,\nrestart/persistence, factory reset and the declared simulated interface.\nRun Memcheck and ASan/UBSan/LSan separately. Not official CSA acceptance.\n",
+      "checks": [
+        {
+          "name": "first-attestation",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "groupkey-cache-sync-feature-absent",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "groupkey-cache-sync-invalid-command",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "groupkey-rejected-set-not-created",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-wifi-cluster-feature",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-original-network-count",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-full-network-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-out-of-range-preserves-breadcrumb",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-absent-id-preserves-breadcrumb",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-moves-network-and-breadcrumb",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-disarm-rolls-back-added-networks",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reorder-complete-persists-after-disarm",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "first-boot-event-present",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "first-boot-event-matches-attribute",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-reboot-count",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "fresh-node-uptime-not-os-uptime",
+          "status": "PASS",
+          "detail": {
+            "uptime_s": 6,
+            "process_elapsed_s": 7.001721132081002
+          }
+        },
+        {
+          "name": "fresh-operational-hours-zero",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "power-on-boot-reason",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-selected-interface",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-ipv4-addresses",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-ipv6-including-link-local",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "active-hardware-faults-empty-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "active-radio-faults-empty-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "active-network-faults-empty-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "test-event-triggers-disabled",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "uptime-after-real10s",
+          "status": "PASS",
+          "detail": {
+            "uptime_s": 17,
+            "process_elapsed_s": 17.55178878409788
+          }
+        },
+        {
+          "name": "uptime-increments-with-elapsed-time",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-stop-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "restart-boot-event-present",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "restart-boot-event-matches-attribute",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "restart-emits-new-boot-event-number",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "reboot-count-increments-after-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "uptime-resets-after-restart",
+          "status": "PASS",
+          "detail": {
+            "uptime_s": 1,
+            "process_elapsed_s": 1.9009760050103068
+          }
+        },
+        {
+          "name": "restart-uptime-below-pre-restart-value",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "hours-retained-after-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-stop-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-attestation",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-boot-event-present",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-boot-event-matches-attribute",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-reboot-count",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-hours-zero",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "factory-reset-uptime",
+          "status": "PASS",
+          "detail": {
+            "uptime_s": 3,
+            "process_elapsed_s": 3.92870293231681
+          }
+        },
+        {
+          "name": "clean-stop-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "empty-host-stderr-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "csa-related-functionality",
+          "status": "PASS",
+          "detail": {
+            "TC_GRPKEY_5_4": {
+              "result": "PASS",
+              "CacheAndSync": false,
+              "write_status": 133,
+              "read_status": 139
+            },
+            "TC_CNET_4_13": {
+              "functional_result": "PASS",
+              "BLE_precondition": "NOT_PERFORMED",
+              "backend": "simulated Wi-Fi over real CASE/IPv6",
+              "max_networks": 4,
+              "midpoint": 2,
+              "rollback": true,
+              "commit": true
+            }
+          }
+        }
+      ],
+      "valgrind": false,
+      "driver_sha256": "48bf299bc6994acb5c11cec56840eb9bd49ab983c2b0ce9e8c864bd9d948a597",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "application_profile": {
+        "TC_GRPKEY_5_4": {
+          "result": "PASS",
+          "CacheAndSync": false,
+          "write_status": 133,
+          "read_status": 139
+        },
+        "TC_CNET_4_13": {
+          "functional_result": "PASS",
+          "BLE_precondition": "NOT_PERFORMED",
+          "backend": "simulated Wi-Fi over real CASE/IPv6",
+          "max_networks": 4,
+          "midpoint": 2,
+          "rollback": true,
+          "commit": true
+        }
+      },
+      "boot_events": [
+        {
+          "event_number": 1,
+          "boot_reason": 1,
+          "scope": "Restart of simulated Node process, not hardware reboot."
+        },
+        {
+          "event_number": 33,
+          "boot_reason": 1,
+          "scope": "Restart of simulated Node process, not hardware reboot."
+        },
+        {
+          "event_number": 1,
+          "boot_reason": 1,
+          "scope": "Restart of simulated Node process, not hardware reboot."
+        }
+      ],
+      "network_capture_sha256": "6e25b964eaa41e77f07786a665ff4da5718c15b4ad3349a8d6cf0526c2369675",
+      "result": "PASS"
+    }
+  },
+  "independent_receipts": {
+    "normal": {
+      "result": "PASS",
+      "checks_PASS": 50,
+      "driver_sha256": "48bf299bc6994acb5c11cec56840eb9bd49ab983c2b0ce9e8c864bd9d948a597",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "result_sha256": "bef5214714f1a3282f55d838e3593f5af70cab7649f4b1809ebfc080bfc30944",
+      "boots": 3,
+      "node_stderr_empty": true,
+      "controller_logs_sha256": {
+        "restart": "2846abfba10fc0d590c32e69d9129ac556a5b464ed414bbb47ff76ca461f52e6",
+        "factory-reset": "9b972d88a04edd77229ad5f4ddca266bda11d09f5213a838f1cdedca9454b362",
+        "first": "42661eb7a7f2dcfa69d01b3998a1f50c3aa3e957c300bc04c5d531ffd1045031"
+      },
+      "memory": [
+        {
+          "boot": 1,
+          "allocations": 24507,
+          "frees": 24507,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "ca7803cea1de67b6bd26a7029ee663e8cdc80cf5c43f4a994c406d7f70ae23d9"
+        },
+        {
+          "boot": 2,
+          "allocations": 11216,
+          "frees": 11216,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "e6decf825ea5b3539f83f8fe318f49c7b165422f7088931aed0986fcd4db06bc"
+        },
+        {
+          "boot": 3,
+          "allocations": 23939,
+          "frees": 23939,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "d4e204cb8dc497a88b72fd34cec211a2938dc443ae934708c2c90ce283f37c82"
+        }
+      ]
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks_PASS": 47,
+      "driver_sha256": "48bf299bc6994acb5c11cec56840eb9bd49ab983c2b0ce9e8c864bd9d948a597",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "result_sha256": "0a1ffe38830667a71df50b0cf1446b5152eb7a7773273e0bf6123e5082d54ebb",
+      "boots": 3,
+      "node_stderr_empty": true,
+      "controller_logs_sha256": {
+        "restart": "95a802636421c868a5db1aefcbf131c7f5839f64981e80656caeb76de95fab62",
+        "factory-reset": "0e0297e9b19716676261d8f1284760fbee8bd703f0901b1b1c2f6a3ff3b7ecef",
+        "first": "9a95a122bcbb835fdb295dd38ab12f796914aed7443ecad793c751a48ca1bdff"
+      },
+      "memory": []
+    },
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "40e879b99ba76ec866e3525c3e497e7fe282c8590597d34c01adf635fb62f72e",
+        "build_log_sha256": "e9d5cc2ede75b2ddb856c5f910d1cf7e7814de59d6066d316c9fe9a0d089c752"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "d8febdc2c9f70426441245dcf8eafcea1f2cc10868f31c86fc771354bdb6b5e8",
+        "build_log_sha256": "e9d5cc2ede75b2ddb856c5f910d1cf7e7814de59d6066d316c9fe9a0d089c752"
+      }
+    },
+    "disposable_nodes_stopped": true
+  },
+  "native_identity": {
+    "source_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_inputs_unchanged": 362,
+    "remote_source_receipt": {
+      "count": 362,
+      "all_match": true
+    },
+    "binary_compiled_in": "csa35-results.json",
+    "new_host_compilation": false,
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "40e879b99ba76ec866e3525c3e497e7fe282c8590597d34c01adf635fb62f72e",
+        "build_log_sha256": "e9d5cc2ede75b2ddb856c5f910d1cf7e7814de59d6066d316c9fe9a0d089c752"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "d8febdc2c9f70426441245dcf8eafcea1f2cc10868f31c86fc771354bdb6b5e8",
+        "build_log_sha256": "e9d5cc2ede75b2ddb856c5f910d1cf7e7814de59d6066d316c9fe9a0d089c752"
+      }
+    }
+  },
+  "normative_basis": {
+    "specification": "Core R1.6.1",
+    "sections": [
+      "11.9.7.10 ReorderNetwork",
+      "11.9 fail-safe network state",
+      "11.11 General Diagnostics BootReason event",
+      "GroupKeyManagement CacheAndSync conformance"
+    ],
+    "scope": "Read actual supported cluster/FeatureMap/MaxNetworks and statuses. No unsupported optional event payload or physical BLE/radio claimed."
+  },
+  "required_pics": {
+    "DGGEN.S.E00": false,
+    "DGGEN.S.E01": false,
+    "DGGEN.S.E02": false,
+    "DGGEN.S.E03": true,
+    "DGWIFI.S.E00": false,
+    "DGWIFI.S.E01": false,
+    "DGWIFI.S.E02": false,
+    "GRPKEY.S.F00": false,
+    "CNET.S.F00": true
+  },
+  "coverage": {
+    "checks_PASS": 97,
+    "boots_per_variant": 3,
+    "manual_PASS": 20,
+    "manual_FAIL": 9,
+    "manual_without_outcome": 10,
+    "positions": 862,
+    "network_capacity": 4,
+    "network_midpoint": 2,
+    "BootReason_event_numbers": [
+      1,
+      33,
+      1
+    ]
+  },
+  "tester_attempts": [
+    {
+      "attempt": "memcheck-profile",
+      "result": "SETUP_ERROR",
+      "reason": "Actual command field is errorCode, not ErrorCode. First ACK after fresh CASE is not Read completion; actual BootReason33 was present after the premature parser snapshot. No native failure attributed."
+    },
+    {
+      "attempt": "accepted-memcheck-profile",
+      "result": "SETUP_ERROR",
+      "reason": "Actual network command field is networkingStatus. BootReason first/restart/reset observations already pass; corrected tester and completed functional sequence before final runs."
+    }
+  ],
+  "commands": [
+    "python tools/matter/tests/test_general_diagnostics_chip.py --csa-profile --valgrind with disposable node/controller state and selected Linux interface; separately repeat sanitizer",
+    "cmake --build BUILD --target test_diagnostics test_groupkey -j2",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_diagnostics|test_groupkey)$'",
+    "python tools/matter/csa_campaign.py --write",
+    "python tools/matter/csa_campaign.py",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "secrets_and_raw_traces_outside_Git": true
+  },
+  "limits": [
+    "Original manual/operator verdicts retained separately from independent functional checks; not automatic CSA or certification.",
+    "DGWIFI2.2 PASS covers commissioning and three optional-event NOT APPLICABLE steps from unchanged false PICS; no Wi-Fi event data or physical fault coverage claimed.",
+    "DGGEN hardware/radio/network fault events and positive CacheAndSync steps are NOT APPLICABLE from frozen PICS; actual supported BootReason and rejected policy tested.",
+    "CNET4.13 literal BLE precondition not executed. Remaining-slot arithmetic is inconsistent after its separate additional-network step: initial3 free, one added, only2 remain. Functional fixture fills actual remaining capacity rather than silently claiming3 additional unique networks. Original procedure retains FAIL.",
+    "Reboot/reset is process lifetime of simulated Node. No physical/radio/Home UI, embedded RAM or full-matrix rerun. No native/API/PICS change or new host compilation."
+  ],
+  "next": {
+    "stage": "CSA47",
+    "cases": [
+      "TC-DD-1.3",
+      "TC-DD-1.4",
+      "TC-DD-1.6",
+      "TC-DD-1.7",
+      "TC-IDM-5.1",
+      "TC-SC-4.4"
+    ],
+    "status": "NOT_RUN",
+    "scope": "Review actual suite applicability, execute available payload checks and retain explicit physical label/unsupported client-role prerequisites; then remaining IM server and BLOCKED procedures."
+  }
+}

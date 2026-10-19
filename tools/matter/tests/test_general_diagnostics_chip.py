@@ -15,6 +15,118 @@ import subprocess
 import time
 
 from chip_tool_resources import Client
+from chip_tool_energy_profile import frames, ids, integer
+
+
+def commissioning_profile(client, check):
+    """Related manual network/group-key checks on the disposable simulator.
+
+    This exercises CASE and the Wi-Fi backend, not BLE or physical radio faults.
+    Keep each case's failure independent so one does not hide the other.
+    """
+    result = {}
+
+    def command(args, expected_error=None):
+        ok, text = client.command(args, r'(?:ReportDataMessage|InvokeResponseMessage) =[\s\S]*Flushed pending ack for MessageCounter:', timeout=60,
+                                  failure=expected_error is not None)
+        assert ok, 'No complete command response: ' + ' '.join(map(str, args[:2]))
+        if expected_error is not None:
+            assert re.search(r'status\s*=\s*0x' + format(expected_error, '02x') + r'\b', text, re.I), 'Wrong IM error'
+        return text
+
+    def read(cluster, attribute, label):
+        text = command(['any', 'read-by-id', cluster, attribute, 1, 0])
+        body = next(f['body'] for f in frames(text) if f['kind'] == 'Attribute' and f['path'] == (0, cluster, attribute))
+        return integer(body, label)
+
+    try:
+        check('groupkey-cache-sync-feature-absent', read(0x3f, 0xfffc, 'FeatureMap') == 0)
+        fields = dict(groupKeySetID=0x1a3, groupKeySecurityPolicy=1,
+                      epochKey0='d0d1d2d3d4d5d6d7d8d9dadbdcdddedf', epochStartTime0=1,
+                      epochKey1='d1d1d2d3d4d5d6d7d8d9dadbdcdddedf', epochStartTime1=2220001,
+                      epochKey2='d2d1d2d3d4d5d6d7d8d9dadbdcdddedf', epochStartTime2=2220002)
+        command(['groupkeymanagement', 'key-set-write', json.dumps(fields), 1, 0], 0x85)
+        check('groupkey-cache-sync-invalid-command', True)
+        command(['groupkeymanagement', 'key-set-read', 0x1a3, 1, 0], 0x8b)
+        check('groupkey-rejected-set-not-created', True)
+        result['TC_GRPKEY_5_4'] = {'result': 'PASS', 'CacheAndSync': False, 'write_status': 0x85, 'read_status': 0x8b}
+    except (AssertionError, StopIteration, ValueError) as error:
+        result['TC_GRPKEY_5_4'] = {'result': 'FAIL', 'error': str(error)}
+
+    def arm(seconds):
+        data = command(['generalcommissioning', 'arm-fail-safe', seconds, 0, 1, 0])
+        assert re.search(r'errorCode:\s*0\b', data), 'ArmFailSafe rejected'
+
+    def network(operation, args, status=0, breadcrumb=None):
+        data = command(['networkcommissioning', operation, *args, 1, 0] +
+                       ([] if breadcrumb is None else ['--Breadcrumb', breadcrumb]))
+        assert re.search(r'networkingStatus:\s*' + str(status) + r'\b', data), operation + ' status mismatch'
+        return data
+
+    def networks():
+        text = command(['networkcommissioning', 'read', 'networks', 1, 0])
+        body = next(f['body'] for f in frames(text) if f['path'] == (0, 0x31, 1))
+        values = [bytes.fromhex(x) for x in re.findall(r'^NetworkID: ([0-9A-Fa-f]+)\s*$', body, re.M)]
+        assert len(values) == integer(body, 'Networks') and len(values) == len(set(values)), 'Incomplete network list'
+        return values
+
+    encode = lambda value: 'hex:' + value.hex()
+    primary = b'testharness'; additions = []
+    try:
+        text = command(['descriptor', 'read', 'server-list', 1, 0])
+        body = next(f['body'] for f in frames(text) if f['path'] == (0, 0x1d, 1))
+        check('reorder-wifi-cluster-feature', 0x31 in ids(body, 'ServerList') and read(0x31, 0xfffc, 'FeatureMap') == 1)
+        maximum = read(0x31, 0, 'MaxNetworks')
+        assert maximum >= 2, 'Procedure requires at least two network slots'
+        arm(900)
+        network('add-or-update-wi-fi-network', [encode(primary), encode(b'wifi-password')])
+        network('connect-network', [encode(primary)])
+        data = command(['generalcommissioning', 'commissioning-complete', 1, 0])
+        assert re.search(r'errorCode:\s*0\b', data), 'Baseline CommissioningComplete rejected'
+        baseline = networks(); assert primary in baseline and len(baseline) < maximum
+        midpoint = (maximum + 1) // 2
+        additions = [b'csa-reorder-' + str(i).encode() for i in range(maximum - len(baseline))]
+
+        def fill():
+            for name in additions:
+                network('add-or-update-wi-fi-network', [encode(name), encode(b'wifi-password')], breadcrumb=1)
+            assert len(networks()) == maximum, 'Network list not filled'
+
+        arm(900)
+        check('reorder-original-network-count', networks() == baseline)
+        network('add-or-update-wi-fi-network', [encode(additions[0]), encode(b'wifi-password')], breadcrumb=1)
+        arm(900)
+        for name in additions[1:]:
+            network('add-or-update-wi-fi-network', [encode(name), encode(b'wifi-password')], breadcrumb=1)
+        original = networks()
+        check('reorder-full-network-list', len(original) == maximum)
+        network('reorder-network', [encode(primary), maximum], status=1, breadcrumb=2)
+        check('reorder-out-of-range-preserves-breadcrumb', read(0x30, 0, 'Breadcrumb') == 1 and networks() == original)
+        network('reorder-network', [encode(b'csa-absent'), midpoint], status=3, breadcrumb=2)
+        check('reorder-absent-id-preserves-breadcrumb', read(0x30, 0, 'Breadcrumb') == 1 and networks() == original)
+        network('reorder-network', [encode(primary), midpoint], breadcrumb=2)
+        expected = [n for n in original if n != primary]; expected.insert(midpoint, primary)
+        check('reorder-moves-network-and-breadcrumb', networks() == expected and read(0x30, 0, 'Breadcrumb') == 2)
+        arm(0)
+        check('reorder-disarm-rolls-back-added-networks', networks() == baseline)
+        arm(900); fill()
+        network('reorder-network', [encode(primary), midpoint], breadcrumb=2)
+        committed = networks()
+        data = command(['generalcommissioning', 'commissioning-complete', 1, 0])
+        assert re.search(r'errorCode:\s*0\b', data), 'Final CommissioningComplete rejected'
+        arm(0)
+        check('reorder-complete-persists-after-disarm', networks() == committed and committed[midpoint] == primary)
+        result['TC_CNET_4_13'] = {'functional_result': 'PASS', 'BLE_precondition': 'NOT_PERFORMED',
+                                 'backend': 'simulated Wi-Fi over real CASE/IPv6', 'max_networks': maximum,
+                                 'midpoint': midpoint, 'rollback': True, 'commit': True}
+    except (AssertionError, StopIteration, ValueError) as error:
+        result['TC_CNET_4_13'] = {'functional_result': 'FAIL', 'error': str(error), 'BLE_precondition': 'NOT_PERFORMED'}
+    finally:
+        try:
+            arm(0)
+        except (AssertionError, StopIteration, ValueError):
+            result['network_cleanup'] = 'FAIL'
+    return result
 
 
 def main():
@@ -23,6 +135,7 @@ def main():
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--interface', type=int, required=True)
     parser.add_argument('--valgrind', action='store_true')
+    parser.add_argument('--csa-profile', action='store_true', help='Also collect BootReason events, Wi-Fi reorder/rollback and CacheAndSync rejection; no physical BLE/radio claim.')
     args = parser.parse_args()
     out = Path(args.output).resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -66,7 +179,9 @@ def main():
             time.sleep(.05)
         raise AssertionError('Node publication timeout')
 
-    def command(argv, pattern='SuppressResponse = true'):
+    def command(argv, pattern=None):
+        if pattern is None:
+            pattern = r'ReportDataMessage =[\s\S]*Flushed pending ack for MessageCounter:' if args.csa_profile else 'SuppressResponse = true'
         ok, data = client.command(argv, pattern, timeout=60)
         if not ok:
             raise AssertionError(str(argv) + ': ' + data[-800:])
@@ -78,6 +193,15 @@ def main():
         if not match:
             raise AssertionError('Missing ' + label)
         return int(match[1])
+
+    def boot_event(name):
+        text = command(['generaldiagnostics', 'read-event', 'boot-reason', 1, 0], r'ReportDataMessage =[\s\S]*Flushed pending ack for MessageCounter:')
+        events = [f for f in frames(text) if f['kind'] == 'Event' and f['path'] == (0, 0x33, 3)]
+        check(name + '-boot-event-present', bool(events))
+        event = events[-1]
+        value = integer(event['body'], 'BootReason'); number = integer(event['body'], 'Event number')
+        check(name + '-boot-event-matches-attribute', value == read('boot-reason', 'BootReason') == 1 and number > 0)
+        return {'event_number': number, 'boot_reason': value, 'scope': 'Restart of simulated Node process, not hardware reboot.'}
 
     def stop():
         nonlocal client
@@ -104,6 +228,9 @@ def main():
     try:
         launch()
         commission('first')
+        if args.csa_profile:
+            result['application_profile'] = commissioning_profile(client, check)
+            result['boot_events'] = [boot_event('first')]
         check('fresh-reboot-count', read('reboot-count', 'RebootCount') == 1)
         first = bounded_uptime('fresh-node-uptime-not-os-uptime')
         check('fresh-operational-hours-zero', read('total-operational-hours', 'TotalOperationalHours') == 0)
@@ -144,6 +271,9 @@ def main():
         stop()
         launch()
         client = Client(Path(args.chip_tool), Path(args.paa), out, 'restart', source=storage)
+        if args.csa_profile:
+            result['boot_events'].append(boot_event('restart'))
+            check('restart-emits-new-boot-event-number', result['boot_events'][1]['event_number'] > result['boot_events'][0]['event_number'])
         check('reboot-count-increments-after-restart', read('reboot-count', 'RebootCount') == 2)
         rebooted = bounded_uptime('uptime-resets-after-restart')
         check('restart-uptime-below-pre-restart-value', rebooted < later)
@@ -154,6 +284,8 @@ def main():
         state.unlink()
         launch()
         commission('factory-reset')
+        if args.csa_profile:
+            result['boot_events'].append(boot_event('factory-reset'))
         check('factory-reset-reboot-count', read('reboot-count', 'RebootCount') == 1)
         check('factory-reset-hours-zero', read('total-operational-hours', 'TotalOperationalHours') == 0)
         bounded_uptime('factory-reset-uptime')
@@ -164,6 +296,10 @@ def main():
                 text = (out / f'valgrind-{index}.log').read_text()
                 check(f'memcheck-clean-{index}', 'ERROR SUMMARY: 0 errors' in text and
                       'in use at exit: 0 bytes in 0 blocks' in text)
+        if args.csa_profile:
+            profile = result['application_profile']
+            check('csa-related-functionality', all(v.get('result', v.get('functional_result')) == 'PASS'
+                  for v in profile.values() if isinstance(v, dict)) and profile.get('network_cleanup') != 'FAIL', profile)
         result['result'] = 'PASS'
         return 0
     except (AssertionError, OSError, ValueError, subprocess.SubprocessError) as error:
