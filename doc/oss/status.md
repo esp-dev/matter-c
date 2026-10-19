@@ -1,5 +1,22 @@
 # Development status
 
+**CSA33: original TC-DD-3.19 manual PASS, TH run467, seven entries.**
+The full commissioning/RemoveFabric/recommissioning cycle passes with the same
+live controller and unchanged credentials. Both pairings scan the same supplied
+C-generated QR bitmap, pass attestation and SendComplete, then advertise CM=0.
+After removal the old operational record is withdrawn; explicit same-store CLI
+restart opens CM=1 with _CM, and the same fabric/node identity returns only after
+recommissioning. Independent acceptance passes 37 Memcheck and 35 separate
+sanitizer checks; 47881 matched allocations/frees, zero errors/live bytes and
+four empty host stderr files. No C/H, original test or PICS changes. Two fixture
+failures are retained: an example-specific VP check and an asynchronous timeout
+from the controller's old subscription. The final fixture explicitly releases
+that subscription after removal, preserving the same live controller. TH is idle;
+paired Windows nodes untouched. MANUAL now contains 11 PASS, 1 FAIL and 28 without
+an outcome; category totals are unchanged. See [evidence](csa33-validation.md) and
+[record](csa33-results.json). **Next: CSA34, TC-DD-2.1 announcement verification.
+CSA32's discrepancy remains open; CSA30 remains deferred.**
+
 **CSA32: original TC-OPCREDS-3.6 manual FAIL, TH run466.**
 Commissioning, successful final RemoveFabric response and operational discovery
 withdrawal pass; the evidence upload also passes. Step4 fails its literal

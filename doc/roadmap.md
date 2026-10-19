@@ -349,7 +349,20 @@ waiving the FAIL. Independent lifecycle acceptance passes 27 Memcheck and 25
 separate sanitizer checks, with clean teardown and no C/H changes. The MANUAL
 category now includes 10 PASS, 1 FAIL and 29 without an outcome; category totals
 and other rows are unchanged. See [evidence and limits](oss/csa32-validation.md).
-**Next: CSA33, TC-DD-3.19, commissioning/unpair/recommission.** CSA30 stays deferred.
+The follow-up same-controller lifecycle is recorded below. CSA30 stays deferred.
+
+CSA33 completes original manual TC-DD-3.19 in TH run467: all seven entries pass.
+The same live commissioner and unchanged credentials scan the same supplied QR,
+commission, remove the final fabric and recommission after an explicit same-store
+CLI restart. Both commissioning completions advertise CM=0; restart opens CM=1,
+and the same operational identity is absent until recommissioning. Independent
+acceptance passes 37 Memcheck and 35 separate sanitizer checks, with clean memory
+and no runtime changes. MANUAL now contains 11 PASS, 1 FAIL and 28 without an
+outcome; category counts remain unchanged. Two fixture failures and the explicit
+restart/programmatic-QR limits are retained in [evidence](oss/csa33-validation.md).
+**Next: CSA34, TC-DD-2.1, announcement verification**, reviewing the original
+conditional branches for the IP profile. CSA32's CM discrepancy remains open;
+CSA30 remains unsuccessful/deferred.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

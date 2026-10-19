@@ -10,6 +10,12 @@ same-store explicit restart and commissioning with a fresh controller. It record
 Step4's literal CM=0 comparison separately from the supported CM=1 basic window.
 Run under Memcheck and separately with a sanitizer node; this independent fixture
 does not change the original manual FAIL recorded in `csa32-validation.md`.
+With `--same-controller --qr-image /private/card.png`, it also checks the CSA33
+same-live-controller lifecycle, scans the supplied bitmap with Pillow/zxing-cpp,
+verifies CM=0 after both commissioning completions and rediscovers the same
+fabric/node identity after recommissioning. Old controller subscriptions are
+explicitly released after removal. See `csa33-validation.md` for manual TH results;
+no native runtime change or fresh physical/Home UI acceptance is implied.
 
 `test_onboarding_payload_chip.py` supplies CSA31 operator evidence from a scanned
 C-generated QR bitmap, chip-tool parsing/checksum controls and live mDNS. It

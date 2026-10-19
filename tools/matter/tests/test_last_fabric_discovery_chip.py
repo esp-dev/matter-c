@@ -3,6 +3,8 @@
 Disposable development state only. Run separately under Memcheck and sanitizers.
 This is operator evidence, not an official CSA PASS. The CLI intentionally exits
 after last-fabric reset; this fixture performs an explicit operator restart.
+Use --same-controller for TC-DD-3.19 evidence, retaining the live commissioner
+and its fabric credentials across removal and recommissioning.
 """
 import argparse
 import hashlib
@@ -26,9 +28,12 @@ def main():
         parser.add_argument('--' + name, required=True, type=Path)
     parser.add_argument('--interface', required=True, type=int)
     parser.add_argument('--valgrind', action='store_true')
+    parser.add_argument('--same-controller', action='store_true')
+    parser.add_argument('--qr-image', type=Path, help='Optional supplied QR bitmap, scanned with Pillow/zxing-cpp before each pairing')
     args = parser.parse_args()
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
     report = {'scope': __doc__, 'checks': [], 'node_sha256': hashlib.sha256(args.node.read_bytes()).hexdigest(),
+              'same_controller': args.same_controller,
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
     state = out / 'state.tlv'; nodes = []; clients = []; handles = []; packets = []
     lock = threading.Lock(); stopped = threading.Event()
@@ -127,19 +132,46 @@ def main():
             raise AssertionError('CHIP command failed: ' + ' '.join(map(str, argv[:3])))
         return text
 
-    def commission(label):
-        client = Client(args.chip_tool, args.paa, out, label, advertise=False); clients.append(client)
+    def commission(label, client=None):
+        if client is None:
+            client = Client(args.chip_tool, args.paa, out, label, advertise=False); clients.append(client)
         code = subprocess.check_output([str(args.payload_exe), '20202021', '3912', '65521', '32769'], text=True).strip()
+        if args.qr_image:
+            from PIL import Image
+            import zxingcpp
+            with Image.open(args.qr_image) as image:
+                decoded = zxingcpp.read_barcode(image)
+            check(label + '-scan-supplied-QR', decoded is not None and decoded.text == code)
+            code = decoded.text
+            report['supplied_qr_sha256'] = hashlib.sha256(args.qr_image.read_bytes()).hexdigest()
         text = command(client, ['pairing', 'code', 1, code, '--use-only-onnetwork-discovery', 1, '--timeout', 40],
                        'Device commissioning completed with success')
         check(label + '-attested-commissioning', "Successfully finished commissioning step 'AttestationVerification'" in text)
+        if args.same_controller:
+            check(label + '-commissioning-complete', "Successfully finished commissioning step 'SendComplete'" in text)
         text = command(client, ['operationalcredentials', 'read', 'commissioned-fabrics', 1, 0], 'CommissionedFabrics:')
         check(label + '-exactly-one-fabric', bool(re.search(r'CommissionedFabrics:\s*1\b', text)))
         return client
 
+    def closed_window(owner, label):
+        observed = None; end = time.monotonic() + 8
+        while time.monotonic() < end and (observed or {}).get('CM') != '0':
+            observed = txt(owner)
+        check(label + '-commissioning-mode-zero', (observed or {}).get('CM') == '0')
+
+    def discovered(owner, label):
+        observed = txt(owner)
+        report.setdefault('basic_discovery', {})[label] = observed
+        check(label + '-discovery-fields', all((observed or {}).get(key) == value
+              for key, value in [('D', '3912'), ('CM', '1')]), observed)
+
     try:
         child, log, initial_owner = start()
+        if args.same_controller:
+            discovered(initial_owner, 'first')
         client = commission('first-controller')
+        if args.same_controller:
+            closed_window(initial_owner, 'first')
         wait(lambda: 'FABRIC index=1 instance=' in log.read_text())
         old_instance = re.search(r'FABRIC index=1 instance=(\S+)', log.read_text())[1]
         old_owner = (old_instance + '._matter._tcp.local.').lower()
@@ -158,6 +190,12 @@ def main():
         check('remove-last-fabric-success-response', bool(re.search(r'statusCode:\s*0\b', text)) and bool(re.search(r'fabricIndex:\s*1\b', text)))
         check('reset-clean-exit', child.wait(timeout=30) == 0)
         check('reset-once', log.read_text().count('RESET last fabric removed') == 1)
+        if args.same_controller:
+            # The removed server cannot renew its old subscription. Explicitly
+            # release that client object so its later timeout cannot be mistaken
+            # for a failure of the next interactive pairing command.
+            command(client, ['subscriptions', 'shutdown-all'], 'Command: subscriptions shutdown-all')
+            check('controller-subscriptions-released-after-removal', True)
         wait(lambda: any(name == old_owner and ttl == 0 for name, _, _, ttl, _ in rows(removing)), seconds=3)
         check('operational-goodbye', True)
         quiet = lookup(old_owner, seconds=1.4)
@@ -174,16 +212,32 @@ def main():
         # this comparison separately; do not change the runtime to satisfy it.
         report['official_step4_literal_verification_matches'] = observed.get('CM') == '0' and not report['post_restart_CM_subtype_observed']
         check('old-operational-identity-not-restored', not any(name == old_owner and ttl for name, _, _, ttl, _ in lookup(old_owner)))
-        fresh = commission('new-controller')
+        if args.same_controller:
+            discovered(second_owner, 'second')
+        fresh = commission('same-controller' if args.same_controller else 'new-controller',
+                           client if args.same_controller else None)
+        if args.same_controller:
+            closed_window(second_owner, 'second')
         wait(lambda: 'FABRIC index=1 instance=' in second_log.read_text())
         new_instance = re.search(r'FABRIC index=1 instance=(\S+)', second_log.read_text())[1]
-        check('new-fabric-operational-identity', new_instance != old_instance)
+        check('same-fabric-operational-identity' if args.same_controller else 'new-fabric-operational-identity',
+              new_instance == old_instance if args.same_controller else new_instance != old_instance)
+        if args.same_controller:
+            ready = []; end = time.monotonic() + 8
+            while time.monotonic() < end and not any(name == old_owner and kind == 33 and ttl for name, kind, _, ttl, _ in ready):
+                ready.extend(lookup(old_owner, seconds=.6))
+            check('same-fabric-operational-rediscovery', any(name == old_owner and kind == 33 and ttl for name, kind, _, ttl, _ in ready))
         for cluster, attribute, label, count in [('operationalcredentials', 'trusted-root-certificates', 'TrustedRootCertificates', 1),
                                                  ('accesscontrol', 'acl', 'ACL', 1),
                                                  ('groupkeymanagement', 'group-key-map', 'GroupKeyMap', 0)]:
             data = command(fresh, [cluster, 'read', attribute, 1, 0], '(?i)' + label + ':')
             check('fresh-' + attribute, bool(re.search(label + r':\s*' + str(count) + r'\b', data, re.I)))
-        report['official_steps'] = {'1': True, '2': True, '3': True, '4': report['official_step4_literal_verification_matches']}
+        if args.same_controller:
+            report['official_case'] = 'TC-DD-3.19'
+            report['official_steps'] = {str(step): True for step in range(1, 6)}
+        else:
+            report['official_case'] = 'TC-OPCREDS-3.6'
+            report['official_steps'] = {'1': True, '2': True, '3': True, '4': report['official_step4_literal_verification_matches']}
         report['result'] = 'PASS'
     except Exception:
         report['result'] = 'FAIL'

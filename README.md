@@ -288,8 +288,19 @@ acceptance passes 27 Memcheck and 25 separate sanitizer checks, with clean memor
 diagnostics. Original manual TC-OPCREDS-3.6 run466 is **FAIL at Step4**: its
 verification expects CM=0/no-_CM, while an explicitly restarted uncommissioned
 node opens a CM=1 basic window with _CM. The contradictory CM=2 heading is retained
-for CSA clarification; no runtime/test workaround was introduced. Next is CSA33
-commissioning/unpair/recommission; existing paired Windows devices are untouched.
+for CSA clarification; no runtime/test workaround was introduced. The follow-up
+commissioning/unpair/recommission result is below; paired Windows devices are untouched.
+
+[CSA33 lifecycle acceptance](doc/oss/csa33-validation.md) completes original manual
+TC-DD-3.19 in TH run467: preconditions, five protocol steps and evidence upload
+pass. Both pairings use the same live controller, unchanged credentials and the
+same scanned C-generated QR. Removal withdraws the operational identity; explicit
+same-store restart opens CM=1, and recommissioning restores CASE/operational
+discovery and CM=0. Independent acceptance passes 37 Memcheck and 35 separate
+sanitizer checks, with zero memory errors/leaks. No runtime changes were needed.
+The manual category now has 11 PASS, 1 FAIL and 28 without an outcome. CSA32's
+separate discrepancy and deferred CSA30 remain open. Next: CSA34, TC-DD-2.1
+announcement verification. See the [result record](doc/oss/csa33-results.json).
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

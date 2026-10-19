@@ -1,0 +1,589 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa32-results.json",
+  "previous_sha256": "f9c193fa964ad9e167773bcb02915f461fd89ea0c36df41bbd11b8cca94409fb",
+  "source_base_commit": "d1d8a47",
+  "scope": "Original TC-DD-3.19 operator-reviewed manual PASS. Same live commissioner and credentials, scanned supplied QR, RemoveFabric, same-store manufacturer restart and recommissioning. No runtime changes.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 3,
+    "MANUAL": 40,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC-DD-3.19",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 467
+    }
+  ],
+  "official_operator_assisted": {
+    "run_id": 467,
+    "state": "TestStateEnum.passed",
+    "completed_at_utc": "2026-10-19 11:03:28.999641",
+    "observed_utc": "2026-10-19T11:03:30.285519+00:00",
+    "cases": [
+      {
+        "case": "TC-DD-3.19",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 7
+        },
+        "details": [
+          {
+            "title": "Preconditions",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: Place DUT into commissioning mode using the DUTs manufacturers means to be discovered by the TH Commissioner",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: Scan DUTs QR code using the TH Commissioner. Follow any steps needed for the Commissioner/Commissionee to complete the commissioning process over the DUT Commissionees method of device discovery",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: Using TH Commissioner, unpair the DUT Commissionee from the Matter network.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: Place DUT Commissionee back into commissioning mode using the DUT manufacturers means to be discovered by the TH Commissioner",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: Scan DUTs QR code using the TH Commissioner. Follow any steps needed for the Commissioner/Commissionee to complete the commissioning process over the DUT Commissionees method of device discovery",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "08f63a141f0c6343e2665adbf2d688391a3c41384a92beb188259fbe74cdad9e",
+    "raw_result_sha256": "05e97d3f7086f157d619030406af1c16858bc70e5e93cea5255a62ed1bf10f88",
+    "identity": {
+      "source_sha256": {
+        "Test_TC_DD_3_19.yaml": "c1e4b92b3ed091fc78aec25eba709ab04299ec1df03f5ecf660ec7003ca3f223"
+      },
+      "pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb"
+    },
+    "audit": [
+      {
+        "step": "preconditions",
+        "answer": "PASS",
+        "note": "Networked x86 commissioner with available clock/regulatory/fabric configuration; supplied C-generated QR card independently scanned by zxing-cpp before both pairings.",
+        "utc_ms": 1792407808891
+      },
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "Wire D=3912, CM=1 from manufacturer CLI startup; unmodified commissioner discovers via QR onnetwork path. YAML example discriminator is configurable; optional VP absent.",
+        "utc_ms": 1792407808905
+      },
+      {
+        "step": 2,
+        "answer": "PASS",
+        "note": "Scanned supplied QR; attestation and SendComplete success; exactly one fabric and wire CM=0.",
+        "utc_ms": 1792407808920
+      },
+      {
+        "step": 3,
+        "answer": "PASS",
+        "note": "Same commissioner receives RemoveFabric NOCResponse status0/index1; clean last-fabric reset, operational goodbye and no old replies.",
+        "utc_ms": 1792407808930
+      },
+      {
+        "step": 4,
+        "answer": "PASS",
+        "note": "Explicit manufacturer CLI restart on the same retained state path, no deletion/edit; D=3912 and CM=1 with _CM. No destructive sample command used.",
+        "utc_ms": 1792407808944
+      },
+      {
+        "step": 5,
+        "answer": "PASS",
+        "note": "Same live commissioner, unchanged credentials and same scanned QR: attestation, SendComplete, one fabric, CM=0 and same-fabric operational rediscovery; root/ACL/group defaults readable.",
+        "utc_ms": 1792407808951
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    },
+    "started_at_utc": "2026-10-19 11:03:28.686655",
+    "operator_input_identity": {
+      "proof.json": "c91302797528d92b110751dcf25aac88b68af8dd3c5c6b423da39797d73d4b3c",
+      "run_prepared.py": "aabde647862dfca0d9a58e0fb773c486370a4ce2cb937e45d4060d7867f371be"
+    }
+  },
+  "independent_acceptance": {
+    "memcheck-final": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "published-1",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-basic-window-1",
+          "status": "PASS"
+        },
+        {
+          "name": "first-discovery-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "first-controller-scan-supplied-QR",
+          "status": "PASS"
+        },
+        {
+          "name": "first-controller-attested-commissioning",
+          "status": "PASS"
+        },
+        {
+          "name": "first-controller-commissioning-complete",
+          "status": "PASS"
+        },
+        {
+          "name": "first-controller-exactly-one-fabric",
+          "status": "PASS"
+        },
+        {
+          "name": "first-commissioning-mode-zero",
+          "status": "PASS"
+        },
+        {
+          "name": "operational-record-present-before-removal",
+          "status": "PASS"
+        },
+        {
+          "name": "live-subscription-at-removal",
+          "status": "PASS"
+        },
+        {
+          "name": "remove-last-fabric-success-response",
+          "status": "PASS"
+        },
+        {
+          "name": "reset-clean-exit",
+          "status": "PASS"
+        },
+        {
+          "name": "reset-once",
+          "status": "PASS"
+        },
+        {
+          "name": "controller-subscriptions-released-after-removal",
+          "status": "PASS"
+        },
+        {
+          "name": "operational-goodbye",
+          "status": "PASS"
+        },
+        {
+          "name": "no-old-operational-replies-after-exit",
+          "status": "PASS"
+        },
+        {
+          "name": "no-advertisements-from-stopped-host",
+          "status": "PASS"
+        },
+        {
+          "name": "published-2",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-basic-window-2",
+          "status": "PASS"
+        },
+        {
+          "name": "old-operational-identity-not-restored",
+          "status": "PASS"
+        },
+        {
+          "name": "second-discovery-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "same-controller-scan-supplied-QR",
+          "status": "PASS"
+        },
+        {
+          "name": "same-controller-attested-commissioning",
+          "status": "PASS"
+        },
+        {
+          "name": "same-controller-commissioning-complete",
+          "status": "PASS"
+        },
+        {
+          "name": "same-controller-exactly-one-fabric",
+          "status": "PASS"
+        },
+        {
+          "name": "second-commissioning-mode-zero",
+          "status": "PASS"
+        },
+        {
+          "name": "same-fabric-operational-identity",
+          "status": "PASS"
+        },
+        {
+          "name": "same-fabric-operational-rediscovery",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-trusted-root-certificates",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-acl",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-group-key-map",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-stop-1",
+          "status": "PASS"
+        },
+        {
+          "name": "empty-stderr-1",
+          "status": "PASS"
+        },
+        {
+          "name": "memcheck-1",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-stop-2",
+          "status": "PASS"
+        },
+        {
+          "name": "empty-stderr-2",
+          "status": "PASS"
+        },
+        {
+          "name": "memcheck-2",
+          "status": "PASS"
+        }
+      ],
+      "node_sha256": "fdb1b4e90b1013cffb46c4da27c6f609bc22c8240d4aa8971627a44d133b6a33",
+      "driver_sha256": "6da934437f9fd1857b0412e45824ef556c624af80cde54e1ecbecce597a11721",
+      "supplied_qr_sha256": "84b916d007475482412d20ae8401c6963c6bf82ef03bc9b53edd49536e7b7124",
+      "memory": [
+        {
+          "name": "memcheck-1.log",
+          "allocations": 23927,
+          "frees": 23927,
+          "zero_errors": true,
+          "zero_live": true
+        },
+        {
+          "name": "memcheck-2.log",
+          "allocations": 23954,
+          "frees": 23954,
+          "zero_errors": true,
+          "zero_live": true
+        }
+      ],
+      "artifact_sha256": {
+        "state.tlv.clock": "e7dbcf0f8f17ee6df9f3738d79ff6d59b731e4f9998c27566db207fdca343421",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "memcheck-1.log": "897ccda3cc0fc4ac721c412c3865b0425aa47aae588fc4b8edb0a75753c34e9c",
+        "node-2.log": "c8ebd5ba8fc32449e9e00813d927f5d1c71d73c5391d8bdffb50e01fba2fe04a",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "3db7e4dc0b019d0a3cff827c8d2948918b0722edf52a6f006a9f611989868685",
+        "node-1.log": "cb5e0da3e6e011fc58fa8f225e4fe22e0261560490edc00ae41bdab5c5d538d3",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "memcheck-2.log": "02cf2a71da8d0beafef1e266250f7978a718e6197c7467ee6a4e504993d71523"
+      },
+      "observations": {
+        "same_live_commissioner": true,
+        "controller_credentials_replaced": false,
+        "same_scanned_setup_card": true,
+        "store_deleted_by_fixture": false,
+        "operator_restart": true,
+        "post_restart_CM": "1",
+        "post_restart_CM_subtype": true,
+        "basic_discovery": {
+          "first": {
+            "D": "3912",
+            "CM": "1"
+          },
+          "second": {
+            "D": "3912",
+            "CM": "1"
+          }
+        },
+        "official_steps": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true
+        }
+      }
+    },
+    "sanitize-final": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "published-1",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-basic-window-1",
+          "status": "PASS"
+        },
+        {
+          "name": "first-discovery-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "first-controller-scan-supplied-QR",
+          "status": "PASS"
+        },
+        {
+          "name": "first-controller-attested-commissioning",
+          "status": "PASS"
+        },
+        {
+          "name": "first-controller-commissioning-complete",
+          "status": "PASS"
+        },
+        {
+          "name": "first-controller-exactly-one-fabric",
+          "status": "PASS"
+        },
+        {
+          "name": "first-commissioning-mode-zero",
+          "status": "PASS"
+        },
+        {
+          "name": "operational-record-present-before-removal",
+          "status": "PASS"
+        },
+        {
+          "name": "live-subscription-at-removal",
+          "status": "PASS"
+        },
+        {
+          "name": "remove-last-fabric-success-response",
+          "status": "PASS"
+        },
+        {
+          "name": "reset-clean-exit",
+          "status": "PASS"
+        },
+        {
+          "name": "reset-once",
+          "status": "PASS"
+        },
+        {
+          "name": "controller-subscriptions-released-after-removal",
+          "status": "PASS"
+        },
+        {
+          "name": "operational-goodbye",
+          "status": "PASS"
+        },
+        {
+          "name": "no-old-operational-replies-after-exit",
+          "status": "PASS"
+        },
+        {
+          "name": "no-advertisements-from-stopped-host",
+          "status": "PASS"
+        },
+        {
+          "name": "published-2",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-basic-window-2",
+          "status": "PASS"
+        },
+        {
+          "name": "old-operational-identity-not-restored",
+          "status": "PASS"
+        },
+        {
+          "name": "second-discovery-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "same-controller-scan-supplied-QR",
+          "status": "PASS"
+        },
+        {
+          "name": "same-controller-attested-commissioning",
+          "status": "PASS"
+        },
+        {
+          "name": "same-controller-commissioning-complete",
+          "status": "PASS"
+        },
+        {
+          "name": "same-controller-exactly-one-fabric",
+          "status": "PASS"
+        },
+        {
+          "name": "second-commissioning-mode-zero",
+          "status": "PASS"
+        },
+        {
+          "name": "same-fabric-operational-identity",
+          "status": "PASS"
+        },
+        {
+          "name": "same-fabric-operational-rediscovery",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-trusted-root-certificates",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-acl",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-group-key-map",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-stop-1",
+          "status": "PASS"
+        },
+        {
+          "name": "empty-stderr-1",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-stop-2",
+          "status": "PASS"
+        },
+        {
+          "name": "empty-stderr-2",
+          "status": "PASS"
+        }
+      ],
+      "node_sha256": "7fb4e422b7efcd0c8b8544eb32bfd38eb7ff709fcec4553c2588a2d2e331dfb9",
+      "driver_sha256": "6da934437f9fd1857b0412e45824ef556c624af80cde54e1ecbecce597a11721",
+      "supplied_qr_sha256": "84b916d007475482412d20ae8401c6963c6bf82ef03bc9b53edd49536e7b7124",
+      "memory": [],
+      "artifact_sha256": {
+        "state.tlv.clock": "3425d77c6971ac22dbfbd1698d325f8cdcddd62a094eeb608da589f66b59673e",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.log": "f0ee738d86ffbbb36344794636875191d899694da57fdc7fac3e527413adf164",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "e38aa6b5ae8573e9114a5b3375479f8ce25756be03dfa3ca96ceec37adf060fa",
+        "node-1.log": "3530ea9532dd288a5257cf6e7e39fd59ee8e98aa1327a991a87ded045d0442f0",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observations": {
+        "same_live_commissioner": true,
+        "controller_credentials_replaced": false,
+        "same_scanned_setup_card": true,
+        "store_deleted_by_fixture": false,
+        "operator_restart": true,
+        "post_restart_CM": "1",
+        "post_restart_CM_subtype": true,
+        "basic_discovery": {
+          "first": {
+            "D": "3912",
+            "CM": "1"
+          },
+          "second": {
+            "D": "3912",
+            "CM": "1"
+          }
+        },
+        "official_steps": {
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+          "5": true
+        }
+      }
+    }
+  },
+  "memory_summary": {
+    "allocations": 47881,
+    "frees": 47881,
+    "zero_errors": true,
+    "zero_live_bytes": true,
+    "host_stderr_files_empty": 4,
+    "memcheck_checks": 37,
+    "separate_sanitizer_checks": 35
+  },
+  "fixture_history": [
+    {
+      "attempt": "initial",
+      "result": "FAIL",
+      "cause": "New fixture incorrectly required VP from an illustrative discovery log; responder implements D and CM. Removed example-specific VP predicate; no responder change."
+    },
+    {
+      "attempt": "ready",
+      "result": "FAIL",
+      "cause": "Old client subscription timed out during the second interactive pairing, causing the shared command helper to report failure. Controller log subsequently shows successful attestation/SendComplete. Retained as failed fixture outcome."
+    },
+    {
+      "attempt": "final",
+      "result": "PASS",
+      "correction": "Explicit controller subscriptions shutdown-all after confirmed removal; same live process/store preserved. Supplied C-generated bitmap scanned for both pairings, actual CM0 after both commissioning completions and same-fabric rediscovery verified."
+    }
+  ],
+  "coverage": {
+    "category_totals_unchanged": true,
+    "manual_PASS": 11,
+    "manual_FAIL": 1,
+    "manual_without_outcome": 28,
+    "manual_without_PASS": 29,
+    "applicability_review_still_required": true
+  },
+  "changes": {
+    "runtime_C_H": false,
+    "public_API": false,
+    "persistence_format": false,
+    "official_test_and_PICS": false
+  },
+  "limits": [
+    "Original manual procedure receives operator review of retained real controller/wire observations; TH does not itself drive the standalone chip-tool commands.",
+    "Explicit manufacturer CLI restart after last-fabric exit; no automatic restart, physical device or fresh Home UI acceptance.",
+    "Supplied bitmap is scanned programmatically; not a physical printed label or phone camera test.",
+    "Default root/ACL/group-map state verified; non-default ACL/group-key datasets not seeded.",
+    "No full CSA certification or 128 kB embedded RAM-fit acceptance. Prior rows inherited without rerun.",
+    "CSA32 manual FAIL/CM discrepancy and deferred CSA30 errors remain unchanged. Private state, keys and captures excluded from Git."
+  ],
+  "next": {
+    "stage": "CSA34",
+    "case": "TC-DD-2.1",
+    "scope": "Announcement by Device Verification: review original conditional branches, then bounded operator discovery/announcement acceptance of the declared IP profile. Do not rerun deferred CSA30."
+  }
+}

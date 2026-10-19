@@ -2517,7 +2517,7 @@
       "path": "tools/matter/tests/test_last_fabric_discovery_chip.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_last_fabric_discovery_chip.py --help; disposable Linux node, development credentials/PAA and unmodified chip-tool; run Memcheck and sanitizers separately.",
+      "entrypoint": "python tools/matter/tests/test_last_fabric_discovery_chip.py --help; disposable Linux node, development credentials/PAA and unmodified chip-tool; run Memcheck and sanitizers separately. --same-controller retains the live commissioner; optional --qr-image uses Pillow/zxing-cpp to scan the supplied card before each pairing.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
     }
