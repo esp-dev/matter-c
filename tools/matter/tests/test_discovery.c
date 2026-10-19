@@ -52,8 +52,14 @@ static void builders(void) {
         CHECK(!strcmp(r->service,"_matterc") && !strcmp(r->protocol,"_udp"));
         CHECK(!strcmp(r->subtypes[0],"_L840") && !strcmp(r->subtypes[1],"_S3") && r->subtype_count==(mode?3:2));
         CHECK(!strcmp(r->txt[0].key,"D") && !strcmp(r->txt[0].value,"840") && r->txt[1].value[0]==(char)('0'+mode));
+        CHECK(r->txt_count==(mode?2:3));
+        if(!mode) CHECK(!strcmp(r->txt[2].key,"PH") && !strcmp(r->txt[2].value,"0"));
         matter_discovery_delete(d);
     }
+    Matter_Discovery_T hint=matter_discovery_commissionable_with_hint(mac,random_id,840,0,5540,4); CHECK(hint);
+    CHECK(!strcmp(matter_discovery_record(hint)->txt[2].value,"4")); matter_discovery_delete(hint);
+    hint=matter_discovery_commissionable_with_hint(mac,random_id,840,1,5540,UINT32_MAX); CHECK(hint);
+    CHECK(!strcmp(matter_discovery_record(hint)->txt[2].value,"4294967295")); matter_discovery_delete(hint);
     Matter_Discovery_T d=matter_discovery_operational(mac,random_id,UINT64_C(0x1122334455667788),5540); CHECK(d);
     const Matter_Mdns_Record_T* r=matter_discovery_record(d);
     CHECK(!strcmp(r->instance,"DD200C20D25AE5F7-1122334455667788") && !strcmp(r->subtypes[0],"_IDD200C20D25AE5F7"));

@@ -371,10 +371,20 @@ Memcheck and 36 separate sanitizer functional checks with clean memory, but
 overall conformance stays FAIL. No runtime or original-test/PICS changes.
 The manual category now contains 11 PASS, 2 FAIL and 27 without an outcome;
 category totals remain unchanged. See [evidence](oss/csa34-validation.md).
-**Next: CSA35, Extended Discovery PH and customer policy**: supply truthful hints,
-provide an explicit timeout/disable control, review PICS and rerun affected
-original discovery cases plus the full wire/controller scenario. Keep CSA32's
-discrepancy open and CSA30 deferred.
+The PH/policy repair and affected discovery rechecks are recorded below.
+
+CSA35 supplies application-owned PH metadata and per-Node Extended Discovery
+policy: the reference host defaults to 900 seconds and supports off, bounded and
+explicit unlimited advertising. PH reflects restart before commissioning and
+Administrator afterward. Operational discovery/CASE survive suppression and new
+windows still publish fresh instances. Original automatic TC_SC_4_1/4_3 and manual
+TC-DD-2.1 pass with updated discovery PICS. Six full memory-instrumented policy
+scenarios and two restored disabled boots pass, alongside focused native/package/
+CLI validation. MANUAL now contains 12 PASS, 1 FAIL and 27 without an outcome;
+category totals remain unchanged. See [evidence and limits](oss/csa35-validation.md).
+**Next: CSA36, MCORE.DD.COMM_DISCOVERY and TC-SC-4.7 applicability**: distinguish
+Commissioner Discovery/UDC from already implemented Commissionable Node Discovery.
+Keep CSA32's discrepancy open and CSA30 deferred.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

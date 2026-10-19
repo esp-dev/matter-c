@@ -32,6 +32,11 @@ CORE = {
     'MCORE.IDM.C.ReadRequest': False, 'MCORE.IDM.C.WriteRequest': False,
     'MCORE.IDM.C.SubscribeRequest': False, 'MCORE.IDM.S.PersistentSubscription': False,
     'MCORE.DD.COMM_DISCOVERY': True, 'MCORE.DD.UI': False,
+    'MCORE.DD.EXTENDED_DISCOVERY': True, 'MCORE.DD.TXT_KEY_PH': True,
+    'MCORE.DD.DISCOVERY_PAF': False,
+    'MCORE.DD.TXT_KEY_VP': False, 'MCORE.DD.TXT_KEY_DT': False,
+    'MCORE.DD.TXT_KEY_DN': False, 'MCORE.DD.TXT_KEY_RI': False, 'MCORE.DD.TXT_KEY_PI': False,
+    'MCORE.DD.COMMISSIONING_SUBTYPE_V': False, 'MCORE.DD.COMMISSIONING_SUBTYPE_T': False,
     'MCORE.DD.CUSTOM_COMM_FLOW': False, 'MCORE.SC.LWIP': False,
     'CNET.C.F00': False, 'CNET.C.F01': False,
 }

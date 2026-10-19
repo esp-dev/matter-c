@@ -2,6 +2,15 @@
 
 ## Callback and lifetime contract
 
+Commissionable discovery metadata remains application-owned. Use
+`matter_discovery_commissionable_with_hint` to copy a truthful Core4.3.1.11 PH
+bitmap into an owned record. Hints with required pairing instructions need a
+custom record containing PI. The existing constructor remains available, emitting
+PH0 in CM0 without claiming a platform method. A complete application must supply
+its actual methods and customer privacy policy. The reference host implements
+bounded/disabled/unlimited Extended Discovery in its own poll loop, independently
+of operational discovery and CASE. See [policy and evidence](oss/csa35-validation.md).
+
 Allocate the configuration in application-owned storage; large configurations
 and persistent images should not be placed on an embedded task stack.
 

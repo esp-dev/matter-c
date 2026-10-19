@@ -313,6 +313,14 @@ customer Extended Discovery policy, truthful PICS and affected discovery recheck
 The manual category now has 11 PASS, 2 FAIL and 27 without an outcome. See the
 [result record](doc/oss/csa34-results.json).
 
+[CSA35 PH and discovery policy](doc/oss/csa35-validation.md) fixes that failure.
+Automatic TC_SC_4_1/4_3 pass in runs469/470; manual TC-DD-2.1 passes in run471,
+including its newly declared PH/Extended Discovery branches. Three policy modes
+pass full Memcheck and separate sanitizer scenarios; restored disabled boots
+accept fresh CASE. Four accepted Memcheck processes have zero errors/live bytes.
+The manual category now has 12 PASS, 1 FAIL and 27 without an outcome; category
+totals remain unchanged. Next: CSA36, audit Commissioner Discovery/UDC applicability.
+
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator
 verifications use live x86 callbacks with IdentifyType0 (None); no physical
@@ -355,6 +363,15 @@ Legacy builders keep `build/matter-host/linux-gcc/matter-node` or
 The application owns its event loop; network interface, credential directory and
 persistent state are explicit parameters. Keep generated credentials/state in
 ignored `build/`, and never use public fixture keys as device credentials.
+
+For the credential-backed runtime host, Extended Discovery (CM=0) defaults to
+900 seconds per closed-mode entry/boot. Add `--extended-discovery-seconds 0` to
+disable it, a numeric seconds value to bound it, or `unlimited` to opt into
+indefinite advertising. This setting withdraws only commissionable DNS-SD;
+operational discovery, CASE and authenticated new commissioning windows stay
+available. It is a process option, not a stored GUI preference. Host PH is 1
+before commissioning and 4 for a commissioned administrator. See
+[policy, API and acceptance limits](doc/oss/csa35-validation.md).
 
 The host defaults to VendorName `Matter C` and ProductName `Matter C host simulation`.
 Override them at compilation, for example:

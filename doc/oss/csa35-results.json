@@ -1,0 +1,935 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa34-results.json",
+  "previous_sha256": "9103f72be529b31ad067af5578b510483c0c38b0e378990693389695d939a5d1",
+  "source_base_commit": "978de1f325c91e09ce07b0862e5453e688181763",
+  "scope": "CSA35 fixes missing PH and adds application-owned Extended Discovery policy. Original TC_SC_4_1/4_3 automatic PASS and TC-DD-2.1 operator-reviewed manual PASS, with truthful discovery PICS delta.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 3,
+    "MANUAL": 40,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC-DD-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "previous_manual_result": "FAIL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 471
+    }
+  ],
+  "official_receipts": {
+    "TC_SC_4_1": {
+      "run_id": 469,
+      "state": "TestStateEnum.passed",
+      "started_at_utc": "2026-10-19 11:55:56.565042",
+      "completed_at_utc": "2026-10-19 11:56:38.066675",
+      "official_log_sha256": "34515187f9b1c098cc942bd7612ef9afbbafc5ed8ade6e4181c5b05b84927609",
+      "raw_result_sha256": "bba1ef9562d334c5af739648d15eea8d747281b4c6d8eb6b85ec480df2cdb8ce",
+      "step_states": {
+        "TestStateEnum.passed": 21,
+        "TestStateEnum.not_applicable": 9
+      }
+    },
+    "TC_SC_4_3": {
+      "run_id": 470,
+      "state": "TestStateEnum.passed",
+      "started_at_utc": "2026-10-19 11:56:44.945224",
+      "completed_at_utc": "2026-10-19 11:57:01.983352",
+      "official_log_sha256": "cd5955139431c3cd2cb05daedd24c86b83ba91401db368723b72780437b8d9c4",
+      "raw_result_sha256": "5e7b9506881dc24aa402c067d643cdc3882e8b3916c8e9a396a01fc3175ae0aa",
+      "step_states": {
+        "TestStateEnum.passed": 15
+      }
+    },
+    "TC-DD-2.1": {
+      "run_id": 471,
+      "state": "TestStateEnum.passed",
+      "started_at_utc": "2026-10-19 11:58:12.641127",
+      "completed_at_utc": "2026-10-19 11:58:12.883642",
+      "official_log_sha256": "367f6c6a3a363d142f24ccca5ecd9bf9db40f9cae526725bc4f1c6db6645502e",
+      "raw_result_sha256": "b4e81b309bd28f06e8cb0c8b2d8844aeda66c6a94f466ee411c3ff8b1de51809",
+      "step_states": {
+        "TestStateEnum.passed": 11,
+        "TestStateEnum.not_applicable": 15
+      },
+      "operator_audit": [
+        {
+          "step": "preconditions",
+          "answer": "PASS",
+          "note": "Disposable running native x86 host attached to IP network, existing frozen simulated Wi-Fi profile; no BLE or physical Wi-Fi claim.",
+          "utc_ms": 1792411092676
+        },
+        {
+          "step": "1",
+          "answer": "PASS",
+          "note": "Onboarding uses the C setup payload with on-network discovery bit4; actual chip-tool browsing and QR commissioning complete on IP.",
+          "utc_ms": 1792411092690
+        },
+        {
+          "step": "2",
+          "answer": "PASS",
+          "note": "Discriminator subtype absent before manufacturer CLI start; after explicit start unsolicited announcement, browsing and commissioning succeed. Lock/barrier branches are not declared; the flattened conditional label is retained.",
+          "utc_ms": 1792411092698
+        },
+        {
+          "step": "3",
+          "answer": "NOT APPLICABLE",
+          "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+          "utc_ms": 1792411092704
+        },
+        {
+          "step": "4",
+          "answer": "NOT APPLICABLE",
+          "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+          "utc_ms": 1792411092708
+        },
+        {
+          "step": "5",
+          "answer": "NOT APPLICABLE",
+          "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+          "utc_ms": 1792411092715
+        },
+        {
+          "step": "6",
+          "answer": "NOT APPLICABLE",
+          "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+          "utc_ms": 1792411092720
+        },
+        {
+          "step": "7a",
+          "answer": "NOT APPLICABLE",
+          "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+          "utc_ms": 1792411092725
+        },
+        {
+          "step": "7b",
+          "answer": "NOT APPLICABLE",
+          "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+          "utc_ms": 1792411092731
+        },
+        {
+          "step": "8a",
+          "answer": "NOT APPLICABLE",
+          "note": "Wi-Fi PAF discovery not declared/supported; current commissioning transport is already-connected IP.",
+          "utc_ms": 1792411092738
+        },
+        {
+          "step": "8b",
+          "answer": "NOT APPLICABLE",
+          "note": "Wi-Fi PAF discovery not declared/supported; current commissioning transport is already-connected IP.",
+          "utc_ms": 1792411092742
+        },
+        {
+          "step": "9",
+          "answer": "NOT APPLICABLE",
+          "note": "Wi-Fi PAF discovery not declared/supported; current commissioning transport is already-connected IP.",
+          "utc_ms": 1792411092747
+        },
+        {
+          "step": "12",
+          "answer": "PASS",
+          "note": "Basic-mode PTR/SRV/TXT and all selected-interface IPv6 addresses observed independently; actual unfiltered chip-tool discovers the expected instance/discriminator/port/CM1.",
+          "utc_ms": 1792411092753
+        },
+        {
+          "step": "13a",
+          "answer": "NOT APPLICABLE",
+          "note": "Original optional TXT_KEY_VP guard not enabled in frozen PICS; optional field absent.",
+          "utc_ms": 1792411092759
+        },
+        {
+          "step": "13b",
+          "answer": "NOT APPLICABLE",
+          "note": "Original optional TXT_KEY_DT guard not enabled in frozen PICS; optional field absent.",
+          "utc_ms": 1792411092764
+        },
+        {
+          "step": "13c",
+          "answer": "NOT APPLICABLE",
+          "note": "Original optional TXT_KEY_DN guard not enabled in frozen PICS; optional field absent.",
+          "utc_ms": 1792411092771
+        },
+        {
+          "step": "13d",
+          "answer": "NOT APPLICABLE",
+          "note": "Original optional TXT_KEY_RI guard not enabled in frozen PICS; optional field absent.",
+          "utc_ms": 1792411092777
+        },
+        {
+          "step": "13e",
+          "answer": "PASS",
+          "note": "PH1 in factory-new basic mode; PH4 after commissioning and in enhanced mode. Only Power Cycle and Administrator bits are used, without PI instruction dependency; PICS now truthfully declares PH.",
+          "utc_ms": 1792411092786
+        },
+        {
+          "step": "13f",
+          "answer": "NOT APPLICABLE",
+          "note": "Original optional TXT_KEY_PI guard not enabled in frozen PICS; optional field absent.",
+          "utc_ms": 1792411092792
+        },
+        {
+          "step": "14",
+          "answer": "PASS",
+          "note": "Actual closed CM0 has no _CM in direct lookup or service enumeration. Six full scenarios also exercise customer opt-out, timed expiry and unlimited policy; PICS now declares Extended Discovery.",
+          "utc_ms": 1792411092798
+        },
+        {
+          "step": "15a",
+          "answer": "PASS",
+          "note": "Actual CM0 Extended Discovery includes PH4 (Administrator), correct records/subtypes/addresses and chip-tool discovery. Independent off/timed policies withdraw only commissionable discovery, retaining CASE and operational service.",
+          "utc_ms": 1792411092804
+        },
+        {
+          "step": "15b",
+          "answer": "PASS",
+          "note": "Queried original service-enumeration name and each discriminator subtype in open/closed modes: L/S present, _CM only when CM1/2. The copied example containing _CM does not apply in CM0; actual out-of-commissioning request is covered.",
+          "utc_ms": 1792411092810
+        },
+        {
+          "step": "15c",
+          "answer": "NOT APPLICABLE",
+          "note": "Optional vendor/device-type commissioning subtypes not declared or published.",
+          "utc_ms": 1792411092819
+        },
+        {
+          "step": "16a",
+          "answer": "PASS",
+          "note": "Authenticated administrator opens an enhanced window. Actual CM2, new instance and new discriminator observed; example CM1 values are not treated as mandatory.",
+          "utc_ms": 1792411092825
+        },
+        {
+          "step": "16b",
+          "answer": "PASS",
+          "note": "Real multicast PTR/SRV/TXT/AAAA and unmodified unfiltered chip-tool rediscover the enhanced-window instance and correct port.",
+          "utc_ms": 1792411092836
+        }
+      ]
+    }
+  },
+  "official_identity": {
+    "previous_pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "pics_sha256": "59328df7bff8136b17bb507c4e45618c5c510e10f38d911a74e70b4a76e1bb05",
+    "PICS_changes": [
+      {
+        "number": "MCORE.DD.EXTENDED_DISCOVERY",
+        "previous": null,
+        "enabled": true
+      },
+      {
+        "number": "MCORE.DD.TXT_KEY_PH",
+        "previous": null,
+        "enabled": true
+      },
+      {
+        "number": "MCORE.DD.DISCOVERY_PAF",
+        "previous": null,
+        "enabled": false
+      },
+      {
+        "number": "MCORE.DD.TXT_KEY_VP",
+        "previous": null,
+        "enabled": false
+      },
+      {
+        "number": "MCORE.DD.TXT_KEY_DT",
+        "previous": null,
+        "enabled": false
+      },
+      {
+        "number": "MCORE.DD.TXT_KEY_DN",
+        "previous": null,
+        "enabled": false
+      },
+      {
+        "number": "MCORE.DD.TXT_KEY_RI",
+        "previous": null,
+        "enabled": false
+      },
+      {
+        "number": "MCORE.DD.TXT_KEY_PI",
+        "previous": null,
+        "enabled": false
+      },
+      {
+        "number": "MCORE.DD.COMMISSIONING_SUBTYPE_V",
+        "previous": null,
+        "enabled": false
+      },
+      {
+        "number": "MCORE.DD.COMMISSIONING_SUBTYPE_T",
+        "previous": null,
+        "enabled": false
+      }
+    ],
+    "source_sha256": {
+      "Test_TC_DD_2_1.yaml": "d969414b6122ab5dcb2b99d775f1a9b65a5c1ce7cb294dbb9e509ceff2dc623e",
+      "TC_SC_4_1.py": "9087d175b89da40c4ab654b036fa747a3b3247b94415d143a609993bab1df4b0",
+      "TC_SC_4_3.py": "7d51a69ebdc328b2609004c8397959d1cb138a1f2fe2b73260e7230d7afae921"
+    }
+  },
+  "operator_input_sha256": {
+    "proof.json": "2d196e705252a55ec0b3a68ecb28871004327814ab2f77d30455dccaaa35503b",
+    "run_manual.py": "a0498efff589ff563ef5fa7eb332c8e57a81b0e1d97258724d4033ea384091f1",
+    "auto_prompts.py": "7c88a1687f81829233edbe73c5e09c04d559e09637d5c8f96e2ab137067a357e"
+  },
+  "independent_final_acceptance": {
+    "final-normal-unlimited": {
+      "result": "PASS",
+      "functional_checks": 37,
+      "conformance_assertions": 3,
+      "check_names": [
+        "absent-before-manufacturer-start",
+        "published",
+        "instance-and-host-format",
+        "unsolicited-announcement-before-post-start-queries",
+        "basic-TXT-mode-discriminator",
+        "basic-SRV",
+        "basic-IPv6-addresses",
+        "basic-enumeration",
+        "basic-subtype-_cm",
+        "basic-subtype-_l3913",
+        "basic-subtype-_s15",
+        "basic-unmodified-chip-tool-discovery",
+        "command-pairing-code",
+        "attestation-and-SendComplete",
+        "closed-TXT-mode-discriminator",
+        "closed-SRV",
+        "closed-IPv6-addresses",
+        "closed-enumeration",
+        "closed-subtype-_l3913",
+        "closed-subtype-_s15",
+        "closed-no-CM-enumeration",
+        "closed-no-CM-subtype",
+        "closed-unmodified-chip-tool-discovery",
+        "command-pairing-open-commissioning-window",
+        "enhanced-TXT-mode-discriminator",
+        "enhanced-SRV",
+        "enhanced-IPv6-addresses",
+        "enhanced-enumeration",
+        "enhanced-subtype-_cm",
+        "enhanced-subtype-_l3914",
+        "enhanced-subtype-_s15",
+        "enhanced-unmodified-chip-tool-discovery",
+        "new-instance-on-entering-commissioning",
+        "old-instance-withdrawn-on-reopen",
+        "clean-stop",
+        "empty-host-stderr",
+        "memcheck"
+      ],
+      "conformance_names": [
+        "basic-truthful-PH",
+        "closed-PH-required-in-extended-discovery",
+        "enhanced-truthful-PH"
+      ],
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "driver_sha256": "b613ee6c67d09e0dc95184ca8d06b5d5e5ca4224cee754db909dae673a8d58b9",
+      "memory": [
+        {
+          "allocations": 23963,
+          "frees": 23963,
+          "zero_errors": true,
+          "zero_live": true
+        }
+      ],
+      "artifact_sha256": {
+        "state.tlv.clock": "8145da2a3859c84af987fe2fc2ba4ede7246b24a424673f7c80618a8c9c70ed6",
+        "node.log": "1866dd2c2ad749f0f444396ed1bea6606ff80995adbe5653493a1c3d3e86048a",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "memcheck.log": "6bccda21998dbf9a882a0a6c29a830b844de2fb1b59cef7d95ac1901555ab8e8",
+        "discover-basic.log": "d167e02c03ff13947378dacc3978a7b7131f499fb57b5ef1f11211eef8690857",
+        "packets.json": "0c8502577a33b7af023908a0be532233119f47147f0c5aec44531661f1acb74e",
+        "discover-enhanced.log": "e471b6604431e900e3d6941a2d70772c59841882de419a70172e5ec9127cb69b",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "discover-closed.log": "c9fca94b1be8af410aeb5237451866c78a58219058fd9e5596fcd9108eec8e28",
+        "result.json": "8c60d63349745c443ac322361224b6e82ba0118b7e79d86b6cea1f1da4623ac3",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "TXT": {
+        "basic": {
+          "D": "3913",
+          "CM": "1",
+          "PH": "1"
+        },
+        "closed": {
+          "D": "3913",
+          "CM": "0",
+          "PH": "4"
+        },
+        "enhanced": {
+          "D": "3914",
+          "CM": "2",
+          "PH": "4"
+        }
+      }
+    },
+    "final-normal-0": {
+      "result": "PASS",
+      "functional_checks": 34,
+      "conformance_assertions": 2,
+      "check_names": [
+        "absent-before-manufacturer-start",
+        "published",
+        "instance-and-host-format",
+        "unsolicited-announcement-before-post-start-queries",
+        "basic-TXT-mode-discriminator",
+        "basic-SRV",
+        "basic-IPv6-addresses",
+        "basic-enumeration",
+        "basic-subtype-_cm",
+        "basic-subtype-_l3913",
+        "basic-subtype-_s15",
+        "basic-unmodified-chip-tool-discovery",
+        "command-pairing-code",
+        "attestation-and-SendComplete",
+        "policy-budget-bounded-for-fixture",
+        "policy-withdraws-commissionable-discovery",
+        "policy-open-window-not-hidden",
+        "policy-goodbye",
+        "command-basicinformation-read",
+        "policy-CASE-still-usable",
+        "policy-operational-discovery-remains",
+        "command-pairing-open-commissioning-window",
+        "enhanced-TXT-mode-discriminator",
+        "enhanced-SRV",
+        "enhanced-IPv6-addresses",
+        "enhanced-enumeration",
+        "enhanced-subtype-_cm",
+        "enhanced-subtype-_l3914",
+        "enhanced-subtype-_s15",
+        "enhanced-unmodified-chip-tool-discovery",
+        "new-instance-on-entering-commissioning",
+        "clean-stop",
+        "empty-host-stderr",
+        "memcheck"
+      ],
+      "conformance_names": [
+        "basic-truthful-PH",
+        "enhanced-truthful-PH"
+      ],
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "driver_sha256": "b613ee6c67d09e0dc95184ca8d06b5d5e5ca4224cee754db909dae673a8d58b9",
+      "memory": [
+        {
+          "allocations": 23978,
+          "frees": 23978,
+          "zero_errors": true,
+          "zero_live": true
+        }
+      ],
+      "artifact_sha256": {
+        "state.tlv.clock": "bef9738ce0954328d8ac3dcafd9943c155b0fd037fc306f42ff5c12ad7570f9c",
+        "node.log": "9bb66ab3ab538165b4cb28b448287d33986755cd5696fb36f45be11fffb22253",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "memcheck.log": "26e1c96c457f33d50973ef30837b8b5bbd0c8a2f4a6e4449a0e5420cdb5cc86e",
+        "discover-basic.log": "88afc1fa3b341debbdd46a4675f73dd9d9b233a957de5b277cba2ee058f044af",
+        "packets.json": "2c5c00ceb00e0459fd92222342ccc6f3086806b7a7fc4d84dec7ce34b11d0132",
+        "discover-enhanced.log": "1b2e1e43f2a46ee0f6af4234fe1e9e71a71eaf4bca1bbfcf08eff1b3a1b05498",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "70491465e820946e3cd33466179901ececb6e3410e3bee70613da650193bf020",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "TXT": {
+        "basic": {
+          "D": "3913",
+          "CM": "1",
+          "PH": "1"
+        },
+        "enhanced": {
+          "D": "3914",
+          "CM": "2",
+          "PH": "4"
+        }
+      }
+    },
+    "final-normal-8": {
+      "result": "PASS",
+      "functional_checks": 35,
+      "conformance_assertions": 8,
+      "check_names": [
+        "absent-before-manufacturer-start",
+        "published",
+        "instance-and-host-format",
+        "unsolicited-announcement-before-post-start-queries",
+        "basic-TXT-mode-discriminator",
+        "basic-SRV",
+        "basic-IPv6-addresses",
+        "basic-enumeration",
+        "basic-subtype-_cm",
+        "basic-subtype-_l3913",
+        "basic-subtype-_s15",
+        "basic-unmodified-chip-tool-discovery",
+        "command-pairing-code",
+        "attestation-and-SendComplete",
+        "policy-budget-bounded-for-fixture",
+        "policy-withdraws-commissionable-discovery",
+        "policy-open-window-not-hidden",
+        "timed-policy-advertised-before-expiry",
+        "policy-goodbye",
+        "command-basicinformation-read",
+        "policy-CASE-still-usable",
+        "policy-operational-discovery-remains",
+        "command-pairing-open-commissioning-window",
+        "enhanced-TXT-mode-discriminator",
+        "enhanced-SRV",
+        "enhanced-IPv6-addresses",
+        "enhanced-enumeration",
+        "enhanced-subtype-_cm",
+        "enhanced-subtype-_l3914",
+        "enhanced-subtype-_s15",
+        "enhanced-unmodified-chip-tool-discovery",
+        "new-instance-on-entering-commissioning",
+        "clean-stop",
+        "empty-host-stderr",
+        "memcheck"
+      ],
+      "conformance_names": [
+        "basic-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "enhanced-truthful-PH"
+      ],
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "driver_sha256": "b613ee6c67d09e0dc95184ca8d06b5d5e5ca4224cee754db909dae673a8d58b9",
+      "memory": [
+        {
+          "allocations": 23975,
+          "frees": 23975,
+          "zero_errors": true,
+          "zero_live": true
+        }
+      ],
+      "artifact_sha256": {
+        "state.tlv.clock": "c5b4e1ba3c46f328137ce92cdb54119c9a6c33c291f6e894f60b7379e67aa43e",
+        "node.log": "dba87a1de7b305c78f70dfcca840df52245f8e38fd7e535534053fa426e1998c",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "memcheck.log": "a40943a8b94b80aaacc545982ebb972a2fd39d9314dffe5ae8e98f799c067747",
+        "discover-basic.log": "7866cc9bc754060eb727ecde1978b8c50e387b35313dcf9e35ad9f175f80eea5",
+        "packets.json": "a37713001fd92d1a730bbc999241ab67300f22af07a321f0afc4729c24691d90",
+        "discover-enhanced.log": "9a5efa893d548171a8277dbe3752c1df26d9f8643da6e727e1d83a8200535a5c",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "a3bcbbe4847768ac15f1fff1eeb15823627162b44f027345e2e2c21e3aa3e093",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "TXT": {
+        "basic": {
+          "D": "3913",
+          "CM": "1",
+          "PH": "1"
+        },
+        "enhanced": {
+          "D": "3914",
+          "CM": "2",
+          "PH": "4"
+        }
+      }
+    },
+    "final-sanitize-unlimited": {
+      "result": "PASS",
+      "functional_checks": 36,
+      "conformance_assertions": 3,
+      "check_names": [
+        "absent-before-manufacturer-start",
+        "published",
+        "instance-and-host-format",
+        "unsolicited-announcement-before-post-start-queries",
+        "basic-TXT-mode-discriminator",
+        "basic-SRV",
+        "basic-IPv6-addresses",
+        "basic-enumeration",
+        "basic-subtype-_cm",
+        "basic-subtype-_l3913",
+        "basic-subtype-_s15",
+        "basic-unmodified-chip-tool-discovery",
+        "command-pairing-code",
+        "attestation-and-SendComplete",
+        "closed-TXT-mode-discriminator",
+        "closed-SRV",
+        "closed-IPv6-addresses",
+        "closed-enumeration",
+        "closed-subtype-_l3913",
+        "closed-subtype-_s15",
+        "closed-no-CM-enumeration",
+        "closed-no-CM-subtype",
+        "closed-unmodified-chip-tool-discovery",
+        "command-pairing-open-commissioning-window",
+        "enhanced-TXT-mode-discriminator",
+        "enhanced-SRV",
+        "enhanced-IPv6-addresses",
+        "enhanced-enumeration",
+        "enhanced-subtype-_cm",
+        "enhanced-subtype-_l3914",
+        "enhanced-subtype-_s15",
+        "enhanced-unmodified-chip-tool-discovery",
+        "new-instance-on-entering-commissioning",
+        "old-instance-withdrawn-on-reopen",
+        "clean-stop",
+        "empty-host-stderr"
+      ],
+      "conformance_names": [
+        "basic-truthful-PH",
+        "closed-PH-required-in-extended-discovery",
+        "enhanced-truthful-PH"
+      ],
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "driver_sha256": "b613ee6c67d09e0dc95184ca8d06b5d5e5ca4224cee754db909dae673a8d58b9",
+      "memory": [],
+      "artifact_sha256": {
+        "state.tlv.clock": "37cc03feee178518a2673fa7711ea2977d52abcd4aabf0e07e867cefc43cf706",
+        "node.log": "47c7a79c0508bffa292f7b3c1e7e23f56ecdc657c80c17872de98ad90e0264fe",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "discover-basic.log": "b547363a7b91510100ab08a3f367c098418c6443cf0fb9b08094ea3903d334c8",
+        "packets.json": "907b13d92438099cb77c214e7811afefeb843bad3e832cee6828b1b1afbc2563",
+        "discover-enhanced.log": "7e0f18bc581b0b467087f43d233a643e93a664af7933c8bc3d5128922449187f",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "discover-closed.log": "ef89197b010f00a4086968448963d6f4e16445d8f4452d7084d6b5c2f323d6bf",
+        "result.json": "84a3c5f31fab71576debecdbe92eec0606e0eac185f8111fcd80e89fe7c62006",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "TXT": {
+        "basic": {
+          "D": "3913",
+          "CM": "1",
+          "PH": "1"
+        },
+        "closed": {
+          "D": "3913",
+          "CM": "0",
+          "PH": "4"
+        },
+        "enhanced": {
+          "D": "3914",
+          "CM": "2",
+          "PH": "4"
+        }
+      }
+    },
+    "final-sanitize-0": {
+      "result": "PASS",
+      "functional_checks": 33,
+      "conformance_assertions": 2,
+      "check_names": [
+        "absent-before-manufacturer-start",
+        "published",
+        "instance-and-host-format",
+        "unsolicited-announcement-before-post-start-queries",
+        "basic-TXT-mode-discriminator",
+        "basic-SRV",
+        "basic-IPv6-addresses",
+        "basic-enumeration",
+        "basic-subtype-_cm",
+        "basic-subtype-_l3913",
+        "basic-subtype-_s15",
+        "basic-unmodified-chip-tool-discovery",
+        "command-pairing-code",
+        "attestation-and-SendComplete",
+        "policy-budget-bounded-for-fixture",
+        "policy-withdraws-commissionable-discovery",
+        "policy-open-window-not-hidden",
+        "policy-goodbye",
+        "command-basicinformation-read",
+        "policy-CASE-still-usable",
+        "policy-operational-discovery-remains",
+        "command-pairing-open-commissioning-window",
+        "enhanced-TXT-mode-discriminator",
+        "enhanced-SRV",
+        "enhanced-IPv6-addresses",
+        "enhanced-enumeration",
+        "enhanced-subtype-_cm",
+        "enhanced-subtype-_l3914",
+        "enhanced-subtype-_s15",
+        "enhanced-unmodified-chip-tool-discovery",
+        "new-instance-on-entering-commissioning",
+        "clean-stop",
+        "empty-host-stderr"
+      ],
+      "conformance_names": [
+        "basic-truthful-PH",
+        "enhanced-truthful-PH"
+      ],
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "driver_sha256": "b613ee6c67d09e0dc95184ca8d06b5d5e5ca4224cee754db909dae673a8d58b9",
+      "memory": [],
+      "artifact_sha256": {
+        "state.tlv.clock": "63c97b8204fc58edc62d375925c53cb0a4ff9cac7c77576084526d3cea54d787",
+        "node.log": "f0183aadfb86224e9cc5e423fdf39c5bdb7be879e323bd26537428213cf5c465",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "discover-basic.log": "f3b12d65a47baa26cee7248963721573423db125f2c86bf0caa7c7baed5fd029",
+        "packets.json": "caa0d1070033da588b5a147a851646c3700f61355d4decce7e7ec72b1c11d4aa",
+        "discover-enhanced.log": "d4a25da8f111de16041536fa5d2eb1f33914e259c9cdc4da62893054d995652c",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "b86086707350171838c93463cfd146188e438b7727f6e4909328edb4d8b367dc",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "TXT": {
+        "basic": {
+          "D": "3913",
+          "CM": "1",
+          "PH": "1"
+        },
+        "enhanced": {
+          "D": "3914",
+          "CM": "2",
+          "PH": "4"
+        }
+      }
+    },
+    "final-sanitize-8": {
+      "result": "PASS",
+      "functional_checks": 34,
+      "conformance_assertions": 8,
+      "check_names": [
+        "absent-before-manufacturer-start",
+        "published",
+        "instance-and-host-format",
+        "unsolicited-announcement-before-post-start-queries",
+        "basic-TXT-mode-discriminator",
+        "basic-SRV",
+        "basic-IPv6-addresses",
+        "basic-enumeration",
+        "basic-subtype-_cm",
+        "basic-subtype-_l3913",
+        "basic-subtype-_s15",
+        "basic-unmodified-chip-tool-discovery",
+        "command-pairing-code",
+        "attestation-and-SendComplete",
+        "policy-budget-bounded-for-fixture",
+        "policy-withdraws-commissionable-discovery",
+        "policy-open-window-not-hidden",
+        "timed-policy-advertised-before-expiry",
+        "policy-goodbye",
+        "command-basicinformation-read",
+        "policy-CASE-still-usable",
+        "policy-operational-discovery-remains",
+        "command-pairing-open-commissioning-window",
+        "enhanced-TXT-mode-discriminator",
+        "enhanced-SRV",
+        "enhanced-IPv6-addresses",
+        "enhanced-enumeration",
+        "enhanced-subtype-_cm",
+        "enhanced-subtype-_l3914",
+        "enhanced-subtype-_s15",
+        "enhanced-unmodified-chip-tool-discovery",
+        "new-instance-on-entering-commissioning",
+        "clean-stop",
+        "empty-host-stderr"
+      ],
+      "conformance_names": [
+        "basic-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "timed-CM0-truthful-PH",
+        "enhanced-truthful-PH"
+      ],
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "driver_sha256": "b613ee6c67d09e0dc95184ca8d06b5d5e5ca4224cee754db909dae673a8d58b9",
+      "memory": [],
+      "artifact_sha256": {
+        "state.tlv.clock": "a8e9632adc32a3cb977088e8d8485233d23d4df7e3ab8733f23cffbff67b1831",
+        "node.log": "77922be2e0725bfaa00106c3b66cc38088485bdbd60d46de76fe1ebc8cfb6c47",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "discover-basic.log": "c9d5ab79d4e87b218b7d82ff67d67a90ffee6eb3d6510e65946a8ceaa464915c",
+        "packets.json": "f0e40b0316d72622006b834478789c4e25945f6f67f9ab7f9864ade7bb59ce05",
+        "discover-enhanced.log": "4de41a0b6f25d4672b89f09aa2b0b83d3fdac58607c233d48f226070e8362bc4",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "732fb412d11b511ebbda92a1b7340dcab548877cb84dd94f07ce04a5a63a9882",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "TXT": {
+        "basic": {
+          "D": "3913",
+          "CM": "1",
+          "PH": "1"
+        },
+        "enhanced": {
+          "D": "3914",
+          "CM": "2",
+          "PH": "4"
+        }
+      }
+    }
+  },
+  "restored_disabled": {
+    "normal": {
+      "checks": [
+        {
+          "name": "restored-boot-ready-without-commissionable-publication",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-CASE-works-with-commissionable-disabled",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "empty-stderr",
+          "status": "PASS"
+        },
+        {
+          "name": "memcheck-clean",
+          "status": "PASS"
+        }
+      ],
+      "artifacts": {
+        "node.log": "868475239cfc6abe257b55cf755a26076dbfae4753983142ff3925f083f7deee",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "memcheck.log": "d762ce3f631691c455c2db59333c665733c2f425538c9ff117ccf960862652d6"
+      }
+    },
+    "sanitize": {
+      "checks": [
+        {
+          "name": "restored-boot-ready-without-commissionable-publication",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-CASE-works-with-commissionable-disabled",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "empty-stderr",
+          "status": "PASS"
+        }
+      ],
+      "artifacts": {
+        "node.log": "b4ef18b04b364a23a439f153c9286a3def4d3d032e95793af393f917216eb3fc",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "memory_summary": {
+    "allocations": 83076,
+    "frees": 83076,
+    "zero_errors": true,
+    "zero_live_bytes": true,
+    "accepted_memcheck_processes": 4,
+    "host_stderr_files_empty": 8,
+    "functional_checks_six_runs": 209,
+    "conformance_assertions_six_runs": 26,
+    "restored_disabled_checks": 9,
+    "conformance_note": "Repeated PH observations are recorded assertions, not independent CSA test cases."
+  },
+  "build_verification": {
+    "linux_native_tests_per_variant": 5,
+    "linux_variants": [
+      "normal",
+      "ASan/UBSan/LSan"
+    ],
+    "native_tests": [
+      "test_discovery",
+      "test_discovery_alloc",
+      "test_node_discovery",
+      "test_runtime",
+      "test_runtime_alloc"
+    ],
+    "windows_targets": [
+      "matter-node",
+      "matter-desktop",
+      "test_discovery",
+      "test_discovery_alloc",
+      "test_node_discovery"
+    ],
+    "windows_native_tests": 3,
+    "windows_build_log_sha256": "6fb0e50022789ceda97c6ee965d4744a2502db7f7f76bde52d3e81620dbb7652",
+    "linux_build_log_sha256": "6377390d6aad1e4699ac0c54b3cba1eef65f382d5fac489b8b387d421cfcc863",
+    "compiler_warnings_observed": 0,
+    "installed_consumer": {
+      "PASS": true,
+      "log_sha256": "7008b79f7d867800d61973597528dd50be0f59bf3d3870de6ee629938c3fe74f"
+    },
+    "CLI_invalid_inputs_rejected": 5,
+    "native_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "changed_native_sha256": {
+      "main/apps/matter/matter_discovery.c": "03b6e4ddc905f9aa72f43eb1e17144da784138336e8e4dacc461755804dba393",
+      "main/apps/matter/matter_discovery.h": "d2bf043da7869646cd182fb522fd72ad21d68e5c032e9102a14d63156e07a423",
+      "tools/matter/host/matter_node.c": "7e5f2a68b651cf5dd9d22f1b9831731aca584805c69fc7fd3ef12b4d622f8cc8",
+      "tools/matter/tests/test_discovery.c": "dad72316234622878fe8b9c30f3f78027e695dacdca19fa1ca0464d10d1bb643",
+      "tools/matter/tests/test_node_discovery.c": "c05b1172c7decd7345938ade3f26c8d01aaf535371d417cdc57d87e8273be4ea"
+    }
+  },
+  "policy": {
+    "default_seconds": 900,
+    "CLI": "--extended-discovery-seconds N|unlimited",
+    "disabled_value": 0,
+    "maximum_numeric_seconds": 4294967295,
+    "explicit_unlimited": true,
+    "duration_origin": "Each entry into CM0, including a restored commissioned boot; Node monotonic clock.",
+    "deadline_behavior": "Does not refresh on queries; expiry or disable drains/withdraws commissionable publication only. Active windows and operational publishers/CASE remain active.",
+    "configuration_storage": "Process arguments, not a new persisted state format or GUI preference."
+  },
+  "pairing_hints": {
+    "factory_new": 1,
+    "commissioned": 4,
+    "meanings": {
+      "1": "Power Cycle/restart enters commissioning on this host.",
+      "4": "Commissioned administrator may reopen a window."
+    },
+    "PI_dependency": false,
+    "generic_API": "matter_discovery_commissionable_with_hint; caller owns truthful hints and policy.",
+    "compatibility": "Existing constructor retained; PH0 in CM0 makes no platform-method claim. Applications requiring truthful hints must use the explicit constructor."
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "sections": [
+      "4.3.1",
+      "4.3.1.2",
+      "4.3.1.3",
+      "4.3.1.11",
+      "Table 5"
+    ]
+  },
+  "coverage": {
+    "category_totals_unchanged": true,
+    "manual_PASS": 12,
+    "manual_FAIL": 1,
+    "manual_without_outcome": 27,
+    "manual_without_PASS": 28,
+    "new_top_level_applicable_rows_from_discovery_PICS_delta": 0,
+    "applicability_review_still_required": true
+  },
+  "fixture_history": {
+    "initial": "Unlimited/off runs passed. Initial three-second deadline fixture incorrectly accepted a quiet probing gap as completed expiry, then failed its pre-expiry observation.",
+    "correction": "For timed policy, observe through the requested elapsed duration before accepting silence; use an eight-second budget so the real publisher can complete probing under Memcheck. Six final runs repeat on one accepted driver hash.",
+    "runtime_change_after_initial_fixture_failure": false
+  },
+  "cleanup": {
+    "harness_idle": true,
+    "temporary_public_PAA_removed": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_instances_untouched": true
+  },
+  "limits": [
+    "TC-DD-2.1 is original manual operator review of real retained observations, not an automatic protocol assertion or certification.",
+    "Eight-second expiry is exercised on the wire; the default 900-second duration is not shortened inside the runtime and was not waited out in real time.",
+    "Native GUI builds and receives corrected readiness semantics; no new GUI policy setting or manual Apple/Google UI acceptance.",
+    "Legacy discovery-only fixtures and generic record builders are not complete conformant products. Application must supply truthful hint methods and privacy policy.",
+    "No physical radio/firmware, multiple physical networks, 128 kB RAM-fit or full matrix recertification. Unaffected evidence is cumulative, not a fresh full-suite rerun.",
+    "Earlier PICS declarations beyond this discovery delta remain subject to review, including Commissioner Discovery applicability.",
+    "Private state, keys, addresses and captures excluded from Git; CSA30 deferred and CSA32 separate discrepancy retained."
+  ],
+  "next": {
+    "stage": "CSA36",
+    "case": "TC-SC-4.7",
+    "scope": "Audit MCORE.DD.COMM_DISCOVERY versus actual Commissioner Discovery/UDC support and original TC-SC-4.7 applicability before choosing the next manual execution."
+  }
+}

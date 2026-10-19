@@ -26,6 +26,7 @@ def main():
         parser.add_argument('--' + name, required=True, type=Path)
     parser.add_argument('--interface', required=True, type=int)
     parser.add_argument('--valgrind', action='store_true')
+    parser.add_argument('--extended-discovery-seconds', default='unlimited', help='unlimited for the full catalog; 0 or a short timeout also verifies withdrawal with CASE retained')
     args = parser.parse_args()
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
     report = {'checks': [], 'conformance_checks': [], 'observations': {}, 'result': 'RUNNING',
@@ -138,8 +139,10 @@ def main():
             records = lookup('_cm._sub.' + service)
             check(label + '-no-CM-subtype', not any(name == '_cm._sub.' + service and kind == 12 and ttl
                   and read_name(payload, 0)[0].lower() == owner for name, kind, _, ttl, payload in records))
-            check(label + '-PH-required-in-extended-discovery', 'PH' in observed,
-                  'Core R1.6.1 4.3.1.11 requires PH when CM=0 is advertised.', conformance=True, fatal=False)
+            check(label + '-PH-required-in-extended-discovery', observed.get('PH') == '4',
+                  'Core R1.6.1 4.3.1.11, commissioned host advertises Administrator bit2.', conformance=True, fatal=False)
+        else:
+            check(label + '-truthful-PH', observed.get('PH') == ('1' if label == 'basic' else '4'), conformance=True, fatal=False)
         return owner
 
     def chip_discover(label, owner, mode, discriminator):
@@ -179,7 +182,9 @@ def main():
                   for name, kind, _, ttl, _ in before))
             argv = [str(args.node), '--interface', str(args.interface), '--port', str(port), '--seconds', '180',
                     '--pin', '20202021', '--discriminator', str(disc), '--credentials', str(args.credentials),
-                    '--state', str(out / 'state.tlv'), '--three-phase', '--source-registers', '--meter-services', '--wifi-sim-connected']
+                    '--state', str(out / 'state.tlv'), '--three-phase', '--source-registers', '--meter-services', '--wifi-sim-connected',
+                    '--extended-discovery-seconds', args.extended_discovery_seconds]
+            report['extended_discovery_seconds'] = args.extended_discovery_seconds
             if args.valgrind:
                 argv = ['valgrind', '--leak-check=full', '--show-leak-kinds=all', '--errors-for-leak-kinds=all',
                         '--track-origins=yes', '--error-exitcode=99', '--log-file=' + str(out / 'memcheck.log'), *argv]
@@ -200,12 +205,40 @@ def main():
             data = command(['pairing', 'code', 1, code, '--use-only-onnetwork-discovery', 1, '--timeout', 40], 'Device commissioning completed with success')
             check('attestation-and-SendComplete', all("Successfully finished commissioning step '" + step + "'" in data
                   for step in ['AttestationVerification', 'SendComplete']))
-            closed = observe('closed', 0, disc, initial); chip_discover('closed', closed, 0, disc)
+            limited = args.extended_discovery_seconds != 'unlimited'
+            if not limited:
+                closed = observe('closed', 0, disc, initial); chip_discover('closed', closed, 0, disc)
+            else:
+                budget = int(args.extended_discovery_seconds)
+                check('policy-budget-bounded-for-fixture', 0 <= budget <= 10)
+                earliest = time.monotonic() + budget
+                deadline = earliest + 12
+                quiet = False; saw_closed = False
+                while time.monotonic() < deadline:
+                    records = lookup(initial, 255)
+                    for name, kind, _, ttl, payload in records:
+                        if name == initial and kind == 16 and ttl and fields(payload).get('CM') == '0':
+                            saw_closed = True
+                            check('timed-CM0-truthful-PH', fields(payload).get('PH') == '4', conformance=True)
+                    quiet = not any(name == initial and kind in (16,33) and ttl for name, kind, _, ttl, _ in records)
+                    if quiet and (not budget or time.monotonic() >= earliest):
+                        break
+                check('policy-withdraws-commissionable-discovery', quiet and child.poll() is None)
+                check('policy-open-window-not-hidden', budget != 0 or not saw_closed)
+                if budget:
+                    check('timed-policy-advertised-before-expiry', saw_closed)
+                check('policy-goodbye', any(name == initial and ttl == 0 for name, _, _, ttl, _ in rows(start)))
+                command(['basicinformation', 'read', 'vendor-id', 1, 0], r'VendorID:\s*65521\b')
+                check('policy-CASE-still-usable', child.poll() is None)
+                operational = re.search(r'FABRIC index=1 instance=(\S+)', log_path.read_text())[1].lower() + '._matter._tcp.local.'
+                check('policy-operational-discovery-remains', any(name == operational and kind == 33 and ttl
+                      for name, kind, _, ttl, _ in lookup(operational,255)))
             opened = time.monotonic()
             command(['pairing', 'open-commissioning-window', 1, 1, 180, 1000, disc + 1], r'Manual pairing code: \[\d+\]')
             enhanced = observe('enhanced', 2, disc + 1); chip_discover('enhanced', enhanced, 2, disc + 1)
             check('new-instance-on-entering-commissioning', enhanced != initial)
-            check('old-instance-withdrawn-on-reopen', any(name == initial and ttl == 0 for name, _, _, ttl, _ in rows(opened)))
+            if not limited:
+                check('old-instance-withdrawn-on-reopen', any(name == initial and ttl == 0 for name, _, _, ttl, _ in rows(opened)))
             report['result'] = 'FAIL' if any(c['status'] == 'FAIL' for c in report['conformance_checks']) else 'PASS'
         except Exception as exc:
             report['result'] = 'FAIL'; report['error'] = type(exc).__name__ + ': ' + str(exc)

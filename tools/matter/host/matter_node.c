@@ -40,6 +40,9 @@
 #define HOST_POWER_ONLY_MW INT64_C(123000)
 #define HOST_SENSOR_IMPORTED_MWH INT64_C(12345000)
 #define HOST_SENSOR_EXPORTED_MWH INT64_C(2345000)
+#define HOST_EXTENDED_DISCOVERY_SECONDS 900
+#define HOST_PAIRING_HINT_POWER_CYCLE (UINT32_C(1)<<0)
+#define HOST_PAIRING_HINT_ADMINISTRATOR (UINT32_C(1)<<2)
 
 typedef struct { Matter_T owner; Matter_Mdns_Windows_T mdns; Matter_Discovery_T description; uint8_t index; } Operational;
 
@@ -72,6 +75,7 @@ typedef struct {
     bool gui_enabled; Matter_Gui_Control_T gui;
     Matter_Server_T server; Operational operational[5]; uint16_t port,discriminator,advertised_discriminator; uint8_t random[8],cm_mode;
     uint8_t observed_cm_mode; bool discovery_stopping,discovery_rotate;
+    uint64_t extended_duration_ms,extended_since_ms; bool extended_started;
 } Node;
 static uint64_t node_now(const Node* n) { return matter_host_now()-n->boot_ms; }
 static Matter_Result_T network_snapshot(void* u,Matter_Diagnostics_Interface_T* out,size_t capacity,size_t* count) {
@@ -507,6 +511,17 @@ static bool sample(Node* n,uint64_t now,uint64_t seconds) {
         (long long)n->power.active_mw,(long long)n->checkpoint.total_mwh[0],(long long)n->checkpoint.total_mwh[1],(unsigned long long)next);
     return true;
 }
+static bool discovery_wanted(Node* n,uint64_t now,uint8_t mode) {
+    if(mode) { n->extended_started=false; return true; }
+    if(!n->extended_started) { n->extended_started=true; n->extended_since_ms=now; }
+    return n->extended_duration_ms==UINT64_MAX ||
+        (n->extended_duration_ms && now-n->extended_since_ms<n->extended_duration_ms);
+}
+static Matter_Discovery_T commissionable_record(Node* n,uint16_t discriminator,uint8_t mode) {
+    const Matter_Fabric_View_T* fabrics=matter_server_fabrics(n->server);
+    uint32_t hint=fabrics && fabrics->count?HOST_PAIRING_HINT_ADMINISTRATOR:HOST_PAIRING_HINT_POWER_CYCLE;
+    return matter_discovery_commissionable_with_hint(n->discovery_mac,n->random,discriminator,mode,n->port,hint);
+}
 static bool advertisements(Node* n,uint64_t now,bool stopping) {
     uint16_t discriminator=n->discriminator;
     uint8_t mode=matter_server_commissioning_mode(n->server,&discriminator);
@@ -517,7 +532,9 @@ static bool advertisements(Node* n,uint64_t now,bool stopping) {
         if(mode && !n->observed_cm_mode) n->discovery_rotate=true;
         n->observed_cm_mode=mode;
     }
-    if(!stopping && n->server && (n->discovery_stopping || n->cm_mode!=mode || n->advertised_discriminator!=discriminator)) {
+    bool wanted=!stopping && n->server && discovery_wanted(n,now,mode);
+    if(!stopping && n->server && (n->discovery_stopping || n->cm_mode!=mode || n->advertised_discriminator!=discriminator ||
+        (wanted!=(n->mdns!=NULL)))) {
         /* Once removal starts it must drain, including close/reopen transitions
          * which return to the old mode/discriminator before goodbye completes. */
         n->discovery_stopping=true;
@@ -525,15 +542,18 @@ static bool advertisements(Node* n,uint64_t now,bool stopping) {
             (void)matter_mdns_stop(matter_mdns_windows_module(n->mdns));
             (void)matter_mdns_process(matter_mdns_windows_module(n->mdns)); (void)matter_mdns_windows_poll(n->mdns,now);
             if(matter_mdns_windows_delete(n->mdns)!=MATTER_OK) return true;
-            n->mdns=NULL; matter_discovery_delete(n->discovery); n->discovery=NULL;
+            n->mdns=NULL;
         }
+        matter_discovery_delete(n->discovery); n->discovery=NULL;
         if(n->discovery_rotate && !matter_host_random(n->random,sizeof(n->random))) return false;
         n->discovery_rotate=false;
         n->cm_mode=mode; n->advertised_discriminator=discriminator;
-        n->discovery=matter_discovery_commissionable(n->discovery_mac,n->random,discriminator,mode,n->port);
-        if(!n->discovery) return false;
-        n->mdns=matter_mdns_windows_new(n->owner,&n->iface,matter_discovery_record(n->discovery));
-        if(!n->mdns || matter_mdns_start(matter_mdns_windows_module(n->mdns))!=MATTER_OK) return false;
+        if(wanted) {
+            n->discovery=commissionable_record(n,discriminator,mode);
+            if(!n->discovery) return false;
+            n->mdns=matter_mdns_windows_new(n->owner,&n->iface,matter_discovery_record(n->discovery));
+            if(!n->mdns || matter_mdns_start(matter_mdns_windows_module(n->mdns))!=MATTER_OK) return false;
+        }
         n->discovery_stopping=false;
     }
     const Matter_Fabric_View_T* view=matter_server_fabrics(n->server);
@@ -587,10 +607,17 @@ int main(int argc,char** argv) {
     const char* credentials=NULL; const char* state=NULL; const char* ota_file=NULL; const char* ota_key=NULL; const char* ota_boot=NULL;
     Matter_Case_Resumption_Profile_T resumption_profile=MATTER_CASE_RESUMPTION_CHIP;
     bool gui_control=false; const char* instance_id=NULL;
+    uint64_t extended_duration_ms=UINT64_C(1000)*HOST_EXTENDED_DISCOVERY_SECONDS;
     unsigned long subscriptions=MATTER_HOST_SUBS_PER_FABRIC;
     bool chip_validity=false,test_switch=false,test_power_only=false,power_sensor_only=false,sensor_energy=false,three_phase=false,source_registers=false,meter_services=false,wifi_sim_connected=false;
     Matter_Diagnostics_Test_Trigger_T trigger={.trigger=test_event_trigger}; bool test_events=false;
     for(int i=1;i<argc;++i) {
+        if(!strcmp(argv[i],"--extended-discovery-seconds")) {
+            if(++i==argc) return 2;
+            if(!strcmp(argv[i],"unlimited")) extended_duration_ms=UINT64_MAX;
+            else { unsigned long value; if(!number(argv[i],UINT32_MAX,&value)) return 2; extended_duration_ms=(uint64_t)value*1000; }
+            continue;
+        }
         if(!strcmp(argv[i],"--test-event-key")) { if(++i==argc || !test_key(argv[i],trigger.enable_key)) return 2; test_events=true; continue; }
         if(!strcmp(argv[i],"--three-phase")) { three_phase=true; continue; }
         if(!strcmp(argv[i],"--source-registers")) { source_registers=true; continue; }
@@ -633,6 +660,7 @@ int main(int argc,char** argv) {
         else if(!strcmp(argv[i],"--subscriptions-per-fabric")) { target=&subscriptions; max=10000; }
         if(!target || ++i==argc || !number(argv[i],max,target)) {
             fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--subscriptions-per-fabric N] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--test-power-only] [--power-sensor-only [--sensor-energy | --gui-control [--instance-id HEX16]]] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
+            "  --extended-discovery-seconds N|unlimited: CM0 announcements; default 900, 0 disables; active windows and operational discovery are unaffected.\n"
             "  --test-event-key: default profile routes energy triggers (legacy aggregate fixture);\n"
             "  with --three-phase --meter-services it enables targeted energy and Meter Identification change/reset triggers.\n"); return 2;
         }
@@ -662,6 +690,7 @@ int main(int argc,char** argv) {
     n->power_only_enabled=test_power_only || power_sensor_only; n->power_sensor_only=power_sensor_only;
     n->sensor_energy=sensor_energy; n->gui_enabled=gui_control;
     n->wifi_sim_connected=wifi_sim_connected;
+    n->extended_duration_ms=extended_duration_ms;
     n->source_enabled=source_registers;
     n->meter_services=meter_services;
     n->energy_test_enabled=energy_test; trigger.user=n;
@@ -711,11 +740,13 @@ int main(int argc,char** argv) {
         n->advertised_discriminator=(uint16_t)disc; n->cm_mode=matter_server_commissioning_mode(n->server,&n->advertised_discriminator);
         n->observed_cm_mode=n->cm_mode; /* Boot already selected the initial instance. */
         matter_discovery_delete(n->discovery);
-        n->discovery=matter_discovery_commissionable(n->discovery_mac,n->random,n->advertised_discriminator,n->cm_mode,bind.port);
+        n->discovery=commissionable_record(n,n->advertised_discriminator,n->cm_mode);
         if(!n->discovery) goto done;
     }
-    n->mdns=matter_mdns_windows_new(n->owner,&n->iface,matter_discovery_record(n->discovery));
-    if(!n->mdns || matter_mdns_start(matter_mdns_windows_module(n->mdns))!=MATTER_OK) goto done;
+    if(!n->server || discovery_wanted(n,now,n->cm_mode)) {
+        n->mdns=matter_mdns_windows_new(n->owner,&n->iface,matter_discovery_record(n->discovery));
+        if(!n->mdns || matter_mdns_start(matter_mdns_windows_module(n->mdns))!=MATTER_OK) goto done;
+    }
     if(matter_server_ota_trial(n->server) && ota_boot) {
         puts("OTA_SIM_TRIAL_WAIT");
         if(!strcmp(ota_boot,"hold")) while(!interrupted && node_now(n)-start<seconds*1000) matter_host_sleep(10);
@@ -733,7 +764,8 @@ int main(int argc,char** argv) {
         (unsigned)(n->power_sensor_only?HOST_POWER_SENSOR_ONLY_ENDPOINT:HOST_POWER_ONLY_ENDPOINT),(long long)HOST_POWER_ONLY_MW,n->sensor_energy?"cumulative-import-export":"absent");
     if(energy_test) printf("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile endpoints=%s\n",three_phase?"1,3,4,5":"1");
     if(test_events && three_phase) puts("MTRID_TEST enabled=1 endpoint=1 key=not-persisted identity=volatile clear=base-snapshot");
-    bool announced=false; uint64_t next_sample=now,next_status=now;
+    bool announced=n->mdns==NULL; uint64_t next_sample=now,next_status=now;
+    if(announced) puts("READY commissioning_discovery=disabled; operational discovery and CASE remain enabled");
     while(!interrupted && (now=node_now(n),(!seconds || now-start<seconds*1000))) {
         if(n->gui_enabled) {
             uint64_t generation=n->gui.generation;
@@ -757,8 +789,11 @@ int main(int argc,char** argv) {
             const Matter_Fabric_View_T* fabrics=matter_server_fabrics(n->server);
             uint16_t discriminator=n->discriminator;
             uint8_t mode=matter_server_commissioning_mode(n->server,&discriminator);
+            bool published=matter_mdns_is_published(matter_mdns_windows_module(n->mdns));
+            if(!mode) for(unsigned i=0;i<sizeof(n->operational)/sizeof(n->operational[0]);++i)
+                published|=matter_mdns_is_published(matter_mdns_windows_module(n->operational[i].mdns));
             printf("GUI_STATUS {\"commissioning\":%u,\"fabrics\":%u,\"published\":%s,\"power_mw\":%lld,\"generation\":%llu}\n",
-                mode,fabrics?fabrics->count:0,matter_mdns_is_published(matter_mdns_windows_module(n->mdns))?"true":"false",
+                mode,fabrics?fabrics->count:0,published?"true":"false",
                 (long long)n->gui.power_mw,(unsigned long long)n->gui.generation);
             next_status=now+500;
         }

@@ -2525,7 +2525,7 @@
       "path": "tools/matter/tests/test_commissionable_announcement_chip.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_commissionable_announcement_chip.py --help; disposable Linux node, C payload utility, development PAA/credentials and unmodified chip-tool; Memcheck and sanitizers separately. Overall FAIL retained for normative findings even if functional discovery checks pass.",
+      "entrypoint": "python tools/matter/tests/test_commissionable_announcement_chip.py --help; disposable Linux node, C payload utility, development PAA/credentials and unmodified chip-tool; --extended-discovery-seconds unlimited, 0 and 8 under Memcheck, then separately with a sanitizer node. Functional success never waives conformance failures.",
       "referenced_by": [],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     }

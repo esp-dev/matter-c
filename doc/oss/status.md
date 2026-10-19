@@ -1,5 +1,23 @@
 # Development status
 
+**CSA35: PH/privacy policy fixed; original discovery rechecks PASS.**
+Automatic TC_SC_4_1 run469 passes 21 entries (9 NA), TC_SC_4_3 run470 passes 15;
+manual TC-DD-2.1 run471 passes 11 (15 NA). The host supplies PH1 before commissioning
+and PH4 afterward. Per-Node Extended Discovery defaults to 900 seconds; explicit
+CLI values disable, bound or allow unlimited CM=0 advertising. Expiry withdraws
+only commissionable discovery; CASE/operational discovery and new windows work.
+Six full Memcheck/separate-sanitizer scenarios pass 209 functional checks and 26
+PH assertions; two restored disabled boots pass fresh CASE and nine checks.
+Four accepted Memcheck processes have 83076 matched allocations/frees, zero errors/
+live bytes. Five CTests pass per Linux build, installed consumer and five CLI
+rejections pass; Windows node/desktop build and three discovery tests pass.
+Discovery PICS now declares Extended Discovery/PH; original test sources are
+unchanged. TH is idle, disposable nodes stopped and temporary public PAA removed;
+paired Windows instances untouched. MANUAL now contains 12 PASS, 1 FAIL and 27
+without an outcome; category totals are unchanged. See [evidence](csa35-validation.md)
+and [record](csa35-results.json). **Next: CSA36, Commissioner Discovery/UDC PICS
+and TC-SC-4.7 applicability. CSA30 stays deferred; CSA32 remains open.**
+
 **CSA34: original TC-DD-2.1 manual FAIL, TH run468.**
 Eight entries pass, seventeen are not applicable and Step15a fails: the actual
 CM=0 Extended Discovery record lacks PH, which Core1.6.1 4.3.1.11 requires.

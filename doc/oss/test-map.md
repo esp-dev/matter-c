@@ -9,8 +9,11 @@ for unsolicited announcements, actual unfiltered chip-tool browsing and complete
 basic/closed/enhanced Commissionable Node Discovery records, addresses, subtypes
 and instance rotation. Run under Memcheck and separately with a sanitizer node.
 Functional checks do not waive the independent required-PH predicate: actual
-CM=0 without PH makes the whole validation FAIL. Keep raw packets/state private.
-See `csa34-validation.md` for the original manual TH result and profile gaps.
+CM=0 without truthful PH makes the whole validation FAIL. CSA35 adds explicit
+unlimited/off/timed policy scenarios, withdrawal with live CASE/operational
+discovery, and subsequent enhanced-window reopening. Keep raw packets/state
+private. See `csa34-validation.md` for the retained original failure and
+`csa35-validation.md` for the fix and updated-PICS acceptance.
 
 `test_last_fabric_discovery_chip.py` checks the actual last-fabric response,
 operational SRV/goodbye/no-late-reply observations, active-subscription teardown,

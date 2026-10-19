@@ -4,8 +4,8 @@
 
 struct Matter_Discovery {
     Matter_Mdns_Record_T record;
-    Matter_Mdns_Txt_T txt[2]; const char* subtypes[3];
-    char instance[34],host[13],subtype[3][19],discriminator[5],mode[2];
+    Matter_Mdns_Txt_T txt[3]; const char* subtypes[3];
+    char instance[34],host[13],subtype[3][19],discriminator[5],mode[2],hint[11];
 };
 static void hex(char* out,const uint8_t* bytes,size_t n) {
     static const char digits[]="0123456789ABCDEF";
@@ -21,7 +21,7 @@ static Matter_Discovery_T create(const uint8_t mac[6],uint16_t port) {
     for(unsigned i=0;i<3;++i) d->subtypes[i]=d->subtype[i];
     return d;
 }
-Matter_Discovery_T matter_discovery_commissionable(const uint8_t mac[6],const uint8_t random[8],uint16_t disc,uint8_t mode,uint16_t port) {
+static Matter_Discovery_T commissionable(const uint8_t mac[6],const uint8_t random[8],uint16_t disc,uint8_t mode,uint16_t port,const uint32_t* hint) {
     if(!random || disc>4095 || mode>3) return NULL;
     Matter_Discovery_T d=create(mac,port); if(!d) return NULL;
     hex(d->instance,random,8); snprintf(d->discriminator,sizeof(d->discriminator),"%u",disc);
@@ -31,7 +31,18 @@ Matter_Discovery_T matter_discovery_commissionable(const uint8_t mac[6],const ui
     snprintf(d->subtype[2],sizeof(d->subtype[2]),"_CM");
     d->txt[0]=(Matter_Mdns_Txt_T){"D",d->discriminator}; d->txt[1]=(Matter_Mdns_Txt_T){"CM",d->mode};
     d->record.service="_matterc"; d->record.protocol="_udp";
-    d->record.txt_count=2; d->record.subtype_count=mode?3:2; return d;
+    d->record.txt_count=2; d->record.subtype_count=mode?3:2;
+    if(hint || !mode) {
+        snprintf(d->hint,sizeof(d->hint),"%lu",(unsigned long)(hint?*hint:0));
+        d->txt[d->record.txt_count++]=(Matter_Mdns_Txt_T){"PH",d->hint};
+    }
+    return d;
+}
+Matter_Discovery_T matter_discovery_commissionable(const uint8_t mac[6],const uint8_t random[8],uint16_t disc,uint8_t mode,uint16_t port) {
+    return commissionable(mac,random,disc,mode,port,NULL);
+}
+Matter_Discovery_T matter_discovery_commissionable_with_hint(const uint8_t mac[6],const uint8_t random[8],uint16_t disc,uint8_t mode,uint16_t port,uint32_t hint) {
+    return commissionable(mac,random,disc,mode,port,&hint);
 }
 Matter_Discovery_T matter_discovery_operational(const uint8_t mac[6],const uint8_t fabric[8],uint64_t node,uint16_t port) {
     if(!fabric || !node || node>UINT64_C(0xffffffefffffffff)) return NULL;

@@ -75,12 +75,15 @@ static Node* create(Window* w) {
     Node* n=calloc(1,sizeof(*n)); CHECK(n);
     n->owner=matter_new(NULL); CHECK(n->owner && !matter_start(n->owner));
     n->server=(Matter_Server_T)w; n->port=5551; n->discriminator=w->discriminator;
+    n->extended_duration_ms=UINT64_C(1000)*HOST_EXTENDED_DISCOVERY_SECONDS;
     n->iface.mac[0]=2; CHECK(fake_random(n->random,sizeof(n->random))); return n;
 }
 static void tick(Node* n,uint64_t now) {
     CHECK(advertisements(n,now,false));
-    CHECK(matter_mdns_process(backend_module(n->mdns))!=MATTER_PORT_ERROR);
-    CHECK(backend_poll(n->mdns,now)!=MATTER_PORT_ERROR);
+    if(n->mdns) {
+        CHECK(matter_mdns_process(backend_module(n->mdns))!=MATTER_PORT_ERROR);
+        CHECK(backend_poll(n->mdns,now)!=MATTER_PORT_ERROR);
+    }
 }
 static void destroy(Node* n,uint64_t now) {
     if(n->mdns) {
@@ -121,6 +124,19 @@ int main(void) {
     Window w={2,777}; Node* n=create(&w); entropy_failure=true;
     CHECK(!advertisements(n,0,false) && !n->mdns && !n->discovery);
     entropy_failure=false; destroy(n,0); CHECK(!bindings);
+    const uint64_t budgets[]={0,100,UINT64_MAX};
+    for(unsigned i=0;i<sizeof(budgets)/sizeof(budgets[0]);++i) {
+        Window closed={0,123}; Node* limited=create(&closed); limited->extended_duration_ms=budgets[i];
+        for(uint64_t t=0;t<=1500;t+=POLL_MS) tick(limited,t);
+        CHECK((limited->mdns!=NULL)==(budgets[i]==UINT64_MAX));
+        closed.mode=2;
+        for(uint64_t t=1510;t<=1600;t+=POLL_MS) tick(limited,t);
+        CHECK(limited->mdns && matter_mdns_is_published(backend_module(limited->mdns)));
+        closed.mode=0;
+        for(uint64_t t=1610;t<=3000;t+=POLL_MS) tick(limited,t);
+        CHECK((limited->mdns!=NULL)==(budgets[i]==UINT64_MAX));
+        destroy(limited,3000); CHECK(!bindings);
+    }
     puts("PASS host discovery: delayed and rapid reopen, fresh/stable instance names, independent peer, entropy failure, drained teardown");
     return 0;
 }
