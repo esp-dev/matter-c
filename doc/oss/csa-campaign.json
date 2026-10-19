@@ -1187,14 +1187,6 @@
   "triage": [
     {
       "cases": [
-        "TC-SC-1.2"
-      ],
-      "kind": "NATIVE_DEFECT",
-      "evidence": "csa41-validation.md",
-      "action": "Allow supported authenticated IM R0 requests without request ACK, preserving PASE/CASE reliability and admission quotas."
-    },
-    {
-      "cases": [
         "TC-OPCREDS-3.6",
         "TC-SC-2.1",
         "TC-SC-2.2",

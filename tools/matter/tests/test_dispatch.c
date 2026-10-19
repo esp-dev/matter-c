@@ -227,6 +227,32 @@ static void read_cleanup(Matter_Dispatch_T d) {
     CHECK(matter_root_delete(d->config.root)==MATTER_OK); d->config.root=saved;
     puts("PASS retained CASE Read queued during cleanup, resumed after rollback instead of UnsupportedAccess");
 }
+/* RX has already authenticated the session. Check admission and ACK metadata
+ * here; the external independent AES-CCM peer checks actual response packets. */
+static void im_reliability(Matter_Dispatch_T d) {
+    Matter_Crypto_Mbedtls_T crypto=matter_crypto_mbedtls_new(NULL); CHECK(crypto);
+    Matter_Crypto_Port_T port; CHECK(matter_crypto_mbedtls_port(crypto,&port)==MATTER_OK); unsigned i=0;
+    Connection* c=&d->connections[0]; c->token=100; c->operational=true; c->fabric_index=1;
+    c->secure=matter_secure_from_case(&port,&i,take_keys,d->now); CHECK(c->secure);
+    const uint8_t empty[]={0x15,0x18};
+    for(unsigned mode=0;mode<4;++mode) {
+        bool reliable=(mode&1)!=0,busy=(mode&2)!=0;
+        Transaction* blocker=&d->transactions[1];
+        if(busy) *blocker=(Transaction){.handle=2,.admission=READ,.fabric_index=1};
+        d->decision=(Matter_Rx_Decision_T){.action=MATTER_RX_NEW_RESPONDER,.session=100,.exchange=1,.message_counter=42,
+            .header={.protocol_id=1,.opcode=2,.exchange_id=1,
+                .exchange_flags=MATTER_PROTOCOL_INITIATOR|(reliable?MATTER_PROTOCOL_RELIABLE:0)},
+            .payload=empty,.payload_size=sizeof(empty)};
+        dispatch(d); Transaction* t=&d->transactions[0];
+        CHECK(t->handle && !t->closing && t->has_ack==reliable);
+        CHECK(busy?(t->im_busy && !t->read):(t->read && !t->im_busy));
+        if(reliable) CHECK(t->received_counter==42);
+        dispose(t); memset(blocker,0,sizeof(*blocker));
+    }
+    CHECK(matter_secure_close(c->secure)==MATTER_OK && matter_secure_delete(c->secure)==MATTER_OK);
+    memset(c,0,sizeof(*c)); CHECK(matter_crypto_mbedtls_delete(crypto)==MATTER_OK);
+    puts("PASS IM R=0/R=1 admission and resource BUSY: request ACK metadata follows R independently of response reliability");
+}
 typedef struct {
     Matter_Resolver_Query_T query; Matter_Resolver_Answer_T answer;
     uint64_t next,id; unsigned starts,cancels; bool done,reject;
@@ -805,6 +831,7 @@ int main(void) {
         resources(d,&bind);
         subscription_cleanup(d);
         read_cleanup(d);
+        im_reliability(d);
         const uint8_t invalid_im[]={4,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,5,2,7,0,1,0,0x15,0x18};
         Matter_Udp_Datagram_T packet={.path={.local=bind,.peer=bind,.interface_id=1},.data=invalid_im,.size=sizeof(invalid_im)};
         packet.path.peer.port=9;

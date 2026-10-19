@@ -635,12 +635,13 @@ static void dispatch(Matter_Dispatch_T d) {
         Connection* c=connection(d,key.session);
         t->fabric_index=c && c->operational?c->fabric_index:0;
         Admission kind=admission(in->header.protocol_id,in->header.opcode);
-        if(in->header.vendor_id || key.initiator || !(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE) ||
+        if(in->header.vendor_id || key.initiator ||
+            (kind==HANDSHAKE && !(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE)) ||
             kind==NONE || (in->header.protocol_id==1 && !c) || (!in->header.protocol_id && c)) {
             reject_work(t,false,false); return;
         }
         if(!admit_work(d,kind,t->fabric_index) || (kind==HANDSHAKE && !available(d))) {
-            t->received_counter=in->message_counter; t->has_ack=true;
+            t->received_counter=in->message_counter; t->has_ack=(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE)!=0;
             reject_work(t,true,in->header.protocol_id==1); return;
         }
         t->admission=kind; /* Includes partial construction/failure until disposal. */
@@ -660,7 +661,8 @@ static void dispatch(Matter_Dispatch_T d) {
      * already handled control ACKs; further handshake data must not cancel it. */
     if((t->pase && matter_pase_state(t->pase)==MATTER_PASE_FAILED) ||
         (t->case_attempt && matter_case_state(t->case_attempt)==MATTER_CASE_FAILED)) return;
-    if(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE) { t->received_counter=in->message_counter; t->has_ack=true; }
+    t->has_ack=(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE)!=0;
+    if(t->has_ack) t->received_counter=in->message_counter;
     Matter_Result_T r=MATTER_INVALID_ARGUMENT;
     if(t->outbound && !t->case_attempt && d->outgoing.bdx && !in->header.vendor_id &&
         in->action==MATTER_RX_EXISTING && !(in->header.exchange_flags&MATTER_PROTOCOL_INITIATOR) &&
