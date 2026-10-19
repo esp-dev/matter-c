@@ -117,6 +117,8 @@ def main():
         def changes(controllers, round_number):
             offsets = {c: len(c.text()) for c in controllers}
             previous = {f['path']: f['body'] for f in frames(controllers[0].text()) if f['kind'] == 'Attribute'}
+            previous_identify_version = next(f['version'] for f in reversed(frames(controllers[0].text()))
+                                             if f['kind'] == 'Attribute' and f['path'] == (1, 3, 0))
             label = 'csa48p' + str(phase) + 'r' + str(round_number)
             if re.search(r'^NodeLabel: ' + label + r'\s*$', previous[0, 0x28, 5], re.M):
                 label += 'x'
@@ -138,12 +140,17 @@ def main():
                                 seen[identifier].add('label')
                             if f['path'] == (0, 0x28, 6) and re.search(r'^Location: ' + location + r'\s*$', f['body'], re.M):
                                 seen[identifier].add('location')
-                            if f['path'] == (1, 3, 0) and integer(f['body'], 'IdentifyTime') > 0:
+                            # An older positive countdown queued before this
+                            # command is not evidence of the new Identify action.
+                            if (f['path'] == (1, 3, 0) and f['version'] is not None
+                                    and f['version'] != previous_identify_version
+                                    and integer(f['body'], 'IdentifyTime') > 0):
                                 seen[identifier].add('identify')
                 if seen and all(len(paths) == 3 for paths in seen.values()):
                     break
                 time.sleep(.05)
             current.setdefault('updates', []).append({'round': round_number, 'subscriptions': len(seen),
+                                                       'previous_identify_version': previous_identify_version,
                                                        'observed_paths': {str(k): sorted(v) for k, v in seen.items()},
                                                        'all_three_changed_paths': all(len(v) == 3 for v in seen.values())})
             check('all-live-subscriptions-receive-three-changed-paths-' + str(round_number),

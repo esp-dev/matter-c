@@ -1228,9 +1228,9 @@
       "cases": [
         "TC-BDX-2.3"
       ],
-      "kind": "RECOVERY_ATTRIBUTION_REVIEW",
-      "evidence": "csa45-validation.md",
-      "action": "Compare provider restart/session prerequisites and requestor query retry state with Core. Preserve bounded restart FAIL; fresh complete-transfer PASS does not repair it."
+      "kind": "RECOVERY_TRIGGER_FIXTURE_REVIEW",
+      "evidence": "csa56-results.json",
+      "action": "Earlier no-query failure preceded CASE: reason1 retained daily due time. Choose an explicit recovery trigger and prove real restart while preserving300s idle timeout and120s query floor; previous FAIL remains."
     },
     {
       "cases": [
@@ -1251,8 +1251,9 @@
       "cases": [
         "TC-IDM-7.1"
       ],
-      "kind": "LOAD_TIMING_AND_OVERFLOW_STATUS_REVIEW",
-      "evidence": "csa48-results.json"
+      "kind": "HOST_RX_STARVATION_REPAIRED_OVERFLOW_CSA_QUESTION",
+      "evidence": "csa56-results.json",
+      "action": "Host RX starvation fixed; full Memcheck and separate sanitizer scenarios pass. Original final overflow-status example still disagrees with ResourceExhausted89; preserve original FAIL pending CSA clarification."
     },
     {
       "cases": [

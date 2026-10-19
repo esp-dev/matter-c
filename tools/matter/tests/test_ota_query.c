@@ -75,6 +75,24 @@ static void policy(void) {
     CHECK(matter_ota_query_offer(t->query,&t->offer,2000)); pump(t,300999); CHECK(t->starts==1);
     pump(t,301000); CHECK(t->starts==2); response(t,2,0,false); pump(t,301001); CHECK(t->state==1);
     pump(t,301001+86400000-1); CHECK(t->starts==2); pump(t,301001+86400000); CHECK(t->starts==3); destroy(t);
+    /* UpdateAvailable uses the next scheduled query. After
+     * handing off an image, a provider restart does not itself cancel that
+     * schedule. A laboratory recovery trigger must choose its reason explicitly,
+     * and even SimpleAnnouncement must retain the 120-second query floor. */
+    for(unsigned simple=0;simple<2;++simple) {
+        t=setup(true); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
+        response(t,0,0,true); pump(t,1); CHECK(t->available==1 && t->starts==1);
+        t->offer.announced=true; t->offer.reason=simple?0:1;
+        CHECK(matter_ota_query_offer(t->query,&t->offer,1000));
+        pump(t,120000); CHECK(t->starts==1);
+        if(simple) { pump(t,120001); CHECK(t->starts==2); }
+        else {
+            pump(t,541001); CHECK(t->starts==1); /* Five-minute stall + 240s wait. */
+            pump(t,86400000); CHECK(t->starts==1);
+            pump(t,86400001); CHECK(t->starts==2);
+        }
+        destroy(t);
+    }
     for(unsigned edge=0;edge<2;++edge) {
         t=setup(false); t->offer.announced=true; t->offer.reason=2; t->random=edge?599:0;
         CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,edge?599999:999); CHECK(!t->starts);

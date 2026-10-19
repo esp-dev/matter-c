@@ -28,9 +28,10 @@ Matter_Result_T matter_udp_windows_delete(Matter_Udp_Windows_T host);
 /* Active socket address/actual port; output unchanged on error. */
 Matter_Result_T matter_udp_windows_local(Matter_Udp_Windows_T host,
     Matter_Udp_Address_T* address);
-/* At most one deferred completion OR one received packet, never waits/retries.
+/* At most one deferred completion AND one received packet, never waits/retries.
  * Call even while stopping to drain TX; separately call matter_udp_process.
- * WOULD_BLOCK = no event. Malformed/oversize RX consumed, error returned, no
+ * Completion precedes RX. Empty RX preserves completion success; a completion
+ * error defers RX. WOULD_BLOCK = no event. Malformed/oversize RX consumed, error returned, no
  * listener callback. Linux kernel drops may instead give WOULD_BLOCK.
  * Reentry/mutation of host from its listeners returns BUSY.
  */

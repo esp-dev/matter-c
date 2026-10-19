@@ -7,6 +7,14 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA56: UDP RX starvation repaired; full load scenarios pass.**
+Both host pollers receive peer ACKs even while TX completions stay queued.
+399 actual-controller checks per variant across four resets pass under Memcheck
+and separate sanitizers. Original TC-IDM-7.1 retains only its overflow-status
+question. Earlier BDX no-query failure traced to reason1/daily scheduling.
+[Report](csa56-validation.md). Counts unchanged:123 PASS/27 FAIL/5 prerequisites.
+Next:CSA57, actual BDX recovery with an explicit appropriate trigger.
+
 **CSA55: GroupKeyMap write-status defect repaired; original positive test retains FAIL.**
 Actual statuses change from[80,80] to[00,89] for declared zero-group capacity.
 Unsupported optional Leave confirmed as EventStatusc7.53 independent checks per

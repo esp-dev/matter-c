@@ -61,7 +61,10 @@ CSA53 groups remaining assertions using original sources and earlier reports; bo
 GroupKey/BINFO reruns retain FAIL. CSA54 supplies actual two-device setup codes;
 original automatic TC_SC_7_1 passes. CSA55 repairs GroupKeyMap admission/status
 and confirms optional Leave EventStatus; original positive-capacity test remains
-FAIL. Continue CSA56 with remaining BDX recovery/load-state attribution. Retain the
+FAIL. CSA56 repairs host RX starvation; all four resource scenarios pass under
+Memcheck and separate sanitizers. Original overflow-status question remains.
+Earlier BDX no-query failure is a reason1/daily-schedule fixture mismatch.
+Continue CSA57 with actual BDX restart using an explicit recovery trigger. Retain the
 owner's deferred multi-hour DGGEN run and physical/client prerequisites explicitly;
 do not loop on an unverified harness. After attributed fixes, triage remaining
 FAILs by actual assertion and rerun originals where meaningful.

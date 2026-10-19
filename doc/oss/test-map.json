@@ -2550,7 +2550,7 @@
       "path": "tools/matter/tests/test_subscription_fabrics_chip.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_subscription_fabrics_chip.py --help; disposable Linux node, five independent real chip-tool fabrics and three subscriptions each; four fresh-store scenarios, Memcheck and sanitizers separately.",
+      "entrypoint": "python tools/matter/tests/test_subscription_fabrics_chip.py --help; five real fabrics/15 subscriptions, complete primes and changed Identify DataVersion, four fresh-store scenarios under Memcheck and separate sanitizers.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
     },

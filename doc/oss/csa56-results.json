@@ -1,0 +1,2462 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa55-results.json",
+  "previous_sha256": "96a9bee4738d8dfe9def5e63c2fae84825b8c98e139469c3616393a090f27502",
+  "source_base_commit": "d6c7a7e970e1b4b28bec74557016f6194ab40454",
+  "scope": "Repair host UDP RX starvation during continuous TX. Preserve OTA scheduling policy; attribute the earlier BDX restart observation to its UpdateAvailable trigger, without claiming recovery acceptance.",
+  "latest_counts": {
+    "PASS": 99,
+    "FAIL": 18,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC-IDM-7.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 494
+    }
+  ],
+  "official_receipt": {
+    "run_id": 494,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 18:46:22.891163",
+    "observed_utc": "2026-10-19T18:46:24.385062+00:00",
+    "cases": [
+      {
+        "case": "TC-IDM-7.1",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 9,
+          "TestStateEnum.failed": 1
+        },
+        "details": [
+          {
+            "title": "Note",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Precondition",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: RD1, RD2, RD3, RD4, RD5 send 3 Subscribe Request Messages to DUT.(Total - 15 active subscriptions) Each subscribe request should contain 3 different paths. They can subscribe to different attributes and events. Once all subscriptions are active, change the value of all the attributes that have been subscribed or trigger an action on the DUT to generate an event.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2a: Factory Reset the DUT and recommission it onto all fabrics. RD1, RD2, RD3, RD4, RD5 should be on separate, distinct fabrics. RD1 and RD1A should be on the same fabric.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2b: RD1, RD2, RD3, RD4, RD5 send 3 Subscribe Request Messages to DUT.(Total - 15 active subscriptions) Each subscribe requests should contain 3 different paths. The subscription request from RD1 should contain 4 paths. +",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3a: Factory Reset the DUT and recommission it onto all fabrics. RD1, RD2, RD3, RD4, RD5 should be on separate, distinct fabrics. RD1 and RD1A should be on the same fabric.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: RD2, RD3, RD4, RD5 send 3 Subscribe request messages each with each of them having 3 different paths. Verify that the subscription request messages from all reference devices succeed. Once all the Subscription Requests are activated, RD1 sends 6 subscription request messages with each of them having 3 different paths.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4a: Factory Reset the DUT and recommission it onto all fabrics. RD1, RD2, RD3, RD4, RD5 should be on separate, distinct fabrics. RD1 and RD1A should be on the same fabric.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4b: RD1, RD2, RD3, RD4, RD5 send 3 Subscribe request messages each with each of them having 3 different paths. Verify that the subscription request messages from RD1, RD2, RD3, RD4 and RD5 succeed. Once all the Subscription Requests are activated, send a Subscribe request messages having 3 different paths from RD1A to the DUT.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "b0c6ad1eb922910b7c6a53defc9b575987a4daf0e092e80db4222920d437d25d",
+    "raw_result_sha256": "230994d211e4519d0abbebbc7c582f240fd4e6bbf6e0d1fcc5005f91f05ea91b",
+    "identity": {
+      "source_sha256": "92450a1c27ac700ec90415136fb1a961d784cc756f988ceb11fe59a45afae8e3",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "case": "TC-IDM-7.1",
+        "step": 1,
+        "answer": "PASS",
+        "note": "Supported NodeLabel, Location and IdentifyTime paths, as permitted by the original Note.",
+        "utc_ms": 1792435582729
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 2,
+        "answer": "PASS",
+        "note": "Five actual distinct commissioned fabrics in each of four fresh-store scenarios. Both Memcheck and separate sanitizers also authenticate RD1A as node2 within RD1 fabric.",
+        "utc_ms": 1792435582736
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 3,
+        "answer": "PASS",
+        "note": "Three subscriptions per fabric,15 unique IDs, exact three-path primes and two genuine changed-value rounds on every subscription. Identify reports require a new DataVersion.",
+        "utc_ms": 1792435582742
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 4,
+        "answer": "PASS",
+        "note": "Fresh empty disposable state and five distinct commissioned fabrics in phase1.",
+        "utc_ms": 1792435582748
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 5,
+        "answer": "PASS",
+        "note": "One complete four-path subscription and14 three-path subscriptions. Additional request rejected at quota; all15 receive both updates.",
+        "utc_ms": 1792435582755
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 6,
+        "answer": "PASS",
+        "note": "Fresh empty disposable state and five distinct commissioned fabrics in phase2.",
+        "utc_ms": 1792435582762
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 7,
+        "answer": "PASS",
+        "note": "RD2..RD5 first hold12 subscriptions; RD1 sends six three-path requests then a six-path request. Exactly15 admitted, overflow89/9c controlled. Both changed-value rounds reach all15 under Memcheck and sanitizers.",
+        "utc_ms": 1792435582770
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 8,
+        "answer": "PASS",
+        "note": "Fresh empty disposable state and five distinct commissioned fabrics in phase3.",
+        "utc_ms": 1792435582779
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 9,
+        "answer": "FAIL",
+        "note": "RD1A genuinely authenticates as node2 in the same fabric (ACL event AdminNodeID2), receives ResourceExhausted89 at full subscription quota, and all original15 survive and report. Original final example expects InvalidAction80; preserve status discrepancy pending CSA clarification.",
+        "utc_ms": 1792435582787
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "native_change": {
+    "files": [
+      "tools/matter/host/matter_udp_linux.c",
+      "tools/matter/host/matter_udp_windows.c",
+      "tools/matter/host/matter_udp_windows.h"
+    ],
+    "behavior": "Each poll can complete one deferred send and receive one datagram. RX cannot starve behind a continuous TX backlog. Empty RX preserves TX completion success; completion errors defer RX; reentry/stop/isolation remain bounded.",
+    "portable_core_API_quotas_and_timers_changed": false
+  },
+  "baseline_reproduction": {
+    "UDP_regression": {
+      "exit": 1,
+      "stdout": "",
+      "stderr": "exchange:174: e[0].tx == tx0+1 && e[0].rx == rx0+1 && e[0].received[0] == round+32\n"
+    },
+    "actual_controller": {
+      "result": "FAIL",
+      "node_sha256": "d07cce15ce663e20c959bd9adb80a78cdb48937d0a72fd3b3872997658fe9b1c",
+      "driver_sha256": "68d2ca96af8373c0fb167da95a6703b4e80bec4276b9cc4a02edb5c8e3a73f36",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "39dac0f599389cab93864150abb4dfab40627068d88f3b5ee10e98b2a830e3c2",
+      "phases": [
+        {
+          "phase": 2,
+          "result": "FAIL",
+          "check_counts": {
+            "PASS": 99,
+            "FAIL": 1
+          },
+          "error": "all-live-subscriptions-receive-three-changed-paths-0",
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "observed_paths": {
+                "13": [
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": false
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "allocation_totals": [
+            103539,
+            103539
+          ],
+          "logs_sha256": {
+            "node.log": "1bb39380d21b488929cda5f8fd34ba4956cbfbbbf19afe69416750bf54ef2b18",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "memcheck.log": "b9c688737784b6488b73c48fe44e4246b53984ccdd8b4b0086aa283ff304cac8",
+            "RD4/commands.txt": "d57b64538a25a900b59841d8d0f7d365c5306ee76ca485e4c7fba43ec4b38ffe",
+            "RD4/interactive.log": "22a8725df5a8cb95d3bcae4e041c081f96d8cf2d6689c3d2f6f2fab70b1d295f",
+            "RD3/commands.txt": "0a13636abb6a91d60a9ada5c5e7ca7ba27fd88984350ef22fd757a42adf78c3c",
+            "RD3/interactive.log": "4e8c91bec24c89a8093f6d508e34f70db4a20be5497ec2d8125c092716cfc5a9",
+            "RD1/commands.txt": "645b1d5aa52e15ddc641e2bd5723c6f037dc3288312fd83bf57357943d1546ac",
+            "RD1/interactive.log": "6741f9684f90030d010a1ea77f31a43c5dae764a6997dcb2219837cf9ea340f6",
+            "RD2/commands.txt": "77a4937efa8983f5c7e57dfc84fedee43008b3f5f3de4da82f9af7f4ed3e7ebf",
+            "RD2/interactive.log": "b105b084ee1a6db78c96cde7bec02a9572ebb0b49b236c258d83e1e763a05361",
+            "RD5/commands.txt": "39ff36d40cf3031b32b336a8a24b49652d90618819ae607bda345c6d256b76b0",
+            "RD5/interactive.log": "d2c6d49e8e8d47c2112a6ec4ab08db3cfd07063792d158617acbf2d6032afc7a"
+          }
+        }
+      ]
+    },
+    "diagnostic_capture": {
+      "result": "FAIL",
+      "node_sha256": "d953b79fed2e81c87bfb014bcb528a7c19eb22eed44a6a4fbd3d56e213b6b4e6",
+      "driver_sha256": "68d2ca96af8373c0fb167da95a6703b4e80bec4276b9cc4a02edb5c8e3a73f36",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "3459b810e9c2dc71f6e1cde69eb512ef400a3d9b8effae362cd23690f9e031f4",
+      "phases": [
+        {
+          "phase": 2,
+          "result": "FAIL",
+          "check_counts": {
+            "PASS": 103,
+            "FAIL": 1
+          },
+          "error": "all-live-subscriptions-receive-three-changed-paths-1",
+          "cleanup_error": "Node exit or stderr",
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "observed_paths": {
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "observed_paths": {
+                "13": [],
+                "14": [],
+                "15": [],
+                "1": [],
+                "2": [],
+                "3": [],
+                "4": [],
+                "5": [],
+                "6": [],
+                "7": [],
+                "8": [],
+                "9": [],
+                "10": [],
+                "11": [],
+                "12": []
+              },
+              "all_three_changed_paths": false
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "allocation_totals": [
+            103632,
+            103632
+          ],
+          "logs_sha256": {
+            "node.log": "594952ac2c5e205ee0a113a5c5d27f4721d1e196de5c254a4936679305e84619",
+            "node.err": "0b08225c93ca149c5d2df52641c9faf3f5d49a95a4673b6fa52d774578698089",
+            "memcheck.log": "e9bfa827313938f28136a8c3e96055353cf2c3dc6322f2ea011faa31ea824ff6",
+            "RD4/commands.txt": "dea9d5929566521e8c27cbe26b78e42e5b8428f2232e7329b4624d259159119d",
+            "RD4/interactive.log": "c574181d782e863464dd279c8184f8d07f27dc6e66bc54b7ffff9595b8d93373",
+            "RD3/commands.txt": "4fbe05d559ed40725dab4122ecb1f0f044f69c2ed28d91bbb6597a8f37636fa7",
+            "RD3/interactive.log": "36623ee451e1c7d64343141f9ef5370de9a5e3bf8774fd020839a6a48aceabe9",
+            "RD1/commands.txt": "f4d05fcf58bfdf0bb35c8693fe3cd2f4f30eaba7ae55401cd92ac5e3d6195f0d",
+            "RD1/interactive.log": "a3ebab8d753ba05b9bcc8c6d77fbd7751168100dc4d0746a0fb1827d5c7ea575",
+            "RD2/commands.txt": "992ed56c980a64d3427b5b852ac3aada660dc2593ead9498d9901809d2d67b5a",
+            "RD2/interactive.log": "7f39a8b07edbb2d952db3f9b7af77132ac0a2fed889b9461da39cbf1463045c2",
+            "RD5/commands.txt": "920d78975515533aba7074f4b4ac505ed080502bba5f807258fcd34e6efdbde1",
+            "RD5/interactive.log": "c201cd23e0c1b5ff7a3c9af435603a8b436798558a41ba310f137e10a0007cf6"
+          }
+        }
+      ]
+    },
+    "diagnostic_lifecycle": {
+      "result": "FAIL",
+      "node_sha256": "1f707f8bc8f2e336b717d483ebf7516918441d421d36f0c6aba549bf83e31477",
+      "driver_sha256": "68d2ca96af8373c0fb167da95a6703b4e80bec4276b9cc4a02edb5c8e3a73f36",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "7c0fc8e0994ac950bb40f40859e5d614f4e01d6682fc9871ba6c748d84a0bb61",
+      "phases": [
+        {
+          "phase": 2,
+          "result": "FAIL",
+          "check_counts": {
+            "PASS": 103,
+            "FAIL": 1
+          },
+          "error": "all-live-subscriptions-receive-three-changed-paths-1",
+          "cleanup_error": "Node exit or stderr",
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "observed_paths": {
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "observed_paths": {
+                "13": [
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": false
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "allocation_totals": [
+            103917,
+            103917
+          ],
+          "logs_sha256": {
+            "node.log": "9bd96a68f7cce46245037e4a4df54f3a34e914a44cc7d991a39625c8dba7293b",
+            "node.err": "6edf09b298d6d268942fdb107e0d3b05babc01cb1e398ecfcb97a1a896b41096",
+            "memcheck.log": "432604ad51014331213d113ee17038058a4f8e16128eb1bc16f6657e1da90f2b",
+            "RD4/commands.txt": "388181258b6000978cba39a3bc462f10000f0176b4baeb6e9029f5eb10799ecc",
+            "RD4/interactive.log": "6e639987caacec24d5ccf75a8b361790803266cc796488abe2f23bac16e22ae1",
+            "RD3/commands.txt": "1c61006aad6700387d0adac4a67a85e15c44c416802af1b7870de23db15a7490",
+            "RD3/interactive.log": "7091e38edcc352effcc7a068923ffd3396ea1036402a2d23e72459fefcfc9826",
+            "RD1/commands.txt": "4a35e013fd5cb0a8ee594c65b16503a8e39688fc2b64ad34ddb1737807301b62",
+            "RD1/interactive.log": "dec1dbe2832e762701cc6fa7f896cc0d97573e72317ccfb0ccfeac401569cb21",
+            "RD2/commands.txt": "d2b2868798b5eb53b48b472040f3d263a86a3692427bcdd5b72764238e6bb560",
+            "RD2/interactive.log": "91e16410cb8d0ac26e477df87173ff1d499e7c9df7ce89597a0be2e177fe051f",
+            "RD5/commands.txt": "6d6c2b10fa06e6b5e094af853d33b3840be2dbef2ba55a8c1f9064775d1156db",
+            "RD5/interactive.log": "8f2a4ce955b3a8c254657bb8ca5e08ff74a81ea197d86c3cea344a04c8f1cba6"
+          }
+        }
+      ]
+    },
+    "attribution": {
+      "MRP_timeouts": 15,
+      "subscription_disposals": 17,
+      "receive_errors": 2,
+      "process_errors": 0,
+      "stderr_sha256": "6edf09b298d6d268942fdb107e0d3b05babc01cb1e398ecfcb97a1a896b41096",
+      "timed_out_exchanges_disposed": true,
+      "receive_errors_on_different_exchanges": true,
+      "other_disposals": 2
+    },
+    "diagnostic_limit": "Temporary diagnostic binaries deliberately write stderr; they are attribution attempts, not clean acceptance. Both baseline source and binary were restored; no diagnostic logging is committed.",
+    "baseline_binary_restored": true
+  },
+  "independent_acceptance": {
+    "memcheck": {
+      "result": "PASS",
+      "node_sha256": "4d25e9a9a02db6025e8406153ef278727413b86d9683f2abd6f63f2c92f35671",
+      "driver_sha256": "0e4797e9b63062dacf32e22b2b3357800780cc4a8afa3ca7c675af7bc8ed588f",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "d5ac31706b26f5ee98c841cf2cbb8fc94dd13130a0445027536c380bf1d54471",
+      "phases": [
+        {
+          "phase": 0,
+          "result": "PASS",
+          "check_counts": {
+            "PASS": 96,
+            "FAIL": 0
+          },
+          "error": null,
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "previous_identify_version": 2577785760,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "previous_identify_version": 2577785761,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "allocation_totals": [
+            102990,
+            102990
+          ],
+          "logs_sha256": {
+            "node.log": "80f83dd30bc75fc008bea1776c9e61269f97fdd003703c5df6a405df4c8d8b87",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "memcheck.log": "a7d5239e67daac2357115bb5aab2ed9e14db90e2c73d07a36798ec26ab6382cc",
+            "RD4/commands.txt": "04f1aef6a37913ca52d29c4d65dec23ae7f9c93c50f8ee81654d13ab5ece212f",
+            "RD4/interactive.log": "5e84abf03155c3d2d0aab15389d6bf2c86675796d831cc472f63d3735f12e22b",
+            "RD3/commands.txt": "435c152613392595b78a1bcfa3bdc319d1df09c62bdb5fba210ce54c958f14f2",
+            "RD3/interactive.log": "bda047bc7d5bc685d08ba950b407f77fa5cadff4e966f180088e3482d4bf871d",
+            "RD1/commands.txt": "d54433d7c3e89d5d9470021cbe6a715c489f004b47e73d3dc959b22a632d8238",
+            "RD1/interactive.log": "dd7c5fb6dd17fb85c8df87eaf151398f11b046d768e270c4655677bcf16d84b5",
+            "RD2/commands.txt": "278a608f18ca32839ec6f6f7e8519606d202be78675efc1ede8695b2c3be186b",
+            "RD2/interactive.log": "d85b743af314df31fa77847899bc46aa4fe26d567379894371c01a5a2c134a4d",
+            "RD5/commands.txt": "c3d81336761e4dfba841e83c9586789910dc4448e6f398b2e71c841ce264dab3",
+            "RD5/interactive.log": "3b15a372a641159748bf474703f1fbdcffbce4eddf2ccc7dbb33dad1c32578f3"
+          }
+        },
+        {
+          "phase": 1,
+          "result": "PASS",
+          "check_counts": {
+            "PASS": 97,
+            "FAIL": 0
+          },
+          "error": null,
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "previous_identify_version": 1874203685,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "previous_identify_version": 1874203686,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "allocation_totals": [
+            102959,
+            102959
+          ],
+          "logs_sha256": {
+            "node.log": "8334483ec0f9aa3bc5c39dc5afbceb20344bbbc97f1be42e97c48b520bdaba43",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "memcheck.log": "6048ea03cb6b08f72c8e0845ead013114471492f6ddd835469e168e4547f6840",
+            "RD4/commands.txt": "c5f7e87814ec60340374c7fdd9450fc0224b1c6147c7b1563c17dfca3a26703d",
+            "RD4/interactive.log": "6b69c0d3eb946a42fb5553fad64d3df283248849b481d94f5cb1a93086e9e1eb",
+            "RD3/commands.txt": "c0019338c6f65e33e9165ecaaf4d8ea48140d16d518911326b20671dcfe84e4f",
+            "RD3/interactive.log": "a6d9dec674466ec128fe51718fdc18f89c60dd0280a7e763c886e401d349e183",
+            "RD1/commands.txt": "e4786c680924995d9af681c97c5dcf6d16f1c81429c2e69b15af60a0519ff21b",
+            "RD1/interactive.log": "60963ec0355a19a5e557fdc3ffe1bc112e07dd80be7a10b591c2f26e4a74044c",
+            "RD2/commands.txt": "07ec696bc3dccf8f5c718ad07bde4b96c3d9c511ad2f42ca3a5d52f4b8752760",
+            "RD2/interactive.log": "c6f11b6e954de1254410f98e18becd6e880760efc86961b0a11d95005fcfe197",
+            "RD5/commands.txt": "4af545ff87daa0c8b09807fb6fceec043d4c0d31e3f813239e6f431c5635b1e7",
+            "RD5/interactive.log": "c9f23f5f4d594cb932fff19ba7f0cf62064f8d716b4d4b77e166e90b2cde6f63"
+          }
+        },
+        {
+          "phase": 2,
+          "result": "PASS",
+          "check_counts": {
+            "PASS": 104,
+            "FAIL": 0
+          },
+          "error": null,
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "previous_identify_version": 3978138731,
+              "observed_paths": {
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "previous_identify_version": 3978138732,
+              "observed_paths": {
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "allocation_totals": [
+            103136,
+            103136
+          ],
+          "logs_sha256": {
+            "node.log": "4bb9402422f47880b681016800fbcdc5c427d683a0fa2e387bb9eae94eb79993",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "memcheck.log": "1c449005df2654eaae73b647b078b002c5b79dd04803ac8a3b18fc3a9b5968f9",
+            "RD4/commands.txt": "56668ffa765e4609b513d786ae51b4ebaf8610a10ead25d34d162c98d1e68f85",
+            "RD4/interactive.log": "59d1d131d85ff057aa572a5bb2273c0630a20b8dbcc05484e6735a962e3f21f0",
+            "RD3/commands.txt": "dfd0dc2030cb1f170864fb3c2c4eda70aee7495994b05ca74ca55ba33f22ef49",
+            "RD3/interactive.log": "a6f4e61c77f3a04dc85d1e9908b129b75ea0d329405ef7fb3562a7063680c03e",
+            "RD1/commands.txt": "ed65c1adbc63b76627c758da2de94be38ab9461a182747914e98d86eaa5961f1",
+            "RD1/interactive.log": "07367fff3ede7d3d32b13b698d4878ed9c6c52e2447959d04bd6c7de836932a8",
+            "RD2/commands.txt": "074f1fb0d7512e55faae419fd0a5120d80b79a5e6a0bc13ff2a4cf289b25fd94",
+            "RD2/interactive.log": "9ca16d7434cc5fe7334cc2ba35984ab0976a654cf1de293e06d9c7e61222563a",
+            "RD5/commands.txt": "0b029e9430bf087b56f4913bf4f125b026bb10398e837d59defbbfaf0cbd7d8c",
+            "RD5/interactive.log": "7ea9bc5f0faef717d07de508404a28686c66a7570c97c4719372d130e688584b"
+          }
+        },
+        {
+          "phase": 3,
+          "result": "PASS",
+          "check_counts": {
+            "PASS": 102,
+            "FAIL": 0
+          },
+          "error": null,
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "previous_identify_version": 4049485491,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "previous_identify_version": 4049485492,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0,
+            "RD1A": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "allocation_totals": [
+            109987,
+            109987
+          ],
+          "logs_sha256": {
+            "node.log": "2b01d696538aea935b116ea2fe5161ac7b816c6ac5a3f2f265acb6dcde00fcf5",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "memcheck.log": "f309d6860540ac5849966bc60f31d93dcb52da157a41a374f55ce6aabc1767f7",
+            "RD4/commands.txt": "f4a1d7e9bb4bfa220f3a4dca49a678e86380d3bd8327b5f0ab9858d9c5ef8082",
+            "RD4/interactive.log": "31b259e0e67242877cb2dc86fd28fc8ba1ebdfc4828d24a7ec41a34045f7d384",
+            "RD3/commands.txt": "4af043c70211b2f9d8b5925d2b351962e71cab5153c6f28a2bdae38aafa36ae0",
+            "RD3/interactive.log": "0b2ddf8ab1049bf4bcf3ecf4884b6b6ecdb4c464e220a14c5f2b620ed688088d",
+            "RD1/commands.txt": "168a63a59ca679f140b151287d61a094ca36fc623c7fae4cb8821bb4103a5b09",
+            "RD1/interactive.log": "8f74bf1c18f21cc0a9fe288e7385c7ac6948408419e21b466d9f2ec24964d3bf",
+            "RD2/commands.txt": "a3ca6e0c9fe90088db72714eb00823a63d4ebbf83212ebfc4851531dab1126ab",
+            "RD2/interactive.log": "38b49710f10fc89378dcace9df8af54c039a9e95729d48404760beaffad68d40",
+            "RD5/commands.txt": "cb52e9348788a03b990966270d285291149dfc60c81a61e69b530a96eb5bd4b6",
+            "RD5/interactive.log": "beab23add32f1c76629c1f27dcbd3b0e71df02b9aa9e47eb302c46a19d0affc1",
+            "RD1A/commands.txt": "704050e075ea9266bda6149ff724ca7c42c885a80386edee2ee3aae8aa63b337",
+            "RD1A/interactive.log": "77579240550c43be7017d59b183df631ed0f54e716152325969aaefa0323b691"
+          }
+        }
+      ]
+    },
+    "ASan_UBSan_LSan": {
+      "result": "PASS",
+      "node_sha256": "bee62f9a615af340b0ee73957cee148bb57fd5a3b5c35b20bd55bb60e2cc5a95",
+      "driver_sha256": "0e4797e9b63062dacf32e22b2b3357800780cc4a8afa3ca7c675af7bc8ed588f",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "5c7bf18e73b5642dc4e6fddb30b200aedbddea253769153889781de4d880d7a8",
+      "phases": [
+        {
+          "phase": 0,
+          "result": "PASS",
+          "check_counts": {
+            "PASS": 96,
+            "FAIL": 0
+          },
+          "error": null,
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "previous_identify_version": 1571826378,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "previous_identify_version": 1571826379,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": null,
+          "allocation_totals": null,
+          "logs_sha256": {
+            "node.log": "fb58b4ebacf0a8443e2bf57583b5b8fd6dde8a57def1ecfc3ed732c6d071cb51",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "RD4/commands.txt": "ecd70ecc57510242e158b88ae2b81aaf6dbec50c1a830b61cd0a7082e8f82eda",
+            "RD4/interactive.log": "7f0cc1dfb6a5e03244d80202d196bebee462286dbdac2b0ca75385af2faf2777",
+            "RD3/commands.txt": "da704bcc74d6ac72cf351ffe32c239eb3679d137149bae17d0deda9606877415",
+            "RD3/interactive.log": "c1c96c8bb8663c8a1f7311fa3a67a07d08274c246e0ba3c153a25073e01b3bbc",
+            "RD1/commands.txt": "70eb013e4abf3964fc21c5d65a4970cf9bc0823133e00c982fb35e3e061b5692",
+            "RD1/interactive.log": "08e0c68a9aec71456eb395d044e719a5271199c0a953d0597dd22fe784ff1543",
+            "RD2/commands.txt": "602e39f0240dac05feaca315b771b1d405e1efffa2ca680dfcd9c394a6c31064",
+            "RD2/interactive.log": "4bf04af907f9fc68f60949a476621a70713f926e76530816f2f38b1be2d09ac1",
+            "RD5/commands.txt": "511f18d5fe9247c20a4d723fcd80f34305a4bae12eda1610e1875409fa9403fb",
+            "RD5/interactive.log": "752120bf6558c85d5ae66d88d2bb07dea50cca373efbd352c37494668fec7e01"
+          }
+        },
+        {
+          "phase": 1,
+          "result": "PASS",
+          "check_counts": {
+            "PASS": 97,
+            "FAIL": 0
+          },
+          "error": null,
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "previous_identify_version": 1816812895,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "previous_identify_version": 1816812896,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": null,
+          "allocation_totals": null,
+          "logs_sha256": {
+            "node.log": "15d30d2d69caf3f2ac1755b6c76769198522e236e4f746fcf89aaa319c5b85d1",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "RD4/commands.txt": "4a23016aae445f4aaa30723afa28a9290ea6db7d43d94c4b251026aedd73980b",
+            "RD4/interactive.log": "514ffcdc41cadd32ddbdee58a9bf1240f00ba9d3b47ed22f86a3063addb7b8ae",
+            "RD3/commands.txt": "df864267e28b6fc6036ad632f32f1f569ca0bc5dbd468cd1150a34c0352c108d",
+            "RD3/interactive.log": "6ceec6bd3bf59c05ec46f685b131f204f772271782cbca57bf7d7812c4d9942a",
+            "RD1/commands.txt": "d1c38fea31f0ba1ee7813def619d86305a96a90cdab6a6b40d267b29d1de9f16",
+            "RD1/interactive.log": "ddf30c307339eee5ad11cabedef487927bdc8296e37b16a5b223516359152366",
+            "RD2/commands.txt": "a0d8f1f5cea1a4455bea3d4893f0498bd02223da54b9b76db8a8ce0cbb4695be",
+            "RD2/interactive.log": "9030fc865c4d5c60d62d880b0399f4697e467749a769d67690604fc9ab8962a7",
+            "RD5/commands.txt": "f139edea41d389f9c0e0c85c65955f4478bf60022aa88cdf5b6cfebe8785e8de",
+            "RD5/interactive.log": "fb1952c87328583b31b7299ebf8f6a9d83ed589c6e23023793b5b214283ade81"
+          }
+        },
+        {
+          "phase": 2,
+          "result": "PASS",
+          "check_counts": {
+            "PASS": 104,
+            "FAIL": 0
+          },
+          "error": null,
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "previous_identify_version": 1767929839,
+              "observed_paths": {
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "previous_identify_version": 1767929840,
+              "observed_paths": {
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": null,
+          "allocation_totals": null,
+          "logs_sha256": {
+            "node.log": "79d9d4bdc2e41685ee71030b760991709e5a15e1a51814b8e251c5cb9c726e76",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "RD4/commands.txt": "c57ac01af4bfed5a328be064238584106e921f8d3e8639dc4318372828784933",
+            "RD4/interactive.log": "0ce9cbea60c056834f8e0a32e52f1dd3424543e5d5a00fd8746dd9631e851022",
+            "RD3/commands.txt": "547be290cd7477ec24236326f543b0974ad228475f6a7f7d451646344fa7bd7b",
+            "RD3/interactive.log": "bf8b599328ca312603d499173a646eae5437bcc02f6531a098c59cc36a1aa254",
+            "RD1/commands.txt": "7957405a39337ab770c5ec2b3200cc62ac16aa7b0fba3d4438142d7d8b80bfbc",
+            "RD1/interactive.log": "e8767f83b13d1630ecba4f6b44ee11006d5259bdce108844a0757c815c81a139",
+            "RD2/commands.txt": "89756a224e747d07bb3de9a5605b38cf325861114360cbffb3f154d73785150c",
+            "RD2/interactive.log": "283f68c411c8d61cdc985ecab90fa8512aeb488622400e0208d1aa2b372baf61",
+            "RD5/commands.txt": "6277b90a020552c4b395cc3e903f4c4786dbd86f0319029307d2f617be1312db",
+            "RD5/interactive.log": "8825e81d6ef6a9c36cd2c8ea721b9daa0e65f2a4c19ce086ca66b7ed8e498e16"
+          }
+        },
+        {
+          "phase": 3,
+          "result": "PASS",
+          "check_counts": {
+            "PASS": 102,
+            "FAIL": 0
+          },
+          "error": null,
+          "cleanup_error": null,
+          "subscriptions": 15,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "previous_identify_version": 121658077,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "previous_identify_version": 121658078,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0,
+            "RD1A": 0
+          },
+          "node_exit": 0,
+          "memory": null,
+          "allocation_totals": null,
+          "logs_sha256": {
+            "node.log": "5ac51f6ac3f34dd7757e4415886bf14f78000d2a8b13500521f7e6f955f52fa8",
+            "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "RD4/commands.txt": "577f9c0d3ba9742b5b2cd2811a85454416faaf5df36b7b4c5c8340844c168134",
+            "RD4/interactive.log": "57c9186a86aaee5b0544c3e44564fd516efe9e0ef8f1f7c8d28b66622ecafaff",
+            "RD3/commands.txt": "97222956a99cfd7539d676616acf2bbc417a8b763bd94485b80d57d3520857dc",
+            "RD3/interactive.log": "5592838c50455eb83bf53dd8da2ef2b75a51896339da9b44c6cb1a057141ef93",
+            "RD1/commands.txt": "7efcad34a5a85b6b5515f7ae6c6779976a51977adb907c112503d33e6d8660bb",
+            "RD1/interactive.log": "e636f9a3f5d812ed84d80c39ec5b3f3a40ff0c42d6ffab2ea1e12b341ff8f510",
+            "RD2/commands.txt": "aa6dcae9be4950af800690774eb5909cf0bc04a47fc79f7a884eaa6735cc7782",
+            "RD2/interactive.log": "a957fa004474b0ed5c7166e5a3cf4fcdae9665e6dd4c27648b4bba376a5f8f42",
+            "RD5/commands.txt": "5e1c2ef9eb7e814362b07d0bc351780516bc77a9bcb61cb985cd96ac4073ad0d",
+            "RD5/interactive.log": "bf0e5061720e5f878b3ab1a5d9e5ac02a5aa3e164d93bba594eda91b876504f9",
+            "RD1A/commands.txt": "704050e075ea9266bda6149ff724ca7c42c885a80386edee2ee3aae8aa63b337",
+            "RD1A/interactive.log": "7fbbbc5535e238ac5ee17bc4cc06dd251afca10b5f96cebf938daa63b7b8a064"
+          }
+        }
+      ]
+    },
+    "checks_per_variant": 399,
+    "boot_lifetimes_per_variant": 4,
+    "subscriptions_per_lifetime": 15,
+    "fabrics_per_lifetime": 5,
+    "reset_scenarios": [
+      "three paths per subscription",
+      "one four-path request and full-quota overflow",
+      "six-request burst and six-path overflow",
+      "second authenticated subscriber node in same fabric"
+    ],
+    "oracle": "New positive IdentifyTime must also carry a different DataVersion than before the command; an older queued positive countdown cannot satisfy the update assertion.",
+    "superseded_sanitizer_attempt": {
+      "result": "PASS",
+      "result_sha256": "67acfff41c02a581536f87bb375eb17499d9e2dc5271d376b26b88df61dc295d",
+      "use": "Excluded from final acceptance because a concurrent rebuild refreshed the host UTC build-floor identity between lifetimes. Repeated all four phases on a frozen binary copy."
+    }
+  },
+  "BDX_attribution": {
+    "earlier_original_run": 481,
+    "earlier_result": "FAIL",
+    "original_source_sha256": "d383c621b31867ae31faef1a3656598573c59cce265fb312c2a7c3e7751ef2bd",
+    "observed": "CSA45 had one QueryImage, successful partial transfer and >=300s stall expiry. After same-provider restart its reason1 UpdateAvailable announcement caused no new QueryImage within240s.",
+    "cause": "Image handoff retains the next daily query. Same-provider UpdateAvailable retains that due time; the 240s observer expired before any new session attempt. Stale CASE was not reached by that particular failure.",
+    "basis": [
+      "Core1.6.1 11.20.7.4 AnnouncementReasonEnum: UpdateAvailable at the next scheduled provider query",
+      "Core1.6.1 11.20.3.2:120s query floor and recommended daily query",
+      "Core1.6.1 11.20.3.5:terminal transfer failure returns to future scheduled query"
+    ],
+    "new_local_regression": "After actual query/image handoff, reason1 cannot start at the old five-minute+240s cutoff; it starts at the scheduled daily boundary. This implementation may query earlier on SimpleAnnouncement, while retaining the120s floor. Virtual clock checks, not a real recovered BDX transfer.",
+    "native_policy_changed": false,
+    "restart_acceptance_rerun": false
+  },
+  "validation": {
+    "focused_Linux": {
+      "normal": {
+        "passed": 7,
+        "failed": 0,
+        "log_sha256": "37663b88992a4c2a78162061b0bb7787295826f5117745c3efc884394e91efe3",
+        "node_sha256": "a86841888db781d2766a09bce78bd7d467831c88089057e44544026a0e860906"
+      },
+      "sanitize": {
+        "passed": 7,
+        "failed": 0,
+        "log_sha256": "2be03ac69ab10747cc93dd15173bef2183cd409c104c64d1c1402ffe9701538e",
+        "node_sha256": "bee62f9a615af340b0ee73957cee148bb57fd5a3b5c35b20bd55bb60e2cc5a95"
+      }
+    },
+    "warnings": {
+      "build.log": [],
+      "fixed-build.log": [],
+      "final-tests.log": []
+    },
+    "Windows_UDP": {
+      "passed": 2,
+      "test_log_sha256": "7d55bdb7e48d374f9153201071268ead35022eae66d982d167ff6dffcc894e86",
+      "build_log_sha256": "213013d76df18798cb73cf2baa7e1931058cbe442a5974bd0a025d818b029cdf"
+    },
+    "source_input_count": 362,
+    "source_inputs_sha256": "c03230568c22497b3e38f598fa5eae43a86d2dc64e02f31f405d2ebd63464a1e",
+    "commands": [
+      "cmake --build BUILD --target matter-node test_ota_query test_ota_query_alloc test_im_subscribe test_im_subscribe_alloc test_dispatch test_udp_windows test_udp_windows_alloc -j3",
+      "ctest --test-dir BUILD --output-on-failure -R '^(test_ota_query|test_ota_query_alloc|test_im_subscribe|test_im_subscribe_alloc|test_dispatch|test_udp_windows|test_udp_windows_alloc)$'",
+      "python tools/matter/tests/test_subscription_fabrics_chip.py --valgrind; separately ASan/UBSan/LSan (all four reset scenarios)",
+      "Original unchanged TC-IDM-7.1 manual/operator procedure through TH",
+      "python tools/matter/check_test_map.py",
+      "python tools/matter/csa_campaign.py --write",
+      "git diff --check"
+    ]
+  },
+  "cleanup": {
+    "disposable_CSA56_nodes_running": [],
+    "no_nodes_remaining": true,
+    "TH_idle": true,
+    "paired_Windows_instances_untouched": true
+  },
+  "coverage": {
+    "applicable": 155,
+    "NA": 707,
+    "all_PASS_positions": 123,
+    "all_FAIL_positions": 27,
+    "unresolved_prerequisites": 5,
+    "manual_PASS": 24,
+    "manual_FAIL": 9,
+    "manual_BLOCKED": 4
+  },
+  "limits": [
+    "Original TC-IDM-7.1 FAIL remains for its final overflow-status example, not the repaired report loss. CSA clarification is still needed; no original/support/PICS change.",
+    "BDX restarted-transfer acceptance remains FAIL until a new controlled recovery scenario with a suitable explicit trigger; no immediate query is required merely by reason1.",
+    "Seven Linux CTests per build and two Windows adapter CTests are focused checks, not a full applicable matrix, Home UI test or certification.",
+    "No embedded RAM fit, physical/radio/production label/provisioning or deferred DGGEN2.1 rerun. Paired Windows instances untouched. No push."
+  ],
+  "next": {
+    "stage": "CSA57",
+    "scope": "BDX restart acceptance: use an explicitly chosen recovery trigger instead of assuming reason1 wakes a daily query; retain real300s idle expiry, provider identity, query floor and session recovery, then run unchanged original procedure."
+  }
+}

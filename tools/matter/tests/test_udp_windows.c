@@ -163,6 +163,18 @@ static bool exchange(void) {
     CHECK(matter_udp_send(e[1].udp, &reply, &id) == MATTER_PENDING);
     CHECK(matter_udp_windows_poll(e[1].host) == MATTER_OK);
     CHECK(wait_event(&e[0]) == MATTER_OK && e[0].received[0] == 0x42);
+    /* A busy transmitter must still receive the peer's ACK/data in the same
+     * poll. Completing TX alone can starve RX throughout an MRP report burst. */
+    for(unsigned round=0;round<32;++round) {
+        unsigned rx0=e[0].rx,rx1=e[1].rx,tx0=e[0].tx,tx1=e[1].tx;
+        e[0].bytes[0]=(uint8_t)round; e[1].bytes[0]=(uint8_t)(round+32);
+        CHECK(send_to(&e[0], &e[1], 1, &id) == MATTER_PENDING);
+        CHECK(matter_udp_send(e[1].udp, &reply, &id) == MATTER_PENDING);
+        CHECK(matter_udp_windows_poll(e[0].host) == MATTER_OK);
+        CHECK(e[0].tx == tx0+1 && e[0].rx == rx0+1 && e[0].received[0] == round+32);
+        CHECK(matter_udp_windows_poll(e[1].host) == MATTER_OK);
+        CHECK(e[1].tx == tx1+1 && e[1].rx == rx1+1 && e[1].received[0] == round);
+    }
     CHECK(!e[0].violations && !e[1].violations);
     ok = true;
 done:

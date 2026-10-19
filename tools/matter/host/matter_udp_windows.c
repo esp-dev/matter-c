@@ -248,7 +248,13 @@ Matter_Result_T matter_udp_windows_poll(Matter_Udp_Windows_T host) {
         host->pending = 0;
         result = matter_udp_complete(host->udp, request, host->terminal);
         if (result == MATTER_BUSY) host->pending = request;
-    } else if (host->socket != INVALID_SOCKET) result = receive_packet(host);
+    }
+    /* A continuous TX backlog must not starve peer ACKs. Do at most one RX
+     * as well as one completion; preserve completion success if RX is empty. */
+    if (host->socket != INVALID_SOCKET && (result == MATTER_OK || result == MATTER_WOULD_BLOCK)) {
+        Matter_Result_T received = receive_packet(host);
+        if (received != MATTER_WOULD_BLOCK) result = received;
+    }
     host->busy = false;
     return result;
 }
