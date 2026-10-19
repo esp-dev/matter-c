@@ -1,0 +1,1237 @@
+{
+  "schema": 1,
+  "checkpoint_stage": 42,
+  "checkpoint_evidence": "csa42-results.json",
+  "checkpoint_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "scope": "Frozen experimental x86 profile, original TH v2.15.1+summer2026. Outcomes inherited through CSA42, not fresh verification of all earlier rows.157 applicable positions plus705 NA; NA remains tied to frozen PICS and must be revisited on profile changes.",
+  "snapshot_note": "Reviewed compact checkpoint of the campaign matrix; older report schemas do not provide uniform replay deltas. Later CSA stages are applied from public classification_changes with identity/count checks. No private lab files are required to resume.",
+  "phase": "COVERAGE_FIRST",
+  "next_case": "TC-SC-1.4",
+  "entries": [
+    {
+      "case": "TC-DD-1.1",
+      "endpoint": 0,
+      "collection": "Onboarding Payload Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa31-results.json",
+      "run_id": 465
+    },
+    {
+      "case": "TC-DD-1.2",
+      "endpoint": 0,
+      "collection": "Onboarding Payload Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa31-results.json",
+      "run_id": 465
+    },
+    {
+      "case": "TC-DD-1.3",
+      "endpoint": 0,
+      "collection": "Onboarding Payload Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-DD-1.4",
+      "endpoint": 0,
+      "collection": "Onboarding Payload Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-BDX-1.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-BDX-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-BDX-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-CNET-4.13",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-DD-1.6",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-DD-1.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-DD-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa35-results.json",
+      "run_id": 471
+    },
+    {
+      "case": "TC-DD-3.19",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa33-results.json",
+      "run_id": 467
+    },
+    {
+      "case": "TC-DESC-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-DGGEN-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-DGWIFI-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-GRPKEY-5.4",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-IDM-1.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-IDM-5.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-IDM-6.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-IDM-6.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-IDM-7.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-IDM-8.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-OPCREDS-3.6",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "evidence": "csa32-results.json",
+      "run_id": 466
+    },
+    {
+      "case": "TC-SC-1.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 475,
+      "evidence": "csa40-results.json"
+    },
+    {
+      "case": "TC-SC-1.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 476,
+      "evidence": "csa41-results.json"
+    },
+    {
+      "case": "TC-SC-1.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 477,
+      "evidence": "csa42-results.json"
+    },
+    {
+      "case": "TC-SC-1.4",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-SC-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 472,
+      "evidence": "csa37-results.json"
+    },
+    {
+      "case": "TC-SC-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 473,
+      "evidence": "csa38-results.json"
+    },
+    {
+      "case": "TC-SC-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 474,
+      "evidence": "csa39-results.json"
+    },
+    {
+      "case": "TC-SC-4.4",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL"
+    },
+    {
+      "case": "TC-SU-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa19-results.json",
+      "run_id": 442
+    },
+    {
+      "case": "TC-SU-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa20-results.json",
+      "run_id": 443
+    },
+    {
+      "case": "TC-SU-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa21-results.json",
+      "run_id": 444
+    },
+    {
+      "case": "TC-SU-2.4",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa22-results.json",
+      "run_id": 445
+    },
+    {
+      "case": "TC-SU-2.5",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa23-results.json",
+      "run_id": 446
+    },
+    {
+      "case": "TC-SU-2.6",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa25-results.json",
+      "run_id": 452
+    },
+    {
+      "case": "TC-SU-2.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "evidence": "csa26-results.json",
+      "run_id": 455
+    },
+    {
+      "case": "TC-ACE-1.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 132
+    },
+    {
+      "case": "TC-ACL-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 133
+    },
+    {
+      "case": "TC-CNET-4.5",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 134
+    },
+    {
+      "case": "TC-DGGEN-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "BLOCKED",
+      "run_id": 135
+    },
+    {
+      "case": "TC-DGGEN-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 136
+    },
+    {
+      "case": "TC-DGGEN-3.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 137
+    },
+    {
+      "case": "TC-DGWIFI-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 138
+    },
+    {
+      "case": "TC-DGWIFI-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 139
+    },
+    {
+      "case": "TC-GRPKEY-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "FAIL",
+      "run_id": 140
+    },
+    {
+      "case": "TC-GRPKEY-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "BLOCKED",
+      "run_id": 141
+    },
+    {
+      "case": "TC-I-2.1",
+      "endpoint": 1,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 142
+    },
+    {
+      "case": "TC-I-2.2",
+      "endpoint": 1,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 460,
+      "evidence": "csa29-results.json"
+    },
+    {
+      "case": "TC-OPCREDS-3.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "PASS",
+      "run_id": 144
+    },
+    {
+      "case": "TC_IDM_10_2",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 123
+    },
+    {
+      "case": "TC_IDM_10_3",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 124
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 228
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 1,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 229
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 3,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 230
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 4,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 231
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 5,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 232
+    },
+    {
+      "case": "TC_IDM_10_5",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 126
+    },
+    {
+      "case": "TC_IDM_12_1",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "status": "PASS",
+      "run_id": 127
+    },
+    {
+      "case": "TC_ACE_1_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 145
+    },
+    {
+      "case": "TC_ACE_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 146
+    },
+    {
+      "case": "TC_ACE_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 147
+    },
+    {
+      "case": "TC_ACE_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 148
+    },
+    {
+      "case": "TC_ACE_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 149
+    },
+    {
+      "case": "TC_ACL_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 150
+    },
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 130
+    },
+    {
+      "case": "TC_ACL_2_6",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 131
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 151
+    },
+    {
+      "case": "TC_BINFO_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 152
+    },
+    {
+      "case": "TC_BINFO_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 153
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 233
+    },
+    {
+      "case": "TC_CADMIN_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 234
+    },
+    {
+      "case": "TC_CADMIN_1_9",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 156
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 157
+    },
+    {
+      "case": "TC_CADMIN_1_11",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 158
+    },
+    {
+      "case": "TC_CADMIN_1_15",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 159
+    },
+    {
+      "case": "TC_CADMIN_1_19",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 160
+    },
+    {
+      "case": "TC_CADMIN_1_22",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 161
+    },
+    {
+      "case": "TC_CADMIN_1_25",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 162
+    },
+    {
+      "case": "TC_CGEN_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 163
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 128
+    },
+    {
+      "case": "TC_CNET_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 164
+    },
+    {
+      "case": "TC_CNET_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 165
+    },
+    {
+      "case": "TC_CNET_4_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 166
+    },
+    {
+      "case": "TC_CNET_4_9",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 167
+    },
+    {
+      "case": "TC_CNET_4_11",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 168
+    },
+    {
+      "case": "TC_CNET_4_15",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 169
+    },
+    {
+      "case": "TC_DA_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "BLOCKED",
+      "run_id": 170
+    },
+    {
+      "case": "TC_DA_1_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 171
+    },
+    {
+      "case": "TC_DA_1_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 172
+    },
+    {
+      "case": "TC_DGGEN_2_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 173
+    },
+    {
+      "case": "TC_DGGEN_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 174
+    },
+    {
+      "case": "TC_EEM_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 175
+    },
+    {
+      "case": "TC_EEM_2_2",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS"
+    },
+    {
+      "case": "TC_EEM_2_3",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS"
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 176
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 177
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 178
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 179
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS"
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "status": "PASS"
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "status": "PASS"
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "status": "PASS"
+    },
+    {
+      "case": "TC_I_2_4",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 180
+    },
+    {
+      "case": "TC_IDM_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 181
+    },
+    {
+      "case": "TC_IDM_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 182
+    },
+    {
+      "case": "TC_IDM_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 183
+    },
+    {
+      "case": "TC_IDM_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 184
+    },
+    {
+      "case": "TC_IDM_4_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 185
+    },
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 186
+    },
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 187
+    },
+    {
+      "case": "TC_IDM_9_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 188
+    },
+    {
+      "case": "TC_MTRID_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 189
+    },
+    {
+      "case": "TC_MTRID_3_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 190
+    },
+    {
+      "case": "TC_OPCREDS_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 191
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 129
+    },
+    {
+      "case": "TC_OPCREDS_3_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 192
+    },
+    {
+      "case": "TC_OPCREDS_3_8",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 193
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 194
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 195
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 196
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 197
+    },
+    {
+      "case": "TC_SC_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 198
+    },
+    {
+      "case": "TC_SC_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 199
+    },
+    {
+      "case": "TC_SC_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 200
+    },
+    {
+      "case": "TC_SC_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 201
+    },
+    {
+      "case": "TC_SC_4_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 202
+    },
+    {
+      "case": "TC_SU_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL"
+    },
+    {
+      "case": "TC_SU_2_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL"
+    },
+    {
+      "case": "TC_SU_2_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL"
+    },
+    {
+      "case": "TC_SU_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL"
+    },
+    {
+      "case": "TC_DD_1_16",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 203
+    },
+    {
+      "case": "TC_DD_1_17",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 204
+    },
+    {
+      "case": "TC_DESC_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 205
+    },
+    {
+      "case": "TC_IDM_13_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 206
+    },
+    {
+      "case": "TC_IDM_14_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 207
+    },
+    {
+      "case": "TC_SC_7_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 208
+    },
+    {
+      "case": "TC_ACE_1_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 209
+    },
+    {
+      "case": "TC_ACE_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 210
+    },
+    {
+      "case": "TC_ACE_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 211
+    },
+    {
+      "case": "TC_CGEN_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 212
+    },
+    {
+      "case": "TC_DA_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 213
+    },
+    {
+      "case": "TC_DESC_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 214
+    },
+    {
+      "case": "TC_DESC_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 215
+    },
+    {
+      "case": "TC_DGGEN_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 216
+    },
+    {
+      "case": "TC_DT_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 217
+    },
+    {
+      "case": "TC_IDM_1_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 218
+    },
+    {
+      "case": "TC_IDM_10_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "run_id": 219
+    },
+    {
+      "case": "TC_IDM_10_6",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 220
+    },
+    {
+      "case": "TC_IDM_11_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 221
+    },
+    {
+      "case": "TC_OPCREDS_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 222
+    },
+    {
+      "case": "TC_RR_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 223
+    },
+    {
+      "case": "TC_SC_3_6",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 224
+    },
+    {
+      "case": "TC_TIMESYNC_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 225
+    },
+    {
+      "case": "TC_TIMESYNC_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 226
+    },
+    {
+      "case": "TC_TIMESYNC_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "PASS",
+      "run_id": 227
+    }
+  ],
+  "groups": [
+    {
+      "name": "MRP counters and duplicates",
+      "cases": [
+        "TC-SC-1.4"
+      ]
+    },
+    {
+      "name": "Descriptor and composition",
+      "cases": [
+        "TC-DESC-2.1"
+      ]
+    },
+    {
+      "name": "BDX receiver and OTA transfer",
+      "cases": [
+        "TC-BDX-1.2",
+        "TC-BDX-2.2",
+        "TC-BDX-2.3"
+      ]
+    },
+    {
+      "name": "Network and diagnostic events",
+      "cases": [
+        "TC-CNET-4.13",
+        "TC-DGGEN-2.2",
+        "TC-DGWIFI-2.2"
+      ]
+    },
+    {
+      "name": "IM commands reads subscriptions fabric isolation and group keys",
+      "cases": [
+        "TC-IDM-1.1",
+        "TC-IDM-5.1",
+        "TC-IDM-6.1",
+        "TC-IDM-6.2",
+        "TC-IDM-7.1",
+        "TC-IDM-8.1",
+        "TC-GRPKEY-5.4"
+      ]
+    },
+    {
+      "name": "Onboarding artifacts and physical presentation",
+      "cases": [
+        "TC-DD-1.3",
+        "TC-DD-1.4",
+        "TC-DD-1.6",
+        "TC-DD-1.7"
+      ]
+    },
+    {
+      "name": "Revisit controller applicability and blocked procedures",
+      "cases": [
+        "TC-SC-4.4",
+        "TC-DGGEN-2.1",
+        "TC-GRPKEY-2.2",
+        "TC_DA_1_1"
+      ]
+    }
+  ],
+  "triage": [
+    {
+      "cases": [
+        "TC-SC-2.3"
+      ],
+      "kind": "NATIVE_DEFECT",
+      "evidence": "csa39-validation.md",
+      "action": "Drain terminal PASE error StatusReport through UDP/MRP before disposal; preserve bounded teardown and failure notification."
+    },
+    {
+      "cases": [
+        "TC-SC-1.2"
+      ],
+      "kind": "NATIVE_DEFECT",
+      "evidence": "csa41-validation.md",
+      "action": "Allow supported authenticated IM R0 requests without request ACK, preserving PASE/CASE reliability and admission quotas."
+    },
+    {
+      "cases": [
+        "TC-OPCREDS-3.6",
+        "TC-SC-2.1",
+        "TC-SC-2.2",
+        "TC-SC-1.3"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "status.md",
+      "action": "Retain original results and documented normative discrepancy; do not weaken correct behavior for a green test."
+    },
+    {
+      "cases": [
+        "TC_DA_1_2",
+        "TC_DA_1_7"
+      ],
+      "kind": "PROVISIONING_REVIEW",
+      "evidence": "status.md",
+      "action": "Review development credentials versus production policy. Do not change production identity or claim certification."
+    },
+    {
+      "cases": [
+        "TC_SU_2_2",
+        "TC_SU_2_5",
+        "TC_SU_2_7",
+        "TC_SU_4_1"
+      ],
+      "kind": "FIXTURE_OR_INFRASTRUCTURE_REVIEW",
+      "evidence": "status.md",
+      "action": "Reassess automatic OTA test prerequisites using the existing provider before attributing failure to native code."
+    }
+  ],
+  "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."
+}

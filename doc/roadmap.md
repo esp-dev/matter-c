@@ -3,6 +3,12 @@
 The target is Matter 1.6.1. Passing selected tests is not certification. The
 current failures and measured coverage remain in [status](oss/status.md).
 
+The current execution order is **all executable applicable CSA procedures first,
+then attributed native repairs**, with specific external blockers retained.
+Use the [campaign plan](oss/csa-campaign-plan.md) and
+[generated queue](oss/csa-campaign-status.md) to resume work and track outcomes.
+Make local commits after complete batches; the owner performs the final push.
+
 ## Iteration strategy
 
 Work in successive passes over this roadmap, narrowing the unresolved scope

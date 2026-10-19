@@ -4,6 +4,10 @@ Standalone C99 Matter library and host development environment, licensed under
 [Apache-2.0](LICENSE). Third-party terms are retained in [NOTICE](NOTICE) and
 [provenance](doc/oss/provenance.md). This is experimental software, not a CSA
 certified implementation. See [status and known failures](doc/oss/status.md).
+The [CSA execution plan](doc/oss/csa-campaign-plan.md) and
+[generated queue](doc/oss/csa-campaign-status.md) track remaining coverage,
+failure attribution and later native repairs. Run `python tools/matter/csa_campaign.py`
+to check that public evidence and the queue agree.
 
 The application owns scheduling, networking, storage and hardware callbacks.
 Multiple runtimes can run in one process/thread. The core does not require

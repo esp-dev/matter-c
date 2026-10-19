@@ -1,5 +1,12 @@
 # Development status
 
+The continuing campaign uses an [execution plan](csa-campaign-plan.md) and
+[generated current queue](csa-campaign-status.md). Execute all possible applicable
+tests first, retain explicit external blockers, then repair attributed native
+defects and rerun the original failures. Local commits are made per batch;
+the owner performs the eventual push. Check the queue with
+`python tools/matter/csa_campaign.py`; earlier entries below remain historical.
+
 **CSA42: original TC-SC-1.3 literal manual FAIL, TH run477; Core retries PASS.**
 Step4 says total MAX-1 messages. At max5, Core requires five total sends/four
 retries; both wire scenarios do exactly that. The original FAIL is retained for
