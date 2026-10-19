@@ -7,6 +7,17 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA58: complete automatic rerun; repeatable Timed Write failure reopened.**
+All 99 previously passing positions rerun on one frozen native build: initially
+96 PASS/3 FAIL. Corrected Wi-Fi test-mode and live-QR inputs pass; unchanged
+TC_IDM_5_2 fails step 4 twice (runs 560/595). Effective result: 98 PASS/1 FAIL;
+102 original executions, 104 clean native lifetimes, no native/test/PICS changes.
+[Report](csa58-validation.md). Campaign: 122 PASS/28 FAIL/5 prerequisites;
+older failures and manual outcomes are not rerun. Exact-build memory evidence
+is reused from CSA56/57, with no fresh native build or sanitizer claim.
+Next: CSA59, actual packet-time/status/side-effect repro for Timed Write, then
+only a confirmed standards-correct fix and unchanged original test acceptance.
+
 **CSA57: actual stalled BDX recovery passes; original optional-ACK question remains.**
 Same requestor, real300s idle expiry, provider restart, explicit reason0, new CASE,
 full offset0 transfer, signed simulated apply/reboot and Notify all pass.

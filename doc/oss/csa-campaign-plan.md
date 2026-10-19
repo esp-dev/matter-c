@@ -71,6 +71,48 @@ commissioning lifecycle. Retain the owner's deferred multi-hour DGGEN run and ph
 do not loop on an unverified harness. After attributed fixes, triage remaining
 FAILs by actual assertion and rerun originals where meaningful.
 
+## CSA58: frozen automatic regression sweep
+
+Rerun all 99 positions currently classified automatic PASS, using exact
+case/endpoint/collection identities. Keep the 18 existing automatic FAILs,
+37 manual procedures and deferred DGGEN 2.1 outside this regression queue; their
+outcomes and prerequisites remain visible in the campaign.
+
+The execution order is YAML (9), composition (13), measurements (18),
+interaction/security (34), commissioning (20), setup codes (3) and resource tests (2).
+Use the frozen CSA56/57 native host, verify all 362 current C/H inputs and the
+binary hash, then freeze original test/support sources and current per-endpoint
+PICS snapshots. Supply actual energy/Meter Identification test triggers and two
+real setup-code instances where the original procedure needs them.
+
+Each position gets a new native process and empty state; do not reuse a previous
+commissioning snapshot. Actual in-test factory-reset requests restart only the
+disposable instance. Keep the same binary across every lifetime. The temporary
+local PAA is scoped to the run and removed on completion. Record original TH run
+IDs, step outcomes, source/PICS/receipt hashes, cleanup and any setup faults.
+
+Per-case deadlines bound the run; longer commissioning-window and resource
+procedures retain their full observation periods. Stop on a harness/fixture
+boundary, inspect it and resume from completed receipts instead of blindly
+repeating or converting an ERROR into a DUT FAIL. Preserve every superseded
+attempt. Paired desktop nodes and controller stores remain outside this run.
+No publication or change to original tests is part of this stage.
+After the complete frozen sweep, allow one unchanged confirmation of a newly
+failing position to distinguish a repeatable failure from instability. Preserve
+the first FAIL and report the confirmation separately, rather than replacing
+the sweep outcome with a later green result.
+
+CSA58 completed all 99 primary positions (96 PASS/3 FAIL). Two original tests
+pass after correcting the Wi-Fi in-test mode and the live QR input. The unchanged
+Timed Write case fails twice, so effective acceptance is 98 PASS/1 FAIL; this is
+not a stable green sweep. All 102 original receipts remain in
+[the report](csa58-validation.md), including setup mismatches and confirmation.
+Next: CSA59, capture actual Timed Write packet times, response status and
+attribute side effects, separate native lifecycle/deadline behavior from peer
+busy-wait scheduling, and fix only an attributed native defect. Keep the original
+case unchanged; require focused timed/error-path and full memory acceptance
+before returning to the older failure-closure queue.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation
