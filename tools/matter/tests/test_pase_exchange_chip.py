@@ -11,6 +11,7 @@ response MIC, then release the original packets after a real quiet interval.
 --mrp-flows records TC-SC-1.2 ACK/data flows, including encrypted R=0 reads.
 --mrp-retries records TC-SC-1.3 complete ACK loss and bounded retransmissions.
 --mrp-duplicates records TC-SC-1.4 matching ACKs without repeated PASE work.
+--descriptor-profile records the current five-endpoint TC-DESC-2.1 inventory.
 Keep output private.
 """
 import argparse
@@ -585,6 +586,59 @@ def mrp_duplicate_probes(ipv6, interface, target, check, packets, lock):
             'side_effect_scope': 'One original PBKDF response, none for exact duplicates after ACKing original. Core duplicate drop before application delivery is also source-reviewed; no live internal allocation/callback tracing claimed.'}
 
 
+def descriptor_profile(client, command, check):
+    """Read the actual hierarchy and served-cluster attribute catalogs over CASE."""
+    from chip_tool_energy_profile import frames, ids, integer
+    inventory = []; known = {0, 1, 3, 4, 5}
+    root_required = {0x1d, 0x1f, 0x28, 0x2a, 0x30, 0x31, 0x33, 0x36, 0x38, 0x3c, 0x3e, 0x3f}
+    for endpoint in sorted(known):
+        text = command(client, ['descriptor', 'read-by-id', '0xffffffff', 1, endpoint], r'Flushed pending ack for MessageCounter:')
+        attrs = {f['path'][2]: f for f in frames(text) if f['kind'] == 'Attribute' and f['path'][:2] == (endpoint, 0x1d)}
+        check('descriptor-required-attributes-' + str(endpoint), {0, 1, 2, 3, 0xfffb, 0xfffc, 0xfffd} <= set(attrs))
+        types = [(int(a), int(b)) for a, b in re.findall(r'^DeviceType: (\d+)[^\n]*\nRevision: (\d+)\b', attrs[0]['body'], re.M)]
+        wanted = {0x16: 5, 0x12: 1} if endpoint == 0 else {0x510: 1, 0x511: 1, 0x512: 1} if endpoint == 1 else {0x510: 1}
+        check('descriptor-device-types-revisions-' + str(endpoint), len(types) == len(wanted) and dict(types) == wanted)
+        parts = ids(attrs[3]['body'], 'PartsList'); servers = ids(attrs[1]['body'], 'ServerList'); clients = ids(attrs[2]['body'], 'ClientList')
+        expected_parts = known - {0} if endpoint == 0 else {3, 4, 5} if endpoint == 1 else set()
+        check('descriptor-hierarchy-' + str(endpoint), set(parts) == expected_parts and all(1 <= p <= 65534 for p in parts))
+        required = root_required if endpoint == 0 else {0x1d, 0x90, 0x91, 0x9c, 3, 0xb06} if endpoint == 1 else {0x1d, 0x90, 0x9c}
+        check('descriptor-server-device-requirements-' + str(endpoint), required <= set(servers))
+        check('descriptor-client-roles-' + str(endpoint), set(clients) == ({0x29} if endpoint == 0 else set()))
+        feature = integer(attrs[0xfffc]['body'], 'FeatureMap')
+        check('descriptor-tag-feature-attribute-' + str(endpoint), bool(feature & 1) == (4 in attrs) and feature == (0 if endpoint == 0 else 1))
+        tags = []
+        if endpoint:
+            tags = [(int(a), int(b)) for a, b in re.findall(r'^NamespaceID: (\d+)[^\n]*\nTag: (\d+)\b', attrs[4]['body'], re.M)]
+            check('descriptor-standard-AC-tags-' + str(endpoint), tags == [(10, 1 if endpoint == 1 else endpoint - 1)])
+        catalogs = {}
+        for cluster in servers:
+            text = command(client, ['any', 'read-by-id', cluster, '0xfffb', 1, endpoint], r'Flushed pending ack for MessageCounter:')
+            catalog = next(f for f in frames(text) if f['kind'] == 'Attribute' and f['path'] == (endpoint, cluster, 0xfffb))
+            if cluster > 0xffff and "Don't know how to log attribute value" in catalog['body']:
+                # Named TOO output lacks the vendor schema, but DMG still logs
+                # the actual decoded TLV array for this single-attribute read.
+                dmg = '\n'.join(re.findall(r'\[DMG\]\s*([^\r\n]*)', text))
+                arrays = re.findall(r'\bData = \[(.*?)\]', dmg, re.S)
+                check('descriptor-vendor-attribute-array-' + str(endpoint), len(arrays) == 1)
+                attributes = [int(x) for x in re.findall(r'\b(\d+) \(unsigned\)', arrays[0])]
+                check('descriptor-vendor-attribute-array-values-' + str(endpoint), bool(attributes) and
+                      len(attributes) == len(set(attributes)) and all(0 <= x <= 0xffffffff for x in attributes) and
+                      not re.sub(r'\b\d+ \(unsigned\)|[,\s]', '', arrays[0]))
+            else:
+                attributes = ids(catalog['body'], 'AttributeList')
+            check('descriptor-listed-server-serves-attributes-' + str(endpoint) + '-' + str(cluster),
+                  {0xfff8, 0xfff9, 0xfffb, 0xfffc, 0xfffd} <= set(attributes))
+            catalogs[str(cluster)] = attributes
+        inventory.append({'endpoint': endpoint, 'device_types': [{'type': a, 'revision': b} for a, b in types],
+                          'parts': parts, 'servers': servers, 'clients': clients, 'feature_map': feature,
+                          'tags': tags, 'attributes': catalogs})
+    return {'Core_result': 'PASS', 'inventory': inventory,
+            'literal_all_nonroot_PartsLists_empty': all(not x['parts'] for x in inventory if x['endpoint']),
+            'root_TagList_applicable': False,
+            'all_device_cluster_acceptance_complete': False,
+            'limits': 'Device-type metadata, hierarchy, mandatory cluster presence and served AttributeLists verified. Vendor AttributeList uses decoded DMG TLV output because TOO has no vendor schema. This is not closure of every cluster command/attribute behavior test; campaign still has unexecuted and failed procedures.'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('node', 'chip-tool', 'paa', 'credentials', 'output'):
@@ -598,8 +652,9 @@ def main():
     parser.add_argument('--mrp-flows', action='store_true', help='TC-SC-1.2: ACK/data flows and five authenticated unreliable reads')
     parser.add_argument('--mrp-retries', action='store_true', help='TC-SC-1.3: drop all replies, measure immutable retransmissions and stop')
     parser.add_argument('--mrp-duplicates', action='store_true', help='TC-SC-1.4: repeat reliable requests and require ACK without application re-execution')
+    parser.add_argument('--descriptor-profile', action='store_true', help='TC-DESC-2.1: current profile hierarchy and served cluster catalogs')
     args = parser.parse_args(); out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
-    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows, args.mrp_retries, args.mrp_duplicates)) > 1:
+    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows, args.mrp_retries, args.mrp_duplicates, args.descriptor_profile)) > 1:
         parser.error('Choose one fault-injection mode')
     report = {'result': 'RUNNING', 'checks': [], 'exchanges': [],
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -806,6 +861,8 @@ def main():
             activated = re.findall(r'New secure session activated.*?LSID:\d+ PSID:(\d+)!', client.text())
             check('CASE-session-observed-' + str(lane), bool(activated) and 'Sent Sigma3 msg' in client.text())
             case_ids.append(int(activated[-1]))
+            if args.descriptor_profile and lane == 0:
+                report['TC_DESC_2_1'] = descriptor_profile(client, command, check)
             if lane == 0:
                 opened = command(client, ['pairing', 'open-commissioning-window', 1, 1, 180, 1000, 3918],
                                  r'Manual pairing code: \[\d+\]')

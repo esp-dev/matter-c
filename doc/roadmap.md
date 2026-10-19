@@ -516,3 +516,8 @@ the library with the target firmware in a separate downstream repository.
 Hardware callbacks, credential ownership, storage, boot/update lifecycle and
 resource budgets belong to that integration. This repository supplies the
 portable library, public contracts and host tests, without product-specific code.
+
+CSA44 records original TC-DESC-2.1 FAIL, TH run480: flat PartsList wording and
+incomplete whole-device cluster acceptance. Independent five-endpoint Descriptor/
+served-catalog acceptance passes 117 checks per memory variant without native changes.
+See [CSA44 evidence](oss/csa44-validation.md). Continue with BDX receiver coverage.

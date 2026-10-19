@@ -508,3 +508,8 @@ to PATH and support `OPENSSL`/`GCC`. `extract_operational.py` takes explicit
 Committed fixtures remain available without any upstream checkout or CSA PDF.
 
 See [current status and validation](doc/oss/status.md) for the next task.
+
+CSA44 records original TC-DESC-2.1 FAIL, TH run480: flat PartsList wording and
+incomplete whole-device cluster acceptance. Independent five-endpoint Descriptor/
+served-catalog acceptance passes 117 checks per memory variant without native changes.
+See [CSA44 evidence](doc/oss/csa44-validation.md). Continue with BDX receiver coverage.

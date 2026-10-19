@@ -7,6 +7,13 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA44: original TC-DESC-2.1 manual FAIL, TH run480.**
+Two distinct causes: literal flat PartsList wording conflicts with permitted phased
+hierarchy, and whole-cluster acceptance is still incomplete. Independent Descriptor
+inventory/catalog checks pass 117 per variant; no native changes. Root TagList is
+NOT APPLICABLE from frozen PICS. See [report](csa44-validation.md).
+**Next: CSA45, BDX receiver transfer/restart procedures.**
+
 **CSA43: original TC-SC-1.4 manual PASS, TH run478.**
 Original reliable PBKDF input and three exact repeats receive matching ACKs;
 duplicates produce only empty standalone ACKs and no repeated application reply.
@@ -26,7 +33,7 @@ No peer replies during12-second loss; retries stop beyond final wait+guard and
 late ACK does not restart them. Fresh two-fabric commissioning/CASE works without
 DUT restart. Independent acceptance passes32 checks per Memcheck/sanitizer run;
 43530 matched allocations/frees, zero errors/live bytes, clean DUT exits/stderr.
-Existing table/sender CTests pass2/2 per variant. No native/PICS/test mutation or
+Existing table/sender CTests pass 2/2 per variant. No native/PICS/test mutation or
 new host compilation. TH idle, disposable nodes stopped; Windows pairings intact.
 Totals stay **97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL now has
 **13 PASS, 6 FAIL, 20 without an outcome**. See [scope/clarification](csa42-validation.md)

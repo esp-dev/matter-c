@@ -1,0 +1,2386 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "previous": "csa43-results.json",
+  "previous_sha256": "86b4b1e67a8201bc2c530959c52eaf976fd260e3fa858e87c3b6f627aa352fed",
+  "source_base_commit": "2563b68f3c551297af23569b34e08d3af1d77443",
+  "scope": "Original TC-DESC-2.1 FAIL: literal empty parent PartsList conflicts with phased hierarchy; full cluster campaign closure remains incomplete. Independent current-profile Descriptor/cluster inventory PASS without native changes.",
+  "classification_changes": [
+    {
+      "case": "TC-DESC-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 480
+    }
+  ],
+  "official_receipt": {
+    "run_id": 480,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 14:48:01.334792",
+    "observed_utc": "2026-10-19T14:48:02.722302+00:00",
+    "cases": [
+      {
+        "case": "TC-DESC-2.1",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 7,
+          "TestStateEnum.failed": 2,
+          "TestStateEnum.not_applicable": 1
+        },
+        "details": [
+          {
+            "title": "Note",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Precondition",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1a: TH reads DeviceTypeList and PartsList attributes from DUT for Endpoint 0",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1b: TH reads DeviceTypeList and PartsList attributes from DUT for each Endpoint supported by DUT (except Endpoint 0).",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: TH reads 'ServerList' attribute.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: TH reads 'ClientList' attribute",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: TH reads 'PartsList' attribute.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: TH reads from the DUT the 'TagList' attribute.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: The cluster tests applicable to each Device Type should be executed to make sure all mandatory (and applicable optional) attributes/commands are implemented.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "fe591db4fda5c4783c14447a45e03908868b12c3dff0a6e647c7ba8f6d09674b",
+    "raw_result_sha256": "dc96a8ca573969c2ecbb7bf071748a7c66311ddf9ad4cd6c19129f4917ae20da",
+    "identity": {
+      "source_sha256": "5a14926651c2b7f6df96b8738c5f06ca8f8adc1db2cb4a739726a21401a3d55e",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "Conformance inventory records the actual device types/revisions and mandatory clusters from supplied Core and Device Library1.6.1. This is a laboratory derived inventory, not a CSA approval of a product conformance list.",
+        "utc_ms": 1792421281215
+      },
+      {
+        "step": 2,
+        "answer": "PASS",
+        "note": "Two successful chip-tool PASE commissioning flows, CASE reads and persistence checks per variant.",
+        "utc_ms": 1792421281230
+      },
+      {
+        "step": 3,
+        "answer": "PASS",
+        "note": "Endpoint0 has RootNode revision5 plus OTARequestor revision1, and PartsList [1,3,4,5].",
+        "utc_ms": 1792421281242
+      },
+      {
+        "step": 4,
+        "answer": "FAIL",
+        "note": "Literal empty nonroot PartsList requirement is not met: parent endpoint1 contains phases [3,4,5]. DeviceLibrary1.6.1 phased meter topology permits this hierarchy; all leaf PartsLists are empty and child device types/revisions match. Preserve as procedure clarification, not an attributed native defect.",
+        "utc_ms": 1792421281248
+      },
+      {
+        "step": 5,
+        "answer": "PASS",
+        "note": "Every endpoint ServerList was read; required profile server clusters are present and each listed cluster serves an AttributeList over CASE, including the vendor array decoded from DMG TLV.",
+        "utc_ms": 1792421281257
+      },
+      {
+        "step": 6,
+        "answer": "PASS",
+        "note": "ClientList root contains OTAProvider cluster0x29; all measurement endpoints have empty ClientList. Actual declared roles retained.",
+        "utc_ms": 1792421281263
+      },
+      {
+        "step": 7,
+        "answer": "PASS",
+        "note": "Root PartsList lists all descendants and recursive endpoint1 children are valid distinct endpoints1..65534; leaves have empty lists.",
+        "utc_ms": 1792421281273
+      },
+      {
+        "step": 8,
+        "answer": "NOT APPLICABLE",
+        "note": "Unchanged root PICS DESC.S.A0004=false and DESC.S.F00=false. Root TagList absent by conformance; child tags independently pass. Original manual converter presents even a PICS-false step, so respond NOT APPLICABLE explicitly.",
+        "utc_ms": 1792421281280
+      },
+      {
+        "step": 9,
+        "answer": "FAIL",
+        "note": "Whole device cluster-behavior acceptance is not complete: campaign still includes unexecuted, failed and externally blocked procedures. Do not report this final closure gate PASS from metadata reads alone.",
+        "utc_ms": 1792421281286
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": "5a14926651c2b7f6df96b8738c5f06ca8f8adc1db2cb4a739726a21401a3d55e",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_observations": {
+    "complete-normal": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-40",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-48",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-49",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-62",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-31",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-63",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-51",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-54",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-60",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-56",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-42",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-standard-AC-tags-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-vendor-attribute-array-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-vendor-attribute-array-values-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-4294048769",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-3",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-2822",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-156",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-144",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-145",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-standard-AC-tags-3",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-3-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-3-144",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-3-156",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-standard-AC-tags-4",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-4-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-4-144",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-4-156",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-standard-AC-tags-5",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-5-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-5-144",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-5-156",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 30260,
+          "responder_session_id": 1,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 6296
+        },
+        {
+          "initiator_session_id": 62557,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 60813
+        }
+      ],
+      "driver_sha256": "b5d3bed4fe3477fc9a422b76e0bf551fb0ce7de5e090ab9864ed9933d42fa43e",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_DESC_2_1": {
+        "Core_result": "PASS",
+        "inventory": [
+          {
+            "endpoint": 0,
+            "device_types": [
+              {
+                "type": 22,
+                "revision": 5
+              },
+              {
+                "type": 18,
+                "revision": 1
+              }
+            ],
+            "parts": [
+              1,
+              3,
+              4,
+              5
+            ],
+            "servers": [
+              29,
+              40,
+              48,
+              49,
+              62,
+              31,
+              63,
+              51,
+              54,
+              60,
+              56,
+              42
+            ],
+            "clients": [
+              41
+            ],
+            "feature_map": 0,
+            "tags": [],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "40": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                18,
+                19,
+                21,
+                22,
+                24,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "48": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "49": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "62": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "31": [
+                0,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "63": [
+                0,
+                1,
+                2,
+                3,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "51": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                10,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "54": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "60": [
+                0,
+                1,
+                2,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "56": [
+                0,
+                1,
+                2,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "42": [
+                0,
+                1,
+                2,
+                3,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          },
+          {
+            "endpoint": 1,
+            "device_types": [
+              {
+                "type": 1296,
+                "revision": 1
+              },
+              {
+                "type": 1297,
+                "revision": 1
+              },
+              {
+                "type": 1298,
+                "revision": 1
+              }
+            ],
+            "parts": [
+              3,
+              4,
+              5
+            ],
+            "servers": [
+              29,
+              4294048769,
+              3,
+              2822,
+              156,
+              144,
+              145
+            ],
+            "clients": [],
+            "feature_map": 1,
+            "tags": [
+              [
+                10,
+                1
+              ]
+            ],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "4294048769": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "3": [
+                0,
+                1,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "2822": [
+                0,
+                1,
+                2,
+                3,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "156": [
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "144": [
+                0,
+                1,
+                2,
+                8,
+                9,
+                10,
+                17,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "145": [
+                0,
+                1,
+                2,
+                5,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          },
+          {
+            "endpoint": 3,
+            "device_types": [
+              {
+                "type": 1296,
+                "revision": 1
+              }
+            ],
+            "parts": [],
+            "servers": [
+              29,
+              144,
+              156
+            ],
+            "clients": [],
+            "feature_map": 1,
+            "tags": [
+              [
+                10,
+                2
+              ]
+            ],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "144": [
+                0,
+                1,
+                2,
+                4,
+                8,
+                9,
+                12,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "156": [
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          },
+          {
+            "endpoint": 4,
+            "device_types": [
+              {
+                "type": 1296,
+                "revision": 1
+              }
+            ],
+            "parts": [],
+            "servers": [
+              29,
+              144,
+              156
+            ],
+            "clients": [],
+            "feature_map": 1,
+            "tags": [
+              [
+                10,
+                3
+              ]
+            ],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "144": [
+                0,
+                1,
+                2,
+                4,
+                8,
+                9,
+                12,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "156": [
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          },
+          {
+            "endpoint": 5,
+            "device_types": [
+              {
+                "type": 1296,
+                "revision": 1
+              }
+            ],
+            "parts": [],
+            "servers": [
+              29,
+              144,
+              156
+            ],
+            "clients": [],
+            "feature_map": 1,
+            "tags": [
+              [
+                10,
+                4
+              ]
+            ],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "144": [
+                0,
+                1,
+                2,
+                4,
+                8,
+                9,
+                12,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "156": [
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          }
+        ],
+        "literal_all_nonroot_PartsLists_empty": false,
+        "root_TagList_applicable": false,
+        "all_device_cluster_acceptance_complete": false,
+        "limits": "Device-type metadata, hierarchy, mandatory cluster presence and served AttributeLists verified. Vendor AttributeList uses decoded DMG TLV output because TOO has no vendor schema. This is not closure of every cluster command/attribute behavior test; campaign still has unexecuted and failed procedures."
+      },
+      "live_first_CASE_session_id": 2,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "PASS",
+      "node_exit": 0,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "complete-sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-0",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-40",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-48",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-49",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-62",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-31",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-63",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-51",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-54",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-60",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-56",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-0-42",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-standard-AC-tags-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-vendor-attribute-array-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-vendor-attribute-array-values-1",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-4294048769",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-3",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-2822",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-156",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-144",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-1-145",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-3",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-standard-AC-tags-3",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-3-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-3-144",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-3-156",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-4",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-standard-AC-tags-4",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-4-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-4-144",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-4-156",
+          "status": "PASS"
+        },
+        {
+          "name": "command-descriptor-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-required-attributes-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-device-types-revisions-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-hierarchy-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-server-device-requirements-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-client-roles-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-tag-feature-attribute-5",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-standard-AC-tags-5",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-5-29",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-5-144",
+          "status": "PASS"
+        },
+        {
+          "name": "command-any-read-by-id",
+          "status": "PASS"
+        },
+        {
+          "name": "descriptor-listed-server-serves-attributes-5-156",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 44631,
+          "responder_session_id": 1,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 2110
+        },
+        {
+          "initiator_session_id": 58921,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 10806
+        }
+      ],
+      "driver_sha256": "b5d3bed4fe3477fc9a422b76e0bf551fb0ce7de5e090ab9864ed9933d42fa43e",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_DESC_2_1": {
+        "Core_result": "PASS",
+        "inventory": [
+          {
+            "endpoint": 0,
+            "device_types": [
+              {
+                "type": 22,
+                "revision": 5
+              },
+              {
+                "type": 18,
+                "revision": 1
+              }
+            ],
+            "parts": [
+              1,
+              3,
+              4,
+              5
+            ],
+            "servers": [
+              29,
+              40,
+              48,
+              49,
+              62,
+              31,
+              63,
+              51,
+              54,
+              60,
+              56,
+              42
+            ],
+            "clients": [
+              41
+            ],
+            "feature_map": 0,
+            "tags": [],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "40": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                18,
+                19,
+                21,
+                22,
+                24,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "48": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "49": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "62": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "31": [
+                0,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "63": [
+                0,
+                1,
+                2,
+                3,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "51": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                10,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "54": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "60": [
+                0,
+                1,
+                2,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "56": [
+                0,
+                1,
+                2,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "42": [
+                0,
+                1,
+                2,
+                3,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          },
+          {
+            "endpoint": 1,
+            "device_types": [
+              {
+                "type": 1296,
+                "revision": 1
+              },
+              {
+                "type": 1297,
+                "revision": 1
+              },
+              {
+                "type": 1298,
+                "revision": 1
+              }
+            ],
+            "parts": [
+              3,
+              4,
+              5
+            ],
+            "servers": [
+              29,
+              4294048769,
+              3,
+              2822,
+              156,
+              144,
+              145
+            ],
+            "clients": [],
+            "feature_map": 1,
+            "tags": [
+              [
+                10,
+                1
+              ]
+            ],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "4294048769": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "3": [
+                0,
+                1,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "2822": [
+                0,
+                1,
+                2,
+                3,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "156": [
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "144": [
+                0,
+                1,
+                2,
+                8,
+                9,
+                10,
+                17,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "145": [
+                0,
+                1,
+                2,
+                5,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          },
+          {
+            "endpoint": 3,
+            "device_types": [
+              {
+                "type": 1296,
+                "revision": 1
+              }
+            ],
+            "parts": [],
+            "servers": [
+              29,
+              144,
+              156
+            ],
+            "clients": [],
+            "feature_map": 1,
+            "tags": [
+              [
+                10,
+                2
+              ]
+            ],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "144": [
+                0,
+                1,
+                2,
+                4,
+                8,
+                9,
+                12,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "156": [
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          },
+          {
+            "endpoint": 4,
+            "device_types": [
+              {
+                "type": 1296,
+                "revision": 1
+              }
+            ],
+            "parts": [],
+            "servers": [
+              29,
+              144,
+              156
+            ],
+            "clients": [],
+            "feature_map": 1,
+            "tags": [
+              [
+                10,
+                3
+              ]
+            ],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "144": [
+                0,
+                1,
+                2,
+                4,
+                8,
+                9,
+                12,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "156": [
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          },
+          {
+            "endpoint": 5,
+            "device_types": [
+              {
+                "type": 1296,
+                "revision": 1
+              }
+            ],
+            "parts": [],
+            "servers": [
+              29,
+              144,
+              156
+            ],
+            "clients": [],
+            "feature_map": 1,
+            "tags": [
+              [
+                10,
+                4
+              ]
+            ],
+            "attributes": {
+              "29": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "144": [
+                0,
+                1,
+                2,
+                4,
+                8,
+                9,
+                12,
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ],
+              "156": [
+                65528,
+                65529,
+                65531,
+                65532,
+                65533
+              ]
+            }
+          }
+        ],
+        "literal_all_nonroot_PartsLists_empty": false,
+        "root_TagList_applicable": false,
+        "all_device_cluster_acceptance_complete": false,
+        "limits": "Device-type metadata, hierarchy, mandatory cluster presence and served AttributeLists verified. Vendor AttributeList uses decoded DMG TLV output because TOO has no vendor schema. This is not closure of every cluster command/attribute behavior test; campaign still has unexecuted and failed procedures."
+      },
+      "live_first_CASE_session_id": 2,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "PASS",
+      "node_exit": 0
+    }
+  },
+  "independent_receipts": {
+    "normal": {
+      "result": "PASS",
+      "checks_PASS": 117,
+      "node_exit": 0,
+      "stderr_empty": true,
+      "driver_sha256": "b5d3bed4fe3477fc9a422b76e0bf551fb0ce7de5e090ab9864ed9933d42fa43e",
+      "result_sha256": "d8d2b9bc8430b06cba1e8bd88ea93f5ff28e54821ab85899570c43faf4f2a733",
+      "raw_packets_sha256": "5cd14a9471639d0088356b437ab253330353ba54b664adf11d33cda551c35503",
+      "memory": {
+        "allocations": 44053,
+        "frees": 44053,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "66b86b92ab9778ec67b4c098c0c4d31ae945e728cb91e79e3f5603681842466f"
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks_PASS": 117,
+      "node_exit": 0,
+      "stderr_empty": true,
+      "driver_sha256": "b5d3bed4fe3477fc9a422b76e0bf551fb0ce7de5e090ab9864ed9933d42fa43e",
+      "result_sha256": "f7c4ff8e12127d803394d7a17a249c3e86b1b28c474400571e248bce796dd465",
+      "raw_packets_sha256": "1d1750b9c7174da5751a42fb975e42704a19bd816a19cecb03dd387580a162be"
+    },
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "78782502a79404cea476a22da9549a4a6953c3e9338597186a0ae4a4987c5cb0",
+        "build_log_sha256": "11a8c51eebf1c0a802184db99ed5801aa91dc5525ce126f6ed3e3180d52e8b3d"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "514abbd9f83c4864e0b986654cd9b2d5a6e1719afb7ced1b540bd79f0e65d8e7",
+        "build_log_sha256": "11a8c51eebf1c0a802184db99ed5801aa91dc5525ce126f6ed3e3180d52e8b3d"
+      }
+    },
+    "disposable_nodes_stopped": true
+  },
+  "memory": {
+    "allocations": 44053,
+    "frees": 44053,
+    "zero_errors": true,
+    "zero_live": true,
+    "log_sha256": "66b86b92ab9778ec67b4c098c0c4d31ae945e728cb91e79e3f5603681842466f"
+  },
+  "native_identity": {
+    "source_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_inputs_unchanged": 362,
+    "remote_source_receipt": {
+      "count": 362,
+      "all_match": true
+    },
+    "binary_compiled_in": "csa35-results.json",
+    "new_host_compilation": false,
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "78782502a79404cea476a22da9549a4a6953c3e9338597186a0ae4a4987c5cb0",
+        "build_log_sha256": "11a8c51eebf1c0a802184db99ed5801aa91dc5525ce126f6ed3e3180d52e8b3d"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 2,
+        "warnings": [],
+        "log_sha256": "514abbd9f83c4864e0b986654cd9b2d5a6e1719afb7ced1b540bd79f0e65d8e7",
+        "build_log_sha256": "11a8c51eebf1c0a802184db99ed5801aa91dc5525ce126f6ed3e3180d52e8b3d"
+      }
+    }
+  },
+  "normative_basis": {
+    "specification": "Core/Device Library R1.6.1",
+    "sections": [
+      "Core9.5.4.1/9.5.6",
+      "DeviceLibrary2.1.7,2.6,14.6,14.9.6"
+    ],
+    "hierarchy": "Root lists all descendants; aggregate meter endpoint1 contains phase endpoints3/4/5; leaf PartsLists empty. Root has no TAGLIST feature; tagged children do."
+  },
+  "coverage": {
+    "independent_checks_PASS": 234,
+    "endpoints": 5,
+    "served_cluster_instances": 28,
+    "manual_PASS": 14,
+    "manual_FAIL": 7,
+    "manual_without_outcome": 18,
+    "positions": 862
+  },
+  "tester_attempts": [
+    {
+      "attempt": "normal",
+      "result": "SETUP_ERROR",
+      "reason": "Parser did not allow enum display-name suffix; no native failure attributed."
+    },
+    {
+      "attempt": "accepted-normal",
+      "result": "SETUP_ERROR",
+      "reason": "chip-tool has no named vendor AttributeList schema; corrected to parse actual decoded DMG TLV array."
+    },
+    {
+      "attempt": "final-normal",
+      "result": "SETUP_ERROR",
+      "reason": "SuppressResponse marker precedes complete TOO list; wait for final ACK flush before parsing."
+    },
+    {
+      "run_id": 479,
+      "result": "CANCELLED",
+      "reason": "Original manual converter presents PICS-disabled TagList step; adapter aborted unknown prompt. Corrected to answer supported NOT APPLICABLE, not PASS."
+    }
+  ],
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --descriptor-profile --valgrind with disposable state and existing lab controller; separately repeat sanitizer",
+    "cmake --build BUILD --target test_root test_runtime -j2",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_root|test_runtime)$'",
+    "python tools/matter/csa_campaign.py --write",
+    "python tools/matter/csa_campaign.py",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "secrets_and_raw_traces_outside_Git": true
+  },
+  "limits": [
+    "Manual original TH outcome retained separately from independent profile checks; not certification.",
+    "Root TagList answered NOT APPLICABLE from frozen PICS, despite manual converter presenting it. Child TagLists actually read.",
+    "Mandatory cluster presence/catalog reads do not prove all mandatory behavior; final whole-device acceptance gate FAIL until campaign closure.",
+    "Flat PartsList wording needs CSA clarification; no standards-correct hierarchy flattened to satisfy it.",
+    "No native API/PICS change, new host compilation, full matrix, physical/radio/Home UI or RAM-fit test."
+  ],
+  "next": {
+    "stage": "CSA45",
+    "cases": [
+      "TC-BDX-1.2",
+      "TC-BDX-2.2",
+      "TC-BDX-2.3"
+    ],
+    "status": "NOT_RUN",
+    "scope": "Actual OTA receiver BDX transfer and restart evidence; preserve differences between sender-driven procedure examples and negotiated receiver-driven mode."
+  }
+}

@@ -291,3 +291,8 @@ verifies FeatureMap 7, distinct import/export values, mixed power/energy/event
 Subscribe, import growth at constant positive power, unchanged historic export
 and retention of both registers after restart. The pure-EPM mode keeps its
 no-EEM inventory assertion. See [energy evidence](sensor-energy-validation.md).
+
+CSA44 records original TC-DESC-2.1 FAIL, TH run480: flat PartsList wording and
+incomplete whole-device cluster acceptance. Independent five-endpoint Descriptor/
+served-catalog acceptance passes 117 checks per memory variant without native changes.
+See [CSA44 evidence](csa44-validation.md). Continue with BDX receiver coverage.

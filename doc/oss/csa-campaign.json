@@ -1231,6 +1231,14 @@
       "kind": "FIXTURE_OR_INFRASTRUCTURE_REVIEW",
       "evidence": "status.md",
       "action": "Reassess automatic OTA test prerequisites using the existing provider before attributing failure to native code."
+    },
+    {
+      "cases": [
+        "TC-DESC-2.1"
+      ],
+      "kind": "PROFILE_CLOSURE_AND_CSA_CLARIFICATION",
+      "evidence": "csa44-validation.md",
+      "action": "Retain valid phased endpoint hierarchy; clarify literal flat PartsList wording. Rerun final cluster-acceptance gate after the remaining campaign is complete."
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."
