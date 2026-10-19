@@ -10,7 +10,7 @@ The owner performs the eventual GitHub push; this campaign makes local commits.
 
 1. Read `AGENTS.md`, this plan and [generated progress](csa-campaign-status.md).
 2. Run `python tools/matter/csa_campaign.py`. It validates a reviewed CSA42
-   checkpoint of157 applicable positions and705 NA, then applies later public
+   checkpoint initially classifying157 applicable positions and705 NA, then applies later public
    classification changes. Historical outcomes are inherited, not rerun by this
    command. Older CSA report formats cannot all be replayed uniformly, which is
    why the checkpoint is explicit in [campaign data](csa-campaign.json).
@@ -53,6 +53,10 @@ report. Include exact case/endpoint/collection identities, source/PICS hashes,
 original run IDs/outcomes, interpretation limits and one next task. Update the
 campaign with `python tools/matter/csa_campaign.py --write` and verify it again.
 Keep earlier failures and superseded attempts visible in their evidence chain.
+A mistaken applicability classification may be corrected only with original
+source, current TH API exclusion and the unchanged PICS fingerprint. Preserve
+the checkpoint and record the correction as a new explicit delta. Manual blockers
+require a specific prerequisite and must remain visible in the generated queue.
 
 For runnable-host changes, run a full relevant Linux scenario under Memcheck,
 then separately ASan/UBSan/LSan, plus focused tests for the affected mechanism.

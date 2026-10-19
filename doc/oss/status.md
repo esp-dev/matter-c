@@ -7,6 +7,13 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA47: applicability/prerequisite review, no new test run.**
+Original predicates and current TH API exclude NFC/concatenated onboarding under
+unchanged PICS: two old MANUAL positions corrected to NA. Four manual blockers
+now have explicit prerequisites and remain visible. See [review](csa47-validation.md).
+Totals:155 applicable +707 NA; MANUAL20 PASS/9 FAIL/4 BLOCKED/4 not run.
+**Next: CSA48, remaining IM event/resource/fabric server procedures.**
+
 **CSA46: TH run482, DGGEN2.2/DGWIFI2.2/GRPKEY5.4 manual PASS; CNET4.13 FAIL.**
 BootReason, simulated network reorder/rollback/commit and unsupported policy
 rejection pass50 Memcheck and47 separate sanitizer checks. Optional physical fault

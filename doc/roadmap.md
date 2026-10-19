@@ -529,3 +529,8 @@ separate from the failed recovery. See [CSA45 evidence](oss/csa45-validation.md)
 CSA46 records TH run482: DGGEN2.2/DGWIFI2.2/GRPKEY5.4 manual PASS with explicit
 optional-event NAs; CNET4.13 FAIL retains BLE/arithmetic limits. Functional BootReason,
 network reorder/rollback/commit and policy rejection pass. See [CSA46 evidence](oss/csa46-validation.md).
+
+CSA47 corrects two stale onboarding applicability positions to NA using original
+PICS predicates and current TH exclusion, without changing PICS. Four explicit
+manual prerequisites remain visible; no new test run or PASS is claimed. See
+[CSA47 review](oss/csa47-validation.md).

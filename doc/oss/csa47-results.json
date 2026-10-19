@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa46-results.json",
+  "previous_sha256": "958aee3260b4eeaa4b4a08cd8e22ff7c67546f354fdc14424505675d88cac7a8",
+  "source_base_commit": "8e307ce453219f38c9c5d6328b81c2cfe6c12b54",
+  "scope": "Read-only applicability and prerequisite review. No new TH testcase execution or native change. Two stale manual positions corrected to NA from original class PICS and current TH exclusion; four concrete manual blockers remain visible.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 3,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC-DD-1.3",
+      "endpoint": 0,
+      "collection": "Onboarding Payload Tests",
+      "previous": "MANUAL",
+      "status": "NA",
+      "applicability_review": {
+        "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+        "TH_api_applicable": false,
+        "source_sha256": "09c28b62f8bc17a4570047b6499912c23228729182ed8614075d0ed92c1933a1",
+        "reason": "Original custom testcase requires MCORE.DD.NFC, explicitly false; current unchanged TH API excludes this case."
+      }
+    },
+    {
+      "case": "TC-DD-1.4",
+      "endpoint": 0,
+      "collection": "Onboarding Payload Tests",
+      "previous": "MANUAL",
+      "status": "NA",
+      "applicability_review": {
+        "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+        "TH_api_applicable": false,
+        "source_sha256": "c086f0da8c56ecc806fdaa5d66ba506fa492e6545061993b5344606797500a7e",
+        "reason": "Original testcase requires MCORE.DD.CONCATENATED_QR_CODE, absent/not enabled; current unchanged TH API excludes this case."
+      }
+    },
+    {
+      "case": "TC-DD-1.6",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "BLOCKED",
+      "blocker": {
+        "reason": "Final product QR label and its physical scan/module/ECC/version measurements are absent. Prior headless software scan from CSA31 is partial evidence only.",
+        "prerequisite": "Supply the final label/presentation artifact and scan/measurement evidence; retain software payload acceptance separately."
+      }
+    },
+    {
+      "case": "TC-DD-1.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "BLOCKED",
+      "blocker": {
+        "reason": "No final printed/manual pairing card or instrument measurements are supplied. Desktop currently presents QR only; prior CHIP-generated laboratory manual card is not a final product label.",
+        "prerequisite": "Supply approved manual-code material and measured font size/grouping; do not infer physical conformance from generated digits."
+      }
+    },
+    {
+      "case": "TC-IDM-5.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "BLOCKED",
+      "blocker": {
+        "reason": "Invoke client is declared for untimed OTA commands, but the host has no application trigger for a TimedRequest followed by timed Invoke. Codec/server timed support alone does not execute the DUT-client procedure. Write client PICS is false.",
+        "prerequisite": "Clarify applicability to the limited OTA client; if required, implement/expose a genuine DUT timed-client trigger and verify the peer trace."
+      }
+    },
+    {
+      "case": "TC-SC-4.4",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "BLOCKED",
+      "blocker": {
+        "reason": "Controller role is declared for OTA, but BINFO.C.A0002 is false. VendorID-read steps are gated off, and no controlled live peer IP-change fixture was executed. Existing rediscovery regressions do not complete this original flow.",
+        "prerequisite": "Clarify the limited controller-role procedure, then supply a controlled peer IP-change fixture and genuine supported DUT request; retain VendorID-read NAs."
+      }
+    }
+  ],
+  "review_identity": {
+    "observed_at_utc": "2026-10-19T15:23:30.715581+00:00",
+    "source_sha256": {
+      "TC_DD_1_6": "c34d7b840a2852a7e047698ce2e377caf52dcc8e94bd784b73c97ed5de5a3921",
+      "TC_DD_1_7": "206478add9c42f42ba065e1ead921d2f636779d0e4628129f4505d7373a27bd1",
+      "TC_IDM_5_1": "0bd5ab16149e6634d0a181cfcb7510e3ec02a66e2f123b5dd54a0fdecd2331aa",
+      "TC_SC_4_4": "2837c3ba32881ad48b8bb9f229f268c08ec91b7fb5ac0f023d65431551856c1e",
+      "tcdd13": "09c28b62f8bc17a4570047b6499912c23228729182ed8614075d0ed92c1933a1",
+      "tcdd14": "c086f0da8c56ecc806fdaa5d66ba506fa492e6545061993b5344606797500a7e",
+      "TH_applicability": "f4325050cb7b8d7fb9fa28b795a116895cd41e1e8504464db69afc6c636575ec"
+    }
+  },
+  "confirmed_pics_and_TH_selection": {
+    "pics": {
+      "MCORE.DD.NFC": false,
+      "MCORE.DD.CONCATENATED_QR_CODE": null,
+      "MCORE.DD.QR": true,
+      "MCORE.DD.MANUAL_PC": true,
+      "MCORE.IDM.C": true,
+      "MCORE.IDM.C.InvokeRequest": true,
+      "MCORE.IDM.C.WriteRequest": false,
+      "MCORE.ROLE.CONTROLLER": true,
+      "BINFO.C.A0002": false
+    },
+    "api_selection": {
+      "TC-DD-1.3": false,
+      "TC-DD-1.4": false,
+      "TC-IDM-5.1": true,
+      "TC-SC-4.4": true
+    }
+  },
+  "unchanged_PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "official_test_runs": [],
+  "coverage": {
+    "applicable_positions": 155,
+    "NA_positions": 707,
+    "positions": 862,
+    "manual_PASS": 20,
+    "manual_FAIL": 9,
+    "manual_BLOCKED": 4,
+    "manual_NOT_RUN": 4,
+    "existing_BLOCKED": 3
+  },
+  "prior_evidence": [
+    {
+      "report": "csa31-validation.md",
+      "scope": "24 software QR/manual payload checks and original payload tests PASS; no final physical labels or live GDI/font measurements."
+    },
+    {
+      "report": "csa45-validation.md",
+      "scope": "Actual untimed OTA Invoke client peer traces; not TimedRequest or VendorID Read client support."
+    },
+    {
+      "report": "csa46-validation.md",
+      "scope": "Unchanged profile, process restart and network simulation; not physical BLE/label acceptance."
+    }
+  ],
+  "limits": [
+    "No physical/radio/label or live IP-change acceptance, timed-client execution, new official test run, native rebuild or memory run in this read-only review.",
+    "NA changes correct applicability under the same PICS; no capability was disabled to hide a failing test. The CSA42 checkpoint and historical evidence remain unchanged.",
+    "BLOCKED is not PASS, FAIL, NA or a certification verdict. Four remaining executable IM server procedures and three earlier blocked rows still need work."
+  ],
+  "commands": [
+    "Read original testcase predicates and current TH applicable_test_cases under unchanged PICS",
+    "Review GUI QR-only presentation and limited runtime OTA client callers",
+    "python tools/matter/csa_campaign.py --write",
+    "python tools/matter/csa_campaign.py",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "next": {
+    "stage": "CSA48",
+    "cases": [
+      "TC-IDM-6.1",
+      "TC-IDM-6.2",
+      "TC-IDM-7.1",
+      "TC-IDM-8.1"
+    ],
+    "status": "NOT_RUN",
+    "scope": "Events Read/Subscribe, five-fabric resource guarantees and fabric-filtered data; reuse existing genuine chip-tool fixtures before native repairs."
+  },
+  "tracker_validation": {
+    "negative_controls": [
+      {
+        "case": "missing_NA_review",
+        "rejected": true,
+        "reason": "NA correction requires unchanged PICS, original source and live TH exclusion"
+      },
+      {
+        "case": "missing_blocker_prerequisite",
+        "rejected": true,
+        "reason": "Manual blocker requires a specific reason and next prerequisite"
+      },
+      {
+        "case": "count_mismatch",
+        "rejected": true,
+        "reason": "Count mismatch after csa47-results.json; review applicability/checkpoint"
+      }
+    ],
+    "manual_blockers_visible": 4,
+    "applicable": 155,
+    "NA": 707,
+    "positions": 862
+  }
+}

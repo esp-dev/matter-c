@@ -11,7 +11,7 @@
   },
   "sdk_sha": "e91ea83caae4adb1871aa4bbe93c4be2dd9e1abf",
   "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
-  "scope": "Frozen experimental x86 profile, original TH v2.15.1+summer2026. Outcomes inherited through CSA42, not fresh verification of all earlier rows.157 applicable positions plus705 NA; NA remains tied to frozen PICS and must be revisited on profile changes.",
+  "scope": "Frozen experimental x86 profile, original TH v2.15.1+summer2026. Outcomes inherited through CSA42, not fresh verification of all earlier rows. Checkpoint had157 planned applicable positions plus705 NA; later explicit applicability corrections require original source, live TH exclusion and unchanged PICS. The checkpoint itself is retained.",
   "snapshot_note": "Reviewed compact checkpoint of the campaign matrix; older report schemas do not provide uniform replay deltas. Later CSA stages are applied from public classification_changes with identity/count checks. No private lab files are required to resume.",
   "phase": "COVERAGE_FIRST",
   "next_case": "TC-SC-1.4",

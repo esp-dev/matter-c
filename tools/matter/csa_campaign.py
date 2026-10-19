@@ -33,14 +33,25 @@ def campaign(root):
             row = found[0]
             if 'previous' in change and row['status'] != change['previous']:
                 raise ValueError(f'Unexpected predecessor for {row["case"]}')
-            row.update({key: change[key] for key in ('status', 'manual_result', 'run_id') if key in change})
+            if change['status'] == 'NA' and row['status'] != 'NA':
+                review = change.get('applicability_review', {})
+                if (review.get('PICS_sha256') != plan['PICS_sha256'] or
+                        review.get('TH_api_applicable') is not False or
+                        not re.fullmatch(r'[0-9a-f]{64}', review.get('source_sha256', '')) or
+                        not review.get('reason')):
+                    raise ValueError('NA correction requires unchanged PICS, original source and live TH exclusion')
+            if change.get('manual_result') == 'BLOCKED':
+                blocker = change.get('blocker', {})
+                if not blocker.get('reason') or not blocker.get('prerequisite'):
+                    raise ValueError('Manual blocker requires a specific reason and next prerequisite')
+            row.update({key: change[key] for key in ('status', 'manual_result', 'run_id', 'blocker') if key in change})
             row['evidence'] = path.name
         counts = dict(collections.Counter(row['status'] for row in rows))
-        counts['NA'] = plan['checkpoint_counts']['NA']
+        counts['NA'] = plan['checkpoint_counts']['NA'] + counts.get('NA', 0)
         if report.get('latest_counts', counts) != counts:
             raise ValueError(f'Count mismatch after {path.name}; review applicability/checkpoint')
         latest = path
-    if any(row['status'] not in ('PASS', 'FAIL', 'MANUAL', 'BLOCKED') for row in rows):
+    if any(row['status'] not in ('PASS', 'FAIL', 'MANUAL', 'BLOCKED', 'NA') for row in rows):
         raise ValueError('Profile change requires a reviewed checkpoint, not a silent omission')
     if any(row.get('manual_result') not in (None, 'PASS', 'FAIL', 'BLOCKED') for row in rows):
         raise ValueError('Unknown manual verdict')
@@ -51,7 +62,7 @@ def campaign(root):
 
 def render(plan, rows, counts, latest):
     waiting = [row for row in rows if row['status'] == 'BLOCKED' or
-               row['status'] == 'MANUAL' and not row.get('manual_result')]
+               row['status'] == 'MANUAL' and row.get('manual_result') in (None, 'BLOCKED')]
     failures = [row for row in rows if row['status'] == 'FAIL' or row.get('manual_result') == 'FAIL']
     manual = collections.Counter(row.get('manual_result', 'NOT_RUN') for row in rows if row['status'] == 'MANUAL')
     lines = ['# CSA campaign progress', '',
@@ -60,11 +71,13 @@ def render(plan, rows, counts, latest):
              f'Latest evidence: [{latest}]({latest}). Frozen positions:862; category counts: ' +
              ', '.join(f'{key}={value}' for key, value in sorted(counts.items())) + '.',
              'Manual outcomes: ' + ', '.join(f'{key}={value}' for key, value in sorted(manual.items())) + '.', '',
-             '## Initial coverage queue', '', '| Case | Endpoint | Collection | Current state |', '| --- | --- | --- | --- |']
+             '## Initial coverage queue', '', '| Case | Endpoint | Collection | Current state | Prerequisite |', '| --- | --- | --- | --- | --- |']
     for group in plan['groups']:
         for row in waiting:
             if row['case'] in group['cases']:
-                lines.append(f'| {row["case"]} | {row["endpoint"]} | {row["collection"]} | {row["status"]} |')
+                state = row['status'] + ('/BLOCKED' if row.get('manual_result') == 'BLOCKED' else '')
+                prerequisite = row.get('blocker', {}).get('prerequisite', '')
+                lines.append(f'| {row["case"]} | {row["endpoint"]} | {row["collection"]} | {state} | {prerequisite} |')
     grouped = {case for group in plan['groups'] for case in group['cases']}
     if any(row['case'] not in grouped for row in waiting):
         raise ValueError('Unplanned waiting case; update the campaign groups')
@@ -93,7 +106,8 @@ def main():
             handle.write(text)
     elif path.read_text(encoding='utf-8') != text:
         raise SystemExit('Stale progress table: run with --write')
-    print(f'PASS campaign: {len(rows)} applicable + {counts["NA"]} NA; latest {latest}; identities, counts and progress match.')
+    applicable = sum(row['status'] != 'NA' for row in rows)
+    print(f'PASS campaign: {applicable} applicable + {counts["NA"]} NA; latest {latest}; identities, counts and progress match.')
 
 
 if __name__ == '__main__':
