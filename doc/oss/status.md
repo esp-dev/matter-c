@@ -1,5 +1,23 @@
 # Development status
 
+**CSA32: original TC-OPCREDS-3.6 manual FAIL, TH run466.**
+Commissioning, successful final RemoveFabric response and operational discovery
+withdrawal pass; the evidence upload also passes. Step4 fails its literal
+CM=0/no-_CM verification: the stopped CLI has no advertisements, and an explicit
+restart opens CM=1 with _CM and permits fresh commissioning. The heading instead
+mentions CM=2/BLE; this discrepancy is retained for CSA clarification, without
+changing the original test, PICS or runtime defaults. Independent final lifecycle
+acceptance passes 27 Memcheck and 25 separate sanitizer checks: active subscription
+at removal, successful response, goodbye, no old operational identity, same-store
+restart and new independent fabric. Memcheck has 47890 matched allocations/frees,
+zero errors/live bytes; all four host stderr files are empty. No C/H changes.
+Post-recommissioning root/ACL/group-map reads check expected defaults, not seeded
+non-default dataset deletion. TH is idle and paired Windows nodes untouched.
+Category totals are unchanged; MANUAL now has 10 PASS, 1 FAIL and 29 without an
+outcome. See [evidence and discrepancy](csa32-validation.md) and
+[record](csa32-results.json). **Next: CSA33, TC-DD-3.19 commissioning/unpair/
+recommission. CSA30 remains deferred.**
+
 **CSA31: original TC-DD-1.1 and TC-DD-1.2 PASS, TH run465.**
 The QR case passes 9 steps; the manual case passes 3 with its 21-digit branch
 not applicable. Three operator inputs come from a scanned C-generated QR bitmap,

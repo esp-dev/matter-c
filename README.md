@@ -280,7 +280,16 @@ manual branch not applicable. Operator inputs come from a scanned C QR bitmap,
 live mDNS and a CHIP-generated development manual card. Independent acceptance
 passes 24 checks, and the existing C payload self-test passes Memcheck. No runtime
 changes, physical-label/GUI acceptance, DCL verification or certification are
-claimed. Next is CSA32 last-fabric removal/discovery; CSA30 remains deferred.
+claimed. Last-fabric removal/discovery follows below; CSA30 remains deferred.
+
+[CSA32 last-fabric acceptance](doc/oss/csa32-validation.md) verifies successful
+removal, mDNS withdrawal and same-store restart/recommissioning. Independent
+acceptance passes 27 Memcheck and 25 separate sanitizer checks, with clean memory
+diagnostics. Original manual TC-OPCREDS-3.6 run466 is **FAIL at Step4**: its
+verification expects CM=0/no-_CM, while an explicitly restarted uncommissioned
+node opens a CM=1 basic window with _CM. The contradictory CM=2 heading is retained
+for CSA clarification; no runtime/test workaround was introduced. Next is CSA33
+commissioning/unpair/recommission; existing paired Windows devices are untouched.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

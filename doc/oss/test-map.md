@@ -1,8 +1,15 @@
 # Test inventory
 
-test-map.json enumerates 239 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 240 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+`test_last_fabric_discovery_chip.py` checks the actual last-fabric response,
+operational SRV/goodbye/no-late-reply observations, active-subscription teardown,
+same-store explicit restart and commissioning with a fresh controller. It records
+Step4's literal CM=0 comparison separately from the supported CM=1 basic window.
+Run under Memcheck and separately with a sanitizer node; this independent fixture
+does not change the original manual FAIL recorded in `csa32-validation.md`.
 
 `test_onboarding_payload_chip.py` supplies CSA31 operator evidence from a scanned
 C-generated QR bitmap, chip-tool parsing/checksum controls and live mDNS. It

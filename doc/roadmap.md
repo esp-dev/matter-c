@@ -337,8 +337,19 @@ the existing C payload self-test passes Memcheck. Runtime C/H are unchanged.
 Both rows remain MANUAL with manual_result=PASS; other results are inherited.
 The manual card is CHIP-generated laboratory data, not a new GUI field; physical
 labels and DCL validation remain outside this acceptance. See
-[evidence and limits](oss/csa31-validation.md). **Next: CSA32, TC-OPCREDS-3.6,
-last-fabric removal and discovery.** CSA30 remains unsuccessful/deferred.
+[evidence and limits](oss/csa31-validation.md). Last-fabric removal and discovery
+are recorded below. CSA30 remains unsuccessful/deferred.
+
+CSA32 executes original manual TC-OPCREDS-3.6 in TH run466: protocol steps1/2/3
+and evidence upload pass; Step4 fails its CM=0/no-_CM verification. After an
+explicit same-store restart, the uncommissioned node opens CM=1 with _CM and
+recommissions successfully. The heading instead refers to CM=2/BLE; retain this
+as a test/specification clarification, without changing runtime defaults or
+waiving the FAIL. Independent lifecycle acceptance passes 27 Memcheck and 25
+separate sanitizer checks, with clean teardown and no C/H changes. The MANUAL
+category now includes 10 PASS, 1 FAIL and 29 without an outcome; category totals
+and other rows are unchanged. See [evidence and limits](oss/csa32-validation.md).
+**Next: CSA33, TC-DD-3.19, commissioning/unpair/recommission.** CSA30 stays deferred.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

@@ -297,7 +297,8 @@
       "referenced_by": [
         "tools/matter/tests/test_general_diagnostics_chip.py",
         "tools/matter/tests/test_identify_chip.py",
-        "tools/matter/tests/test_ota_chip_provider.py"
+        "tools/matter/tests/test_ota_chip_provider.py",
+        "tools/matter/tests/test_last_fabric_discovery_chip.py"
       ],
       "allocation_variant": "not applicable"
     },
@@ -1507,7 +1508,8 @@
       "ctest": [],
       "entrypoint": "Python entrypoint; inspect argparse/docstring for binaries, interfaces and explicit lab dependencies.",
       "referenced_by": [
-        "tools/matter/tests/test_onboarding_payload_chip.py"
+        "tools/matter/tests/test_onboarding_payload_chip.py",
+        "tools/matter/tests/test_last_fabric_discovery_chip.py"
       ],
       "allocation_variant": "not applicable"
     },
@@ -2508,6 +2510,14 @@
       "kind": "external-chip-tool",
       "ctest": [],
       "entrypoint": "python tools/matter/tests/test_onboarding_payload_chip.py --help; Linux node, C payload executable, shared qrcodegen library, chip-tool, Pillow and zxing-cpp 2.3.0 required. Private development artifacts only.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/test_last_fabric_discovery_chip.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_last_fabric_discovery_chip.py --help; disposable Linux node, development credentials/PAA and unmodified chip-tool; run Memcheck and sanitizers separately.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
     }
