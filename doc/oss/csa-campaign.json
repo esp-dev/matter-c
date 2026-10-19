@@ -1260,6 +1260,81 @@
       ],
       "kind": "EXISTING_KEYSET_ID_CSA_CLARIFICATION",
       "evidence": "csa50-results.json"
+    },
+    {
+      "cases": [
+        "TC_ACL_2_4",
+        "TC_ACL_2_6"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "csa06-validation.md",
+      "action": "ProxyView disallowed for current revision; legacy list response checks first successful clear rather than rejected append. Preserve original FAIL and remaining unexecuted steps."
+    },
+    {
+      "cases": [
+        "TC_CGEN_2_2"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "csa02-validation.md",
+      "action": "Identical trusted-root installation is idempotent; original expects an additional root. No duplicate trust entry workaround."
+    },
+    {
+      "cases": [
+        "TC_OPCREDS_3_4",
+        "TC_CADMIN_1_10"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "csa16-validation.md",
+      "action": "Core11.19.8.3 says PASE caller SHALL NOT expect RevokeCommissioning response on terminated session. Preserve response timeout and original FAIL."
+    },
+    {
+      "cases": [
+        "TC_CNET_4_4"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "csa14-validation.md",
+      "action": "ScanNetworks without fail-safe correctly returns FailsafeRequired; test omits arming. Do not weaken guard."
+    },
+    {
+      "cases": [
+        "TC_CNET_4_11"
+      ],
+      "kind": "PHYSICAL_WIFI_FIXTURE",
+      "evidence": "csa15-validation.md",
+      "action": "Requires controlled TH Wi-Fi association/IP change and wpa_supplicant fixture. Earlier FAIL remains; Ethernet simulation is not this physical procedure."
+    },
+    {
+      "cases": [
+        "TC_IDM_10_1",
+        "TC_IDM_13_1"
+      ],
+      "kind": "DEVELOPMENT_IDENTITY_REVIEW",
+      "evidence": "csa53-validation.md",
+      "action": "Development VID and manufacturer extension are deliberate. Downstream certification needs assigned identity; do not borrow a production VID or enable bypass flags for a green result."
+    },
+    {
+      "cases": [
+        "TC_SC_7_1"
+      ],
+      "kind": "TWO_SETUP_CODE_FIXTURE",
+      "evidence": "csa53-validation.md",
+      "action": "Unchanged script needs QR/manual codes for two fresh devices, no discriminator-only arguments. Prepare two disposable instances/codes without post-cert bypass."
+    },
+    {
+      "cases": [
+        "TC_BINFO_2_2"
+      ],
+      "kind": "OPTIONAL_LEAVE_RESPONSE_REVIEW",
+      "evidence": "csa53-validation.md",
+      "action": "PICS E02=false, event unimplemented. Script dereferences Data.fabricIndex without checking returned event status. Preserve FAIL; separately verify raw status and obtain applicability/test clarification."
+    },
+    {
+      "cases": [
+        "TC-GRPKEY-2.1"
+      ],
+      "kind": "ZERO_GROUP_CAPACITY_AND_WRITE_STATUS_REVIEW",
+      "evidence": "csa53-validation.md",
+      "action": "No Groups/Groupcast server; MaxGroupsPerFabric=0. Original writes one map entry and expects success. Review applicability and actual global InvalidAction status independently; no unconditional native waiver."
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."

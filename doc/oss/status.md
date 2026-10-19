@@ -7,6 +7,12 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA53: remaining assertions grouped; bounded GroupKey/BINFO reruns retain FAIL.**
+Zero-group profile/write status and optional Leave result handling remain explicit
+review items. Prior ACL/root/Revoke/scan/Wi-Fi/identity analysis reused.
+[Report](csa53-validation.md). Counts unchanged; native unchanged.
+Next:CSA54, actual two-device setup-code fixture for TC_SC_7_1.
+
 **CSA52: authenticated IM R=0 admission repaired; original TC-SC-1.2 PASS.**
 Run489 passes7 steps. Five actual A0/R1 data replies, ACK/duplicate controls,
 Memcheck and separate sanitizers pass; eight CTests per build.

@@ -1,0 +1,263 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa52-results.json",
+  "previous_sha256": "ac728e67738e77944e3d48329b230e8d516890609f4a9e5b024e4ed1ba92b854",
+  "source_base_commit": "a90e83c8bad59999531696d1fe2f778417870b05",
+  "scope": "Bounded remaining-failure triage, prior evidence reused. Original GroupKey2.1 FAIL and original BasicInformation2.2 FAIL reproduced on CSA52 native. No C/API/PICS changes, no verdict normalization.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC-GRPKEY-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "FAIL",
+      "status": "FAIL",
+      "run_id": 490
+    },
+    {
+      "case": "TC_BINFO_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "FAIL",
+      "status": "FAIL",
+      "run_id": 491
+    }
+  ],
+  "official_receipts": {
+    "combined": {
+      "run_id": 490,
+      "state": "TestStateEnum.error",
+      "completed_at_utc": "2026-10-19 17:23:40.942157",
+      "official_log_sha256": "aa33dd61ccef8c91b9121411259e7e8ab1d84c6f1c9c296b3f5b41f8bffe9ea6",
+      "raw_result_sha256": "9ba130495faa12c97d53d84eecc785bcf68513246562ebc1d638192a6487abc0",
+      "identity": {
+        "source_sha256": {
+          "TC_GRPKEY_2_1": "030c3e840f6a09b4d5eda4bc3b58125939489195d7db098b8770280c80446e73",
+          "TC_BINFO_2_2": "868ee3d7fedf097bc3e19aac5852f9bb2a5cd6de3218af33b6aae430ea6db409"
+        },
+        "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+        "PICS_changes": [],
+        "support_sha256": {
+          "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+          "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+        }
+      },
+      "harness_state": {
+        "state": "idle"
+      },
+      "cases": [
+        {
+          "case": "TC-GRPKEY-2.1",
+          "state": "TestStateEnum.failed",
+          "steps": {
+            "TestStateEnum.passed": 6,
+            "TestStateEnum.failed": 2
+          },
+          "failed_steps": [
+            {
+              "title": "Step 2: TH binds GroupId 0x0103 with GroupKeySetID 0x01a3 in the GroupKeyMap attribute list on GroupKeyManagement cluster by writing the GroupKeyMap attribute with one entry as follows: List item 1:,GroupId: 0x0103,GroupKeySetId: 0x01a3",
+              "state": "TestStateEnum.failed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 3: TH reads GroupKeyMap Attribute from the GroupKeyManagement cluster from DUT using a fabric-filtered read.",
+              "state": "TestStateEnum.failed",
+              "errors": [],
+              "failures": []
+            }
+          ]
+        },
+        {
+          "case": "TC_BINFO_2_2",
+          "state": "TestStateEnum.cancelled",
+          "steps": {
+            "TestStateEnum.cancelled": 8
+          },
+          "failed_steps": []
+        }
+      ],
+      "cleanup": {
+        "boots": 1,
+        "temporary_PAA_removed": true,
+        "node_stopped": true
+      }
+    },
+    "binfo_only": {
+      "run_id": 491,
+      "state": "TestStateEnum.failed",
+      "completed_at_utc": "2026-10-19 17:25:01.409373",
+      "official_log_sha256": "a3f37a777aa4ee4ffc88cfcaa6711e8473a71eabcd1f43764be072c925287310",
+      "raw_result_sha256": "d2fb6979a69dbbc0a0e0d82ae44953f07f864af3fd1dc45a987206eefc9150d1",
+      "identity": {
+        "source_sha256": {
+          "TC_GRPKEY_2_1": "030c3e840f6a09b4d5eda4bc3b58125939489195d7db098b8770280c80446e73",
+          "TC_BINFO_2_2": "868ee3d7fedf097bc3e19aac5852f9bb2a5cd6de3218af33b6aae430ea6db409"
+        },
+        "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+        "PICS_changes": [],
+        "support_sha256": {
+          "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+          "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+        }
+      },
+      "harness_state": {
+        "state": "idle"
+      },
+      "cases": [
+        {
+          "case": "TC_BINFO_2_2",
+          "state": "TestStateEnum.failed",
+          "steps": {
+            "TestStateEnum.passed": 7,
+            "TestStateEnum.failed": 1
+          },
+          "failed_steps": [
+            {
+              "title": "TH1 sends RemoveFabric command with th2_fabric_index and reads the Leave event from the DUT.",
+              "state": "TestStateEnum.failed",
+              "errors": [],
+              "failures": []
+            }
+          ]
+        }
+      ],
+      "cleanup": {
+        "boots": 1,
+        "temporary_PAA_removed": true,
+        "node_stopped": true
+      }
+    },
+    "declared_optional_Leave": false
+  },
+  "triage": [
+    {
+      "cases": [
+        "TC_ACL_2_4",
+        "TC_ACL_2_6"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "csa06-validation.md",
+      "action": "ProxyView disallowed for current revision; legacy list response checks first successful clear rather than rejected append. Preserve original FAIL and remaining unexecuted steps."
+    },
+    {
+      "cases": [
+        "TC_CGEN_2_2"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "csa02-validation.md",
+      "action": "Identical trusted-root installation is idempotent; original expects an additional root. No duplicate trust entry workaround."
+    },
+    {
+      "cases": [
+        "TC_OPCREDS_3_4",
+        "TC_CADMIN_1_10"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "csa16-validation.md",
+      "action": "Core11.19.8.3 says PASE caller SHALL NOT expect RevokeCommissioning response on terminated session. Preserve response timeout and original FAIL."
+    },
+    {
+      "cases": [
+        "TC_CNET_4_4"
+      ],
+      "kind": "CSA_CLARIFICATION",
+      "evidence": "csa14-validation.md",
+      "action": "ScanNetworks without fail-safe correctly returns FailsafeRequired; test omits arming. Do not weaken guard."
+    },
+    {
+      "cases": [
+        "TC_CNET_4_11"
+      ],
+      "kind": "PHYSICAL_WIFI_FIXTURE",
+      "evidence": "csa15-validation.md",
+      "action": "Requires controlled TH Wi-Fi association/IP change and wpa_supplicant fixture. Earlier FAIL remains; Ethernet simulation is not this physical procedure."
+    },
+    {
+      "cases": [
+        "TC_IDM_10_1",
+        "TC_IDM_13_1"
+      ],
+      "kind": "DEVELOPMENT_IDENTITY_REVIEW",
+      "evidence": "csa53-validation.md",
+      "action": "Development VID and manufacturer extension are deliberate. Downstream certification needs assigned identity; do not borrow a production VID or enable bypass flags for a green result."
+    },
+    {
+      "cases": [
+        "TC_SC_7_1"
+      ],
+      "kind": "TWO_SETUP_CODE_FIXTURE",
+      "evidence": "csa53-validation.md",
+      "action": "Unchanged script needs QR/manual codes for two fresh devices, no discriminator-only arguments. Prepare two disposable instances/codes without post-cert bypass."
+    },
+    {
+      "cases": [
+        "TC_BINFO_2_2"
+      ],
+      "kind": "OPTIONAL_LEAVE_RESPONSE_REVIEW",
+      "evidence": "csa53-validation.md",
+      "action": "PICS E02=false, event unimplemented. Script dereferences Data.fabricIndex without checking returned event status. Preserve FAIL; separately verify raw status and obtain applicability/test clarification."
+    },
+    {
+      "cases": [
+        "TC-GRPKEY-2.1"
+      ],
+      "kind": "ZERO_GROUP_CAPACITY_AND_WRITE_STATUS_REVIEW",
+      "evidence": "csa53-validation.md",
+      "action": "No Groups/Groupcast server; MaxGroupsPerFabric=0. Original writes one map entry and expects success. Review applicability and actual global InvalidAction status independently; no unconditional native waiver."
+    }
+  ],
+  "native_identity": {
+    "new_source_or_build": false,
+    "reused_build": "csa52-results.json",
+    "node_sha256": "950dbdeb75d88e4d20f19ba70f73aedc7f0d2e5e603520d08211359dab616a5d",
+    "C_source_changes_since_CSA52": []
+  },
+  "observations": [
+    "Run490 GroupKey2.1:6 PASS/2 FAIL, same InvalidAction write and unchanged empty list as historical140. Python suite commissioning setup subsequently fails; BINFO is cancelled, not a DUT FAIL in that run.",
+    "Run491 fresh BINFO-only instance:7 PASS/1 FAIL. StartUp/software version, second controller commissioning, fabric index and RemoveFabric execute before AttributeError on NoneType.Data.fabricIndex at Leave read. Native PICS BINFO.S.E02=false, current event catalog only StartUp.",
+    "Core11.1.6.3 Leave SHOULD be generated, not universally mandatory. Optional absence is not justification to dereference an error EventReadResult as data. No new packet-level status attribution is claimed; independently checking returned EventStatus remains open.",
+    "Core2.11.1.2 group-table minimum depends on Groups/Groupcast support; current measurement profile has neither. Declared MaxGroupsPerFabric0 prevents a positive1-entry map test. Actual InvalidAction rather than capacity status still needs wire/decoder attribution; not waived.",
+    "Read-only review of original sources and historical206/208 confirms DefaultWarnings fails on default-value checks and setup-code7.1 rejects discriminator-only input, before it can verify two factory codes. Prepare actual two-device inputs; do not pretend a post-cert single-device run is certification.",
+    "Existing CSA06/02/16/14/15/03 reports already explain ACL, idempotent root, PASE Revoke, fail-safe scan, missing physical Wi-Fi and development VID boundaries. Queue now points there instead of repeating solved diagnosis."
+  ],
+  "historical_source_sha256": {
+    "yaml_tests/yaml/sdk/Test_TC_GRPKEY_2_1.yaml": "030c3e840f6a09b4d5eda4bc3b58125939489195d7db098b8770280c80446e73",
+    "python_testing/scripts/sdk/TC_BINFO_2_2.py": "868ee3d7fedf097bc3e19aac5852f9bb2a5cd6de3218af33b6aae430ea6db409",
+    "python_testing/scripts/sdk/TC_DefaultWarnings.py": "f4d93d230f6461d3361a48ba452950c4b025577d389c5b4b7d40bd86297fb203",
+    "python_testing/scripts/sdk/TC_SC_7_1.py": "a247726d986d6208d77d6cd14335c8d41ca73c6dd6573acc57b14e2dec28ed19"
+  },
+  "validation": {
+    "new_Memcheck_or_sanitizer_run": false,
+    "reason": "Read-only triage and original external TH reruns on byte-identical CSA52 executable. Full memory/recovery and8 focused CTests per variant remain CSA52 evidence; no new native or public tester executable edits. Do not count inherited memory evidence as new CSA53 tests.",
+    "native_memory_basis": "csa52-results.json",
+    "static_commands": [
+      "python tools/matter/csa_campaign.py --write",
+      "python tools/matter/check_test_map.py",
+      "git diff --check"
+    ]
+  },
+  "cleanup": {
+    "all_disposable_nodes_stopped": true,
+    "temporary_PAA_removed": true,
+    "TH_idle": true,
+    "paired_Windows_nodes_untouched": true
+  },
+  "limits": [
+    "Original FAILs unchanged; no automatic PASS, source repair, certification waiver or full matrix rerun.",
+    "Several triage entries remain review tasks, not proven tester defects. GroupKey write status and exact Leave EventStatus still need independent wire attribution.",
+    "Default-warning exact offending field was not newly replayed; development VID boundary established by existing composition evidence and current declared identity.",
+    "Five earlier external prerequisites remain. No push; private source excerpts, controller state and logs stay ignored."
+  ],
+  "next": {
+    "stage": "CSA54",
+    "scope": "Prepare two fresh independent nodes with actual setup codes for original TC_SC_7_1, verify TH accepts correct arguments without changing original script/PICS; retain production-identity/default checks."
+  }
+}
