@@ -263,7 +263,8 @@
       "entrypoint": "Python entrypoint with explicit --chip-tool/host arguments; see argparse in source.",
       "referenced_by": [
         "tools/matter/tests/test_ota_chip_provider.py",
-        "tools/matter/tests/test_general_diagnostics_chip.py"
+        "tools/matter/tests/test_general_diagnostics_chip.py",
+        "tools/matter/tests/test_subscription_fabrics_chip.py"
       ],
       "allocation_variant": "not applicable"
     },
@@ -300,7 +301,8 @@
         "tools/matter/tests/test_general_diagnostics_chip.py",
         "tools/matter/tests/test_identify_chip.py",
         "tools/matter/tests/test_ota_chip_provider.py",
-        "tools/matter/tests/test_last_fabric_discovery_chip.py"
+        "tools/matter/tests/test_last_fabric_discovery_chip.py",
+        "tools/matter/tests/test_subscription_fabrics_chip.py"
       ],
       "allocation_variant": "not applicable"
     },
@@ -2538,6 +2540,14 @@
       "entrypoint": "python tools/matter/tests/test_commissionable_announcement_chip.py --help; disposable Linux node, C payload utility, development PAA/credentials and unmodified chip-tool; --extended-discovery-seconds unlimited, 0 and 8 under Memcheck, then separately with a sanitizer node. Functional success never waives conformance failures.",
       "referenced_by": [],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
+    },
+    {
+      "path": "tools/matter/tests/test_subscription_fabrics_chip.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/test_subscription_fabrics_chip.py --help; disposable Linux node, five independent real chip-tool fabrics and three subscriptions each; four fresh-store scenarios, Memcheck and sanitizers separately.",
+      "referenced_by": [],
+      "allocation_variant": "not applicable"
     }
   ],
   "local_only_files": []

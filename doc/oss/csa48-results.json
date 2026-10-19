@@ -1,0 +1,2606 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa47-results.json",
+  "previous_sha256": "08cfa5d077ed3bd5859af02dfb6eedfc69fa8766d8677509d369bdd61b9a9d6f",
+  "source_base_commit": "91674e23158a20d50a949006ffcc616907b49952",
+  "scope": "Five fabrics, fifteen live subscriptions, four-path support, overflow and same-fabric actor. Original TC-IDM-7.1 FAIL; load-dependent observations and literal status discrepancy retained. No native changes.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 3,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC-IDM-7.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 483
+    }
+  ],
+  "official_receipt": {
+    "run_id": 483,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 16:17:41.763688",
+    "observed_utc": "2026-10-19T16:17:43.046459+00:00",
+    "cases": [
+      {
+        "case": "TC-IDM-7.1",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 8,
+          "TestStateEnum.failed": 2
+        },
+        "details": [
+          {
+            "title": "Note",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Precondition",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: RD1, RD2, RD3, RD4, RD5 send 3 Subscribe Request Messages to DUT.(Total - 15 active subscriptions) Each subscribe request should contain 3 different paths. They can subscribe to different attributes and events. Once all subscriptions are active, change the value of all the attributes that have been subscribed or trigger an action on the DUT to generate an event.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2a: Factory Reset the DUT and recommission it onto all fabrics. RD1, RD2, RD3, RD4, RD5 should be on separate, distinct fabrics. RD1 and RD1A should be on the same fabric.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2b: RD1, RD2, RD3, RD4, RD5 send 3 Subscribe Request Messages to DUT.(Total - 15 active subscriptions) Each subscribe requests should contain 3 different paths. The subscription request from RD1 should contain 4 paths. +",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3a: Factory Reset the DUT and recommission it onto all fabrics. RD1, RD2, RD3, RD4, RD5 should be on separate, distinct fabrics. RD1 and RD1A should be on the same fabric.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: RD2, RD3, RD4, RD5 send 3 Subscribe request messages each with each of them having 3 different paths. Verify that the subscription request messages from all reference devices succeed. Once all the Subscription Requests are activated, RD1 sends 6 subscription request messages with each of them having 3 different paths.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4a: Factory Reset the DUT and recommission it onto all fabrics. RD1, RD2, RD3, RD4, RD5 should be on separate, distinct fabrics. RD1 and RD1A should be on the same fabric.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4b: RD1, RD2, RD3, RD4, RD5 send 3 Subscribe request messages each with each of them having 3 different paths. Verify that the subscription request messages from RD1, RD2, RD3, RD4 and RD5 succeed. Once all the Subscription Requests are activated, send a Subscribe request messages having 3 different paths from RD1A to the DUT.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "270f254491833c8bb9c8e8252c1f0b3dc12a6afe82a3980e88ff26e68e0fdafb",
+    "raw_result_sha256": "613b4591ed69faf5a12e7727a4fae5ed05c0ae0b367d218873733a7bff8825a6",
+    "identity": {
+      "source_sha256": "92450a1c27ac700ec90415136fb1a961d784cc756f988ceb11fe59a45afae8e3",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "case": "TC-IDM-7.1",
+        "step": 1,
+        "answer": "PASS",
+        "note": "Use supported NodeLabel, Location and IdentifyTime, as explicitly permitted by the original Note.",
+        "utc_ms": 1792426661632
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 2,
+        "answer": "PASS",
+        "note": "Five real unique commissioned fabrics; sanitizer also authenticates RD1A as node2 in RD1 fabric, proved by ACL event AdminNodeID2.",
+        "utc_ms": 1792426661641
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 3,
+        "answer": "PASS",
+        "note": "Five fabrics each retain three distinct subscriptions, each complete three-path prime; all15 receive both updates. Rechecked raw Memcheck prime paths.",
+        "utc_ms": 1792426661649
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 4,
+        "answer": "PASS",
+        "note": "Fresh empty disposable store and five recommissioned fabrics for phase1.",
+        "utc_ms": 1792426661655
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 5,
+        "answer": "PASS",
+        "note": "One admitted four-path prime, remaining14 three-path subscriptions, overflow rejected and all15 survive both updates under Memcheck and sanitizers.",
+        "utc_ms": 1792426661662
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 6,
+        "answer": "PASS",
+        "note": "Fresh empty store and five real fabrics for phase2.",
+        "utc_ms": 1792426661670
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 7,
+        "answer": "FAIL",
+        "note": "First15 guaranteed subscriptions succeed; overflow89/9c rejected. Under Memcheck second Identify update is missing while NodeLabel/Location reach all15; faster sanitizer phase passes. Both outcomes retained, attribution open.",
+        "utc_ms": 1792426661679
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 8,
+        "answer": "PASS",
+        "note": "Fresh empty store and five real fabrics for phase3.",
+        "utc_ms": 1792426661687
+      },
+      {
+        "case": "TC-IDM-7.1",
+        "step": 9,
+        "answer": "FAIL",
+        "note": "Sanitizer proves RD1A node2, overflow RESOURCE_EXHAUSTED89 and originals survive. Original example expects INVALID_ACTION80. Memcheck RD1A CASE also times out. Do not infer native cause from timeout or turn status mismatch into PASS.",
+        "utc_ms": 1792426661695
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "independent_attempts": {
+    "memcheck-resources": {
+      "result": "FAIL",
+      "driver_sha256": "58447ab3520ade8b7193d251b9865516f5fec2d88fdb9a234f63868ff79bf53b",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "a4dda875e1f750cd72e3a970d808f60dbc04505b1ec4e2113594d61098611561",
+      "phases": [
+        {
+          "phase": 0,
+          "result": "PASS",
+          "checks_PASS": 81,
+          "checks_FAIL": 0,
+          "subscriptions": 15,
+          "error": null,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "all_three_changed_paths": true
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            }
+          ],
+          "controller_exits": null,
+          "node_exit": 0,
+          "memory": {
+            "allocations": 102924,
+            "frees": 102924,
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "logs_sha256": {
+            "node.log": "30156748f583daf189e3ce2157cf6cba923b230d8c6ba206acc49317e917914b",
+            "memcheck.log": "2c2d6041f2c63b6bdc5ca7bdf4acb56b161323d9ee68e29f32caa51df11eb849",
+            "RD4/interactive.log": "4c64c5b5d73dfba33d1b482d1641157b649e07f67b61d6c16489ed2a6e2e8856",
+            "RD3/interactive.log": "022933d7bb37a599e5bea284f006baa14ec912f0fc13b79f4ce9b83fe780c265",
+            "RD1/interactive.log": "eb685dbd01dcd9df4b8bfea44f1aa4929a49089622321ef6fba1d7ec10b52fe4",
+            "RD2/interactive.log": "cdd1c9a18d765c8c00af13286709efd8585b3b207f1b40b746a9690130e66506",
+            "RD5/interactive.log": "31aaed28059e27ca0b8a9c0fdbe4723622021ff9be5f08f8c3d1870a7e192629"
+          }
+        },
+        {
+          "phase": 1,
+          "result": "FAIL",
+          "checks_PASS": 76,
+          "checks_FAIL": 1,
+          "subscriptions": 15,
+          "error": "command-any-subscribe-by-id",
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "all_three_changed_paths": true
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD1",
+              "paths": 4,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            }
+          ],
+          "controller_exits": null,
+          "node_exit": 0,
+          "memory": {
+            "allocations": 102760,
+            "frees": 102760,
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "logs_sha256": {
+            "node.log": "27cbafa2a1d2dc2201268b7bd78d6dcf90a3662b57596edd441f60111b02018d",
+            "memcheck.log": "85ade15dc3134787f8b4ab6c4338bffccd52776366cc201852ff0b9a06f9dddd",
+            "RD4/interactive.log": "694f8ea91ead79662b9de0bf2ccb9cce585f4fe3a06033cd76b548d326ee1fea",
+            "RD3/interactive.log": "1f4fe5808e15eb1d62dba47bb1bf1dc4b0aa99330a9fd2394ae69e43d4e71dac",
+            "RD1/interactive.log": "06d16beb57338e4254b8b3010e74059aa6f61405da296e7ab22162b417eb8ffe",
+            "RD2/interactive.log": "9ac41c8a71a28f55c51b2d8baff5eecbe204105e721e1fbf72ea3731584777bb",
+            "RD5/interactive.log": "de70f01feed3ef100948ea83654b52a284949a63ab16fb2dfb8c9722ba3e64a6"
+          }
+        }
+      ]
+    },
+    "memcheck-advanced": {
+      "result": "FAIL",
+      "driver_sha256": "4465866fec5f695c56fa730657dba4b6320541ea1abb0ec0ccd8d08804c5b4bc",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "ae802facda75b1be39f89889d821835bfe944680c20f6a44a7567c8936a789f0",
+      "phases": [
+        {
+          "phase": 1,
+          "result": "PASS",
+          "checks_PASS": 97,
+          "checks_FAIL": 0,
+          "subscriptions": 15,
+          "error": null,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "all_three_changed_paths": true
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD1",
+              "paths": 4,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            },
+            {
+              "controller": "RD1",
+              "paths": 4,
+              "admitted": false,
+              "status": 137
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "allocations": 102973,
+            "frees": 102973,
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "logs_sha256": {
+            "node.log": "83a3392890931d9587f8e7106dad7d696551b6ab15bc841233aa82e780a6fafb",
+            "memcheck.log": "883f9dab5f67135645c4d04e6b68c86c426d14025b6eaf6eadb086d8af0d5601",
+            "RD4/interactive.log": "657158526998068a6fd7453c93be64dd076c8594ce98edf9341b05197617c0c2",
+            "RD3/interactive.log": "cc3f0bb6607ab34244944976fbfea65dda54de7d85d45175548d26549f0df447",
+            "RD1/interactive.log": "61f967680d1ad45807522ae0aa680dac425be9fc8f62688a9536f6eb63ff30a5",
+            "RD2/interactive.log": "3d73a45ee91a16a269b1b7175066dfff436310d008006fab4d4bc834075be786",
+            "RD5/interactive.log": "841770fced7215c05895aa80eee1859d54e997987cce32dd9a08b970f979a306"
+          }
+        },
+        {
+          "phase": 2,
+          "result": "FAIL",
+          "checks_PASS": 89,
+          "checks_FAIL": 1,
+          "subscriptions": 15,
+          "error": "command-any-subscribe-by-id",
+          "updates": [],
+          "attempts": [
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "allocations": 102640,
+            "frees": 102640,
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "logs_sha256": {
+            "node.log": "ce344d949fde4f4bcf032d5f4fa993f0c2ec465e11a3dd0db78f8c8c560bed4f",
+            "memcheck.log": "f988db03a563f62b1575266890880e5d88eb7ab64788100bb92fb3636bcc04ca",
+            "RD4/interactive.log": "c16ac44ee8c58e33f1e016667d670f554d851003a336eed37f1f038c4baa9770",
+            "RD3/interactive.log": "5f99eb760179d063d129667a915b50f68f23da58f49c9bbc5dd5d338604d96e9",
+            "RD1/interactive.log": "bb80585646e40ae863b683bdc9f5c36f1ef67acc0821b96f8b1912cbab199b43",
+            "RD2/interactive.log": "572e2fab11d45a22d865caa1ac04935212020a4e3faf67e8417b9fd91d298a88",
+            "RD5/interactive.log": "1cee6a8135c7679881ae7ffbf70a417e0b26e017f72457664663a896f944df5c"
+          }
+        }
+      ]
+    },
+    "memcheck-later": {
+      "result": "FAIL",
+      "driver_sha256": "0bfcd20393f02401f5406d0b637941b120c15cae0460c989118dc8f4c0a4ff5e",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "fb33b798dc67911e61925fc6cdf932422b002beccf325ac5819760b6077b5e3e",
+      "phases": [
+        {
+          "phase": 2,
+          "result": "FAIL",
+          "checks_PASS": 103,
+          "checks_FAIL": 1,
+          "subscriptions": 15,
+          "error": "all-live-subscriptions-receive-three-changed-paths-1",
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "all_three_changed_paths": false
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 156
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            },
+            {
+              "controller": "RD1",
+              "paths": 6,
+              "admitted": false,
+              "status": 156
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "allocations": 103862,
+            "frees": 103862,
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "logs_sha256": {
+            "node.log": "378c49ccece47788dfab2500bd1ac724b631399d9632153341b8cb860c3bf8f2",
+            "memcheck.log": "09c2bdd7a1d47ffd2ca7c68b3940099e8283c4854213fff9d4bea2e9a8312689",
+            "RD4/interactive.log": "ae1fb36c0638baf286f38e2fcb3c137189ffd561e3305299c51b16592458b3f4",
+            "RD3/interactive.log": "555b814d89e2e97f0f29f0021537de4283ac21d9d710e24f01c9a214b4d315b4",
+            "RD1/interactive.log": "136c605b189ff7c58a1144456b0e90224cd05ef59fbbd3db7f29f081cef55a89",
+            "RD2/interactive.log": "f22543c554787237d32592e43a6dca6c8f1f507195502c832d6e805a7e913035",
+            "RD5/interactive.log": "37a976fec2e75b9f52e17413b98f263b2e4f4a8e1766e4311db13ddf1302b378"
+          }
+        }
+      ]
+    },
+    "memcheck-other-node": {
+      "result": "FAIL",
+      "driver_sha256": "0bfcd20393f02401f5406d0b637941b120c15cae0460c989118dc8f4c0a4ff5e",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "47b48537584cd69303561ae4d1c06dbdc2f52c770505abd6d59a9812c508ddfc",
+      "phases": [
+        {
+          "phase": 3,
+          "result": "FAIL",
+          "checks_PASS": 93,
+          "checks_FAIL": 1,
+          "subscriptions": 15,
+          "error": "command-any-subscribe-by-id",
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "all_three_changed_paths": true
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0,
+            "RD1A": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "allocations": 105829,
+            "frees": 105829,
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "logs_sha256": {
+            "node.log": "f3962f04aa81ec67df9328ed99544f5c2c2fe9aa1a76b3c96c1a847a26f65d98",
+            "memcheck.log": "2c2a7733a1e23801532300c70aa5cea648ba4cd3d3385141382fde16f8f1c818",
+            "RD4/interactive.log": "3e47568bce567b6270a555e2cf0b0e155992620e62ada7f550cdfb8e511c4ef3",
+            "RD3/interactive.log": "c5e719def33485cf72d053a0285cc163c6132a14307fb8e6914366620d610508",
+            "RD1/interactive.log": "eaf7300d80fcae4dede79e86e2c5af68136b4626107955f1f64e5a6abac1d9d6",
+            "RD2/interactive.log": "b4056dd0bfc54ccf1a675e9819f3de30d8630e3e8ea3af9b4e890d1a1ee14045",
+            "RD5/interactive.log": "01f382b257447d5ba09c503a5c2bd144deee33f34667bc5f53da1638247945bf",
+            "RD1A/interactive.log": "60bbac26b16dce5173c648dcb2dcec7c19a8e645cd86a05e71ac2cb3f9139ad4"
+          }
+        }
+      ]
+    },
+    "memcheck-burst-final": {
+      "result": "FAIL",
+      "driver_sha256": "c978e4fc9f3c5ee12700748fa1c93a82585fd5e96c4141ca0d5d68f2f8da5019",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "be27b7ef9ad47f22cc941a27a28a5d59f15807965361e534b90aa0a54c6232a8",
+      "phases": [
+        {
+          "phase": 2,
+          "result": "FAIL",
+          "checks_PASS": 103,
+          "checks_FAIL": 1,
+          "subscriptions": 15,
+          "error": "all-live-subscriptions-receive-three-changed-paths-1",
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "all_three_changed_paths": false
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 156
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            },
+            {
+              "controller": "RD1",
+              "paths": 6,
+              "admitted": false,
+              "status": 156
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": {
+            "allocations": 104008,
+            "frees": 104008,
+            "zero_errors": true,
+            "zero_live": true
+          },
+          "logs_sha256": {
+            "node.log": "5e49783446157682d6563b95dd04cb12f090c73ec2259afcbde563b50ebeef7b",
+            "memcheck.log": "bab5f26c60bdebb4797a11a304edfde10b943d8dd416a2f847a7217208141036",
+            "RD4/interactive.log": "eac93ab254f1de76ccbfdb97142ea5231007c6a7127b78314633938e14b8dbd1",
+            "RD3/interactive.log": "cdfd996a4f8c94ac0b0b4c3ebdedb5a0f31a4009e101d09b03729cbe0953d4e2",
+            "RD1/interactive.log": "844b8c856bd7ec0d3fb9f57840b8cf6ec5768863818238a2d4c437391e9d5137",
+            "RD2/interactive.log": "8264437d520f4b285a68a44c7a8d2d0af806722e27c4d3f82e15e412371463c9",
+            "RD5/interactive.log": "9c6ebdcd2575637b0aefa521a0fa882991c04b6b9d069f2b32fca36d4e823872"
+          }
+        }
+      ]
+    },
+    "sanitize-resources": {
+      "result": "PASS",
+      "driver_sha256": "68d2ca96af8373c0fb167da95a6703b4e80bec4276b9cc4a02edb5c8e3a73f36",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "result_sha256": "3692bbb70ed1c7af2323c96bd97a511efe80be9901263c93a4c0af0f640e3644",
+      "phases": [
+        {
+          "phase": 0,
+          "result": "PASS",
+          "checks_PASS": 96,
+          "checks_FAIL": 0,
+          "subscriptions": 15,
+          "error": null,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": null,
+          "logs_sha256": {
+            "node.log": "9a7bbdf72f5f05bfcaa4b33818d6b243d54e4b673d7adcc7f4af291b8bbc329b",
+            "RD4/interactive.log": "1e4eec21cf7b5a606c917f3606f7968c22b47954f4b5b7b72a6a5cbfcdd21fd2",
+            "RD3/interactive.log": "bf2613e76d3ac36c205eaacacb613fe7a0d75774ecc734c2c1d9fcf823bb5341",
+            "RD1/interactive.log": "d8e713ffa47da7059b6d727815c5bc8add054ed405309efbcf5582e452f5a292",
+            "RD2/interactive.log": "0f01bde6d3c2f24b2d9f722a3d3f4825ee30b42fbfc2cbc81dd596af1ed20e31",
+            "RD5/interactive.log": "c51192f6d54a39f1a1305dbc5685a6c87efe0afa89a50649c189c1e202d66d5f"
+          }
+        },
+        {
+          "phase": 1,
+          "result": "PASS",
+          "checks_PASS": 97,
+          "checks_FAIL": 0,
+          "subscriptions": 15,
+          "error": null,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD1",
+              "paths": 4,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            },
+            {
+              "controller": "RD1",
+              "paths": 4,
+              "admitted": false,
+              "status": 137
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": null,
+          "logs_sha256": {
+            "node.log": "235b5e42365b14f9e1da978da07b0d497e588a0f666ed9615a969c6118e8f894",
+            "RD4/interactive.log": "9bf37087454f3cab2d0e3a69ec8f38ca32e3ceb16af8e5872465a54107a8f792",
+            "RD3/interactive.log": "3d889a1bf3899ed17d67ba8cdf2b211fdac6632cb4de159613d893d97e113104",
+            "RD1/interactive.log": "32ba51ccd82b2ed66c9966a013bed0255e4189eafd51d51e5e6e29f0776af349",
+            "RD2/interactive.log": "c2b7b0aab2e3542580b209c16fea7018926d86830b914f8c36e767a3670a3e26",
+            "RD5/interactive.log": "c445e0968f770fe409f74e2414928177e81c839c75a39b724529284ef350f89e"
+          }
+        },
+        {
+          "phase": 2,
+          "result": "PASS",
+          "checks_PASS": 104,
+          "checks_FAIL": 0,
+          "subscriptions": 15,
+          "error": null,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "observed_paths": {
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "observed_paths": {
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            },
+            {
+              "controller": "RD1",
+              "paths": 6,
+              "admitted": false,
+              "status": 156
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0
+          },
+          "node_exit": 0,
+          "memory": null,
+          "logs_sha256": {
+            "node.log": "99f4aad8a7d98d4473e1fa5651ac3e134e7ebdb98bf136f2d4a264c15c9f1559",
+            "RD4/interactive.log": "1e9d0401d9dc808d40642999b529afd8c80268496451168f722c8128e0f3da62",
+            "RD3/interactive.log": "3c89b55ccf7aeec0d70571af6ef0b05f91055498e83208b46127eaa4d2ea7f2b",
+            "RD1/interactive.log": "7f8f2b384536efc3903fe49204d190601ba92485cece7d6eb4a8b0984d0ef600",
+            "RD2/interactive.log": "15005c7c17e6d0772a857ace38746d129a473cb3ba8862c55fad25b1a58d9b50",
+            "RD5/interactive.log": "d959b7697ca4ef89a9850fc5cf8dfeb0351490d861531836306221c46087a45e"
+          }
+        },
+        {
+          "phase": 3,
+          "result": "PASS",
+          "checks_PASS": 102,
+          "checks_FAIL": 0,
+          "subscriptions": 15,
+          "error": null,
+          "updates": [
+            {
+              "round": 0,
+              "subscriptions": 15,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            },
+            {
+              "round": 1,
+              "subscriptions": 15,
+              "observed_paths": {
+                "1": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "2": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "3": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "4": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "5": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "6": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "7": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "8": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "9": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "10": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "11": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "12": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "13": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "14": [
+                  "identify",
+                  "label",
+                  "location"
+                ],
+                "15": [
+                  "identify",
+                  "label",
+                  "location"
+                ]
+              },
+              "all_three_changed_paths": true
+            }
+          ],
+          "attempts": [
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 1
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 2
+            },
+            {
+              "controller": "RD1",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 3
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 4
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 5
+            },
+            {
+              "controller": "RD2",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 6
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 7
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 8
+            },
+            {
+              "controller": "RD3",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 9
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 10
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 11
+            },
+            {
+              "controller": "RD4",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 12
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 13
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 14
+            },
+            {
+              "controller": "RD5",
+              "paths": 3,
+              "admitted": true,
+              "status": 0,
+              "id": 15
+            },
+            {
+              "controller": "RD1A",
+              "paths": 3,
+              "admitted": false,
+              "status": 137
+            }
+          ],
+          "controller_exits": {
+            "RD1": 0,
+            "RD2": 0,
+            "RD3": 0,
+            "RD4": 0,
+            "RD5": 0,
+            "RD1A": 0
+          },
+          "node_exit": 0,
+          "memory": null,
+          "logs_sha256": {
+            "node.log": "4ba93ae4c8b8da2cca12b591cc3ca7dfcbe2df129dacfc915c954b8d80d6b2e4",
+            "RD4/interactive.log": "bcbb43bc9aca996d4b0df7d2fce031fbdcf73447fc318e4a10f3e7b628f85951",
+            "RD3/interactive.log": "bf82117a85c30e9ae726868be7bf9a3772095d66d532c20ab6a9de05294201e1",
+            "RD1/interactive.log": "67f28a406fb77bfb0c826b8bae15a38da456059b0a271569ef930481d7025ed8",
+            "RD2/interactive.log": "e8827b2a4499c4579e78738dfefc8ba433635211faa8f0681c05948e4a01fd18",
+            "RD5/interactive.log": "4538cffa40b7a1f62ca82849e3081491e7c817939ae25a71fe73a4af119d062e",
+            "RD1A/interactive.log": "b9572f73982a8e2559d0fe3a52bb54c3abad3c69110793f81bc41d23be01362b"
+          }
+        }
+      ]
+    }
+  },
+  "native_identity": {
+    "native_inputs_unchanged": 362,
+    "remote_source_receipt": {
+      "count": 362,
+      "all_match": true
+    },
+    "new_host_compilation": false,
+    "binary_compiled_in": "csa35-results.json"
+  },
+  "focused_tests": {
+    "normal": {
+      "exit": 0,
+      "log_sha256": "0de73210cb100cac941a42e6eb3bf5086b921f426e2a0625e005d0532756172c",
+      "build_log_sha256": "126537c603d9551e60fbb3f68aeb95782ddefb183757327be8f1d9a462552724",
+      "warnings": []
+    },
+    "sanitize": {
+      "exit": 0,
+      "log_sha256": "b2a82aaf813313c3c1f67f62fefa45eebdc2614f804763a137a14c47c2c1626f",
+      "build_log_sha256": "126537c603d9551e60fbb3f68aeb95782ddefb183757327be8f1d9a462552724",
+      "warnings": []
+    }
+  },
+  "observations": [
+    "Five distinct actual fabrics, each three unique subscriptions with complete three-path priming; all15 receive first and second changes in baseline. One four-path request is supported. Overflow is not counted as admitted.",
+    "Memcheck burst variant: new NodeLabel and Location reach all15, but second IdentifyTime update is absent within observation window. Strengthened command oracle confirms real InvokeResponse success and ACK. Faster ASan/UBSan/LSan all four phases pass. Root cause not attributed.",
+    "Memcheck distinct actor2 CASE times out; faster sanitizer authenticates actor2, proved by AccessControlEntryChanged.AdminNodeID2. Overflow89 and all original15 continue. Public certificate subjects/root and matching keyset context checked without publishing keys.",
+    "Original final example specifies INVALID_ACTION0x80 for RD1A; actual capacity rejection is RESOURCE_EXHAUSTED0x89. Keep original FAIL and compare Core admission semantics before any native change.",
+    "Application reported_version mutation was inspected as a possible update race; no root cause established or native edit made."
+  ],
+  "tester_setup_attempts": [
+    "Initial fourth-subscription parser expected lowercase status, corrected for actual Status89.",
+    "Next excess request may return BUSY9c while earlier overflow reply drains; it is not an admitted subscription or a failure of guaranteed first3.",
+    "Generic Status00 completion was strengthened to actual command response plus ACK; Memcheck missing second Identify update remains."
+  ],
+  "limits": [
+    "Original manual/operator procedure, not automatic certification. Empty fresh disposable stores model reset; no physical reset.",
+    "Memcheck and sanitizer functional outcomes differ; do not report whole independent scenario PASS from sanitizer alone. Raw logs and controller stores remain ignored.",
+    "No paired Windows nodes changed, native rebuild, PICS/API change, embedded RAM or full-matrix acceptance."
+  ],
+  "commands": [
+    "python tools/matter/tests/test_subscription_fabrics_chip.py with disposable Linux node/controllers, --valgrind; separately sanitizer, independent phase subsets",
+    "cmake --build BUILD --target test_im_subscribe test_runtime -j2",
+    "ctest --test-dir BUILD --output-on-failure -R ^(test_im_subscribe|test_runtime)$",
+    "python tools/matter/csa_campaign.py --write",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "next": {
+    "stage": "CSA49",
+    "cases": [
+      "TC-IDM-6.1",
+      "TC-IDM-6.2",
+      "TC-IDM-8.1"
+    ],
+    "status": "NOT_RUN",
+    "scope": "Remaining event and fabric-sensitive Read/Subscribe coverage, then reassess earlier blockers and repair attributed native defects."
+  }
+}

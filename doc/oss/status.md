@@ -7,6 +7,13 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA48: TC-IDM-7.1 original manual FAIL, TH run483.**
+Five fabrics/15 live three-path subscriptions and four-path support confirmed.
+Memcheck misses a second Identify update after overflow and actor2 CASE times
+out; faster separate sanitizer passes all four phases. Literal original
+INVALID_ACTION80 differs from capacity89. Attribution remains open; no native
+change. See [report](csa48-validation.md). Next:CSA49, remaining three IM cases.
+
 **CSA47: applicability/prerequisite review, no new test run.**
 Original predicates and current TH API exclude NFC/concatenated onboarding under
 unchanged PICS: two old MANUAL positions corrected to NA. Four manual blockers
