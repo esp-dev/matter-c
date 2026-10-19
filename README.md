@@ -299,8 +299,19 @@ same-store restart opens CM=1, and recommissioning restores CASE/operational
 discovery and CM=0. Independent acceptance passes 37 Memcheck and 35 separate
 sanitizer checks, with zero memory errors/leaks. No runtime changes were needed.
 The manual category now has 11 PASS, 1 FAIL and 28 without an outcome. CSA32's
-separate discrepancy and deferred CSA30 remain open. Next: CSA34, TC-DD-2.1
-announcement verification. See the [result record](doc/oss/csa33-results.json).
+separate discrepancy and deferred CSA30 remain open. Announcement verification
+follows below. See the [result record](doc/oss/csa33-results.json).
+
+[CSA34 announcement verification](doc/oss/csa34-validation.md) records original
+manual TC-DD-2.1 FAIL in TH run468: 8 PASS, 17 NOT APPLICABLE and 1 FAIL. Actual
+CM=0 Extended Discovery omits mandatory PH (Core1.6.1 4.3.1.11). Basic/closed/
+enhanced discovery, records/subtypes/IPv6 addresses, instance rotation and
+unmodified chip-tool browsing work; 37 Memcheck and 36 separate sanitizer
+functional checks pass with clean memory, while overall conformance remains
+FAIL. Original test/PICS and runtime C/H are unchanged. Next: CSA35, PH and
+customer Extended Discovery policy, truthful PICS and affected discovery rechecks.
+The manual category now has 11 PASS, 2 FAIL and 27 without an outcome. See the
+[result record](doc/oss/csa34-results.json).
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

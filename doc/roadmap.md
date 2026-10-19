@@ -360,9 +360,21 @@ acceptance passes 37 Memcheck and 35 separate sanitizer checks, with clean memor
 and no runtime changes. MANUAL now contains 11 PASS, 1 FAIL and 28 without an
 outcome; category counts remain unchanged. Two fixture failures and the explicit
 restart/programmatic-QR limits are retained in [evidence](oss/csa33-validation.md).
-**Next: CSA34, TC-DD-2.1, announcement verification**, reviewing the original
-conditional branches for the IP profile. CSA32's CM discrepancy remains open;
-CSA30 remains unsuccessful/deferred.
+The follow-up IP announcement verification is recorded below. CSA32's CM
+discrepancy remains open; CSA30 remains unsuccessful/deferred.
+
+CSA34 executes original manual TC-DD-2.1 in TH run468: 8 PASS, 17 NOT APPLICABLE,
+1 FAIL at Step15a. Actual CM=0 advertisements omit mandatory PH under Core1.6.1
+4.3.1.11. This is a confirmed implementation gap; incomplete PICS does not waive
+the requirement. Complete basic/closed/enhanced discovery scenarios pass 37
+Memcheck and 36 separate sanitizer functional checks with clean memory, but
+overall conformance stays FAIL. No runtime or original-test/PICS changes.
+The manual category now contains 11 PASS, 2 FAIL and 27 without an outcome;
+category totals remain unchanged. See [evidence](oss/csa34-validation.md).
+**Next: CSA35, Extended Discovery PH and customer policy**: supply truthful hints,
+provide an explicit timeout/disable control, review PICS and rerun affected
+original discovery cases plus the full wire/controller scenario. Keep CSA32's
+discrepancy open and CSA30 deferred.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

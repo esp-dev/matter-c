@@ -1,8 +1,16 @@
 # Test inventory
 
-test-map.json enumerates 240 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 241 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+`test_commissionable_announcement_chip.py` supplies CSA34 wire/controller evidence
+for unsolicited announcements, actual unfiltered chip-tool browsing and complete
+basic/closed/enhanced Commissionable Node Discovery records, addresses, subtypes
+and instance rotation. Run under Memcheck and separately with a sanitizer node.
+Functional checks do not waive the independent required-PH predicate: actual
+CM=0 without PH makes the whole validation FAIL. Keep raw packets/state private.
+See `csa34-validation.md` for the original manual TH result and profile gaps.
 
 `test_last_fabric_discovery_chip.py` checks the actual last-fabric response,
 operational SRV/goodbye/no-late-reply observations, active-subscription teardown,

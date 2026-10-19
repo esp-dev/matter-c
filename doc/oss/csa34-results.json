@@ -1,0 +1,870 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa33-results.json",
+  "previous_sha256": "38b99f28a912d37384f304373b667651704fe29b04bbfb5fb80adbae1bb6bd93",
+  "source_base_commit": "12c04ea73126ca36664422fa2f4617ac475bd9d7",
+  "scope": "Original manual TC-DD-2.1 operator-reviewed FAIL at Step15a: actual CM0 Extended Discovery omits mandatory PH. Complete basic/closed/enhanced IP discovery works; no runtime or official-test/PICS changes.",
+  "latest_counts": {
+    "PASS": 97,
+    "FAIL": 18,
+    "BLOCKED": 3,
+    "MANUAL": 40,
+    "NA": 704
+  },
+  "classification_changes": [
+    {
+      "case": "TC-DD-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 468
+    }
+  ],
+  "official_operator_assisted": {
+    "run_id": 468,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 11:27:18.075611",
+    "observed_utc": "2026-10-19T11:27:19.584286+00:00",
+    "cases": [
+      {
+        "case": "TC-DD-2.1",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 8,
+          "TestStateEnum.not_applicable": 17,
+          "TestStateEnum.failed": 1
+        },
+        "details": [
+          {
+            "title": "Preconditions",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: If TH is aware of the DUT\u2019s Discovery Capability Bitmask, it SHALL initiate Device Discovery in any order of priority on all the networking technologies that are supported by both the TH and the DUT If TH is unaware of the DUT\u2019s Discovery Capability Bitmask, it MAY initiate Device Discovery in any order on all the networking technologies it supports out of Wi-Fi PAF, BLE, and on IP network discovery, or initiate Device Discovery on a specific networking technology.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: If (MCORE.DD.CHIP_DEV) then If !(MCORE.DD.CHIP_DEV) then If (MCORE.DD.DEV_LOCK) then If (MCORE.DD.DEV_BARRIER) then",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: DUT begins sending ADVs. TH does not respond to these DUT ADVs so that the DUT can keep sending ADVs",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: TH does not respond to DUT and DUT keeps sending ADVs",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: TH does not respond to DUT and DUT keeps sending ADVs",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 6: TH does not respond to DUT. User power cycles the DUT",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 7a: TH waits until T0+ 2 minutes and 45 seconds and confirms that the DUT is still sending ADVs.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 7b: TH waits until T0+ 15 minutes and checks if the DUT is sending ADVs.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 8a: TH is configured to perform commissioning on Channel 6 in 2.4GHz band.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 8b: TH is configured to perform commissioning on Channel 44 in 5GHz band if it is in non-ETSI regulatory domains and on Channel 149 in 5GHz band if it is in ETSI regulatory domains.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 9: DUT begins sending Wi-Fi PAF Publish messages.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 12: TH and DUT are connected to the same network through vendor-unique means or by commissioning the DUT onto the Matter network and opening a commissioning window. The DUT is sending mandatory Commissionable Node Discovery service records over DNS-SD.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 13a: TH and DUT are connected to the same network and the DUT is sending optional Commissionable Node Discovery service records over DNS-SD.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 13b: TH and DUT are connected to the same network and the DUT is sending optional Commissionable Node Discovery service records over DNS-SD.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 13c: TH and DUT are connected to the same network and the DUT is sending optional Commissionable Node Discovery service records over DNS-SD.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 13d: TH and DUT are connected to the same network and the DUT is sending optional Commissionable Node Discovery service records over DNS-SD.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 13e: TH and DUT are connected to the same network and the DUT is sending optional Commissionable Node Discovery service records over DNS-SD.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 13f: TH and DUT are connected to the same network and the DUT is sending optional Commissionable Node Discovery service records over DNS-SD.",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 14: Place the DUT device into a non-commissionable state",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 15a: TH and DUT are connected to the same network and the DUT is sending a Commissionable Node Discovery service record over DNS-SD.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 15b: Mandatory Commissioning Subtypes: Send a browse request for '_services._dns-sd._udp' using a DNS-SD records command-line test tool (i.e. 'dns-sd -B _services._dns-sd._udp' or 'avahi-browse _services._dns-sd._udp -r')",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 15c: Optional Commissioning Subtypes: Send a browse request for '_services._dns-sd._udp' using a DNS-SD records command-line test tool (i.e. 'dns-sd -B _services._dns-sd._udp' or 'avahi-browse _services._dns-sd._udp -r')",
+            "state": "TestStateEnum.not_applicable",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 16a: Place the DUT device into Commissioning mode",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 16b: Send a browse request for '_matterc._udp' using a DNS-SD records command-line test tool (i.e. 'dns-sd -B _matterc._udp' or 'avahi-browse _matterc._udp -r')",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "3fa17090497411236c53733d6201e769d0285b865da5426be15642e35f6f45b8",
+    "raw_result_sha256": "568a04e6bd6aea1b4324a9668753dfde65c2b2264091e5013d1646a10b8ad23e",
+    "identity": {
+      "source_sha256": {
+        "Test_TC_DD_2_1.yaml": "d969414b6122ab5dcb2b99d775f1a9b65a5c1ce7cb294dbb9e509ceff2dc623e"
+      },
+      "pics_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb"
+    },
+    "audit": [
+      {
+        "step": "preconditions",
+        "answer": "PASS",
+        "note": "Disposable running native x86 host attached to IP network, existing frozen simulated Wi-Fi profile; no BLE or physical Wi-Fi claim.",
+        "utc_ms": 1792409237828
+      },
+      {
+        "step": "1",
+        "answer": "PASS",
+        "note": "Onboarding uses the C setup payload with on-network discovery bit4; actual chip-tool browsing and QR commissioning complete on IP.",
+        "utc_ms": 1792409237834
+      },
+      {
+        "step": "2",
+        "answer": "PASS",
+        "note": "Discriminator subtype absent before manufacturer CLI start; after explicit start unsolicited announcement, browsing and commissioning succeed. Lock/barrier branches are not declared; the flattened conditional label is retained.",
+        "utc_ms": 1792409237843
+      },
+      {
+        "step": "3",
+        "answer": "NOT APPLICABLE",
+        "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+        "utc_ms": 1792409237852
+      },
+      {
+        "step": "4",
+        "answer": "NOT APPLICABLE",
+        "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+        "utc_ms": 1792409237860
+      },
+      {
+        "step": "5",
+        "answer": "NOT APPLICABLE",
+        "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+        "utc_ms": 1792409237870
+      },
+      {
+        "step": "6",
+        "answer": "NOT APPLICABLE",
+        "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+        "utc_ms": 1792409237880
+      },
+      {
+        "step": "7a",
+        "answer": "NOT APPLICABLE",
+        "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+        "utc_ms": 1792409237888
+      },
+      {
+        "step": "7b",
+        "answer": "NOT APPLICABLE",
+        "note": "Original MCORE.COM.BLE guard is false in unchanged PICS; no BLE timing or advertisement PASS claimed.",
+        "utc_ms": 1792409237894
+      },
+      {
+        "step": "8a",
+        "answer": "NOT APPLICABLE",
+        "note": "Wi-Fi PAF discovery not declared/supported; current commissioning transport is already-connected IP.",
+        "utc_ms": 1792409237900
+      },
+      {
+        "step": "8b",
+        "answer": "NOT APPLICABLE",
+        "note": "Wi-Fi PAF discovery not declared/supported; current commissioning transport is already-connected IP.",
+        "utc_ms": 1792409237908
+      },
+      {
+        "step": "9",
+        "answer": "NOT APPLICABLE",
+        "note": "Wi-Fi PAF discovery not declared/supported; current commissioning transport is already-connected IP.",
+        "utc_ms": 1792409237916
+      },
+      {
+        "step": "12",
+        "answer": "PASS",
+        "note": "Basic-mode PTR/SRV/TXT and all selected-interface IPv6 addresses observed independently; actual unfiltered chip-tool discovers the expected instance/discriminator/port/CM1.",
+        "utc_ms": 1792409237924
+      },
+      {
+        "step": "13a",
+        "answer": "NOT APPLICABLE",
+        "note": "Original optional TXT_KEY_VP guard not enabled in frozen PICS; optional field absent. Actual CM0 PH nonconformance is separately failed at unconditional Step15a.",
+        "utc_ms": 1792409237936
+      },
+      {
+        "step": "13b",
+        "answer": "NOT APPLICABLE",
+        "note": "Original optional TXT_KEY_DT guard not enabled in frozen PICS; optional field absent. Actual CM0 PH nonconformance is separately failed at unconditional Step15a.",
+        "utc_ms": 1792409237946
+      },
+      {
+        "step": "13c",
+        "answer": "NOT APPLICABLE",
+        "note": "Original optional TXT_KEY_DN guard not enabled in frozen PICS; optional field absent. Actual CM0 PH nonconformance is separately failed at unconditional Step15a.",
+        "utc_ms": 1792409237955
+      },
+      {
+        "step": "13d",
+        "answer": "NOT APPLICABLE",
+        "note": "Original optional TXT_KEY_RI guard not enabled in frozen PICS; optional field absent. Actual CM0 PH nonconformance is separately failed at unconditional Step15a.",
+        "utc_ms": 1792409237966
+      },
+      {
+        "step": "13e",
+        "answer": "NOT APPLICABLE",
+        "note": "Original optional TXT_KEY_PH guard not enabled in frozen PICS; optional field absent. Actual CM0 PH nonconformance is separately failed at unconditional Step15a.",
+        "utc_ms": 1792409237977
+      },
+      {
+        "step": "13f",
+        "answer": "NOT APPLICABLE",
+        "note": "Original optional TXT_KEY_PI guard not enabled in frozen PICS; optional field absent. Actual CM0 PH nonconformance is separately failed at unconditional Step15a.",
+        "utc_ms": 1792409237986
+      },
+      {
+        "step": "14",
+        "answer": "NOT APPLICABLE",
+        "note": "EXTENDED_DISCOVERY guard absent in frozen PICS; profile gap retained. Independent observations nevertheless test actual CM0 and no _CM, and expose missing PH.",
+        "utc_ms": 1792409237995
+      },
+      {
+        "step": "15a",
+        "answer": "FAIL",
+        "note": "Actual extended-discovery record has CM=0 and D, but no PH. Core R1.6.1 4.3.1.11 requires PH in this state. The undeclared optional PH PICS cannot make this unconditional discovery record conformant.",
+        "utc_ms": 1792409238002
+      },
+      {
+        "step": "15b",
+        "answer": "PASS",
+        "note": "Queried original service-enumeration name and each discriminator subtype in open/closed modes: L/S present, _CM only when CM1/2. The copied example containing _CM does not apply in CM0; actual out-of-commissioning request is covered.",
+        "utc_ms": 1792409238008
+      },
+      {
+        "step": "15c",
+        "answer": "NOT APPLICABLE",
+        "note": "Optional vendor/device-type commissioning subtypes not declared or published.",
+        "utc_ms": 1792409238015
+      },
+      {
+        "step": "16a",
+        "answer": "PASS",
+        "note": "Authenticated administrator opens an enhanced window. Actual CM2, new instance and new discriminator observed; example CM1 values are not treated as mandatory.",
+        "utc_ms": 1792409238023
+      },
+      {
+        "step": "16b",
+        "answer": "PASS",
+        "note": "Real multicast PTR/SRV/TXT/AAAA and unmodified unfiltered chip-tool rediscover the enhanced-window instance and correct port.",
+        "utc_ms": 1792409238029
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    },
+    "started_at_utc": "2026-10-19 11:27:17.617557",
+    "operator_input_identity": {
+      "proof.json": "5ef53ab84e328947a33ef2f925d47e6cb03ac6f6f44e40ea8d6d6dfb48432fe8",
+      "run_prepared.py": "50daaa8a9ebe3a6c0bcf8df4500af367ba0d6435bb22d95cfb03358e766a6314",
+      "pics-core.json": "4ef0e93c98831ed29aea81c32fb9b1812905e4b7eda238cda479c4171605225e"
+    }
+  },
+  "independent_validation": {
+    "memcheck-accepted": {
+      "result": "FAIL",
+      "functional_checks": [
+        {
+          "name": "absent-before-manufacturer-start",
+          "status": "PASS"
+        },
+        {
+          "name": "published",
+          "status": "PASS"
+        },
+        {
+          "name": "instance-and-host-format",
+          "status": "PASS"
+        },
+        {
+          "name": "unsolicited-announcement-before-post-start-queries",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-TXT-mode-discriminator",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-SRV",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-IPv6-addresses",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-enumeration",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-subtype-_cm",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-subtype-_l3913",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-subtype-_s15",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-unmodified-chip-tool-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-code",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-SendComplete",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-TXT-mode-discriminator",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-SRV",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-IPv6-addresses",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-enumeration",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-subtype-_l3913",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-subtype-_s15",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-no-CM-enumeration",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-no-CM-subtype",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-unmodified-chip-tool-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-TXT-mode-discriminator",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-SRV",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-IPv6-addresses",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-enumeration",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-subtype-_cm",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-subtype-_l3914",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-subtype-_s15",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-unmodified-chip-tool-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "new-instance-on-entering-commissioning",
+          "status": "PASS"
+        },
+        {
+          "name": "old-instance-withdrawn-on-reopen",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "empty-host-stderr",
+          "status": "PASS"
+        },
+        {
+          "name": "memcheck",
+          "status": "PASS"
+        }
+      ],
+      "conformance_checks": [
+        {
+          "name": "closed-PH-required-in-extended-discovery",
+          "status": "FAIL",
+          "detail": "Core R1.6.1 4.3.1.11 requires PH when CM=0 is advertised."
+        }
+      ],
+      "node_sha256": "fdb1b4e90b1013cffb46c4da27c6f609bc22c8240d4aa8971627a44d133b6a33",
+      "driver_sha256": "270382f5afb326345edb789c4eca735112c40e558d8c9784074141406ec26521",
+      "memory": [
+        {
+          "name": "memcheck.log",
+          "allocations": 23960,
+          "frees": 23960,
+          "zero_errors": true,
+          "zero_live": true
+        }
+      ],
+      "artifact_sha256": {
+        "state.tlv.clock": "ee976c48a0f207408d0b9d5d1a75225d406ebe255c34ff65e35e45a8ed00795d",
+        "node.log": "20af401c98884101dc6bf5683e4271605ed26d4075815f601e9a77d2ccc09d4f",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "memcheck.log": "57efca443b398882e70614774c91edc3cf96495ce95cdb62888f7aaf674ff973",
+        "discover-basic.log": "590bad8120d2f36c93991c4a202af1b74f5f7cdc871a727efa064fc3db6c6978",
+        "packets.json": "e504421ba60cf3c95910fd8d93c8c7b9d6f5c533bf0414135774fc4ab06d6bff",
+        "discover-enhanced.log": "2f9b4f60ce62a6b713e6099fc3236cf9743db30888f0892a029cdd309b5d3a85",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "discover-closed.log": "79d587aebfc59284bd5f86e50817d7c687166dfd0eb1ce688941b37009ae8c64",
+        "result.json": "374adb9c6d26a0f22864e125a50bf29373352bc41e67f71c83527146ba40ed80",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observations": {
+        "basic": {
+          "TXT": {
+            "D": "3913",
+            "CM": "1"
+          }
+        },
+        "closed": {
+          "TXT": {
+            "D": "3913",
+            "CM": "0"
+          }
+        },
+        "enhanced": {
+          "TXT": {
+            "D": "3914",
+            "CM": "2"
+          }
+        }
+      }
+    },
+    "sanitize-accepted": {
+      "result": "FAIL",
+      "functional_checks": [
+        {
+          "name": "absent-before-manufacturer-start",
+          "status": "PASS"
+        },
+        {
+          "name": "published",
+          "status": "PASS"
+        },
+        {
+          "name": "instance-and-host-format",
+          "status": "PASS"
+        },
+        {
+          "name": "unsolicited-announcement-before-post-start-queries",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-TXT-mode-discriminator",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-SRV",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-IPv6-addresses",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-enumeration",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-subtype-_cm",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-subtype-_l3913",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-subtype-_s15",
+          "status": "PASS"
+        },
+        {
+          "name": "basic-unmodified-chip-tool-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-code",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-SendComplete",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-TXT-mode-discriminator",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-SRV",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-IPv6-addresses",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-enumeration",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-subtype-_l3913",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-subtype-_s15",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-no-CM-enumeration",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-no-CM-subtype",
+          "status": "PASS"
+        },
+        {
+          "name": "closed-unmodified-chip-tool-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-TXT-mode-discriminator",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-SRV",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-IPv6-addresses",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-enumeration",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-subtype-_cm",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-subtype-_l3914",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-subtype-_s15",
+          "status": "PASS"
+        },
+        {
+          "name": "enhanced-unmodified-chip-tool-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "new-instance-on-entering-commissioning",
+          "status": "PASS"
+        },
+        {
+          "name": "old-instance-withdrawn-on-reopen",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "empty-host-stderr",
+          "status": "PASS"
+        }
+      ],
+      "conformance_checks": [
+        {
+          "name": "closed-PH-required-in-extended-discovery",
+          "status": "FAIL",
+          "detail": "Core R1.6.1 4.3.1.11 requires PH when CM=0 is advertised."
+        }
+      ],
+      "node_sha256": "7fb4e422b7efcd0c8b8544eb32bfd38eb7ff709fcec4553c2588a2d2e331dfb9",
+      "driver_sha256": "270382f5afb326345edb789c4eca735112c40e558d8c9784074141406ec26521",
+      "memory": [],
+      "artifact_sha256": {
+        "state.tlv.clock": "cc8b593156a850084fb65dec4f72cf62818868e6c00c0847ccc7ef77475327f3",
+        "node.log": "7e22a8004baf7dff6d77b27d73b2858b11df9546175e81836910a55489c777b1",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "discover-basic.log": "60f7d1fbb4728c1143aadb3d3ef453780f3d7ac82e3b8a9ba5cb5590b3f202c3",
+        "packets.json": "308d401a784bbde87ad66d5ee1e6c1e0520a3433793ac1295bcfb3cf3e48c483",
+        "discover-enhanced.log": "b3329e641c800761e39a913bc27fae1f656e1048223792efccc490ea8ed231c8",
+        "state.tlv.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "discover-closed.log": "e7a23aeea6d2732b8e3f1deca337721018286f40d0dbd9228faf5ec405bfc03c",
+        "result.json": "4ed6e5f904f126af14d95d96e86f19e4304d3cfb9fa8daac6c888cb63938daa3",
+        "state.tlv.clock.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observations": {
+        "basic": {
+          "TXT": {
+            "D": "3913",
+            "CM": "1"
+          }
+        },
+        "closed": {
+          "TXT": {
+            "D": "3913",
+            "CM": "0"
+          }
+        },
+        "enhanced": {
+          "TXT": {
+            "D": "3914",
+            "CM": "2"
+          }
+        }
+      }
+    }
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "4.3.1": "On-network Commissionable Node Discovery; fresh random instance on entering commissioning mode.",
+    "4.3.1.2": "Advertising commissionable discovery outside commissioning mode is Extended Discovery; customer must be able to limit or disable it.",
+    "4.3.1.3": "Long/short discriminator subtypes and mode-dependent _CM; _CM must not be published in CM0.",
+    "4.3.1.4": "AAAA records for all IPv6 addresses accepting commissioning messages.",
+    "4.3.1.6": "VP is optional; reference-app example values are not mandatory.",
+    "4.3.1.11": "PH is mandatory for enabled Extended Discovery while CM0."
+  },
+  "findings": [
+    {
+      "id": "missing-PH-in-CM0",
+      "status": "CONFIRMED",
+      "severity": "conformance failure",
+      "source": "main/apps/matter/matter_discovery.c",
+      "evidence": "Actual TXT contains D and CM0, no PH, in both complete normal/Memcheck and separate sanitizer runs. Builder defines exactly two TXT entries; host continues publishing in closed mode.",
+      "official_manual_step": "15a",
+      "official_operator_answer": "FAIL",
+      "fixed": false
+    },
+    {
+      "id": "extended-discovery-PICS-gap",
+      "status": "CONFIRMED",
+      "evidence": "EXTENDED_DISCOVERY declaration absent in unchanged PICS while actual runtime advertises CM0. Optional TXT_KEY_PH branch also not enabled; this does not waive the mandatory PH requirement.",
+      "fixed": false
+    },
+    {
+      "id": "extended-discovery-customer-policy",
+      "status": "REVIEW_REQUIRED",
+      "evidence": "No distinct Extended Discovery timeout/disable control accepted on the reference CLI. Stopping the whole process is not treated as a verified customer privacy control.",
+      "fixed": false
+    }
+  ],
+  "guard_review": {
+    "BLE": false,
+    "WiFi": true,
+    "WiFi_description": "Simulated Wi-Fi cluster backend; actual host transport is IP/Ethernet.",
+    "WIFI_PAF": null,
+    "EXTENDED_DISCOVERY": null,
+    "optional_TXT_VP_DT_DN_RI_PH_PI": null,
+    "optional_subtypes_V_T": null,
+    "null_meaning": "Declaration absent, not silently added or treated as proof that actual conditional requirements are inapplicable."
+  },
+  "memory_summary": {
+    "allocations": 23960,
+    "frees": 23960,
+    "zero_errors": true,
+    "zero_live_bytes": true,
+    "host_stderr_files_empty": 2,
+    "memcheck_functional_checks": 37,
+    "separate_sanitizer_functional_checks": 36,
+    "conformance_failures_per_variant": 1,
+    "overall_validation_result": "FAIL"
+  },
+  "fixture_history": [
+    {
+      "attempt": "initial",
+      "result": "FAIL",
+      "cause": "Standalone discovery command rejected --advertise-operational, an interactive-start option. Removed the unsupported option; no DUT change."
+    },
+    {
+      "attempt": "ready",
+      "result": "FAIL",
+      "cause": "Installed chip-tool logs Discovered commissionable/commissioner node rather than Discovered node. Actual discovery succeeded; new result-block parser did not recognize it. Both known headings now supported."
+    },
+    {
+      "attempt": "final",
+      "result": "FAIL",
+      "cause": "Negative subtype oracle included background base/L/S PTR records targeting the same instance. Captures show no positive _CM record in CM0. Predicate corrected to require the _CM record owner."
+    },
+    {
+      "attempt": "accepted",
+      "result": "FAIL",
+      "cause": "All functional checks complete; mandatory PH absent in CM0 in both variants. Failure retained, not reclassified as PASS based on memory or discovery success."
+    }
+  ],
+  "coverage": {
+    "category_totals_unchanged": true,
+    "manual_PASS": 11,
+    "manual_FAIL": 2,
+    "manual_without_outcome": 27,
+    "manual_without_PASS": 29,
+    "applicability_review_still_required": true
+  },
+  "changes": {
+    "runtime_C_H": false,
+    "public_API": false,
+    "persistence_format": false,
+    "official_test_and_PICS": false
+  },
+  "limits": [
+    "Manual TH result uses operator review of real retained independent controller/wire observations. No automatic CSA semantic assertion or certification claim.",
+    "BLE, Wi-Fi PAF, optional undeclared fields/subtypes are NOT APPLICABLE in original guarded branches, not PASS. Actual CM0 requirement remains failed.",
+    "No physical Wi-Fi, multiple physical networks, Home UI, printed-label or 128 kB RAM-fit acceptance.",
+    "Runnable native sources/binaries unchanged; no new C build or broad CTest rerun. Prior results inherited without rerun.",
+    "Customer Extended Discovery control not accepted; requires follow-up implementation/profile review.",
+    "TH idle, disposable node/controller processes stopped, paired Windows devices untouched; private captures/state/keys excluded from Git.",
+    "CSA30 remains deferred; CSA32 CM discrepancy remains open."
+  ],
+  "next": {
+    "stage": "CSA35",
+    "scope": "Repair actual Extended Discovery: truthful PH and customer timeout/disable policy, review PICS, rerun affected original discovery cases and full wire/controller scenario."
+  }
+}

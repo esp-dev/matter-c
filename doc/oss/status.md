@@ -1,5 +1,23 @@
 # Development status
 
+**CSA34: original TC-DD-2.1 manual FAIL, TH run468.**
+Eight entries pass, seventeen are not applicable and Step15a fails: the actual
+CM=0 Extended Discovery record lacks PH, which Core1.6.1 4.3.1.11 requires.
+This is a confirmed implementation gap, separate from CSA32's text discrepancy.
+Discovery works in basic, closed and enhanced modes: records/IPv6 addresses,
+service enumeration, discriminator subtypes, conditional _CM, fresh instance on
+reopen and unmodified chip-tool browsing all pass. Full runs pass 37 Memcheck
+and 36 separate sanitizer functional checks, but both overall conformance results
+remain FAIL. Memcheck has 23960 matched allocations/frees, zero errors/live bytes;
+both host stderr files are empty. Original YAML/PICS and runtime C/H are unchanged.
+Frozen PICS omits Extended Discovery despite actual CM=0 publication; customer
+timeout/disable policy also needs review. TH is idle and disposable processes are
+stopped; paired Windows nodes untouched. MANUAL now contains 11 PASS, 2 FAIL and
+27 without an outcome; category totals remain unchanged. See
+[evidence](csa34-validation.md) and [record](csa34-results.json).
+**Next: CSA35, truthful PH and customer Extended Discovery policy/PICS, followed
+by the affected discovery rechecks. CSA30 stays deferred; CSA32 remains open.**
+
 **CSA33: original TC-DD-3.19 manual PASS, TH run467, seven entries.**
 The full commissioning/RemoveFabric/recommissioning cycle passes with the same
 live controller and unchanged credentials. Both pairings scan the same supplied
