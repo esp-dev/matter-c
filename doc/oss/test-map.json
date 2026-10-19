@@ -166,7 +166,8 @@
       "ctest": [],
       "entrypoint": "Optional offline generator/oracle; see file docstring and explicit input arguments. Not a build prerequisite.",
       "referenced_by": [
-        "tools/matter/tests/test_pase.c"
+        "tools/matter/tests/test_pase.c",
+        "tools/matter/tests/test_pase_exchange_chip.py"
       ],
       "allocation_variant": "not applicable"
     },
@@ -2525,7 +2526,7 @@
       "path": "tools/matter/tests/test_pase_exchange_chip.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_pase_exchange_chip.py --help; disposable Linux node, selected IPv6/interface, development credentials/PAA and unmodified chip-tool; run Memcheck then separate sanitizers. --tamper-pase injects bad MICs for TC-SC-2.2. --pase-errors checks TC-SC-2.3 invalid passcodeID/cA, required failure statuses, late-message rejection and fresh commissioning. Missing statuses remain conformance/overall FAIL even when functional recovery passes. --mrp-size checks TC-SC-1.1 complete IPv6 MTU1280: UDP payloads1231/1232 accepted,1233/1280/1281 silent, then fresh commissioning/CASE. Raw state stays private.",
+      "entrypoint": "python tools/matter/tests/test_pase_exchange_chip.py --help; disposable Linux node, selected IPv6/interface, development credentials/PAA and unmodified chip-tool; run Memcheck then separate sanitizers. --tamper-pase injects bad MICs for TC-SC-2.2. --pase-errors checks TC-SC-2.3 invalid passcodeID/cA, required failure statuses, late-message rejection and fresh commissioning. Missing statuses remain conformance/overall FAIL even when functional recovery passes. --mrp-size checks TC-SC-1.1 complete IPv6 MTU1280: UDP payloads1231/1232 accepted,1233/1280/1281 silent, then fresh commissioning/CASE. --mrp-flows uses Python cryptography plus existing pase-vector.py affine test primitives for reliable PASE, piggyback/duplicate ACKs and five encrypted R0 reads bracketed by successful R1 controls. Missing data replies remain overall FAIL; keys never exported. Raw state stays private.",
       "referenced_by": [],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     },

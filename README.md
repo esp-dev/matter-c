@@ -366,7 +366,16 @@ IPv6/UDP headers in the1280-byte MTU, giving a1232-byte Matter ceiling without
 IPv6 extensions. No native/PICS changes were needed. Full scenarios pass64
 independent checks across Memcheck/separate sanitizers; memory is clean and five
 focused tests build/pass per variant. MANUAL now has13 PASS,4 FAIL and22 without
-an outcome; category totals are unchanged. Next: CSA41, TC-SC-1.2 MRP flows.
+an outcome; category totals are unchanged. The MRP flow review follows below.
+
+[CSA41 MRP flows](doc/oss/csa41-validation.md) records original manual TC-SC-1.2
+**FAIL**, TH run476. Piggyback and duplicate standalone ACKs pass. Five valid
+encrypted R=0 reads receive no data reply, with R=1 controls working before/
+after in the same session. Runtime admission applies a blanket R requirement;
+repair is deferred. Both full scenarios retain FAIL despite clean Memcheck/
+separate sanitizers and successful later commissioning/CASE. Five focused tests
+build/pass per variant; no native/PICS change. MANUAL now has13 PASS,5 FAIL and21
+without an outcome; category totals stay unchanged. Next: CSA42, TC-SC-1.3 retries.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

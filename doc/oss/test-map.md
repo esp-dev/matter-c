@@ -40,6 +40,15 @@ without DUT restart. No IPv6 extension options, DONTFRAG, unique identities and
 counters; fixed40+8 headers are accounted explicitly. Original manual TH results
 are recorded separately. See [CSA40 evidence](csa40-validation.md).
 
+CSA41 adds mutually exclusive `--mrp-flows`, requiring Python cryptography and
+the existing `fixtures/pase-vector.py` test arithmetic. An independent peer
+completes reliable PASE, checks data/piggyback and duplicate/standalone ACKs,
+then sends five authenticated VendorID ReadRequests with R=0 between successful
+R=1 controls. Missing data replies remain explicit conformance/overall FAIL.
+The peer closes its PASE session before the usual two chip-tool commissions/
+CASE reads, without DUT restart. Keys are never exported; raw state stays
+private. See [CSA41 diagnosis and limits](csa41-validation.md).
+
 `test_commissionable_announcement_chip.py` supplies CSA34 wire/controller evidence
 for unsolicited announcements, actual unfiltered chip-tool browsing and complete
 basic/closed/enhanced Commissionable Node Discovery records, addresses, subtypes

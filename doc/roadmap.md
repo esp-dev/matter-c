@@ -424,9 +424,18 @@ scenarios pass under Memcheck/separate sanitizers,64 independent checks total;
 memory is clean and five focused UDP/MRP tests build/pass per variant. See
 [evidence and limits](oss/csa40-validation.md). MANUAL now has13 PASS,4 FAIL
 and22 without an outcome; category totals are unchanged.
-**Next: CSA41, TC-SC-1.2 MRP Message Flows**, reviewing reliable replies,
-piggyback/standalone ACKs and unreliable traffic against Core. Continue the initial
-coverage pass (22 manual plus 3 blocked); repair the 18 automatic and 4 manual
+CSA41 executes original manual TC-SC-1.2, run476: six entries pass and one fails.
+Piggyback and duplicate standalone ACKs work. Five valid authenticated R=0 reads
+get no data reply; R=1 controls pass before/after. Runtime admission rejects new
+requests without R before IM handler creation, although lower layers support
+R=0. This is a native defect, deferred with the earlier failure backlog. Both
+full memory-instrumented scenarios retain FAIL; later commissioning/CASE and
+five focused tests per variant pass. No native/PICS change. See
+[evidence and deferred repair](oss/csa41-validation.md). MANUAL now has13 PASS,
+5 FAIL and21 without an outcome; category totals are unchanged.
+**Next: CSA42, TC-SC-1.3 MRP Retransmissions**, reviewing outbound loss, actual
+retry intervals/counts and final eviction against Core. Continue the initial
+coverage pass (21 manual plus 3 blocked); repair the 18 automatic and 5 manual
 FAIL results afterward as requested. Keep clarification items open and CSA30
 deferred.
 

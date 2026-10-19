@@ -8,6 +8,7 @@ records TC-SC-2.2 bidirectional traffic: alter the first encrypted request and
 response MIC, then release the original packets after a real quiet interval.
 --pase-errors records TC-SC-2.3 invalid passcodeID/cA and terminal exchanges.
 --mrp-size records TC-SC-1.1 at the complete IPv6 packet size boundary.
+--mrp-flows records TC-SC-1.2 ACK/data flows, including encrypted R=0 reads.
 Keep output private.
 """
 import argparse
@@ -279,6 +280,162 @@ def mrp_size_probes(ipv6, interface, target, check, packets, lock):
             'negative_scope': '2-second observation per unique oversize message; no duplicate/replay shortcut'}
 
 
+def mrp_flow_probes(ipv6, interface, target, check, packets, lock):
+    """Independent test-only PASE peer; secrets never leave this function.
+
+    Reuse the existing affine SPAKE vector arithmetic, not production crypto.
+    Real ephemeral randomness is used here. AES-CCM is from cryptography; no
+    native DUT codecs or crypto are used by this peer. Original vector output
+    is suppressed, not logged. No changes to controller/DUT protocol clocks.
+    """
+    import contextlib
+    import io
+    import runpy
+    import secrets
+    from cryptography.hazmat.primitives.ciphers.aead import AESCCM
+
+    vector = Path(__file__).with_name('pase-vector.py')
+    if not vector.exists():
+        vector = Path(__file__).parent.parent / 'fixtures' / 'pase-vector.py'
+    with contextlib.redirect_stdout(io.StringIO()):
+        v = runpy.run_path(str(vector))
+    source = secrets.randbelow(0xffffffeffffffffe) + 1
+    counter = 0x51000000; exchange = 0x7200; local_session = 0x7a01
+    secure_counter = secrets.randbits(28)
+    read = bytes.fromhex('153600172402002403282404021818290324ff0d18')
+    observation = .7
+    with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as sock:
+        sock.bind((ipv6, 0, 0, interface)); sock.settimeout(.05)
+
+        def send(data, label):
+            assert sock.sendto(data, target) == len(data)
+            with lock:
+                packets.append({'lane': -2, 'direction': 'initiator', 'flow_probe': label, 'data': data.hex()})
+
+        def unsecured(opcode, payload, flags=5, acknowledged=None, number=None):
+            nonlocal counter
+            if number is None:
+                counter += 1; number = counter
+            return (struct.pack('<BHBIQ', 4, 0, 0, number, source) +
+                    struct.pack('<BBHH', flags, opcode, exchange, 0) +
+                    (struct.pack('<I', acknowledged) if flags & 2 else b'') + payload)
+
+        def receive(label, decrypt=None, expected=None):
+            rows = []; end = time.monotonic() + (10 if expected is not None else observation)
+            while time.monotonic() < end:
+                try:
+                    data, address = sock.recvfrom(65535)
+                except socket.timeout:
+                    continue
+                assert address[0] == target[0] and address[1] == target[1]
+                outer = message(data)
+                if decrypt and outer['session']:
+                    assert outer['session'] == local_session and data[0] == data[3] == 0
+                    nonce = data[3:4] + data[4:8] + bytes(8)  # PASE has no operational NodeId.
+                    plain = decrypt.decrypt(nonce, data[8:], data[:8])
+                    decoded = message(bytes(8) + plain); decoded['counter'] = outer['counter']
+                else:
+                    decoded = outer
+                rows.append(decoded)
+                with lock:
+                    packets.append({'lane': -2, 'direction': 'responder', 'flow_probe': label, 'data': data.hex()})
+                if decoded.get('exchange_flags', 0) & 4:
+                    if decrypt:
+                        ack_plain = struct.pack('<BBHHI', 3, 0x10, decoded['exchange'], 0, outer['counter'])
+                        send(seal(ack_plain), label + '-response-ACK')
+                    else:
+                        send(unsecured(0x10, b'', 3, decoded['counter']), label + '-response-ACK')
+                if decoded.get('opcode') == expected:
+                    break
+            return rows
+
+        random = secrets.token_bytes(32)
+        request = b'\x15\x30\x01\x20' + random + b'\x25\x02' + struct.pack('<H', local_session) + b'\x24\x03\x00\x28\x04\x18'
+        first = unsecured(0x20, request); request_counter = message(first)['counter']
+        send(first, 'reliable-data-request'); rows = receive('reliable-data-request')
+        responses = [p for p in rows if p.get('opcode') == 0x21 and p.get('exchange') == exchange]
+        check('flow-reliable-request-received', bool(responses))
+        response = responses[0]
+        check('flow-data-reply-piggybacks-ACK', bool(response['exchange_flags'] & 2) and response.get('acknowledged_counter') == request_counter,
+              conformance=True)
+        check('flow-PBKDF-random-echo', fields(response['payload'])[1]['value'] == random)
+        send(first, 'reliable-no-data-duplicate'); duplicate = receive('reliable-no-data-duplicate')
+        duplicate_ack = [p for p in duplicate if p.get('opcode') == 0x10 and p.get('acknowledged_counter') == request_counter]
+        check('flow-duplicate-standalone-ACK-only', bool(duplicate_ack) and len(duplicate_ack) == len(duplicate) and
+              all(not p['payload'] and not p['exchange_flags'] & 4 for p in duplicate), conformance=True)
+
+        doc = fields(response['payload']); peer_session = doc[3]['value']; params = doc[4]['value']
+        wide = hashlib.pbkdf2_hmac('sha256', struct.pack('<I', 20202021), params[2]['value'], params[1]['value'], 80)
+        w0, w1 = (int.from_bytes(wide[i:i+40], 'big') % v['N'] for i in (0, 40))
+        scalar = secrets.randbelow(v['N'] - 1) + 1
+        pa = v['enc'](v['add'](v['mul'](scalar, v['G']), v['mul'](w0, v['M'])))
+        send(unsecured(0x22, b'\x15\x30\x01\x41' + pa + b'\x18'), 'pake1')
+        rows = receive('pake1', expected=0x23); p2 = next(p for p in rows if p.get('opcode') == 0x23)
+        pb_doc = fields(p2['payload']); pb = pb_doc[1]['value']; assert len(pb) == 65 and pb[0] == 4
+        point = (int.from_bytes(pb[1:33], 'big'), int.from_bytes(pb[33:], 'big'))
+        assert 0 <= point[0] < v['P'] and 0 <= point[1] < v['P'] and (point[1]**2 - point[0]**3 + 3*point[0] - v['B']) % v['P'] == 0
+        nq = v['mul'](w0, v['Q']); minus = (nq[0], (-nq[1]) % v['P'])
+        base = v['add'](point, minus)
+        z, vv = v['enc'](v['mul'](scalar, base)), v['enc'](v['mul'](w1, base))
+        context = hashlib.sha256(b'CHIP PAKE V1 Commissioning' + request + response['payload']).digest()
+        transcript = b''.join(len(a).to_bytes(8, 'little') + a for a in
+            (context, b'', b'', v['enc'](v['M']), v['enc'](v['Q']), pa, pb, z, vv, w0.to_bytes(32, 'big')))
+        key = hashlib.sha256(transcript).digest(); confirmation = v['hkdf'](key[:16], b'ConfirmationKeys', 32)
+        check('flow-independent-PASE-responder-confirmation', v['mac'](confirmation[16:], pa) == pb_doc[2]['value'])
+        ca = v['mac'](confirmation[:16], pb)
+        send(unsecured(0x24, b'\x15\x30\x01\x20' + ca + b'\x18'), 'pake3')
+        rows = receive('pake3', expected=0x40); finished = [p for p in rows if p.get('opcode') == 0x40]
+        check('flow-independent-PASE-finished', len(finished) == 1 and finished[0]['payload'] == bytes(8))
+        # The owner activates PASE after receiving the final ACK. Do not send
+        # the first application datagram in the same UDP burst as that ACK.
+        time.sleep(.25)
+        keys = v['hkdf'](key[16:], b'SessionKeys', 48)
+        encrypt, decrypt = AESCCM(keys[:16]), AESCCM(keys[16:32])
+
+        def seal(plain):
+            nonlocal secure_counter
+            secure_counter += 1
+            header = struct.pack('<BHBI', 0, peer_session, 0, secure_counter)
+            nonce = header[3:4] + header[4:8] + bytes(8)
+            return header + encrypt.encrypt(nonce, plain, header)
+
+        def read_once(index, reliable):
+            ex = 0x7300 + index
+            send(seal(struct.pack('<BBHH', 5 if reliable else 1, 2, ex, 1) + read),
+                 'read-' + str(index))
+            rows = receive('read-' + str(index), decrypt)
+            # A single VendorID read returns ReportData, not merely a transport ACK.
+            reports = [p for p in rows if p.get('protocol') == 1 and p.get('opcode') == 5 and p.get('exchange') == ex]
+            # Known one-path ReportData: VendorID65521 is context-tag2 uint16.
+            value = any(b'\x25\x02\xf1\xff' in p['payload'] for p in reports)
+            acks = [p for p in rows if p.get('acknowledged_counter') is not None]
+            return {'index': index, 'R': reliable, 'data_reply': bool(reports), 'expected_VendorID': value,
+                    'acknowledgements': len(acks), 'responses': len(rows),
+                    'reply_flags': [p['exchange_flags'] for p in reports]}
+
+        before = read_once(0, True)
+        check('flow-encrypted-reliable-read-control-before', before['expected_VendorID'])
+        unreliable = [read_once(i, False) for i in range(1, 6)]
+        for row in unreliable:
+            check('flow-unreliable-read-data-no-ACK-' + str(row['index']),
+                  row['expected_VendorID'] and row['acknowledgements'] == 0, conformance=True)
+        after = read_once(6, True)
+        check('flow-encrypted-reliable-read-control-after', after['expected_VendorID'])
+        # Release this uncommissioned PASE session before real chip-tool
+        # commissioning. Core4.11.1.4 CloseSession, R=0, no ACK requested.
+        close = struct.pack('<BBHH', 1, 0x40, 0x7400, 0) + struct.pack('<HIH', 0, 0, 3)
+        send(seal(close), 'close-PASE'); receive('close-PASE', decrypt)
+    passed = (bool(response['exchange_flags'] & 2) and response.get('acknowledged_counter') == request_counter and
+              bool(duplicate_ack) and len(duplicate_ack) == len(duplicate) and
+              all(p['expected_VendorID'] and not p['acknowledgements'] for p in unreliable))
+    return {'result': 'PASS' if passed else 'FAIL', 'observation_seconds_per_message': observation,
+            'reliable_reply_piggyback': bool(response['exchange_flags'] & 2) and response.get('acknowledged_counter') == request_counter,
+            'duplicate_standalone_ACK_only': bool(duplicate_ack) and len(duplicate_ack) == len(duplicate),
+            'unreliable': unreliable, 'reliable_before': before, 'reliable_after': after,
+            'vector_source_sha256': hashlib.sha256(vector.read_bytes()).hexdigest(),
+            'keys_exported': False, 'peer': 'Independent Python affine SPAKE2+ fixture and cryptography AES-CCM; valid reliable PASE, then IM ReadRequest R=0/1 controls'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('node', 'chip-tool', 'paa', 'credentials', 'output'):
@@ -289,8 +446,9 @@ def main():
     parser.add_argument('--tamper-pase', action='store_true', help='TC-SC-2.2: corrupt one MIC in each direction, then release originals')
     parser.add_argument('--pase-errors', action='store_true', help='TC-SC-2.3: invalid passcodeID/cA, terminal probes, then valid commissioning')
     parser.add_argument('--mrp-size', action='store_true', help='TC-SC-1.1: full IPv6 MTU boundary, then valid commissioning')
+    parser.add_argument('--mrp-flows', action='store_true', help='TC-SC-1.2: ACK/data flows and five authenticated unreliable reads')
     args = parser.parse_args(); out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
-    if sum((args.tamper_pase, args.pase_errors, args.mrp_size)) > 1:
+    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows)) > 1:
         parser.error('Choose one fault-injection mode')
     report = {'result': 'RUNNING', 'checks': [], 'exchanges': [],
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -403,6 +561,8 @@ def main():
         for lane in range(2):
             create_client('controller-' + str(lane))
         address = args.ipv6 + '%' + str(args.interface)
+        if args.mrp_flows:
+            report['TC_SC_1_2'] = mrp_flow_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.mrp_size:
             report['TC_SC_1_1'] = mrp_size_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.pase_errors:
@@ -504,7 +664,7 @@ def main():
         check('proxy-forwarding', not failures)
         groups = {}; encrypted = []
         for index, row in enumerate(captured):
-            if 'size_probe' in row:
+            if 'size_probe' in row or 'flow_probe' in row:
                 continue
             p = message(bytes.fromhex(row['data'])); p.update(direction=row['direction'], index=index)
             if p['session']:

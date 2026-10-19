@@ -1,5 +1,22 @@
 # Development status
 
+**CSA41: original manual TC-SC-1.2 FAIL, TH run476: R=0 requests rejected.**
+Reliable PBKDF data replies piggyback the correct ACK; exact duplicates receive
+only standalone ACKs. Five independently authenticated R=0 VendorID ReadRequests
+receive no data reply, while the same R=1 read succeeds before/after. Runtime
+admission rejects new requests without R before handler creation; lower MRP/IM
+layers support the flow. This native defect is deferred; no C/H/PICS change.
+TH has six passed entries and one failed. Both full scenarios retain FAIL;
+52 functional/four conformance checks pass, ten required-data assertions fail.
+Memcheck has48333 matched allocations/frees and zero errors/live bytes; separate
+ASan/UBSan/LSan and DUT exit/stderr are clean. Five focused ACK/RX/IM tests build/
+pass per variant. Full subsequent commissioning/CASE works without DUT restart.
+TH idle, disposable nodes stopped; paired Windows nodes untouched. Totals stay
+**97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL now has **13 PASS,
+5 FAIL, 21 without an outcome**. See [cause/evidence](csa41-validation.md) and
+[record](csa41-results.json). **Next: CSA42, TC-SC-1.3 MRP Retransmissions.
+Continue initial coverage; native repairs remain deferred.**
+
 **CSA40: original manual TC-SC-1.1 PASS, TH run475: MRP size boundary.**
 Core4.4.4/4.15 limit is the complete IPv6 MTU1280: base IPv6 header40 + UDP8 +
 Matter1232. At1279/1280 bytes the DUT returns matching ACK/PBKDF replies; at

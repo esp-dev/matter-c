@@ -1,0 +1,896 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa40-results.json",
+  "previous_sha256": "a5c3bf8516d8f24a7ae26075bbe81973c99c1b1621b66ac701bc1b921540040c",
+  "tracked_document_hash_encoding": "Previous report hash uses committed Git blob bytes at da09494.",
+  "source_base_commit": "da0949445768af73b4f039cc4448944ad0b90147",
+  "scope": "Original TC-SC-1.2 manual FAIL run476: reliable data/piggyback ACK and duplicate standalone ACK pass; five authenticated R0 ReadRequests receive no response. Same-session R1 reads succeed before/after. Confirmed dispatcher admission defect; native repair deferred.",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-1.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 476
+    }
+  ],
+  "official_receipt": {
+    "run_id": 476,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 14:08:55.167375",
+    "observed_utc": "2026-10-19T14:08:56.788201+00:00",
+    "cases": [
+      {
+        "case": "TC-SC-1.2",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 6,
+          "TestStateEnum.failed": 1
+        },
+        "details": [
+          {
+            "title": "TH sends a reliable (R flag set) MRP message to DUT that requires a data response.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT must respond to the message with a MRP reply packet that piggybacks the ACK(A flag set).",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH sends a reliable (R flag set) MRP message to DUT that doesnt require a data response.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT must respond to the message with an ACK message.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH sends 5 unreliable (R flag not set) MRP messages to DUT that requires a data response.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT must respond to the message with a MRP reply packet that doesnt piggyback the ACK (A flag not set).",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "5189d942c28514509b73f664a893f5e2b66948a3ae86ac699ab34c032293f409",
+    "raw_result_sha256": "529d566d238fd7a4192a923fa1fea6e01e7263c86f7342f519c9fd1497862b41",
+    "identity": {
+      "source_sha256": "c2887771495d7b3d51f2bde4fc4181ecdc0ffe0ebe68bebabd5a4678330978c1",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "Valid reliable PBKDFParamRequest R1 is sent; the actual matching PBKDF response echoes the request random. Normal and sanitizer evidence agree.",
+        "utc_ms": 1792418935067
+      },
+      {
+        "step": 2,
+        "answer": "PASS",
+        "note": "Actual PBKDFParamResponse has A1 and the matching acknowledged request counter on the same exchange. Any separate ACK does not waive the required data-reply ACK.",
+        "utc_ms": 1792418935078
+      },
+      {
+        "step": 3,
+        "answer": "PASS",
+        "note": "Resend the exact reliable PBKDFParamRequest counter/exchange after acknowledging the original data response. As a valid duplicate, MRP must drop application work and send a standalone ACK under Core4.12.5.2.2.",
+        "utc_ms": 1792418935086
+      },
+      {
+        "step": 4,
+        "answer": "PASS",
+        "note": "Only empty standalone ACK R0/A1 is observed for the duplicate, with the original counter. No repeated PBKDF data response during0.7-second observation.",
+        "utc_ms": 1792418935096
+      },
+      {
+        "step": 5,
+        "answer": "PASS",
+        "note": "After valid reliable PASE with independently verified responder confirmation and success, send five unique authenticated Basic Information VendorID ReadRequests with R0. Same read R1 succeeds before and after, with valid AES-CCM replies. Distinct exchanges/counters; no key export, no corrupted handshake or MIC.",
+        "utc_ms": 1792418935103
+      },
+      {
+        "step": 6,
+        "answer": "FAIL",
+        "note": "No response to any of the five R0 reads during0.7 seconds each. Silence is not the required data response. R1 controls immediately before/after return VendorID65521 in the same session. Native dispatcher explicitly rejects a new request without R before constructing the IM handler; lower MRP/IM engine supports R0. Repair deferred; no test/PICS/native changes.",
+        "utc_ms": 1792418935116
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": "c2887771495d7b3d51f2bde4fc4181ecdc0ffe0ebe68bebabd5a4678330978c1",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_observations": {
+    "accepted-normal": {
+      "result": "FAIL",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-reliable-request-received",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-PBKDF-random-echo",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-independent-PASE-responder-confirmation",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-independent-PASE-finished",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-encrypted-reliable-read-control-before",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-encrypted-reliable-read-control-after",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 63446,
+          "responder_session_id": 2,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 6058
+        },
+        {
+          "initiator_session_id": 15014,
+          "responder_session_id": 4,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 652
+        }
+      ],
+      "driver_sha256": "8773ba55b0a7bc6dee4efe393704650c189d09080c2ef07630fb9734f74a98cb",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "conformance_checks": [
+        {
+          "name": "flow-data-reply-piggybacks-ACK",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-duplicate-standalone-ACK-only",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-1",
+          "status": "FAIL"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-2",
+          "status": "FAIL"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-3",
+          "status": "FAIL"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-4",
+          "status": "FAIL"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-5",
+          "status": "FAIL"
+        }
+      ],
+      "TC_SC_1_2": {
+        "result": "FAIL",
+        "observation_seconds_per_message": 0.7,
+        "reliable_reply_piggyback": true,
+        "duplicate_standalone_ACK_only": true,
+        "unreliable": [
+          {
+            "index": 1,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          },
+          {
+            "index": 2,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          },
+          {
+            "index": 3,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          },
+          {
+            "index": 4,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          },
+          {
+            "index": 5,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          }
+        ],
+        "reliable_before": {
+          "index": 0,
+          "R": true,
+          "data_reply": true,
+          "expected_VendorID": true,
+          "acknowledgements": 3,
+          "responses": 3,
+          "reply_flags": [
+            6
+          ]
+        },
+        "reliable_after": {
+          "index": 6,
+          "R": true,
+          "data_reply": true,
+          "expected_VendorID": true,
+          "acknowledgements": 2,
+          "responses": 2,
+          "reply_flags": [
+            6
+          ]
+        },
+        "vector_source_sha256": "54d8b780bd70773f80d4e63f3a39e93f4ffe7a50b92a5a14f33a4a9cb6b6ba0d",
+        "keys_exported": false,
+        "peer": "Independent Python affine SPAKE2+ fixture and cryptography AES-CCM; valid reliable PASE, then IM ReadRequest R=0/1 controls"
+      },
+      "live_first_CASE_session_id": 3,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "FAIL",
+      "node_exit": 0,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "accepted-sanitize": {
+      "result": "FAIL",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-reliable-request-received",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-PBKDF-random-echo",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-independent-PASE-responder-confirmation",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-independent-PASE-finished",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-encrypted-reliable-read-control-before",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-encrypted-reliable-read-control-after",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 48474,
+          "responder_session_id": 2,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 34875
+        },
+        {
+          "initiator_session_id": 24559,
+          "responder_session_id": 4,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 4237
+        }
+      ],
+      "driver_sha256": "8773ba55b0a7bc6dee4efe393704650c189d09080c2ef07630fb9734f74a98cb",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "conformance_checks": [
+        {
+          "name": "flow-data-reply-piggybacks-ACK",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-duplicate-standalone-ACK-only",
+          "status": "PASS"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-1",
+          "status": "FAIL"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-2",
+          "status": "FAIL"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-3",
+          "status": "FAIL"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-4",
+          "status": "FAIL"
+        },
+        {
+          "name": "flow-unreliable-read-data-no-ACK-5",
+          "status": "FAIL"
+        }
+      ],
+      "TC_SC_1_2": {
+        "result": "FAIL",
+        "observation_seconds_per_message": 0.7,
+        "reliable_reply_piggyback": true,
+        "duplicate_standalone_ACK_only": true,
+        "unreliable": [
+          {
+            "index": 1,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          },
+          {
+            "index": 2,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          },
+          {
+            "index": 3,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          },
+          {
+            "index": 4,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          },
+          {
+            "index": 5,
+            "R": false,
+            "data_reply": false,
+            "expected_VendorID": false,
+            "acknowledgements": 0,
+            "responses": 0,
+            "reply_flags": []
+          }
+        ],
+        "reliable_before": {
+          "index": 0,
+          "R": true,
+          "data_reply": true,
+          "expected_VendorID": true,
+          "acknowledgements": 3,
+          "responses": 3,
+          "reply_flags": [
+            6
+          ]
+        },
+        "reliable_after": {
+          "index": 6,
+          "R": true,
+          "data_reply": true,
+          "expected_VendorID": true,
+          "acknowledgements": 2,
+          "responses": 2,
+          "reply_flags": [
+            6
+          ]
+        },
+        "vector_source_sha256": "54d8b780bd70773f80d4e63f3a39e93f4ffe7a50b92a5a14f33a4a9cb6b6ba0d",
+        "keys_exported": false,
+        "peer": "Independent Python affine SPAKE2+ fixture and cryptography AES-CCM; valid reliable PASE, then IM ReadRequest R=0/1 controls"
+      },
+      "live_first_CASE_session_id": 3,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "FAIL",
+      "node_exit": 0
+    }
+  },
+  "independent_receipts": {
+    "accepted-normal": {
+      "result": "FAIL",
+      "error": null,
+      "node_exit": 0,
+      "stderr_empty": true,
+      "functional_checks": 26,
+      "result_sha256": "17de3e74b031da18b508721fb567a290cd4e2d4f4b36a67cc0ec3551fd250750",
+      "driver_sha256": "8773ba55b0a7bc6dee4efe393704650c189d09080c2ef07630fb9734f74a98cb",
+      "memory": {
+        "allocations": 48333,
+        "frees": 48333,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "ad197701d5ecc5de1e67db1e1b470699d76de4832336cfd79bee203b67a6cff1"
+      },
+      "wire_receipt": {
+        "request_and_duplicate_identical": true,
+        "matching_piggyback": true,
+        "empty_standalone_duplicate_ACK_only": true,
+        "seven_encrypted_read_sizes_equal": true,
+        "seven_read_counters_distinct_increasing": true,
+        "positive_controls_before_after": true,
+        "unreliable_inputs": 5,
+        "unreliable_responses": 0,
+        "PASE_CloseSession_sent": true,
+        "raw_packets_sha256": "8529528ae2c7ebb52b10ecad5c70dd6fdf948db03f6720836caed3ef7477ee0f",
+        "ciphertext_only_receipt": "Per-message encrypted flags/data validated in peer source and R1 controls, not independently decrypted from retained raw packets. No session keys exported."
+      }
+    },
+    "accepted-sanitize": {
+      "result": "FAIL",
+      "error": null,
+      "node_exit": 0,
+      "stderr_empty": true,
+      "functional_checks": 26,
+      "result_sha256": "cca99f22c596100d7908ffaa87a9486e9312482aace193d148f3556db24892c9",
+      "driver_sha256": "8773ba55b0a7bc6dee4efe393704650c189d09080c2ef07630fb9734f74a98cb",
+      "wire_receipt": {
+        "request_and_duplicate_identical": true,
+        "matching_piggyback": true,
+        "empty_standalone_duplicate_ACK_only": true,
+        "seven_encrypted_read_sizes_equal": true,
+        "seven_read_counters_distinct_increasing": true,
+        "positive_controls_before_after": true,
+        "unreliable_inputs": 5,
+        "unreliable_responses": 0,
+        "PASE_CloseSession_sent": true,
+        "raw_packets_sha256": "cd8afd6944001043db9d9e66e04699997f66cb502b0956f786a3d86a9d8eb553",
+        "ciphertext_only_receipt": "Per-message encrypted flags/data validated in peer source and R1 controls, not independently decrypted from retained raw packets. No session keys exported."
+      }
+    }
+  },
+  "memory": {
+    "allocations": 48333,
+    "frees": 48333,
+    "zero_errors": true,
+    "zero_live": true,
+    "log_sha256": "ad197701d5ecc5de1e67db1e1b470699d76de4832336cfd79bee203b67a6cff1"
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "sections": [
+      "4.12.1 Reliable Messaging Header Fields",
+      "4.12.2.2 Acknowledgements",
+      "4.12.5.1.1 Piggyback acknowledgment processing",
+      "4.12.5.2.2 Standalone acknowledgement processing",
+      "4.14.1 PASE reliable transmission requirement",
+      "4.11.1.4 CloseSession"
+    ],
+    "interpretation": "R0 requests no acknowledgement, not blanket rejection of application data. Incoming R0 still proceeds to subsequent processing. PASE/CASE themselves require reliable delivery, so all handshake messages remain R1; only authenticated IM ReadRequests use R0.",
+    "duplicate_no_data_case": "Exact reliable PBKDFParamRequest duplicate after ACKing its original data response: acknowledge again and do not repeat application processing."
+  },
+  "scenario": {
+    "mode": "--mrp-flows",
+    "peer": "Independent Python SPAKE2+ using existing test-only affine vector primitives plus cryptography AES-CCM. Fresh ephemeral scalars/randoms, valid point and responder confirmation checks; session keys never exported.",
+    "vector_source_sha256": "54d8b780bd70773f80d4e63f3a39e93f4ffe7a50b92a5a14f33a4a9cb6b6ba0d",
+    "observation_seconds_per_data_or_duplicate_probe": 0.7,
+    "handshake_wait_limit_seconds": 10,
+    "reliable": "Valid PBKDF request receives data reply A1 with matching counter; exact duplicate receives only empty standalone R0/A1 ACK.",
+    "encrypted_controls": "Authenticated single-path VendorID ReadRequest R1 before/after five otherwise identical R0 requests, same session/UDP peer, fresh increasing counters and exchanges. Known ReportData VendorID65521 marker checked in authenticated responses.",
+    "unreliable": "Five successfully transmitted R0 reads; no response to any in bounded observation. No previous-counter replay, corrupted MIC, unreliable PASE handshake, native decoder dependency or injected device key.",
+    "cleanup_and_recovery": "Authenticated Core CloseSession closes only the independent PASE session. No DUT restart. Unmodified chip-tool then completes two fresh fabrics/attestation/CommissioningComplete and CASE reads, reopening enhanced window through first CASE."
+  },
+  "cause": {
+    "confirmed_defect": true,
+    "component": "runtime/matter_dispatch.c dispatch",
+    "path": "New transaction admission rejects any message without MATTER_PROTOCOL_RELIABLE before create_handler, including authenticated IM ReadRequest. PASE/CASE reliability gating is valid, but applying it to all new requests prevents supported MRP R0 application flows.",
+    "lower_layers": "matter_rx_policy_receive only records an ACK when R1, while still delivering a registered R0 message. matter_im_read_receive does not require R. Full host dispatcher adds the blanket rejection.",
+    "source_sha256": {
+      "main/apps/matter/runtime/matter_dispatch.c": "1cd5a4e48d3ee7e11478719d9a199ad6ce0eb57d978eefcee80c4f1ef2fe39e0",
+      "main/apps/matter/transport/matter_rx_policy.c": "b31a5049ba6cfce58665580d61a984b696a8d91ef4b5393505ad1a544b2c73ca",
+      "main/apps/matter/model/matter_im_read.c": "3b2c0ad0f2e6d2a026e9f1a3a72a0b1d767dc2fc7b9b5fb64c2e662f12528081"
+    },
+    "repair_status": "DEFERRED per initial coverage pass. Scope R1 admission requirements to protocols needing reliability; admit valid IM R0 without pending/piggyback/standalone request ACK. Preserve authentication, replay, quotas, PASE/CASE checks and outgoing response reliability. Recheck original test and mixed R0/R1 session traffic."
+  },
+  "native_build_identity": {
+    "host_compiled_in": "csa35-results.json",
+    "native_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_source_header_count": 362,
+    "local_and_remote_manifest_entries_unchanged": true,
+    "new_host_compilation": false,
+    "focused_test_targets_built": true,
+    "normal_binary_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+    "sanitizer_binary_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 5,
+        "warnings": [],
+        "log_sha256": "56aba075b362171b4a9d21a1e2e61556b5b8a08559162e04ad4a983abeb97a30",
+        "build_log_sha256": "25db42301737d235df66edd9785af31919fdad39fe81d02e699258e9dba2532e"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 5,
+        "warnings": [],
+        "log_sha256": "7fcd0ee23f34e56ac4760814b07dba59ed2927564f59533d3381d9a74aea6926",
+        "build_log_sha256": "25db42301737d235df66edd9785af31919fdad39fe81d02e699258e9dba2532e"
+      }
+    }
+  },
+  "fixture_history": {
+    "earlier_attempts": {
+      "normal": {
+        "result": "FAIL",
+        "error": "",
+        "node_exit": 0,
+        "stderr_empty": true,
+        "functional_checks": 3,
+        "result_sha256": "df1801f2f9432314b8d454d1c70e60d51cea71ce81c84e24aae1e39afa53cb07",
+        "driver_sha256": "89e4d210e5754efe40fe17d5a982a7def9ed87224a243e532f5a845c66d03782",
+        "memory": {
+          "allocations": 9087,
+          "frees": 9087,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "07f8dc7f95be692c104b0abeeda8d208533edc91106e6e4be4903499e1b1d883"
+        }
+      },
+      "final-normal": {
+        "result": "FAIL",
+        "error": "flow-encrypted-reliable-read-control-before",
+        "node_exit": 0,
+        "stderr_empty": true,
+        "functional_checks": 6,
+        "result_sha256": "09e67ea7f1f63e0787b967ab63afb5c7b178f9c2effce67f4c512ae621d64762",
+        "driver_sha256": "44fd19e90c2f9347f997d067b679c4a717a1230bc81bd05a8c8967c36479db2b",
+        "memory": {
+          "allocations": 9095,
+          "frees": 9095,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "bbaedd8a322e91e988f4170ac1813bfddd1bd6f68b73f713b13ef2cd6975d2bd"
+        }
+      }
+    },
+    "notes": [
+      "First attempt used0.7 seconds to await costly PAKE under Memcheck and stopped before Pake2; not accepted as protocol evidence.",
+      "Second completed PASE but sent encrypted Read immediately after final ACK, before owner handoff; stopped at R1 control. Not classified as R0 failure.",
+      "Final peer allows up to10 seconds for handshake responses, uses28-bit initial secure counter, waits0.25 seconds after final PASE ACK and explicitly closes its session. Both full variants share one driver hash; no DUT clock, timeout or source changed."
+    ]
+  },
+  "coverage": {
+    "positions": 862,
+    "manual_PASS": 13,
+    "manual_FAIL": 5,
+    "manual_without_outcome": 21,
+    "manual_without_PASS": 26,
+    "remaining_initial_coverage": {
+      "manual_without_outcome": 21,
+      "BLOCKED_positions": 3
+    },
+    "deferred_failures": {
+      "automatic": 18,
+      "manual": 5
+    },
+    "functional_checks_PASS": 52,
+    "conformance_checks_PASS": 4,
+    "required_data_reply_assertions_FAIL": 10,
+    "unreliable_read_inputs": 10,
+    "reliable_encrypted_control_reads": 4,
+    "independent_PASE_sessions": 2,
+    "subsequent_full_commissions": 4,
+    "independent_overall": "FAIL",
+    "new_automatic_CSA_PASS": 0,
+    "category_totals_unchanged": true
+  },
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --help",
+    "python tools/matter/tests/test_pase_exchange_chip.py --node NORMAL_NODE --chip-tool CHIP_TOOL --paa PRIVATE_PAA --credentials PRIVATE_CREDENTIALS --interface INTERFACE --ipv6 IPV6 --output PRIVATE_FRESH_OUTPUT --mrp-flows --valgrind",
+    "Repeat full scenario with SANITIZER_NODE without --valgrind; current expected fixture exit1, DUT exit0",
+    "cmake --build BUILD --target test_ack test_ack_sender test_rx test_rx_policy test_im_read -j2",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_ack|test_ack_sender|test_rx|test_rx_policy|test_im_read)$'",
+    "Original manual TH TC-SC-1.2 with unchanged source/PICS, evidence-backed PASS answers1..5 and FAIL answer6",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "raw_packets_logs_codes_keys_and_state_outside_Git": true
+  },
+  "limits": [
+    "Original manual TH operator acceptance remains FAIL; memory/recovery/unit PASS does not override missing required responses.",
+    "Finite0.7-second observations and source cause, not proof about every future/internal state. Ciphertext receipts validate lengths/counters and positive controls; encrypted flags/known read payload follow peer source, without key export or later offline decryption.",
+    "Affine Python arithmetic and captured-output vector import are test-only; not production crypto or constant-time implementation. Python peer key erasure/memory is not audited by node sanitizers/Memcheck.",
+    "No native repair, full matrix, every loss/duplicate pattern, physical firmware/radio, Windows/Home UI or embedded RAM-fit test.",
+    "Legacy TC-SC-2.1 literal-procedure fields remain private and are not this case verdict.",
+    "Earlier results inherited; CSA39 and earlier failures/clarification items remain deferred."
+  ],
+  "next": {
+    "stage": "CSA42",
+    "case": "TC-SC-1.3",
+    "scope": "MRP Retransmissions: complete outbound loss, real retry intervals/count and final eviction; review original procedure against Core first.",
+    "status": "NOT_RUN"
+  }
+}
