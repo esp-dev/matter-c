@@ -357,7 +357,16 @@ restart, with 52 functional checks passing; four required-status assertions fail
 across Memcheck/separate sanitizers, so overall FAIL is retained. Memcheck has
 48294 matched allocations/frees and zero errors/live bytes. No native/PICS change.
 MANUAL now has 12 PASS, 4 FAIL and 23 without an outcome; totals are unchanged.
-Next: CSA40, TC-SC-1.1 MRP Max Message Size; failures remain deferred.
+The MRP size-boundary procedure follows below; failures remain deferred.
+
+[CSA40 MRP size boundary](doc/oss/csa40-validation.md) records original manual
+TC-SC-1.1 **PASS**, TH run475. Complete IPv6 packets1279/1280 bytes receive ACKs
+and valid PBKDF replies;1281/1328/1329 receive none. Core4.4.4/4.15 includes the
+IPv6/UDP headers in the1280-byte MTU, giving a1232-byte Matter ceiling without
+IPv6 extensions. No native/PICS changes were needed. Full scenarios pass64
+independent checks across Memcheck/separate sanitizers; memory is clean and five
+focused tests build/pass per variant. MANUAL now has13 PASS,4 FAIL and22 without
+an outcome; category totals are unchanged. Next: CSA41, TC-SC-1.2 MRP flows.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

@@ -416,9 +416,17 @@ late-message rejection, new commissioning/CASE and second-fabric recovery pass.
 No native changes; two existing tests pass per build. See
 [evidence and deferred repair](oss/csa39-validation.md). MANUAL now has 12 PASS,
 4 FAIL and 23 without an outcome; category totals are unchanged.
-**Next: CSA40, TC-SC-1.1 MRP Max Message Size**, after reviewing the meaning of its
-1280-byte boundary and included headers against Core. Continue the initial
-coverage pass (23 manual plus 3 blocked); repair the 18 automatic and 4 manual
+CSA40 executes original manual TC-SC-1.1, run475: both steps/upload pass. Core
+4.4.4/4.15 include IPv6/UDP headers in the1280-byte MTU, leaving1232 Matter bytes
+without IPv6 extensions. Actual1279/1280 packets receive matching ACK/PBKDF;
+1281/1328/1329 receive no reply. No native/PICS changes. Both full two-fabric
+scenarios pass under Memcheck/separate sanitizers,64 independent checks total;
+memory is clean and five focused UDP/MRP tests build/pass per variant. See
+[evidence and limits](oss/csa40-validation.md). MANUAL now has13 PASS,4 FAIL
+and22 without an outcome; category totals are unchanged.
+**Next: CSA41, TC-SC-1.2 MRP Message Flows**, reviewing reliable replies,
+piggyback/standalone ACKs and unreliable traffic against Core. Continue the initial
+coverage pass (22 manual plus 3 blocked); repair the 18 automatic and 4 manual
 FAIL results afterward as requested. Keep clarification items open and CSA30
 deferred.
 

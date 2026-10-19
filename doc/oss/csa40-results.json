@@ -1,0 +1,849 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa39-results.json",
+  "previous_sha256": "d853e83b8edb767c6f6f01b158df26717e3ebeb11739e20bff0142112dbca013",
+  "tracked_document_hash_encoding": "Previous report hash uses committed Git blob bytes at6c46cfd.",
+  "source_base_commit": "6c46cfdc584603d467011f9809b2c0ce0364396e",
+  "scope": "Original TC-SC-1.1 manual PASS run475, interpreted against Core4.4.4/4.15 as complete IPv6 MTU1280. Existing Linux backend accepts boundary and drops oversize. No native repair, test/PICS mutation or automatic CSA/certification claim.",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-1.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "PASS",
+      "run_id": 475
+    }
+  ],
+  "official_receipt": {
+    "run_id": 475,
+    "state": "TestStateEnum.passed",
+    "completed_at_utc": "2026-10-19 13:54:18.094335",
+    "observed_utc": "2026-10-19T13:54:19.509172+00:00",
+    "cases": [
+      {
+        "case": "TC-SC-1.1",
+        "state": "TestStateEnum.passed",
+        "steps": {
+          "TestStateEnum.passed": 3
+        },
+        "details": [
+          {
+            "title": "TH sends a single message to DUT with a message size equal to 1280 bytes inclusive of headers and reliability flag set to 1",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH sends a single message to DUT with a message size larger than 1280 bytes and reliability flag set to 1",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "96dfd713daea2cbb212b0b9c7087050d904b9f508ad736cb52de2b3b6cf94999",
+    "raw_result_sha256": "fa53011d34c3996820071335510292d38a60dfd6b734da0f761d9e2245d1db4a",
+    "identity": {
+      "source_sha256": "5795b8255d628daa5c72aef45d6c39924ebd33fcddfdafbf6cf346fa056a59ea",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "Core1.6.1 4.4.4/4.15: complete IPv6 MTU1280 = IPv6 header40 + UDP header8 + Matter1232. Fresh IPv6 UDP socket without IPv6 extensions, DONTFRAG. Reliable valid PBKDF request padded by skip-only MX block per4.4.1.7. DUT sends matching ACK and PBKDF response; same result at1279. Independent 1280-byte UDP-payload interpretation is additionally tested and rejected as total1328, not accepted as the boundary.",
+        "utc_ms": 1792418058026
+      },
+      {
+        "step": 2,
+        "answer": "PASS",
+        "note": "Complete packets1281,1328,1329 bytes sent successfully using unique ephemeral identities/counters. Zero DUT datagrams during2-second observation each, no prior replay. Positive1279/1280 controls receive ACK/PBKDF. Without restart, two actual full commissions plus CASE reads succeed. Memcheck and separate ASan/UBSan/LSan receipts retained.",
+        "utc_ms": 1792418058040
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": "5795b8255d628daa5c72aef45d6c39924ebd33fcddfdafbf6cf346fa056a59ea",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_observations": {
+    "normal": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1231",
+          "status": "PASS"
+        },
+        {
+          "name": "size-matching-ACK-1231",
+          "status": "PASS"
+        },
+        {
+          "name": "size-valid-PBKDF-response-1231",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1232",
+          "status": "PASS"
+        },
+        {
+          "name": "size-matching-ACK-1232",
+          "status": "PASS"
+        },
+        {
+          "name": "size-valid-PBKDF-response-1232",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1233",
+          "status": "PASS"
+        },
+        {
+          "name": "size-oversize-silent-1233",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1280",
+          "status": "PASS"
+        },
+        {
+          "name": "size-oversize-silent-1280",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1281",
+          "status": "PASS"
+        },
+        {
+          "name": "size-oversize-silent-1281",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 63933,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 32311
+        },
+        {
+          "initiator_session_id": 3834,
+          "responder_session_id": 5,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 26819
+        }
+      ],
+      "driver_sha256": "2b6d0e57c1b4fa87c27116174ad6cf6736bf4c0d12f47a41b415c5eeb33da0bb",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_SC_1_1": {
+        "result": "PASS",
+        "packet_boundary_bytes": 1280,
+        "probes": [
+          {
+            "matter_udp_payload_bytes": 1231,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1279,
+            "reliability": true,
+            "matching_ACK": true,
+            "PBKDF_response": true,
+            "received_datagrams": 2,
+            "observation_seconds": 2,
+            "packet_sha256": "4283142a1fe06f120e951f54dfda4fa8f680934157a0446971ea7143c02b876a",
+            "result": "PASS"
+          },
+          {
+            "matter_udp_payload_bytes": 1232,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1280,
+            "reliability": true,
+            "matching_ACK": true,
+            "PBKDF_response": true,
+            "received_datagrams": 2,
+            "observation_seconds": 2,
+            "packet_sha256": "ddd88dadd785d900ce19faa93ca4f31c45291dd39445b05a552ea9a2203b1a19",
+            "result": "PASS"
+          },
+          {
+            "matter_udp_payload_bytes": 1233,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1281,
+            "reliability": true,
+            "matching_ACK": false,
+            "PBKDF_response": false,
+            "received_datagrams": 0,
+            "observation_seconds": 2,
+            "packet_sha256": "66d07fc341868e78753b289c11f6f44ea3c97615fbbb655b45a46b6a37a71a85",
+            "result": "PASS"
+          },
+          {
+            "matter_udp_payload_bytes": 1280,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1328,
+            "reliability": true,
+            "matching_ACK": false,
+            "PBKDF_response": false,
+            "received_datagrams": 0,
+            "observation_seconds": 2,
+            "packet_sha256": "7ec0881bc63d6510e76a6e074cfe76e0080855805ee407b32662db9147835d0e",
+            "result": "PASS"
+          },
+          {
+            "matter_udp_payload_bytes": 1281,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1329,
+            "reliability": true,
+            "matching_ACK": false,
+            "PBKDF_response": false,
+            "received_datagrams": 0,
+            "observation_seconds": 2,
+            "packet_sha256": "6e19e33fabe716edc324ba3fc6d44f17cfde920ab983af1e10f0f3c6f158e3ed",
+            "result": "PASS"
+          }
+        ],
+        "padding": "Core4.4.1.7 Message Extensions; valid small PBKDFParamRequest",
+        "negative_scope": "2-second observation per unique oversize message; no duplicate/replay shortcut"
+      },
+      "live_first_CASE_session_id": 4,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "PASS",
+      "node_exit": 0,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1231",
+          "status": "PASS"
+        },
+        {
+          "name": "size-matching-ACK-1231",
+          "status": "PASS"
+        },
+        {
+          "name": "size-valid-PBKDF-response-1231",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1232",
+          "status": "PASS"
+        },
+        {
+          "name": "size-matching-ACK-1232",
+          "status": "PASS"
+        },
+        {
+          "name": "size-valid-PBKDF-response-1232",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1233",
+          "status": "PASS"
+        },
+        {
+          "name": "size-oversize-silent-1233",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1280",
+          "status": "PASS"
+        },
+        {
+          "name": "size-oversize-silent-1280",
+          "status": "PASS"
+        },
+        {
+          "name": "size-send-1281",
+          "status": "PASS"
+        },
+        {
+          "name": "size-oversize-silent-1281",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 27862,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 38308
+        },
+        {
+          "initiator_session_id": 7991,
+          "responder_session_id": 5,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 60146
+        }
+      ],
+      "driver_sha256": "2b6d0e57c1b4fa87c27116174ad6cf6736bf4c0d12f47a41b415c5eeb33da0bb",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "TC_SC_1_1": {
+        "result": "PASS",
+        "packet_boundary_bytes": 1280,
+        "probes": [
+          {
+            "matter_udp_payload_bytes": 1231,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1279,
+            "reliability": true,
+            "matching_ACK": true,
+            "PBKDF_response": true,
+            "received_datagrams": 2,
+            "observation_seconds": 2,
+            "packet_sha256": "4283142a1fe06f120e951f54dfda4fa8f680934157a0446971ea7143c02b876a",
+            "result": "PASS"
+          },
+          {
+            "matter_udp_payload_bytes": 1232,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1280,
+            "reliability": true,
+            "matching_ACK": true,
+            "PBKDF_response": true,
+            "received_datagrams": 2,
+            "observation_seconds": 2,
+            "packet_sha256": "ddd88dadd785d900ce19faa93ca4f31c45291dd39445b05a552ea9a2203b1a19",
+            "result": "PASS"
+          },
+          {
+            "matter_udp_payload_bytes": 1233,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1281,
+            "reliability": true,
+            "matching_ACK": false,
+            "PBKDF_response": false,
+            "received_datagrams": 0,
+            "observation_seconds": 2,
+            "packet_sha256": "66d07fc341868e78753b289c11f6f44ea3c97615fbbb655b45a46b6a37a71a85",
+            "result": "PASS"
+          },
+          {
+            "matter_udp_payload_bytes": 1280,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1328,
+            "reliability": true,
+            "matching_ACK": false,
+            "PBKDF_response": false,
+            "received_datagrams": 0,
+            "observation_seconds": 2,
+            "packet_sha256": "7ec0881bc63d6510e76a6e074cfe76e0080855805ee407b32662db9147835d0e",
+            "result": "PASS"
+          },
+          {
+            "matter_udp_payload_bytes": 1281,
+            "ipv6_header_bytes": 40,
+            "udp_header_bytes": 8,
+            "ipv6_packet_bytes": 1329,
+            "reliability": true,
+            "matching_ACK": false,
+            "PBKDF_response": false,
+            "received_datagrams": 0,
+            "observation_seconds": 2,
+            "packet_sha256": "6e19e33fabe716edc324ba3fc6d44f17cfde920ab983af1e10f0f3c6f158e3ed",
+            "result": "PASS"
+          }
+        ],
+        "padding": "Core4.4.1.7 Message Extensions; valid small PBKDFParamRequest",
+        "negative_scope": "2-second observation per unique oversize message; no duplicate/replay shortcut"
+      },
+      "live_first_CASE_session_id": 4,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "PASS",
+      "node_exit": 0
+    }
+  },
+  "independent_receipts": {
+    "normal": {
+      "result": "PASS",
+      "checks_PASS": 32,
+      "node_exit": 0,
+      "driver_sha256": "2b6d0e57c1b4fa87c27116174ad6cf6736bf4c0d12f47a41b415c5eeb33da0bb",
+      "result_sha256": "75b89a4bb79935a61ed9acedcabc391ba210b1d6d49a04add5a0026fda98792b",
+      "packets_sha256": "3a933b818b55bf3cb852d5a7e14b6f7d6fdd6f842b16c820ea9b1d671f6019d3",
+      "stderr_empty": true,
+      "wire_checks": [
+        {
+          "matter_bytes": 1231,
+          "ipv6_bytes_without_extensions": 1279,
+          "packet_sha256": "4283142a1fe06f120e951f54dfda4fa8f680934157a0446971ea7143c02b876a",
+          "receipt_matches_result": true,
+          "matching_ACK": true,
+          "valid_PBKDF_response": true,
+          "response_count": 2
+        },
+        {
+          "matter_bytes": 1232,
+          "ipv6_bytes_without_extensions": 1280,
+          "packet_sha256": "ddd88dadd785d900ce19faa93ca4f31c45291dd39445b05a552ea9a2203b1a19",
+          "receipt_matches_result": true,
+          "matching_ACK": true,
+          "valid_PBKDF_response": true,
+          "response_count": 2
+        },
+        {
+          "matter_bytes": 1233,
+          "ipv6_bytes_without_extensions": 1281,
+          "packet_sha256": "66d07fc341868e78753b289c11f6f44ea3c97615fbbb655b45a46b6a37a71a85",
+          "receipt_matches_result": true,
+          "matching_ACK": false,
+          "valid_PBKDF_response": false,
+          "response_count": 0
+        },
+        {
+          "matter_bytes": 1280,
+          "ipv6_bytes_without_extensions": 1328,
+          "packet_sha256": "7ec0881bc63d6510e76a6e074cfe76e0080855805ee407b32662db9147835d0e",
+          "receipt_matches_result": true,
+          "matching_ACK": false,
+          "valid_PBKDF_response": false,
+          "response_count": 0
+        },
+        {
+          "matter_bytes": 1281,
+          "ipv6_bytes_without_extensions": 1329,
+          "packet_sha256": "6e19e33fabe716edc324ba3fc6d44f17cfde920ab983af1e10f0f3c6f158e3ed",
+          "receipt_matches_result": true,
+          "matching_ACK": false,
+          "valid_PBKDF_response": false,
+          "response_count": 0
+        }
+      ],
+      "memory": {
+        "allocations": 43533,
+        "frees": 43533,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "9c6635e6281a1b96205b70efd7217af6d20d017d028ed083b0e97bf7da79219b"
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks_PASS": 32,
+      "node_exit": 0,
+      "driver_sha256": "2b6d0e57c1b4fa87c27116174ad6cf6736bf4c0d12f47a41b415c5eeb33da0bb",
+      "result_sha256": "277678856d015ce175cfa6e7bb4b2c09acb3e2baf9e73d29cfb8438207888da9",
+      "packets_sha256": "8178c25f5bcecb42c6689149ac0e62337747f69b8c21709eed50645971658cfa",
+      "stderr_empty": true,
+      "wire_checks": [
+        {
+          "matter_bytes": 1231,
+          "ipv6_bytes_without_extensions": 1279,
+          "packet_sha256": "4283142a1fe06f120e951f54dfda4fa8f680934157a0446971ea7143c02b876a",
+          "receipt_matches_result": true,
+          "matching_ACK": true,
+          "valid_PBKDF_response": true,
+          "response_count": 2
+        },
+        {
+          "matter_bytes": 1232,
+          "ipv6_bytes_without_extensions": 1280,
+          "packet_sha256": "ddd88dadd785d900ce19faa93ca4f31c45291dd39445b05a552ea9a2203b1a19",
+          "receipt_matches_result": true,
+          "matching_ACK": true,
+          "valid_PBKDF_response": true,
+          "response_count": 2
+        },
+        {
+          "matter_bytes": 1233,
+          "ipv6_bytes_without_extensions": 1281,
+          "packet_sha256": "66d07fc341868e78753b289c11f6f44ea3c97615fbbb655b45a46b6a37a71a85",
+          "receipt_matches_result": true,
+          "matching_ACK": false,
+          "valid_PBKDF_response": false,
+          "response_count": 0
+        },
+        {
+          "matter_bytes": 1280,
+          "ipv6_bytes_without_extensions": 1328,
+          "packet_sha256": "7ec0881bc63d6510e76a6e074cfe76e0080855805ee407b32662db9147835d0e",
+          "receipt_matches_result": true,
+          "matching_ACK": false,
+          "valid_PBKDF_response": false,
+          "response_count": 0
+        },
+        {
+          "matter_bytes": 1281,
+          "ipv6_bytes_without_extensions": 1329,
+          "packet_sha256": "6e19e33fabe716edc324ba3fc6d44f17cfde920ab983af1e10f0f3c6f158e3ed",
+          "receipt_matches_result": true,
+          "matching_ACK": false,
+          "valid_PBKDF_response": false,
+          "response_count": 0
+        }
+      ]
+    }
+  },
+  "memory": {
+    "allocations": 43533,
+    "frees": 43533,
+    "zero_errors": true,
+    "zero_live": true,
+    "log_sha256": "9c6635e6281a1b96205b70efd7217af6d20d017d028ed083b0e97bf7da79219b"
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "sections": [
+      "4.4.4 Message Size Requirements",
+      "4.15 Secure Communications over TCP",
+      "4.4.1.7 Message Extensions"
+    ],
+    "ipv6_MTU_bytes": 1280,
+    "ipv6_base_header_bytes": 40,
+    "udp_header_bytes": 8,
+    "matter_udp_ceiling_without_ipv6_extensions": 1232,
+    "MX_padding": "The Matter Message Extensions block is skipped per4.4.1.7. It is not an IPv6 extension header. Valid small PBKDF application TLV stays unchanged.",
+    "procedure_interpretation": "1280 bytes inclusive of headers includes IPv6 and UDP, per normative MTU. A1280-byte UDP payload is1328 bytes total and correctly rejected; that alternative is explicitly exercised."
+  },
+  "scenario": {
+    "mode": "--mrp-size",
+    "matter_udp_payload_bytes": [
+      1231,
+      1232,
+      1233,
+      1280,
+      1281
+    ],
+    "complete_ipv6_packet_bytes": [
+      1279,
+      1280,
+      1281,
+      1328,
+      1329
+    ],
+    "padding": "Valid skip-only Matter MX block; otherwise valid small PBKDFParamRequest, R=1.",
+    "transport": "Fresh Linux IPv6 UDP sockets with no IPv6 extension options; DONTFRAG; all sends complete. Packet lengths are derived from datagram lengths plus fixed40+8 headers, not privileged packet capture.",
+    "positive": "Matching ACK counter/exchange/destination and actual PBKDF response echoing request random at1279 and1280.",
+    "negative": "Unique source/exchange/counter per oversize input; no datagram received for2 seconds each. No previously accepted replay.",
+    "cleanup": "ACK responder reliable PBKDF response; send malformed Pake1 only to terminate each incomplete positive handshake. This does not assert CSA39 missing error-report behavior.",
+    "recovery": "Without DUT restart, two full actual chip-tool commissions, attestation, CommissioningComplete, CASE reads, enhanced-window opening and first-fabric reuse."
+  },
+  "native_build_identity": {
+    "host_compiled_in": "csa35-results.json",
+    "native_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_source_header_count": 362,
+    "local_and_remote_manifest_entries_unchanged": true,
+    "normal_binary_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+    "sanitizer_binary_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+    "new_host_compilation": false,
+    "focused_test_targets_built": true,
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "passed": 5,
+        "warnings": [],
+        "log_sha256": "71e96cf610ad693ab1e1a84fe16d0ebd61ff64b54ee690c5b73e79934faf88d8",
+        "build_log_sha256": "4bddd55770c66791d3d1ea619e34c20aed161c129fcb02c31eda8533b53d0c30"
+      },
+      "sanitize": {
+        "exit": 0,
+        "passed": 5,
+        "warnings": [],
+        "log_sha256": "716e14bfc833fefa0ac8ad8f6dad6549f410d63df679b35eafe89ed258807b91",
+        "build_log_sha256": "e282640e67e9fe7c9ca603cb2764aceab8784635e12baac3fe3d0b8fd87bdedf"
+      }
+    },
+    "initial_test_invocation": "Five focused CTests initially failed because executables were not built in the reused build directory. Built those targets, then reran successfully5/5 per build; not treated as native protocol failures."
+  },
+  "coverage": {
+    "positions": 862,
+    "manual_PASS": 13,
+    "manual_FAIL": 4,
+    "manual_without_outcome": 22,
+    "manual_without_PASS": 26,
+    "remaining_initial_coverage": {
+      "manual_without_outcome": 22,
+      "BLOCKED_positions": 3
+    },
+    "deferred_failures": {
+      "automatic": 18,
+      "manual": 4
+    },
+    "functional_checks_PASS": 64,
+    "size_probes": 10,
+    "subsequent_full_commissions": 4,
+    "new_automatic_CSA_PASS": 0,
+    "category_totals_unchanged": true
+  },
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --help",
+    "python tools/matter/tests/test_pase_exchange_chip.py --node NORMAL_NODE --chip-tool CHIP_TOOL --paa PRIVATE_PAA --credentials PRIVATE_CREDENTIALS --interface INTERFACE --ipv6 IPV6 --output PRIVATE_FRESH_OUTPUT --mrp-size --valgrind",
+    "Repeat with SANITIZER_NODE, without --valgrind",
+    "cmake --build BUILD --target test_message_header test_retransmission test_retransmission_sender test_udp test_unsecured_rx -j2",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_message_header|test_retransmission|test_retransmission_sender|test_udp|test_unsecured_rx)$'",
+    "Original manual TH TC-SC-1.1 with unchanged source/PICS and evidence-backed operator answers",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "raw_packets_logs_codes_keys_and_state_outside_Git": true
+  },
+  "limits": [
+    "Manual operator acceptance recorded by original TH, not a fully automatic test or certification.",
+    "2-second silence observations are finite; no proof of every future state or internal processing. No privileged full packet capture was required; fixed header lengths are explicit.",
+    "IPv6 extension-header/fragment policy has prior CSA/M13k evidence; not rerun here. Only Linux runnable host was exercised; no Windows, physical firmware, radio, Home UI, embedded RAM-fit or full-matrix rerun.",
+    "Existing CSA39 terminal StatusReport defect remains deferred. Malformed Pake1 cleanup is not evidence of its repair.",
+    "Legacy TC-SC-2.1 literal-procedure fields of shared fixture reports are not this case verdict and are excluded from the public projection.",
+    "All earlier results inherited; failure backlog and clarification items unchanged."
+  ],
+  "next": {
+    "stage": "CSA41",
+    "case": "TC-SC-1.2",
+    "scope": "MRP Message Flows: reliable data reply/piggyback ACK, standalone ACK and unreliable replies; review applicability against Core first.",
+    "status": "NOT_RUN"
+  }
+}

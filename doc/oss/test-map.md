@@ -32,6 +32,14 @@ FAIL even when all functional recovery checks pass. The opt-in partial negative
 transcript reader does not waive the status assertion; default positive PASE
 validation still requires the complete six-message success exchange.
 
+CSA40 adds mutually exclusive `--mrp-size`: skip-only Matter MX padding around
+a valid small PBKDF request exercises complete IPv6 sizes1279/1280/1281/1328/1329
+(UDP payloads1231/1232/1233/1280/1281). Require matching ACK/PBKDF replies at the
+boundary and two seconds of silence above it, then two full commissions/CASE
+without DUT restart. No IPv6 extension options, DONTFRAG, unique identities and
+counters; fixed40+8 headers are accounted explicitly. Original manual TH results
+are recorded separately. See [CSA40 evidence](csa40-validation.md).
+
 `test_commissionable_announcement_chip.py` supplies CSA34 wire/controller evidence
 for unsolicited announcements, actual unfiltered chip-tool browsing and complete
 basic/closed/enhanced Commissionable Node Discovery records, addresses, subtypes

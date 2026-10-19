@@ -1,5 +1,21 @@
 # Development status
 
+**CSA40: original manual TC-SC-1.1 PASS, TH run475: MRP size boundary.**
+Core4.4.4/4.15 limit is the complete IPv6 MTU1280: base IPv6 header40 + UDP8 +
+Matter1232. At1279/1280 bytes the DUT returns matching ACK/PBKDF replies; at
+1281/1328/1329 it is silent. Valid small PBKDF requests use skip-only Matter MX
+padding; no IPv6 extensions or native/PICS changes. Both full two-fabric
+scenarios pass32 checks under Memcheck and32 under separate ASan/UBSan/LSan.
+Memcheck has43533 matched allocations/frees and zero errors/live bytes; node
+exits/stderr are clean. Five focused UDP/MRP targets build/pass per variant,
+without observed compiler warnings. TH idle, disposable nodes stopped; paired
+Windows nodes untouched. This is original manual operator acceptance, not an
+automatic test or certification. Totals stay **97 PASS, 18 FAIL, 3 BLOCKED,
+39 MANUAL, 705 NA**; MANUAL now has **13 PASS, 4 FAIL, 22 without an outcome**.
+See [evidence](csa40-validation.md) and [record](csa40-results.json).
+**Next: CSA41, TC-SC-1.2 MRP Message Flows. Continue initial coverage;
+CSA39's native error-reply defect and earlier failures remain deferred.**
+
 **CSA39: original manual TC-SC-2.3 FAIL, TH run474: missing PASE error replies.**
 Invalid passcodeID and Pake3.cA receive ACKs but no required StatusReport1/0/2.
 PASE prepares the correct error output; the runtime dispatcher closes on the

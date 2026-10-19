@@ -7,6 +7,7 @@ independent operator evidence, not an automatic CSA result. --tamper-pase also
 records TC-SC-2.2 bidirectional traffic: alter the first encrypted request and
 response MIC, then release the original packets after a real quiet interval.
 --pase-errors records TC-SC-2.3 invalid passcodeID/cA and terminal exchanges.
+--mrp-size records TC-SC-1.1 at the complete IPv6 packet size boundary.
 Keep output private.
 """
 import argparse
@@ -209,6 +210,75 @@ def corrupt_pase_field(packet, mode):
     raise ValueError('Missing mutation field')
 
 
+def mrp_size_probes(ipv6, interface, target, check, packets, lock):
+    """Real UDP, no IPv6 extensions: packet size = 40 IPv6 + 8 UDP + Matter.
+
+    Core4.4.1.7 MX bytes pad an otherwise small valid PBKDF request, keeping
+    application limits separate from the transport boundary. Oversize inputs
+    have unique ephemeral identities/counters, never a previously ACKed replay.
+    """
+    receipts = []
+    for index, size in enumerate((1231, 1232, 1233, 1280, 1281)):
+        source = 0x1234000000000000 + index
+        counter = 0x40000000 + index * 4; exchange = 0x7100 + index
+        random = bytes([index + 1]) * 32
+        payload = b'\x15\x30\x01\x20' + random + b'\x25\x02\x01\x00\x24\x03\x00\x28\x04\x18'
+        header = struct.pack('<BHBIQ', 4, 0, 0x20, counter, source)
+        protocol = struct.pack('<BBHH', 5, 0x20, exchange, 0)
+        padding = size - len(header) - 2 - len(protocol) - len(payload)
+        packet = header + struct.pack('<H', padding) + bytes(padding) + protocol + payload
+        assert len(packet) == size and message(packet)['payload'] == payload
+        assert fields(payload)[3]['value'] == 0
+        received = []
+        with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as sock:
+            sock.bind((ipv6, 0, 0, interface)); sock.settimeout(.1)
+            # Fresh socket has no IPv6 extension options. DONTFRAG prevents
+            # accidentally exercising reassembly instead of the MTU policy.
+            sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_DONTFRAG, 1)
+            check('size-send-' + str(size), sock.sendto(packet, target) == size)
+            with lock:
+                packets.append({'lane': -1, 'direction': 'initiator', 'size_probe': size, 'data': packet.hex()})
+            end = time.monotonic() + 2
+            while time.monotonic() < end:
+                try:
+                    data, peer = sock.recvfrom(65535)
+                except socket.timeout:
+                    continue
+                assert peer[0] == target[0] and peer[1] == target[1]
+                decoded = message(data); received.append(decoded)
+                with lock:
+                    packets.append({'lane': -1, 'direction': 'responder', 'size_probe': size, 'data': data.hex()})
+                # ACK responder's reliable PBKDF response to avoid retries.
+                if decoded.get('exchange_flags', 0) & 4:
+                    ack = struct.pack('<BHBIQ', 4, 0, 0, counter + 1, source)
+                    ack += struct.pack('<BBHHI', 3, 0x10, exchange, 0, decoded['counter'])
+                    sock.sendto(ack, target)
+            acks = [p for p in received if p.get('exchange') == exchange and
+                    p.get('acknowledged_counter') == counter and p.get('protocol') == 0]
+            responses = [p for p in received if p.get('exchange') == exchange and p.get('opcode') == 0x21]
+            if size <= 1232:
+                check('size-matching-ACK-' + str(size), bool(acks))
+                check('size-valid-PBKDF-response-' + str(size), bool(responses) and
+                      fields(responses[0]['payload'])[1]['value'] == random)
+                # End only this deliberately incomplete handshake. This is
+                # cleanup, not an assertion of the CSA39 error-status behavior.
+                cleanup = struct.pack('<BHBIQ', 4, 0, 0, counter + 2, source)
+                cleanup += struct.pack('<BBHH', 5, 0x22, exchange, 0) + b'\x15\x18'
+                sock.sendto(cleanup, target)
+                time.sleep(.6)
+            else:
+                check('size-oversize-silent-' + str(size), not received)
+            receipts.append({'matter_udp_payload_bytes': size, 'ipv6_header_bytes': 40,
+                             'udp_header_bytes': 8, 'ipv6_packet_bytes': size + 48,
+                             'reliability': True, 'matching_ACK': bool(acks),
+                             'PBKDF_response': bool(responses), 'received_datagrams': len(received),
+                             'observation_seconds': 2, 'packet_sha256': hashlib.sha256(packet).hexdigest(),
+                             'result': 'PASS'})
+    return {'result': 'PASS', 'packet_boundary_bytes': 1280, 'probes': receipts,
+            'padding': 'Core4.4.1.7 Message Extensions; valid small PBKDFParamRequest',
+            'negative_scope': '2-second observation per unique oversize message; no duplicate/replay shortcut'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('node', 'chip-tool', 'paa', 'credentials', 'output'):
@@ -218,8 +288,9 @@ def main():
     parser.add_argument('--valgrind', action='store_true')
     parser.add_argument('--tamper-pase', action='store_true', help='TC-SC-2.2: corrupt one MIC in each direction, then release originals')
     parser.add_argument('--pase-errors', action='store_true', help='TC-SC-2.3: invalid passcodeID/cA, terminal probes, then valid commissioning')
+    parser.add_argument('--mrp-size', action='store_true', help='TC-SC-1.1: full IPv6 MTU boundary, then valid commissioning')
     args = parser.parse_args(); out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
-    if args.tamper_pase and args.pase_errors:
+    if sum((args.tamper_pase, args.pase_errors, args.mrp_size)) > 1:
         parser.error('Choose one fault-injection mode')
     report = {'result': 'RUNNING', 'checks': [], 'exchanges': [],
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -332,6 +403,8 @@ def main():
         for lane in range(2):
             create_client('controller-' + str(lane))
         address = args.ipv6 + '%' + str(args.interface)
+        if args.mrp_size:
+            report['TC_SC_1_1'] = mrp_size_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.pase_errors:
             negative = []; late_probes = []
             for index, mode in enumerate(('passcodeID', 'cA')):
@@ -431,6 +504,8 @@ def main():
         check('proxy-forwarding', not failures)
         groups = {}; encrypted = []
         for index, row in enumerate(captured):
+            if 'size_probe' in row:
+                continue
             p = message(bytes.fromhex(row['data'])); p.update(direction=row['direction'], index=index)
             if p['session']:
                 encrypted.append((row['lane'], p)); continue
