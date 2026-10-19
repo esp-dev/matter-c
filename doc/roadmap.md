@@ -408,10 +408,19 @@ recovery, full commissioning and CASE. Focused PASE/secure tests pass per build.
 No native or original-test/PICS changes. MANUAL now has 12 PASS, 3 FAIL and 24
 without an outcome; category totals stay unchanged. See
 [evidence and limits](oss/csa38-validation.md).
-**Next: CSA39, TC-SC-2.3 invalid passcodeID and Pake3.cA**, with actual failure
-statuses, bounded cleanup and valid-session recovery. Continue the initial
-coverage pass (24 manual plus 3 blocked); revisit failures later as requested.
-Keep prior discrepancies open and CSA30 deferred.
+CSA39 executes original manual TC-SC-2.3, run474: seven entries pass and two fail.
+The runtime drops the PASE machine's prepared terminal error StatusReport after
+invalid passcodeID/cA. This is a confirmed implementation defect, not a wording
+discrepancy. Both full memory-instrumented scenarios retain overall FAIL while
+late-message rejection, new commissioning/CASE and second-fabric recovery pass.
+No native changes; two existing tests pass per build. See
+[evidence and deferred repair](oss/csa39-validation.md). MANUAL now has 12 PASS,
+4 FAIL and 23 without an outcome; category totals are unchanged.
+**Next: CSA40, TC-SC-1.1 MRP Max Message Size**, after reviewing the meaning of its
+1280-byte boundary and included headers against Core. Continue the initial
+coverage pass (23 manual plus 3 blocked); repair the 18 automatic and 4 manual
+FAIL results afterward as requested. Keep clarification items open and CSA30
+deferred.
 
 ## 2. Google Test Suite and manual ecosystem acceptance
 

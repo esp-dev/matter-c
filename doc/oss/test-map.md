@@ -22,6 +22,16 @@ This demonstrates message rejection/recovery required by Core4.8.3. Original
 TC-SC-2.2 Step5's stronger session-termination/key-clear expectation is evaluated
 separately; no key-memory dump or wire proof of key erasure is claimed.
 
+CSA39 adds mutually exclusive `--pase-errors`: isolated negative controllers alter
+only passcodeID0 to1 or one cA bit, with valid TLV/headers. Observe required error
+statuses for up to 12 seconds, terminate pending controller commands if necessary,
+then send late valid-shaped Pake1/correct cA with fresh counters. Confirm no
+reactivation, followed by two full commissions/CASE without DUT restart. Missing
+StatusReports are explicit conformance assertions and keep the overall result
+FAIL even when all functional recovery checks pass. The opt-in partial negative
+transcript reader does not waive the status assertion; default positive PASE
+validation still requires the complete six-message success exchange.
+
 `test_commissionable_announcement_chip.py` supplies CSA34 wire/controller evidence
 for unsolicited announcements, actual unfiltered chip-tool browsing and complete
 basic/closed/enhanced Commissionable Node Discovery records, addresses, subtypes

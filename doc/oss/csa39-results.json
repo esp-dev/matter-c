@@ -1,0 +1,857 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa38-results.json",
+  "previous_sha256": "89c950b164af9779d9c36818a4c42303aa6534306f2e2430bab06e6522a72fa7",
+  "tracked_document_hash_encoding": "Previous report hash uses committed Git blob bytes at b8fd2e4.",
+  "source_base_commit": "b8fd2e43d139868df2aa50848d599d6dd9dad49f",
+  "scope": "Original TC-SC-2.3 manual FAIL: invalid passcodeID/cA receive ACKs but no required error StatusReports. Confirmed runtime integration defect, not a test/spec discrepancy. Native repair deferred; functional recovery/memory checks are separate from overall FAIL.",
+  "latest_counts": {
+    "MANUAL": 39,
+    "NA": 705,
+    "PASS": 97,
+    "BLOCKED": 3,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-SC-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "MANUAL",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "run_id": 474
+    }
+  ],
+  "official_receipt": {
+    "run_id": 474,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 13:43:05.747115",
+    "observed_utc": "2026-10-19T13:43:07.279823+00:00",
+    "cases": [
+      {
+        "case": "TC-SC-2.3",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 7,
+          "TestStateEnum.failed": 2
+        },
+        "details": [
+          {
+            "title": "TH generates and sends PBKDFParamRequest with an invalid passcodeID",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT verifies the passcodeID.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH generates and sends PBKDFParamRequest with a valid passcodeID",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT verifies the passcodeID.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH generates and sends Pake1",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT generates and sends Pake2",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "TH generates and sends Pake3 with an invalid key confirmation message (cA)",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "DUT verifies Pake3.cA.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Prompt Manual Log Upload",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "1981cb772cb5fd3aa3f7bf74fe314761ed9148f7b1922e27c9bea04926523aa1",
+    "raw_result_sha256": "e6c3398b2f1a49535d7906ed3df66c5d8b48fd283d344cb3f70ad6b52b41e771",
+    "identity": {
+      "source_sha256": "c4c6e486ef286792d63b6d7c31fdee6a9287d6e756b09c8133ffb739e64b163f",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      },
+      "PICS_changes": []
+    },
+    "audit": [
+      {
+        "step": 1,
+        "answer": "PASS",
+        "note": "Unmodified controller request forwarded with only passcodeID0 changed to1. Typed TLV and headers stay valid; DUT sends matching standalone ACK.",
+        "utc_ms": 1792417385659
+      },
+      {
+        "step": 2,
+        "answer": "FAIL",
+        "note": "Required StatusReport(FAILURE1,SECURE_CHANNEL0,INVALID_PARAMETER2) is absent during bounded observation; only ACK is observed. Native PASE prepares the error, but dispatcher closes the transaction before sending it. Late Pake1 does not revive exchange.",
+        "utc_ms": 1792417385668
+      },
+      {
+        "step": 3,
+        "answer": "PASS",
+        "note": "Fresh actual request with passcodeID0; responder returns matching PBKDFParamResponse.",
+        "utc_ms": 1792417385675
+      },
+      {
+        "step": 4,
+        "answer": "PASS",
+        "note": "Actual valid PBKDFParamResponse received by the unmodified controller; request random echoes and parameter/identifier TLV fields are valid.",
+        "utc_ms": 1792417385681
+      },
+      {
+        "step": 5,
+        "answer": "PASS",
+        "note": "Actual unmodified controller Pake1 forwarded and received, followed by real Pake2.",
+        "utc_ms": 1792417385686
+      },
+      {
+        "step": 6,
+        "answer": "PASS",
+        "note": "Actual valid-shaped Pake2 received by the unmodified controller, which computes Pake3.",
+        "utc_ms": 1792417385691
+      },
+      {
+        "step": 7,
+        "answer": "PASS",
+        "note": "Only one cA bit is changed in otherwise valid 32-byte confirmation TLV. Actual modified datagram is forwarded to DUT; matching ACK is observed.",
+        "utc_ms": 1792417385696
+      },
+      {
+        "step": 8,
+        "answer": "FAIL",
+        "note": "Required FAILURE1/SECURE_CHANNEL0/INVALID_PARAMETER2 StatusReport is absent during bounded observation. Late unmodified cA with a fresh message counter does not revive the failed exchange. Fresh full commissioning/CASE afterward succeeds without DUT restart.",
+        "utc_ms": 1792417385704
+      }
+    ],
+    "harness_state": {
+      "state": "idle"
+    }
+  },
+  "official_identity": {
+    "source_sha256": "c4c6e486ef286792d63b6d7c31fdee6a9287d6e756b09c8133ffb739e64b163f",
+    "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "support_sha256": {
+      "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+      "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+    },
+    "PICS_changes": []
+  },
+  "independent_final_observations": {
+    "final-normal": {
+      "result": "FAIL",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "failed-exchange-sequence-passcodeID",
+          "status": "PASS"
+        },
+        {
+          "name": "invalid-passcodeID-value",
+          "status": "PASS"
+        },
+        {
+          "name": "failed-exchange-sequence-cA",
+          "status": "PASS"
+        },
+        {
+          "name": "invalid-cA-has-valid-TLV-shape",
+          "status": "PASS"
+        },
+        {
+          "name": "failed-exchange-not-revived-passcodeID",
+          "status": "PASS"
+        },
+        {
+          "name": "failed-exchange-not-revived-cA",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 44788,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 65044
+        },
+        {
+          "initiator_session_id": 5693,
+          "responder_session_id": 5,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 39805
+        }
+      ],
+      "driver_sha256": "cef8ee5db8923ffcc3e1ae71ace05c1cdfb61901f0bd49a7c53252a08610fa3a",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "conformance_checks": [
+        {
+          "name": "failure-status-passcodeID",
+          "status": "FAIL"
+        },
+        {
+          "name": "failure-status-cA",
+          "status": "FAIL"
+        }
+      ],
+      "TC_SC_2_3": {
+        "result": "FAIL",
+        "negative_exchanges": [
+          {
+            "case": "passcodeID",
+            "exchange_id": 8669,
+            "opcodes": [
+              32
+            ],
+            "response_observation_limit_seconds": 12,
+            "controller_completed_before_abort": true,
+            "expected_opcodes": [
+              32,
+              64
+            ],
+            "observed_status": null,
+            "expected_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "result": "FAIL"
+          },
+          {
+            "case": "cA",
+            "exchange_id": 65129,
+            "opcodes": [
+              32,
+              33,
+              34,
+              35,
+              36
+            ],
+            "response_observation_limit_seconds": 12,
+            "controller_completed_before_abort": false,
+            "expected_opcodes": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              64
+            ],
+            "observed_status": null,
+            "expected_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "result": "FAIL"
+          }
+        ],
+        "late_correct_messages_do_not_revive": true,
+        "observation_seconds": 0.6,
+        "key_memory_inspection": "NOT_PERFORMED; full new commissioning checks resource recovery."
+      },
+      "live_first_CASE_session_id": 4,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "FAIL",
+      "node_exit": 0,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "final-sanitize": {
+      "result": "FAIL",
+      "checks": [
+        {
+          "name": "node-published",
+          "status": "PASS"
+        },
+        {
+          "name": "failed-exchange-sequence-passcodeID",
+          "status": "PASS"
+        },
+        {
+          "name": "invalid-passcodeID-value",
+          "status": "PASS"
+        },
+        {
+          "name": "failed-exchange-sequence-cA",
+          "status": "PASS"
+        },
+        {
+          "name": "invalid-cA-has-valid-TLV-shape",
+          "status": "PASS"
+        },
+        {
+          "name": "failed-exchange-not-revived-passcodeID",
+          "status": "PASS"
+        },
+        {
+          "name": "failed-exchange-not-revived-cA",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-0",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-open-commissioning-window",
+          "status": "PASS"
+        },
+        {
+          "name": "command-payload-parse-setup-payload",
+          "status": "PASS"
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS"
+        },
+        {
+          "name": "attestation-and-completion-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "CASE-session-observed-1",
+          "status": "PASS"
+        },
+        {
+          "name": "command-basicinformation-read",
+          "status": "PASS"
+        },
+        {
+          "name": "proxy-forwarding",
+          "status": "PASS"
+        },
+        {
+          "name": "two-complete-PASE-exchanges",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-1",
+          "status": "PASS"
+        },
+        {
+          "name": "no-encrypted-data-before-PakeFinished-2",
+          "status": "PASS"
+        },
+        {
+          "name": "second-PASE-does-not-reuse-live-first-CASE-ID",
+          "status": "PASS"
+        },
+        {
+          "name": "encrypted-PASE-application-data-observed",
+          "status": "PASS"
+        },
+        {
+          "name": "sampled-request-randoms-distinct",
+          "status": "PASS"
+        },
+        {
+          "name": "four-mutated-capture-oracle-controls-rejected",
+          "status": "PASS"
+        }
+      ],
+      "exchanges": [
+        {
+          "initiator_session_id": 21205,
+          "responder_session_id": 3,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 16,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 0,
+          "exchange_id": 47941
+        },
+        {
+          "initiator_session_id": 54830,
+          "responder_session_id": 5,
+          "has_PBKDF_parameters": false,
+          "request_random_bytes": 32,
+          "response_random_bytes": 32,
+          "PA_bytes": 65,
+          "PB_bytes": 65,
+          "CA_bytes": 32,
+          "CB_bytes": 32,
+          "salt_bytes": 32,
+          "same_exchange": true,
+          "Core_headers_and_reliable_flags": true,
+          "status_present": true,
+          "success_status": true,
+          "lane": 1,
+          "exchange_id": 49352
+        }
+      ],
+      "driver_sha256": "cef8ee5db8923ffcc3e1ae71ace05c1cdfb61901f0bd49a7c53252a08610fa3a",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "conformance_checks": [
+        {
+          "name": "failure-status-passcodeID",
+          "status": "FAIL"
+        },
+        {
+          "name": "failure-status-cA",
+          "status": "FAIL"
+        }
+      ],
+      "TC_SC_2_3": {
+        "result": "FAIL",
+        "negative_exchanges": [
+          {
+            "case": "passcodeID",
+            "exchange_id": 28560,
+            "opcodes": [
+              32
+            ],
+            "response_observation_limit_seconds": 12,
+            "controller_completed_before_abort": true,
+            "expected_opcodes": [
+              32,
+              64
+            ],
+            "observed_status": null,
+            "expected_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "result": "FAIL"
+          },
+          {
+            "case": "cA",
+            "exchange_id": 20238,
+            "opcodes": [
+              32,
+              33,
+              34,
+              35,
+              36
+            ],
+            "response_observation_limit_seconds": 12,
+            "controller_completed_before_abort": false,
+            "expected_opcodes": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              64
+            ],
+            "observed_status": null,
+            "expected_status": {
+              "general": 1,
+              "protocol": 0,
+              "code": 2
+            },
+            "result": "FAIL"
+          }
+        ],
+        "late_correct_messages_do_not_revive": true,
+        "observation_seconds": 0.6,
+        "key_memory_inspection": "NOT_PERFORMED; full new commissioning checks resource recovery."
+      },
+      "live_first_CASE_session_id": 4,
+      "initiator_ID_limit": "Each independent controller starts fresh; no wraparound/exhaustion proof.",
+      "Core_result": "FAIL",
+      "node_exit": 0
+    }
+  },
+  "independent_receipts": {
+    "final-normal": {
+      "result": "FAIL",
+      "error": null,
+      "node_exit": 0,
+      "driver_sha256": "cef8ee5db8923ffcc3e1ae71ace05c1cdfb61901f0bd49a7c53252a08610fa3a",
+      "functional_checks": 26,
+      "result_sha256": "f95f0ff35561676a191682b199b9098b0eaa507441d80c25b064b322a76d6e2f",
+      "packets_sha256": "8b4370a51ce41f2d7f6b1189651d1e17468a694da206c3bd62323bbdcf0bb896",
+      "stderr_empty": true,
+      "memory": {
+        "allocations": 48294,
+        "frees": 48294,
+        "zero_errors": true,
+        "zero_live": true,
+        "log_sha256": "b702bba0e09ecf33cce787c94dafbde0e67a56e272b869dc55b337d99d7d63f5"
+      },
+      "wire_injection_receipts": [
+        {
+          "case": "passcodeID",
+          "opcode": 32,
+          "exchange_id": 8669,
+          "counter": 2657031,
+          "matching_ACK": true,
+          "one_bit_only": true,
+          "original_sha256": "191283855df8bee66627f4d68197c90a882878a9d409df5d791d24b0900d256d",
+          "modified_sha256": "8643b8f516489c8187ea3f034c9c8d0d1f97f84a02d1803546f2fdcf0581882f",
+          "late_probe_fresh_counter": 205791771
+        },
+        {
+          "case": "cA",
+          "opcode": 36,
+          "exchange_id": 65129,
+          "counter": 205791769,
+          "matching_ACK": true,
+          "one_bit_only": true,
+          "original_sha256": "d242c277e2d69192476802757c27e8246e33091d36a261dc2130bb36fbadf388",
+          "modified_sha256": "d8b83f818a95a8da4d24ae781ae3c1e3af884858c251e747c2380cbc724732f5",
+          "late_probe_fresh_counter": 205791772
+        }
+      ]
+    },
+    "final-sanitize": {
+      "result": "FAIL",
+      "error": null,
+      "node_exit": 0,
+      "driver_sha256": "cef8ee5db8923ffcc3e1ae71ace05c1cdfb61901f0bd49a7c53252a08610fa3a",
+      "functional_checks": 26,
+      "result_sha256": "3938aed71749349730fd7eaff31960d135f7b2e1d649aab3c84eea19de79d7a0",
+      "packets_sha256": "a735c832fca1e4b34f67c3fbf74e847f52a851b410c638f08066cd61b46aae91",
+      "stderr_empty": true,
+      "wire_injection_receipts": [
+        {
+          "case": "passcodeID",
+          "opcode": 32,
+          "exchange_id": 28560,
+          "counter": 159118945,
+          "matching_ACK": true,
+          "one_bit_only": true,
+          "original_sha256": "f87daee69190c29dc6094a44b65828c500ab32f42fa75c84e4fe21b318492551",
+          "modified_sha256": "4d1439bc324dbd35f7e7d71e58d369596ab8adf630a1c0d1f238501e40b223b8",
+          "late_probe_fresh_counter": 214175812
+        },
+        {
+          "case": "cA",
+          "opcode": 36,
+          "exchange_id": 20238,
+          "counter": 214175811,
+          "matching_ACK": true,
+          "one_bit_only": true,
+          "original_sha256": "9a2c96d1c9e7664d88ab82bb07e43946ea3ff1b0ae38304b28add29e1c9fb65f",
+          "modified_sha256": "c19b06b55dd6171a044650cb1100875b15f97dfcad26cc41a53c97a85ab20e19",
+          "late_probe_fresh_counter": 214175813
+        }
+      ]
+    }
+  },
+  "memory": {
+    "allocations": 48294,
+    "frees": 48294,
+    "zero_errors": true,
+    "zero_live": true,
+    "log_sha256": "b702bba0e09ecf33cce787c94dafbde0e67a56e272b869dc55b337d99d7d63f5"
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "sections": [
+      "4.14.1.2 PBKDFParamResponse",
+      "4.14.1.2 Pake3"
+    ],
+    "required_status": {
+      "GeneralCode": 1,
+      "ProtocolId": 0,
+      "ProtocolCode": 2
+    },
+    "decision": "Original test agrees with Core: send FAILURE/SECURE_CHANNEL/INVALID_PARAMETER and stop processing failed exchange. Both required responses are absent; retain FAIL."
+  },
+  "cause": {
+    "confirmed_defect": true,
+    "component": "runtime/matter_dispatch.c process_transaction",
+    "path": [
+      "matter_pase_process rejects input, prepares error StatusReport and returns MATTER_PORT_ERROR",
+      "matter_pase_output exposes the correct eight-byte failure output",
+      "Generic non-OK result branch sets t->closing and returns before submission of the prepared output"
+    ],
+    "supporting_unit_observation": "Existing test_pase passes and checks error output1/0/2 and keys unavailable; full runtime path fails wire response.",
+    "native_source_sha256": {
+      "main/apps/matter/session/matter_pase.c": "847a5b3997514f8be2b387aeb992de1ca6b1059134ff0bc7948faf0419cd1c42",
+      "main/apps/matter/runtime/matter_dispatch.c": "1cd5a4e48d3ee7e11478719d9a199ad6ce0eb57d978eefcee80c4f1ef2fe39e0",
+      "tools/matter/tests/test_pase.c": "80b86421991a3a2cd1df24580353623879a46fa27d3652ec64bb3bb1168351da"
+    },
+    "repair_status": "DEFERRED per requested first coverage pass. Preserve/drain generated terminal response through UDP/MRP before disposal; validate retries/lost ACK, bounded teardown and failure callback once."
+  },
+  "native_build_identity": {
+    "host_compiled_in": "csa35-results.json",
+    "native_manifest_sha256": "109da48fbe3417708b30de8b072b4435f897830e706fd7bb90763df8f76877fb",
+    "native_source_header_count": 362,
+    "all_manifest_entries_unchanged": true,
+    "normal_binary_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+    "sanitizer_binary_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+    "new_compilation": false,
+    "compiler_warnings_rechecked": false,
+    "focused_tests": {
+      "normal": {
+        "exit": 0,
+        "log_sha256": "30e12dc75df2bd716fdee676301ae96cd7a857fe1f31e2680919b8d9c8b3f0ce",
+        "passed": 2
+      },
+      "sanitize": {
+        "exit": 0,
+        "log_sha256": "7295770aed22d48d73782df439fe50231c959bcec57f06375d9aa860141807a9",
+        "passed": 2
+      }
+    }
+  },
+  "negative_probe_policy": {
+    "mode": "--pase-errors",
+    "one_bit_per_input": true,
+    "response_observation_limit_seconds": 12,
+    "client_policy": "Isolated controller per negative attempt. Controller may time out itself; pending cA command explicitly closed at observation limit, not treated as received failure status.",
+    "late_probes": "Valid-shaped Pake1 and original correct cA on failed exchanges, with fresh counters;0.6-second observation without revival.",
+    "recovery": "Two fresh full commissioning/PASE/CASE flows per variant without restarting DUT.",
+    "live_key_memory_inspected": false
+  },
+  "fixture_history": {
+    "final_driver_sha256": "cef8ee5db8923ffcc3e1ae71ace05c1cdfb61901f0bd49a7c53252a08610fa3a",
+    "previous_attempts": {
+      "accepted-normal": {
+        "result": "FAIL",
+        "error": "failed-exchange-sequence-passcodeID",
+        "node_exit": 0,
+        "driver_sha256": "25c67ce4262f635cdd80041354cfcf69fac5845f85ea636fae03886640e10808",
+        "functional_checks": 3,
+        "result_sha256": "723c53606085831a904b9b40fb59f882ce08ecbe31378a847facac011db89892",
+        "packets_sha256": "e0dfce66c855224dbdb1eebd15cfab871ed2d74034ec5a9493e74079e8317186",
+        "stderr_empty": true,
+        "memory": {
+          "allocations": 4351,
+          "frees": 4351,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "a035452510fffd90d32ecbd830490829ea3e0beb260975861b22fe3a445d2666"
+        }
+      },
+      "diagnostic-normal": {
+        "result": "FAIL",
+        "error": "controller-observed-PASE-failure-cA",
+        "node_exit": 0,
+        "driver_sha256": "5e229fe50866e9cfbcbd00b509f6223abbd243e9529ae79acc49df1d41cc4c24",
+        "functional_checks": 5,
+        "result_sha256": "d4f62ed5e5b5ddb7bdf52718894c93406ba45c6ff735e21d61172158637fd044",
+        "packets_sha256": "89c05fcac8a0c04e1fc7dbcbcc45cb87bf53482ddbbb703afe7768664cd62f15",
+        "stderr_empty": true,
+        "memory": {
+          "allocations": 9125,
+          "frees": 9125,
+          "zero_errors": true,
+          "zero_live": true,
+          "log_sha256": "e432ed0f4d7f76fdcd57a38a77e5b54694a7f3df8070980525ccc0a22698a8ed"
+        }
+      }
+    },
+    "notes": [
+      "Initial attempt stopped immediately on the missing invalid-passcodeID StatusReport.",
+      "Next diagnostic attempt recorded that failure but stopped when a reused controller did not finish the cA command within its fixture timeout.",
+      "Final isolated-controller mode preserves missing statuses as conformance/overall FAIL, uses bounded observation/explicit abort and completes remaining recovery checks. No protocol clock scaling or timeout-as-PASS."
+    ]
+  },
+  "coverage": {
+    "positions": 862,
+    "manual_PASS": 12,
+    "manual_FAIL": 4,
+    "manual_without_outcome": 23,
+    "manual_without_PASS": 27,
+    "remaining_initial_coverage": {
+      "manual_without_outcome": 23,
+      "BLOCKED_positions": 3
+    },
+    "deferred_failures": {
+      "automatic": 18,
+      "manual": 4
+    },
+    "functional_checks_PASS": 52,
+    "required_status_assertions_FAIL": 4,
+    "negative_exchanges": 4,
+    "late_probes": 4,
+    "subsequent_full_commissions": 4,
+    "independent_overall": "FAIL",
+    "new_automatic_CSA_PASS": 0,
+    "category_totals_unchanged": true
+  },
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --help",
+    "python tools/matter/tests/test_pase_exchange_chip.py --node NORMAL_NODE --chip-tool CHIP_TOOL --paa PRIVATE_PAA --credentials PRIVATE_CREDENTIALS --interface INTERFACE --ipv6 IPV6 --output PRIVATE_FRESH_OUTPUT --pase-errors --valgrind",
+    "Repeat full scenario with SANITIZER_NODE without --valgrind; expected current fixture exit1, DUT exit0",
+    "ctest --test-dir BUILD --output-on-failure -R '^(test_pase|test_secure)$'",
+    "Original manual TH TC-SC-2.3 with unchanged source/PICS and retained real observations",
+    "python tools/matter/check_test_map.py",
+    "git diff --check"
+  ],
+  "cleanup": {
+    "TH_idle": true,
+    "disposable_nodes_stopped": true,
+    "paired_Windows_nodes_untouched": true,
+    "raw_packets_logs_codes_keys_and_state_outside_Git": true
+  },
+  "limits": [
+    "Original TH/manual and independent overall result remain FAIL; functional recovery and unit PASS do not override required-status failures.",
+    "Finite observation and source analysis identify dropped responses; no live key-erasure audit or claim covering all future processing.",
+    "No native repair/compilation, full CSA rerun, every error/retry pattern, physical firmware/radio, embedded RAM-fit or Home UI test.",
+    "Legacy TC-SC-2.1 discrepancy fields remain private in shared fixture reports and are not this case verdict.",
+    "Other official results inherited; failures deferred as requested and earlier clarification items remain open."
+  ],
+  "next": {
+    "stage": "CSA40",
+    "case": "TC-SC-1.1",
+    "scope": "MRP Max Message Size: resolve included headers/1280-byte boundary against Core, then actual boundary datagrams and ACKs.",
+    "status": "NOT_RUN"
+  }
+}

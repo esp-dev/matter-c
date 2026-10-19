@@ -1,5 +1,22 @@
 # Development status
 
+**CSA39: original manual TC-SC-2.3 FAIL, TH run474: missing PASE error replies.**
+Invalid passcodeID and Pake3.cA receive ACKs but no required StatusReport1/0/2.
+PASE prepares the correct error output; the runtime dispatcher closes on the
+returned error before submitting that output. This is a confirmed native
+integration defect, not a test/spec discrepancy; repair is deferred as requested.
+Seven TH entries pass and two fail. In each Memcheck/separate-sanitizer scenario,
+26 functional checks pass and two required-status assertions fail; overall FAIL
+is retained. Late valid-shaped messages do not revive the failed exchanges;
+fresh full commissioning/CASE and a second fabric work without DUT restart.
+Memcheck has 48294 matched allocations/frees, zero errors/live bytes; both node
+stderr files are empty. Two existing tests pass per build. No native/PICS changes
+or new compilation. TH idle, disposable nodes stopped; Windows pairings untouched.
+Totals remain **97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL now has
+**12 PASS, 4 FAIL, 23 without an outcome**. See [evidence/cause](csa39-validation.md)
+and [record](csa39-results.json). **Next: CSA40, TC-SC-1.1 MRP size boundary.
+Continue initial coverage; return to failures later as requested.**
+
 **CSA38: original manual TC-SC-2.2 FAIL, TH run473; bad-MIC recovery passes.**
 Four bidirectional encrypted PASE steps and log upload pass; Step5 requires
 session termination/key clearing, but both receivers retain their session after

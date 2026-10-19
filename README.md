@@ -347,7 +347,17 @@ message rejection and subsequent same-session recovery pass 50 independent check
 across Memcheck/separate sanitizers. Memcheck has 43536 matched allocations/frees,
 zero errors/live bytes; two focused tests pass per build. No native/PICS change.
 Totals are unchanged; MANUAL now has 12 PASS, 3 FAIL and 24 without an outcome.
-Next: CSA39, TC-SC-2.3 invalid passcodeID and Pake3.cA; failures remain deferred.
+The invalid-input procedure is reviewed below.
+
+[CSA39 PASE error handling](doc/oss/csa39-validation.md) records original manual
+TC-SC-2.3 **FAIL**, run474: both required error StatusReports are absent. The PASE
+machine prepares them, but the dispatcher closes before sending; repair is
+deferred. Late-message rejection and full new commissioning/CASE work without
+restart, with 52 functional checks passing; four required-status assertions fail
+across Memcheck/separate sanitizers, so overall FAIL is retained. Memcheck has
+48294 matched allocations/frees and zero errors/live bytes. No native/PICS change.
+MANUAL now has 12 PASS, 4 FAIL and 23 without an outcome; totals are unchanged.
+Next: CSA40, TC-SC-1.1 MRP Max Message Size; failures remain deferred.
 
 The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
 semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator

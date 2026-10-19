@@ -6,6 +6,7 @@ and literal original-procedure discrepancies are reported separately. This is
 independent operator evidence, not an automatic CSA result. --tamper-pase also
 records TC-SC-2.2 bidirectional traffic: alter the first encrypted request and
 response MIC, then release the original packets after a real quiet interval.
+--pase-errors records TC-SC-2.3 invalid passcodeID/cA and terminal exchanges.
 Keep output private.
 """
 import argparse
@@ -114,9 +115,11 @@ def fields(data):
     return result
 
 
-def validate(exchange):
+def validate(exchange, success=True, allow_missing_failure_status=False):
     """Raise on a Core1.6.1 violation; return no randoms/key material."""
-    assert [p['opcode'] for p in exchange] == [0x20, 0x21, 0x22, 0x23, 0x24, 0x40]
+    status_present = exchange[-1]['opcode'] == 0x40
+    assert status_present or (not success and allow_missing_failure_status)
+    assert [p['opcode'] for p in exchange] == [0x20, 0x21, 0x22, 0x23, 0x24] + ([0x40] if status_present else [])
     ephemeral = exchange[0]['source']; identifier = exchange[0]['exchange']
     assert ephemeral
     for packet in exchange:
@@ -168,13 +171,42 @@ def validate(exchange):
         octets(params['value'], 2, 16, 32)
     assert octets(p1, 1, 65)[0] == octets(p2, 1, 65)[0] == 4
     octets(p2, 2, 32); octets(p3, 1, 32)
-    status = exchange[5]['payload']
-    assert len(status) == 8 and struct.unpack('<HIH', status) == (0, 0, 0)
+    if status_present:
+        status = exchange[5]['payload']
+        assert len(status) == 8 and struct.unpack('<HIH', status) == ((0, 0, 0) if success else (1, 0, 2))
     return {'initiator_session_id': request[2]['value'], 'responder_session_id': response[3]['value'],
             'has_PBKDF_parameters': known, 'request_random_bytes': 32, 'response_random_bytes': 32,
             'PA_bytes': 65, 'PB_bytes': 65, 'CA_bytes': 32, 'CB_bytes': 32,
             'salt_bytes': None if known else len(params['value'][2]['value']),
-            'same_exchange': True, 'Core_headers_and_reliable_flags': True, 'success_status': True}
+            'same_exchange': True, 'Core_headers_and_reliable_flags': True,
+            'status_present': status_present, 'success_status': success}
+
+
+def corrupt_pase_field(packet, mode):
+    """Change only passcodeID0 to1, or one confirmation bit; keep TLV valid."""
+    header = message(packet); payload = header['payload']; doc = fields(payload)
+    wanted = 3 if mode == 'passcodeID' else 1
+    assert header['opcode'] == (0x20 if mode == 'passcodeID' else 0x24)
+    if mode == 'passcodeID':
+        assert doc[wanted]['value'] == 0 and 4 <= doc[wanted]['kind'] <= 7
+    else:
+        assert isinstance(doc[wanted]['value'], bytes) and len(doc[wanted]['value']) == 32
+    pos = 1
+    while pos < len(payload):
+        control, tag = payload[pos:pos + 2]; kind = control & 31; pos += 2
+        assert control >> 5 == 1
+        if 4 <= kind <= 7:
+            width = 1 << (kind & 3); start = pos; pos += width
+        elif 16 <= kind <= 19:
+            width = 1 << (kind & 3)
+            size = int.from_bytes(payload[pos:pos + width], 'little'); pos += width
+            start = pos; pos += size
+        else:
+            raise ValueError('Unexpected field before mutation')
+        if tag == wanted:
+            offset = len(packet) - len(payload) + start
+            return packet[:offset] + bytes([packet[offset] ^ 1]) + packet[offset + 1:]
+    raise ValueError('Missing mutation field')
 
 
 def main():
@@ -185,7 +217,10 @@ def main():
     parser.add_argument('--ipv6', required=True)
     parser.add_argument('--valgrind', action='store_true')
     parser.add_argument('--tamper-pase', action='store_true', help='TC-SC-2.2: corrupt one MIC in each direction, then release originals')
+    parser.add_argument('--pase-errors', action='store_true', help='TC-SC-2.3: invalid passcodeID/cA, terminal probes, then valid commissioning')
     args = parser.parse_args(); out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
+    if args.tamper_pase and args.pase_errors:
+        parser.error('Choose one fault-injection mode')
     report = {'result': 'RUNNING', 'checks': [], 'exchanges': [],
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               'node_sha256': hashlib.sha256(args.node.read_bytes()).hexdigest(),
@@ -193,15 +228,17 @@ def main():
     packets = []; lock = threading.Lock(); stop = threading.Event(); failures = []
     proxies = []; threads = []; clients = []; child = None
     tamper = []; quiet_seconds = .6
+    error_case = [None]; failed_exchanges = set()
     target = (args.ipv6, 5587, 0, args.interface)
 
     def save():
         (out / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
 
-    def check(name, passed):
-        report['checks'].append({'name': name, 'status': 'PASS' if passed else 'FAIL'}); save()
+    def check(name, passed, conformance=False):
+        report.setdefault('conformance_checks' if conformance else 'checks', []).append(
+            {'name': name, 'status': 'PASS' if passed else 'FAIL'}); save()
         print(('PASS ' if passed else 'FAIL ') + name, flush=True)
-        if not passed:
+        if not passed and not conformance:
             raise AssertionError(name)
 
     def forward(sock, lane):
@@ -225,8 +262,13 @@ def main():
                     if peer is not None and peer != address:
                         raise ValueError('Multiple peers on isolated lane')
                     peer = address
+                row = {'lane': lane, 'direction': direction, 'data': data.hex()}
+                if args.pase_errors and lane >= 2 and error_case[0]:
+                    mode = error_case[0]; header = message(data); row['negative_case'] = mode
+                    if direction == 'initiator' and header.get('opcode') == (0x20 if mode == 'passcodeID' else 0x24):
+                        data = corrupt_pase_field(data, mode); row['forwarded_data'] = data.hex()
                 with lock:
-                    packets.append({'lane': lane, 'direction': direction, 'data': data.hex()})
+                    packets.append(row)
                 if args.tamper_pase and lane == 0:
                     header = message(data)
                     if header['session']:
@@ -263,6 +305,15 @@ def main():
         check('command-' + '-'.join(map(str, argv[:2])), ok)
         return data
 
+    def create_client(name):
+        lane = len(proxies)
+        sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+        proxies.append(sock); sock.bind((args.ipv6, 0, 0, args.interface)); sock.settimeout(.1)
+        worker = threading.Thread(target=forward, args=(sock, lane)); worker.start(); threads.append(worker)
+        client = Client(args.chip_tool, args.paa, out, name, advertise=False)
+        clients.append(client)
+        return client, lane
+
     try:
         argv = [str(args.node), '--interface', str(args.interface), '--port', str(target[1]),
                 '--seconds', '300', '--pin', '20202021', '--discriminator', '3917',
@@ -279,11 +330,84 @@ def main():
             time.sleep(.05)
         check('node-published', child.poll() is None and 'PUBLISHED' in (out / 'node.log').read_text())
         for lane in range(2):
-            sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-            proxies.append(sock); sock.bind((args.ipv6, 0, 0, args.interface)); sock.settimeout(.1)
-            worker = threading.Thread(target=forward, args=(sock, lane)); worker.start(); threads.append(worker)
-            clients.append(Client(args.chip_tool, args.paa, out, 'controller-' + str(lane), advertise=False))
+            create_client('controller-' + str(lane))
         address = args.ipv6 + '%' + str(args.interface)
+        if args.pase_errors:
+            negative = []; late_probes = []
+            for index, mode in enumerate(('passcodeID', 'cA')):
+                negative_client, negative_lane = create_client('negative-' + mode)
+                error_case[0] = mode
+                completed, _ = negative_client.command(['pairing', 'already-discovered', 90 + index, 20202021,
+                    address, proxies[negative_lane].getsockname()[1], '--timeout', 30],
+                    r'Run command failure', timeout=12, failure=True)
+                negative_client.close(); clients.remove(negative_client)
+                time.sleep(.2)
+                with lock:
+                    captured = copy.deepcopy(packets)
+                group = []; seen = set(); originals = {}
+                for row in captured:
+                    if row.get('negative_case') != mode or row['lane'] != negative_lane:
+                        continue
+                    packet = bytes.fromhex(row.get('forwarded_data', row['data'])); header = message(packet)
+                    key = row['direction'], header['counter']
+                    if header.get('protocol') != 0 or header.get('opcode') not in (0x20, 0x21, 0x22, 0x23, 0x24, 0x40) or key in seen:
+                        continue
+                    seen.add(key); header['direction'] = row['direction']; group.append(header)
+                    originals[header['opcode']] = bytes.fromhex(row['data'])
+                expected = [0x20, 0x40] if mode == 'passcodeID' else [0x20, 0x21, 0x22, 0x23, 0x24, 0x40]
+                observed = [p['opcode'] for p in group]
+                check('failed-exchange-sequence-' + mode, observed in (expected, expected[:-1]))
+                status_ok = observed == expected and group[-1]['payload'] == struct.pack('<HIH', 1, 0, 2)
+                check('failure-status-' + mode, status_ok, conformance=True)
+                for p in group:
+                    initiator = p['direction'] == 'initiator'
+                    assert p['flags'] == (4 if initiator else 1) and p['session'] == p['security'] == p['protocol'] == p['vendor'] == 0
+                    assert p['exchange'] == group[0]['exchange'] and bool(p['exchange_flags'] & 1) == initiator
+                    assert p['source' if initiator else 'destination'] == group[0]['source']
+                if mode == 'passcodeID':
+                    check('invalid-passcodeID-value', fields(group[0]['payload'])[3]['value'] == 1)
+                    first_request = originals[0x20]
+                    first_lane = negative_lane
+                else:
+                    validate(group, success=False, allow_missing_failure_status=True)
+                    check('invalid-cA-has-valid-TLV-shape', fields(group[4]['payload'])[1]['value'] != fields(message(originals[0x24])['payload'])[1]['value'])
+                    original_cA = originals[0x24]; original_PA = message(originals[0x22])['payload']
+                    second_lane = negative_lane
+                failed_exchanges.add((negative_lane, group[0]['exchange']))
+                negative.append({'case': mode, 'exchange_id': group[0]['exchange'], 'opcodes': observed,
+                    'response_observation_limit_seconds': 12, 'controller_completed_before_abort': completed,
+                    'expected_opcodes': expected, 'observed_status': {'general': 1, 'protocol': 0, 'code': 2} if status_ok else None,
+                    'expected_status': {'general': 1, 'protocol': 0, 'code': 2}, 'result': 'PASS' if status_ok else 'FAIL'})
+            error_case[0] = None
+            # Late, structurally valid work must not revive either failed exchange.
+            late_request = first_request[:16] + struct.pack('<BBHH', 5, 0x22, message(first_request)['exchange'], 0) + original_PA
+            with lock:
+                probe_counter = max(message(bytes.fromhex(r['data']))['counter'] for r in packets if r['direction'] == 'initiator')
+            assert probe_counter < (1 << 32) - 2
+            for packet, mode, lane in [(late_request, 'passcodeID', first_lane), (original_cA, 'cA', second_lane)]:
+                probe_counter += 1
+                packet = packet[:4] + probe_counter.to_bytes(4, 'little') + packet[8:]
+                with lock:
+                    start = len(packets)
+                    packets.append({'lane': lane, 'direction': 'initiator', 'data': packet.hex(), 'late_probe': mode})
+                proxies[lane].sendto(packet, target); late_probes.append({'case': mode, 'start': start})
+            time.sleep(quiet_seconds)
+            with lock:
+                captured = copy.deepcopy(packets)
+            for probe in late_probes:
+                exchange_id = next(n['exchange_id'] for n in negative if n['case'] == probe['case'])
+                progress = []
+                for row in captured[probe['start'] + 1:]:
+                    if row['direction'] != 'responder':
+                        continue
+                    p = message(bytes.fromhex(row['data']))
+                    if p['session'] or (p.get('exchange') == exchange_id and
+                        (p.get('opcode') in (0x21, 0x23) or (p.get('opcode') == 0x40 and p['payload'] == bytes(8)))):
+                        progress.append(p)
+                check('failed-exchange-not-revived-' + probe['case'], not progress)
+            report['TC_SC_2_3'] = {'result': 'PASS' if all(n['result']=='PASS' for n in negative) else 'FAIL', 'negative_exchanges': negative,
+                'late_correct_messages_do_not_revive': True, 'observation_seconds': quiet_seconds,
+                'key_memory_inspection': 'NOT_PERFORMED; full new commissioning checks resource recovery.'}
         pin = 20202021; case_ids = []
         for lane, client in enumerate(clients):
             data = command(client, ['pairing', 'already-discovered', lane + 1, pin, address,
@@ -311,6 +435,8 @@ def main():
             if p['session']:
                 encrypted.append((row['lane'], p)); continue
             if p['protocol'] == p['vendor'] == 0 and p['opcode'] in (0x20, 0x21, 0x22, 0x23, 0x24, 0x40):
+                if (row['lane'], p['exchange']) in failed_exchanges:
+                    continue
                 group = groups.setdefault((row['lane'], p['exchange']), [])
                 if not any((x['direction'], x['counter']) == (p['direction'], p['counter']) for x in group):
                     group.append(p)
@@ -368,8 +494,9 @@ def main():
             {'step': 2, 'field': 'S/DSIZ', 'procedure': 'S=0,DSIZ=0', 'Core1.6.1': 'Responder S=0,DSIZ=1', 'observed': 'S=0,DSIZ=1'},
             {'steps': [1, 2, 3, 4, 5], 'field': 'octet string sizes', 'procedure': '32-bit random,16..32-bit salt,65-bit points,32-bit confirmations', 'Core1.6.1': '32-byte random,16..32-byte salt,65-byte points,32-byte confirmations', 'observed': 'Core byte lengths; no procedure source edited'},
             {'steps': [3, 4, 5], 'field': 'S/DSIZ', 'procedure': 'S=0,DSIZ=0', 'Core1.6.1': 'Initiator S=1,DSIZ=0; responder S=0,DSIZ=1', 'observed': 'Core addressing'}]
-        report['Core_result'] = 'PASS'; report['literal_procedure_result'] = 'FAIL'
-        report['result'] = 'PASS'  # Independent Core evidence only, not original manual acceptance.
+        report['Core_result'] = 'FAIL' if any(c['status']=='FAIL' for c in report.get('conformance_checks', [])) else 'PASS'
+        report['literal_procedure_result'] = 'FAIL'
+        report['result'] = report['Core_result']  # Independent evidence; never an original CSA verdict.
     except Exception as error:
         report['result'] = 'FAIL'; report['error'] = str(error)
         raise
