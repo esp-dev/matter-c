@@ -7,6 +7,12 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA50: original DA1.1 PASS; GroupKey2.2 FAIL on an existing keyset ID.**
+Actual capacity fill, isolated operator, factory reset/recommissioning and
+independent persistent restart accepted; original FAIL retained for clarification.
+[Report](csa50-validation.md).150 completed applicable positions,5 prerequisites.
+Next:CSA51, native terminal PASE error delivery and original procedure rerun.
+
 **CSA49: original TH run484, event Read and fabric isolation PASS; Subscribe FAIL.**
 Six selectors, EventMin, chunking, urgency/timing and real two-fabric raw privacy
 covered. Two all-denied Subscribe expectations need CSA clarification; no native

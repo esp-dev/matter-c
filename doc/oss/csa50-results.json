@@ -1,0 +1,1617 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa49-results.json",
+  "previous_sha256": "22746e1b345b31ebac72f14440217e0cc53242f67b0dd360c2b2eb09db3b512f",
+  "source_base_commit": "838518e95e9f58e6296b5fd127e1d96822bbbf81",
+  "scope": "Actual operator boundaries completed: original DA1.1 PASS, original GroupKey2.2 FAIL on existing ID3 at capacity. Core requires overwrite success. Independent capacity, persistent restart and disposable reset pass with Memcheck and separately sanitizers. Native unchanged.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC_DA_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "BLOCKED",
+      "status": "PASS",
+      "run_id": 485
+    },
+    {
+      "case": "TC-GRPKEY-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "BLOCKED",
+      "status": "FAIL",
+      "run_id": 487
+    }
+  ],
+  "official_receipts": {
+    "initial": {
+      "run_id": 485,
+      "state": "TestStateEnum.error",
+      "completed_at_utc": "2026-10-19 16:52:16.671373",
+      "observed_utc": "2026-10-19T16:52:19.501445+00:00",
+      "cases": [
+        {
+          "case": "TC-GRPKEY-2.2",
+          "state": "TestStateEnum.cancelled",
+          "steps": {
+            "TestStateEnum.cancelled": 36
+          },
+          "details": [
+            {
+              "title": "Start chip-tool test",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 0: Wait for the commissioned device to be retrieved",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 1: TH reads MaxGroupKeysPerFabric attribute from GroupKeyManagement cluster on DUT using a fabric-filtered read. Save the value as Max_GrpKey for future use.",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 2: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 3: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01a",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 4: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1:null 7)EpochKey2: null 8)EpochStartTime2:null",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 5: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1:18446744073709551613 7)EpochKey2: null 8)EpochStartTime2:null",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 6: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with command fields as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: null 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1:18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 7: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: null 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 8: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 0 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 9: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 10: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: null 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 11: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 18446744073709551613 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 1 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 12: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1: null 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614 Note: EpochKey1 and EpochStartTime1 are null when EpochKey2 and EpochStartTime2 are not null ",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 13: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: null 8)EpochStartTime2: 18446744073709551614 Note: EpochKey2 is set to null and EpochStartTime2 is not null",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 14: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: null Note: EpochKey2 is not null and EpochStartTime2 is null",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 15: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 6)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 7)EpochStartTime1: 18446744073709551613 8)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 9)EpochStartTime2: 1 Note: EpochStartTime2 is earlier than EpochStartTime1",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 1 Note1: Repeat the step by sending EpochKey1 and EpochKey2 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: Repeat the step by sending EpochKey1 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: Note: Repeat the step by sending EpochKey2 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT. Note: Repeat step 16 by sending KeySetWrite Command with EpochKey0, EpochKey1 and EpochKey2 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: Repeat step 16a by sending KeySetWrite Command with EpochKey1 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: Repeat step 16a by sending KeySetWrite Command with EpochKey2 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT. Note: Repeat step 16 by sending KeySetWrite Command with EpochKey0, EpochKey1 and EpochKey2 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: Repeat step 16 by sending KeySetWrite Command with EpochKey1 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: Repeat step 16 by sending KeySetWrite Command with EpochKey2 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 17: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d3d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d4d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 17446744073709551613 7)EpochKey2: d5d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 17446744073709551614 Note: KeySetWrite command is sent with different EpochKeys,EpochStartTime1 and EpochStartTime2 values",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 18: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01a",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 19: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01b that does not exist in the GroupKeyMap attribute list.",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 20: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x01a.",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 21: TH sends KeySetWrite command to DUT until size of list for TH\u2019s fabric in GroupKeyMap attribute contains Max_GrpKey entries, starting with GroupKeySetID 1 and incrementing by 1 each time.",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 22: TH again sends KeySetWrite command to DUT with any other GroupKeySetID not used yet.",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 23: TH sends KeySetReadAllIndices command to DUT.",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 24: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x0",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 25: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x01b that does not exist in the GroupKeyMap attribute list.",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Prompt Manual Log Upload",
+              "state": "TestStateEnum.cancelled",
+              "errors": [],
+              "failures": []
+            }
+          ]
+        },
+        {
+          "case": "TC_DA_1_1",
+          "state": "TestStateEnum.passed",
+          "steps": {
+            "TestStateEnum.passed": 13
+          },
+          "details": [
+            {
+              "title": "Start Python test",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "DUT is commissioned to TH1's fabric",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "TH1 does a non-fabric filtered read of the NOCs attribute from the Node Operational Credentials cluster and saves the returned list as nocs_th1",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "TH1 does a non-fabric-filtered read of the Fabrics attribute from the Node Operational Credentials cluster",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Factory reset DUT",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "TH2 opens a PASE session with the DUT",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "TH2 does a non-fabric-filtered read of the Fabrics attribute from the Node Operational Credentials cluster",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "DUT is commissioned to TH2's fabric",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "TH2 does a non-fabric-filtered read of the Fabrics attribute from the Node Operational Credentials cluster",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "TH2 does a non-fabric-filtered read of the NOCs attribute from the Node Operational Credentials cluster",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "TH2 opens an Enhanced Commissioning Window on the DUT",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "TH1 commissions DUT to TH1's fabric via the window; TH1 removes TH2's fabric",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Show test logs",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            }
+          ]
+        }
+      ],
+      "official_log_sha256": "26c7afc392cea077a2682c32ed79d6751933f86d3de456a67bcd16b359197562",
+      "raw_result_sha256": "fdc5ae9affe236d265ad7a8d7adaaf83199010d5ca86bcbd8148f37b81825a10",
+      "identity": {
+        "source_sha256": {
+          "TC_GRPKEY_2_2": "5d1c86b732ff9d9c32dd810c6949085200796d5aecc6eebb43000e2b58327eec",
+          "TC_DA_1_1": "b5f088cf89760a35ecddf10cc31cd85f7bcd0e8421f438af8700ae3060eba26b"
+        },
+        "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+        "PICS_changes": [],
+        "support_sha256": {
+          "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+          "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+        }
+      },
+      "audit": [
+        {
+          "action": "simulated-factory-reset",
+          "boot": 2,
+          "prior_store_existed": true,
+          "fresh_store": false,
+          "utc_ms": 1792428727993
+        }
+      ],
+      "harness_state": {
+        "state": "idle"
+      },
+      "cleanup": {
+        "boots": 2,
+        "temporary_PAA_removed": true,
+        "node_stopped": true
+      },
+      "runner_exit": {
+        "code": 0
+      }
+    },
+    "retry": {
+      "run_id": 486,
+      "state": "TestStateEnum.error",
+      "completed_at_utc": "2026-10-19 16:58:10.172053",
+      "observed_utc": "2026-10-19T16:58:15.044464+00:00",
+      "cases": [
+        {
+          "case": "TC-GRPKEY-2.2",
+          "state": "TestStateEnum.error",
+          "steps": {
+            "TestStateEnum.passed": 31,
+            "TestStateEnum.error": 1,
+            "TestStateEnum.pending": 4
+          },
+          "details": [
+            {
+              "title": "Start chip-tool test",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 0: Wait for the commissioned device to be retrieved",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 1: TH reads MaxGroupKeysPerFabric attribute from GroupKeyManagement cluster on DUT using a fabric-filtered read. Save the value as Max_GrpKey for future use.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 2: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 3: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01a",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 4: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1:null 7)EpochKey2: null 8)EpochStartTime2:null",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 5: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1:18446744073709551613 7)EpochKey2: null 8)EpochStartTime2:null",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 6: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with command fields as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: null 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1:18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 7: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: null 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 8: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 0 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 9: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 10: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: null 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 11: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 18446744073709551613 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 1 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 12: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1: null 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614 Note: EpochKey1 and EpochStartTime1 are null when EpochKey2 and EpochStartTime2 are not null ",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 13: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: null 8)EpochStartTime2: 18446744073709551614 Note: EpochKey2 is set to null and EpochStartTime2 is not null",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 14: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: null Note: EpochKey2 is not null and EpochStartTime2 is null",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 15: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 6)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 7)EpochStartTime1: 18446744073709551613 8)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 9)EpochStartTime2: 1 Note: EpochStartTime2 is earlier than EpochStartTime1",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 1 Note1: Repeat the step by sending EpochKey1 and EpochKey2 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: Repeat the step by sending EpochKey1 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: Note: Repeat the step by sending EpochKey2 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT. Note: Repeat step 16 by sending KeySetWrite Command with EpochKey0, EpochKey1 and EpochKey2 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: Repeat step 16a by sending KeySetWrite Command with EpochKey1 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: Repeat step 16a by sending KeySetWrite Command with EpochKey2 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT. Note: Repeat step 16 by sending KeySetWrite Command with EpochKey0, EpochKey1 and EpochKey2 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: Repeat step 16 by sending KeySetWrite Command with EpochKey1 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: Repeat step 16 by sending KeySetWrite Command with EpochKey2 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 17: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d3d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d4d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 17446744073709551613 7)EpochKey2: d5d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 17446744073709551614 Note: KeySetWrite command is sent with different EpochKeys,EpochStartTime1 and EpochStartTime2 values",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 18: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01a",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 19: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01b that does not exist in the GroupKeyMap attribute list.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 20: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x01a.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 21: TH sends KeySetWrite command to DUT until size of list for TH\u2019s fabric in GroupKeyMap attribute contains Max_GrpKey entries, starting with GroupKeySetID 1 and incrementing by 1 each time.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 22: TH again sends KeySetWrite command to DUT with any other GroupKeySetID not used yet.",
+              "state": "TestStateEnum.error",
+              "errors": [
+                "Error occurred during execution of test case TC-GRPKEY-2.2. no close frame received or sent"
+              ],
+              "failures": []
+            },
+            {
+              "title": "Step 23: TH sends KeySetReadAllIndices command to DUT.",
+              "state": "TestStateEnum.pending",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 24: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x0",
+              "state": "TestStateEnum.pending",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 25: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x01b that does not exist in the GroupKeyMap attribute list.",
+              "state": "TestStateEnum.pending",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Prompt Manual Log Upload",
+              "state": "TestStateEnum.pending",
+              "errors": [],
+              "failures": []
+            }
+          ]
+        }
+      ],
+      "official_log_sha256": "dfd9f1404530295be477623330ca0a5b911aa06aa98bc1e06e93c24779cf8f44",
+      "raw_result_sha256": "e9b3e139cb3879915e739ed25371291ff10ab2b778371c1da6341fbc09210678",
+      "identity": {
+        "source_sha256": {
+          "TC_GRPKEY_2_2": "5d1c86b732ff9d9c32dd810c6949085200796d5aecc6eebb43000e2b58327eec",
+          "TC_DA_1_1": "b5f088cf89760a35ecddf10cc31cd85f7bcd0e8421f438af8700ae3060eba26b"
+        },
+        "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+        "PICS_changes": [],
+        "support_sha256": {
+          "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+          "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+        }
+      },
+      "audit": [
+        {
+          "action": "fill-keysets",
+          "result": "PASS",
+          "maximum": 4,
+          "actual_keyset_ids": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "writes": [
+            {
+              "id": 1,
+              "results": []
+            },
+            {
+              "id": 2,
+              "results": []
+            },
+            {
+              "id": 3,
+              "results": []
+            }
+          ],
+          "scope": "Actual SDK controller on original TH fabric. IDs1,2,3 added to existing IPK0. Next original hardcoded ID3 already exists.",
+          "utc_ms": 1792429079911
+        }
+      ],
+      "harness_state": {
+        "state": "idle"
+      },
+      "cleanup": {
+        "boots": 1,
+        "temporary_PAA_removed": true,
+        "node_stopped": true
+      },
+      "runner_exit": {
+        "code": 0
+      }
+    },
+    "safe": {
+      "run_id": 487,
+      "state": "TestStateEnum.failed",
+      "completed_at_utc": "2026-10-19 17:04:16.363280",
+      "observed_utc": "2026-10-19T17:04:20.756406+00:00",
+      "cases": [
+        {
+          "case": "TC-GRPKEY-2.2",
+          "state": "TestStateEnum.failed",
+          "steps": {
+            "TestStateEnum.passed": 35,
+            "TestStateEnum.failed": 1
+          },
+          "details": [
+            {
+              "title": "Start chip-tool test",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 0: Wait for the commissioned device to be retrieved",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 1: TH reads MaxGroupKeysPerFabric attribute from GroupKeyManagement cluster on DUT using a fabric-filtered read. Save the value as Max_GrpKey for future use.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 2: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 3: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01a",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 4: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1:null 7)EpochKey2: null 8)EpochStartTime2:null",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 5: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1:18446744073709551613 7)EpochKey2: null 8)EpochStartTime2:null",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 6: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with command fields as follows:1)GroupKeySetID: 0x01a 2) GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: null 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1:18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 7: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: null 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 8: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 0 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 9: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 10: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: null 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2:18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 11: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 18446744073709551613 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 1 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 12: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: null 6)EpochStartTime1: null 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 18446744073709551614 Note: EpochKey1 and EpochStartTime1 are null when EpochKey2 and EpochStartTime2 are not null ",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 13: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: null 8)EpochStartTime2: 18446744073709551614 Note: EpochKey2 is set to null and EpochStartTime2 is not null",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 14: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: null Note: EpochKey2 is not null and EpochStartTime2 is null",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 15: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 6)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 7)EpochStartTime1: 18446744073709551613 8)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 9)EpochStartTime2: 1 Note: EpochStartTime2 is earlier than EpochStartTime1",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields are as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d0 4)EpochStartTime0: 1 5)EpochKey1: d1d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 18446744073709551613 7)EpochKey2: d2d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 1 Note1: Repeat the step by sending EpochKey1 and EpochKey2 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: Repeat the step by sending EpochKey1 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16: Note: Repeat the step by sending EpochKey2 with 1 byte value (< 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT. Note: Repeat step 16 by sending KeySetWrite Command with EpochKey0, EpochKey1 and EpochKey2 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: Repeat step 16a by sending KeySetWrite Command with EpochKey1 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16a: Repeat step 16a by sending KeySetWrite Command with EpochKey2 having 15 bytes value (< 16 byte)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT. Note: Repeat step 16 by sending KeySetWrite Command with EpochKey0, EpochKey1 and EpochKey2 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: Repeat step 16 by sending KeySetWrite Command with EpochKey1 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 16b: Repeat step 16 by sending KeySetWrite Command with EpochKey2 having 17 bytes value (> 16 bytes)",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 17: TH sends KeySetWrite command in the GroupKeyManagement cluster to DUT on EP0 with GroupKeySet fields as follows: 1)GroupKeySetID: 0x01a 2)GroupKeySecurityPolicy: TrustFirst (0) 3)EpochKey0: d3d1d2d3d4d5d6d7d8d9dadbdcdddedf 4)EpochStartTime0: 1 5)EpochKey1: d4d1d2d3d4d5d6d7d8d9dadbdcdddedf 6)EpochStartTime1: 17446744073709551613 7)EpochKey2: d5d1d2d3d4d5d6d7d8d9dadbdcdddedf 8)EpochStartTime2: 17446744073709551614 Note: KeySetWrite command is sent with different EpochKeys,EpochStartTime1 and EpochStartTime2 values",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 18: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01a",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 19: TH sends KeySetRead command to GroupKeyManagement cluster with GroupKeySetID as 0x01b that does not exist in the GroupKeyMap attribute list.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 20: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x01a.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 21: TH sends KeySetWrite command to DUT until size of list for TH\u2019s fabric in GroupKeyMap attribute contains Max_GrpKey entries, starting with GroupKeySetID 1 and incrementing by 1 each time.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 22: TH again sends KeySetWrite command to DUT with any other GroupKeySetID not used yet.",
+              "state": "TestStateEnum.failed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 23: TH sends KeySetReadAllIndices command to DUT.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 24: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x0",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Step 25: TH removes the Group key set that was added by sending a KeySetRemove command to the GroupKeyManagement cluster with the GroupKeySetID field set to 0x01b that does not exist in the GroupKeyMap attribute list.",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            },
+            {
+              "title": "Prompt Manual Log Upload",
+              "state": "TestStateEnum.passed",
+              "errors": [],
+              "failures": []
+            }
+          ]
+        }
+      ],
+      "official_log_sha256": "25307731771bc9f0865b01a451b6afe1516d82fc29f894e53a64534eab28c810",
+      "raw_result_sha256": "94fca23cdab79d13eb89104e4e5149118132a684b1734504619da95995cbae4e",
+      "identity": {
+        "source_sha256": {
+          "TC_GRPKEY_2_2": "5d1c86b732ff9d9c32dd810c6949085200796d5aecc6eebb43000e2b58327eec",
+          "TC_DA_1_1": "b5f088cf89760a35ecddf10cc31cd85f7bcd0e8421f438af8700ae3060eba26b"
+        },
+        "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+        "PICS_changes": [],
+        "support_sha256": {
+          "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+          "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+        }
+      },
+      "audit": [
+        {
+          "action": "fill-keysets",
+          "result": "PASS",
+          "maximum": 4,
+          "actual_keyset_ids": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "commands": 6,
+          "command_log_sha256": [
+            "8cae8e3eead20e57c535d2b8982a978f7b68c301d9336495431ba89256e9b40d",
+            "4dcec985473a082678687435222a03fef74134635144d5f279e8dd2416dbceaa",
+            "c243bcdcc8ffb428daf71cb0a79a7368315fed8b6b7db67a87816c97642540d1",
+            "0e0110c6c78da1cff434ac103b5587765bd4455076faa3a84b8de040aedc3031",
+            "be8bc09a95adffc54fd9bf3f70a44f8cbc198aec8dfb7087f71e57a8b3ebd720",
+            "78223e8537b67542e84e8a8ef01ce4f079fcba3833042a8617376a6e950c8d13"
+          ],
+          "isolated_copy_of_TH_controller": true,
+          "utc_ms": 1792429452284
+        },
+        {
+          "action": "verify-keyset-indices",
+          "result": "PASS",
+          "maximum": 4,
+          "actual_keyset_ids": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "commands": 2,
+          "command_log_sha256": [
+            "78f9b0f6b9a31359344c5bfe6e61fb07bc798c6f5ee2e8702c952fa8f873f92f",
+            "3181dbf8a0a44fce41c01ae75363bcab1cf13a4a6c84b0debfcb976d13bb255f"
+          ],
+          "isolated_copy_of_TH_controller": true,
+          "utc_ms": 1792429454882
+        }
+      ],
+      "harness_state": {
+        "state": "idle"
+      },
+      "cleanup": {
+        "boots": 1,
+        "temporary_PAA_removed": true,
+        "node_stopped": true
+      },
+      "runner_exit": {
+        "code": 0
+      }
+    }
+  },
+  "original_step22": "Step 22: TH again sends KeySetWrite command to DUT with any other\n          GroupKeySetID not used yet.\"\n      PICS: GRPKEY.S.C00.Rsp && PICS_SKIP_SAMPLE_APP\n      command: \"KeySetWrite\"\n      arguments:\n          values:\n              - name: GroupKeySet\n                value:\n                    {\n                        GroupKeySetID: 0x003,\n                        GroupKeySecurityPolicy: 0,\n                        EpochKey0: \"hex:d0d1d2d3d4d5d6d7d8d9dadbdcdddedf\",\n                        EpochStartTime0: 1,\n                        EpochKey1: \"hex:d1d1d2d3d4d5d6d7d8d9dadbdcdddedf\",\n                        EpochStartTime1: \"18446744073709551613\",\n                        EpochKey2: \"hex:d2d1d2d3d4d5d6d7d8d9dadbdcdddedf\",\n                        EpochStartTime2: \"18446744073709551614\",\n                    }\n      response:\n          error: RESOURCE_EXHAUSTED\n\n    - label: \"Step 23: TH sends KeySetReadAllIndices command to DUT.\"\n      verification: |\n          ./chip-tool groupkeymanagement key-set-read-all-indices 1 0\n\n          Verify that DUT sends KeySetReadAllIndicesResponse listing Max_GrpKey number of GroupKeySetID's on TH(chip-tool)  Logs:\n\n          [1692342735.277532][8297:8300] CHIP:TOO:   KeySetReadAllIndicesResponse: {\n          [1692342735.277541][8297:8300] CHIP:TOO:     groupKeySetIDs: 3 entries\n          [1692342735.277546][8297:8300] CHIP:TOO:       [1]: 2\n          [1692342735.277550][8297:8300] CHIP:TOO:       [2]: 1\n          [1692342735.277554][8297:8300]",
+  "operator_protocol": {
+    "bounded_helper_stopped": true,
+    "actions": [
+      "fill-keysets",
+      "verify-keyset-indices"
+    ],
+    "actual_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "maximum": 4,
+    "second_WebSocket_avoided_in_final_run": true,
+    "original_sources_support_PICS_unchanged": true,
+    "root_helper_sha256": "c625cb65255e429ca2f85862228efe32cd5e224af03dffc46a749c7d4b8d1b8f",
+    "account_permissions_changed": false
+  },
+  "native_identity": {
+    "remote_source_receipt": {
+      "count": 362,
+      "all_match": true
+    },
+    "native_inputs_unchanged": 362,
+    "new_host_compilation": false,
+    "reused_build": "csa35-results.json"
+  },
+  "independent_acceptance": {
+    "memcheck": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "published-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "advertised-capacity",
+          "status": "PASS",
+          "detail": 4
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "initial-IPK-only",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-capacity-filled",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overwrite-at-capacity-preserves-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overflow-atomic",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "same-fabric-survives-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "removed-only-added-keys",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "own-state-exists",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "new-fabric-after-factory-reset",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-3",
+          "status": "PASS",
+          "detail": null
+        }
+      ],
+      "boots": [
+        {
+          "name": "boot-1",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 23973,
+            "frees": 23973
+          }
+        },
+        {
+          "name": "boot-2",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 11165,
+            "frees": 11165
+          }
+        },
+        {
+          "name": "boot-3",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 23846,
+            "frees": 23846
+          }
+        }
+      ],
+      "driver_sha256": "9c6f3cffad8a3c75138ede9cc4e001300c98f35c9900014f1286fbdbbdeceab1",
+      "node_sha256": "3902bf24be730c7a3b27c903531483d879df98e7984ac5a8b6015ed8c8f7062c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "maximum": 4,
+      "result_sha256": "e07594df465765ef82be9cbbd5dc2e2ee7bbe6554eefa10b8a71f8f589f3c6f3",
+      "log_sha256": {
+        "boot-2/node.log": "189dd8a7d53a3b7625be1e9fd6d239f50e7a3cc9c5c90a26355fd813abbcfb0d",
+        "boot-2/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-2/memcheck.log": "b2b5772c567ff858e98b836802d12536baf20830a319107af840ff24cd4d39d9",
+        "boot-1/node.log": "f41fcd77098f4989f428ef053c44300c60f88aac16d3b6aa13239a382814c9f5",
+        "boot-1/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-1/memcheck.log": "d761c193d1e561e3165b8594fc7ac69e77651f3482d220485f630cea7224bf92",
+        "boot-3/node.log": "ef1a80c675d2f3d851fbaff73be06ebc6d42d976871c829e43546f4c7059afd0",
+        "boot-3/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-3/memcheck.log": "d29ebdb383e9a6723035d03e51eaef40e1e6cb20c6658f5bd5c2ed1d1456effc"
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "published-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "advertised-capacity",
+          "status": "PASS",
+          "detail": 4
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "initial-IPK-only",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-capacity-filled",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overwrite-at-capacity-preserves-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overflow-atomic",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "same-fabric-survives-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "removed-only-added-keys",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "own-state-exists",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "new-fabric-after-factory-reset",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-3",
+          "status": "PASS",
+          "detail": null
+        }
+      ],
+      "boots": [
+        {
+          "name": "boot-1",
+          "exit": 0,
+          "stderr_empty": true
+        },
+        {
+          "name": "boot-2",
+          "exit": 0,
+          "stderr_empty": true
+        },
+        {
+          "name": "boot-3",
+          "exit": 0,
+          "stderr_empty": true
+        }
+      ],
+      "driver_sha256": "9c6f3cffad8a3c75138ede9cc4e001300c98f35c9900014f1286fbdbbdeceab1",
+      "node_sha256": "7b417f6d132de4be9c1f86288a1612085e891fb035d8cec195ae338e665696ed",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "maximum": 4,
+      "result_sha256": "39da35a6c2c046a385845b7184a0e1f31af4a8b9f90f84ae7014ef7907e38feb",
+      "log_sha256": {
+        "boot-2/node.log": "ba7ee4a9a582bf7cf1c551a81855d77a6b1dbfdd770ec57d0bd08099d7a48ef7",
+        "boot-2/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-1/node.log": "524a130ed85ab043c20b90e65a15eb9c147c890bab3777f6a46417ed900cf5a0",
+        "boot-1/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-3/node.log": "1d09c0f014cdf4840828a7327dbcaeca2ae6123a02d460b34687fb44b1b1fa18",
+        "boot-3/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "focused_tests": {
+    "normal": {
+      "exit": 0,
+      "log_sha256": "6b847de22c226c07bd7ba6fe7352c2d94a1c934656cbbf96b67f14e9b0bf61ee",
+      "build_log_sha256": "075e148d1812944c1ea1d425e4cae13fa44a2679cd511454c6a03156c83579b0",
+      "warnings": []
+    },
+    "sanitize": {
+      "exit": 0,
+      "log_sha256": "411f09b960f5fab623df958759bdbfc7fb36dc6c37b4f58ccf17a7db1b0443eb",
+      "build_log_sha256": "075e148d1812944c1ea1d425e4cae13fa44a2679cd511454c6a03156c83579b0",
+      "warnings": []
+    }
+  },
+  "normative_basis": {
+    "specification": "Core R1.6.1",
+    "sections": [
+      "11.2.7.1 existing GroupKeySetID SHALL be replaced; insufficient resources for additional set returns RESOURCE_EXHAUSTED",
+      "11.2.7.2/3 KeySetRead nulls epoch keys; absent set NOT_FOUND",
+      "11.2.7.4 removal and persistence",
+      "11.18 fabric removal/reset procedures"
+    ],
+    "PDF_SHA256": "d7b078a4b80e8faf345205af0ba4773686e15097b2e6b6caecb5810585875b91"
+  },
+  "observations": [
+    "TH485 batch ERROR due SDK startup transport; DA1.1 separately PASS13 steps with actual process/state reset, recommissioning, enhanced window and fabric removal. Do not relabel entire batch PASS.",
+    "TH486 GroupKey ERROR after31 passed steps: second SDK WebSocket replaces global connection. Operator actually filled IDs0..3, but connection closure breaks original transport. This error is retained as infrastructure, not attributed to DUT.",
+    "TH487 original GroupKey FAIL:35 steps PASS,1 FAIL. Isolated copied controller process fills and rereads0..3 without opening a second WebSocket. Actual Step22 hardcodes existing ID3, receives SUCCESS00 and expects RESOURCE_EXHAUSTED. Core requires existing-ID overwrite.",
+    "TH487 log upload entry PASS. Prompt driver subsequently logs Unknown prompt during already-completed upload; not silently omitted, original case remains FAIL with one assertion failure.",
+    "Independent real chip-tool confirms advertised4 sets including IPK0, overwrite ID3 with new epoch start2, absent ID200 rejected89 and remains absent8b, indices unchanged. Epoch keys are null on read.",
+    "All keysets and updated start2 persist after process restart with same controller fabric. Removing only test keysets leavesIPK0. Disposable state reset followed by fresh controller commissioning returnsIPK0 only.",
+    "Three Memcheck boots,58,984 allocations/frees in total, zero errors/live bytes; three separate sanitizer boots exit0 with empty native stderr.45 checks PASS per variant. GroupKey/Fabric/OperationalCredentials CTests3/3 per variant, no incremental warnings."
+  ],
+  "coverage": {
+    "positions": 862,
+    "applicable": 155,
+    "NA": 707,
+    "manual_PASS": 22,
+    "manual_FAIL": 11,
+    "manual_BLOCKED": 4,
+    "manual_NOT_RUN": 0,
+    "automatic_BLOCKED": 1,
+    "completed_positions": 150,
+    "unresolved_prerequisites": 5
+  },
+  "commands": [
+    "python tools/matter/tests/test_groupkey_lifecycle_chip.py --help; execute with disposable Linux node/credentials and --valgrind; repeat separately with sanitizer node",
+    "Original TH: TC-GRPKEY-2.2 in SDK YAML Tests; TC_DA_1_1 in SDK Python Tests",
+    "cmake --build BUILD --target test_groupkey test_fabric test_opcreds -j2",
+    "ctest --test-dir BUILD --output-on-failure -R ^(test_groupkey|test_fabric|test_opcreds)$",
+    "python tools/matter/check_test_map.py",
+    "python tools/matter/csa_campaign.py --write",
+    "git diff --check"
+  ],
+  "limits": [
+    "Original GroupKey verdict remains FAIL pending CSA clarification; independent acceptance is not a CSA PASS.",
+    "Earlier infrastructure errors remain visible. Original DA1.1 PASS is per-case inside overall ERROR batch.",
+    "No native code or PICS edits; no new host build, physical labels/radio, embedded RAM, Home UI or certification acceptance.",
+    "Other five prerequisites remain: final labels2, limited-client-role fixtures2, deferred GeneralDiagnostics2.1 reset/controller transport.",
+    "No GitHub push; paired Windows devices untouched. Private credentials, controller stores and raw logs remain ignored."
+  ],
+  "next": {
+    "stage": "CSA51",
+    "scope": "Start second-pass attributed native repair: terminal PASE StatusReport delivery, then authenticated IM R=0 admission. Keep deferred multi-hour DGGEN run and external artifacts explicit."
+  }
+}

@@ -1269,6 +1269,13 @@
       ],
       "kind": "LOAD_TIMING_AND_OVERFLOW_STATUS_REVIEW",
       "evidence": "csa48-results.json"
+    },
+    {
+      "cases": [
+        "TC-GRPKEY-2.2"
+      ],
+      "kind": "EXISTING_KEYSET_ID_CSA_CLARIFICATION",
+      "evidence": "csa50-results.json"
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."

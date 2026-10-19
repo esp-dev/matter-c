@@ -46,19 +46,20 @@ checks separately. An unavailable fixture or required human operation gets a
 specific blocker, prerequisite and next action. Do not silently mark it NA,
 claim it ran, or change the profile to remove inconvenient coverage.
 
-## Coverage checkpoint after CSA49
+## Coverage checkpoint after CSA50
 
-All previously unrun manual IM server procedures now have original TH outcomes.
-Of155 applicable positions,148 have completed outcomes;7 have explicit unresolved
-prerequisites (4 manual and3 earlier automatic BLOCKED). No remaining MANUAL/NOT_RUN.
-These are catalog/endpoint positions, not independent requirements or certification.
+Of155 applicable positions,150 have completed outcomes. Five prerequisites remain:
+two final label artifacts, two limited-client fixtures/applicability questions and
+DGGEN2.1's deferred long reset/controller run. There are no MANUAL/NOT_RUN entries.
+Original DA1.1 factory reset/recommissioning passes. GroupKey2.2 completes with one
+FAIL because its hardcodedID3 already exists; Core requires overwrite success.
+Independent overflow/restart/reset acceptance passes; do not turn it into CSA PASS.
 
-Next resolve Group Key2.2's actual capacity-fill action and DA1.1's disposable
-factory reset. Recheck their original sources and perform real actions before
-answering operator prompts. DGGEN2.1 retains the owner's deferred long-run ERROR:
-prove bounded post-reset controller transport before another multi-hour attempt.
-Keep final label artifacts and limited-client role prerequisites explicit. Once
-available coverage is exhausted, take the attributed native repair queue.
+Available first-pass coverage is exhausted at these boundaries. Begin CSA51 with
+terminal PASE failure replies, then authenticated IM R=0 admission. Retain the
+owner's deferred multi-hour DGGEN run and physical/client prerequisites explicitly;
+do not loop on an unverified harness. After attributed fixes, triage remaining
+FAILs by actual assertion and rerun originals where meaningful.
 
 ## Evidence and commits
 
