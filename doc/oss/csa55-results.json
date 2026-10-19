@@ -1,0 +1,1185 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa54-results.json",
+  "previous_sha256": "a8f65f1594715e21ed9230a768e5c7cc75366b50e7c3fac727381170d15ef58b",
+  "source_base_commit": "6a21fc28266816127569bb6de4ff66fe0f59f381",
+  "scope": "Repair an attributed native GroupKeyMap write admission/status defect; valid nonempty list reaches provider capacity validation. Prove optional Leave returns UnsupportedEvent. Original GroupKey positive-capacity test remains FAIL.",
+  "latest_counts": {
+    "PASS": 99,
+    "FAIL": 18,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC-GRPKEY-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "FAIL",
+      "status": "FAIL",
+      "run_id": 493
+    }
+  ],
+  "official_receipt": {
+    "run_id": 493,
+    "state": "TestStateEnum.failed",
+    "completed_at_utc": "2026-10-19 17:37:17.731482",
+    "observed_utc": "2026-10-19T17:37:19.692506+00:00",
+    "cases": [
+      {
+        "case": "TC-GRPKEY-2.1",
+        "state": "TestStateEnum.failed",
+        "steps": {
+          "TestStateEnum.passed": 6,
+          "TestStateEnum.failed": 2
+        },
+        "details": [
+          {
+            "title": "Start chip-tool test",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 0: Commission DUT to TH (can be skipped if done in a preceding test).",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 1: TH reads GroupKeyMap attribute from DUT using a fabric-filtered read.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 2: TH binds GroupId 0x0103 with GroupKeySetID 0x01a3 in the GroupKeyMap attribute list on GroupKeyManagement cluster by writing the GroupKeyMap attribute with one entry as follows: List item 1:,GroupId: 0x0103,GroupKeySetId: 0x01a3",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 3: TH reads GroupKeyMap Attribute from the GroupKeyManagement cluster from DUT using a fabric-filtered read.",
+            "state": "TestStateEnum.failed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 4: TH reads GroupTable attribute from GroupKeyManagement cluster on DUT.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 5: TH reads MaxGroupsPerFabric attribute from GroupKeyManagement cluster on DUT using a fabric-filtered read.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          },
+          {
+            "title": "Step 6: TH reads MaxGroupKeysPerFabric attribute from GroupKeyManagement cluster on DUT using a fabric-filtered read.",
+            "state": "TestStateEnum.passed",
+            "errors": [],
+            "failures": []
+          }
+        ]
+      }
+    ],
+    "official_log_sha256": "9d24e158d55e700e2305bd36078d2b7b6190da16a81080b6a3c3baadcb4ee8e0",
+    "raw_result_sha256": "6ce74cdca27c24274086ebf56d820a9b47e568a048c534944b40c463698e26e9",
+    "identity": {
+      "source_sha256": {
+        "TC_GRPKEY_2_1": "030c3e840f6a09b4d5eda4bc3b58125939489195d7db098b8770280c80446e73",
+        "TC_BINFO_2_2": "868ee3d7fedf097bc3e19aac5852f9bb2a5cd6de3218af33b6aae430ea6db409"
+      },
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "PICS_changes": [],
+      "support_sha256": {
+        "test_collections/matter/sdk_tests/support/yaml_tests/models/test_case.py": "3d71eb1f5c10b7d2096c31fc7d19c9b6433178e5d5ab50efe1b0ebb04c9296d6",
+        "app/test_engine/models/manual_test_case.py": "3e2b25ecbb8fd74f693fe1acbaee6314fabbf98cefbce12f1f2383b7fe1f1fa4"
+      }
+    },
+    "audit": [],
+    "harness_state": {
+      "state": "idle"
+    },
+    "cleanup": {
+      "boots": 1,
+      "temporary_PAA_removed": true,
+      "node_stopped": true
+    },
+    "actual_status": {
+      "RESOURCE_EXHAUSTED_89": true,
+      "INVALID_ACTION_80": false,
+      "original_expects_positive_write": true
+    }
+  },
+  "native_changes": {
+    "main/apps/matter/model/matter_im_write.c": {
+      "before_sha256": "54190294df05a64bc3545e6f917b8600a2e2607d2f3727fd97a9cfa1ae64171a",
+      "after_sha256": "cc3a7c3e70d8f8f90167b44a8cd17f2d8165b65b755374109f5275fc5774030d"
+    },
+    "tools/matter/tests/test_groupkey_network.h": {
+      "before_sha256": "2caa4170945fabad92aa42fe715460c533484c961751098c9f9700a9f744a34b",
+      "after_sha256": "1b4cb1e0e615b5e098ee57e30a08609afc48781018d8521a169f1ac05d77e24e"
+    },
+    "tools/matter/tests/test_groupkey_lifecycle_chip.py": {
+      "before_sha256": "9c6f3cffad8a3c75138ede9cc4e001300c98f35c9900014f1286fbdbbdeceab1",
+      "after_sha256": "4a4fde182392ad12f1700b6e76548af732b4921bf64f67a74ccfc41454c2f02e"
+    }
+  },
+  "build": {
+    "normal": {
+      "log_sha256": "da40010def80e904d5e299ca2ff8d79b20ac7371354f1c0a6db90ea349336490",
+      "tests": 5,
+      "node_sha256": "d07cce15ce663e20c959bd9adb80a78cdb48937d0a72fd3b3872997658fe9b1c"
+    },
+    "sanitize": {
+      "log_sha256": "4b8c55a08ae138dcceec53d877a419b31c4817246692a2bd51a3120f97ff03b1",
+      "tests": 5,
+      "node_sha256": "8eb662f3e1d87ebfdc34d710febb59d1b19c2f48a6618556e219f4813adf2ca8"
+    },
+    "build": {
+      "log_sha256": "eaebdd3198817f10ac6503e01d8b0c01be0771390fc49b72c17b49750e2572f9",
+      "warnings": []
+    }
+  },
+  "wire_status_receipts": {
+    "baseline": {
+      "Leave_read_EventStatus_C7": true,
+      "WriteResponseMessage": true,
+      "AttributeStatusIB_count": 2,
+      "write_statuses": [
+        128,
+        128
+      ],
+      "full_controller_log_sha256": "73ba51c9c90153e3e8a5af243817ea5ec60c2550e08eb154401971f62d7f6b84"
+    },
+    "memcheck": {
+      "Leave_read_EventStatus_C7": true,
+      "WriteResponseMessage": true,
+      "AttributeStatusIB_count": 2,
+      "write_statuses": [
+        0,
+        137
+      ],
+      "full_controller_log_sha256": "b52090875c4e2c0caabdf086cff354977d9897b5051e8811fcc6051eb75589de"
+    },
+    "sanitize": {
+      "Leave_read_EventStatus_C7": true,
+      "WriteResponseMessage": true,
+      "AttributeStatusIB_count": 2,
+      "write_statuses": [
+        0,
+        137
+      ],
+      "full_controller_log_sha256": "7a9635f35e7d15db0150606ef0bb0116edc4e9be71a3b693b717c75009f4601a"
+    }
+  },
+  "independent_attempts": {
+    "baseline": {
+      "result": "FAIL",
+      "checks": [
+        {
+          "name": "published-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "advertised-capacity",
+          "status": "PASS",
+          "detail": 4
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "initial-IPK-only",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-capacity-filled",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overwrite-at-capacity-preserves-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overflow-atomic",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "same-fabric-survives-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "removed-only-added-keys",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "own-state-exists",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "new-fabric-after-factory-reset",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-any-read-event-by-id",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "unsupported-Leave-event-status",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "zero-group-profile",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-write",
+          "status": "FAIL",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-3",
+          "status": "PASS",
+          "detail": null
+        }
+      ],
+      "boots": [
+        {
+          "name": "boot-1",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 23975,
+            "frees": 23975
+          }
+        },
+        {
+          "name": "boot-2",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 11176,
+            "frees": 11176
+          }
+        },
+        {
+          "name": "boot-3",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 23885,
+            "frees": 23885
+          }
+        }
+      ],
+      "driver_sha256": "b4498c02334c6c2651308e7bc685c493001c75630babce3e24fa14af56dd3035",
+      "node_sha256": "950dbdeb75d88e4d20f19ba70f73aedc7f0d2e5e603520d08211359dab616a5d",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "maximum": 4,
+      "error": "command-groupkeymanagement-write",
+      "result_sha256": "6122516172d058460a18e4eb37b79bd0a53875fb69b69241989882297fcdae9f",
+      "log_sha256": {
+        "boot-2/node.log": "309b5feec836950303b04ca04e498ca260bae4b4eecadc2cf165730a922baec8",
+        "boot-2/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-2/memcheck.log": "7de1c5f68218a612fa9884099d806dc944031511c9cfaf8e1b48257bb74bf65e",
+        "boot-1/node.log": "5cedf3e31c17b3799ee48f8ed8f1a89b790c9b2a12f531fc641dfe5f9f746f5c",
+        "boot-1/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-1/memcheck.log": "4d50166599d3294ea6b515763b78ebd783cf1f6a082a8c097dcc5a2c073aaac8",
+        "boot-3/node.log": "1feef155daa0b45c0265ea03cd30f29c44cdba042f7a540626d50d6ca807e179",
+        "boot-3/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-3/memcheck.log": "5c79667c07eb77e513412feccb04d18bcb5e6e9a43efd51ec5493e1c600389a9"
+      }
+    },
+    "memcheck": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "published-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "advertised-capacity",
+          "status": "PASS",
+          "detail": 4
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "initial-IPK-only",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-capacity-filled",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overwrite-at-capacity-preserves-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overflow-atomic",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "same-fabric-survives-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "removed-only-added-keys",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "own-state-exists",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "new-fabric-after-factory-reset",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-any-read-event-by-id",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "unsupported-Leave-event-status",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "zero-group-profile",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "full-map-capacity-status-is-per-attribute",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "failed-map-write-preserves-empty-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-3",
+          "status": "PASS",
+          "detail": null
+        }
+      ],
+      "boots": [
+        {
+          "name": "boot-1",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 23975,
+            "frees": 23975
+          }
+        },
+        {
+          "name": "boot-2",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 11169,
+            "frees": 11169
+          }
+        },
+        {
+          "name": "boot-3",
+          "exit": 0,
+          "stderr_empty": true,
+          "memory": {
+            "zero_errors": true,
+            "zero_live": true,
+            "allocations": 23896,
+            "frees": 23896
+          }
+        }
+      ],
+      "driver_sha256": "4a4fde182392ad12f1700b6e76548af732b4921bf64f67a74ccfc41454c2f02e",
+      "node_sha256": "d07cce15ce663e20c959bd9adb80a78cdb48937d0a72fd3b3872997658fe9b1c",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "maximum": 4,
+      "result_sha256": "b058bddbf3a248bb7ea149a745bc138bfa4437e68f48dd9b96a88eb29696debd",
+      "log_sha256": {
+        "boot-2/node.log": "22e0c0a37b2e09e537b943976842b37e13f48a539aa4165952b303236dc1e2da",
+        "boot-2/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-2/memcheck.log": "4b0fcc02069e47975c76b565a2b14bb86cb0369e732c3ad7d108451fc8344e81",
+        "boot-1/node.log": "39bdc0a630b492d7b85d2fa3f21880bdb487c669e7521694b7f4023ef3a38bba",
+        "boot-1/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-1/memcheck.log": "24724a82dd3658d16346b4733b5e16aa912fd983cb2f974ca47b4e8f6671ca31",
+        "boot-3/node.log": "ad22d6bdec2378522609fd06386779b7c3926c23ce6ba397cd161fb97e663e11",
+        "boot-3/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-3/memcheck.log": "f39959c2556d6ceadebfb494ef906a853d500f17c84d2b16c8952e9a75770875"
+      }
+    },
+    "sanitize": {
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "published-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "advertised-capacity",
+          "status": "PASS",
+          "detail": 4
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "initial-IPK-only",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "actual-capacity-filled",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overwrite-at-capacity-preserves-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "overflow-atomic",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-1",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "same-fabric-survives-restart",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "read-key-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-remove",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "removed-only-added-keys",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-2",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "own-state-exists",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "published-boot-3",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-pairing-already-discovered",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-key-set-read-all-indices",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "indices-decode",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "new-fabric-after-factory-reset",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-any-read-event-by-id",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "unsupported-Leave-event-status",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "zero-group-profile",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-write",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "full-map-capacity-status-is-per-attribute",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "command-groupkeymanagement-read",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "failed-map-write-preserves-empty-list",
+          "status": "PASS",
+          "detail": null
+        },
+        {
+          "name": "clean-boot-3",
+          "status": "PASS",
+          "detail": null
+        }
+      ],
+      "boots": [
+        {
+          "name": "boot-1",
+          "exit": 0,
+          "stderr_empty": true
+        },
+        {
+          "name": "boot-2",
+          "exit": 0,
+          "stderr_empty": true
+        },
+        {
+          "name": "boot-3",
+          "exit": 0,
+          "stderr_empty": true
+        }
+      ],
+      "driver_sha256": "4a4fde182392ad12f1700b6e76548af732b4921bf64f67a74ccfc41454c2f02e",
+      "node_sha256": "8eb662f3e1d87ebfdc34d710febb59d1b19c2f48a6618556e219f4813adf2ca8",
+      "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
+      "maximum": 4,
+      "result_sha256": "0660406306a04c2105d4b455c1f7b8e5b2d95cf499fa8ba39db0ad7ddd3623e5",
+      "log_sha256": {
+        "boot-2/node.log": "93799723dc8d1043e1c75c49ce4987cd7e902f9e76cb50185619c2128be5d0b7",
+        "boot-2/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-1/node.log": "535946b134c90fb6da3ca5690f6baf5010337552f62d64bde241afd6fdea53af",
+        "boot-1/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "boot-3/node.log": "dd2ecfb459e77271143c8153baeddf8e6225a7fa71cd4630b33f605399dc031c",
+        "boot-3/node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "normative_basis": {
+    "specification": "Core R1.6.1",
+    "sections": [
+      "2.11.1.2 group minima depend on Groups/Groupcast support",
+      "8.7.3.3/4 list validation and individual AttributeStatusIB responses",
+      "11.2.6.1/3 GroupKeyMap and declared MaxGroupsPerFabric capacity",
+      "11.1.6.3 optional SHOULD Leave",
+      "8.4.3.2 concrete unsupported event path reports UnsupportedEvent"
+    ],
+    "PDF_SHA256": "d7b078a4b80e8faf345205af0ba4773686e15097b2e6b6caecb5810585875b91"
+  },
+  "observations": [
+    "Actual baseline CSA52 host: complete keyset restart/reset scenario then valid nonempty GroupKeyMap write returns WriteResponse with per-attribute statuses[80,80]. Groupkey provider never receives the otherwise-valid operation because generic IM only permits ACL and OTA-provider nonempty list paths.",
+    "Extend existing fabric-list path admission narrowly to GroupKeyManagement.attribute0, preserving all generic budgets, ACL, schema/version/fabric checks and ordinary-list restrictions. Underlying cluster correctly accepts clearing empty map and rejects adding first entry with ResourceExhausted89 for MaxGroupsPerFabric0.",
+    "New actual-controller final normal/sanitizer traces show WriteResponse with statuses[00,89], unchanged empty map. This is a repaired native status/admission defect even though the positive-capacity original still expects success.",
+    "Original unchanged run493 retains6 PASS/2 FAIL; command now actually reports ResourceExhausted89 and no InvalidAction80. Required groups are not invented or enabled to turn test green.",
+    "Correct CSA53 description: InvalidAction was per-attribute in WriteResponse, not a global StatusResponse. Earlier evidence remains immutable; this independent packet-level observation supersedes the wording.",
+    "Optional Leave read actually returns EventStatusIB.c7 in baseline and final variants. PICS E02=false/current catalog omission is intentional. Original BINFO script dereferences None data from this status; prior original491 FAIL remains, no new BINFO result claimed.",
+    "Existing real CASE/IPv6 groupkey regression adds full nonempty REPLACE capacity denial and unauthorized-fabric REPLACE denial alongside empty REPLACE and ADD. It checks literal response and actual encrypted request/ACK lifecycle.",
+    "Full independent keyset lifecycle still verifies fill, changed-epoch overwrite, genuine overflow atomicity, redacted keys, process restart persistence and fresh controller reset. Final53 checks PASS per variant."
+  ],
+  "validation": {
+    "baseline_before_fix": "FAIL at intended GroupKeyMap status assertion;50 checks,49 PASS/1 FAIL; three native exits0 and Memcheck clean",
+    "final_memory": {
+      "Memcheck_allocations": 59040,
+      "Memcheck_frees": 59040,
+      "zero_errors": true,
+      "zero_live": true,
+      "native_boots": 3,
+      "separate_sanitizer_boots": 3
+    },
+    "focused_CTests": 5,
+    "variants": [
+      "normal",
+      "ASan/UBSan/LSan"
+    ],
+    "compiler_warnings": [],
+    "commands": [
+      "cmake --build BUILD --target matter-node test_groupkey test_im_write test_im_write_alloc test_acl test_dispatch -j3",
+      "ctest --test-dir BUILD --output-on-failure -R ^(test_groupkey|test_im_write|test_im_write_alloc|test_acl|test_dispatch)$",
+      "python tools/matter/tests/test_groupkey_lifecycle_chip.py --valgrind on CSA52 baseline and final normal; separately final sanitizer node",
+      "Original unchanged TC-GRPKEY-2.1 in TH",
+      "Decode saved actual controller EventStatus/WriteResponse fields without stored session keys",
+      "python tools/matter/check_test_map.py",
+      "python tools/matter/csa_campaign.py --write",
+      "git diff --check"
+    ]
+  },
+  "coverage": {
+    "applicable": 155,
+    "NA": 707,
+    "all_PASS_positions": 123,
+    "all_FAIL_positions": 27,
+    "unresolved_prerequisites": 5,
+    "manual_PASS": 24,
+    "manual_FAIL": 9,
+    "manual_BLOCKED": 4
+  },
+  "cleanup": {
+    "TH_idle": true,
+    "all_nodes_exit0": true,
+    "temporary_PAA_removed": true,
+    "paired_Windows_nodes_untouched": true
+  },
+  "limits": [
+    "Original GroupKey2.1 FAIL remains: its positive write requires capacity beyond this Groups-free profile. Exact applicability requires CSA clarification; no waiver.",
+    "One native defect repaired without changing max groups or granting group functionality. Generic ordinary-list limits remain for later optimization phase.",
+    "No new official BINFO rerun, Windows/Home UI, physical device, manufacturing/label acceptance, embedded RAM-fit or stable full-matrix rerun.",
+    "Earlier clarification/provisioning/physical prerequisites and BDX/load questions remain. No push; raw state/controller logs ignored."
+  ],
+  "next": {
+    "stage": "CSA56",
+    "scope": "Review remaining BDX recovery and load-dependent subscription assertions against actual scheduling/session states before another bounded reproduction. Preserve deferred multi-hour DGGEN and external CSA/production/physical dependencies."
+  }
+}

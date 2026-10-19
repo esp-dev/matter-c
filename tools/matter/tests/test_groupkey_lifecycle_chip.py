@@ -1,4 +1,4 @@
-"""Independent GroupKey capacity/persistence acceptance with real chip-tool.
+"""Independent keyset lifecycle, zero-group and optional-event status acceptance.
 
 Disposable Linux state only. Original TH results remain separate. Supply public
 development credentials/PAA; raw controller stores and traces must stay private.
@@ -153,6 +153,21 @@ def main():
         check('own-state-exists', state.is_file())
         state.unlink(); start(); c = client('after-reset'); commission(c)
         check('new-fabric-after-factory-reset', indices(c) == [0])
+        # Optional Leave is absent in this profile: a concrete Read returns an
+        # EventStatus, rather than an empty event-data list or fabricated Leave.
+        text = command(c, ['any', 'read-event-by-id', '0x28', 2, 1, 0], status=0xc7)
+        check('unsupported-Leave-event-status', 'EventStatusIB =' in text and
+              bool(re.search(r'Status\s*=\s*0xc7\b', text, re.I)))
+        text = command(c, ['groupkeymanagement', 'read', 'max-groups-per-fabric', 1, 0],
+                       r'MaxGroupsPerFabric: 0\b[\s\S]*Flushed pending ack for MessageCounter:')
+        check('zero-group-profile', bool(re.search(r'MaxGroupsPerFabric: 0\b', text)))
+        entry = dict(groupId=259, groupKeySetID=419, fabricIndex=1)
+        text = command(c, ['groupkeymanagement', 'write', 'group-key-map', json.dumps([entry]), 1, 0], status=0x89)
+        check('full-map-capacity-status-is-per-attribute', 'WriteResponseMessage =' in text and
+              'AttributeStatusIB =' in text and bool(re.search(r'Status\s*=\s*0x89\b', text, re.I)))
+        text = command(c, ['groupkeymanagement', 'read', 'group-key-map', 1, 0],
+                       r'GroupKeyMap: 0 entries[\s\S]*Flushed pending ack for MessageCounter:')
+        check('failed-map-write-preserves-empty-list', 'GroupKeyMap: 0 entries' in text)
         report['result'] = 'PASS'
     except (AssertionError, ValueError, KeyError, OSError, subprocess.SubprocessError) as error:
         report['result'] = 'FAIL'; report['error'] = str(error)

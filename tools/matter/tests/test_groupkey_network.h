@@ -73,11 +73,13 @@ static bool gk_read_network(GkNetwork* g,uint32_t attr,uint64_t expected) {
     CHECK(matter_im_read_delete(b->im)==MATTER_OK); b->im=NULL; a->im_client=false; ok=true;
 done: return ok;
 }
-static bool gk_map_network(GkNetwork* g,unsigned peer,bool add,uint8_t expected) {
+static bool gk_map_network(GkNetwork* g,unsigned peer,unsigned mode,uint8_t expected) {
     bool ok=false; AclNetwork* h=&g->peers; PaseFixture* f=h->net; f->link=h->links[peer]; Peer* a=&f->link->a; Peer* b=&f->link->b;
+    bool add=mode==1;
     CHECK(fab_exchange(f)); h->wire.size=0;
-    if(add) { aw_open(&h->wire,0x15,-1); aw_uint(&h->wire,1,1); aw_uint(&h->wire,2,7); }
-    else aw_open(&h->wire,0x16,-1);
+    if(!add) aw_open(&h->wire,0x16,-1);
+    if(mode) { aw_open(&h->wire,0x15,-1); aw_uint(&h->wire,1,1); aw_uint(&h->wire,2,7); }
+    if(mode==2) aw_byte(&h->wire,0x18);
     aw_byte(&h->wire,0x18); aw_request(&h->wire,add,false,-1); h->wire.request[13]=0x3f;
     Matter_Im_Write_Port_T port; Matter_Im_Read_Fabric_Port_T resolver;
     CHECK(matter_root_case_write_port(h->root->root,b->secure_token,b->secure,&h->bindings[peer],&port,&resolver)==MATTER_OK);
@@ -116,7 +118,9 @@ static bool network_groupkey(void) {
     }
     CHECK(acl_handshake(h,1,h->guest_cases));
     for(unsigned attr=0;attr<4;++attr) CHECK(gk_read_network(g,attr,attr==3?4:0));
-    CHECK(gk_map_network(g,0,false,0) && gk_map_network(g,0,true,MATTER_IM_RESOURCE_EXHAUSTED) && gk_map_network(g,1,false,MATTER_IM_UNSUPPORTED_ACCESS));
+    CHECK(gk_map_network(g,0,0,0) && gk_map_network(g,0,1,MATTER_IM_RESOURCE_EXHAUSTED) &&
+        gk_map_network(g,0,2,MATTER_IM_RESOURCE_EXHAUSTED) &&
+        gk_map_network(g,1,0,MATTER_IM_UNSUPPORTED_ACCESS) && gk_map_network(g,1,2,MATTER_IM_UNSUPPORTED_ACCESS));
     gk_args(&g->wire,1,0,0,0); CHECK(gk_invoke_network(g,0,1,0,false,256));
     CHECK(gk_invoke_network(g,1,1,MATTER_IM_UNSUPPORTED_ACCESS,false,256));
     gk_args(&g->wire,0,7,3,100); uint32_t version=matter_groupkey_version(g->model);

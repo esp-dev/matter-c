@@ -1316,17 +1316,17 @@
       "cases": [
         "TC_BINFO_2_2"
       ],
-      "kind": "OPTIONAL_LEAVE_RESPONSE_REVIEW",
-      "evidence": "csa53-validation.md",
-      "action": "PICS E02=false, event unimplemented. Script dereferences Data.fabricIndex without checking returned event status. Preserve FAIL; separately verify raw status and obtain applicability/test clarification."
+      "kind": "OPTIONAL_LEAVE_CSA_CLARIFICATION",
+      "evidence": "csa55-validation.md",
+      "action": "Actual concrete read returns UnsupportedEventc7 for PICS E02=false. Original script dereferences absent Data.fabricIndex; preserve FAIL pending test/applicability resolution."
     },
     {
       "cases": [
         "TC-GRPKEY-2.1"
       ],
-      "kind": "ZERO_GROUP_CAPACITY_AND_WRITE_STATUS_REVIEW",
-      "evidence": "csa53-validation.md",
-      "action": "No Groups/Groupcast server; MaxGroupsPerFabric=0. Original writes one map entry and expects success. Review applicability and actual global InvalidAction status independently; no unconditional native waiver."
+      "kind": "ZERO_GROUP_CAPACITY_CSA_CLARIFICATION",
+      "evidence": "csa55-validation.md",
+      "action": "Generic write-status defect fixed. Original positive write still expects success beyond declared zero-group capacity; obtain applicability clarification, preserve FAIL."
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."

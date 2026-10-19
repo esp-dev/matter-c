@@ -59,8 +59,9 @@ Available first-pass coverage is exhausted at these boundaries. CSA51 repaired t
 CSA52 repaired authenticated IM R=0 admission; original TC-SC-1.2 is now PASS.
 CSA53 groups remaining assertions using original sources and earlier reports; bounded
 GroupKey/BINFO reruns retain FAIL. CSA54 supplies actual two-device setup codes;
-original automatic TC_SC_7_1 passes. Continue CSA55 with independent GroupKeyMap
-write-status and optional Leave EventStatus attribution. Retain the
+original automatic TC_SC_7_1 passes. CSA55 repairs GroupKeyMap admission/status
+and confirms optional Leave EventStatus; original positive-capacity test remains
+FAIL. Continue CSA56 with remaining BDX recovery/load-state attribution. Retain the
 owner's deferred multi-hour DGGEN run and physical/client prerequisites explicitly;
 do not loop on an unverified harness. After attributed fixes, triage remaining
 FAILs by actual assertion and rerun originals where meaningful.

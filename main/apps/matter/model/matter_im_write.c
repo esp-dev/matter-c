@@ -231,8 +231,10 @@ static uint8_t execute(Matter_Im_Write_T s) {
     if (s->list_value && !s->attribute.list) return MATTER_IM_INVALID_DATA_TYPE;
     /* These are implementation limits on writable list operations, not TLV
      * syntax errors. Lookup/ACL above must first report read-only/absent paths. */
-    if (s->block_count>1 && !(s->fabric.index && (s->path.cluster==0x1f || s->path.cluster==0x2a) && !s->path.attribute)) return MATTER_IM_INVALID_ACTION;
-    if (!s->append && s->list_value && !(s->fabric.index && (s->path.cluster==0x1f || s->path.cluster==0x2a) && !s->path.attribute) &&
+    bool fabric_list=s->fabric.index && !s->path.attribute &&
+        (s->path.cluster==0x1f || s->path.cluster==0x2a || s->path.cluster==0x3f);
+    if (s->block_count>1 && !fabric_list) return MATTER_IM_INVALID_ACTION;
+    if (!s->append && s->list_value && !fabric_list &&
         (!enter(s,&s->fields[2]) || !next(s) || s->token.type!=MATTER_TLV_END)) return MATTER_IM_INVALID_ACTION;
     if (s->has_version) {
         uint32_t current;

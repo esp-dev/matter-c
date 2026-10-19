@@ -2566,7 +2566,7 @@
       "path": "tools/matter/tests/test_groupkey_lifecycle_chip.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_groupkey_lifecycle_chip.py --help; actual keyset capacity, overwrite, overflow, restart and disposable factory reset with unmodified chip-tool. Original TH outcome remains separate.",
+      "entrypoint": "python tools/matter/tests/test_groupkey_lifecycle_chip.py --help; actual keyset capacity, overwrite, overflow, restart/reset, zero-group map and optional Leave statuses with unmodified chip-tool. Original TH verdict remains separate.",
       "referenced_by": [],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     }

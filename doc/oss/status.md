@@ -7,6 +7,13 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA55: GroupKeyMap write-status defect repaired; original positive test retains FAIL.**
+Actual statuses change from[80,80] to[00,89] for declared zero-group capacity.
+Unsupported optional Leave confirmed as EventStatusc7.53 independent checks per
+variant, clean Memcheck/sanitizers and five CTests per build.
+[Report](csa55-validation.md). Counts unchanged:123 PASS/27 FAIL/5 prerequisites.
+Next:CSA56, remaining BDX recovery/load-dependent subscription attribution.
+
 **CSA54: original automatic TC_SC_7_1 PASS with two actual setup codes.**
 Run492 passes6 steps; two simultaneous native nodes, actual PASE/empty roots,
 different configured factory inputs, no original/PICS or native change.
