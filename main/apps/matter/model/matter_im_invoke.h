@@ -49,7 +49,10 @@ typedef struct Matter_Im_Invoke* Matter_Im_Invoke_T;
 typedef enum { MATTER_IM_INVOKE_WAITING, MATTER_IM_INVOKE_OUTPUT, MATTER_IM_INVOKE_IN_FLIGHT,
 	MATTER_IM_INVOKE_COMPLETE, MATTER_IM_INVOKE_FAILED, MATTER_IM_INVOKE_WAIT_INVOKE, MATTER_IM_INVOKE_PENDING } Matter_Im_Invoke_State_T;
 
-/* One heap allocation, copied config/port, borrowed user, owner thread only.
+/* Small owner allocation, copied config/port, borrowed user, owner thread only.
+ * RX and normalized arguments allocate on demand (1024-byte ceiling). Command
+ * bodies reserve the declared capacity; replies reserve a bounded envelope plus
+ * that capacity before effects. No allocation during async poll or delivery.
  * One concrete unicast command on a fresh authenticated exchange, optionally
  * preceded by TimedRequest on this SAME handler/session/exchange.
  * Transport authenticates, excludes group sessions, deduplicates RX, and owns
@@ -104,7 +107,8 @@ Matter_Result_T matter_im_invoke_receive(Matter_Im_Invoke_T, const Matter_Rx_Dec
  * waits for confirm, using original RX time to test the timed window. Absolute
  * config timeout still bounds the entire transaction, including queued work.
  * A second TimedRequest or unsupported Write continuation gives INVALID_ACTION.
- * No parsing/effects in RX. Duplicates must be stopped by existing RX/MRP.
+ * No parsing/effects in RX. Allocation failure returns LIMIT_REACHED without
+ * accepting/queueing the request. Duplicates must be stopped by existing RX/MRP.
  * Same logical operation in a NEW exchange is not covered by deduplication. */
 Matter_Result_T matter_im_invoke_receive_at(Matter_Im_Invoke_T, const Matter_Rx_Decision_T*, uint64_t received_ms);
 /* Monotonic absolute timeout; work/effects only here. No retries of callbacks. */

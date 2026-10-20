@@ -189,6 +189,20 @@
     "replace": []
   },
   {
+    "name": "test_im_request_memory",
+    "source": "tools/matter/tests/test_im_request_memory.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_im_invoke.c",
+      "main/apps/matter/model/matter_im_write.c",
+      "main/apps/matter/model/matter_im_client.c"
+    ],
+    "malloc": false
+  },
+  {
     "name": "test_im_invoke",
     "source": "tools/matter/tests/test_im_invoke.c",
     "mode": "normal",

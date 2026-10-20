@@ -209,8 +209,35 @@ or reading values. See [regression results](oss/im-version-filters-validation.md
 
 The UDP ceiling remains 1280 bytes including IPv6/UDP headers. Enlarging heap
 buffers does not authorize larger UDP packets. Invoke, Write, the outbound IM
-client and other result/transport tables retain their separate budgets; migrating
-those is subsequent work, with interoperability tests after each subsystem.
+client and other result/transport tables retain their separate budgets.
+
+Invoke/Write copy accepted RX into per-request heap storage (still at most 1024
+bytes). OOM returns LIMIT_REACHED without queueing or advancing RX time. Invoke
+normalization scratch is bounded by RX length, its response body by the provider's
+declared capacity, and its reply by that capacity plus a bounded envelope, capped
+by the existing configured output limit. All reservations precede start/invoke;
+async polling, response encoding and retry never allocate after effects. Provider
+arguments remain borrowed only during callbacks; async providers still copy their
+own input. Consumed RX/arguments and encoded command-body scratch are erased/freed.
+
+Write counts at most four IBs, then allocates exactly that many descriptors and
+results. Before the first write in a message it reserves one shared normalization
+buffer and the largest possible reply for all IBs. No handler allocation can
+interrupt later writes after an earlier success. Existing provider atomicity is
+unchanged: each IB owns its commit/rollback, and earlier successful IBs remain
+when a later IB fails. Input/scratch/results are released after encoding. Reply
+bytes remain through sent until confirm (MRP ACK AND transport drain). A queued
+next chunk or timed continuation has independent RX storage; cancel/timeout keeps
+reply storage until deletion after owner drain.
+
+The outgoing IM client allocates a bounded request at construction, consumes its
+copy on sent, and allocates response fields and an optional 8-byte StatusResponse
+when a validated reply arrives. OOM publishes no result and leaves it waiting.
+The dispatcher copies each output to an immutable MRP packet BEFORE sent; that
+packet survives ACK/drain independently. Result body references remain stable
+until client deletion. All three handlers share private checked buffer growth
+and erase/free operations; ceilings, public signatures and encodings are unchanged.
+See [measurements and regression evidence](oss/memory05-validation.md).
 
 Read/Subscribe expanded attribute results now grow on the heap per interaction,
 starting at nine entries and doubling up to the 512-entry application ceiling.

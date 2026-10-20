@@ -1,8 +1,13 @@
 # Test inventory
 
-test-map.json enumerates 250 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 251 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory05 registers `test_im_request_memory`: requested-byte ownership, all six
+Invoke and Write allocation failures, all four client allocation failures,
+allocation-free effects/async polling, four-IB Write admission before mutations,
+queued RX before ACK/drain, status submission and retained client results.
 
 Memory04 registers `test_im_snapshots`: exact encoded byte accounting, unchanged
 4096/16384-byte limits, 512 stable references, per-value OOM/retry and malformed

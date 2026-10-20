@@ -1,8 +1,10 @@
 #include "matter_im_write.h"
 #include "../codec/matter_tlv_validate.h"
+#include "matter_im_buffer_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct { Matter_Tlv_Element_T block; Matter_Im_Write_Result_T result; } Write_Item;
 struct Matter_Im_Write {
     Matter_Im_Write_Port_T port;
     Matter_Im_Read_Fabric_Port_T fabric; uint8_t fabric_index; bool fabric_resolved;
@@ -12,7 +14,7 @@ struct Matter_Im_Write {
     bool busy, queued, suppress, timed, timed_status, has_version;
     bool more, chunked, append, list_value, acl_list_authorized;
     unsigned chunks, block_count;
-    Matter_Tlv_Element_T blocks[4]; Matter_Im_Write_Result_T results[4];
+    Write_Item* items;
     uint16_t timed_timeout;
     uint32_t expected_version;
     uint8_t opcode, request_opcode;
@@ -26,7 +28,8 @@ struct Matter_Im_Write {
     Matter_Tlv_Element_T token, root[4], fields[3], path_fields[8], revision;
     Matter_Tlv_Validation_Workspace_T validation;
     Matter_Tlv_Tag_T tags[48];
-    uint8_t input[1024], value[1024], output[256];
+    uint8_t *input, *value, *output;
+    size_t input_capacity, value_capacity, output_capacity;
 };
 static Matter_Result_T check(Matter_Im_Write_T s) { return !s ? MATTER_INVALID_ARGUMENT : s->busy ? MATTER_BUSY : MATTER_OK; }
 Matter_Im_Write_T matter_im_write_new(const Matter_Im_Write_Port_T* p,const Matter_Im_Write_Config_T* c,uint64_t now) {
@@ -50,7 +53,8 @@ Matter_Result_T matter_im_write_receive_at(Matter_Im_Write_T s,const Matter_Rx_D
 		(d->header.opcode!=6 && d->header.opcode!=10 && !(continuation && d->header.opcode==8)) ||
 		!(d->header.exchange_flags & MATTER_PROTOCOL_INITIATOR) || d->standalone_ack ||
 		(d->action!=MATTER_RX_NEW_RESPONDER && d->action!=MATTER_RX_EXISTING)) return MATTER_INVALID_ARGUMENT;
-	if (d->payload_size>sizeof(s->input)) return MATTER_LIMIT_REACHED;
+	if (d->payload_size>1024) return MATTER_LIMIT_REACHED;
+	if (!matter_im_buffer_reserve(&s->input,&s->input_capacity,d->payload_size)) return MATTER_LIMIT_REACHED;
 	if (d->payload_size) memcpy(s->input,d->payload,d->payload_size);
 	s->input_size=d->payload_size; s->request_opcode=d->header.opcode;
 	s->now=s->received_at=now; s->queued=true; return MATTER_OK;
@@ -86,7 +90,7 @@ static bool number(const Matter_Tlv_Element_T* e,uint64_t max) {
 	return e->tag.control==1 && e->type==MATTER_TLV_UNSIGNED && e->unsigned_value<=max;
 }
 static uint8_t decode_item(Matter_Im_Write_T s,unsigned index) {
-    if(!enter(s,&s->blocks[index]) || !collect(s,s->fields,3)) return MATTER_IM_INVALID_ACTION;
+    if(!enter(s,&s->items[index].block) || !collect(s,s->fields,3)) return MATTER_IM_INVALID_ACTION;
     s->has_version=s->fields[0].tag.control!=0;
     if (s->has_version && !number(&s->fields[0],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
     s->expected_version=(uint32_t)s->fields[0].unsigned_value;
@@ -133,10 +137,18 @@ static uint8_t decode(Matter_Im_Write_T s) {
     while(next(s) && s->token.type!=MATTER_TLV_END) {
         if(s->token.type!=MATTER_TLV_STRUCTURE || s->token.tag.control) return MATTER_IM_INVALID_ACTION;
         if(s->block_count==4) return MATTER_IM_RESOURCE_EXHAUSTED;
-        s->blocks[s->block_count++]=s->token;
+        ++s->block_count;
         if(matter_tlv_skip_container(&s->reader)!=MATTER_TLV_OK) return MATTER_IM_INVALID_ACTION;
     }
     if(!s->block_count || s->token.type!=MATTER_TLV_END) return MATTER_IM_INVALID_ACTION;
+    s->items=calloc(s->block_count,sizeof(*s->items));
+    if(!s->items) return MATTER_IM_RESOURCE_EXHAUSTED;
+    if(!enter(s,&s->root[2])) return MATTER_IM_INVALID_ACTION;
+    for(unsigned i=0;i<s->block_count;++i) {
+        if(!next(s)) return MATTER_IM_INVALID_ACTION;
+        s->items[i].block=s->token;
+        if(matter_tlv_skip_container(&s->reader)!=MATTER_TLV_OK) return MATTER_IM_INVALID_ACTION;
+    }
     /* Preflight ALL shapes before any callbacks. Same-path list IBs must reach
      * access/lookup even without a list writer (e.g. read-only NOCs over PASE).
      * Writable profiles remain bounded separately in execute(). */
@@ -160,7 +172,7 @@ static bool put(Matter_Im_Write_T s,Matter_Tlv_Type_T type,int tag,uint64_t valu
 }
 static bool end(Matter_Im_Write_T s) { return put(s,MATTER_TLV_END,-1,0); }
 static bool begin(Matter_Im_Write_T s) {
-	return matter_tlv_writer_init(&s->writer,s->output,sizeof(s->output),8)==MATTER_TLV_OK && put(s,MATTER_TLV_STRUCTURE,-1,0);
+	return matter_tlv_writer_init(&s->writer,s->output,s->output_capacity,8)==MATTER_TLV_OK && put(s,MATTER_TLV_STRUCTURE,-1,0);
 }
 static bool finish(Matter_Im_Write_T s) {
 	return put(s,MATTER_TLV_UNSIGNED,255,MATTER_IM_REVISION) && end(s) && matter_tlv_writer_finish(&s->writer,&s->output_size)==MATTER_TLV_OK;
@@ -182,7 +194,7 @@ static bool responses(Matter_Im_Write_T s) {
     s->opcode=7;
     if(!begin(s) || !put(s,MATTER_TLV_ARRAY,0,0)) return false;
     for(unsigned i=0;i<s->block_count;++i) {
-        const Matter_Im_Write_Result_T* r=&s->results[i];
+        const Matter_Im_Write_Result_T* r=&s->items[i].result;
         if(!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_LIST,0,0) || !put(s,MATTER_TLV_UNSIGNED,2,s->path.endpoint) ||
             !put(s,MATTER_TLV_UNSIGNED,3,s->path.cluster) || !put(s,MATTER_TLV_UNSIGNED,4,s->path.attribute) || !end(s) ||
             !put(s,MATTER_TLV_STRUCTURE,1,0) || !put(s,MATTER_TLV_UNSIGNED,0,r->status) ||
@@ -191,7 +203,7 @@ static bool responses(Matter_Im_Write_T s) {
     return end(s) && finish(s);
 }
 static uint8_t value(Matter_Im_Write_T s) {
-    if (!enter(s,&s->fields[2]) || matter_tlv_writer_init(&s->writer,s->value,sizeof(s->value),4)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
+    if (!enter(s,&s->fields[2]) || matter_tlv_writer_init(&s->writer,s->value,s->value_capacity,4)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
     unsigned depth=0;
     do {
         if (!depth) s->token.tag=(Matter_Tlv_Tag_T){0};
@@ -268,29 +280,44 @@ Matter_Result_T matter_im_write_process(Matter_Im_Write_T s,uint64_t now) {
 	r=clock_check(s,now); if (r!=MATTER_OK) return r;
 	if (!s->queued || s->state==MATTER_IM_WRITE_IN_FLIGHT) return MATTER_PENDING;
 	s->busy=true; s->queued=false;
+	/* No allocation after the first model write, including later IBs.
+     * 256 remains the response ceiling; normalized values cannot exceed RX. */
+    if(!matter_im_buffer_reserve(&s->output,&s->output_capacity,8)) {
+        s->state=MATTER_IM_WRITE_FAILED; s->busy=false; return MATTER_PORT_ERROR;
+    }
 	uint8_t code=decode(s); bool encoded;
 	s->timed_status=!code && s->request_opcode==10;
 	if (code || s->timed_status) { s->more=false; encoded=status(s,code); }
 	else {
-        bool capacity=true;
+        /* Each status IB uses at most 48 bytes including a full-width path;
+         * the complete four-IB envelope remains below the old 256-byte cap. */
+        size_t bound=8+48*s->block_count;
+        if(bound>s->config.output_capacity) bound=s->config.output_capacity;
+        bool capacity=matter_im_buffer_reserve(&s->output,&s->output_capacity,bound) &&
+            matter_im_buffer_reserve(&s->value,&s->value_capacity,s->input_size);
         if(s->block_count>1 && !s->suppress) {
-            for(unsigned i=0;i<s->block_count;++i) s->results[i]=(Matter_Im_Write_Result_T){UINT8_MAX,true,UINT8_MAX};
-            capacity=responses(s) && s->output_size<=s->config.output_capacity;
+            for(unsigned i=0;i<s->block_count;++i) s->items[i].result=(Matter_Im_Write_Result_T){UINT8_MAX,true,UINT8_MAX};
+            capacity=capacity && responses(s) && s->output_size<=s->config.output_capacity;
         }
         s->acl_list_authorized=false;
         for(unsigned i=0;i<s->block_count;++i) {
             code=decode_item(s,i); /* Already preflighted immutable input. */
             if(!code) code=capacity?execute(s):MATTER_IM_RESOURCE_EXHAUSTED;
             if(code) s->result=(Matter_Im_Write_Result_T){.status=code};
-            s->results[i]=s->result;
+            s->items[i].result=s->result;
             s->acl_list_authorized=s->fabric.index && s->path.cluster==0x1f && !s->path.attribute &&
                 !s->result.status && s->attribute.list;
         }
         s->acl_list_authorized=false;
-		if (s->suppress) { s->output_size=0; s->state=MATTER_IM_WRITE_COMPLETE; s->busy=false; return MATTER_OK; }
+		if (s->suppress) {
+            matter_im_buffer_clear(&s->input,&s->input_capacity); matter_im_buffer_clear(&s->value,&s->value_capacity);
+            free(s->items); s->items=NULL;
+            s->output_size=0; s->state=MATTER_IM_WRITE_COMPLETE; s->busy=false; return MATTER_OK; }
 		encoded=responses(s);
 		if (!encoded || s->output_size>s->config.output_capacity) { s->more=false; encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED); }
 	}
+	matter_im_buffer_clear(&s->input,&s->input_capacity); matter_im_buffer_clear(&s->value,&s->value_capacity);
+    free(s->items); s->items=NULL;
 	s->state=encoded ? MATTER_IM_WRITE_OUTPUT : MATTER_IM_WRITE_FAILED;
 	s->busy=false; return encoded ? MATTER_PENDING : MATTER_PORT_ERROR;
 }
@@ -317,6 +344,7 @@ Matter_Result_T matter_im_write_confirm(Matter_Im_Write_T s,uint64_t now) {
 	Matter_Result_T r=check(s); if (r!=MATTER_OK) return r;
 	if (s->state!=MATTER_IM_WRITE_IN_FLIGHT) return MATTER_INVALID_STATE;
 	r=clock_check(s,now); if (r!=MATTER_OK) return r;
+	matter_im_buffer_clear(&s->output,&s->output_capacity);
 	s->state=s->timed_status ? MATTER_IM_WRITE_WAIT_WRITE : s->more ? MATTER_IM_WRITE_WAIT_CHUNK : MATTER_IM_WRITE_COMPLETE; return MATTER_OK;
 }
 Matter_Result_T matter_im_write_cancel(Matter_Im_Write_T s) {
@@ -328,6 +356,8 @@ Matter_Im_Write_State_T matter_im_write_state(Matter_Im_Write_T s) { return s ? 
 Matter_Result_T matter_im_write_delete(Matter_Im_Write_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r!=MATTER_OK) return r;
+	matter_im_buffer_clear(&s->input,&s->input_capacity); matter_im_buffer_clear(&s->value,&s->value_capacity);
+    matter_im_buffer_clear(&s->output,&s->output_capacity); free(s->items);
 	memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 

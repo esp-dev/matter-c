@@ -1339,6 +1339,16 @@
       "allocation_variant": "native"
     },
     {
+      "path": "tools/matter/tests/test_im_request_memory.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_request_memory"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_request_memory",
+      "referenced_by": [],
+      "allocation_variant": "byte accounting and every request/reply/result allocation OOM; no effects, async ownership and queued RX/ACK/drain"
+    },
+    {
       "path": "tools/matter/tests/test_im_snapshots.c",
       "kind": "ctest-native",
       "ctest": [
@@ -1444,7 +1454,8 @@
       "entrypoint": "Compiled through consuming tests; not a standalone test.",
       "referenced_by": [
         "tools/matter/tests/test_im_invoke.c",
-        "tools/matter/tests/test_invoke_network.h"
+        "tools/matter/tests/test_invoke_network.h",
+        "tools/matter/tests/test_im_request_memory.c"
       ],
       "allocation_variant": "not applicable"
     },
@@ -2406,7 +2417,8 @@
       "entrypoint": "Compiled through consuming tests; not a standalone test.",
       "referenced_by": [
         "tools/matter/tests/test_im_write.c",
-        "tools/matter/tests/test_write_network.h"
+        "tools/matter/tests/test_write_network.h",
+        "tools/matter/tests/test_im_request_memory.c"
       ],
       "allocation_variant": "not applicable"
     },
@@ -2626,7 +2638,8 @@
         "tools/matter/tests/test_im_read.c",
         "tools/matter/tests/test_im_subscribe.c",
         "tools/matter/tests/test_events.c",
-        "tools/matter/tests/test_im_snapshots.c"
+        "tools/matter/tests/test_im_snapshots.c",
+        "tools/matter/tests/test_im_request_memory.c"
       ],
       "allocation_variant": "test-only byte accounting and allocation fault injection"
     }

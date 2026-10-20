@@ -57,7 +57,11 @@ typedef enum { MATTER_IM_WRITE_WAITING, MATTER_IM_WRITE_OUTPUT, MATTER_IM_WRITE_
 	MATTER_IM_WRITE_COMPLETE, MATTER_IM_WRITE_FAILED, MATTER_IM_WRITE_WAIT_WRITE,
 	MATTER_IM_WRITE_WAIT_CHUNK } Matter_Im_Write_State_T;
 
-/* One heap allocation; config/port copied, user borrowed. Owner thread, no task,
+/* Small owner allocation; config/port copied, user borrowed. RX, normalized
+ * value scratch and per-IB descriptors/results allocate on demand. All scratch
+ * and bounded reply storage is reserved before the first effect in a message.
+ * RX OOM returns LIMIT_REACHED without accepting/queueing the request.
+ * Owner thread, no task,
  * transport ownership or hardware dependency. One concrete unicast/PASE attribute,
  * optionally TimedRequest then Write on this same session/exchange.
  * Whole input validated before callbacks. Optional list port supports empty ARRAY

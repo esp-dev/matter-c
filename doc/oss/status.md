@@ -1,5 +1,18 @@
 # Development status
 
+**Memory05: Invoke/Write/client requests, replies and results allocate on demand.**
+Accepted RX, normalization scratch, declared command bodies, bounded replies and
+validated Write IB descriptors/results replace embedded buffers/tables. Handler
+allocations precede all model effects; per-IB atomicity, limits and ACK/drain
+ownership remain unchanged. ESP32 owners: Invoke 5600 -> 1536 B, Write 4288 ->
+1800 B, client 2968 -> 936 B, with operation buffers counted separately. Linux
+CTest 89/89 and two-instance checks 6/6 per memory variant; all 16 allocation OOM
+sites and lifetime tests pass, Memcheck reports no leaks/errors. Windows 89/92
+in sandbox plus 3/3 socket retries with network access. Client receive's compiler
+frame grows 32 B; allocator/peak tradeoffs are recorded in the
+[report](memory05-validation.md). No device or official CSA rerun.
+Next: inspect fixed parser/tag/path/result workspaces and their lifetime.
+
 **Memory04: Read/Subscribe share demand-sized immutable value storage.**
 Each encoded value owns a stable allocation; the 4096/16384-byte payload budgets
 and result ceilings are unchanged. Subscribe frees after the whole report's

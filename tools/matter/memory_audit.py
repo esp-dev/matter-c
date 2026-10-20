@@ -72,7 +72,7 @@ PROBES = {
     "session/matter_case": {"case": "sizeof(struct Matter_Case)"},
     "session/matter_pase": {"pase": "sizeof(struct Matter_Pase)"},
     "model/matter_im_invoke": {"invoke": "sizeof(struct Matter_Im_Invoke)"},
-    "model/matter_im_write": {"write": "sizeof(struct Matter_Im_Write)"},
+    "model/matter_im_write": {"write": "sizeof(struct Matter_Im_Write)", "write_item": "sizeof(Write_Item)"},
     "model/matter_im_client": {"im_client": "sizeof(struct Matter_Im_Client)"},
     "clusters/matter_epm": {"epm": "sizeof(Epm)"},
     "clusters/matter_eem": {"eem": "sizeof(Eem)"},

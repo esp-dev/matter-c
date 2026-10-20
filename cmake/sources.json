@@ -218,7 +218,8 @@
     "runtime/matter_store_internal.h",
     "runtime/matter_fabric_resumption_internal.h",
     "clusters/matter_utility_internal.h",
-    "model/matter_im_snapshot_internal.h"
+    "model/matter_im_snapshot_internal.h",
+    "model/matter_im_buffer_internal.h"
   ],
   "runtime": [
     "runtime/matter_dispatch",
