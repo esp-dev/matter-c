@@ -324,7 +324,11 @@
       "endpoint": 0,
       "collection": "SDK YAML Tests",
       "status": "BLOCKED",
-      "run_id": 135
+      "run_id": 135,
+      "blocker": {
+        "reason": "CSA30 original463/464 ended with controller WebSocket errors; the long continuation remains owner-deferred. No complete original PASS.",
+        "prerequisite": "Resolve the controlled post-reset controller/recommission prerequisite, then obtain an explicit owner window for the unshortened multi-hour test; retain first2h05 observation and later unexecuted1h05 assertions."
+      }
     },
     {
       "case": "TC-DGGEN-2.3",

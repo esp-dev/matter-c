@@ -357,6 +357,36 @@ one local review package. Group specification/test questions, provisioning and
 physical/manual prerequisites; name the requested decision and exact rerun gate
 for every remaining FAIL. No automatic sending or unchanged long-test repeats.
 
+## CSA72: complete unsent review packet and lab activity check
+
+The [review packet](csa72-questions.md) is rendered from [JSON](csa72-questions.json)
+and covers all27 failed and5 prerequisite positions once, preserving exact
+case/endpoint/collection identities.22 CSA question groups separate specification,
+test, timing and applicability decisions;4 owner/lab groups cover identity,
+physical Wi-Fi, labels and the owner-deferred long diagnostics run. Linked
+evidence retains historical verdicts, run IDs, hashes and unexecuted portions.
+
+Every item names the requested decision/input and exact rerun gate. No submission,
+upload, automated sending, new test, PICS/source change or long-run scheduling.
+The renderer checks current coverage, evidence identity and Markdown freshness:
+`python tools/matter/csa_review_packet.py`. Update the packet deliberately when
+campaign state changes; stale identities/verdicts must not remain silently current.
+
+[Receipt](csa72-results.json) and [validation](csa72-validation.md) record read-only
+CPU/process samples. No old CSA job was found and TH was idle. Initial DUT/TH
+guest samples were0.14%/0.33%; Windows VMware later totalled about1% of host CPU.
+A separate active memory-optimization worker then built/tested a different
+workspace; a later DUT sample reached8.73%, followed by3.27% with Memcheck using
+about one core. These measurements are not simultaneous or interchangeable.
+The progressing worker was left untouched; its results are not CSA72 acceptance.
+No process was killed or VM/service setting changed. Short snapshots do not
+establish historical peaks or attribute every CPU cycle to this worker.
+
+Next: owner review/prioritization, then explicit recipient/material authorization
+before any sending. Continue only work whose prerequisite actually changed;
+do not restart the deferred multi-hour diagnostics test or already-attributed
+original failures merely to keep the campaign running. Counts stay123/27/5.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

@@ -9,6 +9,10 @@ The [CSA execution plan](doc/oss/csa-campaign-plan.md) and
 failure attribution and later native repairs. Run `python tools/matter/csa_campaign.py`
 to check that public evidence and the queue agree.
 
+The [unsent CSA review packet](doc/oss/csa72-questions.md) groups the remaining
+questions and exact rerun prerequisites. Check its JSON coverage and rendering
+with `python tools/matter/csa_review_packet.py`; this never submits or runs tests.
+
 The application owns scheduling, networking, storage and hardware callbacks.
 Multiple runtimes can run in one process/thread. The core does not require
 ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).

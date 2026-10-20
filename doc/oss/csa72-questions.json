@@ -1,0 +1,880 @@
+{
+  "schema": 1,
+  "submission_state": "DRAFT_NOT_SENT",
+  "evidence_base_commit": "220815a6d83c151b337932643e320bdcbbbf9ad3",
+  "campaign_snapshot": "csa71-results.json",
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "context": "Experimental native x86 Matter1.6.1 profile, TH v2.15.1+summer2026. This consolidates existing results rather than rerunning or upgrading them. Original failures, manual/operator results, independent laboratory acceptance, setup errors and production qualification limits remain distinct. Linked receipts pin the relevant original source versions; this is not a fresh SDK-binary or test-source audit.",
+  "review_workflow": "Review and prioritize the questions with the project owner before selecting any recipient or attachment. CSA/test-maintainer questions request a normative/applicability or accepted-procedure decision; owner/lab items require concrete inputs. Retain a ticket/release/guidance reference and approved scope for each resolved item. No message, submission, upload, account change or test execution is authorized by generating this packet.",
+  "groups": [
+    {
+      "id": "CSA72-Q01",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-SC-2.1",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 472,
+          "reference_runs": [
+            472
+          ],
+          "historical_source_sha256": "30c643085fa69ca258bbe1d6ea67496aaa3ae612804c8798aaf7e3f23736b94e"
+        }
+      ],
+      "title": "PASE header flags, lengths and PBKDF parameter meaning",
+      "recorded_observation": "Run472 literal procedure disagrees with observed Core-compliant S/DSIZ addressing, byte lengths and hasPBKDFParameters meaning; success/commissioning was observed.",
+      "requested_decision": "Confirm corrected initiator/responder S/DSIZ expectations, byte units and true/known-PBKDF interpretation for Core1.6.1.",
+      "rerun_gate": "Accepted procedure/interpretation with explicit corrected fields; replay retained captures first, then repeat original manual procedure with fresh transcript only if needed.",
+      "evidence": [
+        "csa37-validation.md",
+        "csa37-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q02",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-SC-2.2",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 473,
+          "reference_runs": [
+            473
+          ],
+          "historical_source_sha256": "20544ce5190ad455b0fca8c9efec818d4bff6f265d665e73ab026bfb19c1bbfb"
+        }
+      ],
+      "title": "Bad MIC: discard message or destroy PASE session",
+      "recorded_observation": "Run473 fails the step requiring session termination/key clearing after corrupted MIC. The message is rejected, replay state is not committed and the same live session recovers.",
+      "requested_decision": "Does Core4.8.3 require session destruction here, or only dropping the failed AEAD message as recorded? Identify the normative source for mandatory key erasure if intended.",
+      "rerun_gate": "Accepted session/error policy; repeat corrupt-MIC and same-session recovery plus original procedure. Do not infer key erasure from absence of traffic.",
+      "evidence": [
+        "csa38-validation.md",
+        "csa38-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q03",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-SC-1.3",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 477,
+          "reference_runs": [
+            477
+          ],
+          "historical_source_sha256": "beded47fe104dbd4ccb5f26b5ee2978174e21b26a7fdfe4e0d8e1c2f935cadcb"
+        }
+      ],
+      "title": "MRP total sends versus retransmissions",
+      "recorded_observation": "Run477 literal step expects MRP_MAX_TRANSMISSIONS-1 total messages. Actual loss trace has one initial send plus four retransmissions, with correct backoff and exhaustion.",
+      "requested_decision": "Confirm whether the step means four retransmissions rather than four total sends under Core1.6.1.",
+      "rerun_gate": "Accepted counting wording; first compare retained five-message trace, then original loss/late-ACK/recovery procedure without reducing native retransmissions.",
+      "evidence": [
+        "csa42-validation.md",
+        "csa42-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q04",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-OPCREDS-3.6",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 466,
+          "reference_runs": [
+            466
+          ],
+          "historical_source_sha256": "29cb7aeb98042890f7979c0ccd613ac7551d2325e075fcf4df55a2e6dcda3de6"
+        }
+      ],
+      "title": "Last-fabric reset and CM advertisement",
+      "recorded_observation": "Run466 observes successful RemoveFabric, operational withdrawal, explicit process restart, CM1/_CM and successful recommissioning; literal Step4 asks CM0 without _CM despite a commissioning heading.",
+      "requested_decision": "Confirm expected CM/subtype after last-fabric reset when an on-network product opens a basic commissioning window, versus closed or enhanced-window policies.",
+      "rerun_gate": "Accepted product-window procedure; rerun response/withdrawal/restart/discovery/recommission flow with genuine advertisements, retaining explicit CLI restart scope.",
+      "evidence": [
+        "csa32-validation.md",
+        "csa32-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q05",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_CGEN_2_2",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 128,
+          "reference_runs": [
+            255
+          ],
+          "historical_source_sha256": "6ba91d188800dc26f63089390fadbbc8f5c691ef7e17859a6fde2ce451c407c3"
+        }
+      ],
+      "title": "Identical trusted root and fail-safe idempotence",
+      "recorded_observation": "CSA02 retains failure when the procedure expects an extra trust entry after installing identical committed root material under a new fail-safe.",
+      "requested_decision": "Confirm expected TrustedRootCertificates count and rollback behavior for an identical existing root; should the procedure supply a distinct root when it expects growth?",
+      "rerun_gate": "Accepted identity/count expectation; rerun identical-root idempotence, distinct-root candidate, fail-safe expiry and committed-fabric preservation without duplicate entries.",
+      "evidence": [
+        "csa02-validation.md",
+        "csa02-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q06",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_CADMIN_1_10",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 157,
+          "reference_runs": [
+            333
+          ],
+          "historical_source_sha256": "a983dbfc42a8555f7923cec3adb9d99436c13717995fbf463329de433c8782cd"
+        },
+        {
+          "case": "TC_OPCREDS_3_4",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 129,
+          "reference_runs": [
+            256
+          ],
+          "historical_source_sha256": "a0cf0ff60fb45cd1a1e263eeae607ef4e3b353180785ee187c0d776c91630e76"
+        }
+      ],
+      "title": "RevokeCommissioning response on terminated PASE",
+      "recorded_observation": "CSA02/16 retain response timeouts expected by scripts after successful PASE revocation; Core11.19.8.3 says the caller must not expect a response on that terminated session.",
+      "requested_decision": "Confirm PASE revocation completion criteria and accepted observation replacing an InvokeResponse on a terminated channel.",
+      "rerun_gate": "Accepted procedure; rerun real window withdrawal/PASE retirement/fail-safe rollback and independent CASE survival, without broadening the separate ArmFailSafe reply exemption.",
+      "evidence": [
+        "csa16-validation.md",
+        "csa16-results.json",
+        "csa02-validation.md"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q07",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_ACL_2_4",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 130,
+          "reference_runs": [
+            287
+          ],
+          "historical_source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a"
+        }
+      ],
+      "title": "ProxyView in the current revision",
+      "recorded_observation": "CSA06 original287 fails step16 because the test expects ProxyView2 to succeed; supplied Core1.6.1 marks it D/disallowed. Later steps remain unexecuted.",
+      "requested_decision": "Which Access Control revision/enum conformance should this installed test enforce, and what approved test excludes or negatively validates ProxyView for Core1.6.1?",
+      "rerun_gate": "Accepted revision/profile expectation; rerun original case through all later scenarios, preserving rejection unless a legitimate different revision is selected.",
+      "evidence": [
+        "csa06-validation.md",
+        "csa06-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q08",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_ACL_2_6",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 131,
+          "reference_runs": [
+            288
+          ],
+          "historical_source_sha256": "f6f02e31bc99a052ec43832dc955bc198ca08f756deba3a3724e66f417390e8a"
+        },
+        {
+          "case": "TC_SU_4_1",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": null,
+          "reference_runs": [
+            456
+          ],
+          "historical_source_sha256": "644dde23f969393db842b84190978144a9279b02fa17e3d1e5ba4e0514811061"
+        }
+      ],
+      "title": "Per-operation statuses in list writes",
+      "recorded_observation": "ACL288 and OTA456 fail first-status assertions on clear/append/append responses[0,0,135]; the invalid append is rejected. Diagnostic290 and independent CSA27 readbacks distinguish partial state and fabric isolation.",
+      "requested_decision": "Confirm accepted SDK aggregation or test handling of the complete status vector, preserving successful operations, constraint rejection and post-write state checks.",
+      "rerun_gate": "Accepted correction/guidance or verified client aggregation change; check all operation statuses and actual list/fabric state, then complete previously unreached original assertions.",
+      "evidence": [
+        "csa06-validation.md",
+        "csa27-validation.md",
+        "csa71-validation.md",
+        "csa71-csa-question.md"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q09",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_CNET_4_4",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 166,
+          "reference_runs": [
+            330
+          ],
+          "historical_source_sha256": "91e6c31c370388c5f644a3dde49250ae7d58f7d6d1cda1f6b2d607170405afcd"
+        }
+      ],
+      "title": "ScanNetworks and fail-safe prerequisite",
+      "recorded_observation": "Connected-state fixture fixes the original setup problem, but run330 still calls ScanNetworks without arming fail-safe and gets FailsafeRequired.",
+      "requested_decision": "Confirm the required fail-safe setup for this procedure versus its current command sequence.",
+      "rerun_gate": "Accepted precondition or normative exception; rerun general/directed scan with proper fail-safe and retain the unarmed negative control. Do not remove the server guard.",
+      "evidence": [
+        "csa14-validation.md",
+        "csa14-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q10",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-CNET-4.13",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 482,
+          "reference_runs": [
+            482
+          ],
+          "historical_source_sha256": "e41504240ec78e1e53cfdca7c79d98846a142eb27f3526b4540e79b133b08b9e"
+        }
+      ],
+      "title": "BLE precondition and full-network repeat arithmetic",
+      "recorded_observation": "Run482 fails compound BLE/explicit BLE prompts on the IP-only simulation and a loop that asks three further additions after one of three free slots is already consumed.",
+      "requested_decision": "Clarify applicability of BLE steps for this profile and whether the repeat count must subtract the intervening successful addition.",
+      "rerun_gate": "Accepted role/radio applicability and capacity arithmetic; supply genuine BLE if required, then rerun reorder/Breadcrumb/fill/rollback/commit with the real remaining capacity.",
+      "evidence": [
+        "csa46-validation.md",
+        "csa46-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q11",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-GRPKEY-2.1",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 493,
+          "reference_runs": [
+            493
+          ],
+          "historical_source_sha256": "030c3e840f6a09b4d5eda4bc3b58125939489195d7db098b8770280c80446e73"
+        }
+      ],
+      "title": "Positive GroupKeyMap writes with zero group capacity",
+      "recorded_observation": "Native list-admission defect is repaired in CSA55; run493 now gets actual clear Success/add ResourceExhausted89 for the declared zero Groups/Groupcast profile.",
+      "requested_decision": "Is the positive-capacity procedure applicable when advertised group-map capacity is zero, and which accepted branch should exercise that profile?",
+      "rerun_gate": "Accepted applicability/capacity procedure, or intentionally supported positive group capacity with consistent PICS/implementation. Rerun clear/add/status/readback; do not invent mappings.",
+      "evidence": [
+        "csa55-validation.md",
+        "csa55-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q12",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-GRPKEY-2.2",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 487,
+          "reference_runs": [
+            487
+          ],
+          "historical_source_sha256": "5d1c86b732ff9d9c32dd810c6949085200796d5aecc6eebb43000e2b58327eec"
+        }
+      ],
+      "title": "Overwrite versus new KeySetID at capacity",
+      "recorded_observation": "Run487 reaches every step; Step22 asks for an unused ID but hardcodes3 after capacity fill already created3. Valid overwrite returns Success, not ResourceExhausted.",
+      "requested_decision": "Confirm use of a genuinely unused ID for overflow and the distinct expected result for replacing an existing KeySetID under Core11.2.7.1.",
+      "rerun_gate": "Accepted unused-ID selection; rerun fill, changed-epoch overwrite, actual new-ID overflow, readback and reset without rejecting valid overwrites.",
+      "evidence": [
+        "csa50-validation.md",
+        "csa50-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q13",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-DESC-2.1",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 480,
+          "reference_runs": [
+            480
+          ],
+          "historical_source_sha256": "5a14926651c2b7f6df96b8738c5f06ca8f8adc1db2cb4a739726a21401a3d55e"
+        }
+      ],
+      "title": "Phased PartsList hierarchy and full-suite closure gate",
+      "recorded_observation": "Run480 literal step requires every nonroot PartsList empty, while aggregate endpoint1 has phase children3/4/5 as in the supplied Device Library. A separate final all-clusters gate also remains unsatisfied.",
+      "requested_decision": "Confirm accepted Descriptor procedure for a phased meter hierarchy under Device Library2.1.7/14.9.6; retain the independent complete-cluster acceptance requirement.",
+      "rerun_gate": "Accepted hierarchy wording plus completed applicable cluster acceptance; rerun full Descriptor procedure. Metadata-only reads cannot satisfy the final behavior gate.",
+      "evidence": [
+        "csa44-validation.md",
+        "csa44-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q14",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-IDM-6.2",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 484,
+          "reference_runs": [
+            484
+          ],
+          "historical_source_sha256": "c9cbafd9aacc6298d9ad72674f653cb19051df1be09a804e07b17cb09675dae4"
+        }
+      ],
+      "title": "Subscribe after all event paths are denied",
+      "recorded_observation": "Run484 examples expect UnsupportedAccess or empty ReportData; Core8.4.3.2 empty error-free event selection causes global InvalidAction and no subscription prime.",
+      "requested_decision": "Confirm the global Subscribe error and absence/presence of ReportData for only-denied concrete paths and all-denied wildcards.",
+      "rerun_gate": "Accepted selector/error expectation; rerun concrete/wildcard event Subscribe and valid subscription recovery without exposing foreign events.",
+      "evidence": [
+        "csa49-validation.md",
+        "csa49-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q15",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-IDM-7.1",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 494,
+          "reference_runs": [
+            494
+          ],
+          "historical_source_sha256": "92450a1c27ac700ec90415136fb1a961d784cc756f988ceb11fe59a45afae8e3"
+        }
+      ],
+      "title": "Resource exhaustion result after concurrent subscription load",
+      "recorded_observation": "CSA56 repairs host RX starvation; independent five-fabric/15-subscription checks pass. Original494 retains the final overflow-status mismatch against ResourceExhausted89.",
+      "requested_decision": "Confirm the accepted overflow status and admission scope for a request exceeding the advertised subscription budget, without requiring termination of existing valid subscriptions.",
+      "rerun_gate": "Accepted overflow procedure/status; rerun complete original load case plus bounded per-fabric admission, continued reports and memory acceptance on the repaired host.",
+      "evidence": [
+        "csa56-validation.md",
+        "csa56-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q16",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_BINFO_2_2",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 491,
+          "reference_runs": [
+            491
+          ],
+          "historical_source_sha256": "868ee3d7fedf097bc3e19aac5852f9bb2a5cd6de3218af33b6aae430ea6db409"
+        }
+      ],
+      "title": "Optional Leave event with false PICS",
+      "recorded_observation": "Original491 fails by dereferencing absent Data.fabricIndex; CSA55 concrete read gets UnsupportedEventC7 with BINFO.S.E02=false and Leave absent from the catalog.",
+      "requested_decision": "Should the optional Leave procedure be excluded or follow an error-status branch when E02 is false? Confirm approved behavior rather than dereferencing absent event data.",
+      "rerun_gate": "Accepted PICS/applicability or corrected error handling; rerun actual remove/event procedure or explicit supported negative branch, without fabricating a Leave event.",
+      "evidence": [
+        "csa53-validation.md",
+        "csa55-validation.md",
+        "csa55-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q17",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_IDM_5_2",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 603,
+          "reference_runs": [
+            603
+          ],
+          "historical_source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614"
+        }
+      ],
+      "title": "Timed Write delay measured after real Success",
+      "recorded_observation": "Original603 fails; diagnostic601 shows an MRP-retried TimedRequest and Write arriving1.56ms after actual Success, inside the700ms window despite busyWaitMs1400.",
+      "requested_decision": "Confirm that the expiry test delay must start after receipt of successful TimedRequest status, including retries, rather than an earlier SDK scheduling boundary.",
+      "rerun_gate": "Accepted SDK timing/fixture guaranteeing Write beyond actual Success plus timeout; retain kernel/send timing and actual callback/readback evidence, plus genuinely late and valid recovery controls.",
+      "evidence": [
+        "csa59-validation.md",
+        "csa59-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q18",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC-BDX-2.3",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "FAIL",
+          "campaign_run_id": 495,
+          "reference_runs": [
+            495
+          ],
+          "historical_source_sha256": "d383c621b31867ae31faef1a3656598573c59cce265fb312c2a7c3e7751ef2bd"
+        }
+      ],
+      "title": "Optional ordinary BlockAck in receiver-drive BDX",
+      "recorded_observation": "Run495 retains one literal failure because the procedure asks for ordinary BlockAck. Actual recovered receiver-drive flow acknowledges via the next BlockQuery and completes signed OTA.",
+      "requested_decision": "Confirm whether next-BlockQuery acknowledgment is accepted under Core11.22.6.2/.6 and whether the ordinary BlockAck prompt is conditional on negotiated mode.",
+      "rerun_gate": "Accepted negotiated-mode interpretation; rerun original interruption/recovery with captured ACK/Query/EOF and exact image verification, keeping optional messages optional.",
+      "evidence": [
+        "csa57-validation.md",
+        "csa57-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q19",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_SU_2_2",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 607,
+          "reference_runs": [
+            607
+          ],
+          "historical_source_sha256": "d5e9fbf867982ba7b1c8c8305c70a6fc6b04f018b521562d2e7028b6e672b8e4"
+        }
+      ],
+      "title": "Provider handoff race and QueryImage observation window",
+      "recorded_observation": "Original607 accepts UpdateAvailable from the old provider before handoff and fails in Downloading. Separate diagnostic608 injects loss and backoff; CSA67 repairs an independently reproduced resolver RX latch without reclassifying607.",
+      "requested_decision": "Confirm provider-response/announcement ordering for each QueryImageResponse scenario and the observation window when legitimate failure backoff outlives the test wait.",
+      "rerun_gate": "Verified provider generation/handoff and unambiguous responses before triggering the DUT, with a window covering permitted backoff. Then rerun original scenario; diagnostic loss and recovery passes do not substitute.",
+      "evidence": [
+        "csa63-validation.md",
+        "csa63-results.json",
+        "csa67-validation.md"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q20",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_SU_2_5",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": null,
+          "reference_runs": [
+            450
+          ],
+          "historical_source_sha256": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb"
+        }
+      ],
+      "title": "Historical progress replay and retained subscriptions",
+      "recorded_observation": "Original450 falsely completes download from null/0/1 replay; earlier449 hits a fourth subscription. Local corrected451 passes with budget3, but is not an accepted original PASS.",
+      "requested_decision": "Confirm chronological FIFO progress observation, one deadline and scenario subscription cleanup, or identify an approved corrected test release.",
+      "rerun_gate": "CSA-accepted correction or verified approved test/helper whose temporal/lifecycle behavior changes the prerequisite; first use existing offline controls, then full original accepted procedure.",
+      "evidence": [
+        "csa68-validation.md",
+        "csa24b-validation.md",
+        "csa68-csa-question.md"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q21",
+      "category": "CSA_TEST_QUESTION",
+      "cases": [
+        {
+          "case": "TC_SU_2_7",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 606,
+          "reference_runs": [
+            606
+          ],
+          "historical_source_sha256": "9a8b0ffa278180cf3aaa772dae3d2d3a1650114c3260a035d784db11a4f8dd31"
+        }
+      ],
+      "title": "Default-provider query before event callback registration",
+      "recorded_observation": "Original606 repeats startup ordering: Querying occurs before step1 callback, whose first event is already Downloading. A later independent subscription reads the retained Querying event.",
+      "requested_decision": "Confirm callback/history priming or a deterministic startup/announcement ordering that observes the required first transition without disabling legitimate automatic provider queries.",
+      "rerun_gate": "Accepted observation setup reaching actual first Querying event; then rerun original and later Applying/reboot boundaries. CSA62 event-drain repair alone does not fix the earlier callback prerequisite.",
+      "evidence": [
+        "csa61-validation.md",
+        "csa61-results.json",
+        "csa62-validation.md"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-Q22",
+      "category": "CSA_APPLICABILITY_QUESTION",
+      "cases": [
+        {
+          "case": "TC-IDM-5.1",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "BLOCKED",
+          "campaign_run_id": null,
+          "reference_runs": [],
+          "historical_source_sha256": "0bd5ab16149e6634d0a181cfcb7510e3ec02a66e2f123b5dd54a0fdecd2331aa"
+        },
+        {
+          "case": "TC-SC-4.4",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "BLOCKED",
+          "campaign_run_id": null,
+          "reference_runs": [],
+          "historical_source_sha256": "2837c3ba32881ad48b8bb9f229f268c08ec91b7fb5ac0f023d65431551856c1e"
+        }
+      ],
+      "title": "Limited OTA client: timed interaction and peer IP-change procedures",
+      "recorded_observation": "Both manual positions remain blocked: no genuine timed-client Invoke trigger, and no controlled peer-IP-change run with a supported DUT-originated request. VendorID-read client PICS is false.",
+      "requested_decision": "Confirm applicability of these procedures to a limited untimed OTA Invoke client and accepted supported-operation substitutions or exclusions.",
+      "rerun_gate": "Accepted role/PICS decision; if applicable provide a genuine DUT client trigger and isolated peer-IP-change fixture. No chip-tool request may masquerade as DUT-originated traffic.",
+      "evidence": [
+        "csa47-validation.md",
+        "csa47-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-P01",
+      "category": "PROVISIONING_PREREQUISITE",
+      "cases": [
+        {
+          "case": "TC_DA_1_2",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 171,
+          "reference_runs": [
+            171
+          ],
+          "historical_source_sha256": "e40e0eee6bb7d54ac1fb9e31c71211739f5cc4027c83dc7843aa45c271a0d442"
+        },
+        {
+          "case": "TC_IDM_10_1",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 219,
+          "reference_runs": [
+            219
+          ],
+          "historical_source_sha256": "0cd71ea50ded3dc78a12092cd844b4d843a2b256a00020f4c1f555305ae0fc22"
+        },
+        {
+          "case": "TC_IDM_13_1",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 206,
+          "reference_runs": [
+            206
+          ],
+          "historical_source_sha256": "f4d93d230f6461d3361a48ba452950c4b025577d389c5b4b7d40bd86297fb203"
+        }
+      ],
+      "title": "Assigned identity, manufacturer extension and default-value warnings",
+      "recorded_observation": "DA171 stops on CD VID0xFFF1. IDM219 reports manufacturer cluster0xFFF10000 with bad prefix0xFFF1. IDM206 default warning reports BasicInformation VendorID65521. These are deliberate development inputs, not established signature failures.",
+      "requested_decision": "Owner supplies an authorized identity plan or seeks explicit accepted development-profile guidance. Confirm VID/PID/CD/DAC relationships and manufacturer-specific cluster namespace; do not borrow another vendor identity or suppress warnings.",
+      "rerun_gate": "Authorized consistent VID/PID and signed test/production CD as appropriate; configure host identity and manufacturer extension consistently, retain trust checks, then rerun all three original cases. Test CD type0 is allowed at certification testing; different DAC origin IDs need separate constructor review.",
+      "evidence": [
+        "csa69-validation.md",
+        "csa69-results.json",
+        "csa53-validation.md"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-P02",
+      "category": "PHYSICAL_LAB_PREREQUISITE",
+      "cases": [
+        {
+          "case": "TC_CNET_4_11",
+          "endpoint": 0,
+          "collection": "SDK Python Tests",
+          "status": "FAIL",
+          "manual_result": null,
+          "campaign_run_id": 168,
+          "reference_runs": [
+            168
+          ],
+          "historical_source_sha256": "d3bb318d58568fc0c3935f3803fd6848255d7ab8b7e62724d670935eded4e5ac"
+        }
+      ],
+      "title": "Controller Wi-Fi migration between two real APs",
+      "recorded_observation": "Earlier168 FAIL remains. CSA15 preflight found no TH wireless interface/wpa_supplicant; the procedure changes controller routes, AP association and IP. DUT AP records are simulation only.",
+      "requested_decision": "Lab owner supplies a dedicated Wi-Fi-capable controller with two controlled APs and recovery access independent of the tested route.",
+      "rerun_gate": "Real interface, supplicant and AP credentials ready in a separate bench; confirm route/recovery plan, then run original migration/rediscovery. Do not alter shared VM/SSH networking or apply an in-test BLE flag blindly.",
+      "evidence": [
+        "csa15-validation.md",
+        "csa15-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-P03",
+      "category": "PHYSICAL_PRESENTATION_PREREQUISITE",
+      "cases": [
+        {
+          "case": "TC-DD-1.6",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "BLOCKED",
+          "campaign_run_id": null,
+          "reference_runs": [],
+          "historical_source_sha256": "c34d7b840a2852a7e047698ce2e377caf52dcc8e94bd784b73c97ed5de5a3921"
+        },
+        {
+          "case": "TC-DD-1.7",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "MANUAL",
+          "manual_result": "BLOCKED",
+          "campaign_run_id": null,
+          "reference_runs": [],
+          "historical_source_sha256": "206478add9c42f42ba065e1ead921d2f636779d0e4628129f4505d7373a27bd1"
+        }
+      ],
+      "title": "Final QR/manual-code presentation evidence",
+      "recorded_observation": "Software payload scans exist, but final QR label/presentation measurements and manual-code typography/grouping artifacts are absent.",
+      "requested_decision": "Product owner supplies final approved label/card or permitted final presentation and measurement/scan evidence; clarify presentation alternative with CSA if needed.",
+      "rerun_gate": "Final artifact, payload binding, measured modules/ECC/version/scan and font/grouping evidence available; then original manual acceptance. Generated digits/bitmap alone are not physical presentation PASS.",
+      "evidence": [
+        "csa47-validation.md",
+        "csa47-results.json",
+        "csa31-validation.md"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    },
+    {
+      "id": "CSA72-P04",
+      "category": "DEFERRED_INFRASTRUCTURE_PREREQUISITE",
+      "cases": [
+        {
+          "case": "TC-DGGEN-2.1",
+          "endpoint": 0,
+          "collection": "SDK YAML Tests",
+          "status": "BLOCKED",
+          "manual_result": null,
+          "campaign_run_id": 135,
+          "reference_runs": [
+            463,
+            464
+          ],
+          "historical_source_sha256": "695593b7bd95e321167e4c0e5b5ebc0a0bdd0078b388923c17014200bb447830"
+        }
+      ],
+      "title": "Long diagnostics run and post-reset controller recovery",
+      "recorded_observation": "CSA30 original463/464 ended ERROR on controller WebSocket keepalive. Run464 completed the first2h05 wait and hours0-to2 assertion, then failed commissioning after factory reset; the later1h05 part remains unexecuted.",
+      "requested_decision": "Lab owner schedules a stable controller/reset path and a full-duration window. Exact controller stall remains unproven; preserve both errors and partial observations.",
+      "rerun_gate": "Resolve the post-reset controller prerequisite with bounded relevant evidence, then obtain explicit owner scheduling before the unshortened multi-hour original run. Owner-deferred long run is not started by this package.",
+      "evidence": [
+        "csa30-validation.md",
+        "csa30-results.json"
+      ],
+      "decision_state": "PENDING",
+      "rerun_authorized_by_this_packet": false
+    }
+  ],
+  "evidence_git_blob_sha256": {
+    "csa02-results.json": "08fc9ad0e218d78f866177e2c69a79b8f9f2fabd159b06d536ad85d2123cdf1e",
+    "csa02-validation.md": "7c985f27c3a26bd3e87a3191f82fc853a118599db649390171b2d07c7e2c40a0",
+    "csa06-results.json": "235c4b1ebef86f6304b96c3d192fb9e1b431f1ed61a1f65288da8a92d7bbc02c",
+    "csa06-validation.md": "3d014cb609dd2caa8f8b27b80ac2013389e64bfef91d7950ffbeabc284744fe7",
+    "csa14-results.json": "db7b4a1c2e0ab50df423ad625c351d2801c81bbebafbe62b555d278c298eb483",
+    "csa14-validation.md": "130fdbfdf75409f47f005c90ab7fd11bcacc65b1d574e8621b7f82d3d4f9b805",
+    "csa15-results.json": "5f90e975ddc409f5b99113786b0efccb5c0b8312de6f54b4e518d7050c9db848",
+    "csa15-validation.md": "981448dac92b6acfb086c59219bf19667b8de776eb4a545ddeb513f2a08f63dc",
+    "csa16-results.json": "0dd1aa91371f71074cfd21eb1432d71ecf651eef0c17f46784810d8419280a70",
+    "csa16-validation.md": "b431db3b688c58115a9dda2b2e26d2e9f2acba32478ba99ca522f9489731b76a",
+    "csa24b-validation.md": "0f7bd32b74fcba1ed6b4122d558f2ec33be8e0d11c16568e47db44b398c40203",
+    "csa27-validation.md": "e0808f56af943149d3ca354f0f9a75831d2ef33d594c4598296d69bc174b77c7",
+    "csa30-results.json": "1a1c9686ad42d51670c8f6877b9fce022f83f53a9a03c089e306ffd46b2c8b31",
+    "csa30-validation.md": "dbba6a46baa85429694e342023ae49372ea69a3be046bd979d667ec1af47ddc6",
+    "csa31-validation.md": "98d55836f0fe496d50ddd0bd5e52de0ff6d9cf9d4aa683318e80842d671de1a4",
+    "csa32-results.json": "f9c193fa964ad9e167773bcb02915f461fd89ea0c36df41bbd11b8cca94409fb",
+    "csa32-validation.md": "c2c7ab5aa1e4d3af4c6204e60fabf1d0ed39d36e3c20476bd42ee3a829d2983e",
+    "csa37-results.json": "25c71a0ffead6f0780f3afc64f2ad6e53deb17c773f27161eedd4b134e02d2eb",
+    "csa37-validation.md": "781beb040f4cada8da73e35edc7d1af8faf5f7dfd8be2e4d709c0e238a60d342",
+    "csa38-results.json": "89c950b164af9779d9c36818a4c42303aa6534306f2e2430bab06e6522a72fa7",
+    "csa38-validation.md": "7ee6add6234b1ae43b5f8e16cea36f5df80462a280e58020a5f8f05db5a91235",
+    "csa42-results.json": "14158ee97befd9535ddf5bbe8ab97315dc522b36492c1ebad4843aba83d3dedf",
+    "csa42-validation.md": "9f74ecdb2bcd57bc7234361415e0c618af43ca7004e4e0affc82ad8e578b71d0",
+    "csa44-results.json": "2823f2f88967ecb6483806a5cd9b2cf12f0d13024f73cec1437f2604d12f660a",
+    "csa44-validation.md": "74ececb2d07003640246f1e153e3c2f445410cda3e9fe8df07a76ff839140281",
+    "csa46-results.json": "958aee3260b4eeaa4b4a08cd8e22ff7c67546f354fdc14424505675d88cac7a8",
+    "csa46-validation.md": "a67b71b2a5a1499a74cce8a1cbe069c19dd9907147ca6908d0712f6ffd4a5d1f",
+    "csa47-results.json": "08cfa5d077ed3bd5859af02dfb6eedfc69fa8766d8677509d369bdd61b9a9d6f",
+    "csa47-validation.md": "db9a022391f2f710558b629bddf1a3daa5781cc3d08c2bd0e35f68d9159f69a6",
+    "csa49-results.json": "22746e1b345b31ebac72f14440217e0cc53242f67b0dd360c2b2eb09db3b512f",
+    "csa49-validation.md": "8b9b5d00de41b5e244b7dea3e4c327cb5f0fe67adbeaf2017b10f9f3357fdb38",
+    "csa50-results.json": "c01a0ca1b4de29f10399f64b935b334be2c54757f6034d9e9625aa8e6a0cb8d4",
+    "csa50-validation.md": "b38813ab6fc065e63299fa5f7059523dbcc32c9e707f6caf618180cd2d78963a",
+    "csa53-validation.md": "aa67c564854ae0d2e478271d0351d889bf8590a24d6bb6f0b63ec77fc7edcb82",
+    "csa55-results.json": "96a9bee4738d8dfe9def5e63c2fae84825b8c98e139469c3616393a090f27502",
+    "csa55-validation.md": "90ce8aabd433f1976e663b75b6f9c8ac028a5c6810d03131cf630eef23937920",
+    "csa56-results.json": "aa19e29b0baa6f2cdd6aa048b49efac59339f755ba43f0979436e3a491c01c85",
+    "csa56-validation.md": "0c7092935561b07027386e1254a044204fd41c30f38196cd341b494ec917311e",
+    "csa57-results.json": "e9eb6e08642f8b6d08fa69b180c84b4c3ca9884869b246edd748eca708545b29",
+    "csa57-validation.md": "ea8090e22d6eeb5bf394dd498c8ad65cfc48915f204abb147fcac7ac20df7548",
+    "csa59-results.json": "d7d74feeb96c363ec8a737d7e62044a845627da1e9c540391f40dd31850091e6",
+    "csa59-validation.md": "466a0dafa6a044ba380442099bcc4f173984cd5e1af58c9d6e8bcad1f810bf6c",
+    "csa61-results.json": "3a79d3419ed5195bc9a8b6f12483ff017f812ec853253771dee6659a4eb6d8f3",
+    "csa61-validation.md": "614c8c889b59691d110b219834e1e4fb77ce674bf58a17bee0c402b9d8876d6f",
+    "csa62-validation.md": "e9a5a98f185ea3f45c27b8052fca0952852b8345a67465d1520a9329ff1e785f",
+    "csa63-results.json": "0df9026e39db9b96f10a0b930e3cc27684c6467f40d90343f417d5bd47fbcf6c",
+    "csa63-validation.md": "1d470c24cd5938d08cc57c9a9d0094b1303cf637fc7a52b63bd6946511309317",
+    "csa67-validation.md": "21f1c3dd1080a5e9dbca3be91ebf58c4a6abb02aa28face850c11b080a4dbc39",
+    "csa68-csa-question.md": "a262515a194ee0a01bb65346644e73c704884a34517ce2cf38e488ea119f9730",
+    "csa68-validation.md": "0041a1420c16691fe6dfc88d941eed4b8573f1aa697150616cc739e7895ba77a",
+    "csa69-results.json": "344c06d83436306eb41c956d03dca6fb9b8d985a0408fee8c1726cbc8560f0ca",
+    "csa69-validation.md": "9e9989e7a45fd161230114990256c3dbc009c91414c433104818e631c36438ea",
+    "csa71-csa-question.md": "313f2c9fbea92e5237129c6621c406ed19b53957adcee43fa22fcf379d4eb2fa",
+    "csa71-validation.md": "45e607e13fe039675f954bb306575c6b31032b08656c67d5982c474dd5ba2f98"
+  },
+  "common_rerun_rules": [
+    "Keep every current original FAIL/ERROR and unexecuted portion until an actual superseding accepted execution exists. Manual review and local-corrected results are not automatic PASS or certification.",
+    "For a CSA question, record the accepted interpretation, corrected official test/helper version or verified relevant SDK aggregation behavior before repeating. Unchanged prerequisites, an unrelated rebuild or old independent PASS alone do not justify a long repeat.",
+    "For an owner/laboratory prerequisite, supply the actual authorized identity, physical artifact, radio/network bench or DUT-originated trigger. Do not substitute simulated physical work, a borrowed VID, SDK-only flag or a controller request pretending to originate at DUT.",
+    "Freeze exact case/endpoint/collection, binary/source/test/helper/PICS fingerprints and isolated stores. If capabilities genuinely change, review a new coherent profile; do not hide a failure through ad-hoc PICS edits.",
+    "On an attributed native change, reproduce the real defect, make the smallest shared repair, rerun the original accepted procedure and complete relevant full Linux Memcheck followed by separate ASan/UBSan/LSan and error/recovery checks. Reuse proven binaries only with verified identity and explicit coverage limits for tester-only work.",
+    "Use a bounded first-error/packet/state capture and retain run/process identity. Do not submit duplicates while RUNNING, accelerate required timeouts, discard setup attempts or interrupt shared VM/SSH interfaces.",
+    "Keep the owner-deferred multi-hour TC-DGGEN-2.1 unscheduled until its controller/reset prerequisite and explicit owner execution window are supplied. Short diagnostic evidence cannot become its original full PASS.",
+    "After the changed prerequisite is verified, run the complete selected original procedure including previously unreached steps and real state readback. Then update one explicit classification delta, retain prior evidence and commit locally. Schedule the final stable applicable-matrix rerun after relevant repairs/gates are resolved."
+  ],
+  "next_action": "Owner reviews/prioritizes this unsent package. Send or upload only after explicit authorization and selection of recipient/material. Until a gate changes, continue only independent work that adds coverage; do not restart already-attributed original failures. No automatic sending or long-run scheduling is configured."
+}

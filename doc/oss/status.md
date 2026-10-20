@@ -7,6 +7,18 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA72: consolidated clarification package prepared, not sent.**
+[Review packet](csa72-questions.md), [machine-readable source](csa72-questions.json)
+and [receipt](csa72-results.json) cover all32 open positions exactly once:
+22 CSA question groups and4 owner/lab prerequisite groups. Each has prior
+evidence, a requested decision/input and a concrete rerun gate. No tests repeated.
+Read-only checks found no old CSA jobs and TH idle. A separate memory-optimization
+worker started during inspection: builds/tests progressed, then Memcheck used
+about one core. Short Windows VMware samples earlier totalled about1% host CPU;
+later DUT guest samples reached8.73%. No process/service/paired-node changes.
+Counts remain123 PASS/27 FAIL/5 prerequisites. Next:owner review and explicit
+authorization before selecting recipient/attachments or sending; rerun only changed gates.
+
 **CSA71: TC_SU_4_1 first-status assumption reconfirmed from CSA27.**
 Installed test/helper and archived456 hashes still match. The original examines
 the successful clear at response0, before the expected ConstraintError on the

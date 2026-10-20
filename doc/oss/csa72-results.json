@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa71-results.json",
+  "previous_sha256": "5975e82370a7276562d76a6150c86e5881466238bd0494e44d40e6e68f97eb31",
+  "previous_sha256_encoding": "Canonical Git blob at source_base_commit, not Windows CRLF working-tree bytes",
+  "source_base_commit": "220815a6d83c151b337932643e320bdcbbbf9ad3",
+  "collected_at_utc": "2026-10-20T18:48:19.539227+00:00",
+  "scope": "Consolidate all remaining CSA questions/rerun prerequisites into an unsent JSON/Markdown review packet and inspect CPU/test processes on both VMs and Windows VMware. No test or runtime change.",
+  "latest_counts": {
+    "MANUAL": 37,
+    "NA": 707,
+    "PASS": 99,
+    "BLOCKED": 1,
+    "FAIL": 18
+  },
+  "classification_changes": [],
+  "original_runs": [],
+  "packet": {
+    "state": "DRAFT_NOT_SENT",
+    "groups": 26,
+    "CSA_question_groups": 22,
+    "owner_lab_prerequisite_groups": 4,
+    "exact_open_positions": 32,
+    "failed_positions": 27,
+    "blocked_positions": 5,
+    "files_sha256": {
+      "csa72-questions.json": "1aebbcb1394122fcc5659d1beca0279d22c6659b4048dbbdaf23dffdb9e7eb99",
+      "csa72-questions.md": "802a06f4c7f1a4fc5b02ddbb051f332a4d0d2ca80ec33a486ded6f2731c5da8a"
+    },
+    "renderer": "tools/matter/csa_review_packet.py",
+    "evidence_encoding": "Exact Git blob bytes at evidence_base_commit; historical source hashes are labelled historical, not freshly rechecked SDK source.",
+    "no_raw_private_attachments": true
+  },
+  "cpu_inspection": {
+    "sample_seconds_guest": 3,
+    "guest_DUT_busy_percent_all_vcpus": 0.14,
+    "guest_TH_busy_percent_all_vcpus": 0.33,
+    "TH_state": {
+      "state": "idle"
+    },
+    "host_logical_cpus": 24,
+    "host_sample_seconds": 3.0149892,
+    "vmware_host_cpu_percent": [
+      0.561,
+      0.432
+    ],
+    "vmware_host_cpu_total_percent": 0.993,
+    "processes_stopped": 0,
+    "services_or_VM_settings_changed": false,
+    "limitation": "Short, non-simultaneous guest/host samples only. A separate worker explains observed active build/test processes but does not establish the cause of all CPU or earlier/intermittent peaks. Initial argv-only filtering missed the later worker; broadened filtering and scoped child/source inspection identified it. Some other-user/root process metadata is inaccessible. No continuous monitor was started.",
+    "access_note": "First restricted Windows CIM read could not see the host. A successful read-only host sample outside the sandbox supplied these values; empty restricted inventory was not treated as absence of VMware.",
+    "guest_DUT_later_busy_percent_all_vcpus": [
+      8.73,
+      3.27
+    ],
+    "guest_TH_later_busy_percent_all_vcpus": 0.25,
+    "initial_test_candidates_detected": 0,
+    "old_CSA_jobs_observed": 0,
+    "later_activity": {
+      "separate_worker_started_at_utc": "2026-10-20T18:43:31.580000+00:00",
+      "kind": "Separate active memory-optimization build/test worker, not launched by CSA72",
+      "observed_progress": "Normal build/tests and paired-runtime scenario finished; sanitizer build and CTest progressed. A later sample identifies a focused Memcheck child using99.61% of one core.",
+      "memcheck_child_cpu_percent_one_core": 99.61,
+      "action": "Left running; progressing work was not treated as a stale CSA process",
+      "results_counted_as_CSA72_acceptance": false
+    }
+  },
+  "execution": {
+    "test_reruns": 0,
+    "messages_or_uploads_sent": 0,
+    "automations_created": 0,
+    "native_code_changed": false,
+    "original_test_helper_or_PICS_changed": false,
+    "paired_Windows_nodes_changed": false,
+    "new_native_build_or_memory_run": false
+  },
+  "validation": {
+    "packet_renderer_write_and_check": true,
+    "coverage_gate": "Every current open exact identity occurs once; no passed or NA position is included.",
+    "links_and_evidence": "Referenced public evidence exists and its canonical Git blob hash is verified.",
+    "result_preservation": "No new verdict, applicability correction or original run claimed.",
+    "report": "csa72-validation.md"
+  },
+  "not_verified": [
+    "Historical/intermittent host CPU spikes or their cause",
+    "New SDK/runtime/physical/production conformance or whole-matrix rerun",
+    "CSA agreement, recipient selection, submission or response"
+  ],
+  "next": "Owner reviews/prioritizes this unsent package. Send or upload only after explicit authorization and selection of recipient/material. Until a gate changes, continue only independent work that adds coverage; do not restart already-attributed original failures. No automatic sending or long-run scheduling is configured.",
+  "metadata_changes": [
+    {
+      "case": "TC-DGGEN-2.1",
+      "status_unchanged": "BLOCKED",
+      "change": "Fill the previously blank queue prerequisite from existing CSA30/47 evidence; no new test or classification."
+    }
+  ]
+}
