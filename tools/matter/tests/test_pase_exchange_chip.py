@@ -9,6 +9,8 @@ response MIC, then release the original packets after a real quiet interval.
 --pase-errors records TC-SC-2.3 invalid passcodeID/cA and terminal exchanges.
 --mrp-size records TC-SC-1.1 at the complete IPv6 packet size boundary.
 --mrp-flows records TC-SC-1.2 ACK/data flows, including encrypted R=0 reads.
+--timed-writes records actual late Timed Writes, global TIMEOUT and readback over
+independent PASE, followed by normal chip-tool commissioning/CASE recovery.
 --mrp-retries records TC-SC-1.3 complete ACK loss and bounded retransmissions.
 --mrp-duplicates records TC-SC-1.4 matching ACKs without repeated PASE work.
 --descriptor-profile records the current five-endpoint TC-DESC-2.1 inventory.
@@ -283,7 +285,7 @@ def mrp_size_probes(ipv6, interface, target, check, packets, lock):
             'negative_scope': '2-second observation per unique oversize message; no duplicate/replay shortcut'}
 
 
-def mrp_flow_probes(ipv6, interface, target, check, packets, lock):
+def mrp_flow_probes(ipv6, interface, target, check, packets, lock, timed_write=False):
     """Independent test-only PASE peer; secrets never leave this function.
 
     Reuse the existing affine SPAKE vector arithmetic, not production crypto.
@@ -323,8 +325,9 @@ def mrp_flow_probes(ipv6, interface, target, check, packets, lock):
                     struct.pack('<BBHH', flags, opcode, exchange, 0) +
                     (struct.pack('<I', acknowledged) if flags & 2 else b'') + payload)
 
-        def receive(label, decrypt=None, expected=None):
-            rows = []; end = time.monotonic() + (10 if expected is not None else observation)
+        def receive(label, decrypt=None, expected=None, observation_seconds=None):
+            duration = observation if observation_seconds is None else observation_seconds
+            rows = []; end = time.monotonic() + (10 if expected is not None else duration)
             while time.monotonic() < end:
                 try:
                     data, address = sock.recvfrom(65535)
@@ -416,18 +419,25 @@ def mrp_flow_probes(ipv6, interface, target, check, packets, lock):
                     'acknowledgements': len(acks), 'responses': len(rows),
                     'reply_flags': [p['exchange_flags'] for p in reports]}
 
-        before = read_once(0, True)
-        check('flow-encrypted-reliable-read-control-before', before['expected_VendorID'])
-        unreliable = [read_once(i, False) for i in range(1, 6)]
-        for row in unreliable:
-            check('flow-unreliable-read-data-no-ACK-' + str(row['index']),
-                  row['expected_VendorID'] and row['acknowledgements'] == 0, conformance=True)
-        after = read_once(6, True)
-        check('flow-encrypted-reliable-read-control-after', after['expected_VendorID'])
+        if timed_write:
+            timed_receipt = timed_write_probes(send, receive, seal, decrypt, check)
+        else:
+            before = read_once(0, True)
+            check('flow-encrypted-reliable-read-control-before', before['expected_VendorID'])
+            unreliable = [read_once(i, False) for i in range(1, 6)]
+            for row in unreliable:
+                check('flow-unreliable-read-data-no-ACK-' + str(row['index']),
+                      row['expected_VendorID'] and row['acknowledgements'] == 0, conformance=True)
+            after = read_once(6, True)
+            check('flow-encrypted-reliable-read-control-after', after['expected_VendorID'])
         # Release this uncommissioned PASE session before real chip-tool
         # commissioning. Core4.11.1.4 CloseSession, R=0, no ACK requested.
         close = struct.pack('<BBHH', 1, 0x40, 0x7400, 0) + struct.pack('<HIH', 0, 0, 3)
         send(seal(close), 'close-PASE'); receive('close-PASE', decrypt)
+    if timed_write:
+        return {'result': 'PASS', 'transport': 'independent PASE; CASE recovery uses unmodified chip-tool',
+                'probes': timed_receipt, 'keys_exported': False,
+                'vector_source_sha256': hashlib.sha256(vector.read_bytes()).hexdigest()}
     passed = (bool(response['exchange_flags'] & 2) and response.get('acknowledged_counter') == request_counter and
               bool(duplicate_ack) and len(duplicate_ack) == len(duplicate) and
               all(p['expected_VendorID'] and not p['acknowledgements'] for p in unreliable))
@@ -438,6 +448,77 @@ def mrp_flow_probes(ipv6, interface, target, check, packets, lock):
             'vector_source_sha256': hashlib.sha256(vector.read_bytes()).hexdigest(),
             'keys_exported': False, 'peer': 'Independent Python affine SPAKE2+ fixture and cryptography AES-CCM; valid reliable PASE, then IM ReadRequest R=0/1 controls'}
 
+
+
+def timed_write_probes(send, receive, seal, decrypt, check):
+    """Core8.7.2.3: real wire delay, duplicate TimedRequest and no side effects."""
+    label = b'before-timeout'
+    read = bytes.fromhex('153600172402002403282404051818290324ff0d18')
+    receipts = []
+
+    def request(opcode, exchange, payload):
+        return seal(struct.pack('<BBHH', 5, opcode, exchange, 1) + payload)
+
+    def node_label(exchange):
+        send(request(2, exchange, read), 'timed-readback')
+        rows = receive('timed-readback', decrypt, expected=5)
+        reports = [p for p in rows if p.get('exchange') == exchange and p.get('protocol') == 1 and p.get('opcode') == 5]
+        # This fixture reads exactly one known scalar path. Require its typed
+        # AttributeDataIB UTF-8 value, not just a successful transport exchange.
+        encoded = b'\x2c\x02' + bytes([len(label)]) + label
+        check('timed-readback-' + str(exchange), len(reports) == 1 and encoded in reports[0]['payload'])
+
+    for index, delay in enumerate((0, 1.4, 1.4, 0)):
+        if index == 3:
+            label = b'after-timeout'
+        exchange = 0x7500 + index
+        timed = request(10, exchange, bytes.fromhex('152500bc0224ff0d18'))
+        send(timed, 'timed-request-' + str(index))
+        rows = receive('timed-status-' + str(index), decrypt, expected=1)
+        statuses = [p for p in rows if p.get('exchange') == exchange and p.get('opcode') == 1 and p.get('protocol') == 1]
+        check('timed-success-status-' + str(index), len(statuses) == 1 and fields(statuses[0]['payload'])[0]['value'] == 0)
+        received = time.monotonic_ns()
+        if delay:
+            time.sleep(delay)
+        if index == 2:
+            # A reliable duplicate after expiry must get its MRP ACK without
+            # creating a fresh timed window. Reuse ciphertext and message counter.
+            duplicate_sent = time.monotonic_ns()
+            send(timed, 'expired-timed-request-duplicate')
+            duplicate = receive('expired-timed-request-duplicate', decrypt, observation_seconds=.2)
+            check('expired-timed-duplicate-matching-ACK', any(
+                  p.get('protocol') == 0 and p.get('opcode') == 0x10 and
+                  p.get('acknowledged_counter') == message(timed)['counter'] for p in duplicate))
+            # Unrelated ACKs and retries of the original Success are legitimate.
+            # A new Success for this exchange would indicate repeated IM work.
+            check('expired-timed-duplicate-no-new-status', not any(
+                  p.get('protocol') == 1 and p.get('exchange') == exchange and
+                  p.get('counter') != statuses[0]['counter'] for p in duplicate))
+        value = b'forbidden-change' if delay else label
+        payload = bytes.fromhex('1529013602153701240200240328240405182c02')
+        payload += bytes([len(value)]) + value + bytes.fromhex('181824ff0d18')
+        elapsed = (time.monotonic_ns() - received) / 1e6
+        if index == 2:
+            # Otherwise a broken implementation could restart a 700ms window
+            # at the duplicate, expire again, and falsely pass this negative test.
+            check('write-within-hypothetical-restarted-window',
+                  time.monotonic_ns() - duplicate_sent < 700_000_000)
+        send(request(6, exchange, payload), 'timed-write-' + str(index))
+        rows = receive('timed-write-result-' + str(index), decrypt, expected=1 if delay else 7)
+        replies = [p for p in rows if p.get('exchange') == exchange and p.get('protocol') == 1 and p.get('opcode') in (1, 7)]
+        if delay:
+            check('timed-write-actually-late-' + str(index), elapsed >= delay * 1000)
+            check('timed-global-timeout-' + str(index), len(replies) == 1 and replies[0]['opcode'] == 1 and fields(replies[0]['payload'])[0]['value'] == 0x94)
+        else:
+            # Readback below proves application success too. Require the typed
+            # per-path Success status in this single-path WriteResponse.
+            check('timed-positive-write-' + str(index), len(replies) == 1 and replies[0]['opcode'] == 7 and b'\x24\x00\x00' in replies[0]['payload'])
+        receipts.append({'index': index, 'after_status_receive_ms': elapsed,
+                         'timed_timeout_ms': 700, 'expired_duplicate': index == 2,
+                         'response_opcode': replies[0]['opcode'],
+                         'global_status': 0x94 if delay else None})
+        node_label(0x7510 + index)
+    return receipts
 
 def mrp_retry_probes(ipv6, interface, target, check, packets, lock):
     """No replies during loss: five total sends vs four retransmissions.
@@ -649,12 +730,13 @@ def main():
     parser.add_argument('--tamper-pase', action='store_true', help='TC-SC-2.2: corrupt one MIC in each direction, then release originals')
     parser.add_argument('--pase-errors', action='store_true', help='TC-SC-2.3: invalid passcodeID/cA, terminal probes, then valid commissioning')
     parser.add_argument('--mrp-size', action='store_true', help='TC-SC-1.1: full IPv6 MTU boundary, then valid commissioning')
+    parser.add_argument('--timed-writes', action='store_true', help='Actual late PASE writes, global TIMEOUT, unchanged NodeLabel and duplicate deadline; then real CASE recovery')
     parser.add_argument('--mrp-flows', action='store_true', help='TC-SC-1.2: ACK/data flows and five authenticated unreliable reads')
     parser.add_argument('--mrp-retries', action='store_true', help='TC-SC-1.3: drop all replies, measure immutable retransmissions and stop')
     parser.add_argument('--mrp-duplicates', action='store_true', help='TC-SC-1.4: repeat reliable requests and require ACK without application re-execution')
     parser.add_argument('--descriptor-profile', action='store_true', help='TC-DESC-2.1: current profile hierarchy and served cluster catalogs')
     args = parser.parse_args(); out = args.output.resolve(); out.mkdir(parents=True, exist_ok=False)
-    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows, args.mrp_retries, args.mrp_duplicates, args.descriptor_profile)) > 1:
+    if sum((args.tamper_pase, args.pase_errors, args.mrp_size, args.mrp_flows, args.mrp_retries, args.mrp_duplicates, args.descriptor_profile, args.timed_writes)) > 1:
         parser.error('Choose one fault-injection mode')
     report = {'result': 'RUNNING', 'checks': [], 'exchanges': [],
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -771,6 +853,8 @@ def main():
             report['TC_SC_1_4'] = mrp_duplicate_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.mrp_retries:
             report['TC_SC_1_3'] = mrp_retry_probes(args.ipv6, args.interface, target, check, packets, lock)
+        if args.timed_writes:
+            report['timed_writes'] = mrp_flow_probes(args.ipv6, args.interface, target, check, packets, lock, timed_write=True)
         if args.mrp_flows:
             report['TC_SC_1_2'] = mrp_flow_probes(args.ipv6, args.interface, target, check, packets, lock)
         if args.mrp_size:

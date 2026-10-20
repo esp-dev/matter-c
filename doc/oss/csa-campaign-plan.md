@@ -113,6 +113,27 @@ busy-wait scheduling, and fix only an attributed native defect. Keep the origina
 case unchanged; require focused timed/error-path and full memory acceptance
 before returning to the older failure-closure queue.
 
+## CSA59: Timed Write attributed; original FAIL retained
+
+Completed: [CSA59 receipt](csa59-results.json) and [analysis](csa59-validation.md).
+First TimedRequest admission hits a pending RX; MRP retries it about 1.414 s later.
+Success is sent only then. Actual Write arrives 1.56 ms after that response, within
+700 ms, and correctly changes NodeLabel. Original test 603 still fails; its busy
+wait does not establish that the native interval expired. No native workaround,
+original-test patch, PICS change or automatic-PASS reclassification was made.
+
+Independent real-delay PASE probes require global TIMEOUT, unchanged NodeLabel,
+no window restart on an expired duplicate, and a different successful recovery
+label. Full two-fabric commissioning/CASE follows. 41 checks plus 2 existing
+conformance controls pass per memory variant; Memcheck has zero errors/live
+blocks, separate ASan/UBSan/LSan is clean, and clean focused builds pass 4/4 each.
+The probe does not claim delayed CASE write coverage or a new full-suite PASS.
+
+Next: CSA60, revisit CSA28 before preparing a deterministic provider fixture for
+original TC_SU_2_2 QueryImageResponse scenarios. Preserve earlier outcomes and
+separate fixture/infrastructure faults from native defects. Keep the Timed Write
+CSA clarification and the general ingress-load/queue-efficiency question open.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

@@ -7,6 +7,17 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA59: Timed Write timing assumption identified; original FAIL preserved.**
+Actual Write arrives 1.56 ms after Success, inside the 700 ms window: the first
+TimedRequest had hit pending RX and needed an MRP retry after 1.414 s. Original
+TC_IDM_5_2 still fails (run 603); no native behavior/test/PICS workaround was added.
+Independent truly late writes, unchanged-value readback, expired-duplicate and
+recovery controls pass: 41 checks per memory variant, clean full Memcheck and
+separate ASan/UBSan/LSan, plus 4/4 clean-build CTests each.
+[Report](csa59-validation.md). Counts remain 122 PASS/28 FAIL/5 prerequisites.
+Next: CSA60, deterministic QueryImageResponse fixture and original TC_SU_2_2,
+reusing the CSA28 investigation before further changes.
+
 **CSA58: complete automatic rerun; repeatable Timed Write failure reopened.**
 All 99 previously passing positions rerun on one frozen native build: initially
 96 PASS/3 FAIL. Corrected Wi-Fi test-mode and live-QR inputs pass; unchanged

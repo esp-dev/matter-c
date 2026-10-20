@@ -1328,6 +1328,14 @@
       "kind": "ZERO_GROUP_CAPACITY_CSA_CLARIFICATION",
       "evidence": "csa55-validation.md",
       "action": "Generic write-status defect fixed. Original positive write still expects success beyond declared zero-group capacity; obtain applicability clarification, preserve FAIL."
+    },
+    {
+      "cases": [
+        "TC_IDM_5_2"
+      ],
+      "kind": "TIMED_WINDOW_TEST_ASSUMPTION_UNDER_MRP_RETRY",
+      "evidence": "csa59-results.json",
+      "action": "Preserve original FAIL603. First TimedRequest hits pending RX and is retried; actual Write arrives1.56ms after Success, inside700ms. Independent genuinely late writes return globalTIMEOUT without effects. Seek a test delay after actual Success; do not shorten the valid native window. Queue efficiency remains separate from protocol correctness."
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."

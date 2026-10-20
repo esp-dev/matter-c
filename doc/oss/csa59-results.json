@@ -1,0 +1,451 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa58-results.json",
+  "previous_sha256": "3e6e2616eeac0f07881aad6528ad4485adc78d9be196fd8aafa0f5d912c6aa4a",
+  "source_base_commit": "ce1a5b49121f349b6a2fa06bacbb39457d1733c4",
+  "scope": "Timed Write attribution: unchanged original TC_IDM_5_2, native RX/send timestamps, response/side effects, independent real-delay probe and full memory/recovery acceptance. No native behavior, original test or PICS changes.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "FAIL",
+      "status": "FAIL",
+      "run_id": 603
+    }
+  ],
+  "conclusion": {
+    "native_timed_write_defect_confirmed": false,
+    "original_result": "FAIL",
+    "kind": "TIMED_WINDOW_TEST_ASSUMPTION_UNDER_MRP_RETRY",
+    "reason": "Original busy wait elapses before the first TimedRequest is admitted. Its retry receives Success only afterward. The immediately following WriteRequest is inside the actual 700ms window; Success and a changed NodeLabel are expected.",
+    "native_ingress_observation": "One pending authenticated RX can reject the next datagram with WOULD_BLOCK; replay state is not committed on rejected admission, so MRP can retry it. Queue efficiency is not full ingress-load acceptance.",
+    "CSA_followup": "Request a test delay after the actual TimedRequest Success response, including packet-loss/retry coverage. No report has been sent to CSA.",
+    "certification": false
+  },
+  "wire_observation": {
+    "original_run_id": 601,
+    "timeout_ms": 700,
+    "initial_TimedRequest_admission": "MATTER_WOULD_BLOCK (7), previous authenticated RX still pending",
+    "same_counter_retry_after_ms": 1414.410818,
+    "logical_success_sent_ms": 15934,
+    "logical_deadline_ms": 16634,
+    "logical_write_received_ms": 15965,
+    "logical_elapsed_ms": 31,
+    "write_kernel_arrival_after_success_send_ms": 1.555781,
+    "response_opcode": 7,
+    "per_path_status": 0,
+    "NodeLabel_changed_to_step4": true,
+    "scope": "RX kernel timestamp and synchronous sendmsg timestamp are on the same DUT clock. Logical session times are recorded separately; no controller TX log is treated as actual wire time."
+  },
+  "original_runs": [
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "group": "interaction-security",
+      "project_key": "0",
+      "source_path": "python_testing/scripts/sdk/TC_IDM_5_2.py",
+      "source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614",
+      "run_id": 598,
+      "verdict": "FAIL",
+      "state": "TestStateEnum.failed",
+      "started_at_utc": "2026-10-20 02:37:24.484049",
+      "completed_at_utc": "2026-10-20 02:37:40.243790",
+      "runner_code": 0,
+      "timeout": false,
+      "raw_sha256": "b4226f30921b9128ae87fe1aa7d604b31c555ba1e06dda57b4fb8ca838b650a7",
+      "log_sha256": "833064e22d8ccea6cec3023d045f1c377e51fca0f68228e21d58f03da0ddec4d",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "step_counts": {
+        "passed": 6,
+        "failed": 1
+      },
+      "unexpected_prompt": false,
+      "test_step_failures": [
+        {
+          "title": "TH sends a Timed Request Message(Timed Write Transaction) with the timeout value set. (Example - 700 milliseconds).Wait for the status response message to be received.  Wait for 5 seconds(Timer has expired) and then send the Write Request Message to the DUT.",
+          "state": "TestStateEnum.failed",
+          "errors": [],
+          "failures": []
+        }
+      ],
+      "fixture": "same VM diagnostic",
+      "native_variant": "private diagnostic build"
+    },
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "group": "interaction-security",
+      "project_key": "0",
+      "source_path": "python_testing/scripts/sdk/TC_IDM_5_2.py",
+      "source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614",
+      "run_id": 599,
+      "verdict": "FAIL",
+      "state": "TestStateEnum.failed",
+      "started_at_utc": "2026-10-20 02:44:17.098312",
+      "completed_at_utc": "2026-10-20 02:44:32.236477",
+      "runner_code": 0,
+      "timeout": false,
+      "raw_sha256": "32b1a1ac86222e12e4a819a89d19ffb7a070d85d2e54e09cc58f25aed9b9c6cc",
+      "log_sha256": "66179626d3201f07cf1ae1935d72660ebd3b763c43a3ba8608681ecf0bc0595e",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "step_counts": {
+        "passed": 6,
+        "failed": 1
+      },
+      "unexpected_prompt": false,
+      "test_step_failures": [
+        {
+          "title": "TH sends a Timed Request Message(Timed Write Transaction) with the timeout value set. (Example - 700 milliseconds).Wait for the status response message to be received.  Wait for 5 seconds(Timer has expired) and then send the Write Request Message to the DUT.",
+          "state": "TestStateEnum.failed",
+          "errors": [],
+          "failures": []
+        }
+      ],
+      "fixture": "separate controller/DUT VMs",
+      "native_variant": "private diagnostic build"
+    },
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "group": "interaction-security",
+      "project_key": "0",
+      "source_path": "python_testing/scripts/sdk/TC_IDM_5_2.py",
+      "source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614",
+      "run_id": 600,
+      "verdict": "FAIL",
+      "state": "TestStateEnum.failed",
+      "started_at_utc": "2026-10-20 02:47:28.366685",
+      "completed_at_utc": "2026-10-20 02:47:43.651607",
+      "runner_code": 0,
+      "timeout": false,
+      "raw_sha256": "61de966d63031f4dbb11458eb82a62c046e2c99ae9353a083234653bee392057",
+      "log_sha256": "e81cb3ec8614428041436d159dbf8bd8df452cd4db7c8f46a70bf088995b1b36",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "step_counts": {
+        "passed": 6,
+        "failed": 1
+      },
+      "unexpected_prompt": false,
+      "test_step_failures": [
+        {
+          "title": "TH sends a Timed Request Message(Timed Write Transaction) with the timeout value set. (Example - 700 milliseconds).Wait for the status response message to be received.  Wait for 5 seconds(Timer has expired) and then send the Write Request Message to the DUT.",
+          "state": "TestStateEnum.failed",
+          "errors": [],
+          "failures": []
+        }
+      ],
+      "fixture": "separate controller/DUT VMs",
+      "native_variant": "private diagnostic build"
+    },
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "group": "interaction-security",
+      "project_key": "0",
+      "source_path": "python_testing/scripts/sdk/TC_IDM_5_2.py",
+      "source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614",
+      "run_id": 601,
+      "verdict": "FAIL",
+      "state": "TestStateEnum.failed",
+      "started_at_utc": "2026-10-20 02:50:02.630358",
+      "completed_at_utc": "2026-10-20 02:50:17.393975",
+      "runner_code": 0,
+      "timeout": false,
+      "raw_sha256": "1207548faa4349c5aecf1a3f42378da4d81c9dabbe863974e73f46b04c90fe0a",
+      "log_sha256": "e8c79e378ba7748cbfcd5320ffe0bb2ba34efc7737b968ef35f78f6b9b53e156",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "step_counts": {
+        "passed": 6,
+        "failed": 1
+      },
+      "unexpected_prompt": false,
+      "test_step_failures": [
+        {
+          "title": "TH sends a Timed Request Message(Timed Write Transaction) with the timeout value set. (Example - 700 milliseconds).Wait for the status response message to be received.  Wait for 5 seconds(Timer has expired) and then send the Write Request Message to the DUT.",
+          "state": "TestStateEnum.failed",
+          "errors": [],
+          "failures": []
+        }
+      ],
+      "fixture": "separate controller/DUT VMs",
+      "native_variant": "private diagnostic build"
+    },
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "group": "interaction-security",
+      "project_key": "0",
+      "source_path": "python_testing/scripts/sdk/TC_IDM_5_2.py",
+      "source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614",
+      "run_id": 602,
+      "verdict": "ABORTED",
+      "state": "TestStateEnum.cancelled",
+      "started_at_utc": "2026-10-20 02:51:22.344879",
+      "completed_at_utc": "2026-10-20 02:51:56.022080",
+      "runner_code": 0,
+      "timeout": false,
+      "raw_sha256": "853b2d2f709455662db1e52c74511e8e2c4bd496be9ffb789c254288c53f11e8",
+      "log_sha256": "f0144181b1c9632e227529111a80a024771438d511871a252c301428350061fd",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "step_counts": {
+        "cancelled": 7
+      },
+      "unexpected_prompt": false,
+      "test_step_failures": [],
+      "fixture": "separate controller/DUT VMs",
+      "native_variant": "unmodified frozen baseline",
+      "fixture_failure": "ABORTED: replacement host did not publish. It was started without waiting for the previous listener to drain; a bind/start race is inferred, not a measured socket errno. No conformance conclusion. Retry603 verified a free port and PUBLISHED under a process supervisor."
+    },
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "group": "interaction-security",
+      "project_key": "0",
+      "source_path": "python_testing/scripts/sdk/TC_IDM_5_2.py",
+      "source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614",
+      "run_id": 603,
+      "verdict": "FAIL",
+      "state": "TestStateEnum.failed",
+      "started_at_utc": "2026-10-20 02:53:06.272359",
+      "completed_at_utc": "2026-10-20 02:53:21.959508",
+      "runner_code": 0,
+      "timeout": false,
+      "raw_sha256": "0caf89420043fdeacfb0fc5435bb6af73187ba8f5c900c0862ed1af2b2d9fdaa",
+      "log_sha256": "230fdf29b72482c0c21ff29e50addd7cbbd9ee855482dfeb4062b4f2f42e0151",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "step_counts": {
+        "passed": 6,
+        "failed": 1
+      },
+      "unexpected_prompt": false,
+      "test_step_failures": [
+        {
+          "title": "TH sends a Timed Request Message(Timed Write Transaction) with the timeout value set. (Example - 700 milliseconds).Wait for the status response message to be received.  Wait for 5 seconds(Timer has expired) and then send the Write Request Message to the DUT.",
+          "state": "TestStateEnum.failed",
+          "errors": [],
+          "failures": []
+        }
+      ],
+      "fixture": "separate controller/DUT VMs",
+      "native_variant": "unmodified frozen baseline"
+    }
+  ],
+  "memory_acceptance": {
+    "Memcheck": {
+      "result": "PASS",
+      "checks": 41,
+      "conformance_checks": 2,
+      "node_exit": 0,
+      "node_stderr_empty": true,
+      "raw_sha256": "79b0a1d705d12b3d0de647f38bc4eb73e4ae9dc342e9f772a4e45aa4bd4211fc",
+      "logs_sha256": {
+        "node.log": "4edc997cbb3a58cf4cf52a0f1a88463bde6b445b7c57ff9e95882116b7da1cba",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "memcheck.log": "4d2c0116d0cceddbc9d416960331e30617b946df2bd9c9e5e872f81ab6def01e",
+        "private-packets.json": "3a26f826e3677f32ecd11be7bbc53f08c374af226649b96b1c8d71973ab5c325"
+      },
+      "allocation_totals": [
+        48407,
+        48407
+      ],
+      "timed_writes": {
+        "result": "PASS",
+        "transport": "independent PASE; CASE recovery uses unmodified chip-tool",
+        "probes": [
+          {
+            "index": 0,
+            "after_status_receive_ms": 0.004434,
+            "timed_timeout_ms": 700,
+            "expired_duplicate": false,
+            "response_opcode": 7,
+            "global_status": null
+          },
+          {
+            "index": 1,
+            "after_status_receive_ms": 1414.064597,
+            "timed_timeout_ms": 700,
+            "expired_duplicate": false,
+            "response_opcode": 1,
+            "global_status": 148
+          },
+          {
+            "index": 2,
+            "after_status_receive_ms": 1611.865507,
+            "timed_timeout_ms": 700,
+            "expired_duplicate": true,
+            "response_opcode": 1,
+            "global_status": 148
+          },
+          {
+            "index": 3,
+            "after_status_receive_ms": 0.016193,
+            "timed_timeout_ms": 700,
+            "expired_duplicate": false,
+            "response_opcode": 7,
+            "global_status": null
+          }
+        ],
+        "keys_exported": false,
+        "vector_source_sha256": "54d8b780bd70773f80d4e63f3a39e93f4ffe7a50b92a5a14f33a4a9cb6b6ba0d"
+      },
+      "two_chip_tool_fabrics_and_CASE_recovery": true,
+      "Memcheck": {
+        "zero_errors": true,
+        "zero_live": true
+      }
+    },
+    "ASan_UBSan_LSan": {
+      "result": "PASS",
+      "checks": 41,
+      "conformance_checks": 2,
+      "node_exit": 0,
+      "node_stderr_empty": true,
+      "raw_sha256": "17e1f91818338f7a5809dc1a139da688ff8e3ab32daad7b6dcb32697e49bb109",
+      "logs_sha256": {
+        "node.log": "a0fae5fb2eb20ffd848e2f24ecc9e7ed2974612ef18e06e4eaff1b5de7f84799",
+        "node.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "private-packets.json": "5de99b87b61e69296c465897d23428bd701336cf1e581756c2f715578f685208"
+      },
+      "allocation_totals": null,
+      "timed_writes": {
+        "result": "PASS",
+        "transport": "independent PASE; CASE recovery uses unmodified chip-tool",
+        "probes": [
+          {
+            "index": 0,
+            "after_status_receive_ms": 0.016828,
+            "timed_timeout_ms": 700,
+            "expired_duplicate": false,
+            "response_opcode": 7,
+            "global_status": null
+          },
+          {
+            "index": 1,
+            "after_status_receive_ms": 1408.100069,
+            "timed_timeout_ms": 700,
+            "expired_duplicate": false,
+            "response_opcode": 1,
+            "global_status": 148
+          },
+          {
+            "index": 2,
+            "after_status_receive_ms": 1609.387032,
+            "timed_timeout_ms": 700,
+            "expired_duplicate": true,
+            "response_opcode": 1,
+            "global_status": 148
+          },
+          {
+            "index": 3,
+            "after_status_receive_ms": 0.02263,
+            "timed_timeout_ms": 700,
+            "expired_duplicate": false,
+            "response_opcode": 7,
+            "global_status": null
+          }
+        ],
+        "keys_exported": false,
+        "vector_source_sha256": "54d8b780bd70773f80d4e63f3a39e93f4ffe7a50b92a5a14f33a4a9cb6b6ba0d"
+      },
+      "two_chip_tool_fabrics_and_CASE_recovery": true
+    }
+  },
+  "focused": {
+    "normal": {
+      "passed": 4,
+      "failed": 0,
+      "sha256": "c4ba2472663813b3456a1eb1b813fa80dbf05d12c70f27fced68bb18931a4c10"
+    },
+    "sanitize": {
+      "passed": 4,
+      "failed": 0,
+      "sha256": "21040a1a00a70d5883b54bfd9fb09895ea537e5f6e2e8dbc72f04bda3a862d08"
+    }
+  },
+  "identity": {
+    "normal_binary_sha256": "a86841888db781d2766a09bce78bd7d467831c88089057e44544026a0e860906",
+    "sanitize_binary_sha256": "bee62f9a615af340b0ee73957cee148bb57fd5a3b5c35b20bd55bb60e2cc5a95",
+    "driver_sha256": "7669a450b84c39be82e2cbde71d55f268936e7e5c1bfa06cd39dcf991c53e210",
+    "native_input_count": 362,
+    "all_native_inputs_match_checkpoint_and_clean_unit_export": true,
+    "native_manifest_sha256": "c03230568c22497b3e38f598fa5eae43a86d2dc64e02f31f405d2ebd63464a1e",
+    "original_source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614",
+    "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "original_sources_unchanged": true,
+    "shared_support_unchanged": true,
+    "preexisting_harness_modification": "The pre-CSA58 sdk_container.py modification remains part of the environment; no pristine-harness claim.",
+    "private_diagnostic_modified_native_inputs": {
+      "main/apps/matter/clusters/matter_root.c": "7c0505240f787561f329a36e1013fd9b894cb966a9689f8250cad7c64ec97336",
+      "main/apps/matter/model/matter_im_write.c": "b4d2a4ce3d679d22229b68af6b87a637d7f51decc8d6092fb5f7e56ed28fb100",
+      "main/apps/matter/runtime/matter_dispatch.c": "3636aefe07173dae133061c79670c04aa7241b21d21308ffb241bc0e4de4e0ff",
+      "tools/matter/host/matter_udp_linux.c": "b67dfcc712c7ad919ca76246f8b871a13e4d75b09654e81bd05fc1f386b697d5"
+    },
+    "private_diagnostic_binary_sha256": {
+      "cross-node-start.json": "a94f662e1ddca0188d6aee8b6d49c35f357e7b8c4e7506433bd3539fd71edf5d",
+      "wire-node-start.json": "8a94bf9bd01831bcc86e7b9d12c8ba1702c1c679f5f7e70f21059e0bc76b6c70",
+      "rx-node-start.json": "869755ea6ba0129928ebddf3a2ac3397d0ff747a1154b893e9cae8680e7321f5"
+    }
+  },
+  "cleanup": {
+    "TH_idle": true,
+    "temporary_PAA_removed": true,
+    "stage_native_processes_remaining": 0,
+    "baseline_supervised_exit": 0,
+    "external_diagnostic_shutdowns": [
+      {
+        "name": "cross-diagnostic",
+        "stopped_result0": true,
+        "stderr_only_diagnostics": true,
+        "stdout_sha256": "bf16a53137961b38d29e1ea0c6ccac29b932175908a4d38a45f6b6af61b3c44e",
+        "stderr_sha256": "fbd4010574ea82f29f0c229456008bbb6f65e14bc529838b74be7179cf7ff971"
+      },
+      {
+        "name": "wire-diagnostic",
+        "stopped_result0": true,
+        "stderr_only_diagnostics": true,
+        "stdout_sha256": "e64cd67fae329d7b13c526b8ac627088a522655c5fbe7e3b98984d41f3f97bf8",
+        "stderr_sha256": "bce77410edf695340ea33213c25bbcd88c8ef2a17f8f5f099b37b54b6763a721"
+      },
+      {
+        "name": "rx-diagnostic",
+        "stopped_result0": true,
+        "stderr_only_diagnostics": true,
+        "stdout_sha256": "d7bca0ba44f398b308136ebf9ff953e2067f8928a0c1a1f497e8c2d7f7e7a381",
+        "stderr_sha256": "c989091b0170ab2c8fc7c06d49a4641c412f8c0a1ee4368570798af6f4a83f15"
+      }
+    ],
+    "paired_Windows_nodes_modified": false
+  },
+  "validation_notes": [
+    "Initial focused invocation against the partial CSA56 build could not launch three missing executables per variant; this was not a native assertion failure. Fresh clean CSA59 builds compiled all four targets and passed4/4 in each variant, with no compiler warning lines.",
+    "An abandoned transparent-relay prototype was bypassed by operational discovery and failed its own observation guard. It was excluded from conformance evidence and not exported.",
+    "The first strengthened duplicate probe rejected unrelated ACK traffic; the final probe scopes ACK/status checks to the original exchange and requires the write within a hypothetical restarted700ms window. Earlier partial attempts remain private.",
+    "No full99-position rerun, physical-device test or delayed CASE Write peer injection was performed. Independent late-write wire probes use PASE; original CASE timings and clean focused handler/dispatcher tests are separate evidence."
+  ],
+  "commands": [
+    "python tools/matter/tests/test_pase_exchange_chip.py --help",
+    "python tools/matter/tests/test_pase_exchange_chip.py --node NORMAL_NODE --chip-tool CHIP_TOOL --paa PRIVATE_PAA --credentials PRIVATE_CREDENTIALS --interface INTERFACE --ipv6 IPV6 --output FRESH_PRIVATE_OUTPUT --timed-writes --valgrind",
+    "Same full scenario with the frozen sanitizer node, without --valgrind; ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+    "cmake --build CLEAN_BUILD -j 3 --target test_im_write test_im_write_alloc test_im_invoke test_dispatch; ctest --test-dir CLEAN_BUILD --output-on-failure -R ^(test_im_write|test_im_write_alloc|test_im_invoke|test_dispatch)$; normal and separate sanitizer builds",
+    "python tools/matter/check_test_map.py",
+    "python tools/matter/csa_campaign.py --write",
+    "python tools/matter/csa_campaign.py",
+    "git diff --check"
+  ],
+  "next": "CSA60: revisit the existing CSA28 QueryImageResponse evidence and prepare a deterministic provider fixture for unchanged TC_SU_2_2; preserve the original result and separate infrastructure from protocol errors."
+}
