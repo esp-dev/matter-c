@@ -1,8 +1,18 @@
 # Test inventory
 
-test-map.json enumerates 255 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 256 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory12 registers `test_im_event_metadata`: stable addresses through120 expanded
+paths, exact filter capacity and OOM, raw-selector/first-block OOM atomicity,
+phase cleanup, concrete-over-wildcard precedence, urgency OR and candidate/work
+limits. Shared Read/Subscribe wildcard fixtures fault every allocation through
+one-path and120-path capture:4 and40 fault positions per engine, including yielded
+parser reacquisition, with no successful partial ReportData or leaked bytes.
+Existing mixed-event/order/ACL/urgency/EventMin/snapshot/watermark/ACK/drain tests
+remain registered. Independent chip-tool wildcard Read/Subscribe scenarios run
+against disposable full hosts under Memcheck and separately under sanitizers.
 
 Memory11 registers `test_im_blocks`: 512 aligned/zeroed stable entries across
 growth, forward/backward indexing, unchanged old capacity/links/cache/payload at

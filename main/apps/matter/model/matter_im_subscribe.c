@@ -17,8 +17,8 @@ typedef struct {
     size_t path_count,raw_count,access_cursor,filter_count;
     Matter_Im_Event_Expansion_T expansion;
     bool collected;
-    Matter_Im_Event_Request_T paths[MATTER_EVENT_PATH_CAPACITY];
-    Matter_Event_Filter_T filters[MATTER_EVENT_PATH_CAPACITY];
+    Matter_Im_Blocks paths;
+    Matter_Event_Filter_T* filters;
     Matter_Events_Snapshot records;
 } SubEvents;
 typedef struct {
@@ -69,7 +69,7 @@ static void clear_filters(Matter_Im_Subscribe_T s) {
 }
 static void release(Matter_Im_Subscribe_T s) {
     clear_filters(s);
-    if(s->events) { matter_events_snapshot_clear(&s->events->records); s->events->count=s->events->cursor=0; }
+    if(s->events) { matter_events_snapshot_clear(&s->events->records); s->events->count=s->events->cursor=0; free(s->events->filters); s->events->filters=NULL; }
     if(s->reserved) { s->reserved=false; s->port.release(s->port.attributes.user,s->id); }
 }
 static Matter_Result_T fail(Matter_Im_Subscribe_T s) {
@@ -257,16 +257,9 @@ static uint8_t decode(Matter_Im_Subscribe_T s) {
             if((q.present&MATTER_IM_EVENT) && !(q.present&MATTER_IM_CLUSTER)) return MATTER_IM_INVALID_ACTION;
             SubEvents* e=s->events;
             q.path=(Matter_Event_Path_T){(uint16_t)s->work->fields[1].unsigned_value,(uint32_t)s->work->fields[2].unsigned_value,(uint32_t)s->work->fields[3].unsigned_value};
-            e->expansion.requests[e->raw_count].selector=q;
-            e->expansion.requests[e->raw_count++].urgent=s->work->fields[4].unsigned_value!=0;
-            if(q.present==MATTER_IM_CONCRETE) {
-                size_t i=matter_im_event_index(e->paths,e->path_count,&q.path);
-                if(i==e->path_count) e->paths[e->path_count++].path=q.path;
-                e->paths[i].urgent|=s->work->fields[4].unsigned_value!=0;
-            } else {
-                if(!e->expansion.enumerate) return MATTER_IM_INVALID_ACTION;
-                e->expansion.wildcard=true;
-            }
+            uint8_t code=matter_im_event_selector_add(&e->expansion,&e->paths,&e->path_count,&q,s->work->fields[4].unsigned_value!=0);
+            if(code) return code;
+            ++e->raw_count;
             e->urgent|=s->work->fields[4].unsigned_value!=0; e->requested=true;
         }
     }
@@ -453,12 +446,14 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
     SubEvents* e=s->events;
     if(e && e->requested && (prime || e->active)) {
         if(e->expansion.wildcard && e->expansion.cursor<e->raw_count) {
-            uint8_t code=matter_im_event_expand(&e->expansion,e->port.user,e->raw_count,e->paths,&e->path_count);
+            uint8_t code=matter_im_event_expand(&e->expansion,e->port.user,e->raw_count,&e->paths,&e->path_count);
             if(code || e->expansion.cursor<e->raw_count) return code;
         }
+        matter_im_event_selectors_clear(&e->expansion); e->expansion.cursor=e->raw_count;
+        if(!matter_im_event_filters_reserve(&e->filters,e->path_count)) return MATTER_IM_RESOURCE_EXHAUSTED;
         unsigned event_budget=e->expansion.wildcard?MATTER_IM_READ_WORK_BATCH:MATTER_IM_READ_MAX_PATHS;
         while(event_budget-- && e->access_cursor<e->path_count) {
-            Matter_Im_Event_Request_T* q=&e->paths[e->access_cursor++];
+            Matter_Im_Event_Request_T* q=matter_im_event_paths_at(&e->paths,e->access_cursor++);
             q->reported=!prime && !q->active;
             if(!prime && !q->active) continue;
             e->path=q->path; q->status=event_access(s,q->wildcard); q->access=s->attribute;
@@ -471,16 +466,16 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
         Matter_Result_T r=matter_im_event_snapshot(e->port.log,e->filters,e->filter_count,prime?e->initial_min:e->next,s->fabric_index,&e->records,&e->count);
         if(r==MATTER_LIMIT_REACHED) return MATTER_IM_RESOURCE_EXHAUSTED;
         if(r!=MATTER_OK || matter_events_position(e->port.log,&e->pending_next)!=MATTER_OK)
-            for(size_t i=0;i<e->path_count;++i) if(!e->paths[i].status) e->paths[i].status=MATTER_IM_FAILURE;
+            for(size_t i=0;i<e->path_count;++i) if(!matter_im_event_paths_at(&e->paths,i)->status) matter_im_event_paths_at(&e->paths,i)->status=MATTER_IM_FAILURE;
         e->active=false;
         for(size_t i=0;i<e->path_count;++i) {
-            Matter_Im_Event_Request_T* q=&e->paths[i];
+            Matter_Im_Event_Request_T* q=matter_im_event_paths_at(&e->paths,i);
             if(prime) q->active=!q->status;
             else if(q->active && q->status) s->terminal_report=true;
             e->active|=q->active;
             if(q->active && !q->status) ++s->valid;
         }
-        e->report=matter_im_event_more(e->paths,e->path_count,&e->records,0,e->count) || !s->attribute_report;
+        e->report=matter_im_event_more(&e->paths,e->path_count,&e->records,0,e->count) || !s->attribute_report;
     } else if(e) e->report=false;
     if(e) e->collected=true;
     if(!prime && !s->valid) s->terminal_report=true;
@@ -521,8 +516,8 @@ static bool report_attributes(Matter_Im_Subscribe_T s,size_t stop,bool more) {
 }
 static void recheck_events(Matter_Im_Subscribe_T s) {
     SubEvents* e=s->events; if(!e || !e->requested) return;
-    for(size_t i=0;i<e->path_count;++i) if(!e->paths[i].status) {
-        Matter_Im_Event_Request_T* q=&e->paths[i]; e->path=q->path;
+    for(size_t i=0;i<e->path_count;++i) if(!matter_im_event_paths_at(&e->paths,i)->status) {
+        Matter_Im_Event_Request_T* q=matter_im_event_paths_at(&e->paths,i); e->path=q->path;
         uint8_t code=event_access(s,q->wildcard);
         if(code) {
             q->status=code; q->omit=matter_im_event_omitted(q->wildcard,code);
@@ -531,7 +526,7 @@ static void recheck_events(Matter_Im_Subscribe_T s) {
         }
     }
     e->active=false;
-    for(size_t i=0;i<e->path_count;++i) e->active|=e->paths[i].active;
+    for(size_t i=0;i<e->path_count;++i) e->active|=matter_im_event_paths_at(&e->paths,i)->active;
     if(!e->active) {
         bool active=false;
         for(size_t i=0;i<s->count;++i) active|=sub_items_at(&s->items,i)->active;
@@ -541,10 +536,10 @@ static void recheck_events(Matter_Im_Subscribe_T s) {
 static bool report_event(Matter_Im_Subscribe_T s) {
     SubEvents* e=s->events;
     const Matter_Event_Record_T* record;
-    size_t selected=matter_im_event_take(e->paths,e->path_count,&e->records,&e->cursor,e->count,&record);
-    e->status=selected<e->path_count?e->paths[selected].status:0;
-    if(selected<e->path_count) e->path=e->paths[selected].path;
-    bool more=matter_im_event_more(e->paths,e->path_count,&e->records,e->cursor,e->count);
+    size_t selected=matter_im_event_take(&e->paths,e->path_count,&e->records,&e->cursor,e->count,&record);
+    e->status=selected<e->path_count?matter_im_event_paths_at(&e->paths,selected)->status:0;
+    if(selected<e->path_count) e->path=matter_im_event_paths_at(&e->paths,selected)->path;
+    bool more=matter_im_event_more(&e->paths,e->path_count,&e->records,e->cursor,e->count);
     if(!begin(s) || !put(s,MATTER_TLV_UNSIGNED,0,s->id) || !put(s,MATTER_TLV_ARRAY,2,0)) return false;
     if(selected<e->path_count) {
         if(!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_STRUCTURE,e->status?0:1,0) ||
@@ -638,8 +633,8 @@ static bool pending_change(Matter_Im_Subscribe_T s) {
     SubEvents* e=s->events;
     if(!e || !e->active || !e->urgent || !e->dirty) return false;
     size_t filters=0,count=0;
-    for(size_t i=0;i<e->path_count;++i) if(e->paths[i].active && e->paths[i].urgent)
-        e->filters[filters++]=(Matter_Event_Filter_T){e->paths[i].path,e->paths[i].access.fabric_scoped};
+    for(size_t i=0;i<e->path_count;++i) if(matter_im_event_paths_at(&e->paths,i)->active && matter_im_event_paths_at(&e->paths,i)->urgent)
+        e->filters[filters++]=(Matter_Event_Filter_T){matter_im_event_paths_at(&e->paths,i)->path,matter_im_event_paths_at(&e->paths,i)->access.fabric_scoped};
     /* No payload copy or callbacks; a non-urgent/unselected event cannot wake
      * an otherwise clean subscription merely because another path is urgent. */
     return matter_events_copy_selected(e->port.log,e->filters,filters,e->next,s->fabric_index,NULL,&count)!=MATTER_OK || count!=0;
@@ -745,7 +740,7 @@ bool matter_im_subscribe_event_pending(Matter_Im_Subscribe_T s,const Matter_Even
     SubEvents* e=s->events;
     if(!e || !e->active || number<e->initial_min || number<e->next) return false;
     for(size_t i=0;i<e->path_count;++i) {
-        const Matter_Im_Event_Request_T* q=&e->paths[i];
+        const Matter_Im_Event_Request_T* q=matter_im_event_paths_at(&e->paths,i);
         if(q->active && !q->status && q->path.endpoint==p->endpoint &&
             q->path.cluster==p->cluster && q->path.event==p->event) return true;
     }
@@ -795,5 +790,5 @@ Matter_Im_Subscribe_State_T matter_im_subscribe_state(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_delete(Matter_Im_Subscribe_T s) {
     if(!s) return MATTER_OK;
     Matter_Result_T r=check(s); if(r) return r;
-    s->busy=true; release(s); matter_im_blocks_clear(&s->items); matter_im_blocks_clear(&s->values); free(s->input); free(s->output); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+    s->busy=true; release(s); matter_im_blocks_clear(&s->items); matter_im_blocks_clear(&s->values); free(s->input); free(s->output); if(s->events) matter_im_event_metadata_clear(&s->events->expansion,&s->events->paths,&s->events->filters); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }

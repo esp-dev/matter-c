@@ -2686,6 +2686,16 @@
       "entrypoint": "ctest --test-dir <build> -R test_im_blocks",
       "referenced_by": [],
       "allocation_variant": "Private stable block storage: every staged allocation OOM, unchanged old addresses/capacity/cache, limit/overflow and cleanup"
+    },
+    {
+      "path": "tools/matter/tests/test_im_event_metadata.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_event_metadata"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_event_metadata",
+      "referenced_by": [],
+      "allocation_variant": "Checked stable event path blocks, exact filters, phase selector cleanup, OOM, concrete precedence and urgency"
     }
   ],
   "local_only_files": []

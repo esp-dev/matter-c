@@ -41,13 +41,21 @@ def calculate(probe, subscriptions=None, legacy=False):
     value_header = value_block_count * s['subscribe_value_block_header'] if blocked else 0
     if blocked:
         old_capacity = 0
+    event_paths = 0
+    event_selectors = 0
+    event_filters = 0
+    if 'event_path_block_header' in s:
+        path_blocks = (s['event_path_limit'] - s['result_block_initial'] + s['result_block_items'] - 1) // s['result_block_items'] + 1
+        event_paths = s['event_path_limit'] * s['event_path_item'] + path_blocks * s['event_path_block_header']
+        event_selectors = s['read_path_limit'] * s['event_selector_node']
+        event_filters = s['event_path_limit'] * s['event_filter_item']
     values = s['snapshot_budget'] + results * s['value_snapshot_node']
     event_refs = events * (s['event_record'] if legacy else pointer)
     filters = s['read_filter_limit'] * s['read_filter']
     read_plan = s['read_plan_limit'] * s['read_plan_entry']
     read = {'owner': s['read'], 'results': results * s['read_item'] + read_header,
             'old_table_during_growth': old_capacity * s['read_item'],
-            'attribute_values_and_links': values, 'event_selector_state': s['read_events'],
+            'attribute_values_and_links': values, 'event_selector_state': s['read_events'] + event_paths + event_selectors + event_filters,
             'event_snapshot_storage': event_refs, 'parser': s['read_parser'],
             'selectors': s['read_path_limit'] * s['read_selector'], 'version_filters': filters,
             'input_and_atomic_replacement': 2 * s['read_max_input'],
@@ -55,7 +63,7 @@ def calculate(probe, subscriptions=None, legacy=False):
     sub = {'owner': s['subscribe'], 'persistent_results': results * s['subscribe_item'] + sub_header,
            'old_table_during_growth': old_capacity * s['subscribe_item'],
            'captured_values': results * s['subscribe_value'] + value_header,
-           'attribute_values_and_links': values, 'event_selector_state': s['subscribe_events'],
+           'attribute_values_and_links': values, 'event_selector_state': s['subscribe_events'] + event_paths + event_selectors + event_filters,
            'event_snapshot_storage': event_refs, 'parser_and_chunk_plan': s['subscribe_parser'],
            'selectors': s['subscribe_path_limit'] * s['subscribe_selector'],
            'version_filters': s['read_filter_limit'] * s['subscribe_filter'],
@@ -94,7 +102,9 @@ def calculate(probe, subscriptions=None, legacy=False):
                 s['read_events'], s['subscribe_events'], s['read_parser'], s['subscribe_parser'],
                 read_plan, filters, s['read_filter_limit'] * s['subscribe_filter'],
                 s['read_path_limit'] * s['read_selector'], s['subscribe_path_limit'] * s['subscribe_selector'],
-                s['read_max_input'], s['read_max_output'], s['read'], s['subscribe']),
+                s['read_max_input'], s['read_max_output'], s['read'], s['subscribe'], event_filters,
+                s['event_path_block_header'] + s['result_block_items'] * s['event_path_item'] if event_paths else 0,
+                s['event_selector_node'] if event_selectors else 0),
             'not_included': ['Allocator metadata, fragmentation and alignment beyond probed object sizes',
                 'Other transport owners and secure session/channel owners',
                 'Invoke/Write/client/BDX and PASE/CASE/backend work',

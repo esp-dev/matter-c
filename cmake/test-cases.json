@@ -1050,5 +1050,14 @@
     "privileged": false,
     "variant": "libc",
     "replace": []
+  },
+  {
+    "name": "test_im_event_metadata",
+    "source": "tools/matter/tests/test_im_event_metadata.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
   }
 ]

@@ -212,6 +212,28 @@ uses existing owner cleanup/drain. No release allocates. Deferred OOM produces t
 existing ResourceExhausted status. Attribute-only interactions allocate no event
 selector/reference-vector state.
 
+Event path metadata also allocates on demand. Decoded raw selectors own small
+linked nodes only until bounded wildcard expansion finishes. Concrete paths are
+inserted during decoding so their explicit status semantics retain precedence
+over overlapping wildcards. Deduplicated paths use stable typed blocks through
+the same private indexed store as attribute results; block growth never moves
+old paths. The120-candidate cap is still counted before deduplication/access, with
+at most8 enumeration callbacks per process call. Read/Subscribe share selector
+admission, path lookup, filter reservation and metadata cleanup.
+
+The contiguous filter scratch allocates for the actual expanded path count,
+including denied paths as a conservative capacity. Read releases it immediately
+after snapshot capture. Subscribe retains this exact scratch with persistent path
+metadata, so urgent-event wakeup checks and idle polling allocate nothing. Raw
+selectors release before filter allocation. Read releases path blocks at final
+sent after the independent packet copy; final value/event references keep their
+existing confirmation/cancel/drain lifetime. Subscribe retains path metadata
+through reports and idle, and deletes it with its owner. OOM follows the existing
+ResourceExhausted path, without successful partial reports or log/model mutation.
+The record snapshot representation, numbering, priority, watermarks and wire
+ordering remain unchanged. [Memory12](oss/memory12-validation.md) records per-path
+costs, configured-cap arithmetic, OOM coverage and separate host/target limits.
+
 Sharing saves record copies when reports overlap, but different generations can
 pin different evicted nodes. A published-log capacity is not a global snapshot
 heap cap. [Memory10](oss/memory10-validation.md) separates measured component

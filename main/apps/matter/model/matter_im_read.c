@@ -15,8 +15,8 @@ typedef struct {
     bool requested,collected; Matter_Im_Status_T status;
     size_t path_count,raw_count,access_cursor,filter_count;
     Matter_Im_Event_Expansion_T expansion;
-    Matter_Im_Event_Request_T paths[MATTER_EVENT_PATH_CAPACITY];
-    Matter_Event_Filter_T filters[MATTER_EVENT_PATH_CAPACITY];
+    Matter_Im_Blocks paths;
+    Matter_Event_Filter_T* filters;
     Matter_Events_Snapshot records;
 } ReadEvents;
 typedef struct {
@@ -264,13 +264,9 @@ static Matter_Im_Status_T decode_events(Matter_Im_Read_T s) {
         }
         if((q.present&MATTER_IM_EVENT) && !(q.present&MATTER_IM_CLUSTER)) return MATTER_IM_INVALID_ACTION;
         q.path=(Matter_Event_Path_T){(uint16_t)s->work->path_fields[1].unsigned_value,(uint32_t)s->work->path_fields[2].unsigned_value,(uint32_t)s->work->path_fields[3].unsigned_value};
-        e->expansion.requests[e->raw_count++].selector=q;
-        if(q.present==MATTER_IM_CONCRETE) {
-            if(matter_im_event_index(e->paths,e->path_count,&q.path)==e->path_count) e->paths[e->path_count++].path=q.path;
-        } else {
-            if(!e->expansion.enumerate) return MATTER_IM_INVALID_ACTION;
-            e->expansion.wildcard=true;
-        }
+        uint8_t code=matter_im_event_selector_add(&e->expansion,&e->paths,&e->path_count,&q,false);
+        if(code) return code;
+        ++e->raw_count;
     }
     if(!empty_array(s,&s->work->fields[2])) {
         if(s->work->fields[2].type!=MATTER_TLV_ARRAY || !enter(s,&s->work->fields[2]) || !next(s) ||
@@ -399,12 +395,14 @@ static Matter_Im_Status_T event_access(Matter_Im_Read_T s,bool wildcard) {
 static Matter_Im_Status_T collect_events(Matter_Im_Read_T s) {
     ReadEvents* e=s->events; if(!e || !e->requested || e->collected) return 0;
     if(e->expansion.wildcard && e->expansion.cursor<e->raw_count) {
-        uint8_t code=matter_im_event_expand(&e->expansion,e->port.user,e->raw_count,e->paths,&e->path_count);
+        uint8_t code=matter_im_event_expand(&e->expansion,e->port.user,e->raw_count,&e->paths,&e->path_count);
         if(code || e->expansion.cursor<e->raw_count) return code;
     }
+    matter_im_event_selectors_clear(&e->expansion); e->expansion.cursor=e->raw_count;
+    if(!matter_im_event_filters_reserve(&e->filters,e->path_count)) return MATTER_IM_RESOURCE_EXHAUSTED;
     unsigned budget=e->expansion.wildcard?MATTER_IM_READ_WORK_BATCH:MATTER_IM_READ_MAX_PATHS;
     while(budget-- && e->access_cursor<e->path_count) {
-        Matter_Im_Event_Request_T* q=&e->paths[e->access_cursor++]; e->path=q->path;
+        Matter_Im_Event_Request_T* q=matter_im_event_paths_at(&e->paths,e->access_cursor++); e->path=q->path;
         q->status=event_access(s,q->wildcard); q->access=e->access;
         q->omit=matter_im_event_omitted(q->wildcard,q->status);
         if(!q->status) e->filters[e->filter_count++]=(Matter_Event_Filter_T){q->path,q->access.fabric_scoped};
@@ -412,9 +410,10 @@ static Matter_Im_Status_T collect_events(Matter_Im_Read_T s) {
     if(e->access_cursor<e->path_count) return 0;
     e->collected=true;
     Matter_Result_T r=matter_im_event_snapshot(e->port.log,e->filters,e->filter_count,e->minimum,s->fabric_index,&e->records,&e->count);
+    free(e->filters); e->filters=NULL; e->filter_count=0;
     if(r==MATTER_LIMIT_REACHED) return MATTER_IM_RESOURCE_EXHAUSTED;
     if(r!=MATTER_OK)
-        for(size_t i=0;i<e->path_count;++i) if(!e->paths[i].status) e->paths[i].status=MATTER_IM_FAILURE;
+        for(size_t i=0;i<e->path_count;++i) if(!matter_im_event_paths_at(&e->paths,i)->status) matter_im_event_paths_at(&e->paths,i)->status=MATTER_IM_FAILURE;
     return 0;
 }
 static bool event_path(Matter_Im_Read_T s) {
@@ -424,16 +423,16 @@ static bool event_path(Matter_Im_Read_T s) {
 }
 static bool event_chunk(Matter_Im_Read_T s) {
     ReadEvents* e=s->events;
-    for(size_t i=0;i<e->path_count;++i) if(!e->paths[i].status) {
-        e->path=e->paths[i].path;
-        Matter_Im_Status_T code=event_access(s,e->paths[i].wildcard);
-        if(code) { e->paths[i].status=code; e->paths[i].omit=matter_im_event_omitted(e->paths[i].wildcard,code); }
+    for(size_t i=0;i<e->path_count;++i) if(!matter_im_event_paths_at(&e->paths,i)->status) {
+        e->path=matter_im_event_paths_at(&e->paths,i)->path;
+        Matter_Im_Status_T code=event_access(s,matter_im_event_paths_at(&e->paths,i)->wildcard);
+        if(code) { matter_im_event_paths_at(&e->paths,i)->status=code; matter_im_event_paths_at(&e->paths,i)->omit=matter_im_event_omitted(matter_im_event_paths_at(&e->paths,i)->wildcard,code); }
     }
     const Matter_Event_Record_T* record;
-    size_t selected=matter_im_event_take(e->paths,e->path_count,&e->records,&e->cursor,e->count,&record);
-    e->status=selected<e->path_count?e->paths[selected].status:MATTER_IM_SUCCESS;
-    if(selected<e->path_count) e->path=e->paths[selected].path;
-    bool more=matter_im_event_more(e->paths,e->path_count,&e->records,e->cursor,e->count);
+    size_t selected=matter_im_event_take(&e->paths,e->path_count,&e->records,&e->cursor,e->count,&record);
+    e->status=selected<e->path_count?matter_im_event_paths_at(&e->paths,selected)->status:MATTER_IM_SUCCESS;
+    if(selected<e->path_count) e->path=matter_im_event_paths_at(&e->paths,selected)->path;
+    bool more=matter_im_event_more(&e->paths,e->path_count,&e->records,e->cursor,e->count);
     s->response_opcode=5;
     if(!begin(s) || !put(s,MATTER_TLV_ARRAY,2,0)) return status(s,MATTER_IM_RESOURCE_EXHAUSTED);
     if(selected<e->path_count) {
@@ -722,7 +721,7 @@ Matter_Result_T matter_im_read_sent(Matter_Im_Read_T s) {
         free(s->requests); s->requests=NULL; free(s->filters); s->filters=NULL;
         free(s->input); s->input=NULL; free(s->output); s->output=NULL;
         s->input_size=s->output_size=0;
-        if(s->events) { s->event_tail=s->events->records; free(s->events); s->events=NULL; }
+        if(s->events) { s->event_tail=s->events->records; matter_im_event_metadata_clear(&s->events->expansion,&s->events->paths,&s->events->filters); free(s->events); s->events=NULL; }
     }
     return MATTER_OK;
 }
@@ -749,7 +748,7 @@ Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	matter_im_blocks_clear(&s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) matter_events_snapshot_clear(&s->events->records); matter_events_snapshot_clear(&s->event_tail); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	matter_im_blocks_clear(&s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) { matter_events_snapshot_clear(&s->events->records); matter_im_event_metadata_clear(&s->events->expansion,&s->events->paths,&s->events->filters); } matter_events_snapshot_clear(&s->event_tail); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

@@ -100,6 +100,23 @@ static void event_wild_tests(void) {
     CHECK(matter_im_read_process(m->engine,0)==MATTER_PENDING && matter_im_read_state(m->engine)==MATTER_IM_READ_COLLECTING);
 #endif
     CHECK(m->enums==8 && !m->describes); multi_free(m);
+#ifdef MATTER_TEST_ALLOC
+    /* Fault every allocation through maximum-size expansion and access capture,
+     * including yielded parser work. No failed turn may emit partial ReportData. */
+    for(unsigned maximum=0;maximum<2;++maximum) {
+        unsigned paths=maximum?MATTER_EVENT_PATH_CAPACITY:1;
+        m=event_wild_new(3); m->model_events=paths; multi_request(m,0,ids,1,0,0); multi_receive(m,true);
+        size_t first=calls; multi_process(m); size_t sites=calls-first;
+        CHECK(m->opcode==5); multi_free(m); CHECK(!live && !live_bytes);
+        for(size_t fault=1;fault<=sites;++fault) {
+            m=event_wild_new(3); m->model_events=paths; multi_request(m,0,ids,1,0,0); multi_receive(m,true);
+            fail_at=calls+fault; multi_process(m); fail_at=0;
+            CHECK(m->opcode==1 && m->out[3]==MATTER_IM_RESOURCE_EXHAUSTED);
+            multi_free(m); CHECK(!live && !live_bytes);
+        }
+        printf("PASS event metadata OOM: paths=%u allocation_positions=%zu, no partial ReportData and no live bytes\n",paths,sites);
+    }
+#endif
     puts("PASS event wildcards: six valid masks, concrete paths/order/fabric, empty metadata, ACL privilege/omission/overlap/revoke, 120/121 candidates, callback errors and bounded work");
 }
 #ifdef TEST_MULTI_SUB

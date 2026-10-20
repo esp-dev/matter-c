@@ -1,5 +1,32 @@
 # Development status
 
+**Memory12: demand-allocated event path metadata for Read/Subscribe.**
+Raw event selectors use short-lived nodes, deduplicated paths use stable blocks,
+and filters allocate for the expanded path count. Selectors release before
+filters; Read releases filters after snapshot capture, while Subscribe retains
+small scratch for allocation-free urgent wakeups/idle polls.120 candidates,
+9 combined requested paths when events are requested, ordering, concrete
+precedence, snapshots, watermarks and ACK/drain remain unchanged. Event owners
+on ESP32 fall5576 ->144 B
+and5584 ->160 B; one-path metadata totals404/436 B plus record references/nodes.
+The heavy node component peak falls620266 ->461558 B (25.6%); attribute-only
+saturated reports stay835673 B. Full-path allocator/header costs and loose
+configured-cap arithmetic are distinguished in the
+[report](memory12-validation.md) and [results](memory12-results.json).
+Windows CTest95/98 plus3/3 socket retries and4/4 focused tests; Linux CTest95/95
+per build, two-instance6/6 per memory variant and independent wildcard full-host
+22/22 checks under Memcheck and separately sanitizers pass. New fault coverage
+checks every one/120-path capture allocation (4/40 per engine), stable addresses,
+phase cleanup and unchanged old state on admission/filter OOM. All27 ESP32 probes
+have no diagnostics; process frames stay144/192 B, but Subscribe urgency and
+Read reserve frames grow16 B, with new64-byte path admission/32-byte accessors.
+Both ordinary host capacity runs pass50/50; Massif observes390233 B heap,6744 B
+maximum sampled used stack and402000 B maximum combined, a small increase over
+Memory11. This workload is separate from the event-heavy component measurement.
+Next: target application/ESP32 allocator/crypto/task-stack measurement harness
+before changing Fabric image/rollback representation. No linked/physical ESP32
+or official CSA rerun.
+
 **Memory11: stable demand-allocated Read/Subscribe result blocks.**
 Read results, Subscribe persistent results and report-only values share typed
 blocks of at most16 entries. Growth stages new blocks atomically and never copies
