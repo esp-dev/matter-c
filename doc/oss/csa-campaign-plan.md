@@ -166,6 +166,22 @@ and original tests. Do not repeat the known original startup-order failure until
 observation prerequisites change. Keep external questions and untouched original
 outcomes visible; successful alternative-delay cases do not close this gap.
 
+## CSA62: Applying drain repaired; memory and timeout controls accepted
+
+Completed: [receipt](csa62-results.json) and [analysis](csa62-validation.md).
+The frozen old host reproduces lost events at a5s subscription minimum. New
+runtime readiness observes confirmed event cursors; the existing host loop waits
+until ready or its30s policy deadline. No allocation, thread or library timer.
+Full update passes21 checks under Memcheck and separately sanitizers. Prior
+Busy180 passes24; a60s negative control deliberately retains raw FAIL while
+proving bounded ready0 shutdown. Focused CTests11/11 each, no memory errors/leaks.
+Original FAIL606 is not rerun because it stops before Applying; counts unchanged.
+
+Next: CSA63, attribute actual QueryImage response reception and preserved retry
+backoff at the provider-restart boundary retained in CSA60 TC_SU_2_2. Use the
+existing trace rather than repeating known preconditions; fix only a confirmed
+native defect and preserve the original test/PICS and actual timing requirements.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

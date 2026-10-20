@@ -76,6 +76,9 @@ Matter_Secure_T matter_dispatch_session(Matter_Dispatch_T,Matter_Exchange_Sessio
 Matter_Result_T matter_dispatch_retire(Matter_Dispatch_T,bool include_case);
 Matter_Result_T matter_dispatch_retire_fabric(Matter_Dispatch_T,uint8_t index);
 void matter_dispatch_changed(Matter_Dispatch_T);
+/* Observe existing live subscribers' confirmation cursor for a known public
+ * event. No new work, callbacks or allocation; excludes closing subscriptions. */
+bool matter_dispatch_event_pending(Matter_Dispatch_T,const Matter_Event_Path_T*,uint64_t number);
 /* Reply-only session draining after synchronous self-removal. Bounded by MRP
  * completion/error and a 30s upper bound; keep receive/process running. */
 bool matter_dispatch_removal_pending(Matter_Dispatch_T);

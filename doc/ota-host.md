@@ -40,6 +40,20 @@ action and its result must be recorded when this fixture is used with original
 CSA procedures. It is an additional documented application precondition, not an
 undisclosed change to the original test or a production scheduling default.
 
+After accepted simulated installation, `matter-node` keeps its normal event loop
+running until the Applying event's confirmation cursor has drained, or at most
+30 seconds. This is a host lifecycle policy, not a Matter-mandated delay. It logs
+`OTA_REPORT_DRAIN ready=1|0 waited_ms=N` before `OTA_SIM_REBOOT`; zero records an
+expired host wait and must not be interpreted as delivered. Other shutdown causes
+still take precedence. No new query or install authorization is introduced.
+
+The OTA runner's `--events --event-min-interval 5` uses a real nonzero subscription
+interval to expose premature shutdown. Positive updates must capture the live
+Downloading -> Applying event before restarting, independently of the post-boot
+history read. The interval option accepts the protocol's uint16 range; intervals
+beyond the host wait can intentionally leave delivery incomplete and fail this
+positive acceptance. Report such a timeout separately from successful delivery.
+
 CSA19 uses CHIP v1.6.1.0 at `3bcdd56ba54fb88b2afb4bfef575014671df7aa7`.
 From an existing SDK checkout, activate its build environment and build the
 provider into a separate output directory:

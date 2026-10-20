@@ -167,6 +167,7 @@ bool matter_server_commissionable(Matter_Server_T s) { return matter_runtime_com
 bool matter_server_reset_requested(Matter_Server_T s) { return matter_runtime_reset_requested(s?s->runtime:NULL); }
 bool matter_server_reset_ready(Matter_Server_T s) { return matter_runtime_reset_ready(s?s->runtime:NULL); }
 bool matter_server_ota_reboot_requested(Matter_Server_T s) { return matter_runtime_ota_reboot_requested(s?s->runtime:NULL); }
+bool matter_server_ota_reboot_ready(Matter_Server_T s) { return matter_runtime_ota_reboot_ready(s?s->runtime:NULL); }
 bool matter_server_ota_trial(Matter_Server_T s) { return matter_runtime_ota_trial(s?s->runtime:NULL); }
 const Matter_Fabric_View_T* matter_server_fabrics(Matter_Server_T s) { return matter_runtime_fabrics(s?s->runtime:NULL); }
 uint8_t matter_server_commissioning_mode(Matter_Server_T s,uint16_t* d) { return matter_runtime_commissioning_mode(s?s->runtime:NULL,d); }

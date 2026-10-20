@@ -41,6 +41,7 @@
 #define HOST_SENSOR_IMPORTED_MWH INT64_C(12345000)
 #define HOST_SENSOR_EXPORTED_MWH INT64_C(2345000)
 #define HOST_EXTENDED_DISCOVERY_SECONDS 900
+#define HOST_OTA_REPORT_DRAIN_MS UINT64_C(30000) /* Host policy, not a Matter timing requirement. */
 #define HOST_PAIRING_HINT_POWER_CYCLE (UINT32_C(1)<<0)
 #define HOST_PAIRING_HINT_ADMINISTRATOR (UINT32_C(1)<<2)
 
@@ -766,7 +767,7 @@ int main(int argc,char** argv) {
         (unsigned)(n->power_sensor_only?HOST_POWER_SENSOR_ONLY_ENDPOINT:HOST_POWER_ONLY_ENDPOINT),(long long)HOST_POWER_ONLY_MW,n->sensor_energy?"cumulative-import-export":"absent");
     if(energy_test) printf("ENERGY_TEST enabled=1 laboratory-only mode=normal key=not-persisted measurements=volatile endpoints=%s\n",three_phase?"1,3,4,5":"1");
     if(test_events && three_phase) puts("MTRID_TEST enabled=1 endpoint=1 key=not-persisted identity=volatile clear=base-snapshot");
-    bool announced=n->mdns==NULL; uint64_t next_sample=now,next_status=now;
+    bool announced=n->mdns==NULL,ota_draining=false; uint64_t next_sample=now,next_status=now,ota_drain_start=0;
     if(announced) puts("READY commissioning_discovery=disabled; operational discovery and CASE remain enabled");
     while(!interrupted && (now=node_now(n),(!seconds || now-start<seconds*1000))) {
         if(n->gui_enabled || n->ota_control) {
@@ -782,7 +783,14 @@ int main(int argc,char** argv) {
         if(n->resolver) (void)matter_resolver_windows_poll(n->resolver,now);
         if(!matter_server_reset_requested(n->server) && !meter_process(n,now)) { fputs("Meter services process failed\n",stderr); goto done; }
         r=matter_server_process(n->server,now); if(r!=MATTER_OK && r!=MATTER_PENDING) { fprintf(stderr,"Server process failed: %d\n",r); goto done; }
-        if(matter_server_ota_reboot_requested(n->server)) { puts("OTA_SIM_REBOOT"); result=0; goto done; }
+        if(matter_server_ota_reboot_requested(n->server)) {
+            if(!ota_draining) { ota_draining=true; ota_drain_start=now; puts("OTA_REPORT_DRAIN started"); }
+            bool ready=matter_server_ota_reboot_ready(n->server);
+            if(ready || now-ota_drain_start>=HOST_OTA_REPORT_DRAIN_MS) {
+                printf("OTA_REPORT_DRAIN ready=%u waited_ms=%llu\n",ready?1u:0u,(unsigned long long)(now-ota_drain_start));
+                puts("OTA_SIM_REBOOT"); result=0; goto done;
+            }
+        }
         if(matter_server_reset_ready(n->server)) { puts("RESET last fabric removed; commissioned state erased, restart for a fresh instance."); result=0; goto done; }
         if(!advertisements(n,now,false)) { fprintf(stderr,"Discovery state transition failed\n"); goto done; }
         if(matter_mdns_process(matter_mdns_windows_module(n->mdns))==MATTER_PORT_ERROR ||

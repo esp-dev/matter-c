@@ -95,6 +95,12 @@ const Matter_Fabric_View_T* matter_runtime_fabrics(Matter_Runtime_T);
 bool matter_runtime_reset_requested(Matter_Runtime_T);
 bool matter_runtime_reset_ready(Matter_Runtime_T);
 bool matter_runtime_ota_reboot_requested(Matter_Runtime_T);
+/* After reboot_requested: true when live interested subscriptions' confirmed
+ * event cursor has passed Applying (normal bounded retention still applies).
+ * Continue process/RX/TX until ready; no stop/drain here.
+ * This is current delivery state, not durable event storage or a guarantee to
+ * offline/new subscribers. Application owns any upper wait bound and reboot. */
+bool matter_runtime_ota_reboot_ready(Matter_Runtime_T);
 bool matter_runtime_ota_trial(Matter_Runtime_T);
 /* Local owner action: request a query of the selected live OTA provider.
  * OK means scheduled, not sent/available/installed. No schedule/rate-limit

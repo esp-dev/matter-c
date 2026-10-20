@@ -698,6 +698,17 @@ Matter_Result_T matter_im_subscribe_events_changed(Matter_Im_Subscribe_T s) {
     if(s->state==MATTER_IM_SUB_FAILED || !s->events || !s->events->requested) return MATTER_INVALID_STATE;
     s->events->dirty=true; return MATTER_OK;
 }
+bool matter_im_subscribe_event_pending(Matter_Im_Subscribe_T s,const Matter_Event_Path_T* p,uint64_t number) {
+    if(!s || !p || !s->reserved || s->state==MATTER_IM_SUB_FAILED) return false;
+    SubEvents* e=s->events;
+    if(!e || !e->active || number<e->initial_min || number<e->next) return false;
+    for(size_t i=0;i<e->path_count;++i) {
+        const Matter_Im_Event_Request_T* q=&e->paths[i];
+        if(q->active && !q->status && q->path.endpoint==p->endpoint &&
+            q->path.cluster==p->cluster && q->path.event==p->event) return true;
+    }
+    return false;
+}
 Matter_Result_T matter_im_subscribe_bind_report(Matter_Im_Subscribe_T s,const Matter_Exchange_Info_T* e,uint64_t now) {
     Matter_Result_T r=check(s); if(r) return r;
     if(!e || !e->initiator || e->session!=s->config.exchange.session || e->exchange_id==s->exchange.exchange_id) return MATTER_INVALID_ARGUMENT;

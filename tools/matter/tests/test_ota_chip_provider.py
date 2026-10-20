@@ -281,6 +281,8 @@ def main():
     p.add_argument('--recovery-announcement-reason', type=int, choices=(0, 1),
                    help='Explicit AnnounceOTAProvider reason after provider restart; interrupt-retry only. Omitted preserves the initial announcement reason.')
     p.add_argument('--events', action='store_true', help='Subscribe to actual OTA events before announcement and verify their fields/sequences.')
+    p.add_argument('--event-min-interval', type=int, default=0,
+                   help='Event report minimum in seconds (0..65535); exercises queued reports at OTA reboot, without changing the requestor clock. Host reboot drain remains bounded.')
     p.add_argument('--local-query', action='store_true', help='Use UpdateAvailable and explicit application stdin query; preserve native daily/default scheduling and rate limits.')
     p.add_argument('--default-provider', action='store_true', help='Configure DefaultOTAProviders before UpdateAvailable announcements; existing default uses SimpleAnnouncement.')
     p.add_argument('--valgrind', action='store_true')
@@ -289,6 +291,8 @@ def main():
     p.add_argument('--bdx-profile', action='store_true', help='Verify ReceiveInit/Accept, all block counters, image bytes and AckEOF from actual peer traces.')
     p.add_argument('--image-version', type=int, choices=(2, 3), default=2, help='Positive update fixture version; enables a nonconstant NewVersion control.')
     a = p.parse_args()
+    if not 0 <= a.event_min_interval <= 65535 or (a.event_min_interval and not a.events):
+        p.error('--event-min-interval requires --events and a value in 0..65535')
     if a.local_query and a.default_provider:
         p.error('--local-query and --default-provider select different fixtures')
     apply_policy = {'apply-proceed-0': (0, 0), 'apply-proceed-180': (0, 180),
@@ -314,7 +318,8 @@ def main():
     report = {'scope': 'CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification',
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               'mode': a.mode, 'valgrind': a.valgrind, 'trace_required': need_trace, 'subscriptions_per_fabric': a.subscriptions_per_fabric,
-              'default_provider': a.default_provider, 'local_query': a.local_query, 'announcement_reason': 1 if a.default_provider or a.local_query else 0,
+              'default_provider': a.default_provider, 'local_query': a.local_query, 'event_min_interval': a.event_min_interval,
+              'announcement_reason': 1 if a.default_provider or a.local_query else 0,
               'checks': [], 'fixture': image_fixture(out, image_version, 2 if a.mode == 'version-mismatch' else None),
               'binaries': {n: hashlib.sha256(Path(v).read_bytes()).hexdigest() for n, v in
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
@@ -518,7 +523,7 @@ def main():
             r'SubscriptionsPerFabric: ' + str(a.subscriptions_per_fabric) + r'\b', capabilities)), a.subscriptions_per_fabric)
         identity = basic(client); report['basic_information'] = identity
         if a.events:
-            command(client, ['any', 'subscribe-event-by-id', '0x2a', '0xffffffff', 0, 2, 1, 0,
+            command(client, ['any', 'subscribe-event-by-id', '0x2a', '0xffffffff', a.event_min_interval, max(2,a.event_min_interval), 1, 0,
                              '--keepSubscriptions', 0, '--is-urgent', 'true'], r'Subscription established')
             check('ota-event-subscription-before-announcement', True)
         if a.default_provider:
@@ -686,6 +691,12 @@ def main():
         else:
             wait(lambda: 'OTA_SIM_REBOOT' in node_text(), 120, allow_node_exit=True)
             check('signed-download-and-reboot', node.wait(timeout=30) == 0 and 'authenticated=1 installed=1' in node_text())
+            if a.events:
+                before_reboot = ota_event_reports(client.text())
+                report['pre_reboot_events'] = before_reboot
+                check('live-applying-before-reboot', any(r['event']=='StateTransition' and
+                      r['fields']=={'PreviousState':4,'NewState':5,'Reason':1,'TargetSoftwareVersion':image_version}
+                      for r in before_reboot), before_reboot)
             check('download-matches-image', hashlib.sha256((out / 'download.ota').read_bytes()).hexdigest() == report['fixture']['image_sha256'])
             check('provider-received-final-block-ack', 'Transfer completed, got AckEOF' in provider_text())
             if a.bdx_profile:

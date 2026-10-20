@@ -32,6 +32,7 @@ struct Matter_Runtime {
     Matter_Runtime_Ota_Port_T ota_port; bool has_ota; uint64_t download; uint32_t download_version; int download_progress;
     Matter_Ota_Apply_T apply; Matter_Ota_Apply_Context_T candidate;
     Matter_Ota_Update_T update; Matter_Ota_Signed_T proof;
+    Matter_Events_T events; uint64_t applying_event; bool applying_event_valid;
     uint64_t notify; uint8_t notify_args[48]; bool ota_reboot,applied_event;
     uint64_t deadline; bool window,enhanced,stopping,stopped,reset,recovering;
     uint64_t commissioning_epoch; unsigned commissioning_failures;
@@ -398,7 +399,13 @@ static Matter_Result_T apply_start(void* u,const Matter_Ota_Provider_T* p,const 
     if(r==MATTER_PENDING) { runtime_log(s,"OTA_APPLY_REQUEST\n");  } return r;
 }
 static Matter_Result_T apply_state(void* u,uint8_t state,uint8_t reason,uint32_t version,uint64_t now) {
-    Matter_Runtime_T s=u; Matter_Result_T r=matter_ota_requestor_state(s->ota,s->update!=NULL,state,-1,reason,version,now);
+    Matter_Runtime_T s=u; uint64_t before=0;
+    if(state==5 && matter_events_position(s->events,&before)!=MATTER_OK) return MATTER_INVALID_STATE;
+    Matter_Result_T r=matter_ota_requestor_state(s->ota,s->update!=NULL,state,-1,reason,version,now);
+    if(r==MATTER_OK && state==5) {
+        uint64_t next=0; r=matter_events_position(s->events,&next);
+        if(r==MATTER_OK && next>before) { s->applying_event=next-1; s->applying_event_valid=true; }
+    }
     if(r==MATTER_OK) { matter_dispatch_changed(s->dispatch); runtime_log(s,"OTA_APPLY_STATE state=%u reason=%u\n",state,reason);  } return r;
 }
 static bool ota_fingerprint(Matter_Runtime_T s,uint8_t fabric,uint8_t out[32]) {
@@ -456,6 +463,7 @@ static void query_available(void* u,const Matter_Ota_Provider_T* p,const Matter_
     Matter_Result_T r=s->ota_port.prepare(s->ota_port.user,image->version);
     if(r==MATTER_OK) r=matter_dispatch_bdx(s->dispatch,p->fabric,p->node,fd,strlen((const char*)fd),&sink,s->ota_port.limit,&s->download);
     if(r==MATTER_PENDING) {
+        s->applying_event_valid=false;
         s->download_progress=s->ota_port.progress?-1:0;
         (void)matter_ota_requestor_state(s->ota,s->update!=NULL,4,s->download_progress,1,image->version,s->now); matter_dispatch_changed(s->dispatch);
         runtime_log(s,"OTA_DOWNLOAD version=%lu\n",(unsigned long)image->version);
@@ -514,6 +522,11 @@ Matter_Result_T matter_runtime_set_ota(Matter_Runtime_T s,const Matter_Runtime_O
     s->ota_port=*p; s->has_ota=true; return MATTER_OK;
 }
 bool matter_runtime_ota_reboot_requested(Matter_Runtime_T s) { return s && s->ota_reboot; }
+bool matter_runtime_ota_reboot_ready(Matter_Runtime_T s) {
+    static const Matter_Event_Path_T path={0,MATTER_OTA_REQUESTOR_CLUSTER,0};
+    return s && s->ota_reboot && s->applying_event_valid &&
+        !matter_dispatch_event_pending(s->dispatch,&path,s->applying_event);
+}
 bool matter_runtime_ota_trial(Matter_Runtime_T s) { return s && matter_ota_update_trial(s->update); }
 Matter_Result_T matter_runtime_ota_boot_ready(Matter_Runtime_T s) {
     if(!s || !s->update) return MATTER_OK;
@@ -565,6 +578,7 @@ Matter_Result_T matter_runtime_set_outbound(Matter_Runtime_T s,const Matter_Udp_
 }
 Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Udp_T udp,Matter_Events_T events) {
     if(!s || s->stopping || s->dispatch || s->ota) return MATTER_INVALID_STATE;
+    s->events=events;
     Matter_Ota_Requestor_Port_T ota={s,ota_load,ota_store,ota_generation,ota_select};
     s->ota=matter_ota_requestor_new(&ota,events,s->identity.basic_version,s->update!=NULL);
     if(!s->ota || matter_root_attach_cluster(s->root,s->ota)!=MATTER_OK) return MATTER_PORT_ERROR;

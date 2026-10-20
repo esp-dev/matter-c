@@ -91,6 +91,12 @@ Matter_Result_T matter_im_subscribe_bind_event_enumerator(Matter_Im_Subscribe_T,
  * duplicate paths OR their urgency. Do NOT use changed() solely because an event was queued.
  * Notification during TX survives for the next report. No callbacks/reentry. */
 Matter_Result_T matter_im_subscribe_events_changed(Matter_Im_Subscribe_T);
+/* Owner-only observation of an existing concrete event's delivery. True while
+ * a selected, authorized path has not advanced past number after the complete
+ * report's IM Success AND MRP confirmation. No scheduling, callbacks or allocation.
+ * Caller supplies a known visible event; this does not check retention/durability.
+ * NULL, failed/cancelled, unrelated and EventMin-excluded paths return false. */
+bool matter_im_subscribe_event_pending(Matter_Im_Subscribe_T,const Matter_Event_Path_T*,uint64_t number);
 /* Fresh authenticated, deduplicated RX only; copy, no callbacks/parsing.
  * Initially SubscribeRequest opcode3/I=1 on config exchange; then StatusResponse
  * opcode1 on bound exchange with opposite initiator role, including before MRP ACK.

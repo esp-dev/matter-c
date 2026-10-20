@@ -956,6 +956,13 @@ void matter_dispatch_changed(Matter_Dispatch_T d) {
         (void)matter_im_subscribe_changed(d->transactions[i].sub); (void)matter_im_subscribe_events_changed(d->transactions[i].sub);
     }
 }
+bool matter_dispatch_event_pending(Matter_Dispatch_T d,const Matter_Event_Path_T* path,uint64_t number) {
+    if(d) for(size_t i=0;i<d->transaction_count;++i) {
+        Transaction* t=&d->transactions[i];
+        if(!t->closing && matter_im_subscribe_event_pending(t->sub,path,number)) return true;
+    }
+    return false;
+}
 bool matter_dispatch_removal_pending(Matter_Dispatch_T d) {
     if(d) for(unsigned i=0;i<CONNECTIONS;++i)
         if(d->connections[i].token && d->connections[i].removal_reply && !d->connections[i].retiring) return true;

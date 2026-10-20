@@ -29,6 +29,7 @@ typedef struct {
 Matter_Server_T matter_server_new_sim(const char* credentials,const char* state,
     const Matter_Root_Config_T*,uint32_t pin,uint64_t now,const Matter_Server_Sim_Options_T*);
 bool matter_server_ota_reboot_requested(Matter_Server_T);
+bool matter_server_ota_reboot_ready(Matter_Server_T);
 bool matter_server_ota_trial(Matter_Server_T);
 Matter_Result_T matter_server_ota_request_query(Matter_Server_T);
 /* Owner calls after all host initialization and before network polling.

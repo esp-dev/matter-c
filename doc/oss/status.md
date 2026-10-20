@@ -7,6 +7,16 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA62: Applying event drain repaired before simulated OTA reboot.**
+Old host min5s reproduces lost events. The new owner-only readiness barrier lets
+normal reporting finish before stop, with a bounded30s host wait. Full updates
+pass21 checks per memory variant; prior Busy180 passes24. A60s negative control
+logs ready0 at30005ms and retains its expected raw live-event FAIL. Memcheck has
+zero errors/live blocks, separate sanitizers are clean and focused CTests11/11
+pass each. [Report](csa62-validation.md). No original CSA rerun or Windows build.
+Counts remain122 PASS/28 FAIL/5 prerequisites. Next: CSA63, provider-restart/query
+failure attribution from CSA60. Existing paired nodes remain untouched.
+
 **CSA61: OTA initial-report/callback boundary confirmed; original FAIL retained.**
 Original TC_SU_2_7 run606 repeats CSA26's startup ordering: default-provider query
 starts before step1 callback; first callback event is already Downloading.

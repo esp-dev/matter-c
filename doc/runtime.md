@@ -235,6 +235,18 @@ delay, urgent-announcement jitter and current Busy/error backoff are preserved.
 The default daily polling policy is unchanged when the action is not invoked.
 Custom query owners can use `matter_ota_query_request` with their monotonic time.
 
+`matter_runtime_ota_reboot_requested` signals accepted simulated installation,
+not completion of event delivery. Before stopping, the owner can continue normal
+RX/TX/process and inspect `matter_runtime_ota_reboot_ready`. It checks whether
+current interested subscriptions' confirmed event cursor has passed the captured
+Applying event. The cursor advances only after the whole report, IM Success and
+MRP confirmation. Unrelated, failed/cancelled and EventMin-excluded subscriptions
+do not block. Minimum/maximum report intervals remain unchanged. This adds no
+allocation, scheduler or timeout to the library. The event log remains bounded
+and volatile; readiness does not guarantee retained payloads under overflow or
+delivery to offline/future subscribers. The application owns its upper wait bound,
+shutdown and reboot policy. Existing `reboot_requested` behavior is unchanged.
+
 Descriptor, Basic Information and General Commissioning use their existing
 DataVersion for subscription change reporting. Unrelated application measurement
 notifications no longer repeat unchanged built-in values. Reads still return the

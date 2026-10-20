@@ -1,0 +1,730 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa61-results.json",
+  "previous_sha256": "3a79d3419ed5195bc9a8b6f12483ff017f812ec853253771dee6659a4eb6d8f3",
+  "source_base_commit": "d88d4210f1a5262ef241665f97b287e369a790c5",
+  "scope": "Repair premature simulated OTA shutdown through a confirmed-event cursor barrier; full signed-update memory acceptance, bounded timeout control and previous Busy180 rerun. No original test/PICS change.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [],
+  "original_runs": [],
+  "original_rerun": {
+    "performed": false,
+    "reason": "TC_SU_2_7 already fails before Applying due to its known default-provider/observation precondition. Retain original FAIL606 and manual outcomes; this independent lifecycle acceptance is not original CSA PASS."
+  },
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "binaries": {
+    "normal": "0d552a6e4323f16eef9cba665e5699dbed3d45d9e9e8c5aa5aec96bbb63ffeee",
+    "sanitize": "401f694938f23185a0bfcbdc8474a72e2544be5c67d4c2042b8da25095f94605"
+  },
+  "baseline_binary_sha256": "5e39a2d3af51d3853b3788adca8d95962ec6c0f1e1587e1a9416f564d8fbd0fb",
+  "driver_sha256": "f94928764e1d72f01f09c61968011eae5733daac58340eb562312164e0c1aa63",
+  "baseline_driver_sha256": "499274db24d6dbb102a540199b0b46c4ddc9512fd2b082f30c997f7969db84a4",
+  "conclusion": {
+    "native_host_lifecycle_defect_confirmed": true,
+    "cause": "Old host stops subscriptions immediately at accepted installation, before the Applying report can satisfy its minimum interval or finish reliable delivery. Successful event publication alone is not subscriber delivery.",
+    "fix": "Capture Applying event number; observe interested subscriptions confirmation cursor without allocation/callbacks. Keep existing host process/RX/TX loop alive until ready or its named30s policy bound.",
+    "normative_reference": "Core1.6.1 section11.20.7.7 StateTransition; the30s upper wait is host policy, not a Matter requirement.",
+    "original_outcomes_changed": false,
+    "certification": false
+  },
+  "scenarios": [
+    {
+      "name": "baseline",
+      "mode": "update",
+      "event_min_interval": 5,
+      "raw_verdict": "FAIL",
+      "error": "state-transition-target-version-fields: []",
+      "check_count": 14,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "FAIL"
+        }
+      ],
+      "raw_sha256": "a18a9b14ca4292030619321d8d2434ffef56e1b67a73d0ddb9a306efca26742b",
+      "logs_sha256": {
+        "node-2.log": "9d0dd0d651e80b23094175318e36bdd77e36b994e29749560331bd5431f98655",
+        "provider.log": "b78c06f1584388f05157d61af6c35a07aa7368b94ac5371404944734bfcde89f",
+        "node-1.log": "8d205663386fa4b76b8f8292a43dea60bc8296db4157223cc1963f74e80054e9",
+        "fresh-reader/interactive.log": "dca0c6c0ec3cdeb9b44ae2bf37ac9b1c0ae6296fe95edac05b933207f4c90241",
+        "controller/interactive.log": "23f4667d4d2b3d6fbb8814635484bc60fefdeb3e9675344782cf54eeb87e6acf"
+      },
+      "drain": [],
+      "Memcheck": [],
+      "native_stderr_empty": true,
+      "pre_reboot_events": [],
+      "interpretation": "Reproduced old-host event failure on frozen CSA60 sanitizer binary. Native Applying publication and accepted signed install are logged before immediate reboot; no StateTransition reaches the observer. Baseline driver predates the stronger live-only assertion; existing event assertion already fails."
+    },
+    {
+      "name": "memcheck",
+      "mode": "update",
+      "event_min_interval": 5,
+      "raw_verdict": "PASS",
+      "error": null,
+      "check_count": 21,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "eeffc978c308256590ec175ff5b7da740afc54c3889d2bcd11a6c5df43dc5b2f",
+      "logs_sha256": {
+        "valgrind-1.log": "806d4ede397ef445880620cd42c9732279dad8fa0d3cc49265aeb0e9bfc64fcc",
+        "valgrind-2.log": "fddb85538c8eada314e176ded6c5d551fb10652276319672af5fa21b3d10aa5f",
+        "node-2.log": "abdc239a6ee3abfb4aa36423e0fe109f0a253833bd8469e1cf4e4c76d110f2d6",
+        "provider.log": "8763520f9d2977b924b6285a30bd88baa68008a7a383e21c6fe8773928782507",
+        "node-1.log": "42a64446c65eace30ea592be8298a8cd806be0c983a302e6fd16a71737db4bc6",
+        "fresh-reader/interactive.log": "90146313aa7fdcc7c2305ca8a4fcd6551490a76fc6b42af5f4bf598717b9028b",
+        "controller/interactive.log": "d6b6337d19db0635055e1641a5b6ab83229259c2909d92bb28f1ada109f1a223"
+      },
+      "drain": [
+        {
+          "ready": 1,
+          "waited_ms": 0
+        }
+      ],
+      "Memcheck": [
+        {
+          "log": "valgrind-1.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            35582,
+            35582
+          ]
+        },
+        {
+          "log": "valgrind-2.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            19552,
+            19552
+          ]
+        }
+      ],
+      "native_stderr_empty": true,
+      "pre_reboot_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": 2,
+            "NewState": 4,
+            "Reason": 1,
+            "PreviousState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": 2,
+            "NewState": 5,
+            "Reason": 1,
+            "PreviousState": 4
+          }
+        }
+      ],
+      "interpretation": "Independent full signed transfer/reboot/Notify/fresh CASE and live Applying PASS; not original CSA PASS."
+    },
+    {
+      "name": "sanitize",
+      "mode": "update",
+      "event_min_interval": 5,
+      "raw_verdict": "PASS",
+      "error": null,
+      "check_count": 21,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "75f372c2f8ddda8c72482bd9e040ca0785a0b2ce8f748f792b61893e53ad8c64",
+      "logs_sha256": {
+        "node-2.log": "6c8930364e76b160ffca7f077038fbf7f38496460e02f08054e2a4a3fb52cc04",
+        "provider.log": "86f1e0d2a1c25eccfb1ed43eca5ed86871ce0fb88177d8d920aa5dfe6cbf93af",
+        "node-1.log": "2f238f1fd9d3663da5f156e380fb118328afc8ad15f072a34ccba546a0c9ec18",
+        "fresh-reader/interactive.log": "ea4af5a39b0a8be20d91cb75fcc048eff9da4499e3b5649258f96c884ca2360b",
+        "controller/interactive.log": "eed1f9065c50b851078db9f794c94f7ce72dfe3df7f1390bd266b4ca9404340e"
+      },
+      "drain": [
+        {
+          "ready": 1,
+          "waited_ms": 2111
+        }
+      ],
+      "Memcheck": [],
+      "native_stderr_empty": true,
+      "pre_reboot_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "PreviousState": 1,
+            "Reason": 1,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": 2,
+            "PreviousState": 2,
+            "Reason": 1,
+            "NewState": 4
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": 2,
+            "PreviousState": 4,
+            "Reason": 1,
+            "NewState": 5
+          }
+        }
+      ],
+      "interpretation": "Independent full signed transfer/reboot/Notify/fresh CASE and live Applying PASS; not original CSA PASS."
+    },
+    {
+      "name": "timeout-control",
+      "mode": "update",
+      "event_min_interval": 60,
+      "raw_verdict": "FAIL",
+      "error": "live-applying-before-reboot: []",
+      "check_count": 10,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "FAIL"
+        }
+      ],
+      "raw_sha256": "6086099727176798c82f31fd6f5dab3a4513d78696e36024b00d089c197b8486",
+      "logs_sha256": {
+        "valgrind-1.log": "036bc8a523762c03205a5ff4b7d0bcfd4a6f1bd4eb26fa21f0da69f38bb3ac93",
+        "provider.log": "f9ee18f8137e0320b5710b56060b1c6e580fadb04eff96c8111edc40069e4d8d",
+        "node-1.log": "0febf8df391054e4fdb2b4b1e094d266593c9a39890d7385f66b0d9a145faae2",
+        "controller/interactive.log": "01e87a0a32e657d9efdd1ae8f1582a4b9ce09fb6518fc8ac06b1bbe35c1c76c4"
+      },
+      "drain": [
+        {
+          "ready": 0,
+          "waited_ms": 30005
+        }
+      ],
+      "Memcheck": [
+        {
+          "log": "valgrind-1.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            35585,
+            35585
+          ]
+        }
+      ],
+      "native_stderr_empty": true,
+      "pre_reboot_events": [],
+      "control_verdict": "PASS",
+      "interpretation": "Expected raw positive-oracle FAIL retained. Subscriber60s minimum exceeds host30s budget; host logs ready0 after30005ms and exits without claiming delivery. One clean Memcheck boot; no successful two-boot-update claim for this control."
+    },
+    {
+      "name": "busy-recheck",
+      "mode": "busy-180",
+      "event_min_interval": 0,
+      "raw_verdict": "PASS",
+      "error": null,
+      "check_count": 24,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-observation-no-early-query",
+          "status": "PASS"
+        },
+        {
+          "name": "announcement-next-query",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-delay-respected",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-retry-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "1793a83edc63554b748d4daeb93875dc1ab8b3e28569c833c40353ac5a80de98",
+      "logs_sha256": {
+        "node-2.log": "fec2cfbafcbf43aa2c35a4d19216a1f918610f233fba0934cac8b6b52404afb7",
+        "provider.log": "201ca9f35f29ad5a43e457627f08ef809493af2fdfededbd9936950cb37650eb",
+        "node-1.log": "b7ad2c2fcb957c2933812922b223cc2cf3f1cdccc83ab0f0da7b9900fbdaef8d",
+        "fresh-reader/interactive.log": "0df3a124ae52c2f695df431f554bb21339feb2198eb4048a379613b89a041c3b",
+        "controller/interactive.log": "ddb575c3bc3eecd4a5961c963a54da48e7837e67fda1bc1fc0105d3550e669ed"
+      },
+      "drain": [
+        {
+          "ready": 1,
+          "waited_ms": 93
+        }
+      ],
+      "Memcheck": [],
+      "native_stderr_empty": true,
+      "pre_reboot_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 4,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null,
+            "NewState": 3
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 3,
+            "TargetSoftwareVersion": null,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": 2,
+            "NewState": 4
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "Reason": 1,
+            "PreviousState": 4,
+            "TargetSoftwareVersion": 2,
+            "NewState": 5
+          }
+        }
+      ],
+      "interpretation": "Independent full signed transfer/reboot/Notify/fresh CASE and live Applying PASS; not original CSA PASS.",
+      "actual_intervals": [
+        {
+          "query_interval_ms": 180154,
+          "response_to_next_query_ms": 180154
+        }
+      ]
+    }
+  ],
+  "focused": {
+    "normal": {
+      "passed": 11,
+      "failed": 0,
+      "raw_sha256": "421c8381d9894a1c2a5555bf7388805d157c3d73af1760b4cf5847e0fbf531d7"
+    },
+    "sanitize": {
+      "passed": 11,
+      "failed": 0,
+      "raw_sha256": "c3bf720817d44fb470ac356ec7c7541c68f7f917474f3638e0f4996fe99de0e2"
+    },
+    "compiler_warning_lines": []
+  },
+  "identity": {
+    "native_inputs_verified": 362,
+    "source_manifest_sha256": "10fef817f19e7e061faa3f63a47b12984785da2902e4afdc8fd6a45f4191ee8a",
+    "current_driver_matches_executed": true,
+    "new_allocation_or_buffer_in_barrier": false,
+    "public_config_structures_changed": false
+  },
+  "CLI_guards": {
+    "too_large": {
+      "exit": 2,
+      "expected_error": true
+    },
+    "negative": {
+      "exit": 2,
+      "expected_error": true
+    },
+    "missing_events": {
+      "exit": 2,
+      "expected_error": true
+    }
+  },
+  "cleanup": {
+    "stage_native_processes": [],
+    "TH": {
+      "state": {
+        "state": "idle"
+      },
+      "original_sources_unchanged": true,
+      "PAA_absent": true
+    },
+    "paired_Windows_nodes_modified": false
+  },
+  "fixture_notes": [
+    "Initial Busy180 command used an incompatible update-only --apply-binding option; argparse exited2 before any native test. Corrected command exited0 and is recorded separately.",
+    "Negative60s control retains raw live-event FAIL; this is evidence of the expected host bound, not an official acceptance.",
+    "No original CSA case ran in this campaign; counts and FAIL606 remain unchanged."
+  ],
+  "limitations": [
+    "No Windows build, paired-node replacement, physical device acceptance or full applicable rerun.",
+    "Events remain bounded/volatile; overflow and offline/future subscribers have no delivery guarantee. Failed/closed subscriptions no longer block; ready does not imply delivery to a disappeared peer.",
+    "Other explicit stop, duration and error paths can preempt OTA report draining.",
+    "The runtime only exposes readiness; application remains responsible for wait bounds, shutdown and reboot."
+  ],
+  "next": "CSA63: actual response reception and retry backoff at the provider-restart boundary from CSA60 TC_SU_2_2."
+}

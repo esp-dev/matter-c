@@ -1349,7 +1349,7 @@
       ],
       "kind": "DEFAULT_QUERY_BEFORE_EVENT_CALLBACK_CSA_QUESTION",
       "evidence": "csa61-results.json",
-      "action": "Retain original FAIL606 and earlier CSA26 attribution. Default query precedes step1 callback; checkout helper does not enqueue initial report; installed-byte identity not separately verified. Do not repeat without a changed observation precondition. Fast-reboot Applying capture is separate and remains open."
+      "action": "Retain original FAIL606 and earlier CSA26 startup ordering attribution. CSA62 independently repairs Applying delivery at simulated reboot; the original fails earlier and was not rerun. Do not repeat until observation prerequisites change; no official PASS inferred."
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."

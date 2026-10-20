@@ -286,6 +286,30 @@ static void multi_sub_tests(void) {
     multi_append(m,1,0); CHECK(matter_im_subscribe_events_changed(m->engine)==MATTER_OK); multi_update(m,1000); multi_drain(m);
     CHECK(m->events==1 && !m->statuses && !m->attributes); multi_free(m);
     puts("PASS multi-event Subscribe: per-path urgency, watermark after whole report, in-flight append and all-invalid prime");
+    /* Reboot barrier: IM Success alone cannot confirm a reliable event report. */
+    Matter_Event_Path_T path={0,0x28,1},other={0,0x28,9};
+    CHECK(!matter_im_subscribe_event_pending(NULL,&path,0));
+    m=multi_new(); multi_request(m,0,ids,1,1,0); multi_start(m); multi_drain(m);
+    CHECK(!matter_im_subscribe_event_pending(m->engine,NULL,0));
+    uint64_t number=0; CHECK(matter_events_position(m->log,&number)==MATTER_OK);
+    multi_append(m,1,0); CHECK(matter_im_subscribe_events_changed(m->engine)==MATTER_OK);
+    CHECK(matter_im_subscribe_event_pending(m->engine,&path,number));
+    CHECK(!matter_im_subscribe_event_pending(m->engine,&other,number));
+    CHECK(matter_im_subscribe_process(m->engine,999)==MATTER_PENDING && matter_im_subscribe_state(m->engine)==MATTER_IM_SUB_IDLE);
+    CHECK(matter_im_subscribe_event_pending(m->engine,&path,number));
+    multi_update(m,1000); multi_report(m); CHECK(m->events==1 && !m->more);
+    CHECK(matter_im_subscribe_sent_at(m->engine,1000)==MATTER_OK);
+    multi_receive(m,false); CHECK(matter_im_subscribe_process(m->engine,1000)==MATTER_PENDING);
+    CHECK(matter_im_subscribe_event_pending(m->engine,&path,number));
+    CHECK(matter_im_subscribe_confirm(m->engine,1000)==MATTER_OK);
+    CHECK(matter_im_subscribe_process(m->engine,1000)==MATTER_PENDING);
+    CHECK(!matter_im_subscribe_event_pending(m->engine,&path,number));
+    multi_append(m,1,0); CHECK(matter_im_subscribe_event_pending(m->engine,&path,number+1));
+    CHECK(matter_im_subscribe_cancel(m->engine)==MATTER_OK);
+    CHECK(!matter_im_subscribe_event_pending(m->engine,&path,number+1)); multi_free(m);
+    m=multi_new(); multi_append(m,1,0); multi_request(m,0,ids,1,1,100); multi_start(m); multi_drain(m);
+    CHECK(!matter_im_subscribe_event_pending(m->engine,&path,0)); multi_free(m);
+    puts("PASS event delivery barrier: min interval, unrelated path, EventMin, IM-before-MRP, confirmed cursor and cancel");
 }
 #endif
 #undef MultiEngine
