@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+/* Fixed unsecured profile: exactly one 64-bit ephemeral source/destination ID. */
+enum { MATTER_UNSECURED_OVERHEAD = 16 };
+
 typedef struct {
 	size_t size;
 	uint32_t counter;

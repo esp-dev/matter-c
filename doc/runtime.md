@@ -98,18 +98,27 @@ rejects an impossible configuration before calling platform initialization.
 Direct dispatcher construction reads the immutable budget from Root through
 `matter_root_capabilities()` and applies the same guard.
 
-The dispatcher allocates one transaction table sized for the selected budget,
-including every fabric/PASE bucket and protected Read, replacement, response
-drain, Invoke/Write, handshake and rejection capacity. With five fabrics it needs
-`6 * subscriptions + 34` slots: three needs 52, eight needs 82. The table remains
-at stable addresses until successful drain/delete; it is not reallocated during
-protocol callbacks. IM Subscribe handlers and their request data still allocate
-on demand. This is a bounded allocation at construction, not an unbounded or
-automatically growing pool. Table allocation failure releases the dispatcher
-context; failed subscription admission leaves existing subscriptions intact.
+The dispatcher preserves every fabric/PASE bucket and protected Read,
+replacement, response drain, Invoke/Write, handshake and rejection capacity.
+With five fabrics the ceiling is `6 * subscriptions + 34` live transactions:
+three needs 52, eight needs 82. It allocates individual list nodes on admission;
+each node stays at a stable address through handler, exchange and I/O drain.
+There is no idle transaction table or search for a vacant slot. IM Subscribe
+handlers and their request data also allocate on demand. Node OOM closes incoming
+work while RX retains its ACK/drain obligations; optional outbound work fails
+without acquiring an exchange or session/route reservation. Failed subscription
+admission leaves existing subscriptions intact.
 `KeepSubscriptions=false` retains its verified fabric/node replacement scope.
 
-Each instance owns its own budget/table. Change the budget by stopping/draining
+TX packets allocate exactly the encoded plaintext plus the existing secure or
+unsecured envelope, within the unchanged 1232-byte limit. Preparation allocates
+before taking a message counter; OOM closes the affected work without consuming
+a nonce. The immutable bytes survive retries, ACK/cancellation and any accepted
+UDP operation until actual completion. A persistent subscription releases its
+packet after MRP/UDP drain, retaining its live handler/node. R=0 BUSY uses the
+same preparation/ownership helpers and retains bytes through UDP completion.
+
+Each instance owns its own budget/list. Change the budget by stopping/draining
 and constructing a new instance; it is not a live mutable attribute. The shared
 transport ceiling remains a build option (`MATTER_TRANSPORT_CAPACITY`, 8..128);
 this change does not migrate the lower transport tables to dynamic storage.

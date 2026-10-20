@@ -23,7 +23,8 @@ typedef struct {
     Matter_Resolver_Answer_T answer;
     Matter_Pase_Intervals_T discovered_intervals;
 } Connection;
-typedef struct {
+typedef struct Transaction {
+    struct Transaction *next,*previous;
     struct Matter_Dispatch* owner;
     Matter_Exchange_Handle_T handle; Matter_Exchange_Info_T key;
     Matter_Pase_T pase; Matter_Case_T case_attempt;
@@ -36,7 +37,7 @@ typedef struct {
     Matter_Im_Read_Port_T sub_read; Matter_Im_Read_Fabric_Port_T sub_fabric;
     Admission admission; uint8_t fabric_index; uint32_t subscription_id;
     bool im_busy,draining,delivery_shared;
-    uint64_t message; size_t size; uint8_t packet[PACKET];
+    uint64_t message; size_t size; uint8_t* packet;
     uint32_t received_counter; bool has_ack;
     uint8_t timed_target; /* TimedRequest does not yet identify Invoke vs Write. */
     Connection* slot; /* Reserved before successful handshake response, released on every exit. */
@@ -50,7 +51,7 @@ struct Matter_Dispatch {
     Matter_Retransmission_Sender_T tx; Matter_Unsecured_T unsecured;
     Matter_Unsecured_Rx_T ingress; Matter_Unsecured_Tx_T transport;
     Matter_Counter_T counter; Route routes[ROUTES]; Connection connections[CONNECTIONS];
-    Transaction* transactions; size_t transaction_count; uint16_t subscriptions_per_fabric;
+    Transaction *transactions,*last_transaction; size_t transaction_count,transaction_limit; uint16_t subscriptions_per_fabric;
     Matter_Udp_Path_T received_path; uint8_t inbox[PACKET],plain[PACKET],ack[PACKET],delivery[PACKET];
     size_t inbox_size; Matter_Rx_Decision_T decision;
     bool queued,delivered,ack_waiting,stopping,stopped,started;
@@ -67,6 +68,29 @@ struct Matter_Dispatch {
         Matter_Udp_Path_T path;
     } outgoing;
 };
+/* Stable, per-instance nodes: capacity remains an admission ceiling, not a
+ * reservation of idle packet/handler storage. No free-slot scan or relocation. */
+static Transaction* new_transaction(Matter_Dispatch_T d) {
+    if(d->transaction_count>=d->transaction_limit) return NULL;
+    Transaction* t=calloc(1,sizeof(*t)); if(!t) return NULL;
+    t->owner=d; t->previous=d->last_transaction;
+    if(t->previous) t->previous->next=t; else d->transactions=t;
+    d->last_transaction=t; ++d->transaction_count; return t;
+}
+static void release_packet(Transaction* t) {
+    Matter_Dispatch_T d=t->owner;
+    /* MRP retains ciphertext through ACK/retry exhaustion. Accepted UDP also
+     * borrows it until actual completion, including cancellation and R=0 BUSY. */
+    if(t->pending || d->sending_message==t || d->control_transaction==t) return;
+    free(t->packet); t->packet=NULL; t->size=0;
+}
+static void free_transaction(Transaction* t) {
+    Matter_Dispatch_T d=t->owner;
+    release_packet(t);
+    if(t->previous) t->previous->next=t->next; else d->transactions=t->next;
+    if(t->next) t->next->previous=t->previous; else d->last_transaction=t->previous;
+    --d->transaction_count; free(t);
+}
 static void delivery_slot(Transaction*);
 static bool handoff(Transaction*);
 static void outgoing_process(Matter_Dispatch_T);
@@ -78,9 +102,31 @@ Matter_Secure_T matter_dispatch_session(Matter_Dispatch_T d,Matter_Exchange_Sess
     Connection* c=d?connection(d,token):NULL; return c && !c->retiring && !c->removal_reply?c->secure:NULL;
 }
 static Transaction* transaction(Matter_Dispatch_T d,const Matter_Exchange_Info_T* k) {
-    for(unsigned i=0;i<d->transaction_count;++i) { Transaction* t=&d->transactions[i];
+    for(Transaction* t=d->transactions;t;t=t->next) {
         if(t->handle && t->key.session==k->session && t->key.exchange_id==k->exchange_id && t->key.initiator==k->initiator) return t;
     } return NULL;
+}
+/* Both TX paths share bounds, OOM handling and immutable packet ownership.
+ * Allocate before sealing/taking the counter: OOM never consumes a nonce. */
+static Matter_Result_T prepare_packet(Transaction* t,size_t plain_size,uint32_t* counter) {
+    Matter_Dispatch_T d=t->owner; Connection* c=connection(d,t->key.session);
+    if(t->packet) return MATTER_BUSY; /* Never replace retained ciphertext. */
+    size_t overhead=c?MATTER_SECURE_OVERHEAD:MATTER_UNSECURED_OVERHEAD;
+    if(plain_size>PACKET-overhead) return MATTER_LIMIT_REACHED;
+    size_t capacity=plain_size+overhead;
+    t->packet=calloc(1,capacity); if(!t->packet) return MATTER_LIMIT_REACHED;
+    Matter_Result_T r;
+    if(c) {
+        Matter_Secure_Prepared_T p;
+        r=matter_secure_channel_prepare(c->channel,d->plain,plain_size,d->now,t->packet,capacity,&p);
+        if(r==MATTER_OK) { t->size=p.size; *counter=p.counter; }
+    } else {
+        Matter_Unsecured_Prepared_T p;
+        r=matter_unsecured_prepare_encoded(d->unsecured,t->key.session,&d->counter,d->plain,plain_size,t->packet,capacity,&p);
+        if(r==MATTER_OK) { t->size=p.size; *counter=p.counter; }
+    }
+    if(r!=MATTER_OK) release_packet(t);
+    return r;
 }
 static void clear_connection(Connection* c) {
     /* The handshake owns its reservation until handoff or dispose, including
@@ -93,8 +139,8 @@ static void clear_connection(Connection* c) {
 static bool idle(Matter_Dispatch_T d,Connection* c,Matter_Secure_Info_T* info) {
     if(!c->token || !c->operational || c->retiring || c->reserved || d->sending==c ||
         matter_secure_info(c->secure,info)!=MATTER_OK || info->closing || info->pins!=1) return false;
-    for(unsigned i=0;i<d->transaction_count;++i)
-        if(d->transactions[i].handle && d->transactions[i].key.session==c->token) return false;
+    for(Transaction* t=d->transactions;t;t=t->next)
+        if(t->key.session==c->token) return false;
     return true;
 }
 static Connection* available(Matter_Dispatch_T d) {
@@ -148,8 +194,7 @@ static void reconcile(Matter_Dispatch_T d) {
         Connection* c=&d->connections[i];
         if(c->token && (reset || (c->operational && d->config.fabric_live && !d->config.fabric_live(d->config.user,c->fabric_index)))) {
             bool waiting=false;
-            for(unsigned j=0;j<d->transaction_count;++j) {
-                Transaction* t=&d->transactions[j];
+            for(Transaction* t=d->transactions;t;t=t->next) {
                 if(c->removal_reply && t->handle==c->removal_reply && t->key.session==c->token &&
                     !t->closing && !t->notified && d->now<c->removal_deadline) waiting=true;
             }
@@ -164,21 +209,18 @@ static void reconcile(Matter_Dispatch_T d) {
             c->rotating=true;
             /* Root processes the pending credential operation before dispatcher
              * polling. Only the unique pending OC Invoke may deliver its reply. */
-            for(unsigned j=0;j<d->transaction_count;++j) {
-                Transaction* t=&d->transactions[j];
+            for(Transaction* t=d->transactions;t;t=t->next) {
                 if(invoker==c->token && t->handle && t->key.session==invoker && !t->closing && t->invoke &&
                     t->invoke_case.pending==matter_root_cluster(d->config.root,0x3e)) c->rotation_reply=t->handle;
             }
         }
         bool waiting=false;
-        for(unsigned j=0;j<d->transaction_count;++j) {
-            Transaction* t=&d->transactions[j];
+        for(Transaction* t=d->transactions;t;t=t->next) {
             if(t->handle && t->handle==c->rotation_reply && t->key.session==c->token && !t->closing && !t->notified) waiting=true;
         }
         if(!waiting) c->retiring=true;
     }
-    for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* t=&d->transactions[i]; if(!t->handle) continue;
+    for(Transaction* t=d->transactions;t;t=t->next) { if(!t->handle) continue;
         Connection* c=connection(d,t->key.session); uint8_t index=matter_case_fabric_index(t->case_attempt);
         bool removal=c && !c->retiring && c->removal_reply==t->handle;
         if((reset && !removal) || (c && (c->retiring || (c->removal_reply && !removal) || (c->rotating && t->handle!=c->rotation_reply))) || (index && d->config.fabric_live && !d->config.fabric_live(d->config.user,index))) t->closing=true;
@@ -395,8 +437,7 @@ static Matter_Result_T admit(void* u,const Matter_Unsecured_Rx_Message_T* m,bool
             memset(oldest,0,sizeof(*oldest));
         }
     }
-    bool free=false; for(unsigned i=0;i<d->transaction_count;++i) free|=!d->transactions[i].handle;
-    if(!free) return MATTER_WOULD_BLOCK;
+    if(d->transaction_count>=d->transaction_limit) return MATTER_WOULD_BLOCK;
     *create=true; return MATTER_OK;
 }
 static void accepted(void* u,const Matter_Unsecured_Rx_Message_T* m,bool duplicate) {
@@ -424,8 +465,7 @@ static void count_sent(Matter_Dispatch_T d,Transaction* t,Matter_Operation_Resul
 Matter_Dispatch_Load_T matter_dispatch_load(Matter_Dispatch_T d,uint8_t fabric) {
     Matter_Dispatch_Load_T load={0}; if(!d) return load;
     load.sent=d->im_sent; load.received=matter_rx_im_received(d->rx); load.established=d->subscriptions_established;
-    for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* t=&d->transactions[i]; Connection* c=connection(d,t->key.session);
+    for(Transaction* t=d->transactions;t;t=t->next) { Connection* c=connection(d,t->key.session);
         if(!t->handle || !t->subscription_id || !t->sub_established || t->closing || !c || c->retiring || c->removal_reply) continue;
         if(c->operational && d->config.fabric_live && !d->config.fabric_live(d->config.user,c->fabric_index)) continue;
         if(load.current<UINT16_MAX) ++load.current;
@@ -482,16 +522,14 @@ static uint8_t reserve(void* u,Matter_Exchange_Session_T s,bool keep,uint32_t* i
     Connection* subscriber=connection(d,s);
     if(!subscriber || subscriber->retiring) return MATTER_IM_FAILURE;
     if(d->next_subscription==UINT32_MAX) return MATTER_IM_RESOURCE_EXHAUSTED;
-    if(!keep) for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* other=&d->transactions[i]; Connection* peer=connection(d,other->key.session);
+    if(!keep) for(Transaction* other=d->transactions;other;other=other->next) { Connection* peer=connection(d,other->key.session);
         bool same=other->key.session==s;
         if(subscriber->operational && peer && peer->operational)
             same=subscriber->fabric_index==peer->fabric_index && subscriber->peer_node==peer->peer_node;
         if(other!=t && other->sub && same) other->closing=true;
     }
     unsigned count=0;
-    for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* other=&d->transactions[i];
+    for(Transaction* other=d->transactions;other;other=other->next) {
         if(other!=t && other->subscription_id && !other->closing && other->fabric_index==t->fabric_index) ++count;
     }
     if(count>=d->subscriptions_per_fabric) return MATTER_IM_RESOURCE_EXHAUSTED;
@@ -512,8 +550,7 @@ static Admission admission(uint16_t protocol,uint8_t opcode) {
  * A separate replacement slot lets KeepSubscriptions=false reach reserve(). */
 static bool admit_work(Matter_Dispatch_T d,Admission kind,uint8_t fabric) {
     unsigned reads=0,subs=0,writes=0,invokes=0,handshakes=0,rejections=0;
-    for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* t=&d->transactions[i]; if(!t->handle || t->draining) continue;
+    for(Transaction* t=d->transactions;t;t=t->next) { if(!t->handle || t->draining) continue;
         if(t->fabric_index==fabric) { reads+=t->admission==READ; subs+=t->admission==SUBSCRIBE; }
         writes+=t->admission==WRITE || t->admission==TIMED;
         invokes+=t->admission==INVOKE || t->admission==TIMED;
@@ -539,8 +576,7 @@ static void delivery_slot(Transaction* t) {
         (write && !matter_im_write_awaiting_delivery(t->write)) ||
         (invoke && !matter_im_invoke_awaiting_delivery(t->invoke))) return;
     bool occupied=false; unsigned shared=0;
-    for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* other=&t->owner->transactions[i];
+    for(Transaction* other=d->transactions;other;other=other->next) {
         if(!other->handle || !other->draining) continue;
         if(other->delivery_shared) { ++shared; continue; }
         if((read && other->admission==READ && other->fabric_index==t->fabric_index) ||
@@ -559,7 +595,7 @@ static void busy(Transaction* t,bool secure) {
 static void reject_work(Transaction* t,bool reply,bool secure) {
     if(!admit_work(t->owner,REJECT,0)) {
         /* No handler or borrowed TX exists yet. RX owns the remaining ACK/drain. */
-        (void)matter_rx_close(t->owner->rx,t->handle); memset(t,0,sizeof(*t)); return;
+        (void)matter_rx_close(t->owner->rx,t->handle); free_transaction(t); return;
     }
     if(reply) busy(t,secure);
     else { t->admission=REJECT; t->closing=true; }
@@ -629,7 +665,7 @@ static void dispatch(Matter_Dispatch_T d) {
         return;
     }
     if(!t) {
-        for(unsigned i=0;i<d->transaction_count;++i) if(!d->transactions[i].handle) { t=&d->transactions[i]; break; }
+        t=new_transaction(d);
         if(!t) { (void)matter_rx_close(d->rx,in->exchange); return; }
         t->owner=d; t->key=key; t->handle=in->exchange;
         Connection* c=connection(d,key.session);
@@ -734,10 +770,10 @@ static void dispose(Transaction* t) {
     if(t->invoke) { (void)matter_im_invoke_cancel(t->invoke); (void)matter_im_invoke_delete(t->invoke); }
     if(t->write) { (void)matter_im_write_cancel(t->write); (void)matter_im_write_delete(t->write); }
     if(t->sub) { (void)matter_im_subscribe_cancel(t->sub); (void)matter_im_subscribe_delete(t->sub); }
-    memset(t,0,sizeof(*t));
+    free_transaction(t);
 }
 static void process_transaction(Transaction* t) {
-    Matter_Dispatch_T d=t->owner; confirm(t);
+    Matter_Dispatch_T d=t->owner; release_packet(t); confirm(t);
     delivery_slot(t);
     if((t->busy_reply || t->im_busy) && d->now>=t->busy_deadline) t->closing=true;
     if(!t->pending && t->invoke && t->write && t->timed_target) {
@@ -746,7 +782,7 @@ static void process_transaction(Transaction* t) {
         t->admission=t->timed_target==6?WRITE:INVOKE;
     }
     if(t->closing) {
-        if(t->pending) { if(!t->busy_reply) (void)matter_retransmission_sender_cancel(d->tx,t->message); return; }
+        if(t->pending || d->sending_message==t || d->control_transaction==t) { if(!t->busy_reply) (void)matter_retransmission_sender_cancel(d->tx,t->message); return; }
         if(matter_rx_close(d->rx,t->handle)==MATTER_PENDING) return;
         Matter_Exchange_Info_T ignored;
         if(matter_rx_get(d->rx,t->handle,&ignored)==MATTER_OK) return;
@@ -765,11 +801,11 @@ static void process_transaction(Transaction* t) {
         const uint8_t busy[10]={8,0,0,0,0,0,4,0,0xf4,1}; size_t n;
         Matter_Protocol_Header_T h={.opcode=0x40,.exchange_id=t->key.exchange_id,
             .exchange_flags=MATTER_PROTOCOL_ACK,.acknowledged_message_counter=t->received_counter};
-        Matter_Unsecured_Prepared_T p;
+        uint32_t counter;
         if(matter_protocol_header_write(&h,d->plain,sizeof(d->plain),&n)!=MATTER_MESSAGE_OK) { t->closing=true; return; }
         memcpy(d->plain+n,busy,sizeof(busy));
-        Matter_Result_T r=matter_unsecured_prepare_encoded(d->unsecured,t->key.session,&d->counter,d->plain,n+sizeof(busy),t->packet,sizeof(t->packet),&p);
-        if(r==MATTER_OK) r=matter_unsecured_tx_send(d->transport,t->key.session,t->packet,p.size,&d->request);
+        Matter_Result_T r=prepare_packet(t,n+sizeof(busy),&counter);
+        if(r==MATTER_OK) r=matter_unsecured_tx_send(d->transport,t->key.session,t->packet,t->size,&d->request);
         if(r==MATTER_PENDING) { d->control=true; d->control_transaction=t; d->sending=NULL; d->ack_token=0; t->pending=true; }
         else if(r!=MATTER_BUSY && r!=MATTER_WOULD_BLOCK) t->closing=true;
         return;
@@ -875,9 +911,8 @@ static void process_transaction(Transaction* t) {
         .exchange_flags=MATTER_PROTOCOL_RELIABLE|(t->key.initiator?MATTER_PROTOCOL_INITIATOR:0)|
             (t->has_ack?MATTER_PROTOCOL_ACK:0),.acknowledged_message_counter=t->received_counter};
     size_t n; if(matter_protocol_header_write(&h,d->plain,sizeof(d->plain),&n)!=MATTER_MESSAGE_OK || out.size>sizeof(d->plain)-n) { t->closing=true; return; }
-    memcpy(d->plain+n,out.data,out.size); n+=out.size; uint32_t counter; Connection* c=connection(d,t->key.session);
-    if(c) { Matter_Secure_Prepared_T p; r=matter_secure_channel_prepare(c->channel,d->plain,n,d->now,t->packet,sizeof(t->packet),&p); t->size=r==MATTER_OK?p.size:0; counter=r==MATTER_OK?p.counter:0; }
-    else { Matter_Unsecured_Prepared_T p; r=matter_unsecured_prepare_encoded(d->unsecured,t->key.session,&d->counter,d->plain,n,t->packet,sizeof(t->packet),&p); t->size=r==MATTER_OK?p.size:0; counter=r==MATTER_OK?p.counter:0; }
+    memcpy(d->plain+n,out.data,out.size); n+=out.size; uint32_t counter;
+    r=prepare_packet(t,n,&counter);
     if(r!=MATTER_OK) { t->closing=true; return; }
     r=matter_retransmission_sender_add(d->tx,&t->key,counter,t->packet,t->size,&t->message);
     if(r!=MATTER_OK) { t->closing=true; return; }
@@ -888,8 +923,7 @@ static void process_transaction(Transaction* t) {
 }
 static bool keep_expiry_reply(Matter_Dispatch_T d,Connection* c) {
     if(c->retiring) return false;
-    for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* t=&d->transactions[i];
+    for(Transaction* t=d->transactions;t;t=t->next) {
         if(!t->handle || t->key.session!=c->token || !t->expiry_reply || t->closing || t->notified) continue;
         /* Core 11.10.7.2.2 clears the session context before rollback. Finish
          * the response's local UDP operation, not its peer ACK: a commissioner
@@ -910,8 +944,7 @@ Matter_Result_T matter_dispatch_retire(Matter_Dispatch_T d,bool all) {
         Connection* c=&d->connections[i];
         if(c->token && !c->operational) (void)keep_expiry_reply(d,c);
     }
-    for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* t=&d->transactions[i];
+    for(Transaction* t=d->transactions;t;t=t->next) {
         Connection* c=connection(d,t->key.session);
         if(t->handle && (all || t->pase || (c && !t->operational))) {
             if(!all && c && c->removal_reply==t->handle && keep_expiry_reply(d,c)) continue;
@@ -924,7 +957,7 @@ Matter_Result_T matter_dispatch_retire(Matter_Dispatch_T d,bool all) {
         if(!all && keep_expiry_reply(d,c)) { pending=true; continue; }
         c->retiring=true;
         if(matter_secure_channel_retire(c->channel,d->rx,d->tx)!=MATTER_OK) { pending=true; continue; }
-        bool borrowed=false; for(unsigned j=0;j<d->transaction_count;++j) borrowed|=d->transactions[j].handle && d->transactions[j].key.session==c->token;
+        bool borrowed=false; for(Transaction* t=d->transactions;t;t=t->next) borrowed|=t->key.session==c->token;
         if(borrowed || d->sending==c) { pending=true; continue; }
         if(matter_secure_channel_delete(c->channel)!=MATTER_OK) { pending=true; continue; }
         (void)matter_secure_delete(c->secure); clear_connection(c);
@@ -941,8 +974,7 @@ Matter_Result_T matter_dispatch_retire_fabric(Matter_Dispatch_T d,uint8_t index)
             pending=true;
         }
     }
-    for(unsigned i=0;i<d->transaction_count;++i) {
-        Transaction* t=&d->transactions[i]; Connection* c=connection(d,t->key.session);
+    for(Transaction* t=d->transactions;t;t=t->next) { Connection* c=connection(d,t->key.session);
         if(t->handle && ((c && c->fabric_index==index) || matter_case_fabric_index(t->case_attempt)==index)) {
             if(c && c->removal_reply==t->handle && keep_expiry_reply(d,c)) continue;
             t->closing=true;
@@ -952,13 +984,12 @@ Matter_Result_T matter_dispatch_retire_fabric(Matter_Dispatch_T d,uint8_t index)
     return pending?MATTER_PENDING:MATTER_OK;
 }
 void matter_dispatch_changed(Matter_Dispatch_T d) {
-    if(d) for(unsigned i=0;i<d->transaction_count;++i) if(d->transactions[i].sub) {
-        (void)matter_im_subscribe_changed(d->transactions[i].sub); (void)matter_im_subscribe_events_changed(d->transactions[i].sub);
+    if(d) for(Transaction* t=d->transactions;t;t=t->next) if(t->sub) {
+        (void)matter_im_subscribe_changed(t->sub); (void)matter_im_subscribe_events_changed(t->sub);
     }
 }
 bool matter_dispatch_event_pending(Matter_Dispatch_T d,const Matter_Event_Path_T* path,uint64_t number) {
-    if(d) for(size_t i=0;i<d->transaction_count;++i) {
-        Transaction* t=&d->transactions[i];
+    if(d) for(Transaction* t=d->transactions;t;t=t->next) {
         if(!t->closing && matter_im_subscribe_event_pending(t->sub,path,number)) return true;
     }
     return false;
@@ -991,11 +1022,11 @@ Matter_Result_T matter_dispatch_process(Matter_Dispatch_T d,uint64_t now) {
     }
     d->ack_waiting=false; (void)matter_rx_process(d->rx,now);
     if(d->delivered) { if(!d->stopping) dispatch(d); d->delivered=false; }
-    for(unsigned i=0;i<d->transaction_count;++i) if(d->transactions[i].handle) process_transaction(&d->transactions[i]);
+    for(Transaction *t=d->transactions,*next;t;t=next) { next=t->next; if(t->handle) process_transaction(t); }
     (void)matter_retransmission_sender_process(d->tx,now);
     for(unsigned i=0;i<CONNECTIONS;++i) { Connection* c=&d->connections[i]; if(c->retiring) {
-        for(unsigned j=0;j<d->transaction_count;++j) if(d->transactions[j].handle && d->transactions[j].key.session==c->token) d->transactions[j].closing=true;
-        bool borrowed=false; for(unsigned j=0;j<d->transaction_count;++j) borrowed|=d->transactions[j].handle && d->transactions[j].key.session==c->token;
+        for(Transaction* t=d->transactions;t;t=t->next) if(t->key.session==c->token) t->closing=true;
+        bool borrowed=false; for(Transaction* t=d->transactions;t;t=t->next) borrowed|=t->key.session==c->token;
         if(matter_secure_channel_retire(c->channel,d->rx,d->tx)==MATTER_OK && !borrowed && d->sending!=c &&
             matter_secure_channel_delete(c->channel)==MATTER_OK) {
             (void)matter_secure_delete(c->secure); clear_connection(c);
@@ -1012,20 +1043,20 @@ Matter_Result_T matter_dispatch_process(Matter_Dispatch_T d,uint64_t now) {
 Matter_Result_T matter_dispatch_stop(Matter_Dispatch_T d) {
     if(!d) return MATTER_OK;
     d->stopping=true;
-    for(unsigned i=0;i<d->transaction_count;++i) if(d->transactions[i].handle) d->transactions[i].closing=true;
+    for(Transaction* t=d->transactions;t;t=t->next) t->closing=true;
     (void)matter_unsecured_rx_close(d->ingress);
     /* Retirement needs live RX tables. Finish it before service-wide RX stop. */
     if(!d->stopped && matter_dispatch_retire(d,true)!=MATTER_OK) return MATTER_PENDING;
     if(d->started) (void)matter_rx_stop(d->rx); else d->stopped=true;
     if(!d->stopped) return MATTER_PENDING;
-    for(unsigned i=0;i<d->transaction_count;++i) if(d->transactions[i].handle) return MATTER_PENDING;
+    if(d->transactions) return MATTER_PENDING;
     for(unsigned i=0;i<CONNECTIONS;++i) if(d->connections[i].token) return MATTER_PENDING;
     return MATTER_OK;
 }
 Matter_Result_T matter_dispatch_delete(Matter_Dispatch_T d) {
     if(!d) return MATTER_OK;
     if(!d->stopped || d->request || d->outgoing.resolve) return MATTER_BUSY;
-    for(unsigned i=0;i<d->transaction_count;++i) if(d->transactions[i].handle) return MATTER_BUSY;
+    if(d->transactions) return MATTER_BUSY;
     if(matter_dispatch_retire(d,true)!=MATTER_OK) return MATTER_BUSY;
     (void)matter_retransmission_sender_stop(d->tx);
     (void)matter_retransmission_sender_delete(d->tx);
@@ -1035,7 +1066,7 @@ Matter_Result_T matter_dispatch_delete(Matter_Dispatch_T d) {
     matter_im_client_delete(d->outgoing.client);
     matter_bdx_delete(d->outgoing.bdx);
     for(unsigned i=0;i<ROUTES;++i) if(d->routes[i].token) (void)matter_unsecured_remove(d->unsecured,d->routes[i].token);
-    (void)matter_unsecured_delete(d->unsecured); free(d->transactions); memset(d,0,sizeof(*d)); free(d); return MATTER_OK;
+    (void)matter_unsecured_delete(d->unsecured); memset(d,0,sizeof(*d)); free(d); return MATTER_OK;
 }
 Matter_Dispatch_T matter_dispatch_new(Matter_T owner,Matter_Udp_T udp,const Matter_Dispatch_Config_T* config) {
     if(!owner || !udp || !config || !config->root || !config->crypto.random ||
@@ -1045,9 +1076,7 @@ Matter_Dispatch_T matter_dispatch_new(Matter_T owner,Matter_Udp_T udp,const Matt
     if(matter_root_capabilities(config->root,&budget)!=MATTER_OK) return NULL;
     size_t count=matter_host_transaction_capacity(budget.subscriptions); if(!count) return NULL;
     Matter_Dispatch_T d=calloc(1,sizeof(*d)); if(!d) return NULL;
-    d->transactions=calloc(count,sizeof(*d->transactions));
-    if(!d->transactions) { free(d); return NULL; }
-    d->transaction_count=count; d->subscriptions_per_fabric=budget.subscriptions;
+    d->transaction_limit=count; d->subscriptions_per_fabric=budget.subscriptions;
     d->config=*config; d->udp=udp; d->next_id=1; d->next_token=UINT64_C(0x100000000);
     d->unsecured=matter_unsecured_new(1,UINT32_MAX);
     Matter_Retransmission_Port_T tp={d,tx_retain,tx_release,ready,parameters,random16,rediscover,send_message,cancel_send,finished,detach};
@@ -1069,7 +1098,7 @@ static Matter_Result_T random64(void* u,uint64_t* value) {
     Matter_Dispatch_T d=u; return d->config.crypto.random(d->config.crypto.user,(uint8_t*)value,sizeof(*value));
 }
 static bool outgoing_transactions(Matter_Dispatch_T d) {
-    for(unsigned i=0;i<d->transaction_count;++i) if(d->transactions[i].handle && d->transactions[i].outbound) return true;
+    for(Transaction* t=d->transactions;t;t=t->next) if(t->outbound) return true;
     return false;
 }
 static Matter_Result_T outgoing_start(Matter_Dispatch_T d,uint8_t fabric,uint64_t node,
@@ -1159,20 +1188,19 @@ static void outgoing_process(Matter_Dispatch_T d) {
         else d->outgoing.path.peer=answer.peer;
     }
     if(stop) {
-        for(unsigned i=0;i<d->transaction_count;++i) if(d->transactions[i].outbound) d->transactions[i].closing=true;
+        for(Transaction* t=d->transactions;t;t=t->next) if(t->outbound) t->closing=true;
         return;
     }
     if(d->outgoing.invoked) return;
     if(!d->outgoing.session && outgoing_transactions(d)) return;
-    Transaction* t=NULL;
-    for(unsigned i=0;i<d->transaction_count;++i) if(!d->transactions[i].handle) { t=&d->transactions[i]; break; }
-    if(!t) return;
+    if(d->transaction_count>=d->transaction_limit) return;
     if(d->outgoing.session) {
         Connection* c=connection(d,d->outgoing.session);
         if(!c || c->retiring || c->rotating || c->removal_reply) { d->outgoing.failed=true; return; }
+        Transaction* t=new_transaction(d); if(!t) { d->outgoing.failed=true; return; }
         Matter_Exchange_Handle_T handle;
-        if(matter_rx_initiate(d->rx,c->token,&handle)!=MATTER_OK) return;
-        *t=(Transaction){.owner=d,.handle=handle,.admission=CLIENT,.fabric_index=c->fabric_index,.operational=true,.outbound=true};
+        if(matter_rx_initiate(d->rx,c->token,&handle)!=MATTER_OK) { free_transaction(t); return; }
+        t->handle=handle; t->admission=CLIENT; t->fabric_index=c->fabric_index; t->operational=true; t->outbound=true;
         (void)matter_rx_get(d->rx,handle,&t->key); d->outgoing.invoked=true; return;
     }
     if(!admit_work(d,HANDSHAKE,0) || !d->next_id) return;
@@ -1181,14 +1209,15 @@ static void outgoing_process(Matter_Dispatch_T d) {
     if(!c || c->token || c->reserved) return;
     Route* route_slot=NULL; for(unsigned i=0;i<ROUTES;++i) if(!d->routes[i].token) { route_slot=&d->routes[i]; break; }
     if(!route_slot) return;
+    Transaction* t=new_transaction(d); if(!t) { d->outgoing.failed=true; return; }
     Matter_Exchange_Session_T token;
-    if(matter_unsecured_initiate(d->unsecured,random64,d,&token)!=MATTER_OK) { d->outgoing.failed=true; return; }
+    if(matter_unsecured_initiate(d->unsecured,random64,d,&token)!=MATTER_OK) { free_transaction(t); d->outgoing.failed=true; return; }
     *route_slot=(Route){token,d->outgoing.path,d->now};
     Matter_Exchange_Handle_T handle;
     if(matter_rx_initiate(d->rx,token,&handle)!=MATTER_OK) {
-        (void)matter_unsecured_remove(d->unsecured,token); memset(route_slot,0,sizeof(*route_slot)); return;
+        (void)matter_unsecured_remove(d->unsecured,token); memset(route_slot,0,sizeof(*route_slot)); free_transaction(t); return;
     }
-    *t=(Transaction){.owner=d,.handle=handle,.admission=HANDSHAKE,.outbound=true,.slot=c};
+    t->handle=handle; t->admission=HANDSHAKE; t->outbound=true; t->slot=c;
     (void)matter_rx_get(d->rx,handle,&t->key); c->reserved=true; c->reserved_fabric=d->outgoing.fabric;
     Matter_Case_Config_T config={.responder=false,.local_session_id=d->next_id++,.timeout_ms=30000,
         .fabric_index=d->outgoing.fabric,.peer_node_id=d->outgoing.node,.time=d->config.time,.resumption_profile=d->config.resumption_profile};

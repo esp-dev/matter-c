@@ -1,5 +1,15 @@
 # Development status
 
+**Memory02: transactions and TX packets allocate on demand in the isolated memory checkout.**
+Memory01 is committed as `5355e02`. Stable live nodes and exact encoded TX sizes
+preserve the existing admission ceilings, ACK/retry and UDP drain lifetimes.
+ESP32 compiler layouts show 78,200 B less idle reservation; full 52 x 1232 B TX
+costs 424 B more before allocator overhead. Linux CTest 86/86 per memory variant,
+two-instance scenario 6/6 per variant, and focused OOM/drain Memcheck are clean.
+Transport 128 dispatcher regression also passes under sanitizers.
+[Report and limitations](memory02-validation.md). No device or official CSA rerun.
+Next: demand-sized event retention/staging with atomic publication preserved.
+
 The continuing campaign uses an [execution plan](csa-campaign-plan.md) and
 [generated current queue](csa-campaign-status.md). Execute all possible applicable
 tests first, retain explicit external blockers, then repair attributed native

@@ -6,9 +6,9 @@
 #include <stdbool.h>
 #include "alloc.h"
 #define CHECK(x) do { if(!(x)) { fprintf(stderr,"dispatch:%d: %s\n",__LINE__,#x); exit(1); } } while(0)
-static size_t allocations,allocation_calls,fail_at; static bool fail_alloc;
-void* matter_test_calloc(size_t n,size_t size) { if(fail_alloc || (++allocation_calls==fail_at && fail_at)) return NULL; void* p=calloc(n,size); if(p) ++allocations; return p; }
-void matter_test_free(void* p) { if(p) { CHECK(allocations); --allocations; free(p); } }
+#include "test_alloc_bytes.h"
+#define allocations live
+#define allocation_calls calls
 #define calloc matter_test_calloc
 #define free matter_test_free
 #include "../host/matter_dispatch.c"
@@ -17,6 +17,26 @@ void matter_test_free(void* p) { if(p) { CHECK(allocations); --allocations; free
 #include "matter_udp_windows.h"
 #include "crypto/matter_crypto_mbedtls.h"
 #include "session/matter_secure_internal.h"
+/* Indexed construction is only a test fixture convenience. Production owns
+ * a list and allocates nothing until admission. Preserve links when replacing
+ * synthetic metadata; sentinel handlers below must never be dereferenced. */
+static Transaction* fixture(Matter_Dispatch_T d,unsigned index) {
+    Transaction* t=d->transactions;
+    for(unsigned i=0;i<=index;++i) {
+        if(!t) { t=new_transaction(d); CHECK(t); }
+        if(i==index) return t;
+        t=t->next;
+    }
+    return NULL;
+}
+static void fixture_set(Transaction* t,Transaction value) {
+    value.owner=t->owner; value.next=t->next; value.previous=t->previous; *t=value;
+}
+static void fixture_reset(Transaction* t) { fixture_set(t,(Transaction){0}); }
+static void fixture_clear(Matter_Dispatch_T d) {
+    while(d->transactions) { CHECK(!d->transactions->pending); free_transaction(d->transactions); }
+    CHECK(!d->transaction_count && !d->last_transaction);
+}
 static Matter_Result_T load_root(void* user,Matter_Root_Config_T* c) {
     memset(c,0,sizeof(*c));
     c->vendor_name=(Matter_Root_Text_T){1,{'v'}}; c->product_name=(Matter_Root_Text_T){1,{'p'}};
@@ -37,28 +57,28 @@ static void diagnostic_counts(Matter_Dispatch_T d) {
     d->connections[1]=(Connection){.token=101,.operational=true,.fabric_index=2};
     d->connections[2]=(Connection){.token=102}; /* PASE has no accessing fabric. */
     for(unsigned i=0;i<3;++i) {
-        Transaction* t=&d->transactions[i];
-        *t=(Transaction){.owner=d,.handle=i+1,.key={100+i,1,false},.fabric_index=i<2?i+1:0,
-            .subscription_id=i+1,.im_packet=true,.sub_response=true};
+        Transaction* t=fixture(d,i);
+        fixture_set(t,(Transaction){.owner=d,.handle=i+1,.key={100+i,1,false},.fabric_index=i<2?i+1:0,
+            .subscription_id=i+1,.im_packet=true,.sub_response=true});
         CHECK(!matter_dispatch_load(d,1).current); /* Reservations are not subscriptions. */
         /* Only mark these established after all reservations have been made. */
     }
     for(unsigned i=0;i<3;++i) {
-        Transaction* t=&d->transactions[i];
+        Transaction* t=fixture(d,i);
         count_sent(d,t,MATTER_OPERATION_FAILED); CHECK(!t->sub_established);
         count_sent(d,t,MATTER_OPERATION_SUCCEEDED); count_sent(d,t,MATTER_OPERATION_SUCCEEDED); /* MRP retry. */
     }
     load=matter_dispatch_load(d,1); CHECK(load.sent==3 && load.established==3 && load.current==3 && load.current_for_fabric==1);
     CHECK(matter_dispatch_load(d,2).current_for_fabric==1 && !matter_dispatch_load(d,0).current_for_fabric);
-    d->transactions[0].closing=true; CHECK(matter_dispatch_load(d,1).current==2);
-    unreserve(&d->transactions[1],2); CHECK(matter_dispatch_load(d,2).current==1 && matter_dispatch_load(d,2).established==3);
+    fixture(d,0)->closing=true; CHECK(matter_dispatch_load(d,1).current==2);
+    unreserve(fixture(d,1),2); CHECK(matter_dispatch_load(d,2).current==1 && matter_dispatch_load(d,2).established==3);
     d->connections[2].retiring=true; CHECK(!matter_dispatch_load(d,0).current);
-    Transaction* t=&d->transactions[0];
+    Transaction* t=fixture(d,0);
     t->closing=false; t->im_counted=false; t->im_packet=false;
     count_sent(d,t,MATTER_OPERATION_SUCCEEDED); CHECK(d->im_sent==3); /* CASE/BDX/ACK. */
     d->im_sent=d->subscriptions_established=UINT32_MAX; t->im_packet=true; t->sub_established=false;
     count_sent(d,t,MATTER_OPERATION_SUCCEEDED); CHECK(d->im_sent==UINT32_MAX && d->subscriptions_established==UINT32_MAX);
-    memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
+    memset(d->connections,0,sizeof(d->connections)); fixture_clear(d);
     d->im_sent=d->subscriptions_established=0;
     puts("PASS diagnostic load: local completion, retries/failures, reservations, fabric/PASE scope, cancellation and saturation");
 }
@@ -69,14 +89,14 @@ static void rotation(Matter_Dispatch_T d) {
         d->connections[1]=(Connection){.token=101,.operational=true,.fabric_index=1,.credential_revision=1};
         d->connections[2]=(Connection){.token=102,.operational=true,.fabric_index=2,.credential_revision=1};
         d->connections[3]=(Connection){.token=103,.operational=true,.fabric_index=1,.credential_revision=2};
-        Transaction* reply=&d->transactions[0];
-        *reply=(Transaction){.owner=d,.handle=1,.key={100,1,false},.invoke=(Matter_Im_Invoke_T)d};
-        d->transactions[1]=(Transaction){.handle=2,.key={100,2,false}};
+        Transaction* reply=fixture(d,0);
+        fixture_set(reply,(Transaction){.owner=d,.handle=1,.key={100,1,false},.invoke=(Matter_Im_Invoke_T)d});
+        fixture_set(fixture(d,1),(Transaction){.handle=2,.key={100,2,false}});
         reconcile(d);
         CHECK(d->connections[0].rotating && !d->connections[0].retiring && !reply->closing);
-        CHECK(d->transactions[1].closing && d->connections[1].retiring);
+        CHECK(fixture(d,1)->closing && d->connections[1].retiring);
         CHECK(!d->connections[2].retiring && !d->connections[3].retiring);
-        CHECK(!create_handler(d,&d->transactions[1],2)); /* No new work on retiring identity. */
+        CHECK(!create_handler(d,fixture(d,1),2)); /* No new work on retiring identity. */
         /* Local send acceptance/completion does not authorize retirement. */
         reply->sent=true; reconcile(d); CHECK(!d->connections[0].retiring);
         if(outcome<2) {
@@ -86,7 +106,7 @@ static void rotation(Matter_Dispatch_T d) {
         } else reply->closing=true; /* Reply construction/transport/handler failure. */
         reconcile(d); CHECK(d->connections[0].retiring && reply->closing);
         CHECK(!d->connections[2].retiring && !d->connections[3].retiring);
-        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
+        memset(d->connections,0,sizeof(d->connections)); fixture_clear(d);
     }
     d->config.credential_revision=NULL;
     puts("PASS rotation: old sessions/subscriptions scoped by epoch; invoking exchange through MRP delivery/error; new CASE/other fabric retained");
@@ -97,15 +117,15 @@ static void removal(Matter_Dispatch_T d) {
     d->config.user=&reset; d->config.fabric_live=removed;
     for(unsigned mode=0;mode<6;++mode) {
         reset=mode>=3;
-        Connection* c=&d->connections[0]; Transaction* reply=&d->transactions[0];
+        Connection* c=&d->connections[0]; Transaction* reply=fixture(d,0);
         *c=(Connection){.token=100,.operational=true,.fabric_index=1,.removal_reply=1,.removal_deadline=d->now+30000};
         d->connections[1]=(Connection){.token=101,.operational=true,.fabric_index=1};
         d->connections[2]=(Connection){.token=102,.operational=true,.fabric_index=2};
-        *reply=(Transaction){.owner=d,.handle=1,.key={100,1,false}};
-        d->transactions[1]=(Transaction){.handle=2,.key={100,2,false}};
+        fixture_set(reply,(Transaction){.owner=d,.handle=1,.key={100,1,false}});
+        fixture_set(fixture(d,1),(Transaction){.handle=2,.key={100,2,false}});
         reconcile(d);
         CHECK(matter_dispatch_removal_pending(d) && !c->retiring && !reply->closing);
-        CHECK(d->connections[1].retiring && d->transactions[1].closing);
+        CHECK(d->connections[1].retiring && fixture(d,1)->closing);
         CHECK(d->connections[2].retiring==reset);
         CHECK(!matter_dispatch_session(d,100) && !create_handler(d,reply,2));
         reply->sent=true; reconcile(d); CHECK(!c->retiring); /* UDP success is not ACK. */
@@ -119,7 +139,7 @@ static void removal(Matter_Dispatch_T d) {
         else c->removal_deadline=d->now; /* Missing ACK: finite wall-clock bound. */
         reconcile(d); CHECK(c->retiring && reply->closing && !matter_dispatch_removal_pending(d));
         CHECK(d->connections[2].retiring==reset);
-        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
+        memset(d->connections,0,sizeof(d->connections)); fixture_clear(d);
     }
     d->config=saved;
     puts("PASS RemoveFabric: reply-only exchange through ACK/error/deadline; no new IM authority; other fabric preserved; last-fabric drain");
@@ -127,14 +147,14 @@ static void removal(Matter_Dispatch_T d) {
 static void udp_received(void* u,const Matter_Udp_Datagram_T* p) { matter_dispatch_received(*(Matter_Dispatch_T*)u,p); }
 static void expiry_retirement(Matter_Dispatch_T d) {
     for(unsigned mode=0;mode<4;++mode) {
-        Connection* c=&d->connections[0]; Transaction* t=&d->transactions[0];
+        Connection* c=&d->connections[0]; Transaction* t=fixture(d,0);
         *c=(Connection){.token=100,.operational=true,.fabric_index=1};
         d->connections[1]=(Connection){.token=101,.operational=true,.fabric_index=1};
         d->connections[2]=(Connection){.token=102,.operational=true,.fabric_index=2};
-        *t=(Transaction){.owner=d,.handle=1,.key={100,1,false},.expiry_reply=mode!=3};
-        d->transactions[1]=(Transaction){.handle=2,.key={100,2,false}};
+        fixture_set(t,(Transaction){.owner=d,.handle=1,.key={100,1,false},.expiry_reply=mode!=3});
+        fixture_set(fixture(d,1),(Transaction){.handle=2,.key={100,2,false}});
         CHECK(matter_dispatch_retire_fabric(d,1)==MATTER_PENDING);
-        CHECK(d->connections[1].retiring && d->transactions[1].closing && !d->connections[2].retiring);
+        CHECK(d->connections[1].retiring && fixture(d,1)->closing && !d->connections[2].retiring);
         if(mode==3) CHECK(c->retiring && t->closing && !c->removal_reply); /* Natural expiry/unrelated Invoke. */
         else {
             CHECK(!c->retiring && !t->closing && c->removal_reply==t->handle);
@@ -147,19 +167,19 @@ static void expiry_retirement(Matter_Dispatch_T d) {
             else if(mode==2) { t->sent=false; c->removal_deadline=d->now; }
             CHECK(matter_dispatch_retire_fabric(d,1)==MATTER_PENDING && c->retiring && t->closing);
         }
-        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
+        memset(d->connections,0,sizeof(d->connections)); fixture_clear(d);
     }
     /* PASE retirement uses the same bounded exemption, irrespective of fabric. */
-    Connection* c=&d->connections[0]; Transaction* t=&d->transactions[0];
+    Connection* c=&d->connections[0]; Transaction* t=fixture(d,0);
     *c=(Connection){.token=100};
-    *t=(Transaction){.owner=d,.handle=1,.key={100,1,false},.expiry_reply=true};
+    fixture_set(t,(Transaction){.owner=d,.handle=1,.key={100,1,false},.expiry_reply=true});
     CHECK(matter_dispatch_retire(d,false)==MATTER_PENDING && !t->closing && !c->retiring && c->removal_reply==1);
     CHECK(!matter_dispatch_session(d,100) && !create_handler(d,t,8));
     t->sent=true; d->sending=c;
     CHECK(matter_dispatch_retire(d,false)==MATTER_PENDING && !c->retiring && !t->closing);
     d->sending=NULL;
     CHECK(matter_dispatch_retire(d,false)==MATTER_PENDING && c->retiring && t->closing && !t->notified);
-    memset(c,0,sizeof(*c)); memset(t,0,sizeof(*t));
+    memset(c,0,sizeof(*c)); fixture_clear(d);
     puts("PASS fail-safe retirement: local UDP completion without peer ACK, error/deadline, PASE and pending CASE; other fabric preserved");
 }
 static void udp_sent(void* u,uint64_t id,Matter_Operation_Result_T r) { matter_dispatch_sent(*(Matter_Dispatch_T*)u,id,r); }
@@ -183,7 +203,7 @@ static void subscription_cleanup(Matter_Dispatch_T d) {
     Matter_Crypto_Port_T port; CHECK(matter_crypto_mbedtls_port(crypto,&port)==MATTER_OK); unsigned i=0;
     Connection* c=&d->connections[0]; c->token=100; c->operational=true; c->fabric_index=1;
     c->secure=matter_secure_from_case(&port,&i,take_keys,d->now); CHECK(c->secure);
-    Transaction* t=&d->transactions[0]; t->owner=d; t->key=(Matter_Exchange_Info_T){100,1,false};
+    Transaction* t=fixture(d,0); t->owner=d; t->key=(Matter_Exchange_Info_T){100,1,false};
     CHECK(create_handler(d,t,3));
     const uint8_t empty[]={0x15,0x18};
     Matter_Rx_Decision_T rx={.action=MATTER_RX_EXISTING,.session=100,
@@ -193,7 +213,7 @@ static void subscription_cleanup(Matter_Dispatch_T d) {
     pending=false; CHECK(matter_root_process(d->config.root,d->now)==MATTER_OK);
     d->request=99; /* Do not transmit the deliberately malformed queued request. */
     process_transaction(t); CHECK(matter_im_subscribe_state(t->sub)==MATTER_IM_SUB_OUTPUT);
-    d->request=0; t->closing=true; process_transaction(t); CHECK(!t->sub);
+    d->request=0; t->closing=true; process_transaction(t); CHECK(!d->transactions);
     CHECK(matter_secure_close(c->secure)==MATTER_OK && matter_secure_delete(c->secure)==MATTER_OK);
     memset(c,0,sizeof(*c)); CHECK(matter_crypto_mbedtls_delete(crypto)==MATTER_OK);
     CHECK(matter_root_delete(d->config.root)==MATTER_OK); d->config.root=saved;
@@ -209,7 +229,7 @@ static void read_cleanup(Matter_Dispatch_T d) {
     Matter_Crypto_Port_T port; CHECK(matter_crypto_mbedtls_port(crypto,&port)==MATTER_OK); unsigned i=0;
     Connection* c=&d->connections[0]; c->token=100; c->operational=true; c->fabric_index=1;
     c->secure=matter_secure_from_case(&port,&i,take_keys,d->now); CHECK(c->secure);
-    Transaction* t=&d->transactions[0]; t->owner=d; t->key=(Matter_Exchange_Info_T){100,1,false};
+    Transaction* t=fixture(d,0); t->owner=d; t->key=(Matter_Exchange_Info_T){100,1,false};
     CHECK(create_handler(d,t,2));
     const uint8_t empty[]={0x15,0x18};
     Matter_Rx_Decision_T rx={.action=MATTER_RX_EXISTING,.session=100,
@@ -221,7 +241,7 @@ static void read_cleanup(Matter_Dispatch_T d) {
      * while verifying that the queued malformed request resumes processing. */
     d->request=99; process_transaction(t); d->request=0;
     CHECK(matter_im_read_state(t->read)==MATTER_IM_READ_OUTPUT);
-    t->closing=true; process_transaction(t); CHECK(!t->read);
+    t->closing=true; process_transaction(t); CHECK(!d->transactions);
     CHECK(matter_secure_close(c->secure)==MATTER_OK && matter_secure_delete(c->secure)==MATTER_OK);
     memset(c,0,sizeof(*c)); CHECK(matter_crypto_mbedtls_delete(crypto)==MATTER_OK);
     CHECK(matter_root_delete(d->config.root)==MATTER_OK); d->config.root=saved;
@@ -237,17 +257,17 @@ static void im_reliability(Matter_Dispatch_T d) {
     const uint8_t empty[]={0x15,0x18};
     for(unsigned mode=0;mode<4;++mode) {
         bool reliable=(mode&1)!=0,busy=(mode&2)!=0;
-        Transaction* blocker=&d->transactions[1];
-        if(busy) *blocker=(Transaction){.handle=2,.admission=READ,.fabric_index=1};
+        Transaction* blocker=busy?fixture(d,0):NULL;
+        if(busy) fixture_set(blocker,(Transaction){.handle=2,.admission=READ,.fabric_index=1});
         d->decision=(Matter_Rx_Decision_T){.action=MATTER_RX_NEW_RESPONDER,.session=100,.exchange=1,.message_counter=42,
             .header={.protocol_id=1,.opcode=2,.exchange_id=1,
                 .exchange_flags=MATTER_PROTOCOL_INITIATOR|(reliable?MATTER_PROTOCOL_RELIABLE:0)},
             .payload=empty,.payload_size=sizeof(empty)};
-        dispatch(d); Transaction* t=&d->transactions[0];
+        dispatch(d); Matter_Exchange_Info_T key={100,1,false}; Transaction* t=transaction(d,&key); CHECK(t);
         CHECK(t->handle && !t->closing && t->has_ack==reliable);
         CHECK(busy?(t->im_busy && !t->read):(t->read && !t->im_busy));
         if(reliable) CHECK(t->received_counter==42);
-        dispose(t); memset(blocker,0,sizeof(*blocker));
+        dispose(t); fixture_clear(d);
     }
     CHECK(matter_secure_close(c->secure)==MATTER_OK && matter_secure_delete(c->secure)==MATTER_OK);
     memset(c,0,sizeof(*c)); CHECK(matter_crypto_mbedtls_delete(crypto)==MATTER_OK);
@@ -275,20 +295,21 @@ static Matter_Result_T bdx_finish(void* u,uint64_t n) { (void)u; (void)n; return
 static void bdx_cancel(void* u) { ++*(unsigned*)u; }
 static void outgoing_timeout_tests(Matter_Dispatch_T d) {
     Connection* c=&d->connections[0]; Connection* other=&d->connections[1];
-    CHECK(!c->token && !other->token && !d->transactions[0].handle);
+    CHECK(!c->token && !other->token && !fixture(d,0)->handle);
     for(unsigned mode=0;mode<6;++mode) {
         *c=(Connection){.token=100,.operational=mode!=5};
         *other=(Connection){.token=101,.operational=true};
-        Transaction* t=&d->transactions[0];
-        *t=(Transaction){.owner=d,.handle=1,.key={100,1,false},.outbound=mode!=4};
+        Transaction* t=fixture(d,0);
+        fixture_set(t,(Transaction){.owner=d,.handle=1,.key={100,1,false},.outbound=mode!=4});
         Matter_Retransmission_Result_T result={.message={.exchange=t->key},
             .outcome=mode==1?MATTER_RETRANSMISSION_ACKNOWLEDGED:
                 mode==2?MATTER_RETRANSMISSION_CANCELLED:mode==3?MATTER_RETRANSMISSION_FAILED:MATTER_RETRANSMISSION_TIMEOUT};
         finished(d,&result);
         CHECK(t->notified && t->acknowledged==(mode==1));
         CHECK(c->retiring==(mode==0) && !other->retiring);
-        memset(t,0,sizeof(*t)); memset(c,0,sizeof(*c)); memset(other,0,sizeof(*other));
+        fixture_reset(t); memset(c,0,sizeof(*c)); memset(other,0,sizeof(*other));
     }
+    fixture_clear(d);
     puts("PASS outbound MRP timeout retires only the peer CASE session; ACK/cancel/local failure/inbound/PASE preserve sessions");
 }
 static void outgoing_cancel_tests(Matter_Dispatch_T d,const Matter_Udp_Address_T* bind) {
@@ -340,18 +361,18 @@ static void outgoing_cancel_tests(Matter_Dispatch_T d,const Matter_Udp_Address_T
     CHECK(matter_im_client_sent(d->outgoing.client)==MATTER_OK);
     CHECK(matter_im_client_receive(d->outgoing.client,9,busy,sizeof(busy))==MATTER_OK);
     CHECK(matter_im_client_sent(d->outgoing.client)==MATTER_OK);
-    Transaction* t=&d->transactions[0]; *t=(Transaction){.owner=d,.handle=1,.outbound=true,.admission=CLIENT,.pending=true};
+    Transaction* t=fixture(d,0); fixture_set(t,(Transaction){.owner=d,.handle=1,.outbound=true,.admission=CLIENT,.pending=true});
     process_transaction(t); CHECK(!t->closing && t->pending);
-    t->pending=false; process_transaction(t); CHECK(t->closing); memset(t,0,sizeof(*t));
+    t->pending=false; process_transaction(t); CHECK(t->closing); fixture_reset(t);
     for(unsigned failed=0;failed<4;++failed) {
         d->outgoing.failed=d->outgoing.cancelled=false; d->outgoing.fabric=1;
         d->config.credential_revision=rotated; Matter_Exchange_Session_T ignored;
         d->outgoing.revision=rotated(d->config.user,1,&ignored);
-        *t=(Transaction){.owner=d,.handle=1,.outbound=true,.admission=CLIENT,.notified=true,.acknowledged=failed!=1};
+        fixture_set(t,(Transaction){.owner=d,.handle=1,.outbound=true,.admission=CLIENT,.notified=true,.acknowledged=failed!=1});
         confirm(t); CHECK(d->outgoing.failed==(failed==1));
         if(failed==2) --d->outgoing.revision;
         if(failed==3) *(bool*)d->config.user=true;
-        memset(t,0,sizeof(*t)); d->outgoing.id=++d->outgoing.serial;
+        fixture_reset(t); d->outgoing.id=++d->outgoing.serial;
         uint8_t status; const uint8_t* data; size_t size;
         CHECK(matter_dispatch_invoke_take(d,d->outgoing.id,&status,&data,&size)==(failed?MATTER_PORT_ERROR:MATTER_OK));
         *(bool*)d->config.user=false;
@@ -367,16 +388,16 @@ static void outgoing_cancel_tests(Matter_Dispatch_T d,const Matter_Udp_Address_T
         CHECK(matter_bdx_sent(d->outgoing.bdx,d->now)==MATTER_OK);
         CHECK(matter_bdx_receive(d->outgoing.bdx,2,0x12,eof,4,d->now)==MATTER_OK);
         CHECK(matter_bdx_sent(d->outgoing.bdx,d->now)==MATTER_OK);
-        *t=(Transaction){.owner=d,.handle=1,.outbound=true,.admission=CLIENT,.pending=true};
+        fixture_set(t,(Transaction){.owner=d,.handle=1,.outbound=true,.admission=CLIENT,.pending=true});
         process_transaction(t); CHECK(!t->closing && t->pending);
         t->pending=false; t->notified=true; t->acknowledged=failed!=1; confirm(t);
         CHECK(d->outgoing.failed==(failed==1));
         if(failed==2) --d->outgoing.revision; /* Change after final ACK, before take. */
-        memset(t,0,sizeof(*t)); d->outgoing.id=++d->outgoing.serial;
+        fixture_reset(t); d->outgoing.id=++d->outgoing.serial;
         uint64_t bytes; CHECK(matter_dispatch_bdx_take(d,d->outgoing.id,&bytes)==(failed?MATTER_PORT_ERROR:MATTER_OK));
         matter_bdx_delete(d->outgoing.bdx); d->outgoing.bdx=NULL;
     }
-    CHECK(cancelled==2); d->outgoing.failed=false; d->config=saved;
+    fixture_clear(d); CHECK(cancelled==2); d->outgoing.failed=false; d->config=saved;
     puts("PASS outbound BDX: fabric/revision/timeout/cancel drain; final EOF ACK retained; MRP failure discards staged sink");
     puts("PASS outbound Invoke: copied discovery identity, single admission, cancellation/timeout/rotation/removal, late resolver success drained");
 }
@@ -386,6 +407,127 @@ static void wire_deactivate(void* u,Matter_Operation_Id_T id) { (void)u;(void)id
 static Matter_Result_T wire_send(void* u,uint64_t id,const Matter_Udp_Datagram_T* p) { (void)id; ((Wire*)u)->borrowed=p; return MATTER_OK; }
 static void wire_cancel(void* u,uint64_t id) { (void)u;(void)id; }
 static void wire_detach(void* u) { (void)u; }
+static void demand_allocations(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Address_T* bind) {
+    CHECK(!d->transactions && live==1 && live_bytes==sizeof(*d));
+    size_t idle=live_bytes;
+    fail_at=calls+1; CHECK(!new_transaction(d) && !d->transaction_count); fail_at=0;
+    /* A failed inbound node allocation leaves ACK/drain with RX. */
+    d->decision=(Matter_Rx_Decision_T){.session=100,.exchange=1,
+        .header={.exchange_id=1,.protocol_id=1,.opcode=2,.exchange_flags=MATTER_PROTOCOL_INITIATOR}};
+    fail_at=calls+1; dispatch(d); fail_at=0;
+    CHECK(!d->transactions && live_bytes==idle);
+    Transaction* first=NULL;
+    for(size_t i=0;i<d->transaction_limit;++i) {
+        Transaction* t=new_transaction(d); CHECK(t && !t->packet);
+        if(!i) first=t;
+        CHECK(d->transactions==first && live_bytes==idle+(i+1)*sizeof(*t));
+    }
+    size_t before=calls; CHECK(!new_transaction(d) && calls==before);
+    /* Unlink middle, head and tail without relocating any remaining node. */
+    Transaction* middle=first->next; Transaction* tail=d->last_transaction;
+    free_transaction(middle); CHECK(d->transactions==first && d->last_transaction==tail && first->next->previous==first);
+    free_transaction(tail); CHECK(!d->last_transaction->next);
+    free_transaction(first); CHECK(!d->transactions->previous);
+    fixture_clear(d); CHECK(live_bytes==idle);
+
+    Matter_Crypto_Mbedtls_T crypto=matter_crypto_mbedtls_new(NULL); CHECK(crypto);
+    Matter_Crypto_Port_T port; CHECK(matter_crypto_mbedtls_port(crypto,&port)==MATTER_OK);
+    unsigned key=0; Connection* c=&d->connections[0];
+    c->token=100; c->operational=true; c->fabric_index=1;
+    c->secure=matter_secure_from_case(&port,&key,take_keys,d->now); CHECK(c->secure);
+    Matter_Udp_Path_T path={.local=*bind,.peer=*bind}; path.peer.port=9;
+    c->channel=matter_secure_channel_new(c->secure,c->token,&path); CHECK(c->channel);
+    Wire wire={0}; Matter_Udp_Port_T wp={&wire,wire_activate,wire_deactivate,wire_send,wire_cancel,wire_detach};
+    Matter_Udp_T udp=matter_udp_new(owner,&wp,NULL); CHECK(udp && matter_udp_start(udp)==MATTER_OK);
+    Matter_Udp_T saved=d->udp; d->udp=udp;
+    uint32_t previous_counter=0;
+    for(unsigned mode=0;mode<3;++mode) {
+        Transaction* t=new_transaction(d); CHECK(t);
+        CHECK(matter_rx_initiate(d->rx,c->token,&t->handle)==MATTER_OK && matter_rx_get(d->rx,t->handle,&t->key)==MATTER_OK);
+        Matter_Protocol_Header_T h={.protocol_id=1,.opcode=1,.exchange_id=t->key.exchange_id,.exchange_flags=MATTER_PROTOCOL_INITIATOR|MATTER_PROTOCOL_RELIABLE};
+        size_t n; CHECK(matter_protocol_header_write(&h,d->plain,sizeof(d->plain),&n)==MATTER_MESSAGE_OK);
+        uint32_t counter=0;
+        size_t bytes=live_bytes;
+        fail_at=calls+1; CHECK(prepare_packet(t,n,&counter)==MATTER_LIMIT_REACHED); fail_at=0;
+        CHECK(!t->packet && !t->size && !counter && live_bytes==bytes);
+        CHECK(prepare_packet(t,PACKET-MATTER_SECURE_OVERHEAD+1,&counter)==MATTER_LIMIT_REACHED && !t->packet);
+        CHECK(prepare_packet(t,n,&counter)==MATTER_OK && t->size==n+MATTER_SECURE_OVERHEAD && live_bytes==bytes+t->size);
+        if(mode) CHECK(counter==previous_counter+1);
+        previous_counter=counter;
+        uint8_t copy[40]; CHECK(t->size<=sizeof(copy)); memcpy(copy,t->packet,t->size);
+        CHECK(prepare_packet(t,n,&counter)==MATTER_BUSY && !memcmp(t->packet,copy,t->size));
+        CHECK(matter_retransmission_sender_add(d->tx,&t->key,counter,t->packet,t->size,&t->message)==MATTER_OK); t->pending=true;
+        CHECK(matter_retransmission_sender_process(d->tx,d->now)==MATTER_PENDING && wire.borrowed && d->sending_message==t);
+        const uint8_t* packet=t->packet; size_t size=t->size;
+        /* ACK/cancel before UDP completion must retain both node and bytes. */
+        if(mode==0) CHECK(matter_retransmission_sender_ack(d->tx,&t->key,counter)==MATTER_OK);
+        else CHECK(matter_retransmission_sender_cancel(d->tx,t->message)==MATTER_PENDING);
+        (void)matter_retransmission_sender_process(d->tx,d->now);
+        release_packet(t); CHECK(t->pending && t->packet==packet && wire.borrowed->data==packet && !memcmp(packet,copy,size));
+        Transaction* other=new_transaction(d); CHECK(other && d->transactions==t); free_transaction(other);
+        CHECK(matter_dispatch_delete(d)==MATTER_BUSY);
+        if(mode==2) { t->closing=true; process_transaction(t); CHECK(d->transactions==t && t->packet==packet); }
+        uint64_t request=d->request; wire.borrowed=NULL;
+        CHECK(matter_udp_complete(udp,request,MATTER_OPERATION_SUCCEEDED)==MATTER_OK);
+        matter_dispatch_sent(d,request,MATTER_OPERATION_SUCCEEDED); CHECK(take_completion(d)==MATTER_OK);
+        (void)matter_retransmission_sender_process(d->tx,d->now);
+        CHECK(!t->pending && t->notified && t->acknowledged==(mode==0));
+        release_packet(t); CHECK(!t->packet && !t->size && live_bytes==bytes);
+        t->closing=true;
+        for(unsigned step=0;step<4 && d->transactions;++step) {
+            (void)matter_rx_process(d->rx,d->now); process_transaction(d->transactions);
+        }
+        CHECK(!d->transactions && live_bytes==idle);
+    }
+    d->udp=saved;
+    CHECK(matter_udp_stop(udp)==MATTER_PENDING);
+    CHECK(matter_udp_process(udp)==MATTER_PENDING && matter_udp_process(udp)==MATTER_OK && matter_udp_delete(udp)==MATTER_OK);
+    CHECK(matter_secure_channel_retire(c->channel,d->rx,d->tx)==MATTER_OK && matter_secure_channel_delete(c->channel)==MATTER_OK);
+    CHECK(matter_secure_delete(c->secure)==MATTER_OK); memset(c,0,sizeof(*c));
+    CHECK(matter_crypto_mbedtls_delete(crypto)==MATTER_OK);
+    /* Unsecured framing, exact MTU, pre-seal OOM and encoding failure cleanup. */
+    Matter_Message_Header_T mh={.message_flags=MATTER_MESSAGE_SOURCE_PRESENT,.source_node_id=42};
+    Matter_Exchange_Session_T token;
+    CHECK(matter_unsecured_resolve(d->unsecured,&mh,true,&token)==MATTER_OK && matter_unsecured_pin(d->unsecured,token)==MATTER_OK);
+    Transaction* t=new_transaction(d); CHECK(t); t->key.session=token;
+    Matter_Protocol_Header_T ph={.exchange_id=1,.opcode=0x40}; size_t n;
+    CHECK(matter_protocol_header_write(&ph,d->plain,sizeof(d->plain),&n)==MATTER_MESSAGE_OK);
+    uint32_t next=d->counter.next,counter=0;
+    fail_at=calls+1; CHECK(prepare_packet(t,n,&counter)==MATTER_LIMIT_REACHED); fail_at=0;
+    CHECK(!t->packet && d->counter.next==next && !counter);
+    CHECK(prepare_packet(t,n,&counter)==MATTER_OK && t->size==n+MATTER_UNSECURED_OVERHEAD && counter==next);
+    CHECK(live_bytes==idle+sizeof(*t)+t->size); release_packet(t);
+    memset(d->plain+n,0,PACKET-MATTER_UNSECURED_OVERHEAD-n);
+    CHECK(prepare_packet(t,PACKET-MATTER_UNSECURED_OVERHEAD,&counter)==MATTER_OK && t->size==PACKET); release_packet(t);
+    CHECK(prepare_packet(t,PACKET-MATTER_UNSECURED_OVERHEAD+1,&counter)==MATTER_LIMIT_REACHED && !t->packet);
+    d->plain[0]=0xff; next=d->counter.next;
+    CHECK(prepare_packet(t,n,&counter)==MATTER_INVALID_ARGUMENT && !t->packet && d->counter.next==next);
+    /* Production R=0 BUSY path closes safely on TX OOM without taking a counter. */
+    t->busy_reply=true; t->busy_deadline=d->now+30000;
+    fail_at=calls+1; process_transaction(t); fail_at=0;
+    CHECK(t->closing && !t->pending && !t->packet && d->counter.next==next); process_transaction(t);
+    CHECK(!d->transactions && live_bytes==idle && matter_unsecured_unpin(d->unsecured,token)==MATTER_OK && matter_unsecured_remove(d->unsecured,token)==MATTER_OK);
+    /* Optional outbound Invoke fails finitely on node OOM, before acquiring an
+     * exchange or a connection/route reservation, with or without cached CASE. */
+    Matter_Dispatch_Config_T config=d->config;
+    Resolver resolver={.answer={.peer=*bind}};
+    d->config.resolver=(Matter_Resolver_Port_T){&resolver,resolve_begin,resolve_end,resolve_abort};
+    d->config.compressed_fabric=compressed; d->config.credential_revision=rotated;
+    d->config.outbound=(Matter_Udp_Path_T){.local=*bind,.interface_id=1};
+    Matter_Im_Command_Path_T command={1,0x29,0}; const uint8_t fields[]={0x15,0x18};
+    for(unsigned mode=0;mode<2;++mode) {
+        if(!mode) *c=(Connection){.token=100,.operational=true,.fabric_index=1,.peer_node=2};
+        uint64_t id; CHECK(matter_dispatch_invoke(d,1,2,&command,1,fields,sizeof(fields),&id)==MATTER_PENDING);
+        if(mode) { CHECK(d->outgoing.resolve); resolver.done=true; resolver.result=MATTER_OPERATION_SUCCEEDED; }
+        fail_at=calls+1; outgoing_process(d); fail_at=0;
+        CHECK(d->outgoing.failed && !d->transactions && live_bytes==idle && !c->reserved);
+        uint8_t status; const uint8_t* result; size_t size;
+        CHECK(matter_dispatch_invoke_take(d,id,&status,&result,&size)==MATTER_PORT_ERROR);
+        memset(c,0,sizeof(*c));
+    }
+    matter_im_client_delete(d->outgoing.client); d->outgoing.client=NULL; d->config=config;
+    printf("PASS demand allocations: idle=%zu node=%zu, exact TX/MTU bytes, node/TX/BUSY OOM without counter consumption, ceiling/unlink, ACK/cancel/closing before UDP completion\n",idle,sizeof(Transaction));
+}
 static void rediscovery(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Path_T* original) {
     Connection* c=&d->connections[0]; Connection* other=&d->connections[3];
     Resolver r={.answer={.peer=original->peer,.idle_ms=700,.active_ms=400,.active_threshold_ms=5000}};
@@ -476,20 +618,20 @@ static void policy(Matter_Dispatch_T d,Matter_T owner,Matter_Udp_Windows_T udp,c
     CHECK(available(d)==&d->connections[0]);
     /* Restrict this legacy four-session lifecycle scenario; full profile below. */
     for(unsigned i=4;i<CONNECTIONS;++i) { d->connections[i].reserved=true; d->connections[i].reserved_fabric=d->connections[i].fabric_index; }
-    Transaction* t=&d->transactions[4]; t->owner=d;
+    Transaction* t=fixture(d,4); t->owner=d;
     for(unsigned i=0;i<4;++i) {
-        d->transactions[i].handle=i+1; d->transactions[i].key.session=100+i;
-        d->transactions[i].sub=(Matter_Im_Subscribe_T)t; /* Registry-only sentinel, never dereferenced. */
+        fixture(d,i)->handle=i+1; fixture(d,i)->key.session=100+i;
+        fixture(d,i)->sub=(Matter_Im_Subscribe_T)t; /* Registry-only sentinel, never dereferenced. */
     }
     CHECK(!available(d)); uint32_t id;
-    CHECK(reserve(t,101,true,&id)==0 && !d->transactions[0].closing);
-    CHECK(reserve(t,101,false,&id)==0 && d->transactions[0].closing && d->transactions[1].closing &&
-        !d->transactions[2].closing && !d->transactions[3].closing);
+    CHECK(reserve(t,101,true,&id)==0 && !fixture(d,0)->closing);
+    CHECK(reserve(t,101,false,&id)==0 && fixture(d,0)->closing && fixture(d,1)->closing &&
+        !fixture(d,2)->closing && !fixture(d,3)->closing);
     /* PASE token equality must not join an operational node or another PASE. */
-    d->connections[1].operational=false; d->transactions[0].closing=d->transactions[1].closing=false;
-    CHECK(reserve(t,101,false,&id)==0 && !d->transactions[0].closing && d->transactions[1].closing);
+    d->connections[1].operational=false; fixture(d,0)->closing=fixture(d,1)->closing=false;
+    CHECK(reserve(t,101,false,&id)==0 && !fixture(d,0)->closing && fixture(d,1)->closing);
     d->connections[1].operational=true;
-    memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions)); t=&d->transactions[4]; t->owner=d;
+    fixture_clear(d); t=fixture(d,4); t->owner=d;
     CHECK(matter_secure_retain(d->connections[0].secure)==MATTER_OK);
     CHECK(available(d)==&d->connections[1]);
     d->sending=&d->connections[1]; CHECK(available(d)==&d->connections[2]); d->sending=NULL;
@@ -531,89 +673,89 @@ static void resources(Matter_Dispatch_T d,const Matter_Udp_Address_T* bind) {
      * All packets are cancelled before sending; cancellation must release every
      * per-message/session pin before exchanges and sessions can be deleted. */
     for(unsigned i=0;i<TRANSACTIONS;++i) {
-        Transaction* t=&d->transactions[i]; t->owner=d;
+        Transaction* t=fixture(d,i); t->owner=d;
         CHECK(matter_rx_initiate(d->rx,d->connections[i%CONNECTIONS].token,&t->handle)==MATTER_OK);
         CHECK(matter_rx_get(d->rx,t->handle,&t->key)==MATTER_OK);
-        t->size=1; t->packet[0]=0;
+        t->size=1; t->packet=matter_test_calloc(1,t->size); CHECK(t->packet); t->packet[0]=0;
         CHECK(matter_retransmission_sender_add(d->tx,&t->key,i+1,t->packet,t->size,&t->message)==MATTER_OK);
         t->pending=true;
     }
-    for(unsigned i=0;i<TRANSACTIONS;++i) CHECK(matter_retransmission_sender_cancel(d->tx,d->transactions[i].message)==MATTER_OK);
+    for(unsigned i=0;i<TRANSACTIONS;++i) CHECK(matter_retransmission_sender_cancel(d->tx,fixture(d,i)->message)==MATTER_OK);
     (void)matter_retransmission_sender_process(d->tx,50);
     for(unsigned i=0;i<TRANSACTIONS;++i) {
-        Transaction* t=&d->transactions[i]; CHECK(!t->pending && t->notified && !t->acknowledged);
+        Transaction* t=fixture(d,i); CHECK(!t->pending && t->notified && !t->acknowledged);
         (void)matter_rx_close(d->rx,t->handle);
     }
     for(unsigned step=0;step<4;++step) (void)matter_rx_process(d->rx,50);
     for(unsigned i=0;i<TRANSACTIONS;++i) {
-        Matter_Exchange_Info_T ignored; CHECK(matter_rx_get(d->rx,d->transactions[i].handle,&ignored)!=MATTER_OK);
+        Matter_Exchange_Info_T ignored; CHECK(matter_rx_get(d->rx,fixture(d,i)->handle,&ignored)!=MATTER_OK);
     }
-    memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
+    fixture_clear(d);
     /* Fill every partition (including fabricless optional work). Other buckets
      * retain their guaranteed capacity while one fabric is at its limit. */
     unsigned used=0;
     for(unsigned f=0;f<=MATTER_FABRIC_CAPACITY;++f) {
         uint8_t index=f<MATTER_FABRIC_CAPACITY?indexes[f]:0;
         for(unsigned j=0;j<4;++j) {
-            CHECK(admit_work(d,SUBSCRIBE,index)); Transaction* t=&d->transactions[used++];
+            CHECK(admit_work(d,SUBSCRIBE,index)); Transaction* t=fixture(d,used++);
             t->owner=d; t->handle=used; t->admission=SUBSCRIBE; t->fabric_index=index;
             if(j<3) t->subscription_id=used;
         }
         CHECK(!admit_work(d,SUBSCRIBE,index) && admit_work(d,READ,index));
-        Transaction* t=&d->transactions[used++]; t->handle=used; t->admission=READ; t->fabric_index=index;
+        Transaction* t=fixture(d,used++); t->handle=used; t->admission=READ; t->fabric_index=index;
         CHECK(!admit_work(d,READ,index)); t->closing=true; CHECK(!admit_work(d,READ,index));
     }
     CHECK(used==30 && admit_work(d,INVOKE,1) && admit_work(d,WRITE,254));
-    d->transactions[used].handle=used+1; d->transactions[used++].admission=TIMED;
+    fixture(d,used)->handle=used+1; fixture(d,used++)->admission=TIMED;
     CHECK(!admit_work(d,INVOKE,1) && !admit_work(d,WRITE,254) && !admit_work(d,TIMED,7));
-    d->transactions[30].admission=INVOKE; CHECK(admit_work(d,WRITE,254));
-    d->transactions[used].handle=used+1; d->transactions[used++].admission=WRITE;
+    fixture(d,30)->admission=INVOKE; CHECK(admit_work(d,WRITE,254));
+    fixture(d,used)->handle=used+1; fixture(d,used++)->admission=WRITE;
     for(unsigned j=0;j<2;++j) {
-        CHECK(admit_work(d,HANDSHAKE,0)); d->transactions[used].handle=used+1; d->transactions[used++].admission=HANDSHAKE;
+        CHECK(admit_work(d,HANDSHAKE,0)); fixture(d,used)->handle=used+1; fixture(d,used++)->admission=HANDSHAKE;
     }
     CHECK(!admit_work(d,HANDSHAKE,0));
     for(unsigned j=0;j<2;++j) {
-        CHECK(admit_work(d,REJECT,0)); d->transactions[used].handle=used+1; d->transactions[used++].admission=REJECT;
+        CHECK(admit_work(d,REJECT,0)); fixture(d,used)->handle=used+1; fixture(d,used++)->admission=REJECT;
     }
     CHECK(!admit_work(d,REJECT,0));
     for(unsigned f=0;f<=MATTER_FABRIC_CAPACITY;++f) {
-        Transaction* t=&d->transactions[used++]; t->handle=used; t->admission=READ; t->draining=true;
+        Transaction* t=fixture(d,used++); t->handle=used; t->admission=READ; t->draining=true;
         t->fabric_index=f<MATTER_FABRIC_CAPACITY?indexes[f]:0;
     }
-    d->transactions[used].handle=used+1; d->transactions[used].draining=true; d->transactions[used++].admission=INVOKE;
-    d->transactions[used].handle=used+1; d->transactions[used].draining=true; d->transactions[used++].admission=WRITE;
+    fixture(d,used)->handle=used+1; fixture(d,used)->draining=true; fixture(d,used++)->admission=INVOKE;
+    fixture(d,used)->handle=used+1; fixture(d,used)->draining=true; fixture(d,used++)->admission=WRITE;
     for(unsigned i=0;i<MATTER_HOST_DELIVERY_BURST;++i) {
-        Transaction* t=&d->transactions[used++]; t->handle=used; t->admission=INVOKE;
+        Transaction* t=fixture(d,used++); t->handle=used; t->admission=INVOKE;
         t->draining=t->delivery_shared=true;
     }
     CHECK(used==TRANSACTIONS && !admit_work(d,READ,1) && !admit_work(d,INVOKE,7));
-    d->transactions[30].admission=NONE;
+    fixture(d,30)->admission=NONE;
     CHECK(admit_work(d,INVOKE,7)); /* Retained final response does not execute a command. */
     /* Subscription admission is fabric-scoped across different peer sessions;
      * failed fourth reserve preserves all existing subscriptions. Replacement
      * can retire only the requesting node, never another fabric/node. */
     for(unsigned i=0;i<4;++i) {
-        Transaction* t=&d->transactions[i]; t->key.session=100+i%3;
+        Transaction* t=fixture(d,i); t->key.session=100+i%3;
         t->sub=(Matter_Im_Subscribe_T)d;
     }
-    Transaction* replacement=&d->transactions[3]; uint32_t id=99;
+    Transaction* replacement=fixture(d,3); uint32_t id=99;
     CHECK(reserve(replacement,100,true,&id)==MATTER_IM_RESOURCE_EXHAUSTED && id==99);
-    CHECK(!d->transactions[0].closing && !d->transactions[1].closing && !d->transactions[2].closing);
+    CHECK(!fixture(d,0)->closing && !fixture(d,1)->closing && !fixture(d,2)->closing);
     CHECK(reserve(replacement,100,false,&id)==MATTER_IM_SUCCESS);
-    CHECK(d->transactions[0].closing && d->transactions[1].closing && !d->transactions[2].closing);
-    CHECK(!d->transactions[5].closing && replacement->subscription_id==id);
+    CHECK(fixture(d,0)->closing && fixture(d,1)->closing && !fixture(d,2)->closing);
+    CHECK(!fixture(d,5)->closing && replacement->subscription_id==id);
     unreserve(replacement,id+1); CHECK(replacement->subscription_id==id);
     unreserve(replacement,id); CHECK(!replacement->subscription_id);
-    memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions));
+    fixture_clear(d);
     CHECK(admit_work(d,READ,1) && admit_work(d,SUBSCRIBE,254) && admit_work(d,TIMED,7));
     CHECK(matter_dispatch_retire(d,true)==MATTER_OK);
     /* An uninstalled reservation counts against its fabric across clear/drain. */
     for(unsigned i=0;i<3;++i) {
-        Transaction* t=&d->transactions[i]; t->owner=d;
+        Transaction* t=fixture(d,i); t->owner=d;
         CHECK(reserve_for(t,254)); clear_connection(t->slot);
     }
     CHECK(!available_for(d,254) && available_for(d,7));
-    for(unsigned i=0;i<3;++i) dispose(&d->transactions[i]);
+    while(d->transactions) dispose(d->transactions);
     CHECK(available_for(d,254));
     CHECK(matter_crypto_mbedtls_delete(crypto)==MATTER_OK);
     printf("PASS resources: 5 fabrics x 3 CASE/subscriptions; partitions/drain; 52 RX/MRP; sizeof dispatcher=%zu connection=%zu transaction=%zu\n",
@@ -638,8 +780,8 @@ static void late_handshake(Matter_Dispatch_T d,const Matter_Udp_Address_T* local
     m.protocol.opcode=0x55; CHECK(admit(d,&m,&create)==MATTER_INVALID_STATE); m.protocol.opcode=0x40;
     m.session=0; CHECK(admit(d,&m,&create)==MATTER_INVALID_STATE); m.session=token;
     /* No transaction allocation needed, including while the previous one drains. */
-    d->transactions[0]=(Transaction){.handle=1,.key={token,7,false},.closing=true};
-    CHECK(admit(d,&m,&create)==MATTER_OK && !create); memset(&d->transactions[0],0,sizeof(d->transactions[0]));
+    fixture_set(fixture(d,0),(Transaction){.handle=1,.key={token,7,false},.closing=true});
+    CHECK(admit(d,&m,&create)==MATTER_OK && !create); fixture_clear(d);
     uint8_t bytes[40]={0}; size_t n,h;
     CHECK(matter_message_header_write(&header,bytes,sizeof(bytes),&n)==MATTER_MESSAGE_OK);
     CHECK(matter_protocol_header_write(&m.protocol,bytes+n,sizeof(bytes)-n,&h)==MATTER_MESSAGE_OK);
@@ -650,7 +792,7 @@ static void late_handshake(Matter_Dispatch_T d,const Matter_Udp_Address_T* local
     CHECK(matter_message_header_read(d->ack,sizeof(d->ack),&ack_header,&n)==MATTER_MESSAGE_OK);
     CHECK(matter_protocol_header_read(d->ack+n,sizeof(d->ack)-n,&ack_protocol,&h)==MATTER_MESSAGE_OK &&
         ack_protocol.opcode==0x10 && ack_protocol.exchange_id==7 && ack_protocol.acknowledged_message_counter==100);
-    for(unsigned i=0;i<TRANSACTIONS;++i) CHECK(!d->transactions[i].handle);
+    CHECK(!d->transactions);
     /* Normal owner completion/stop below drains the generated control ACK. */
     puts("PASS late CASE: duplicate final StatusReport control ACK; fresh counter, wrong route/opcode denied; no handler restart");
 }
@@ -690,7 +832,7 @@ static void handshake_failure(Matter_Dispatch_T* current,Matter_T owner,Matter_U
         Matter_Udp_Datagram_T packet={.path={.local=*bind,.peer=*bind},.data=sigma1,.size=sizeof(sigma1)};
         packet.path.peer.port=9;
         matter_dispatch_received(d,&packet); CHECK(matter_dispatch_process(d,0)==MATTER_PENDING);
-        Transaction* t=&d->transactions[0];
+        Transaction* t=fixture(d,0);
         CHECK(pase?(t->pase && matter_pase_state(t->pase)==MATTER_PASE_FAILED && failure.notifications==1):
             (t->case_attempt && matter_case_state(t->case_attempt)==MATTER_CASE_FAILED));
         CHECK(t->pending && t->final && !t->closing && !t->slot);
@@ -724,13 +866,13 @@ static void handshake_failure(Matter_Dispatch_T* current,Matter_T owner,Matter_U
         for(unsigned i=0;i<CONNECTIONS;++i) CHECK(!d->connections[i].token && !d->connections[i].reserved);
         if(mode==0) CHECK(matter_retransmission_sender_ack(d->tx,&t->key,mh.message_counter)==MATTER_OK);
         if(mode==2) CHECK(matter_dispatch_stop(d)==MATTER_PENDING); /* TX still borrowed. */
-        for(unsigned i=0;i<1000 && t->handle;++i) {
+        for(unsigned i=0;i<1000 && d->transactions;++i) {
             Matter_Result_T r=matter_udp_windows_poll(udp); CHECK(r==MATTER_OK || r==MATTER_WOULD_BLOCK);
             r=matter_dispatch_process(d,++now); CHECK(r==MATTER_OK || r==MATTER_PENDING);
             if(mode==1 && !d->request && matter_retransmission_sender_deadline(d->tx,&deadline)==MATTER_OK && deadline>now)
                 now=deadline; /* All retries exhausted without a peer ACK. */
         }
-        CHECK(!t->handle);
+        CHECK(!d->transactions);
         CHECK(failure.notifications==(pase?1u:0u));
         for(unsigned i=0;i<1000 && matter_dispatch_stop(d)!=MATTER_OK;++i) {
             Matter_Result_T r=matter_udp_windows_poll(udp); CHECK(r==MATTER_OK || r==MATTER_WOULD_BLOCK);
@@ -760,37 +902,37 @@ static void subscription_budgets(Matter_T owner,Matter_Udp_Windows_T udp) {
         size_t count=matter_host_transaction_capacity(budget);
         Matter_Dispatch_T d=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg);
         if(!count) { CHECK(!d && !allocations); CHECK(matter_root_delete(root)==MATTER_OK); continue; }
-        CHECK(d && d->transaction_count==count && d->subscriptions_per_fabric==budget && allocations==2);
+        CHECK(d && !d->transaction_count && d->transaction_limit==count && d->subscriptions_per_fabric==budget && allocations==1);
         d->connections[0]=(Connection){.token=100,.operational=true,.fabric_index=1,.peer_node=1};
         d->connections[1]=(Connection){.token=101,.operational=true,.fabric_index=2,.peer_node=1};
         for(unsigned i=0;i<budget;++i) {
-            Transaction* t=&d->transactions[i];
-            *t=(Transaction){.owner=d,.handle=i+1,.key={100,1,false},.admission=SUBSCRIBE,.fabric_index=1,
-                .sub=(Matter_Im_Subscribe_T)d,.sub_established=true};
+            Transaction* t=fixture(d,i);
+            fixture_set(t,(Transaction){.owner=d,.handle=i+1,.key={100,1,false},.admission=SUBSCRIBE,.fabric_index=1,
+                .sub=(Matter_Im_Subscribe_T)d,.sub_established=true});
             uint32_t id=0; CHECK(reserve(t,100,true,&id)==MATTER_IM_SUCCESS && id);
         }
         CHECK(matter_dispatch_load(d,1).current_for_fabric==budget);
-        Transaction* extra=&d->transactions[budget];
-        *extra=(Transaction){.owner=d,.handle=budget+1,.key={100,2,false},.admission=SUBSCRIBE,.fabric_index=1};
+        Transaction* extra=fixture(d,budget);
+        fixture_set(extra,(Transaction){.owner=d,.handle=budget+1,.key={100,2,false},.admission=SUBSCRIBE,.fabric_index=1});
         uint32_t id=99; CHECK(reserve(extra,100,true,&id)==MATTER_IM_RESOURCE_EXHAUSTED && id==99);
         CHECK(matter_dispatch_load(d,1).current_for_fabric==budget);
         extra->key.session=101; extra->fabric_index=2;
         CHECK(reserve(extra,101,true,&id)==MATTER_IM_SUCCESS); /* Other fabric retains its guarantee. */
-        Transaction* replacement=&d->transactions[budget+1];
-        *replacement=(Transaction){.owner=d,.key={100,3,false},.fabric_index=1};
+        Transaction* replacement=fixture(d,budget+1);
+        fixture_set(replacement,(Transaction){.owner=d,.key={100,3,false},.fabric_index=1});
         CHECK(reserve(replacement,100,false,&id)==MATTER_IM_SUCCESS);
-        for(unsigned i=0;i<budget;++i) CHECK(d->transactions[i].closing);
+        for(unsigned i=0;i<budget;++i) CHECK(fixture(d,i)->closing);
         CHECK(!extra->closing); unreserve(replacement,id);
-        memset(d->transactions,0,count*sizeof(*d->transactions)); memset(d->connections,0,sizeof(d->connections));
+        fixture_clear(d); memset(d->connections,0,sizeof(d->connections));
         for(unsigned i=0;i<20 && matter_dispatch_stop(d)!=MATTER_OK;++i) {
             Matter_Result_T result=matter_dispatch_process(d,i); CHECK(result==MATTER_OK || result==MATTER_PENDING);
         }
         CHECK(matter_dispatch_delete(d)==MATTER_OK && !allocations);
-        allocation_calls=0; fail_at=2; /* Context allocated, table OOM: no callbacks or retained context. */
+        allocation_calls=0; fail_at=1; /* Context OOM: no callbacks or retained context. */
         CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg) && !allocations);
         fail_at=0; CHECK(matter_root_delete(root)==MATTER_OK);
     }
-    puts("PASS subscription budgets: Root source of truth, dynamic table, range/transport guards, saturation, fabric isolation, replacement and table OOM");
+    puts("PASS subscription budgets: Root source of truth, demand nodes, range/transport guards, saturation, fabric isolation, replacement and context OOM");
 }
 int main(void) {
     Matter_T owner=matter_new(NULL); CHECK(owner && matter_start(owner)==MATTER_OK);
@@ -804,25 +946,26 @@ int main(void) {
     handshake_failure(&d,owner,udp,&bind,root,false);
     handshake_failure(&d,owner,udp,&bind,root,true);
     Matter_Dispatch_Config_T cfg={.root=root,.crypto={.user=&fail_random,.random=entropy},.user=&reset,.fabric_live=fabric_live};
-    fail_alloc=true; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_alloc=false;
+    fail_at=calls+1; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_at=0;
     fail_random=true; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_random=false;
     CHECK(!allocations && matter_get_state(owner)==MATTER_STATE_RUNNING);
     for(unsigned run=0;run<3;++run) {
-        d=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg); CHECK(d && allocations==2);
+        d=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg); CHECK(d && allocations==1);
+        demand_allocations(d,owner,&bind);
         CHECK(matter_dispatch_delete(d)==MATTER_BUSY && !matter_dispatch_session(d,1));
         /* Removal can happen after another transaction queued a retry in this
          * same owner iteration. No ciphertext or ACK may leave a retired identity. */
         d->connections[0]=(Connection){.token=2,.retiring=true,.operational=true,.fabric_index=1};
         d->connections[1]=(Connection){.token=3,.operational=true,.fabric_index=2};
-        d->transactions[0].handle=1; d->transactions[0].key=(Matter_Exchange_Info_T){2,1,false};
-        Matter_Retransmission_Request_T retry={.message={.exchange=d->transactions[0].key}};
+        fixture(d,0)->handle=1; fixture(d,0)->key=(Matter_Exchange_Info_T){2,1,false};
+        Matter_Retransmission_Request_T retry={.message={.exchange=fixture(d,0)->key}};
         CHECK(send_message(d,&retry)==MATTER_RETRANSMISSION_REJECTED_FATAL && !d->request);
-        Matter_Ack_Message_T ack={.exchange=d->transactions[0].key};
+        Matter_Ack_Message_T ack={.exchange=fixture(d,0)->key};
         CHECK(send_ack(d,1,&ack)==MATTER_PORT_ERROR && !d->request);
-        CHECK(matter_dispatch_retire_fabric(d,1)==MATTER_PENDING && d->transactions[0].closing && !d->connections[1].retiring);
+        CHECK(matter_dispatch_retire_fabric(d,1)==MATTER_PENDING && fixture(d,0)->closing && !d->connections[1].retiring);
         d->connections[0].operational=false; reset=true; reconcile(d);
         CHECK(d->connections[0].retiring && d->connections[1].retiring); reset=false;
-        memset(d->connections,0,sizeof(d->connections)); memset(d->transactions,0,d->transaction_count*sizeof(*d->transactions)); d->ack_waiting=false;
+        memset(d->connections,0,sizeof(d->connections)); fixture_clear(d); d->ack_waiting=false;
         diagnostic_counts(d); rotation(d);
         removal(d);
         expiry_retirement(d);
@@ -853,8 +996,8 @@ int main(void) {
             }
             CHECK(d->control && d->control_transaction && d->control_transaction->pending);
             Transaction* busy=d->control_transaction; Matter_Message_Header_T mh; Matter_Protocol_Header_T ph; size_t n,h;
-            CHECK(matter_message_header_read(busy->packet,sizeof(busy->packet),&mh,&n)==MATTER_MESSAGE_OK && !mh.session_id);
-            CHECK(matter_protocol_header_read(busy->packet+n,sizeof(busy->packet)-n,&ph,&h)==MATTER_MESSAGE_OK &&
+            CHECK(matter_message_header_read(busy->packet,busy->size,&mh,&n)==MATTER_MESSAGE_OK && !mh.session_id);
+            CHECK(matter_protocol_header_read(busy->packet+n,busy->size-n,&ph,&h)==MATTER_MESSAGE_OK &&
                 !ph.protocol_id && ph.opcode==0x40 && ph.exchange_id==7 && ph.exchange_flags==MATTER_PROTOCOL_ACK);
             const uint8_t expected_busy[10]={8,0,0,0,0,0,4,0,0xf4,1};
             CHECK(!memcmp(busy->packet+n+h,expected_busy,sizeof(expected_busy)));

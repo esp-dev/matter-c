@@ -18,11 +18,14 @@ PROBES = {
     "runtime/matter_dispatch": {
         "dispatch": "sizeof(struct Matter_Dispatch)",
         "transaction": "sizeof(Transaction)",
-        "transaction_packet": "sizeof(((Transaction*)0)->packet)",
+        "transaction_packet": "PACKET",  # Upper bound; each TX allocates its encoded size.
+        "transaction_packet_pointer": "sizeof(((Transaction*)0)->packet)",
+        "transaction_links": "2 * sizeof(Transaction*)",
         "connections": "sizeof(((struct Matter_Dispatch*)0)->connections)",
         "connection": "sizeof(Connection)",
         "dispatch_packet_buffers": "4 * PACKET",
-        "default_transactions": "MATTER_HOST_TRANSACTIONS * sizeof(Transaction)",
+        "default_transactions": "MATTER_HOST_TRANSACTIONS * sizeof(Transaction)",  # Live-node ceiling, not idle allocation.
+        "default_transactions_max_tx": "MATTER_HOST_TRANSACTIONS * (sizeof(Transaction) + PACKET)",
     },
     "model/matter_events": {
         "event_log": "sizeof(struct Matter_Events)",
