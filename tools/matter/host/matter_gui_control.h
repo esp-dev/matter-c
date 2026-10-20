@@ -9,6 +9,7 @@
 typedef struct {
     char line[MATTER_GUI_COMMAND_BYTES]; size_t used;
     bool dropping,stop; int64_t power_mw; uint64_t generation;
+    bool allow_ota_query; uint64_t query_generation;
 } Matter_Gui_Control_T;
 /* Nonblocking, bounded work on the owner's thread. EOF requests clean stop.
  * An invalid/oversize line changes neither power nor generation. */

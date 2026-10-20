@@ -1207,7 +1207,6 @@
     },
     {
       "cases": [
-        "TC_SU_2_2",
         "TC_SU_2_5",
         "TC_SU_2_7",
         "TC_SU_4_1"
@@ -1336,6 +1335,20 @@
       "kind": "TIMED_WINDOW_TEST_ASSUMPTION_UNDER_MRP_RETRY",
       "evidence": "csa59-results.json",
       "action": "Preserve original FAIL603. First TimedRequest hits pending RX and is retried; actual Write arrives1.56ms after Success, inside700ms. Independent genuinely late writes return globalTIMEOUT without effects. Seek a test delay after actual Success; do not shorten the valid native window. Queue efficiency remains separate from protocol correctness."
+    },
+    {
+      "cases": [],
+      "kind": "QUERY_BACKOFF_PROVIDER_RESTART_BOUNDARY",
+      "evidence": "csa60-results.json",
+      "action": "Retain FAIL605. Attribute provider restart/query failure and growing backoff. Explicit application query preserves all floors; step2 PASS alone does not prove NotAvailable response. Do not disable retry policy for test timing."
+    },
+    {
+      "cases": [
+        "TC_SU_2_2"
+      ],
+      "kind": "QUERY_BACKOFF_PROVIDER_RESTART_BOUNDARY",
+      "evidence": "csa60-results.json",
+      "action": "Retain FAIL605. Attribute provider restart/query failure and growing backoff. Explicit application query preserves all floors; step2 PASS alone does not prove NotAvailable response. Do not disable retry policy for test timing."
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."

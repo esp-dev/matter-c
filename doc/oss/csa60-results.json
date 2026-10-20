@@ -1,0 +1,620 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa59-results.json",
+  "previous_sha256": "d7d74feeb96c363ec8a737d7e62044a845627da1e9c540391f40dd31850091e6",
+  "source_base_commit": "242bd1477d51b330d2583f373c0df26ba990c230",
+  "scope": "Explicit application-owned OTA query opportunity; original QueryImageResponse test, full signed-update memory acceptance and event-capture limitation. No original test/PICS edits or default schedule changes.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC_SU_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "FAIL",
+      "status": "FAIL",
+      "run_id": 605
+    }
+  ],
+  "original_sources_sha256": {
+    "TC_SU_2_2.py": "d5e9fbf867982ba7b1c8c8305c70a6fc6b04f018b521562d2e7028b6e672b8e4",
+    "TC_SU_2_5.py": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+    "TC_SU_2_7.py": "9a8b0ffa278180cf3aaa772dae3d2d3a1650114c3260a035d784db11a4f8dd31",
+    "TC_SU_4_1.py": "644dde23f969393db842b84190978144a9279b02fa17e3d1e5ba4e0514811061",
+    "TC_SUTestBase.py": "9e9b2af9fcca6b039da12273b89560bd55121ec11fdb72de0f4973499318615b"
+  },
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "binaries": {
+    "normal": "33e1e62f955bdff56a945bc802085e450a3e834fbc28ea1839e048562ee217c4",
+    "sanitize": "5e39a2d3af51d3853b3788adca8d95962ec6c0f1e1587e1a9416f564d8fbd0fb"
+  },
+  "original_runs": [
+    {
+      "run_id": 604,
+      "case": "TC_SU_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "verdict": "FAIL",
+      "started_at_utc": "2026-10-20 03:18:38.639284",
+      "completed_at_utc": "2026-10-20 03:18:48.320841",
+      "raw_sha256": "b8d9c3e646d0f19c6f48298b493e5be93cf4441820da4534aa25c43a2aef9d95",
+      "log_sha256": "226b99d1bf5f4dbd035073a418beaa446f54d12ad72a84620563ccf5ffe2de23",
+      "step_counts": {
+        "failed": 1,
+        "pending": 7,
+        "passed": 1
+      },
+      "meaning": "Invalid fixture: host paths were not SDK container paths; no protocol verdict."
+    },
+    {
+      "run_id": 605,
+      "case": "TC_SU_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "verdict": "FAIL",
+      "started_at_utc": "2026-10-20 03:19:55.272908",
+      "completed_at_utc": "2026-10-20 03:26:11.274115",
+      "raw_sha256": "8d28ee8884ac815d119bc6cfd0650645cb91163ed9eea1068847cb837c537c8f",
+      "log_sha256": "3c16b4e581e021c421b8fd7c1dffbca37e65b1fd9f705d7132d7143370637b85",
+      "step_counts": {
+        "passed": 5,
+        "failed": 1,
+        "pending": 3
+      },
+      "meaning": "Original step3 timeout waiting120s for DelayedOnQuery; steps0/1/2 pass,4/5/6 pending. Extra local query trigger, unchanged original assertions."
+    }
+  ],
+  "conclusion": {
+    "original_result": "FAIL",
+    "kind": "QUERY_BACKOFF_PROVIDER_RESTART_BOUNDARY",
+    "reason": "Busy retry overlaps the original provider replacement. Step2 observes Querying but the native completion is query failure, not a decoded NotAvailable response. Subsequent local requests preserve growing error backoff beyond the original step3 120s observation window. Exact transport cause is not fully attributed.",
+    "step2_NotAvailable_protocol_proven": false,
+    "fixture_precondition": "Supervisor submits an explicit application-local query after each authenticated reason1 announcement. This is extra operator/fixture behavior, not the unchanged default daily policy.",
+    "next": "CSA61: unchanged TC_SU_2_7 with this explicit trigger; attribute Applying event capture across fast simulated reboot before changing generation/delivery policy.",
+    "CSA_report_sent": false,
+    "certification": false
+  },
+  "independent_scenarios": [
+    {
+      "name": "memcheck",
+      "mode": "busy-180",
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-observation-no-early-query",
+          "status": "PASS"
+        },
+        {
+          "name": "announcement-next-query",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-delay-respected",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-retry-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "check_count": 23,
+      "raw_sha256": "e6fc340681525209bfd9a0699aff31744d97330225e5311244173f01e7c2a5f6",
+      "driver_sha256": "f236eae318b46ba7f7afa8ded201042fe8f5d099a1d7ac9dd478c43e93cd1384",
+      "native_stderr_empty": true,
+      "Memcheck": [
+        {
+          "log": "valgrind-1.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            36430,
+            36430
+          ]
+        },
+        {
+          "log": "valgrind-2.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            19569,
+            19569
+          ]
+        }
+      ],
+      "error": null,
+      "interpretation": "Independent laboratory acceptance, not original CSA PASS."
+    },
+    {
+      "name": "sanitize",
+      "mode": "busy-180",
+      "result": "FAIL",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-observation-no-early-query",
+          "status": "PASS"
+        },
+        {
+          "name": "announcement-next-query",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-delay-respected",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-retry-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "FAIL"
+        }
+      ],
+      "check_count": 18,
+      "raw_sha256": "a6268acda6e71fc05769af82523a1acb6ca9526da59426b9e888fd97caeabbdc",
+      "driver_sha256": "f236eae318b46ba7f7afa8ded201042fe8f5d099a1d7ac9dd478c43e93cd1384",
+      "native_stderr_empty": true,
+      "Memcheck": [],
+      "error": "ota-event-transition-sequence: [(1, 2), (2, 3), (3, 2), (2, 4)]",
+      "interpretation": "Fast-reboot event subscription misses Applying; no sanitizer diagnostic. Different delayed-apply PASS does not close this failure."
+    },
+    {
+      "name": "sanitize-apply",
+      "mode": "apply-proceed-180",
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-response-action-and-delay",
+          "status": "PASS"
+        },
+        {
+          "name": "old-version-retained-during-delay",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-required-real-delay",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-response-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "single-query-single-download",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "no-extra-apply-after-proceed",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "check_count": 26,
+      "raw_sha256": "bf107df84f2d201f7270709d60daf51e4a586fd0a18488bd53415ab3671e4c32",
+      "driver_sha256": "f236eae318b46ba7f7afa8ded201042fe8f5d099a1d7ac9dd478c43e93cd1384",
+      "native_stderr_empty": true,
+      "Memcheck": [],
+      "error": null,
+      "interpretation": "Independent laboratory acceptance, not original CSA PASS."
+    },
+    {
+      "name": "final-normal",
+      "mode": "update",
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "check_count": 15,
+      "raw_sha256": "0fdad4ce58aab60c2f9dd963c05bfa60cd0d746db3e9d0d9662d3e861a09774d",
+      "driver_sha256": "eeb52d3094925dccae3d9979a861bf62bd9607a29a34a4102d661e63d1671f4f",
+      "native_stderr_empty": true,
+      "Memcheck": [
+        {
+          "log": "valgrind-1.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            35539,
+            35539
+          ]
+        },
+        {
+          "log": "valgrind-2.log",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            19554,
+            19554
+          ]
+        }
+      ],
+      "error": null,
+      "interpretation": "Independent laboratory acceptance, not original CSA PASS."
+    },
+    {
+      "name": "final-sanitize",
+      "mode": "update",
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "check_count": 15,
+      "raw_sha256": "81bbb4a49611d16bf9aa32e6eca34f1c10bc0427e802b814ce1af88815e32f9e",
+      "driver_sha256": "eeb52d3094925dccae3d9979a861bf62bd9607a29a34a4102d661e63d1671f4f",
+      "native_stderr_empty": true,
+      "Memcheck": [],
+      "error": null,
+      "interpretation": "Independent laboratory acceptance, not original CSA PASS."
+    }
+  ],
+  "focused_tests": {
+    "normal": {
+      "exit": 0,
+      "passed": 8,
+      "total": 8,
+      "output_sha256": "6088e8cd014a4c4013e3f1b0ce53c63fe6ee145bb9ca105c5c5984e448075881"
+    },
+    "sanitize": {
+      "exit": 0,
+      "passed": 8,
+      "total": 8,
+      "output_sha256": "7fd71090c34b44c25c5aeb3b0f960212ce131f59bddcaced9f0f59095358b37f"
+    },
+    "compiler_warning_lines": [],
+    "incompatible_flags": {
+      "exit": 2,
+      "expected_error": true
+    },
+    "driver_help_exit": 0
+  },
+  "cleanup": {
+    "TH_final": {
+      "TH": {
+        "state": "idle"
+      },
+      "PAA_removed": true,
+      "supervisor_stopped": true,
+      "original_sources_unchanged": true
+    },
+    "stage_native_processes": [],
+    "paired_Windows_nodes_changed": false
+  },
+  "limitations": [
+    "No Windows/physical-device build or full-suite rerun.",
+    "Instant-apply event capture remains unresolved; successful delayed-apply case is a different scenario.",
+    "Earlier setup failures and original invalid run604 retained privately.",
+    "TH preexisting sdk_container.py modification from CSA58 remains; no pristine-harness claim.",
+    "Provider restart timing/transport failure still needs attribution; no protocol rule weakened."
+  ]
+}

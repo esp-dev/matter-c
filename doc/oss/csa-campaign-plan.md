@@ -134,6 +134,22 @@ original TC_SU_2_2 QueryImageResponse scenarios. Preserve earlier outcomes and
 separate fixture/infrastructure faults from native defects. Keep the Timed Write
 CSA clarification and the general ingress-load/queue-efficiency question open.
 
+## CSA60: explicit OTA query; original step3 FAIL retained
+
+Completed: [receipt](csa60-results.json) and [analysis](csa60-validation.md).
+The local query API advances an application opportunity while retaining mandatory
+spacing, provider delay, urgent jitter and growing failure backoff. No original
+CSA/PICS/default-policy edits. Original605 fails step3 after provider restart and
+query failure; step2 PASS alone does not prove NotAvailable was received.
+Full signed-update memory scenarios pass, but one fast-reboot sanitizer event
+scenario misses Applying. Keep that functional failure separate from clean
+memory diagnostics and the different delayed-apply scenario that passes.
+
+Next: CSA61, unchanged TC_SU_2_7 using the explicit local query fixture. Attribute
+Applying event generation/delivery/capture across simulated reboot before fixing
+only a confirmed native defect. Do not rerun already-attributed TC_SU_4_1 status
+vector assumptions without new evidence. No full-suite/certification claim.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

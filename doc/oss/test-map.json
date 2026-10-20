@@ -1688,7 +1688,7 @@
         "test_ota_query",
         "test_ota_query_alloc"
       ],
-      "entrypoint": "ctest --test-dir <build> -R test_ota_query",
+      "entrypoint": "ctest --test-dir <build> -R test_ota_query Explicit owner query: missing/stale provider, active query/image, monotonic clock, 120s/provider/urgent floors, growing Busy backoff and stop.",
       "referenced_by": [
         "tools/matter/build_host.ps1",
         "tools/matter/build_host_linux.py"
@@ -1747,7 +1747,7 @@
       "path": "tools/matter/tests/test_ota_chip_provider.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP provider plus an optional separate live-MRP stall peer. Explicit --recovery-announcement-reason selects the post-restart trigger; Python cryptography, chip-tool and disposable Linux lab required.",
+      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP provider plus an optional separate live-MRP stall peer. Explicit --recovery-announcement-reason selects the post-restart trigger; Python cryptography, chip-tool and disposable Linux lab required. --local-query uses the explicit application stdin query after reason1 selection; no default-provider write, timing acceleration or original-test patch. Busy180, full signed update/reboot/Notify and fresh CASE are run under Memcheck and separately sanitizers.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
     },

@@ -38,6 +38,12 @@ typedef struct {
  * No automatic echo of manufacturer announcement metadata. */
 Matter_Ota_Query_T matter_ota_query_new(const Matter_Ota_Query_Config_T*,const Matter_Ota_Query_Port_T*,uint64_t now);
 bool matter_ota_query_offer(Matter_Ota_Query_T,const Matter_Ota_Offer_T*,uint64_t now);
+/* Explicit application/user query opportunity for the selected live provider.
+ * Schedules only; process performs I/O. Preserves 120s/provider/urgent floors
+ * and active error/Busy backoff. Does not preempt a query or pending image.
+ * Does not change the default daily policy. No allocation or inline callback
+ * except the fabric-generation check. All calls use the same owner thread. */
+Matter_Result_T matter_ota_query_request(Matter_Ota_Query_T,uint64_t now);
 Matter_Result_T matter_ota_query_process(Matter_Ota_Query_T,uint64_t now);
 /* Stop requests cancellation. Continue process until OK, then delete. */
 Matter_Result_T matter_ota_query_stop(Matter_Ota_Query_T);

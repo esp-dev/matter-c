@@ -72,7 +72,7 @@ typedef struct {
     uint8_t plug_bytes[HOST_PLUG_STATE_BYTES]; bool plug_on,plug_fault,plug_ready;
     bool power_only_enabled,power_sensor_only,sensor_energy; Matter_Cluster_T power_only_epm,power_only_topology;
     Matter_Epm_Sample_T power_only_sample;
-    bool gui_enabled; Matter_Gui_Control_T gui;
+    bool gui_enabled,ota_control; Matter_Gui_Control_T gui;
     Matter_Server_T server; Operational operational[5]; uint16_t port,discriminator,advertised_discriminator; uint8_t random[8],cm_mode;
     uint8_t observed_cm_mode; bool discovery_stopping,discovery_rotate;
     uint64_t extended_duration_ms,extended_since_ms; bool extended_started;
@@ -606,7 +606,7 @@ int main(int argc,char** argv) {
     unsigned long index=0,seconds=30,port=0,disc=3840,pin=20202021; bool operational=false;
     const char* credentials=NULL; const char* state=NULL; const char* ota_file=NULL; const char* ota_key=NULL; const char* ota_boot=NULL;
     Matter_Case_Resumption_Profile_T resumption_profile=MATTER_CASE_RESUMPTION_CHIP;
-    bool gui_control=false; const char* instance_id=NULL;
+    bool gui_control=false,ota_control=false; const char* instance_id=NULL;
     uint64_t extended_duration_ms=UINT64_C(1000)*HOST_EXTENDED_DISCOVERY_SECONDS;
     unsigned long subscriptions=MATTER_HOST_SUBS_PER_FABRIC;
     bool chip_validity=false,test_switch=false,test_power_only=false,power_sensor_only=false,sensor_energy=false,three_phase=false,source_registers=false,meter_services=false,wifi_sim_connected=false;
@@ -625,6 +625,7 @@ int main(int argc,char** argv) {
         if(!strcmp(argv[i],"--test-switch")) { test_switch=true; continue; }
         if(!strcmp(argv[i],"--test-power-only")) { test_power_only=true; continue; }
         if(!strcmp(argv[i],"--power-sensor-only")) { power_sensor_only=true; continue; }
+        if(!strcmp(argv[i],"--ota-control")) { ota_control=true; continue; }
         if(!strcmp(argv[i],"--gui-control")) { gui_control=true; continue; }
         if(!strcmp(argv[i],"--instance-id")) { if(++i==argc) return 2; instance_id=argv[i]; continue; }
         if(!strcmp(argv[i],"--sensor-energy")) { sensor_energy=true; continue; }
@@ -659,7 +660,7 @@ int main(int argc,char** argv) {
         else if(!strcmp(argv[i],"--pin")) { target=&pin; max=99999998; }
         else if(!strcmp(argv[i],"--subscriptions-per-fabric")) { target=&subscriptions; max=10000; }
         if(!target || ++i==argc || !number(argv[i],max,target)) {
-            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--subscriptions-per-fabric N] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--test-power-only] [--power-sensor-only [--sensor-energy | --gui-control [--instance-id HEX16]]] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
+            fprintf(stderr,"Usage: matter-node --interface IPv6Index [--seconds 30] [--port 0] [--discriminator 3840] [--credentials DIR --state FILE --pin 20202021] [--subscriptions-per-fabric N] [--wifi-sim-connected] [--ota-file IMAGE] [--ota-sim-key RAW_PUBLIC_KEY] [--ota-sim-boot fail|hold] [--ota-control] [--operational-fixture] [--case-resumption-profile spec|chip] [--certificate-validity strict|chip] [--test-switch] [--test-power-only] [--power-sensor-only [--sensor-energy | --gui-control [--instance-id HEX16]]] [--three-phase [--source-registers] [--meter-services]] [--test-event-key HEX32]\n"
             "  --extended-discovery-seconds N|unlimited: CM0 announcements; default 900, 0 disables; active windows and operational discovery are unaffected.\n"
             "  --test-event-key: default profile routes energy triggers (legacy aggregate fixture);\n"
             "  with --three-phase --meter-services it enables targeted energy and Meter Identification change/reset triggers.\n"); return 2;
@@ -668,6 +669,7 @@ int main(int argc,char** argv) {
     if(!matter_host_transaction_capacity((uint16_t)subscriptions)) {
         fprintf(stderr,"Subscription budget must be at least 3 and fit MATTER_TRANSPORT_CAPACITY=%u\n",(unsigned)MATTER_TRANSPORT_CAPACITY); return 2;
     }
+    if(ota_control && (!credentials || !ota_file)) { fputs("--ota-control requires credentials and --ota-file\n",stderr); return 2; }
     if(gui_control && (!power_sensor_only || sensor_energy || !credentials)) { fputs("--gui-control requires --power-sensor-only and credentials, without --sensor-energy\n",stderr); return 2; }
     if(gui_control && !instance_id) { fputs("--gui-control requires a persistent --instance-id HEX16\n",stderr); return 2; }
     if(instance_id && (!gui_control || strlen(instance_id)!=16 || strspn(instance_id,"0123456789abcdefABCDEF")!=16)) return 2;
@@ -688,7 +690,7 @@ int main(int argc,char** argv) {
     Node* n=calloc(1,sizeof(*n)); if(!n) return 1;
     n->switch_enabled=test_switch; n->three_phase=three_phase;
     n->power_only_enabled=test_power_only || power_sensor_only; n->power_sensor_only=power_sensor_only;
-    n->sensor_energy=sensor_energy; n->gui_enabled=gui_control;
+    n->sensor_energy=sensor_energy; n->gui_enabled=gui_control; n->ota_control=ota_control; n->gui.allow_ota_query=ota_control;
     n->wifi_sim_connected=wifi_sim_connected;
     n->extended_duration_ms=extended_duration_ms;
     n->source_enabled=source_registers;
@@ -767,10 +769,11 @@ int main(int argc,char** argv) {
     bool announced=n->mdns==NULL; uint64_t next_sample=now,next_status=now;
     if(announced) puts("READY commissioning_discovery=disabled; operational discovery and CASE remain enabled");
     while(!interrupted && (now=node_now(n),(!seconds || now-start<seconds*1000))) {
-        if(n->gui_enabled) {
-            uint64_t generation=n->gui.generation;
+        if(n->gui_enabled || n->ota_control) {
+            uint64_t generation=n->gui.generation,queries=n->gui.query_generation;
             if(!matter_gui_control_poll(&n->gui)) { fputs("GUI control pipe failed\n",stderr); goto done; }
             if(n->gui.stop) break;
+            if(queries!=n->gui.query_generation) printf("OTA_LOCAL_QUERY result=%d\n",matter_server_ota_request_query(n->server));
             if(generation!=n->gui.generation) { next_sample=now; next_status=now; }
         }
         if(!matter_server_reset_requested(n->server) && now>=next_sample) { if(!sample(n,now,(now-start)/1000)) goto done; next_sample=now+1000; }
@@ -799,7 +802,7 @@ int main(int argc,char** argv) {
         }
         matter_host_sleep(10); /* This executable owns scheduling; the library never sleeps. */
     }
-    result=(announced || (n->gui_enabled && n->gui.stop))?0:1;
+    result=(announced || ((n->gui_enabled || n->ota_control) && n->gui.stop))?0:1;
 done:
     if(n->server) {
         while(matter_server_stop(n->server,node_now(n))==MATTER_PENDING) {

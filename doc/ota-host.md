@@ -22,6 +22,24 @@ PAA trust directory containing roots for both devices. Keep all credentials,
 images, journals and logs outside tracked files, for example under `build/`.
 Attestation verification stays enabled. Development trust is not production trust.
 
+For an explicit application query opportunity, start `matter-node` with
+`--ota-control` alongside credentials and `--ota-file`. Its private stdin pipe
+accepts `ota-query` and `stop`, one command per line; EOF requests a clean stop.
+There is no new network command or automatic query on startup. The node prints
+`OTA_LOCAL_QUERY result=N`; zero means scheduled, three means busy. The selected
+provider must already come from the normal authenticated Requestor model. Rate
+limits, provider delay, urgent jitter and Busy/error backoff remain enforced.
+The option is disabled by default and does not alter existing GUI control.
+
+The independent runner's `--local-query` uses UpdateAvailable announcements and
+then issues this explicit application action after selection. It does not rewrite
+the announcement reason or install DefaultOTAProviders. For example, combine
+`--mode busy-180 --events --require-trace --local-query --valgrind` for a complete
+two-boot memory scenario; repeat separately with a sanitizer node. The local
+action and its result must be recorded when this fixture is used with original
+CSA procedures. It is an additional documented application precondition, not an
+undisclosed change to the original test or a production scheduling default.
+
 CSA19 uses CHIP v1.6.1.0 at `3bcdd56ba54fb88b2afb4bfef575014671df7aa7`.
 From an existing SDK checkout, activate its build environment and build the
 provider into a separate output directory:

@@ -223,6 +223,18 @@ changes. The file adapter uses validated size/received counters; the portable
 runtime knows no file path. Rebuild consumers and zero-initialize absent optional
 fields. See the [OTA host contract](ota-host.md).
 
+The owner can call `matter_runtime_ota_request_query` for an explicit local
+"check for updates" action. It schedules a query of the already selected live
+provider; it neither selects an unauthenticated provider nor authorizes an
+installation. `MATTER_OK` means scheduled, not that a query was sent or an image
+exists. The next `process` calls perform the work. Missing/removed providers or
+a stopped runtime return `MATTER_INVALID_STATE`; active query/download/apply or
+boot notification returns `MATTER_BUSY`. Calls remain serialized on the owner
+thread, without allocation or a worker. The global 120-second floor, provider
+delay, urgent-announcement jitter and current Busy/error backoff are preserved.
+The default daily polling policy is unchanged when the action is not invoked.
+Custom query owners can use `matter_ota_query_request` with their monotonic time.
+
 Descriptor, Basic Information and General Commissioning use their existing
 DataVersion for subscription change reporting. Unrelated application measurement
 notifications no longer repeat unchanged built-in values. Reads still return the

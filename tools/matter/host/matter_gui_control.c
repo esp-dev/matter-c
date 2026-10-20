@@ -13,6 +13,9 @@
 static void command(Matter_Gui_Control_T* c) {
     c->line[c->used]=0;
     if(!strcmp(c->line,"stop")) { c->stop=true; return; }
+    if(c->allow_ota_query && !strcmp(c->line,"ota-query") && c->query_generation<UINT64_MAX) {
+        ++c->query_generation; return;
+    }
     if(!strncmp(c->line,"power ",6)) {
         const char* value=c->line+6; char* end;
         errno=0; long long power=strtoll(value,&end,10);

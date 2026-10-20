@@ -362,6 +362,13 @@ static bool ota_select(void* u,const Matter_Ota_Offer_T* offer) {
         (unsigned long long)offer->provider.node,(unsigned)offer->provider.endpoint,offer->announced?"announcement":"default",(unsigned)offer->reason);
      return s->query && matter_ota_query_offer(s->query,offer,s->now);
 }
+Matter_Result_T matter_runtime_ota_request_query(Matter_Runtime_T s) {
+    if(!s) return MATTER_INVALID_ARGUMENT;
+    if(!s->dispatch || !s->query || s->reset || s->stopping || s->recovering) return MATTER_INVALID_STATE;
+    if(s->ota_reboot || s->notify || matter_ota_update_pending(s->update) ||
+        s->download || matter_ota_apply_busy(s->apply)) return MATTER_BUSY;
+    return matter_ota_query_request(s->query,s->now);
+}
 static Matter_Result_T query_random(void* u,uint32_t* out) {
     Matter_Runtime_T s=u; return s->crypto.random(s->crypto.user,(uint8_t*)out,sizeof(*out));
 }

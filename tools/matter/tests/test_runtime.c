@@ -270,6 +270,7 @@ static void commissioning_failures(void) {
 }
 int main(void) {
     Node* a=node_new(0); Node* b=node_new(1);
+    CHECK(matter_runtime_ota_request_query(NULL)==MATTER_INVALID_ARGUMENT);
     a->config.network=(Matter_Diagnostics_Network_Port_T){a,network_snapshot};
     CHECK(!matter_runtime_new(NULL,20202021,0)); CHECK(!matter_runtime_new(&a->config,11111111,0));
     a->fail_clock=true; CHECK(!matter_runtime_new(&a->config,20202021,0)); a->fail_clock=false;
@@ -289,6 +290,8 @@ int main(void) {
     }
 #endif
     start_node(a); start_node(b);
+    CHECK(matter_runtime_ota_request_query(a->runtime)==MATTER_INVALID_STATE);
+    CHECK(matter_runtime_ota_request_query(b->runtime)==MATTER_INVALID_STATE);
     CHECK(matter_runtime_root(a->runtime)!=matter_runtime_root(b->runtime));
     Matter_Root_T ra=matter_runtime_root(a->runtime),rb=matter_runtime_root(b->runtime);
     Matter_Root_Endpoint_Config_T endpoint={.endpoint=7,.device_type=0x100,.revision=1};

@@ -4,7 +4,7 @@
 #include <string.h>
 struct Matter_Ota_Query {
     Matter_Ota_Query_Config_T config; Matter_Ota_Query_Port_T port;
-    Matter_Ota_Provider_T provider; uint64_t generation,job,now,due,floor,provider_floor,deadline;
+    Matter_Ota_Provider_T provider; uint64_t generation,job,now,due,floor,provider_floor,deadline,urgent_floor;
     bool stopped,cancelled,image_pending; unsigned failures;
     uint8_t state,published,reason; Matter_Ota_Image_T image;
     uint8_t args[64]; size_t args_size;
@@ -48,9 +48,20 @@ bool matter_ota_query_offer(Matter_Ota_Query_T q,const Matter_Ota_Offer_T* o,uin
         if(!sampled) return false;
         due=after(now,((uint64_t)(random%600)+1)*1000);
     } else if(o->announced && o->reason==1) due=same?q->due:after(now,86400000);
-    if(!same) { q->provider_floor=0; q->failures=0; }
+    if(!same) { q->provider_floor=0; q->failures=0; q->urgent_floor=0; }
+    if(o->announced && o->reason==2) q->urgent_floor=due;
     q->provider=o->provider; q->generation=gen;
     q->due=maximum(due,maximum(q->floor,q->provider_floor)); return true;
+}
+Matter_Result_T matter_ota_query_request(Matter_Ota_Query_T q,uint64_t now) {
+    if(!q || now<q->now) return MATTER_INVALID_ARGUMENT;
+    if(q->stopped || !q->generation ||
+        q->port.generation(q->port.user,q->provider.fabric)!=q->generation) return MATTER_INVALID_STATE;
+    if(q->job || q->image_pending || q->state==2) return MATTER_BUSY;
+    q->now=now;
+    uint64_t floor=maximum(q->floor,maximum(q->provider_floor,q->urgent_floor));
+    q->due=maximum(q->failures?maximum(q->due,now):now,floor);
+    return MATTER_OK;
 }
 static bool metadata(Matter_Ota_Query_T q,const uint8_t* d,size_t n) {
     const Matter_Tlv_Validation_Options_T opt={512,256,4096,4,false,0,0}; Matter_Tlv_Validation_Report_T report;

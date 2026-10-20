@@ -281,6 +281,7 @@ def main():
     p.add_argument('--recovery-announcement-reason', type=int, choices=(0, 1),
                    help='Explicit AnnounceOTAProvider reason after provider restart; interrupt-retry only. Omitted preserves the initial announcement reason.')
     p.add_argument('--events', action='store_true', help='Subscribe to actual OTA events before announcement and verify their fields/sequences.')
+    p.add_argument('--local-query', action='store_true', help='Use UpdateAvailable and explicit application stdin query; preserve native daily/default scheduling and rate limits.')
     p.add_argument('--default-provider', action='store_true', help='Configure DefaultOTAProviders before UpdateAvailable announcements; existing default uses SimpleAnnouncement.')
     p.add_argument('--valgrind', action='store_true')
     p.add_argument('--require-trace', action='store_true', help='Require and verify actual QueryImageResponse fields, also in update mode.')
@@ -288,6 +289,8 @@ def main():
     p.add_argument('--bdx-profile', action='store_true', help='Verify ReceiveInit/Accept, all block counters, image bytes and AckEOF from actual peer traces.')
     p.add_argument('--image-version', type=int, choices=(2, 3), default=2, help='Positive update fixture version; enables a nonconstant NewVersion control.')
     a = p.parse_args()
+    if a.local_query and a.default_provider:
+        p.error('--local-query and --default-provider select different fixtures')
     apply_policy = {'apply-proceed-0': (0, 0), 'apply-proceed-180': (0, 180),
                     'apply-await-60': (1, 60), 'apply-await-180': (1, 180),
                     'apply-discontinue': (2, 180)}.get(a.mode)
@@ -311,7 +314,7 @@ def main():
     report = {'scope': 'CHIP Provider and C requestor, laboratory protocol/simulated restart; not certification',
               'driver_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               'mode': a.mode, 'valgrind': a.valgrind, 'trace_required': need_trace, 'subscriptions_per_fabric': a.subscriptions_per_fabric,
-              'default_provider': a.default_provider, 'announcement_reason': 1 if a.default_provider else 0,
+              'default_provider': a.default_provider, 'local_query': a.local_query, 'announcement_reason': 1 if a.default_provider or a.local_query else 0,
               'checks': [], 'fixture': image_fixture(out, image_version, 2 if a.mode == 'version-mismatch' else None),
               'binaries': {n: hashlib.sha256(Path(v).read_bytes()).hexdigest() for n, v in
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
@@ -437,12 +440,12 @@ def main():
         argv = [a.exe, '--interface', str(a.interface), '--subscriptions-per-fabric', str(a.subscriptions_per_fabric), '--port', '5581', '--seconds', '900',
                 '--discriminator', '3910', '--credentials', a.credentials, '--state', str(out / 'state.tlv'),
                 '--three-phase', '--source-registers', '--meter-services',
-                '--ota-file', str(out / 'download.ota'), '--ota-sim-key', str(out / 'public.sec1')]
+                '--ota-file', str(out / 'download.ota'), '--ota-sim-key', str(out / 'public.sec1'), *(['--ota-control'] if a.local_query else [])]
         if a.valgrind:
             argv = ['valgrind', '--leak-check=full', '--show-leak-kinds=all',
                     '--errors-for-leak-kinds=definite,indirect,possible', '--track-origins=yes',
                     '--error-exitcode=99', '--log-file=' + str(out / f'valgrind-{phase}.log'), *argv]
-        node = subprocess.Popen(argv, stdout=log(f'node-{phase}.log'), stderr=log(f'node-{phase}.err'), env=env)
+        node = subprocess.Popen(argv, stdin=subprocess.PIPE if a.local_query else None, stdout=log(f'node-{phase}.log'), stderr=log(f'node-{phase}.err'), env=env)
         wait(lambda: 'NODE instance=' in node_text())
 
     def command(c, argv, pattern=r'SuppressResponse = true', timeout=30):
@@ -458,8 +461,21 @@ def main():
 
     def announce(reason=None):
         if reason is None:
-            reason = 1 if a.default_provider else 0
+            reason = 1 if a.default_provider or a.local_query else 0
+        before=node_text().count('OTA_SELECTED ')
         command(client, ['otasoftwareupdaterequestor', 'announce-otaprovider', 2, 0xfff1, reason, 0, 1, 0], r'status = 0x00')
+        if a.local_query:
+            wait(lambda: node_text().count('OTA_SELECTED ')>before)
+            deadline=time.monotonic()+60
+            while True:
+                offset=len(node_text())
+                node.stdin.write(b'ota-query\n'); node.stdin.flush()
+                wait(lambda: 'OTA_LOCAL_QUERY result=' in node_text()[offset:], 5)
+                code=int(re.search(r'OTA_LOCAL_QUERY result=(\d+)',node_text()[offset:])[1])
+                if code==0:
+                    break
+                assert code==3 and time.monotonic()<deadline, 'Local query rejected or busy beyond fixture deadline'
+                time.sleep(.5)
 
     def start_provider():
         nonlocal provider, provider_phase
@@ -621,7 +637,7 @@ def main():
             recovery_started = time.monotonic()
             report['recovery_trigger'] = {
                 'announcement_reason': a.recovery_announcement_reason if a.recovery_announcement_reason is not None
-                else (1 if a.default_provider else 0),
+                else (1 if a.default_provider or a.local_query else 0),
                 'requestor_pid': node.pid, 'requestor_restarts_before_trigger': phase - 1,
                 'provider_restarts': provider_phase - 1}
             announce(a.recovery_announcement_reason)

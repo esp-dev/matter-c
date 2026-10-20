@@ -96,6 +96,10 @@ bool matter_runtime_reset_requested(Matter_Runtime_T);
 bool matter_runtime_reset_ready(Matter_Runtime_T);
 bool matter_runtime_ota_reboot_requested(Matter_Runtime_T);
 bool matter_runtime_ota_trial(Matter_Runtime_T);
+/* Local owner action: request a query of the selected live OTA provider.
+ * OK means scheduled, not sent/available/installed. No schedule/rate-limit
+ * bypass; no preemption during query, download, apply or boot notification. */
+Matter_Result_T matter_runtime_ota_request_query(Matter_Runtime_T);
 Matter_Result_T matter_runtime_ota_boot_ready(Matter_Runtime_T);
 /* Keep UDP/resolver/radio and all borrowed ports alive while stop=PENDING.
  * Never free on timeout. stop=OK is required before delete; stop is terminal. */

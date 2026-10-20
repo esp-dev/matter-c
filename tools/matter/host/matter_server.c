@@ -172,6 +172,7 @@ const Matter_Fabric_View_T* matter_server_fabrics(Matter_Server_T s) { return ma
 uint8_t matter_server_commissioning_mode(Matter_Server_T s,uint16_t* d) { return matter_runtime_commissioning_mode(s?s->runtime:NULL,d); }
 Matter_Result_T matter_server_ota_boot_ready(Matter_Server_T s) { return matter_runtime_ota_boot_ready(s?s->runtime:NULL); }
 Matter_Result_T matter_server_set_resumption(Matter_Server_T s,Matter_Case_Resumption_Profile_T p) { return matter_runtime_set_resumption(s?s->runtime:NULL,p); }
+Matter_Result_T matter_server_ota_request_query(Matter_Server_T s) { return matter_runtime_ota_request_query(s?s->runtime:NULL); }
 Matter_Result_T matter_server_set_certificate_validity(Matter_Server_T s,bool chip) { return matter_runtime_set_certificate_validity(s?s->runtime:NULL,chip); }
 Matter_Result_T matter_server_set_test_trigger(Matter_Server_T s,const Matter_Diagnostics_Test_Trigger_T* p) { return matter_runtime_set_test_trigger(s?s->runtime:NULL,p); }
 Matter_Result_T matter_server_set_resolver(Matter_Server_T s,const Matter_Resolver_Port_T* p) { return matter_runtime_set_resolver(s?s->runtime:NULL,p); }

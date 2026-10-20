@@ -238,7 +238,44 @@ static void boundaries(void) {
     }
     puts("PASS QueryImageResponse URI256/version64/token32/metadata512 and each over-limit rejection");
 }
-int main(void) { client(); policy(); retry_states(); handoff(); boundaries();
+static void manual_requests(void) {
+    CHECK(matter_ota_query_request(NULL,0)==MATTER_INVALID_ARGUMENT);
+    Test* t=setup(false);
+    CHECK(matter_ota_query_request(t->query,0)==MATTER_INVALID_STATE);
+    t->offer.announced=true; t->offer.reason=1;
+    CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,10); CHECK(!t->starts);
+    CHECK(matter_ota_query_request(t->query,9)==MATTER_INVALID_ARGUMENT);
+    CHECK(matter_ota_query_request(t->query,10)==MATTER_OK); pump(t,10); CHECK(t->starts==1);
+    CHECK(matter_ota_query_request(t->query,10)==MATTER_BUSY);
+    response(t,1,180,false); pump(t,20);
+    CHECK(matter_ota_query_request(t->query,30)==MATTER_OK);
+    pump(t,180019); CHECK(t->starts==1); pump(t,180020); CHECK(t->starts==2);
+    response(t,2,0,false); pump(t,180021);
+    CHECK(matter_ota_query_request(t->query,180022)==MATTER_OK);
+    CHECK(matter_ota_query_request(t->query,180023)==MATTER_OK);
+    pump(t,300020); CHECK(t->starts==2); pump(t,300021); CHECK(t->starts==3);
+    response(t,2,0,false); pump(t,300022);
+    ++t->generation; CHECK(matter_ota_query_request(t->query,300023)==MATTER_INVALID_STATE);
+    CHECK(matter_ota_query_stop(t->query)==MATTER_OK);
+    CHECK(matter_ota_query_request(t->query,300023)==MATTER_INVALID_STATE); destroy(t);
+    t=setup(false); t->offer.announced=true; t->offer.reason=2; t->random=599;
+    CHECK(matter_ota_query_offer(t->query,&t->offer,0));
+    CHECK(matter_ota_query_request(t->query,10)==MATTER_OK);
+    pump(t,599999); CHECK(!t->starts); pump(t,600000); CHECK(t->starts==1); destroy(t);
+    t=setup(true); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
+    response(t,0,60,true); pump(t,1);
+    CHECK(matter_ota_query_request(t->query,2)==MATTER_BUSY); destroy(t);
+    t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
+    response(t,1,0,false); pump(t,1);
+    CHECK(matter_ota_query_request(t->query,2)==MATTER_OK);
+    pump(t,120001); CHECK(t->starts==2);
+    response(t,1,0,false); pump(t,120002);
+    CHECK(matter_ota_query_request(t->query,120003)==MATTER_OK);
+    pump(t,240002); CHECK(t->starts==2); /* Global floor alone has elapsed. */
+    pump(t,360001); CHECK(t->starts==2); pump(t,360002); CHECK(t->starts==3); destroy(t);
+    puts("PASS explicit OTA query: selected/live provider, daily override, clocks, Busy/image ownership, 120s/provider/urgent floors and stop");
+}
+int main(void) { client(); policy(); retry_states(); handoff(); boundaries(); manual_requests();
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live); puts("PASS Query/Invoke constructor OOM and allocation ownership");
 #endif
