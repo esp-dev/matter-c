@@ -285,3 +285,22 @@ are checked, not just the provider CLI arguments. These independent scenarios
 do not replace the unchanged automatic TC_SU_2_2 result; see
 [CSA28](oss/csa28-validation.md). The optional runner requires Python cryptography
 and the existing Linux laboratory dependencies.
+
+For recovery after a provider loses its CASE session, use fresh disposable state
+with `--mode query-restart --events --event-min-interval 5 --local-query
+--require-trace --apply-binding --bdx-profile`. The runner kills only its own
+provider child after the requestor receives Busy/60, then starts a new provider
+with the same image and KVS. The old session must fail without a decoded response
+or download. Reannouncing and requesting a local query must preserve the native
+second-failure backoff of 240 real seconds; this value is policy, not a normative
+Matter timeout. The requestor process remains alive throughout recovery.
+
+The replacement peer's trace must show either Sigma1/Sigma2/Sigma3 or a resumed
+Sigma1/Sigma2Resume/Success exchange. A restarted provider can retain resumption
+material in KVS while losing active sessions. The responder SessionID is matched
+to the subsequent encrypted QueryImage; merely obtaining a different numeric
+SessionID does not prove new CASE. The
+scenario then checks exact BDX bytes/counters/EOF, token/version binding, signed
+simulated installation, live Applying, restart, Notify and fresh CASE readback.
+Run first under Memcheck, then separately ASan/UBSan/LSan. These are independent
+fault/recovery checks and cannot replace the original TC_SU_2_2 outcome.

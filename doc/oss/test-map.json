@@ -1747,7 +1747,7 @@
       "path": "tools/matter/tests/test_ota_chip_provider.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP provider plus an optional separate live-MRP stall peer. Explicit --recovery-announcement-reason selects the post-restart trigger; Python cryptography, chip-tool and disposable Linux lab required. --local-query uses the explicit application stdin query after reason1 selection; no default-provider write, timing acceleration or original-test patch. Busy180, full signed update/reboot/Notify and fresh CASE are run under Memcheck and separately sanitizers. --events --event-min-interval 5 requires live Applying before reboot; history alone cannot satisfy it.",
+      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP provider plus an optional separate live-MRP stall peer. Explicit --recovery-announcement-reason selects the post-restart trigger; Python cryptography, chip-tool and disposable Linux lab required. --local-query uses the explicit application stdin query after reason1 selection; no default-provider write, timing acceleration or original-test patch. Busy180, full signed update/reboot/Notify and fresh CASE are run under Memcheck and separately sanitizers. --events --event-min-interval 5 requires live Applying before reboot; history alone cannot satisfy it. --mode query-restart kills only its Busy60 provider, preserves real240s second-failure backoff and requires a complete new CASE bound to QueryImage, BDX bytes/EOF, signed apply, reboot and Notify.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
     },

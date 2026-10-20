@@ -1341,7 +1341,7 @@
       ],
       "kind": "OTA_QUERY_PHASE_HANDOFF_RACE_AND_BACKOFF_WINDOW",
       "evidence": "csa63-results.json",
-      "action": "Retain original FAIL607: valid UpdateAvailable from old provider starts BDX before step2. Separate fault608 proves unknown-session drops -> MRP timeout -> transport error ->240s backoff beyond step3, consistent with but not retrospective proof of605. Seek provider lifecycle/actual-response/window clarification; do not weaken timing guards. CSA64 must observe fresh CASE and recovery after the permitted retry."
+      "action": "Retain original FAIL607 and separate fault608. CSA64 independent normal Memcheck recovery passes27; sanitizer retry preserves240024ms but fails32ms later before peer sees new CASE. Cause unconfirmed: CSA65 needs bounded resolver/outgoing/CASE-creation diagnostics before further long reruns or any native correction. Original handoff/observation clarification remains; do not weaken timing guards."
     },
     {
       "cases": [

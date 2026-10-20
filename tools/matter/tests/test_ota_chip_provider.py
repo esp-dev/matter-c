@@ -13,6 +13,8 @@ verify a new ReceiveInit at offset zero and a complete update.
 Requires Python cryptography, chip-tool and trusted development PAAs.
 apply-* modes cover TC-SU-2.5 with real provider delays, never an accelerated
 requestor clock. They verify peer responses, retry counts and image disposal.
+query-restart loses the provider's CASE session after Busy60, observes the stale
+session timeout and real240s backoff, then requires fresh CASE and full OTA.
 """
 import argparse
 import hashlib
@@ -223,6 +225,52 @@ def query_messages(path, requests=False):
             for m in ota_messages(path, 0 if requests else 1, requests)]
 
 
+def query_case(path):
+    """Bind a decoded QueryImage to its preceding CASE on this peer boot.
+
+    Sigma2 or Sigma2Resume's responder SessionID must equal the encrypted
+    request's destination SessionID. A resumed handshake also needs the
+    initiator's Success status. Return only public timing/ID metadata.
+    SessionIDs may legitimately repeat across boots: a different number alone is
+    neither necessary nor sufficient evidence of a fresh authenticated session.
+    """
+    queries = query_messages(path, requests=True)
+    assert len(queries) == 1, 'Expected one decoded QueryImage on this provider boot'
+    records = trace_messages(path)
+    requests = [r for r in records if r.get('event') == 'MessageReceived'
+                and r.get('payloadHeader', {}).get('protocolId') == 1
+                and r['payloadHeader'].get('messageType') == 8
+                and r['time_ms'] == queries[0]['time_ms']]
+    assert len(requests) == 1 and requests[0]['messageType'] == 'Secure'
+    request = requests[0]; session = request['packetHeader']['sessionId']
+    handshakes = [r for r in records if r.get('payloadHeader', {}).get('protocolId') == 0
+                  and r['payloadHeader'].get('messageType') in (0x30, 0x31, 0x32, 0x33, 0x40)
+                  and r['time_ms'] <= request['time_ms']]
+    for second in reversed(handshakes):
+        opcode = second['payloadHeader']['messageType']
+        if second['event'] != 'MessageSend' or opcode not in (0x31, 0x33):
+            continue
+        resumed = opcode == 0x33
+        fields = tlv_document(bytes.fromhex(second['payload']['hex']))
+        if fields.get(3 if resumed else 2) != session:
+            continue
+        exchange = second['payloadHeader']['exchangeId']
+        opcodes = (0x30, 0x33, 0x40) if resumed else (0x30, 0x31, 0x32)
+        sequence = [r for r in handshakes if r['payloadHeader']['exchangeId'] == exchange
+                    and r['payloadHeader']['messageType'] in opcodes]
+        assert [(r['event'], r['payloadHeader']['messageType']) for r in sequence] == [
+            ('MessageReceived', 0x30), ('MessageSend', opcodes[1]), ('MessageReceived', opcodes[2])]
+        assert sequence[0]['time_ms'] <= second['time_ms'] <= sequence[2]['time_ms'] <= request['time_ms']
+        if resumed:
+            first_fields = tlv_document(bytes.fromhex(sequence[0]['payload']['hex']))
+            assert all(type(first_fields.get(tag)) is bytes and len(first_fields[tag]) == 16 for tag in (6, 7))
+            assert all(type(fields.get(tag)) is bytes and len(fields[tag]) == 16 for tag in (1, 2))
+            assert bytes.fromhex(sequence[2]['payload']['hex']) == bytes(8), 'CASE resumption did not finish with Success'
+        return {'mode': 'resumed' if resumed else 'full', 'session_id': session, 'exchange_id': exchange,
+                'handshake_times_ms': [r['time_ms'] for r in sequence], 'query_time_ms': request['time_ms']}
+    raise AssertionError('No complete CASE bound to decoded QueryImage')
+
+
 def apply_binding(paths, version, require_notify=True):
     """Require the latest offered token/version in every actual Apply request."""
     messages = []
@@ -276,7 +324,7 @@ def main():
                    'not-available', 'same-version', 'older-version', 'invalid-uri',
                    'interrupt-retry', 'version-mismatch', 'apply-proceed-0',
                    'apply-proceed-180', 'apply-await-60', 'apply-await-180',
-                   'apply-discontinue', 'query-timeout'), default='busy-update')
+                   'apply-discontinue', 'query-timeout', 'query-restart'), default='busy-update')
     p.add_argument('--stall-provider', help='Separate laboratory provider that stalls BDX data but keeps MRP alive; interrupt-retry only.')
     p.add_argument('--recovery-announcement-reason', type=int, choices=(0, 1),
                    help='Explicit AnnounceOTAProvider reason after provider restart; interrupt-retry only. Omitted preserves the initial announcement reason.')
@@ -299,18 +347,18 @@ def main():
                     'apply-await-60': (1, 60), 'apply-await-180': (1, 180),
                     'apply-discontinue': (2, 180)}.get(a.mode)
     negative = a.mode in ('not-available', 'same-version', 'older-version', 'invalid-uri', 'version-mismatch', 'apply-discontinue', 'query-timeout')
-    busy_mode = a.mode in ('busy-update', 'busy-60', 'busy-180')
-    delay = {'busy-60': 60, 'busy-180': 180, 'not-available': 60}.get(a.mode, 150 if a.mode == 'busy-update' else 0)
+    busy_mode = a.mode in ('busy-update', 'busy-60', 'busy-180', 'query-restart')
+    delay = {'busy-60': 60, 'busy-180': 180, 'not-available': 60, 'query-restart': 60}.get(a.mode, 150 if a.mode == 'busy-update' else 0)
     if a.image_version != 2 and a.mode != 'update':
         p.error('--image-version=3 requires --mode update')
     if a.stall_provider and a.mode != 'interrupt-retry':
         p.error('--stall-provider requires --mode interrupt-retry')
     if a.recovery_announcement_reason is not None and a.mode != 'interrupt-retry':
         p.error('--recovery-announcement-reason requires --mode interrupt-retry')
-    if a.apply_binding and a.mode != 'update':
-        p.error('--apply-binding requires --mode update')
-    if a.bdx_profile and a.mode not in ('update', 'interrupt-retry'):
-        p.error('--bdx-profile requires --mode update or interrupt-retry')
+    if a.apply_binding and a.mode not in ('update', 'query-restart'):
+        p.error('--apply-binding requires --mode update or query-restart')
+    if a.bdx_profile and a.mode not in ('update', 'interrupt-retry', 'query-restart'):
+        p.error('--bdx-profile requires --mode update, interrupt-retry or query-restart')
     image_version = {'same-version': 1, 'older-version': 0, 'version-mismatch': 3}.get(a.mode, a.image_version)
     need_trace = a.events or a.require_trace or a.apply_binding or a.bdx_profile or a.mode not in ('busy-update', 'update')
     out = Path(a.output).resolve(); out.mkdir(parents=True, exist_ok=False)
@@ -487,7 +535,7 @@ def main():
         provider_phase += 1
         provider = subprocess.Popen([a.stall_provider if a.stall_provider and provider_phase == 1 else a.provider, '--secured-device-port', '5561', '--discriminator', '3991',
                     '--passcode', '20202021', '--KVS', str(out / 'provider.kvs'),
-                    '--filepath', str(out / 'source.ota'), '--queryImageStatus', 'busy' if busy_mode else
+                    '--filepath', str(out / 'source.ota'), '--queryImageStatus', 'busy' if busy_mode and (a.mode != 'query-restart' or provider_phase == 1) else
                     'updateNotAvailable' if a.mode == 'not-available' else 'updateAvailable',
                     '--delayedQueryActionTimeSec', str(delay),
                     *(['--applyUpdateAction', ('proceed', 'awaitNextAction', 'discontinue')[apply_policy[0]],
@@ -571,7 +619,7 @@ def main():
                     check('response-has-usable-bdx-location', isinstance(first_response['uri'], str)
                           and first_response['uri'].startswith('bdx://0000000000000002/')
                           and len(first_response['uri']) >= 24)
-        if busy_mode:
+        if busy_mode and a.mode != 'query-restart':
             wait(lambda: 'OTA_STATE state=3 reason=4' in node_text())
             announce()  # A repeated announcement must not bypass Busy's floor.
             observe(119.8 if delay == 60 else 120.2 if delay < 180 else 179.8)
@@ -594,6 +642,45 @@ def main():
                 check('busy-delay-respected', query_interval >= 120000 and delay_interval >= delay * 1000,
                       {'query_interval_ms': query_interval, 'response_to_next_query_ms': delay_interval})
                 check('busy-retry-update-available', response['status'] == 0 and response['version'] == 2, response)
+        if a.mode == 'query-restart':
+            wait(lambda: 'OTA_STATE state=3 reason=4' in node_text())
+            first_case = query_case(provider_logs()[0])
+            original_node = node.pid
+            # Kill only our child after Busy has actually reached the requestor.
+            # The replacement retains KVS/image but none of the old CASE state.
+            provider.kill(); provider.wait(timeout=10)
+            check('busy-provider-killed-before-retry', provider.returncode < 0
+                  and node.poll() is None and query_count() == 1)
+            start_provider()
+            wait(lambda: 'Data received on an unknown session' in provider_text(), 150)
+            wait(lambda: 'OTA_STATE state=1 reason=2' in node_text(), 90)
+            failure_observed = time.monotonic()
+            check('stale-case-query-fails-without-response-or-download', node.pid == original_node
+                  and node.poll() is None and phase == 1 and query_count() == 1
+                  and len(responses()) == 1 and 'OTA_DOWNLOAD' not in node_text())
+            announce()  # Explicit owner query must preserve the existing backoff.
+            wait(lambda: query_count() >= 2, 315, allow_node_exit=True)
+            wait(lambda: len(responses()) >= 2, allow_node_exit=True)
+            recovered = query_case(provider_logs()[-1])
+            lost = [(round(float(stamp) * 1000), int(identifier)) for stamp, identifier in re.findall(
+                r'^\[(\d+\.\d+)\].*Data received on an unknown session \(LSID=(\d+)\)',
+                ANSI.sub('', provider_logs()[-1].read_text(errors='replace')), re.M)]
+            elapsed = time.monotonic() - failure_observed
+            report['query_recovery'] = {'first_case': first_case, 'recovery_case': recovered,
+                'unknown_session_drops': len(lost),
+                'last_unknown_session_time_ms': lost[-1][0] if lost else None,
+                'failure_observed_to_recovery_seconds': elapsed,
+                'requestor_restarts_before_recovery': phase - 1,
+                'provider_restarts': provider_phase - 1,
+                'timing_limit': '240s is current policy. Peer last-drop-to-query bound is conservative; owner log observation may lag completion by up to0.5s.'}
+            check('same-requestor-new-case-after-provider-restart', node.pid == original_node
+                  and phase == 1 and provider_phase == 2 and query_count() == 2
+                  and bool(lost) and all(identifier == first_case['session_id'] for _, identifier in lost), report['query_recovery'])
+            check('second-failure-backoff-not-bypassed', elapsed >= 239.5
+                  and recovered['query_time_ms'] - lost[-1][0] >= 240000,
+                  {'observed_seconds': elapsed, 'last_drop_to_query_ms': recovered['query_time_ms'] - lost[-1][0]})
+            check('recovery-query-update-available', responses()[1]['status'] == 0
+                  and responses()[1]['version'] == image_version, responses()[1])
         if a.mode == 'interrupt-retry':
             partial = out / 'download.ota.part'
             wait(lambda: partial.exists() and partial.stat().st_size >= 4096)
@@ -726,8 +813,10 @@ def main():
                 t['TargetSoftwareVersion'] == (image_version if t['NewState'] in (4, 5, 7) else None)
                 for t in transitions), transitions)
             sequence = [(t['PreviousState'], t['NewState']) for t in transitions]
-            prefix = [(1, 2), (2, 1)] if a.mode in ('query-timeout', 'not-available', 'same-version', 'older-version', 'invalid-uri') else (
+            prefix = [(1, 2), (2, 3), (3, 2), (2, 1), (1, 2), (2, 4), (4, 5)] if a.mode == 'query-restart' else (
+                [(1, 2), (2, 1)] if a.mode in ('query-timeout', 'not-available', 'same-version', 'older-version', 'invalid-uri') else (
                 [(1, 2), (2, 3), (3, 2), (2, 4), (4, 5)] if busy_mode else [(1, 2), (2, 4)])
+            )
             check('ota-event-transition-sequence', sequence[:len(prefix)] == prefix, sequence)
             if not negative:
                 check('downloading-directly-to-applying', (4, 5) in sequence and (4, 1) not in sequence

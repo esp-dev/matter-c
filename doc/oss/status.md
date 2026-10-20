@@ -7,6 +7,17 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA64: recovery completes under Memcheck; sanitizer variant retains FAIL.**
+Normal host passes27 checks: real backoff, new resumed CASE, exact signed BDX,
+apply/reboot/Notify and version2 readback. Two boots have zero Memcheck errors/live
+blocks. Separate sanitizers retain a functional FAIL: after240024ms, Querying
+returns to Idle/Failure in32ms without a new CASE reaching the provider; no
+sanitizer diagnostics, but no full update acceptance. [Report](csa64-validation.md).
+The first full-only oracle FAIL is retained;13 corrected oracle controls pass.
+No native/original-test/PICS change; counts stay122 PASS/28 FAIL/5 prerequisites.
+Next:CSA65, bounded attribution of that early failure before further long reruns.
+Paired Windows nodes remain untouched.
+
 **CSA63: QueryImage provider handoff and backoff attributed; original FAIL retained.**
 Unforced original607 accepts UpdateAvailable from the old provider before its
 handoff and fails step2 in Downloading. Separate deliberate-loss608 proves unknown

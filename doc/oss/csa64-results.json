@@ -1,0 +1,699 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa63-results.json",
+  "previous_sha256": "0df9026e39db9b96f10a0b930e3cc27684c6467f40d90343f417d5bd47fbcf6c",
+  "source_base_commit": "8d251d2bb1f55b725c021e047d8e1570d12719cd",
+  "scope": "Independent controlled provider restart and real Busy/error backoff. Normal Memcheck completes new CASE and signed OTA; separate sanitizer run fails before any new handshake is seen by provider. Preserve both outcomes; extend acceptance driver only.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [],
+  "original_runs": [],
+  "original_rerun": {
+    "performed": false,
+    "retained": "TC_SU_2_2 FAIL607;608 deliberate-fault diagnostic remains separate. This independent recovery does not repair the original provider phase/observation prerequisites."
+  },
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "PICS_note": "Inherited profile fingerprint; no new original execution PICS snapshot or test/PICS change in CSA64.",
+  "driver_sha256": "674ebe2bd8c752958188d1b7b440372ad0a0231a9cea66c438889100b3aca686",
+  "conclusion": {
+    "acceptance": "NOT_STABLE",
+    "normal_recovery_confirmed": true,
+    "sanitizer_recovery_confirmed": false,
+    "native_production_change": false,
+    "normal_path": "Busy60 -> provider restart with same KVS/image -> stale session dropped -> MRP/query failure -> real240s backoff -> new CASE -> UpdateAvailable -> exact BDX -> signed simulated apply/reboot -> Notify -> fresh CASE version2/SoftwareUpdateCompleted.",
+    "sanitizer_failure": "Retry occurs240024ms after failure, then returns to Idle/Failure32ms later. Replacement provider sees no new CASE or QueryImage. No sanitizer error on stderr, but no complete sanitizer OTA acceptance. Pre-handshake cause remains unconfirmed.",
+    "new_session_limit": "CASE resumption establishes a new active session. Provider restart loses active sessions but may retain resumption records in KVS; requiring only Sigma1/Sigma2/Sigma3 would falsely reject the legal Sigma1/Sigma2Resume/Success path.",
+    "counts_changed": false,
+    "certification": false
+  },
+  "normative_basis": {
+    "document": "Matter Core1.6.1",
+    "sections": [
+      "4.14.2.6",
+      "11.20.3.2",
+      "11.20.3.6",
+      "11.20.7.7"
+    ],
+    "resumption": "Sigma2Resume responderSessionID is tag3; a complete resumed handshake ends with initiator Success. Bind that SessionID to encrypted QueryImage on the replacement provider boot.",
+    "timing": "120s minimum and provider delay are retained.240s second-failure delay is implementation policy, not a normative Matter requirement. No clock acceleration.",
+    "crypto_profile": "Existing explicitly selected CHIP-compatible resumption key-derivation profile; no profile/default change here. The prior documented specification/CHIP derivation difference remains."
+  },
+  "scenarios": [
+    {
+      "variant": "normal",
+      "result": "PASS",
+      "check_count": 27,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-provider-killed-before-retry",
+          "status": "PASS"
+        },
+        {
+          "name": "stale-case-query-fails-without-response-or-download",
+          "status": "PASS"
+        },
+        {
+          "name": "same-requestor-new-case-after-provider-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "second-failure-backoff-not-bypassed",
+          "status": "PASS"
+        },
+        {
+          "name": "recovery-query-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "e4ce34c88d82b13e124737cfb19c0688b6ec96d9a66fbd2f971093ec0bba623e",
+      "logs_sha256": {
+        "provider-2.log": "03276c1ef5a0c3fe3612aae516017b8081d2bbd80c44c0d43534c86c10e401f8",
+        "valgrind-1.log": "36f4af335a3ee507f6e365b9c6d005f537fbf76bd5166eae0fe8317aeb94b4e2",
+        "valgrind-2.log": "97737fd564188ae61fb9385af6500afa6e42d8fa0fbb1f72985831126d78fbfb",
+        "node-2.log": "7bd1ea088d2def9c4a313a89353effc426afdb1026ed9bfb5d661fdbe3d75030",
+        "provider.log": "e56d80b136f8a234c3a4ad5ca2ce261f3da18718eaa9df4faec33a4b123596c1",
+        "node-1.log": "6dea5873bdcb7f242dc54513af9ec691ad27386a140e92c5fb39708f0bff7e1f",
+        "fresh-reader/interactive.log": "dad14c4b0606dd7bbb91dc727bb8c22b64b667f6b11c3d670aaa03968c79d14c",
+        "controller/interactive.log": "13666b0aeb0be742fff274755aaa060ead12b622b60f57f00219293ff1395ce5"
+      },
+      "binaries_sha256": {
+        "requestor": "0d552a6e4323f16eef9cba665e5699dbed3d45d9e9e8c5aa5aec96bbb63ffeee",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "250ee6e97975a879caa612d6ab905e3895743b6a50744be249116c547cdf043b",
+        "public_key_sha256": "38d65ff14aa4d5c445920170d7e998469dac02ab55a628638309f668c5b66da6"
+      },
+      "query_recovery": {
+        "first_case": {
+          "mode": "full",
+          "session_id": 51675,
+          "exchange_id": 59347,
+          "handshake_times_ms": [
+            1792489748900,
+            1792489748901,
+            1792489750309
+          ],
+          "query_time_ms": 1792489750343
+        },
+        "recovery_case": {
+          "mode": "resumed",
+          "session_id": 51859,
+          "exchange_id": 59423,
+          "handshake_times_ms": [
+            1792490117140,
+            1792490117141,
+            1792490117218
+          ],
+          "query_time_ms": 1792490117234
+        },
+        "unknown_session_drops": 5,
+        "last_unknown_session_time_ms": 1792489874443,
+        "failure_observed_to_recovery_seconds": 240.4364645308815,
+        "requestor_restarts_before_recovery": 0,
+        "provider_restarts": 1,
+        "timing_limit": "240s is current policy. Peer last-drop-to-query bound is conservative; owner log observation may lag completion by up to0.5s."
+      },
+      "BDX_profile": {
+        "result": "PASS",
+        "transfer_control": 32,
+        "range_control": 0,
+        "proposed_max_block_size": 1024,
+        "accepted_max_block_size": 1024,
+        "start_offset_field": null,
+        "effective_start_offset": 0,
+        "proposed_length_field": null,
+        "accepted_length": null,
+        "file_designator_length": 1,
+        "metadata_bytes": 0,
+        "block_counters": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "eof_counter": 16,
+        "ack_eof_counter": 16,
+        "bytes": 16585,
+        "image_sha256": "250ee6e97975a879caa612d6ab905e3895743b6a50744be249116c547cdf043b",
+        "ordinary_BlockAck": false,
+        "limits": "Negotiated synchronous receiver drive: next BlockQuery acknowledges prior block; no sender-driven or nonzero-offset transfer claimed."
+      },
+      "apply_requests": [
+        {
+          "time_ms": 1792490120512,
+          "new_version": 2,
+          "token_size": 32,
+          "token_sha256": "e9fd9bbce69891a9d8364ccfabd00d908b70dc58063994a4d21844a9bb7f1256"
+        }
+      ],
+      "pre_reboot_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 3,
+            "Reason": 4,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 3,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 1,
+            "Reason": 2,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 4,
+            "Reason": 1,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 5,
+            "Reason": 1,
+            "PreviousState": 4,
+            "TargetSoftwareVersion": 2
+          }
+        }
+      ],
+      "ota_events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 3,
+            "Reason": 4,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 3,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 1,
+            "Reason": 2,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 2,
+            "Reason": 1,
+            "PreviousState": 1,
+            "TargetSoftwareVersion": null
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 4,
+            "Reason": 1,
+            "PreviousState": 2,
+            "TargetSoftwareVersion": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "NewState": 5,
+            "Reason": 1,
+            "PreviousState": 4,
+            "TargetSoftwareVersion": 2
+          }
+        },
+        {
+          "event": "VersionApplied",
+          "fields": {
+            "ProductID": 32769,
+            "SoftwareVersion": 2
+          }
+        }
+      ],
+      "Memcheck": [
+        {
+          "boot": 1,
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            36967,
+            36967
+          ]
+        },
+        {
+          "boot": 2,
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            19568,
+            19568
+          ]
+        }
+      ],
+      "native_stderr_empty": true,
+      "node_states": {
+        "node-2.log": [
+          "OTA_NOTIFY_ATTEMPT started=1",
+          "OTA_NOTIFY_DONE success=1"
+        ],
+        "node-1.log": [
+          "OTA_LOCAL_QUERY result=0",
+          "OTA_STATE state=2 reason=1",
+          "OTA_STATE state=3 reason=4",
+          "OTA_STATE state=2 reason=1",
+          "OTA_STATE state=1 reason=2",
+          "OTA_LOCAL_QUERY result=0",
+          "OTA_STATE state=2 reason=1",
+          "OTA_AUTH accepted=1",
+          "OTA_APPLY_STATE state=5 reason=1",
+          "OTA_APPLY_REQUEST",
+          "OTA_APPLY_RESPONSE now_ms=383905",
+          "OTA_APPLY_GATE provider=1 integrity=1 authenticated=1 installed=1 version=2 simulation=1 now_ms=383905",
+          "OTA_APPLY_DONE result=0",
+          "OTA_SIM_REBOOT"
+        ]
+      },
+      "requestor_restarts": 1,
+      "provider_restarts": 1,
+      "error": null
+    },
+    {
+      "variant": "sanitize",
+      "result": "FAIL",
+      "check_count": 9,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-provider-killed-before-retry",
+          "status": "PASS"
+        },
+        {
+          "name": "stale-case-query-fails-without-response-or-download",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "840cd875c3aa55bd2f6d16b7426721790dfc4f3ba563bc9bc3badff8d4318488",
+      "logs_sha256": {
+        "provider-2.log": "d640016d9d3e39a3d7705ae0cc59e5e0416f78477bf045068742ad5cfb0634a5",
+        "provider.log": "18285e10f48550a0e85fbf5b86cc6f28f3014febb81bd9d196e461354be2a5f0",
+        "node-1.log": "2ca66fa2b41c6e589e3fc9dd813383b6355839fd1b24e9e9657e43d738c3a997",
+        "controller/interactive.log": "4fd4ef54f109e592b049efc6db1f328c8241500302c6ba7873a889696b290f18"
+      },
+      "binaries_sha256": {
+        "requestor": "401f694938f23185a0bfcbdc8474a72e2544be5c67d4c2042b8da25095f94605",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "fixture": {
+        "format": "Matter OTA header and WWOTA001 signed host simulation",
+        "version": 2,
+        "signed_version": 2,
+        "image_bytes": 16585,
+        "image_sha256": "bc033fbbfefb23b44c06561d3c329023de51780a5f6bbae673daee92140d48ab",
+        "public_key_sha256": "3633e286bff95c43520948edeae7f5466dbc01e6fad7776d45371acf91f26000"
+      },
+      "query_recovery": null,
+      "BDX_profile": null,
+      "apply_requests": null,
+      "pre_reboot_events": null,
+      "ota_events": null,
+      "Memcheck": [],
+      "native_stderr_empty": true,
+      "node_states": {
+        "node-1.log": [
+          "OTA_LOCAL_QUERY result=0",
+          "OTA_STATE state=2 reason=1",
+          "OTA_STATE state=3 reason=4",
+          "OTA_STATE state=2 reason=1",
+          "OTA_STATE state=1 reason=2",
+          "OTA_LOCAL_QUERY result=0",
+          "OTA_STATE state=2 reason=1",
+          "OTA_STATE state=1 reason=2"
+        ]
+      },
+      "requestor_restarts": null,
+      "provider_restarts": null,
+      "error": "OTA condition timed out"
+    }
+  ],
+  "sanitizer_failure_evidence": {
+    "native_events": [
+      {
+        "timestamp_ms": 3701,
+        "PreviousState": 1,
+        "NewState": 2,
+        "Reason": 1
+      },
+      {
+        "timestamp_ms": 3981,
+        "PreviousState": 2,
+        "NewState": 3,
+        "Reason": 4
+      },
+      {
+        "timestamp_ms": 123997,
+        "PreviousState": 3,
+        "NewState": 2,
+        "Reason": 1
+      },
+      {
+        "timestamp_ms": 130548,
+        "PreviousState": 2,
+        "NewState": 1,
+        "Reason": 2
+      },
+      {
+        "timestamp_ms": 370572,
+        "PreviousState": 1,
+        "NewState": 2,
+        "Reason": 1
+      },
+      {
+        "timestamp_ms": 370604,
+        "PreviousState": 2,
+        "NewState": 1,
+        "Reason": 2
+      }
+    ],
+    "backoff_ms": 240024,
+    "new_attempt_duration_ms": 32,
+    "replacement_provider_decoded_queries": 0,
+    "replacement_provider_new_CASE_messages": 0,
+    "observation_window_seconds": 315,
+    "raw_verdict": "FAIL",
+    "attribution_limit": "Timing/state and absent peer traffic narrow the boundary before a new CASE reaches the provider. They do not prove whether resolver admission, synchronous preparation, session creation or another local failure caused it. No packet capture or internal failure code was collected in this run."
+  },
+  "superseded_attempt": {
+    "variant": "normal",
+    "raw_result": "FAIL",
+    "checks_before_failure": 9,
+    "error": "No complete fresh CASE bound to decoded QueryImage",
+    "raw_sha256": "0122921aa5221bf190e3a95cf2a105afb998e41940e25de0ebda1f4707874456",
+    "logs_sha256": {
+      "provider-2.log": "8165cd9e9434565bad68109ef331400159fd44fbfb92ab6249afb8d1e313cc4a",
+      "valgrind-1.log": "0a2b048e5f09b92b11ee99d8525474db7c49f7fbf804db93b4fc729e07750aad",
+      "provider.log": "8276f44c63091db87308b0aef4fb0810ea0256dccbc06ccf4bf7c0fa5d413544",
+      "node-1.log": "8f2caff84f3f263e5c33c4644228400031c8134c2e7df12c02aa9a1cb1fd610c",
+      "controller/interactive.log": "f6da1f9ed4b1cdc82d63186e8e5a2bccf5e8f3542737928f00c9e8e428df0120"
+    },
+    "driver_sha256": "d0b0a99f4465b6f29ebae2997613ed324347c6817499b0c2def8013a37d89bb4",
+    "Memcheck": [
+      {
+        "boot": 1,
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations_frees": [
+          32110,
+          32110
+        ]
+      }
+    ],
+    "native_stderr_empty": true,
+    "cause": "Verifier required full CASE only. Actual peer trace shows legal Sigma1/Sigma2Resume/Success, then secure QueryImage and UpdateAvailable/version2. Driver teardown occurs before complete OTA; not native recovery failure or completed update acceptance.",
+    "correction": "Accept full or resumed CASE, requiring the proper responder-session tag, ordered handshake and Success for resumption; retain encrypted QueryImage binding and all backoff/update assertions."
+  },
+  "verifier_controls": {
+    "full": {
+      "checks": [
+        {
+          "name": "real-full-CASE-bound-to-query",
+          "status": "PASS"
+        },
+        {
+          "name": "missing-Sigma1-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "missing-Sigma2-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "missing-Sigma3-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "wrong-session-id-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "unsecured-query-rejected",
+          "status": "PASS"
+        }
+      ],
+      "fixture_sha256": "bdb0ef2fbfde6dca6ee2339cdc1e4a1d3e1289a55a90109b2861df4c9171f411",
+      "driver_sha256": "674ebe2bd8c752958188d1b7b440372ad0a0231a9cea66c438889100b3aca686"
+    },
+    "resumed": {
+      "checks": [
+        {
+          "name": "real-resumed-CASE-bound-to-query",
+          "status": "PASS"
+        },
+        {
+          "name": "missing-Sigma1-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "missing-Sigma2Resume-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "missing-Success-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "wrong-session-id-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "unsecured-query-rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "unsuccessful-status-rejected",
+          "status": "PASS"
+        }
+      ],
+      "fixture_sha256": "d3464aecbaf5b5ade14aff718485a4502f492cc6aed338dde01de6d591fe986f",
+      "driver_sha256": "674ebe2bd8c752958188d1b7b440372ad0a0231a9cea66c438889100b3aca686"
+    },
+    "scope": "13 offline controls execute the actual public oracle functions against real prior peer traces and copies missing a handshake message, wrong session, unsecured query or failed resumed status. They do not independently decrypt the CASE MIC; actual native/CHIP peers authenticate the successful encrypted exchange."
+  },
+  "source_identity": {
+    "C_H_files": 362,
+    "all_C_H_byte_identical_to_CSA63": true,
+    "native_binaries_match_CSA62": true,
+    "new_native_build": false,
+    "new_CTest_run": false,
+    "prior_focused_tests": "CSA63 clean query/allocation targets2/2 per normal/sanitizer build are prior evidence, not rerun here.",
+    "python_compile": "Actual remote py_compile before each worker start; local AST-based full/resumed negative controls pass."
+  },
+  "cleanup": {
+    "DUT_stage_processes": [],
+    "TH_state": "idle",
+    "paired_Windows_nodes_changed": false,
+    "new_TH_PAA_or_original_test_changes": false
+  },
+  "limits": [
+    "Independent diagnostic acceptance, no new original CSA execution, result override or certification.",
+    "No Windows build, paired-node replacement, physical device/bootloader execution or complete applicable-suite rerun.",
+    "Signed host-simulation image is verified and installed in the existing simulation only; no production firmware image format or hardware reboot claim.",
+    "Public trace oracle checks handshake/session/query linkage; MIC/signature verification is performed by the actual protocol peers, not independently reimplemented by the oracle.",
+    "Timing includes a conservative peer last-unknown-packet-to-recovery-query bound and a0.5s local log-observation tolerance. Neither changes native deadlines.",
+    "First full-only-verifier FAIL retained; final scenarios use fresh state and the corrected oracle. Raw logs/KVS/keys remain private."
+  ],
+  "next": "CSA65: attribute the32ms pre-handshake sanitizer failure with scoped resolver/outgoing preparation/CASE-creation result diagnostics and a bounded repro. Reuse this actual FAIL; do not blindly repeat multi-minute scenarios or change retry policy. Fix only an attributed native defect, then require complete memory acceptance."
+}

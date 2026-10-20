@@ -204,6 +204,25 @@ retry, prove fresh CASE and complete signed OTA recovery. Do not infer recovery
 from a scheduled deadline, accelerate native timing or relabel diagnostics as
 original CSA PASS. Keep the deferred long DGGEN and external prerequisites open.
 
+## CSA64: full normal recovery; sanitizer pre-handshake failure remains
+
+Completed: [receipt](csa64-results.json) and [analysis](csa64-validation.md).
+Normal Memcheck passes27/27 through the actual240s backoff, new resumed CASE,
+signed BDX/apply/reboot/Notify and fresh version2 readback. Both native boots have
+zero errors/live blocks. First full-only verifier FAIL is retained; the corrected
+oracle accepts the normative full/resumed paths and passes13 offline controls.
+
+Separate sanitizer execution fails after9 passing checks: events prove240024ms
+before its next attempt, then32ms to Idle/Failure. No new CASE or decoded QueryImage
+reaches the replacement peer. Empty sanitizer stderr is not full OTA acceptance.
+Root cause is not attributed; no native/original-test/PICS workaround or result
+reclassification. Cleanup completes, paired Windows nodes untouched, counts unchanged.
+
+Next: **CSA65**, add scoped diagnostics at resolver admission/completion, outgoing
+preparation and CASE creation, then make a bounded repro of the early failure.
+Reuse the failed trace and avoid blind multi-minute repeats. Change production
+code only after attribution; require complete memory acceptance for a fix.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation
