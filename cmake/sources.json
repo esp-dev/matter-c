@@ -207,6 +207,7 @@
     "clusters/matter_time_sync.h"
   ],
   "private_headers": [
+    "model/matter_events_internal.h",
     "clusters/matter_root_internal.h",
     "codec/matter_tlv_internal.h",
     "crypto/matter_spake2p_points.h",

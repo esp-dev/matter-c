@@ -16,7 +16,7 @@ typedef struct {
     Matter_Im_Event_Expansion_T expansion;
     Matter_Im_Event_Request_T paths[MATTER_EVENT_PATH_CAPACITY];
     Matter_Event_Filter_T filters[MATTER_EVENT_PATH_CAPACITY];
-    Matter_Event_Record_T* records;
+    Matter_Events_Snapshot records;
 } ReadEvents;
 typedef struct {
 	Matter_Tlv_Validation_Workspace_T validation;
@@ -41,6 +41,7 @@ struct Matter_Im_Read {
 	Matter_Im_Status_T continuation_error;
 	size_t count, cursor, released;
 	Matter_Im_Snapshots snapshots;
+    Matter_Events_Snapshot event_tail; /* Only references survive final sent, not path/parser metadata. */
 	size_t list_offset;
 	/* Each planned IB either carries a whole attribute, a list prefix, or one ADD. */
 	struct { size_t item, start, end; bool prefix; } *plan;
@@ -425,10 +426,10 @@ static bool event_chunk(Matter_Im_Read_T s) {
         if(code) { e->paths[i].status=code; e->paths[i].omit=matter_im_event_omitted(e->paths[i].wildcard,code); }
     }
     const Matter_Event_Record_T* record;
-    size_t selected=matter_im_event_take(e->paths,e->path_count,e->records,&e->cursor,e->count,&record);
+    size_t selected=matter_im_event_take(e->paths,e->path_count,&e->records,&e->cursor,e->count,&record);
     e->status=selected<e->path_count?e->paths[selected].status:MATTER_IM_SUCCESS;
     if(selected<e->path_count) e->path=e->paths[selected].path;
-    bool more=matter_im_event_more(e->paths,e->path_count,e->records,e->cursor,e->count);
+    bool more=matter_im_event_more(e->paths,e->path_count,&e->records,e->cursor,e->count);
     s->response_opcode=5;
     if(!begin(s) || !put(s,MATTER_TLV_ARRAY,2,0)) return status(s,MATTER_IM_RESOURCE_EXHAUSTED);
     if(selected<e->path_count) {
@@ -612,6 +613,7 @@ static void release_consumed(Matter_Im_Read_T s) {
         matter_im_snapshot_release_value(&s->snapshots,&s->items[i].value);
     }
     s->value.data=NULL; s->value.size=0;
+    if(s->events) matter_events_snapshot_release_before(&s->events->records,s->events->cursor);
 }
 Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
@@ -709,14 +711,26 @@ bool matter_im_read_awaiting_delivery(Matter_Im_Read_T s) {
 Matter_Result_T matter_im_read_sent(Matter_Im_Read_T s) {
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
 	if (s->state != MATTER_IM_READ_OUTPUT) return MATTER_INVALID_STATE;
-	s->state=MATTER_IM_READ_IN_FLIGHT; return MATTER_OK;
+	s->state=MATTER_IM_READ_IN_FLIGHT;
+    if(!s->more) {
+        /* Output was copied to independent immutable MRP storage. No future
+         * continuation can use these tables; value/event references retain
+         * their existing confirmation/cancel/drain lifetime. */
+        free(s->items); s->items=NULL; s->count=s->cursor=s->released=0;
+        free(s->plan); s->plan=NULL; s->plan_capacity=s->item_capacity=0;
+        free(s->requests); s->requests=NULL; free(s->filters); s->filters=NULL;
+        free(s->input); s->input=NULL; free(s->output); s->output=NULL;
+        s->input_size=s->output_size=0;
+        if(s->events) { s->event_tail=s->events->records; free(s->events); s->events=NULL; }
+    }
+    return MATTER_OK;
 }
 Matter_Result_T matter_im_read_confirm(Matter_Im_Read_T s, uint64_t now) {
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
 	if (s->state != MATTER_IM_READ_IN_FLIGHT) return MATTER_INVALID_STATE;
 	r=clock_check(s,now); if (r != MATTER_OK) return r;
 	s->state=s->more ? MATTER_IM_READ_WAIT_STATUS : MATTER_IM_READ_COMPLETE;
-    if(!s->more) { matter_im_snapshots_clear(&s->snapshots); s->value.data=NULL; s->value.size=0; }
+    if(!s->more) { matter_im_snapshots_clear(&s->snapshots); matter_events_snapshot_clear(&s->event_tail); s->value.data=NULL; s->value.size=0; }
     return MATTER_OK;
 }
 Matter_Result_T matter_im_read_peer_status(Matter_Im_Read_T s, uint8_t* code) {
@@ -734,7 +748,7 @@ Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	free(s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) free(s->events->records); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	free(s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) matter_events_snapshot_clear(&s->events->records); matter_events_snapshot_clear(&s->event_tail); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

@@ -18,7 +18,7 @@ typedef struct {
     bool collected;
     Matter_Im_Event_Request_T paths[MATTER_EVENT_PATH_CAPACITY];
     Matter_Event_Filter_T filters[MATTER_EVENT_PATH_CAPACITY];
-    Matter_Event_Record_T* records;
+    Matter_Events_Snapshot records;
 } SubEvents;
 typedef struct {
     struct { size_t item,start,end; bool prefix; } plan[MATTER_IM_READ_MAX_PATHS];
@@ -66,7 +66,7 @@ static void clear_filters(Matter_Im_Subscribe_T s) {
 }
 static void release(Matter_Im_Subscribe_T s) {
     clear_filters(s);
-    if(s->events) { free(s->events->records); s->events->records=NULL; s->events->count=s->events->cursor=0; }
+    if(s->events) { matter_events_snapshot_clear(&s->events->records); s->events->count=s->events->cursor=0; }
     if(s->reserved) { s->reserved=false; s->port.release(s->port.attributes.user,s->id); }
 }
 static Matter_Result_T fail(Matter_Im_Subscribe_T s) {
@@ -420,6 +420,7 @@ static void release_consumed(Matter_Im_Subscribe_T s) {
         }
     }
     s->value.data=NULL; s->value.size=0;
+    if(s->events) matter_events_snapshot_release_before(&s->events->records,s->events->cursor);
 }
 static void capture_begin(Matter_Im_Subscribe_T s,bool data) {
     clear_snapshots(s);
@@ -483,7 +484,7 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
             e->active|=q->active;
             if(q->active && !q->status) ++s->valid;
         }
-        e->report=matter_im_event_more(e->paths,e->path_count,e->records,0,e->count) || !s->attribute_report;
+        e->report=matter_im_event_more(e->paths,e->path_count,&e->records,0,e->count) || !s->attribute_report;
     } else if(e) e->report=false;
     if(e) e->collected=true;
     if(!prime && !s->valid) s->terminal_report=true;
@@ -544,10 +545,10 @@ static void recheck_events(Matter_Im_Subscribe_T s) {
 static bool report_event(Matter_Im_Subscribe_T s) {
     SubEvents* e=s->events;
     const Matter_Event_Record_T* record;
-    size_t selected=matter_im_event_take(e->paths,e->path_count,e->records,&e->cursor,e->count,&record);
+    size_t selected=matter_im_event_take(e->paths,e->path_count,&e->records,&e->cursor,e->count,&record);
     e->status=selected<e->path_count?e->paths[selected].status:0;
     if(selected<e->path_count) e->path=e->paths[selected].path;
-    bool more=matter_im_event_more(e->paths,e->path_count,e->records,e->cursor,e->count);
+    bool more=matter_im_event_more(e->paths,e->path_count,&e->records,e->cursor,e->count);
     if(!begin(s) || !put(s,MATTER_TLV_UNSIGNED,0,s->id) || !put(s,MATTER_TLV_ARRAY,2,0)) return false;
     if(selected<e->path_count) {
         if(!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_STRUCTURE,e->status?0:1,0) ||
@@ -684,7 +685,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
             clear_snapshots(s);
             if(s->events) {
                 if(s->events->active) s->events->next=s->events->pending_next;
-                free(s->events->records); s->events->records=NULL; s->events->count=s->events->cursor=0;
+                matter_events_snapshot_clear(&s->events->records); s->events->count=s->events->cursor=0;
             }
             if(s->phase==PRIME) {
                 clear_filters(s);

@@ -157,6 +157,13 @@ snapshot bytes; per-instance stores are independent, with no global pool or new
 scheduler. OOM/validation failure preserves earlier copies and byte accounting
 and follows the existing Read path-status / Subscribe error-response policy.
 
+After final Read `sent`, the independent immutable MRP packet owns transport
+bytes. Read releases its result table, chunk plan, selectors/filters, input/output
+and event path metadata. Only the small owner and remaining immutable value/event
+references survive until final confirmation, or cancellation/timeout followed by
+owner transport drain and deletion. Intermediate chunks retain the metadata
+needed for continuation. The output borrow still expires at `sent`.
+
 The node event log allocates one stable node per retained record, up to the
 unchanged `MATTER_EVENTS_CAPACITY` (16..1024; package default 128). Atomic
 `matter_events_prepare()` owns new nodes only for its input batch; it marks
@@ -167,22 +174,33 @@ next event number. `finish(true)` cannot allocate/fail: it removes marked victim
 and links the prepared records in number order. Abort frees staging and removes
 marks; a durable reservation may remain advanced, preserving the boot-skip rule.
 The oldest lowest-priority victim and rejection of eviction within the same
-batch are unchanged. Fabric removal frees matching nodes immediately. Calls
+batch are unchanged. Fabric removal unlinks matching nodes immediately; their
+allocation releases when the last private snapshot reference also disappears. Calls
 remain serialized by the application; the log is busy throughout a prepared
 model mutation, including commit/abort, and outlives producers/handlers.
 
 Event-log binding in Read/Subscribe copies only the borrowed port and optional
 enumerator; it allocates nothing. Event selector state is allocated when an
 actual event path is decoded. A shared private helper counts authorized matches
-and copies exactly that many records on the same serialized owner turn, without
-intervening callbacks. Empty snapshots allocate no records. The configured
-event/path/UDP limits and event numbering, priority and fabric rules are unchanged.
-Read owns its immutable snapshot until deletion. Subscribe releases report
-records after the complete report's IM Success and MRP confirmation, or on
-failure/cancellation/deletion. This preserves chunk consistency even when later
-events evict the original records from the node log. Deferred OOM produces the
-existing ResourceExhausted status; binding itself no longer has an allocation
-failure. Attribute-only interactions do not allocate event selector/record state.
+and allocates exactly that many immutable record pointers on the serialized owner
+turn, without intervening callbacks. Reference overflow and allocation failure
+leave the previous snapshot and every reference count unchanged. Empty snapshots
+allocate nothing. Public event copy APIs still return caller-owned record DTOs.
+The configured event/path/UDP limits and numbering, priority and fabric rules are
+unchanged. Captured membership, payload and addresses survive later log eviction
+or fabric removal; permission/fabric checks still gate every remaining output.
+Confirmed consumed event prefixes release only after both MRP confirmation and
+continuation IM Success. Final Read confirmation releases its tail references;
+Subscribe releases the report after whole-report success. Cancellation/failure
+uses existing owner cleanup/drain. No release allocates. Deferred OOM produces the
+existing ResourceExhausted status. Attribute-only interactions allocate no event
+selector/reference-vector state.
+
+Sharing saves record copies when reports overlap, but different generations can
+pin different evicted nodes. A published-log capacity is not a global snapshot
+heap cap. [Memory10](oss/memory10-validation.md) separates measured component
+demand from conservative reporting/event/dispatcher/TX subtotals derived with
+`tools/matter/report_memory_budget.py`; neither is a total ESP32 RAM guarantee.
 
 Storage encoding uses a small operation-owned codec. Publication staging copies
 only Wi-Fi/root/meter/provider metadata and borrows the guarded Fabric candidate

@@ -1,5 +1,6 @@
 /* Shared public-API contract tests for Read and Subscribe, heap-owned fixtures. */
 #include "codec/matter_tlv_writer.h"
+#include <stddef.h>
 #ifdef TEST_MULTI_SUB
 #define MultiEngine Matter_Im_Subscribe_T
 #else
@@ -210,7 +211,7 @@ static void multi_drain(MultiEvents* m) {
 #ifdef MATTER_TEST_ALLOC
 static void multi_memory_tests(void) {
     static const uint32_t id=1;
-    size_t footprints[2],idle_footprints[2],sites=0;
+    size_t footprints[2],sites=0; ptrdiff_t idle_footprints[2];
     for(unsigned test=0;test<2;++test) {
         unsigned records=test?8:1;
         MultiEvents* m=multi_new();
@@ -220,15 +221,11 @@ static void multi_memory_tests(void) {
         size_t start=calls; multi_process(m); sites=calls-start;
         CHECK(m->opcode==5); footprints[test]=live_bytes-base;
         CHECK(footprints[test]<16384);
-        multi_drain(m); idle_footprints[test]=live_bytes-base;
+        multi_drain(m); idle_footprints[test]=(ptrdiff_t)live_bytes-(ptrdiff_t)base;
         multi_free(m); CHECK(!live && !live_bytes);
     }
-    CHECK(footprints[1]-footprints[0]==7*sizeof(Matter_Event_Record_T));
-#ifdef TEST_MULTI_SUB
+    CHECK(footprints[1]-footprints[0]==7*sizeof(void*));
     CHECK(idle_footprints[0]==idle_footprints[1]); /* Every confirmed snapshot is released. */
-#else
-    CHECK(idle_footprints[1]>idle_footprints[0]); /* Read owns until delete; chunk ACKs also replace RX storage. */
-#endif
     MultiEvents* empty=multi_new(); multi_request(empty,0,&id,1,1,0); multi_receive(empty,true);
     size_t start=calls; multi_process(empty); CHECK(empty->opcode==5 && calls-start+1==sites);
     multi_drain(empty); multi_free(empty); CHECK(!live);

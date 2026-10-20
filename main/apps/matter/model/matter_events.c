@@ -1,20 +1,24 @@
-#include "matter_events.h"
+#include "matter_events_internal.h"
 #include "../codec/matter_tlv_validate.h"
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 typedef struct EventNode {
     Matter_Event_Record_T record;
     struct EventNode* next;
+    size_t references; /* One log/prepared owner plus immutable snapshots. */
     bool evicted; /* Prepared removal only; the published list is untouched. */
 } EventNode;
+typedef char EventRecordMustBeFirst[(offsetof(EventNode,record)==0)?1:-1];
 struct Matter_Events {
     Matter_Events_Port_T port; uint64_t next,limit,pending_next; size_t count,pending_count; bool busy,prepared;
     EventNode *records,*last,*pending,*pending_last;
     Matter_Event_Record_T single;
     Matter_Tlv_Validation_Workspace_T validation; Matter_Tlv_Tag_T tags[32];
 };
+static void drop_node(EventNode* node) { if(!--node->references) free(node); }
 static void free_nodes(EventNode* node) {
-    while(node) { EventNode* next=node->next; free(node); node=next; }
+    while(node) { EventNode* next=node->next; drop_node(node); node=next; }
 }
 static void discard_pending(Matter_Events_T m) {
     for(EventNode* node=m->records;node;node=node->next) node->evicted=false;
@@ -69,7 +73,7 @@ Matter_Result_T matter_events_prepare(Matter_Events_T m,const Matter_Event_Recor
         }
         EventNode* node=calloc(1,sizeof(*node));
         if(!node) { discard_pending(m); return MATTER_LIMIT_REACHED; }
-        node->record=*r; node->record.number=m->next+j;
+        node->record=*r; node->record.number=m->next+j; node->references=1;
         if(old) old->evicted=true; else ++retained;
         if(m->pending_last) m->pending_last->next=node; else m->pending=node;
         m->pending_last=node; ++m->pending_count;
@@ -89,7 +93,7 @@ void matter_events_finish(Matter_Events_T m,bool commit) {
         EventNode** link=&m->records; m->last=NULL;
         while(*link) {
             EventNode* node=*link;
-            if(node->evicted) { *link=node->next; free(node); --m->count; }
+            if(node->evicted) { *link=node->next; drop_node(node); --m->count; }
             else { m->last=node; link=&node->next; }
         }
         if(m->last) m->last->next=m->pending; else m->records=m->pending;
@@ -104,7 +108,7 @@ Matter_Result_T matter_events_forget_fabric(Matter_Events_T m,uint8_t fabric) {
     EventNode** link=&m->records; m->last=NULL;
     while(*link) {
         EventNode* node=*link;
-        if(node->record.fabric==fabric) { *link=node->next; free(node); --m->count; }
+        if(node->record.fabric==fabric) { *link=node->next; drop_node(node); --m->count; }
         else { m->last=node; link=&node->next; }
     }
     return MATTER_OK;
@@ -127,6 +131,15 @@ Matter_Result_T matter_events_copy_fabric(Matter_Events_T m,const Matter_Event_P
     for(size_t i=0;i<*count;++i) if(scoped?out[i].fabric==fabric:!out[i].fabric) out[n++]=out[i];
     *count=n; return MATTER_OK;
 }
+static bool selected(const Matter_Event_Record_T* r,const Matter_Event_Filter_T* filters,size_t paths,uint64_t minimum,uint8_t fabric) {
+    if(r->number<minimum) return false;
+    for(size_t j=0;j<paths;++j) {
+        const Matter_Event_Filter_T* f=&filters[j];
+        if(r->path.endpoint==f->path.endpoint && r->path.cluster==f->path.cluster && r->path.event==f->path.event &&
+            (f->scoped?r->fabric==fabric:r->fabric==0)) return true;
+    }
+    return false;
+}
 Matter_Result_T matter_events_copy_selected(Matter_Events_T m,const Matter_Event_Filter_T* filters,size_t paths,
     uint64_t minimum,uint8_t fabric,Matter_Event_Record_T* out,size_t* count) {
     if(!m || (!filters && paths) || paths>MATTER_EVENT_PATH_CAPACITY || fabric==255 || !count) return MATTER_INVALID_ARGUMENT;
@@ -134,16 +147,46 @@ Matter_Result_T matter_events_copy_selected(Matter_Events_T m,const Matter_Event
     for(size_t j=0;j<paths;++j) if(filters[j].scoped && !fabric) return MATTER_INVALID_ARGUMENT;
     *count=0;
     for(EventNode* node=m->records;node;node=node->next) {
-        const Matter_Event_Record_T* r=&node->record; if(r->number<minimum) continue;
-        for(size_t j=0;j<paths;++j) {
-            const Matter_Event_Filter_T* f=&filters[j];
-            if(r->path.endpoint!=f->path.endpoint || r->path.cluster!=f->path.cluster || r->path.event!=f->path.event ||
-                (f->scoped?r->fabric!=fabric:r->fabric!=0)) continue;
+        const Matter_Event_Record_T* r=&node->record;
+        if(selected(r,filters,paths,minimum,fabric)) {
             if(out) out[*count]=*r;
-            ++*count; break;
+            ++*count;
         }
     }
     return MATTER_OK;
+}
+void matter_events_snapshot_release_before(Matter_Events_Snapshot* snapshot,size_t end) {
+    if(end>snapshot->count) end=snapshot->count;
+    while(snapshot->released<end) {
+        size_t i=snapshot->released++;
+        /* C permits conversion from a struct's initial member to its owner.
+         * Only acquire() produces these immutable record references. */
+        drop_node((EventNode*)(void*)snapshot->records[i]); snapshot->records[i]=NULL;
+    }
+}
+void matter_events_snapshot_clear(Matter_Events_Snapshot* snapshot) {
+    matter_events_snapshot_release_before(snapshot,snapshot->count);
+    free(snapshot->records); memset(snapshot,0,sizeof(*snapshot));
+}
+Matter_Result_T matter_events_snapshot_acquire(Matter_Events_T m,const Matter_Event_Filter_T* filters,size_t paths,
+    uint64_t minimum,uint8_t fabric,Matter_Events_Snapshot* snapshot) {
+    if(!snapshot) return MATTER_INVALID_ARGUMENT;
+    size_t count=0;
+    Matter_Result_T result=matter_events_copy_selected(m,filters,paths,minimum,fabric,NULL,&count);
+    if(result!=MATTER_OK) return result;
+    if(count>MATTER_EVENTS_CAPACITY || count>SIZE_MAX/sizeof(*snapshot->records)) return MATTER_LIMIT_REACHED;
+    const Matter_Event_Record_T** records=count?calloc(count,sizeof(*records)):NULL;
+    if(count && !records) return MATTER_LIMIT_REACHED;
+    size_t i=0;
+    for(EventNode* node=m->records;node;node=node->next) if(selected(&node->record,filters,paths,minimum,fabric)) {
+        if(node->references==SIZE_MAX) { free(records); return MATTER_LIMIT_REACHED; }
+        records[i++]=&node->record;
+    }
+    /* No application callbacks or log mutation between count, checked capture
+     * and publication. OOM/overflow leave every old snapshot/reference intact. */
+    for(i=0;i<count;++i) ++((EventNode*)(void*)records[i])->references;
+    matter_events_snapshot_clear(snapshot);
+    *snapshot=(Matter_Events_Snapshot){records,count,0}; return MATTER_OK;
 }
 Matter_Result_T matter_events_position(Matter_Events_T m,uint64_t* next) {
     if(!m || !next) return MATTER_INVALID_ARGUMENT;

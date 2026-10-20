@@ -1,5 +1,28 @@
 # Development status
 
+**Memory10: shared event records, compact final Read tails and node reporting budget.**
+Private snapshots retain immutable event-node references, preserving bytes and
+membership through eviction/removal. OOM/reference overflow preserve old captures;
+confirmed prefixes release only after the existing MRP+IM gate. Final Read sent
+releases result/selector/plan/RX/TX metadata after the independent packet copy;
+remaining snapshots wait for confirmation or owner cancellation/drain. Public
+APIs, formats, limits, fail-safe and admission remain unchanged. The heavy
+24-subscription/replacement, six-active-Read, fourteen-Read-tail component plus52
+explicit packet leases falls2444160 ->625602 B peak (74.4%); full128-record logs
+pay1024 B more for references. ESP32 snapshot vectors fall29696 ->512 B, but
+different generations retain different nodes. A compiler-derived conservative
+reporting/event/dispatcher/TX subtotal is2307996 B with a shared evicted generation,
+3672988 B for44 distinct generations, excluding other node/platform resources;
+these are additive envelopes, not measured peaks or total/normative RAM bounds.
+Linux CTest93/93 per build, two-instance6/6 per memory variant, dedicated Memcheck,
+separate component sanitizers and16/1024-capacity4/4 checks pass. Windows93/96 plus
+3/3 socket retries and5/5 final focused checks. Both whole-host drivers pass50/50;
+Massif observes388288 B heap,6680 B maximum sampled stack and399720 B combined,
+essentially unchanged from Memory09 in this ordinary workload. See
+[report](memory10-validation.md) and [results](memory10-results.json).
+Next: stable demand-allocated expanded-result blocks to reduce contiguous result
+allocations/growth overlap. No linked/physical ESP32 or official CSA rerun.
+
 **Memory09: compact report values, consumed-chunk cleanup and transient secure RX.**
 Read results use a private scalar/span representation. Subscribe separates
 persistent paths/versions from its report-only value table. Complete attributes

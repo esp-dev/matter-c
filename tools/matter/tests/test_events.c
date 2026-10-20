@@ -181,8 +181,47 @@ static void differential(void) {
     }
     destroy(f); printf("PASS event differential: 4000 mixed batches/aborts/store failures/fabric removals, capacity=%u\n",MATTER_EVENTS_CAPACITY);
 }
+static void snapshots(void) {
+    Fixture* f=create(); input(f,3,1,0); CHECK(batch(f,3,true)==MATTER_OK);
+    Matter_Event_Filter_T filter={{0,0x28,2},false};
+    Matter_Events_Snapshot a={0},b={0};
+    size_t before=live_bytes;
+    CHECK(matter_events_snapshot_acquire(f->log,&filter,1,0,1,&a)==MATTER_OK && a.count==3);
+    CHECK(live_bytes-before==3*sizeof(void*) && a.records[0]==&f->log->records->record);
+    const Matter_Event_Record_T* first=a.records[0];
+    CHECK(matter_events_snapshot_acquire(f->log,&filter,1,0,2,&b)==MATTER_OK && b.records[0]==first);
+    CHECK(f->log->records->references==3);
+    before=live_bytes; fail_at=calls+1;
+    CHECK(matter_events_snapshot_acquire(f->log,&filter,1,0,1,&a)==MATTER_LIMIT_REACHED);
+    fail_at=0; CHECK(a.records[0]==first && a.count==3 && live_bytes==before && f->log->records->references==3);
+    /* Overflow on a later node must not increment earlier nodes or replace a. */
+    EventNode* second=f->log->records->next; second->references=SIZE_MAX;
+    CHECK(matter_events_snapshot_acquire(f->log,&filter,1,0,1,&a)==MATTER_LIMIT_REACHED);
+    CHECK(f->log->records->references==3 && a.records[0]==first && live_bytes==before); second->references=3;
+    input(f,1,1,0); CHECK(matter_events_prepare(f->log,f->input,1)==MATTER_OK);
+    CHECK(matter_events_snapshot_acquire(f->log,&filter,1,0,1,&a)==MATTER_BUSY && a.records[0]==first);
+    matter_events_finish(f->log,false);
+    /* Evict every original record. Both snapshots still expose original bytes. */
+    input(f,MATTER_EVENTS_CAPACITY,1,0);
+    CHECK(matter_events_prepare(f->log,f->input,MATTER_EVENTS_CAPACITY)==MATTER_OK); matter_events_finish(f->log,true);
+    for(size_t i=0;i<3;++i) CHECK(a.records[i]==b.records[i] && a.records[i]->number==i && a.records[i]->data[3]==i);
+    before=live_bytes; size_t call_count=calls; fail_at=calls+1;
+    matter_events_snapshot_release_before(&a,1); CHECK(live_bytes==before && a.released==1);
+    matter_events_snapshot_release_before(&b,1); CHECK(before-live_bytes==sizeof(EventNode));
+    matter_events_snapshot_clear(&a); matter_events_snapshot_clear(&b); fail_at=0; CHECK(calls==call_count);
+    CHECK(live_bytes==sizeof(*f->log)+MATTER_EVENTS_CAPACITY*sizeof(EventNode));
+    /* Fabric removal drops publication ownership, not a frozen sensitive record. */
+    input(f,1,2,1); CHECK(matter_events_prepare(f->log,f->input,1)==MATTER_OK); matter_events_finish(f->log,true);
+    filter.scoped=true;
+    CHECK(matter_events_snapshot_acquire(f->log,&filter,1,0,1,&a)==MATTER_OK && a.count==1);
+    CHECK(matter_events_snapshot_acquire(f->log,&filter,1,0,2,&b)==MATTER_OK && !b.count);
+    first=a.records[0]; CHECK(matter_events_forget_fabric(f->log,1)==MATTER_OK && first->fabric==1);
+    CHECK(matter_events_snapshot_acquire(f->log,&filter,1,0,1,&b)==MATTER_OK && !b.count);
+    matter_events_snapshot_clear(&a); matter_events_snapshot_clear(&b); destroy(f);
+    puts("PASS event references: shared records, OOM/overflow/busy atomicity, stable evicted generations, scoped removal, allocation-free release");
+}
 int main(void) {
-    allocation_failures(); priorities_and_edges(); differential();
+    allocation_failures(); priorities_and_edges(); differential(); snapshots();
     printf("MEMORY event log: idle=%zu record=%zu node=%zu full=%zu full-plus-one=%zu full-batch-peak=%zu\n",
         sizeof(struct Matter_Events),sizeof(Matter_Event_Record_T),sizeof(EventNode),
         sizeof(struct Matter_Events)+MATTER_EVENTS_CAPACITY*sizeof(EventNode),

@@ -19,10 +19,12 @@ static void values_continue(ImValues* m) {
 static void test_im_complex(void) {
 #ifdef MATTER_TEST_ALLOC
     ImValues* small=values_new(1024,MATTER_TLV_BYTES,0); small->size=1; small->data[0]='a';
+    size_t owner_bytes=live_bytes-1024;
     max_request=0; values_start(small); CHECK(max_request<MATTER_IM_READ_SNAPSHOT_BYTES);
-    size_t held=live,bytes=live_bytes;
-    CHECK(matter_im_read_sent(small->active)==MATTER_OK && matter_im_read_confirm(small->active,1)==MATTER_OK);
-    CHECK(matter_im_read_state(small->active)==MATTER_IM_READ_COMPLETE && live==held-1 && bytes-live_bytes==sizeof(void*)+3);
+    CHECK(matter_im_read_sent(small->active)==MATTER_OK);
+    CHECK(live==2 && live_bytes==owner_bytes+sizeof(void*)+3); /* Metadata freed; value still awaits ACK. */
+    CHECK(matter_im_read_confirm(small->active,1)==MATTER_OK);
+    CHECK(matter_im_read_state(small->active)==MATTER_IM_READ_COMPLETE && live==1 && live_bytes==owner_bytes);
     values_delete(small); CHECK(!live && !live_bytes);
 #endif
     const Matter_Tlv_Type_T types[]={MATTER_TLV_UTF8,MATTER_TLV_BYTES,MATTER_TLV_STRUCTURE,MATTER_TLV_ARRAY};

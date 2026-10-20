@@ -1,20 +1,15 @@
 #ifndef MATTER_IM_EVENTS_INTERNAL_H
 #define MATTER_IM_EVENTS_INTERNAL_H 1
 #include "matter_im_read.h"
+#include "matter_events_internal.h"
 #include <stdlib.h>
 /* The owner thread cannot mutate the log between count and copy: neither call
  * invokes an application callback. Publish the new immutable snapshot atomically. */
 static inline Matter_Result_T matter_im_event_snapshot(Matter_Events_T log,const Matter_Event_Filter_T* filters,
-    size_t paths,uint64_t minimum,uint8_t fabric,Matter_Event_Record_T** records,size_t* count) {
-    size_t n=0;
-    Matter_Result_T r=matter_events_copy_selected(log,filters,paths,minimum,fabric,NULL,&n);
-    if(r!=MATTER_OK) return r;
-    if(n>MATTER_EVENTS_CAPACITY || n>SIZE_MAX/sizeof(**records)) return MATTER_LIMIT_REACHED;
-    Matter_Event_Record_T* next=n?calloc(n,sizeof(*next)):NULL;
-    if(n && !next) return MATTER_LIMIT_REACHED;
-    if(n) r=matter_events_copy_selected(log,filters,paths,minimum,fabric,next,&n);
-    if(r!=MATTER_OK) { free(next); return r; }
-    free(*records); *records=next; *count=n; return MATTER_OK;
+    size_t paths,uint64_t minimum,uint8_t fabric,Matter_Events_Snapshot* records,size_t* count) {
+    Matter_Result_T r=matter_events_snapshot_acquire(log,filters,paths,minimum,fabric,records);
+    if(r==MATTER_OK) *count=records->count;
+    return r;
 }
 /* Small per-path metadata; the handlers retain ONE node-log snapshot. */
 typedef struct {
@@ -78,23 +73,23 @@ static inline uint8_t matter_im_event_expand(Matter_Im_Event_Expansion_T* x,void
 /* Status blocks precede remaining data. Denied paths cannot emit their cached
  * payload after ACL revocation. Caller rechecks permissions before using this. */
 static inline bool matter_im_event_more(const Matter_Im_Event_Request_T* paths,size_t count,
-    const Matter_Event_Record_T* records,size_t cursor,size_t end) {
+    const Matter_Events_Snapshot* records,size_t cursor,size_t end) {
     for(size_t i=0;i<count;++i) if(paths[i].status && !paths[i].reported && !paths[i].omit) return true;
     for(size_t i=cursor;i<end;++i) {
-        size_t j=matter_im_event_index(paths,count,&records[i].path);
+        size_t j=matter_im_event_index(paths,count,&records->records[i]->path);
         if(j<count && !paths[j].status && !paths[j].omit) return true;
     }
     return false;
 }
 /* Consume one status or record; skipped/revoked records never become output. */
 static inline size_t matter_im_event_take(Matter_Im_Event_Request_T* paths,size_t count,
-    const Matter_Event_Record_T* records,size_t* cursor,size_t end,const Matter_Event_Record_T** record) {
+    const Matter_Events_Snapshot* records,size_t* cursor,size_t end,const Matter_Event_Record_T** record) {
     *record=NULL;
     for(size_t i=0;i<count;++i) if(paths[i].status && !paths[i].reported && !paths[i].omit) {
         paths[i].reported=true; return i;
     }
     while(*cursor<end) {
-        const Matter_Event_Record_T* r=&records[(*cursor)++];
+        const Matter_Event_Record_T* r=records->records[(*cursor)++];
         size_t i=matter_im_event_index(paths,count,&r->path);
         if(i<count && !paths[i].status && !paths[i].omit) { *record=r; return i; }
     }

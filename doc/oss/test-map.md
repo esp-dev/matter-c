@@ -1,8 +1,21 @@
 # Test inventory
 
-test-map.json enumerates 253 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 254 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory10 registers `test_im_node_memory`: 24 subscription/replacement engines,
+six active 512-result Reads, fourteen final Read delivery tails and 52 independent
+maximum-packet allocation/borrow proxies, with a shared then fully evicted event
+generation. It checks original data, both ACK/status orders, publication OOM,
+final cancellation/timeout retention and cleanup. It is a component envelope,
+not a network/crypto emulator or dispatcher reachability proof. `test_dispatch`
+retains the real quota/closing/MRP/async UDP lease tests. Read/Subscribe allocation
+variants also instrument event nodes. `test_events` adds shared pointer identity,
+OOM/refcount-overflow/BUSY atomicity, eviction/fabric-removal lifetime and
+allocation-free prefix/whole-snapshot release. `test_im_complex.h` distinguishes
+metadata release at final sent from value release at confirmation. The focused
+event/Read/Subscribe/node targets also run with capacities 16 and 1024.
 
 Memory09 registers `test_secure_alloc` for checked plaintext/backend allocation,
 erasure, atomic replay admission and retry. `test_im_subscribe_alloc` instruments

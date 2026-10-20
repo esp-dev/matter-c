@@ -2666,6 +2666,16 @@
         "tools/matter/tests/test_im_subscribe.c"
       ],
       "allocation_variant": "test_im_subscribe_alloc"
+    },
+    {
+      "path": "tools/matter/tests/test_im_node_memory.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_node_memory"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_node_memory",
+      "referenced_by": [],
+      "allocation_variant": "Read/Subscribe/event-log byte accounting; role envelope with held TX leases and delivery tails"
     }
   ],
   "local_only_files": []

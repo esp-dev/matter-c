@@ -204,6 +204,20 @@
     "replace": []
   },
   {
+    "name": "test_im_node_memory",
+    "source": "tools/matter/tests/test_im_node_memory.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_im_subscribe.c",
+      "main/apps/matter/model/matter_events.c"
+    ],
+    "malloc": false
+  },
+  {
     "name": "test_im_request_memory",
     "source": "tools/matter/tests/test_im_request_memory.c",
     "mode": "normal",
@@ -761,7 +775,8 @@
     "privileged": false,
     "variant": "alloc",
     "replace": [
-      "main/apps/matter/model/matter_im_read.c"
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_events.c"
     ],
     "malloc": false
   },
@@ -774,7 +789,8 @@
     "variant": "alloc",
     "replace": [
       "main/apps/matter/model/matter_im_subscribe.c",
-      "main/apps/matter/model/matter_im_read.c"
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_events.c"
     ],
     "malloc": false
   },
