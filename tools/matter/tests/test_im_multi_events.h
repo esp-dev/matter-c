@@ -213,8 +213,9 @@ static void multi_memory_tests(void) {
     size_t footprints[2],idle_footprints[2],sites=0;
     for(unsigned test=0;test<2;++test) {
         unsigned records=test?8:1;
-        MultiEvents* m=multi_new(); size_t base=live_bytes;
+        MultiEvents* m=multi_new();
         for(unsigned i=0;i<records;++i) multi_append(m,id,0);
+        size_t base=live_bytes; /* Measure the IM snapshot separately from its log. */
         multi_request(m,0,&id,1,1,0); multi_receive(m,true);
         size_t start=calls; multi_process(m); sites=calls-start;
         CHECK(m->opcode==5); footprints[test]=live_bytes-base;

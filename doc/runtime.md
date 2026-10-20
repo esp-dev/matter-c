@@ -133,6 +133,20 @@ Other CLI options, credentials and state paths remain unchanged.
 
 ## Request storage
 
+The node event log allocates one stable node per retained record, up to the
+unchanged `MATTER_EVENTS_CAPACITY` (16..1024; package default 128). Atomic
+`matter_events_prepare()` owns new nodes only for its input batch; it marks
+planned victims without altering the published list. Validation, allocation and
+durable number reservation all precede successful prepare. OOM returns
+`MATTER_LIMIT_REACHED`, freeing staging and preserving retained records and the
+next event number. `finish(true)` cannot allocate/fail: it removes marked victims
+and links the prepared records in number order. Abort frees staging and removes
+marks; a durable reservation may remain advanced, preserving the boot-skip rule.
+The oldest lowest-priority victim and rejection of eviction within the same
+batch are unchanged. Fabric removal frees matching nodes immediately. Calls
+remain serialized by the application; the log is busy throughout a prepared
+model mutation, including commit/abort, and outlives producers/handlers.
+
 Event-log binding in Read/Subscribe copies only the borrowed port and optional
 enumerator; it allocates nothing. Event selector state is allocated when an
 actual event path is decoded. A shared private helper counts authorized matches

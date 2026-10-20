@@ -144,6 +144,15 @@
     "replace": []
   },
   {
+    "name": "test_events",
+    "source": "tools/matter/tests/test_events.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
     "name": "test_exchange",
     "source": "tools/matter/tests/test_exchange.c",
     "mode": "normal",

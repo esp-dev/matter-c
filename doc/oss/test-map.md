@@ -1,8 +1,14 @@
 # Test inventory
 
-test-map.json enumerates 248 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 249 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory03 registers `test_events`: requested-byte accounting, constructor/node
+OOM, allocation-free finish/abort, durable reservation faults/restart, full-log
+and full-batch admission, priority and number boundaries, and 4000 differential
+operations against the previous array policy. Read/Subscribe retain their
+independent full-capacity snapshot/eviction and deferred allocation checks.
 
 The memory01 stage registers `test_store_alloc` in native CTest. Shared
 `test_alloc_bytes.h` measures requested live/peak bytes and injects allocation

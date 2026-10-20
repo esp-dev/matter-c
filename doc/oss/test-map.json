@@ -1080,6 +1080,18 @@
       "allocation_variant": "not applicable"
     },
     {
+      "path": "tools/matter/tests/test_events.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_events"
+      ],
+      "entrypoint": "ctest --test-dir build/cmake -R ^test_events$ --output-on-failure",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "Built-in requested-byte accounting and OOM injection for event log nodes"
+    },
+    {
       "path": "tools/matter/tests/test_exchange.c",
       "kind": "ctest-native",
       "ctest": [
@@ -2600,7 +2612,8 @@
       "referenced_by": [
         "tools/matter/tests/test_store.c",
         "tools/matter/tests/test_im_read.c",
-        "tools/matter/tests/test_im_subscribe.c"
+        "tools/matter/tests/test_im_subscribe.c",
+        "tools/matter/tests/test_events.c"
       ],
       "allocation_variant": "test-only byte accounting and allocation fault injection"
     }

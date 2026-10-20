@@ -30,6 +30,7 @@ PROBES = {
     "model/matter_events": {
         "event_log": "sizeof(struct Matter_Events)",
         "event_record": "sizeof(Matter_Event_Record_T)",
+        "event_node": "sizeof(EventNode)",
         "event_log_records": "sizeof(((struct Matter_Events*)0)->records)",
         "event_log_pending": "sizeof(((struct Matter_Events*)0)->pending)",
     },

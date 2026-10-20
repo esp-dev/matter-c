@@ -1,5 +1,16 @@
 # Development status
 
+**Memory03: event-log retention and batch staging allocate on demand.**
+Stable event nodes replace both fixed arrays, preserving number reservations,
+oldest lowest-priority eviction, same-batch protection and atomic prepare/finish.
+Read/Subscribe retain independent immutable snapshots. ESP32 compiler layouts:
+empty log 60,184 -> 808 B; full 128-record retention 31,528 B; full-log/full-batch
+peak 62,248 B before allocator overhead. Linux CTest 87/87 and two-instance
+scenario 6/6 per memory variant; event OOM Memcheck and sanitizer tests at
+capacities 16/1024 are clean. [Report and limits](memory03-validation.md).
+No physical ESP32 or official CSA rerun. Next: bounded shared value snapshots
+for Read/Subscribe, preserving references and report/ACK ownership.
+
 **Memory02: transactions and TX packets allocate on demand in the isolated memory checkout.**
 Memory01 is committed as `5355e02`. Stable live nodes and exact encoded TX sizes
 preserve the existing admission ceilings, ACK/retry and UDP drain lifetimes.
