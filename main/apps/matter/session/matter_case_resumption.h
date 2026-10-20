@@ -33,8 +33,8 @@ static bool resume_derive(Matter_Case_T s,const uint8_t id[16],const char* info,
 static bool resume_mic(Matter_Case_T s,const uint8_t id[16],unsigned sigma,const uint8_t* received) {
     bool ok=resume_derive(s,id,sigma==1?"Sigma1_Resume":"Sigma2_Resume",16);
     const uint8_t* nonce=(const uint8_t*)(sigma==1?"NCASE_SigmaS1":"NCASE_SigmaS2");
-    if(ok) ok=(received?s->crypto.ccm_decrypt(s->crypto.user,s->derived,nonce,NULL,0,received,0,s->plain):
-        s->crypto.ccm_encrypt(s->crypto.user,s->derived,nonce,NULL,0,NULL,0,s->cipher))==MATTER_OK;
+    if(ok) ok=(received?s->crypto.ccm_decrypt(s->crypto.user,s->derived,nonce,NULL,0,received,0,s->workspace->mic):
+        s->crypto.ccm_encrypt(s->crypto.user,s->derived,nonce,NULL,0,NULL,0,s->workspace->mic))==MATTER_OK;
     erase(s->derived,sizeof(s->derived)); return ok;
 }
 static bool resume_keys(Matter_Case_T s) {
@@ -44,15 +44,15 @@ static bool resume_keys(Matter_Case_T s) {
 }
 static bool resume_reply(Matter_Case_T s) {
     if(s->crypto.random(s->crypto.user,s->resume,16)!=MATTER_OK || !resume_mic(s,s->resume,2,NULL) ||
-        !begin(s,s->out,sizeof(s->out)) || !B(1,s->resume,16) || !B(2,s->cipher,16) ||
+        !begin_output(s) || !B(1,s->resume,16) || !B(2,s->workspace->mic,16) ||
         !put(s,MATTER_TLV_UNSIGNED,3,s->config.local_session_id,NULL,0) || !end(s,&s->out_size) || !resume_keys(s)) return false;
     s->out_opcode=0x33; s->after_send=FINISH; s->output=true; return true;
 }
 static bool resume_response(Matter_Case_T s) {
-    if(!s->resume_attempt || !decode(s,s->in,s->in_size,s->fields,8) || !bytes(&s->fields[1],16,16) ||
-        !bytes(&s->fields[2],16,16) || !number(&s->fields[3],65535) || !s->fields[3].unsigned_value || !intervals(s,4) ||
-        !resume_mic(s,s->fields[1].data,2,s->fields[2].data)) return false;
-    s->keys.traffic.peer_session_id=(uint16_t)s->fields[3].unsigned_value; memcpy(s->resume,s->fields[1].data,16);
+    if(!s->resume_attempt || !decode(s,s->in,s->in_size,s->workspace->fields,8) || !bytes(&s->workspace->fields[1],16,16) ||
+        !bytes(&s->workspace->fields[2],16,16) || !number(&s->workspace->fields[3],65535) || !s->workspace->fields[3].unsigned_value || !intervals(s,4) ||
+        !resume_mic(s,s->workspace->fields[1].data,2,s->workspace->fields[2].data)) return false;
+    s->keys.traffic.peer_session_id=(uint16_t)s->workspace->fields[3].unsigned_value; memcpy(s->resume,s->workspace->fields[1].data,16);
     if(!resume_keys(s)) return false;
-    memset(s->out,0,8); s->out_size=8; s->out_opcode=0x40; s->after_send=COMPLETE; s->output=true; return true;
+    memset(s->status,0,8); s->out_size=8; s->out_opcode=0x40; s->after_send=COMPLETE; s->output=true; return true;
 }

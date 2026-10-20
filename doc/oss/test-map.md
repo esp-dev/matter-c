@@ -1,8 +1,17 @@
 # Test inventory
 
-test-map.json enumerates 251 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 252 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory08 registers `test_pase_alloc`, retaining the full existing PASE/MRP/admin
+suite with matching core/crypto allocation instrumentation. Both PASE and CASE
+allocation variants add phase-by-phase byte accounting, atomic RX OOM, every
+process allocation fault, stable output/idle polls and key-transfer gates.
+`chip_tool_memory_capacity.py` drives one disposable host through five fabrics,
+fifteen CASE sessions and fifteen three-path subscriptions, with nine-path Reads
+and Writes at capacity. It is an external workload for profiling, not CSA proof
+or a universal RAM upper bound.
 
 Memory06 registers `test_case_alloc` for the existing CASE/cache suite. Cache
 OOM preserves old entries; same-peer saves and full per-fabric eviction allocate

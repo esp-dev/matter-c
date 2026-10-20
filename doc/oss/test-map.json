@@ -307,8 +307,17 @@
         "tools/matter/tests/test_last_fabric_discovery_chip.py",
         "tools/matter/tests/test_subscription_fabrics_chip.py",
         "tools/matter/tests/test_im_event_fabric_chip.py",
-        "tools/matter/tests/test_groupkey_lifecycle_chip.py"
+        "tools/matter/tests/test_groupkey_lifecycle_chip.py",
+        "tools/matter/tests/chip_tool_memory_capacity.py"
       ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_memory_capacity.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/chip_tool_memory_capacity.py --chip-tool <tool> --paa <paa> --output <dir> --discriminator <value>",
+      "referenced_by": [],
       "allocation_variant": "not applicable"
     },
     {
@@ -1820,14 +1829,15 @@
       "path": "tools/matter/tests/test_pase.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_pase"
+        "test_pase",
+        "test_pase_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_pase",
       "referenced_by": [
         "tools/matter/run_tests.ps1",
         "tools/matter/tests/test_secure.c"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native allocation variant: phase buffers, receive/process OOM, wipe and handoff/drain"
     },
     {
       "path": "tools/matter/tests/test_pase_secure.h",
@@ -2618,7 +2628,9 @@
       "kind": "external-chip-tool",
       "ctest": [],
       "entrypoint": "python tools/matter/tests/test_im_event_fabric_chip.py --help; disposable Linux node with development PAA/credentials and unmodified chip-tool; actual events, chunk timing and two-fabric raw privacy. Original manual TH outcome remains separate.",
-      "referenced_by": [],
+      "referenced_by": [
+        "tools/matter/tests/chip_tool_memory_capacity.py"
+      ],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     },
     {

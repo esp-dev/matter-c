@@ -1,0 +1,342 @@
+{
+  "baseline": "3f1efa6acd5b999240669518e086193312a3dff4",
+  "date": "2026-10-20",
+  "scope": "Memory08 local acceptance; no physical ESP32 or official CSA rerun",
+  "specification": {
+    "name": "23-27349-012_Matter-1.6.1-Core-Specification.pdf",
+    "sha256": "d7b078a4b80e8faf345205af0ba4773686e15097b2e6b6caecb5810585875b91"
+  },
+  "capacity_policy": "PASE1024/CASE1200, CASE transcript3600, two admitted handshakes, five fabrics, three protected CASE/subscriptions per fabric; fail-safe, resumption and PASE ACK versus CASE sent transfer gates unchanged",
+  "esp32": {
+    "compiler": "xtensa-esp-elf-gcc.exe (crosstool-NG esp-13.2.0_20230928) 13.2.0",
+    "probes": 27,
+    "diagnostics": 0,
+    "owner_before": {
+      "pase": 6384,
+      "case": 14112
+    },
+    "owner_after": {
+      "pase": 744,
+      "case": 2440
+    },
+    "owner_reduction": {
+      "pase": 5640,
+      "case": 11672
+    },
+    "parser": {
+      "pase": 1576,
+      "case": 2128
+    },
+    "sigma_scratch": 3600,
+    "full_layout_ceiling_before": {
+      "pase": 6384,
+      "case": 14112
+    },
+    "full_layout_ceiling_after": {
+      "pase": 6416,
+      "case": 14168
+    },
+    "individual_frames_after": {
+      "matter_pase_receive": 32,
+      "matter_pase_process": 96,
+      "encrypted": 48,
+      "verify": 112,
+      "matter_case_destination": 176,
+      "matter_case_receive": 48,
+      "matter_case_process": 64
+    },
+    "stack_scope": "Compiler frames only; new helpers32B; no linked ESP32 task high-water/budget"
+  },
+  "tracked_host": {
+    "scope": "Both handshake peers plus adapter/backend/Fabric fixture payload; excludes internal Mbed TLS allocations, allocator/test metadata",
+    "pase_peak_before": 17776,
+    "pase_peak_after": 8561,
+    "case_full_peak_before": 68876,
+    "case_full_peak_after": 58680,
+    "case_resumed_peak_before": 67392,
+    "case_resumed_peak_after": 47226,
+    "pase_completed_before": 14656,
+    "pase_completed_after": 2944,
+    "case_completed_before": [
+      {
+        "resumed": 0,
+        "completed_live": 66896,
+        "peak": 68876
+      },
+      {
+        "resumed": 1,
+        "completed_live": 67120,
+        "peak": 67392
+      }
+    ],
+    "case_completed_after": [
+      {
+        "resumed": 0,
+        "completed_live": 43024,
+        "peak": 58680
+      },
+      {
+        "resumed": 1,
+        "completed_live": 43248,
+        "peak": 47226
+      }
+    ],
+    "phase_oom_positions": {
+      "pase": 34,
+      "case_full_and_resumed": 54
+    },
+    "baseline_measurement": "Baseline3f1efa6 core compiled with same phase measurement/instrumentation harness; real host backend and fixture setup"
+  },
+  "whole_host_profile": {
+    "architecture": "Linux x86_64 Debug host, one node, synthetic three-phase meter/services; controller processes excluded",
+    "tool": "Valgrind Massif, stacks=yes, time-unit=ms, detailed-freq=1, max-snapshots=1000",
+    "scope": "One host, five fabrics, fifteen CASE sessions and three-path subscriptions; observed workload, not a worst-case RAM bound or certification",
+    "snapshots": 708,
+    "checks": 50,
+    "maximum_interval_seconds": 30,
+    "native_capacity_checks": 50,
+    "native_maximum_interval_seconds": 3,
+    "controller_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "node_exit": 0,
+    "maxima_observed": {
+      "heap": {
+        "snapshot": 666,
+        "time_ms": 195543,
+        "heap": 413884,
+        "allocator_extra": 5076,
+        "stack": 5384,
+        "kind": "detailed",
+        "combined": 424344
+      },
+      "stack": {
+        "snapshot": 5,
+        "time_ms": 1899,
+        "heap": 34071,
+        "allocator_extra": 1249,
+        "stack": 6744,
+        "kind": "detailed",
+        "combined": 42064
+      },
+      "combined": {
+        "snapshot": 662,
+        "time_ms": 194775,
+        "heap": 413876,
+        "allocator_extra": 5068,
+        "stack": 5424,
+        "kind": "detailed",
+        "combined": 424368
+      }
+    },
+    "limitation": "Observed sampled snapshots for this concrete workload, not every accepted request/wildcard/event/TX combination; excludes ESP-IDF/Wi-Fi/BLE/lwIP/RTOS and target allocator; Linux stack is not an ESP32 task budget"
+  },
+  "heap_sample_attribution": {
+    "host_mdns_advertisers": 81360,
+    "host_resolver": 13560,
+    "events": 30976,
+    "cluster_owners": 26800,
+    "secure_case_owners": 24840,
+    "meter_source": 22672,
+    "four_epm_models": 21984,
+    "scope": "Direct groups at largest sampled heap; not a platform-independent core allocation inventory"
+  },
+  "capacity_arithmetic": {
+    "scope": "Configured saturated attribute Subscribe caps, not normative minimum, observed reachability or preallocation",
+    "per_subscribe_owner_results_values_links": 55624,
+    "fifteen_subscriptions": 834360,
+    "excludes": [
+      "filters/selectors",
+      "event snapshots",
+      "RX/TX",
+      "growth overlap",
+      "other owners",
+      "allocator/backend/crypto"
+    ]
+  },
+  "windows": {
+    "sandbox_passed": 91,
+    "sandbox_total": 94,
+    "socket_retries_passed": 3,
+    "socket_retries_total": 3,
+    "compiler_warnings": 0
+  },
+  "linux": {
+    "ctest_normal": 91,
+    "ctest_sanitize": 91,
+    "two_instance_memcheck_checks": 6,
+    "two_instance_sanitizer_checks": 6,
+    "node_exit_codes": [
+      0,
+      0
+    ],
+    "node_stderr_empty": true,
+    "compiler_warnings": 0
+  },
+  "memcheck": {
+    "two_instance": {
+      "allocations": 50173,
+      "frees": 50173,
+      "cumulative_requested_bytes": 5134404,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "pase_phase_oom": {
+      "allocations": 86230,
+      "frees": 86230,
+      "cumulative_requested_bytes": 3510673,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "case_phase_oom": {
+      "allocations": 1676197,
+      "frees": 1676197,
+      "cumulative_requested_bytes": 73252398,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    }
+  },
+  "duplication": {
+    "tool": "jscpd4.0.5",
+    "min_lines": 8,
+    "min_tokens": 60,
+    "max_lines": 10000,
+    "max_size": "1mb",
+    "before": {
+      "lines": 15989,
+      "tokens": 309292,
+      "sources": 66,
+      "clones": 7,
+      "duplicatedLines": 69,
+      "duplicatedTokens": 1301,
+      "percentage": 0.43,
+      "percentageTokens": 0.42,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    },
+    "after": {
+      "lines": 16034,
+      "tokens": 314472,
+      "sources": 66,
+      "clones": 7,
+      "duplicatedLines": 69,
+      "duplicatedTokens": 1358,
+      "percentage": 0.43,
+      "percentageTokens": 0.43,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    },
+    "scope": "66 implementation C files; headers/tests excluded; no linked flash claim"
+  },
+  "changed_source_sha256": {
+    "main/apps/matter/session/matter_pase.c": "88d5938e16236f456793eb4ed8304931a58f1dbacebbabd9b9ced3f3a4be6a2e",
+    "main/apps/matter/session/matter_pase.h": "b9b1696932062d898991745f0e69dbf9a3d57a0c3933824e27bbc4aba3e7ac55",
+    "main/apps/matter/session/matter_case.c": "5b3fb96c09359ab66c6afae64a6d437a90270395674e2b0606f2da1720dd4431",
+    "main/apps/matter/session/matter_case.h": "744cce3f32f75065432a76abca9fc124795249b43e048a9744153f79d1d738c5",
+    "main/apps/matter/session/matter_case_resumption.h": "0b77f4a5c22656e7a648714cb440e91beeabad68bda8ad0f953ffc5312f8e3bb",
+    "main/apps/matter/session/matter_handshake_buffer_internal.h": "d7fb06151c5e3dfe0656ef2d04e5176899246cb879961c6e5de968d8852a75bd",
+    "tools/matter/tests/test_pase.c": "4558b946f312cf58eeda0510d6ad28a73149e7aeb8cbac51002442bdffd216d5",
+    "tools/matter/tests/test_case.c": "2d8d64077b32f787d243b979ef8dd7e5ffdab52877051a1e43bd188cce9b54f1",
+    "tools/matter/tests/test_mrp_pair.c": "6b1dc1cab5812686f42ea70a5018d498f824fa5fb18b8d431b7e05a8acb44f94",
+    "tools/matter/tests/test_alloc_bytes.h": "743dad19d7de84e635a0e80976937a642a2f585aea53fab3848afe1164a2bc27",
+    "tools/matter/tests/chip_tool_memory_capacity.py": "c7a541e8604d7d2cdd25f98bec49c7132e5d8603e4b71f351be5a03a53cfb746",
+    "tools/matter/tests/chip_tool_resources.py": "93ef12dc25b16480fc59e67c3a41516371fe1c02c2c3d955a053c59f2e41cbfd",
+    "tools/matter/tests/test_im_event_fabric_chip.py": "e9444ceb3e51557a2bb1f9424ab0564383d5021018a99907daf740241fcef823",
+    "tools/matter/tests/chip_tool_energy_profile.py": "5f3ceb2df4cd2b7ecf64cbde7d2c9ebec5931b25bcf25d56377a643a4a347fac",
+    "tools/matter/tests/chip_tool_multi_events.py": "2928d1bc98b5a84ac7c84cda4962d672f38ed143d188a6b3d6f8a2d719b5f671",
+    "tools/matter/tests/chip_tool_three_phase.py": "b75a097917bb61786ad588430a0acccbbdfb44e693d6ca8bfeecb7b5caf28247",
+    "tools/matter/tests/runtime_pair_host.c": "5fe854a7087db8515f254dd867d136c6fec3fbb6009e36d7862cc4e966aa1faf",
+    "tools/matter/memory_audit.py": "f74e2e7cb386df69abb8a8b08558c6e696524caebe13ed05a7de387395ef3797",
+    "cmake/sources.json": "42a508c912dc308b855d8359e696c925829211e1b18327088386ab71e70203d7",
+    "cmake/test-cases.json": "9e9aa362557bc21fc17425b157b3993f62f908c9cdfadada20391dc1b7f2cf6f",
+    "doc/oss/test-map.json": "02a9aa9741cf048344cf4c3753ea9f36f353eda868f445472048b0b376645d6b"
+  },
+  "validation_runner_sha256": {
+    "initial": "ed910b5d267836daee199ba889b23bfb2b8d0e87bb1b9ebe001a50cb2ca35f61",
+    "capacity_retry": "9a86eeb9592fdc4edfcccf7f1d3633602dc0e94406ed78bec7747f0770af26e0",
+    "capacity_normal": "1927f5cb290b66f0b7728a46006b063a843208bc13fddff9bfe08e108b4bf27b",
+    "capacity_retry30": "3f27a367ef68a067479271c7aca1a7f648c240f94f13add6aec1c9fb848c0764"
+  },
+  "evidence_sha256": {
+    "case-baseline.log": "83d825f2c6d9bc4df72a51b4c95200936bf2ac00929091417ac46e6a8c02026e",
+    "duplicates-full-after/jscpd-report.json": "0f43121a94feb99e6c9954b0abbf53380fd598b7ee9577d59d06c02715de9d98",
+    "duplicates-full-before/jscpd-report.json": "40231e54e328531cda884b0e650da0875d18360ba4437b1ecace527fb8769900",
+    "linux-evidence/capacity/controller/result.json": "17785c3d8c948771a7b667fc5017fce3c6a0eccdb295e9cdc88d97876468c980",
+    "linux-evidence/capacity/massif.out": "169fd6570018e04b07291b14c1a152982feab2434c71d8c2c8de0dccb72148b2",
+    "linux-evidence/capacity-normal/controller/result.json": "3fdeba002d868b38701443153653c0eaa1df30b9bbf9c63fc0d285856ae9de89",
+    "linux-evidence/capacity-normal-run.command.json": "f3cf4efe211ca6be0ae7c62c0cd08bb15d7d71ecf3584017cb5ae7a501468ac8",
+    "linux-evidence/capacity-normal-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "linux-evidence/capacity-normal.command.json": "df11e9a27acd10b7dafe4c9346cb34021b78c3ec8c3a21c1793cb77b7f724e54",
+    "linux-evidence/capacity-normal.log": "7be63e86dda64fa7eae823f3ccbdad823e7740fa639b13e568b3323bca55f7dd",
+    "linux-evidence/capacity-worker.log": "5d21b02305053f710aea1c7f1fe8208eaf5197e31846c37d8a0afab24c0e7d60",
+    "linux-evidence/capacity.command.json": "f0c407bdeada5368c82ba69540df9fbec3256b7f456c770c5459fab515ca4dcc",
+    "linux-evidence/capacity.log": "7be63e86dda64fa7eae823f3ccbdad823e7740fa639b13e568b3323bca55f7dd",
+    "linux-evidence/capacity30-worker.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "linux-evidence/case-memory-memcheck.command.json": "a5baa51df250fa0c6adac90819548945753b76747ce55054b695a78b3fb8f91c",
+    "linux-evidence/case-memory-memcheck.log": "c0cc489994314c06cc04ad9e0651bc1f922b6ae680aa0bb305b4fa85e9e283d3",
+    "linux-evidence/final-inventory.log": "e4d40c07bc2e40dd516fbd1a9535c001002b38775c6eab90cfb2f99378b7fe39",
+    "linux-evidence/initial-capacity.command.json": "00cfd188d35fcd9b4870f30926e773e9e11355d81ff133447dee655f6764cbc7",
+    "linux-evidence/initial-capacity.log": "f8ebb12936b24889c2fb16373743f1f8de66c5404c2ee76244abd57cecbc6f3c",
+    "linux-evidence/initial-error.json": "68b08633e2ed1d34c4473767b832da3af10d9618fccb67f8a06eabfc146b3c45",
+    "linux-evidence/normal/controller/pair-results.json": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+    "linux-evidence/normal/memcheck.log": "25e12db7d790919a9a72dcebfd8ca74fc9cdf07ad3f06fe174a2d6ec1a183aeb",
+    "linux-evidence/normal-build.command.json": "5a8a9a34f21e61e73d71ab2605088828fe7b6db42cc9c0ff22c968256a87b9c0",
+    "linux-evidence/normal-build.log": "4818607c22a4bbda45ae600956e17ca148f304dd6039b4a957e84042e42236bb",
+    "linux-evidence/normal-configure.command.json": "f52177234a4cfcea907af0969f15512abe5b6ad432f09ba7d0b9a6df3192415c",
+    "linux-evidence/normal-configure.log": "599960b87f2da5c9c385c077aa9c88d1f0c46d081e6fe960e472dd656e44494a",
+    "linux-evidence/normal-ctest.command.json": "915350eb18b19749cc441f2287f059b07afb97737679a80fc1cdaafe04115663",
+    "linux-evidence/normal-ctest.log": "018ed6a7f3be3a53249e254e3f3fe27607f9f6833d185cd42f45b13b1830bed1",
+    "linux-evidence/normal-pair.command.json": "b9517b571928bbce8265614de7641963bd49561448735f24d86bf969aa492968",
+    "linux-evidence/normal-pair.log": "a055b0375a75118660e1f32c2aa0c8720de2005d846f6d4e17e5543e85f1f178",
+    "linux-evidence/pase-memory-memcheck.command.json": "c980e6ec098ae3bbc804185b165bde688bb4a51854f43e34e76f976266f6af3b",
+    "linux-evidence/pase-memory-memcheck.log": "2757c57a8626abe885f25f5306e1494d7f2dff0437641077078e7aed757778ad",
+    "linux-evidence/results.json": "776389480b3ba89286ffa9f3598f2f6093030cf96c5540363fe3782e13e924c7",
+    "linux-evidence/sanitize/controller/pair-results.json": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+    "linux-evidence/sanitize-build.command.json": "84dc8fea866d2e8d2955f8afda278828156f7a7a5c7a98565598f36e9b375641",
+    "linux-evidence/sanitize-build.log": "c14c1043dbf93fcdb3b6e385faf067223b9ff27e2f03263ccdf8e0f15105ca5a",
+    "linux-evidence/sanitize-configure.command.json": "3c687cf25f00e24ece1483b564e3ee83546c8bdcfdef49528e5a098279315a42",
+    "linux-evidence/sanitize-configure.log": "eeecc4835f00fe27feb6dab0820c25084f13f387f3ba1660900d716ff9c638b1",
+    "linux-evidence/sanitize-ctest.command.json": "e1ac3f85f2d27b8691dfeb00906d95bec9c9735ee8d3853c3aded5bc352f5d46",
+    "linux-evidence/sanitize-ctest.log": "4dcfcec25cb54ceca6274bf49b1bb77c9256356dfe693cc2df16e4373d3e522a",
+    "linux-evidence/sanitize-pair.command.json": "c063e2b6c8a8659cd3dde7558c7c48fdbe7966695b7951ea4142da6c8456eee0",
+    "linux-evidence/sanitize-pair.log": "a055b0375a75118660e1f32c2aa0c8720de2005d846f6d4e17e5543e85f1f178",
+    "linux-evidence/second-capacity.command.json": "00cfd188d35fcd9b4870f30926e773e9e11355d81ff133447dee655f6764cbc7",
+    "linux-evidence/second-capacity.log": "6be9d1218b1ce063587bfb6aa447750308dae3767ea64e2c5a9cacdebce90a96",
+    "linux-evidence/second-error.json": "68b08633e2ed1d34c4473767b832da3af10d9618fccb67f8a06eabfc146b3c45",
+    "linux-evidence/source-sha256.json": "5d6d7114e46bf275adcf582276a6c323ba7d41557ad305e87d3ff687ba3f0fa5",
+    "linux-evidence/worker.log": "a16bb5675f2fc369fc51a60a90c4911a67bb386dde484b8c99619cbcc6462bbb",
+    "pase-baseline.log": "df8572dca6208879bf781715fd1c31db4a5750eb4b6d54e266bc1d968728a369",
+    "windows-build.log": "cc2c2db78edafd17919f3f2ba438082f54f93651666e80e980839b91021576b6",
+    "windows-ctest.log": "2527e6d719da208154b048cdb34d24c036089af65777c7829dcdf99d01a02b3d",
+    "windows-udp-ctest.log": "37130d1790169d490b1f24109e3f118ff5ce873b3b92447b409779d405a1b90e"
+  },
+  "not_verified": [
+    "ESP32 linked firmware and physical heap/stack",
+    "target allocator fragmentation/endurance/latency",
+    "exhaustive simultaneous IM/event/TX saturation",
+    "complete normative conformance or official CSA rerun",
+    "full OTA provider campaign"
+  ],
+  "next_task": "Bound whole-node report/snapshot demand and inspect persistent secure-session RX storage while preserving normative guarantees and ACK/drain"
+}

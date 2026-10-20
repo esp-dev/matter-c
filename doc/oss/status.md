@@ -1,5 +1,23 @@
 # Development status
 
+**Memory08: PASE/CASE buffers follow handshake phases.**
+Exact RX, process-only parsers, exact PASE parameter transcripts and temporary
+CASE Sigma work replace embedded buffers. TX releases at sent after the owner's
+MRP copy; terminal statuses allocate nothing. Limits, fail-safe notifications,
+resumption, one-shot transfer and PASE ACK/CASE sent gates are unchanged. ESP32
+owners fall6384 ->744 B and14112 ->2440 B; the all-buffer ceilings add32/56 B plus
+allocator overhead, while measured phase lifetimes reduce actual peaks.
+Linux CTest91/91 per build and two-instance checks6/6 per memory variant pass;
+phase/OOM Memcheck is clean. Windows91/94 plus3/3 socket retries. A native
+five-fabric/fifteen-session/fifteen-subscription workload passes50 checks at a
+3-second report interval. [Report and memory-budget limitations](memory08-validation.md)
+and [results](memory08-results.json) separate sampled whole-host heap/stack from
+ESP32 layouts and normative resource guarantees: one-node Massif with30-second
+reports observes413884 B heap,6744 B sampled stack,424368 B combined peak including
+allocator overhead;50 checks pass. Host discovery/resolver groups alone account
+for94920 B at the heap sample. No physical ESP32 or CSA rerun.
+Next: bound whole-node reporting/snapshot demand and persistent secure RX storage.
+
 **Memory07: Fabric publication stages metadata and sizes TLV output exactly.**
 The guarded Fabric candidate is borrowed during synchronous encoding; the live
 image, complete rollback, schemas1..7, five-fabric/storage limits, fail-safe and

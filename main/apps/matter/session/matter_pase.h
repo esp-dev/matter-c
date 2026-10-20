@@ -52,6 +52,10 @@ Matter_Result_T matter_pase_on_failure(Matter_Pase_T,void* user,uint64_t token,
  * binding same unsecured session/exchange, protocol/vendor 0, peer I flag, R=1,
  * and duplicate filtering. Caller must reject unrelated exchanges before here.
  * Backpressure preserves state; after acceptance caller must schedule process.
+ * RX copies exactly size bytes on the attempt heap. OOM returns LIMIT_REACHED
+ * without accepting the message. Parser work exists only during process;
+ * parameter transcripts release after deriving the SPAKE context. TX bytes
+ * release at sent, after the owner's immutable MRP copy has been retained.
  */
 Matter_Result_T matter_pase_receive(Matter_Pase_T pase, uint8_t opcode, const uint8_t* data, size_t size);
 /* Explicit potentially expensive PBKDF/ECP work OUTSIDE RX/poll callback. now_ms

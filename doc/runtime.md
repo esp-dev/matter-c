@@ -264,8 +264,22 @@ OOM preserves old entries, and updates/full-cache eviction reuse nodes. Secret
 nodes clear on the same identity/IPK/removal/reset/delete boundaries; installing
 another fabric cannot clear an existing cache. Dense Fabric image and rollback
 DTO remain, while Memory07 removes the second Fabric copy from storage staging
-and sizes publication output. PASE/CASE handshake buffers remain separate work;
-the prior larger-allocation inventory is in [Memory06](oss/memory06-validation.md).
+and sizes publication output. The prior larger-allocation inventory is in
+[Memory06](oss/memory06-validation.md).
+
+PASE/CASE now keep only attempt state between messages. Accepted RX owns exactly
+the payload length; allocation failure accepts nothing. Parser/tag workspaces
+exist during process only, and idle/output polling allocates nothing. PASE keeps
+exact PBKDF request/response bytes until the SPAKE context hash is derived. CASE
+keeps exact Sigma1 while resumption is possible, reserves its unchanged3600-byte
+transcript before full-Sigma scratch, and frees both after deriving keys. Resumed
+CASE uses a16-byte MIC instead of full-Sigma buffers. TX capacity remains1024/1200
+and releases at sent, after independent MRP storage is retained. Eight-byte
+statuses live in each attempt, so terminal failure does not allocate a reply.
+Failure/cancel/delete erase and release temporary storage. Key-transfer, fabric
+revision/resumption checks and PASE ACK versus CASE sent completion gates remain
+unchanged. [Memory08](oss/memory08-validation.md) distinguishes owner savings,
+active peaks, full-buffer ceilings and whole-host profiling from ESP32 budgets.
 
 Read/Subscribe expanded attribute results now grow on the heap per interaction,
 starting at nine entries and doubling up to the 512-entry application ceiling.

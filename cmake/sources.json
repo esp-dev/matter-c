@@ -215,6 +215,7 @@
     "model/matter_im_paths_internal.h",
     "session/matter_case_resumption.h",
     "session/matter_secure_internal.h",
+    "session/matter_handshake_buffer_internal.h",
     "runtime/matter_store_internal.h",
     "storage/matter_store_source_internal.h",
     "runtime/matter_fabric_resumption_internal.h",

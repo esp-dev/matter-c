@@ -459,7 +459,61 @@ static bool network_abort(void) {
     ok=true;
 done: dispose(f); return ok;
 }
-int main(void) {
+#ifdef MATTER_TEST_ALLOC
+static void pase_memory(bool faults) {
+    size_t counts[7]={0},failures=0;
+    PaseFixture* f=setup(false,false); size_t idle=live_bytes,owner=matter_test_allocation_size(f->s[0]);
+    peak_bytes=idle;
+    printf("MEMORY PASE owners=%zu idle_pair_tracked=%zu\n",owner,idle);
+    for(unsigned phase=0;phase<7;++phase) {
+        size_t start=calls;
+        REQUIRE(matter_pase_process(f->s[phase%2],phase)==(phase==6?MATTER_OK:MATTER_PENDING));
+        counts[phase]=calls-start;
+        printf("MEMORY PASE phase=%u live=%zu peak=%zu process_allocations=%zu\n",phase,live_bytes,peak_bytes,counts[phase]);
+        if(phase<6) {
+            Matter_Pase_Message_T m,again; REQUIRE(matter_pase_output(f->s[phase%2],&m)==MATTER_OK);
+            start=calls; fail_at=calls+1;
+            REQUIRE(matter_pase_process(f->s[phase%2],phase)==MATTER_PENDING);
+            REQUIRE(matter_pase_output(f->s[phase%2],&again)==MATTER_OK && again.data==m.data && again.size==m.size && calls==start);
+            if(faults) {
+                size_t before=live_bytes;
+                REQUIRE(matter_pase_receive(f->s[1-phase%2],m.opcode,m.data,m.size)==MATTER_LIMIT_REACHED && live_bytes==before);
+                ++failures;
+            }
+            fail_at=0;
+            size_t before=live_bytes;
+            REQUIRE(matter_pase_receive(f->s[1-phase%2],m.opcode,m.data,m.size)==MATTER_OK);
+            if(faults) REQUIRE(live_bytes-before==m.size);
+            REQUIRE(matter_pase_sent(f->s[phase%2])==MATTER_OK);
+        }
+    }
+    REQUIRE(matter_pase_confirm_delivery(f->s[1],7)==MATTER_OK && same_keys(f));
+    if(faults) REQUIRE(live_bytes==idle);
+    printf("MEMORY PASE completed_live=%zu peak=%zu\n",live_bytes,peak_bytes); dispose(f);
+    if(faults) for(unsigned phase=0;phase<7;++phase) for(size_t point=1;point<=counts[phase];++point) {
+        f=setup(false,false);
+        for(unsigned i=0;i<phase;++i) REQUIRE(direct(f,i%2,i));
+        fail_at=calls+point;
+        REQUIRE(matter_pase_process(f->s[phase%2],phase)==MATTER_PORT_ERROR); fail_at=0;
+        REQUIRE(matter_pase_state(f->s[phase%2])==MATTER_PASE_FAILED && f->failures[phase%2]==1);
+        REQUIRE(matter_pase_keys(f->s[phase%2],&f->keys[phase%2])==MATTER_INVALID_STATE);
+        Matter_Pase_Message_T status; size_t start=calls; fail_at=calls+1;
+        if(phase && phase!=6) REQUIRE(matter_pase_output(f->s[phase%2],&status)==MATTER_OK && status.opcode==0x40 && status.size==8);
+        REQUIRE(matter_pase_process(f->s[phase%2],phase)==MATTER_PORT_ERROR && calls==start); fail_at=0;
+        dispose(f); REQUIRE(!live); ++failures;
+    }
+    if(faults) printf("PASS PASE phase memory: %zu RX/process OOM positions, stable output/idle polls, context release, no key transfer on failure\n",failures);
+}
+#endif
+int main(int argc,char** argv) {
+#ifdef MATTER_TEST_ALLOC
+    if(argc==2 && (!strcmp(argv[1],"--memory-profile") || !strcmp(argv[1],"--memory-only"))) {
+        pase_memory(!strcmp(argv[1],"--memory-only")); REQUIRE(!live); return 0;
+    }
+    pase_memory(true);
+#else
+    (void)argc; (void)argv;
+#endif
     if(!admin_core()) return 1;
 #ifdef MATTER_TEST_HOST_UDP
     if(!network_eem() || !network_epm() || !network_power_topology() || !network_admin_commissioning() || !network_case() || !network_acl() || !network_groupkey() || !network_diagnostics()) return 1;
