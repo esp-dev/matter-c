@@ -1688,7 +1688,7 @@
         "test_ota_query",
         "test_ota_query_alloc"
       ],
-      "entrypoint": "ctest --test-dir <build> -R test_ota_query Explicit owner query: missing/stale provider, active query/image, monotonic clock, 120s/provider/urgent floors, growing Busy backoff and stop.",
+      "entrypoint": "ctest --test-dir <build> -R test_ota_query Explicit owner query: missing/stale provider, active query/image, monotonic clock, 120s/provider/urgent floors, growing Busy backoff and stop. Restart chain: Busy60 -> transport error/Idle -> preserved240s backoff -> actual NotAvailable resets failures -> Busy120s.",
       "referenced_by": [
         "tools/matter/build_host.ps1",
         "tools/matter/build_host_linux.py"

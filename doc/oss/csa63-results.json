@@ -1,0 +1,411 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa62-results.json",
+  "previous_sha256": "fcb39e603c31e957b06b16c913351ede995e3f67f8d12f228154727a525318be",
+  "source_base_commit": "714781e9b272a0f7b5be7b0f0e41fbe21978c692",
+  "scope": "Attribute the original QueryImage provider handoff with decoded peer responses, private scalar runtime/MRP traces, a separate controlled provider-loss experiment and independent actual NotAvailable memory acceptance. No production implementation change.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC_SU_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "FAIL",
+      "status": "FAIL",
+      "run_id": 607
+    }
+  ],
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "original_sources_sha256": {
+    "TC_SU_2_2.py": "d5e9fbf867982ba7b1c8c8305c70a6fc6b04f018b521562d2e7028b6e672b8e4",
+    "TC_SU_2_5.py": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+    "TC_SU_2_7.py": "9a8b0ffa278180cf3aaa772dae3d2d3a1650114c3260a035d784db11a4f8dd31",
+    "TC_SU_4_1.py": "644dde23f969393db842b84190978144a9279b02fa17e3d1e5ba4e0514811061",
+    "TC_SUTestBase.py": "9e9b2af9fcca6b039da12273b89560bd55121ec11fdb72de0f4973499318615b"
+  },
+  "original_run": {
+    "case": "TC_SU_2_2",
+    "endpoint": 0,
+    "collection": "SDK Python Tests",
+    "run_id": 607,
+    "verdict": "FAIL",
+    "started_at_utc": "2026-10-20 09:02:20.707954",
+    "completed_at_utc": "2026-10-20 09:04:35.187637",
+    "raw_sha256": "066f6d8cb08694c83e9562b47b6721cc852713ec72dadaa3f6c3fe7713d5e4f6",
+    "log_sha256": "f723df00ea49f9f79bdbd700b31334407609ca3719c09ec0b81ccbb2be4084f1",
+    "step_counts": {
+      "passed": 4,
+      "failed": 1,
+      "pending": 4
+    },
+    "failure": "Step2: forbidden Downloading at +0.4s while waiting for Querying. The automatic retry received UpdateAvailable from the old provider before its shutdown; later scenarios are pending.",
+    "node_log_sha256": "56a522d6ce07464d72d3d867df719f454c530b2a142d69dc6dd14321079f6b31",
+    "provider_logs_sha256": {
+      "provider-58.log": "d1dfbc61bb23ce3c20b8cc6ed0aba5d08971d9b807ea17f4083fa32791e19e38",
+      "provider-52.log": "053572fc08a377cffb808a55f4f9d74752dd64cfcf24f577ed25c2503b847742"
+    },
+    "trace_wrapper_sha256": "917e92cb40ff48c8a5227bf268cc15c011141e89e7b4a952fae99b5d8ae305a0",
+    "snapshot_sha256": "257197e44887473d73025400c5071ad158c106bac130bb6b27ab17ce7a0a21a0",
+    "original_sources_unchanged": true,
+    "cleanup": {
+      "TH_idle": true,
+      "scoped_PAA_removed": true,
+      "supervisor_stopped": true,
+      "snapshot_processes": [],
+      "nodes": [
+        {
+          "boot": 1,
+          "exit": 0,
+          "stderr_empty": true
+        }
+      ]
+    }
+  },
+  "controlled_fault_run": {
+    "case": "TC_SU_2_2",
+    "endpoint": 0,
+    "collection": "SDK Python Tests",
+    "run_id": 608,
+    "verdict": "FAIL",
+    "started_at_utc": "2026-10-20 09:10:27.605685",
+    "completed_at_utc": "2026-10-20 09:16:43.821031",
+    "raw_sha256": "655fbe85d0833129b66b302c3644bf00670ab296cea55234068f20f638972c87",
+    "log_sha256": "ad84acf71535790504a9bb49db83397b5c97842d2d161312938c945cb5b71fa9",
+    "step_counts": {
+      "passed": 5,
+      "failed": 1,
+      "pending": 3
+    },
+    "failure": "Step3:120s timeout waiting for DelayedOnQuery. Step2 PASS only observed Querying; there was no decoded NotAvailable response.",
+    "node_log_sha256": "ae25f384d5070b528f45ea65d9dc8b06e55d53e643d1819a04b04b34fb9d3fc3",
+    "provider_logs_sha256": {
+      "provider-64.log": "80bbed570fdf51c263be59d1e10c3ebd2183f2f8517e3d8dabcac432ad0f7ac6",
+      "provider-58.log": "d8501d988f366c323ca5614053c1800461d766bd81b63c8c4f6d7cd7866125cf",
+      "provider-52.log": "b3338a797e278ed271322c90709f9027057c3e649112110544b5f0d1238054f1"
+    },
+    "trace_wrapper_sha256": "5e4fff7252601f06491c1fc7a6215357b42dcf6366153f8ff0f7c791f546a67e",
+    "snapshot_sha256": "293a0e918db953efacd7e8eb44ac868be75d285ef4eed32d7e2ed894b3c5e497",
+    "original_sources_unchanged": true,
+    "cleanup": {
+      "TH_idle": true,
+      "scoped_PAA_removed": true,
+      "supervisor_stopped": true,
+      "snapshot_processes": [],
+      "nodes": [
+        {
+          "boot": 1,
+          "exit": 0,
+          "stderr_empty": true
+        }
+      ]
+    }
+  },
+  "native_production_change": false,
+  "conclusion": {
+    "confirmed_native_defect": false,
+    "unforced": "Busy60 -> retry after120s -> actual UpdateAvailable/version2 from still-running old provider -> BDX. Next response scenario inherits the active download and fails step2.",
+    "controlled": "First provider killed after Busy, before retry. Restarted provider drops old-session packets. MRP timeout -> MATTER_PORT_ERROR6, no IM status or QueryImageResponse -> Idle/Failure ->240s second-failure backoff beyond the original120s step3 window.",
+    "retrospective_limit": "Controlled608 is consistent with the shape of605, not proof of the exact cause in that uninstrumented run. Unforced607 fails at a different boundary.",
+    "counts_changed": false,
+    "certification": false,
+    "next": "CSA64: observe the next permitted retry after controlled provider restart, requiring fresh CASE and complete signed OTA recovery. Do not infer recovery from a scheduled deadline."
+  },
+  "normative_basis": {
+    "document": "Matter Core1.6.1",
+    "section": "11.20.3.2",
+    "printed_pages": "999-1003",
+    "query_floor_seconds": 120,
+    "busy": "Retry same provider at least once is SHOULD; retry spacing must satisfy120s and supplied DelayedActionTime.",
+    "not_available": "With no alternate, retry no sooner than120s and any optional provider delay.",
+    "missing_response": "Failure to receive an application-layer response SHOULD be considered equivalent to NotAvailable.",
+    "error": "Without a verified image, alternate selection is optional; otherwise continue with the same provider subject to query timing constraints.",
+    "policy_limit": "The selected240s backoff is implementation policy, not a required Matter delay. The120s floor does not mandate a query exactly at120s or successful response inside a120s test observation."
+  },
+  "decoded_peer_responses": {
+    "unforced607": [
+      {
+        "time_ms": 1792486953085,
+        "status": 1,
+        "delay": 60,
+        "version": null
+      },
+      {
+        "time_ms": 1792487073243,
+        "status": 0,
+        "delay": 0,
+        "version": 2
+      }
+    ],
+    "controlled608": [
+      {
+        "time_ms": 1792487439614,
+        "status": 1,
+        "delay": 60,
+        "version": null
+      }
+    ],
+    "extraction": "Use the existing public driver TLV/SDK-JSON trace decoder. Strip only the anchored OTA-PROVIDER line prefix before decoding; raw logs and hashes remain unchanged. Deduplicate cumulative snapshot copies.",
+    "unforced_response_interval_ms": 120158,
+    "interval_limit": "Delta between decoded responses, not measured request spacing."
+  },
+  "controlled_fault": {
+    "action": "SIGKILL only the first dedicated test provider after decoded Busy60, before retry; same-process PID-birth and exact executable-argv0 verification.",
+    "same_process_verified": true,
+    "seconds_after_first_query_marker": 100.31251871492714,
+    "utc_ms": 1792487540319,
+    "classification_effect": "Diagnostic fault injection excluded from campaign classification; no original test/support/PICS bytes altered.",
+    "peer_unknown_session_drops": 4,
+    "native": {
+      "clock": "Component-relative monotonic milliseconds; dispatcher clock can lag the runtime pump. These are not packet timestamps.",
+      "busy_completion_runtime_ms": 14201,
+      "busy_response_status": 1,
+      "busy_delay_seconds": 60,
+      "busy_due_runtime_ms": 134201,
+      "retry_outgoing_dispatch_ms": 134215,
+      "reused_same_CASE": true,
+      "MRP_timeout_dispatch_ms": 140447,
+      "MRP_elapsed_ms": 6232,
+      "query_failure_runtime_ms": 140477,
+      "port_result": 6,
+      "IM_error": 0,
+      "response_bytes": 0,
+      "decoded_response": false,
+      "state": "Idle",
+      "reason": "Failure",
+      "failure_count": 2,
+      "global_floor_runtime_ms": 260477,
+      "next_due_runtime_ms": 380477,
+      "backoff_from_failure_ms": 240000,
+      "owner_query_and_announcement_preserve_deadline": true,
+      "next_due_query_observed": false
+    }
+  },
+  "independent_actual_not_available": {
+    "normal": {
+      "result": "PASS",
+      "mode": "not-available",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "rejected-without-bdx-or-install",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-version-and-boot",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "c13a7b78885d3a2495e5f0bef1c35d8bf4c816107bc7e11315b12675bc82fcf7",
+      "logs_sha256": {
+        "valgrind-1.log": "1683c9acdd5faaabf6bf7fda2df4e58e1a017e29c251453ca96c1f4383382419",
+        "provider.log": "bf23d80465be30cab40ef8ced91599d5170769b0be2edf4f42f42254fbcc7fb5",
+        "node-1.log": "e0956b7a9419e0da90e3f70019722b52a77782a75bf21fe8f3690afff269ce34",
+        "fresh-reader/interactive.log": "aa0278ac50fdaf932dc4592b411fedf182f86204675a17bf2a5ca4ee4c657600",
+        "controller/interactive.log": "692d27b3801a51ff93cfc2f1d51b58f4d34f57ea12be5289a11b820a5609443e"
+      },
+      "driver_sha256": "f94928764e1d72f01f09c61968011eae5733daac58340eb562312164e0c1aa63",
+      "first_response": {
+        "time_ms": 1792486694035,
+        "status": 2,
+        "delay": 0,
+        "uri": null,
+        "version": null
+      },
+      "observation_seconds": 120.28222142113373,
+      "native_stderr_empty": true,
+      "Memcheck": [
+        {
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            37783,
+            37783
+          ]
+        }
+      ],
+      "software_version": 1,
+      "restarts": 0,
+      "provider_restarts": 0
+    },
+    "sanitize": {
+      "result": "PASS",
+      "mode": "not-available",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "rejected-without-bdx-or-install",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-version-and-boot",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "69ee8206406ad0bf109a210ce2164201069e54d22f20d7ed0fd54e3bedcf97d5",
+      "logs_sha256": {
+        "provider.log": "aea54ac2fd831e5d6e9de6eedd16a160ed6ff771890a16efb372a163e57da060",
+        "node-1.log": "e7bbc0bc890f32327f35419b2bdec3de65171d618a7c509e9ddfa3d9794f5aca",
+        "fresh-reader/interactive.log": "fcb501ba2f19df5ddf2c5e76308f4f0deb9910a1008e6ae23675906309ce8b18",
+        "controller/interactive.log": "9fbadb6df987dfb78bf93a06a368144bc46f8b69fb38a7bfa3b39e82a0653c0a"
+      },
+      "driver_sha256": "f94928764e1d72f01f09c61968011eae5733daac58340eb562312164e0c1aa63",
+      "first_response": {
+        "time_ms": 1792486823993,
+        "status": 2,
+        "delay": 0,
+        "uri": null,
+        "version": null
+      },
+      "observation_seconds": 120.3001868869178,
+      "native_stderr_empty": true,
+      "Memcheck": [],
+      "software_version": 1,
+      "restarts": 0,
+      "provider_restarts": 0
+    }
+  },
+  "focused": {
+    "normal": {
+      "passed": 2,
+      "failed": 0,
+      "raw_sha256": "88cb04192775ce6a2ef33f4dc0bc56140762d2a2afca5f11e929a60c9e3ab9af"
+    },
+    "sanitize": {
+      "passed": 2,
+      "failed": 0,
+      "raw_sha256": "1ecbe1665ae4d3264c6226b81cca4c17c9b42a84f32813463a312c929adc069d"
+    }
+  },
+  "focused_regression": "Heap-owned fixture/public query API: Busy60 -> transport error -> Idle/Failure -> owner query cannot bypass240s -> actual NotAvailable -> Idle/Success and failure reset -> next Busy uses120s. Both normal and allocation targets pass in clean normal/sanitizer builds.",
+  "identity": {
+    "production_inputs_match_CSA62": true,
+    "clean_C_H_input_count": 362,
+    "only_changed_tracked_C_H": "tools/matter/tests/test_ota_query.c",
+    "baseline_binaries_sha256": {
+      "normal": "0d552a6e4323f16eef9cba665e5699dbed3d45d9e9e8c5aa5aec96bbb63ffeee",
+      "sanitize": "401f694938f23185a0bfcbdc8474a72e2544be5c67d4c2042b8da25095f94605"
+    },
+    "diagnostic_binary_sha256": "fb0f556cdfa1990ba9958598ea34034adc3988627f91d17ae6e261353ece29cf",
+    "unmodified_provider_binary_sha256": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+    "private_diagnostic_sources_sha256": {
+      "main/apps/matter/runtime/matter_dispatch.c": "324d555549540342de7e3ecab6697e65da455133f6d5c77f8cb4b986afd4463f",
+      "main/apps/matter/runtime/matter_runtime.c": "604450760eb0761963de455a5628e14b27235c4fc58f9bbea5de2e6b431f7d31",
+      "main/apps/matter/clusters/matter_ota_query.c": "497c003a964bb47357875fd46d8ed7a70c0c85658ec4468df09bb5e1be3f0708"
+    },
+    "diagnostic_scope": "Only scalar result/status/length/counter/deadline and connection/MRP metadata logging in ignored source copies. Production policy and state branches retained; clean test build contains no diagnostic changes.",
+    "compiler_warning_lines": [],
+    "positive_update_memory_evidence": "Reuse CSA62 full signed-update/fast-reboot acceptance only after production-source and exact baseline-binary identity checks. No new positive update/reboot acceptance in CSA63."
+  },
+  "cleanup": {
+    "DUT_stage_processes": [],
+    "TH_stage_processes": [],
+    "paired_Windows_nodes_changed": false
+  },
+  "setup_faults": [
+    "Private trace bootstrap used an old local variable name, then a printf escape error; corrected before final clean diagnostic build.",
+    "First clean-build script failed on a generated Python newline before building; separate plain script corrected it.",
+    "One SSH read timed out; later checks succeeded without VM or Docker restart.",
+    "Standalone SDK JSON trace file was absent. Actual stdout JSON trace was decoded after removing its provider prefix; raw hashes retained.",
+    "Fault-run later provider phases use the SDK stdout trace argument; first phase was already running unchanged. This is diagnostic fixture logging only."
+  ],
+  "limitations": [
+    "Original test/PICS hashes retained, but preexisting CSA58 sdk_container.py laboratory change remains: not a pristine-TH claim.",
+    "Run607 used privately instrumented native logging and provider trace wrapper, plus the explicit local query fixture. Run608 additionally injects deliberate provider loss; neither is a release build certification result.",
+    "Do not label absence of a decoded response as an actual NotAvailable. Core missing-response recommendation and transport-failure diagnostics are recorded separately.",
+    "No post-backoff fresh CASE recovery was observed before original teardown; keep it as the next bounded scenario.",
+    "No Windows build/paired-node replacement, physical device, new full applicable-suite acceptance or certification. CSA clarification is a local draft only; nothing sent."
+  ]
+}

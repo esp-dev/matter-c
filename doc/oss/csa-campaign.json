@@ -1339,9 +1339,9 @@
       "cases": [
         "TC_SU_2_2"
       ],
-      "kind": "QUERY_BACKOFF_PROVIDER_RESTART_BOUNDARY",
-      "evidence": "csa60-results.json",
-      "action": "Retain FAIL605. Attribute provider restart/query failure and growing backoff. Explicit application query preserves all floors; step2 PASS alone does not prove NotAvailable response. Do not disable retry policy for test timing."
+      "kind": "OTA_QUERY_PHASE_HANDOFF_RACE_AND_BACKOFF_WINDOW",
+      "evidence": "csa63-results.json",
+      "action": "Retain original FAIL607: valid UpdateAvailable from old provider starts BDX before step2. Separate fault608 proves unknown-session drops -> MRP timeout -> transport error ->240s backoff beyond step3, consistent with but not retrospective proof of605. Seek provider lifecycle/actual-response/window clarification; do not weaken timing guards. CSA64 must observe fresh CASE and recovery after the permitted retry."
     },
     {
       "cases": [

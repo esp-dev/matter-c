@@ -182,6 +182,28 @@ backoff at the provider-restart boundary retained in CSA60 TC_SU_2_2. Use the
 existing trace rather than repeating known preconditions; fix only a confirmed
 native defect and preserve the original test/PICS and actual timing requirements.
 
+## CSA63: provider handoff attributed; original FAIL retained
+
+Completed: [receipt](csa63-results.json) and [analysis](csa63-validation.md).
+Unforced original607 receives a valid UpdateAvailable from the old provider before
+its shutdown; step2 inherits Downloading. Separate injected-loss608 confirms old
+CASE-session drops, MRP timeout and transport failure followed by240s backoff.
+Step2 PASS is not an actual NotAvailable response; step3's120s wait then expires.
+This diagnostic is consistent with605 but does not prove its historical cause.
+No production correction or test/PICS workaround is justified. Original FAIL stays.
+
+Independent decoded NotAvailable acceptance passes13 checks per memory variant;
+Memcheck zero errors/live blocks, separate sanitizers clean. Clean query CTests2/2
+each include a public-API Busy/error/backoff/actual-response failure-reset chain.
+Temporary processes and PAA are cleaned up; paired Windows nodes remain untouched.
+Clarification questions about provider lifecycle, actual responses and permitted
+retry observation windows are drafted locally, not sent. Counts stay unchanged.
+
+Next: **CSA64**, extend the controlled provider restart through the next permitted
+retry, prove fresh CASE and complete signed OTA recovery. Do not infer recovery
+from a scheduled deadline, accelerate native timing or relabel diagnostics as
+original CSA PASS. Keep the deferred long DGGEN and external prerequisites open.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

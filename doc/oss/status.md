@@ -7,6 +7,16 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA63: QueryImage provider handoff and backoff attributed; original FAIL retained.**
+Unforced original607 accepts UpdateAvailable from the old provider before its
+handoff and fails step2 in Downloading. Separate deliberate-loss608 proves unknown
+CASE-session drops, MRP timeout and240s backoff beyond step3; it is not a new
+ordinary CSA outcome or retrospective proof of605. No production change justified.
+Actual NotAvailable passes13 checks per memory variant, with zero errors/leaks;
+clean focused CTests2/2 each. [Report](csa63-validation.md). Counts unchanged:
+122 PASS/28 FAIL/5 prerequisites. Next:CSA64, observe permitted post-restart retry,
+fresh CASE and full signed OTA recovery. Existing paired Windows nodes untouched.
+
 **CSA62: Applying event drain repaired before simulated OTA reboot.**
 Old host min5s reproduces lost events. The new owner-only readiness barrier lets
 normal reporting finish before stop, with a bounded30s host wait. Full updates

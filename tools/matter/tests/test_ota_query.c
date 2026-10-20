@@ -275,7 +275,25 @@ static void manual_requests(void) {
     pump(t,360001); CHECK(t->starts==2); pump(t,360002); CHECK(t->starts==3); destroy(t);
     puts("PASS explicit OTA query: selected/live provider, daily override, clocks, Busy/image ownership, 120s/provider/urgent floors and stop");
 }
-int main(void) { client(); policy(); retry_states(); handoff(); boundaries(); manual_requests();
+static void restart_retry_chain(void) {
+    Test* t=setup(false); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
+    response(t,1,60,false); pump(t,1); CHECK(t->state==3 && t->reason==4);
+    pump(t,120001); CHECK(t->starts==2);
+    t->take_result=MATTER_PORT_ERROR; t->ready=true; t->im=0; t->size=0;
+    pump(t,120010); CHECK(t->state==1 && t->reason==2 && !t->available);
+    CHECK(matter_ota_query_request(t->query,120011)==MATTER_OK);
+    pump(t,240010); CHECK(t->starts==2); /* Global floor expired, second-failure backoff did not. */
+    pump(t,360009); CHECK(t->starts==2); pump(t,360010); CHECK(t->starts==3);
+    t->take_result=MATTER_OK; response(t,2,-1,false); pump(t,360011);
+    CHECK(t->state==1 && t->reason==1 && !t->available); /* An actual NotAvailable, not a transport failure. */
+    CHECK(matter_ota_query_request(t->query,360012)==MATTER_OK);
+    pump(t,480010); CHECK(t->starts==3); pump(t,480011); CHECK(t->starts==4);
+    response(t,1,60,false); pump(t,480012);
+    CHECK(t->state==3 && t->reason==4);
+    pump(t,600011); CHECK(t->starts==4); pump(t,600012); CHECK(t->starts==5); destroy(t);
+    puts("PASS query restart chain: Busy60, transport failure/Idle, 240s backoff, actual NotAvailable resets failures and next Busy uses120s");
+}
+int main(void) { client(); policy(); retry_states(); handoff(); boundaries(); manual_requests(); restart_retry_chain();
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live); puts("PASS Query/Invoke constructor OOM and allocation ownership");
 #endif
