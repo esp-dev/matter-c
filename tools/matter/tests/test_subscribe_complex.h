@@ -147,7 +147,7 @@ static void complex_tests(void) {
             CHECK(matter_im_subscribe_process(gated->model.active,0)==MATTER_PENDING && live==held);
             CHECK(matter_im_subscribe_confirm(gated->model.active,0)==MATTER_OK);
         }
-        CHECK(live==held); /* Chunk one drained; chunk two still owns both values. */
+        CHECK(live==held+(order?1u:0u)); /* Queued status parser only until processed; both values remain owned. */
         CHECK(!rich_report(gated,output(&gated->model,0)) && live==held);
         rich_ack(gated,true,false); CHECK(live==held);
         size_t bytes=live_bytes;
@@ -235,7 +235,7 @@ static void complex_tests(void) {
 #ifdef MATTER_TEST_ALLOC
     r=rich_new(false,128); rich_request(r,2,false,false,0); receive(&r->model,r->model.input,r->size,3,12,true);
     size_t base=live; fail_at=calls+1; Matter_Im_Subscribe_Message_T out=output(&r->model,0); fail_at=0;
-    CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==base); rich_free(r); CHECK(!live);
+    CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live+1==base); rich_free(r); CHECK(!live); /* RX parser released after selector OOM. */
 #endif
     puts("PASS structured/event Subscribe: shared scratch snapshots, mixed chunks, ACK/status ordering, changes during TX, per-subscriber cursor, one-time EventMin, nonurgent/max, revocation and OOM");
 }

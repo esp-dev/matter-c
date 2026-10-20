@@ -1,5 +1,22 @@
 # Development status
 
+**Memory06: IM parser/tag/selector workspaces and CASE cache allocate on demand.**
+Read/Subscribe erase temporary parser state after work; Subscribe also releases
+its temporary chunk plan, and exact attribute selectors release after expansion.
+Invoke retains parser/writer state through async effects. Limits and independent
+snapshot/result/output ACK/drain ownership remain unchanged. ESP32 owner sizes:
+Read 280 B, Subscribe 328 B, Invoke 224 B, Write 232 B, client 56 B; the five owners
+save 8024 B. Empty Fabric host saves 1552 B with bounded live MRU nodes.
+Linux CTest 90/90 and two-instance checks 6/6 per memory variant; full request,
+Read, Subscribe and CASE/cache allocation suites are clean under Memcheck.
+Windows 90/93 in sandbox plus 3/3 socket retries; no parser frame grows.
+[Report and larger-allocation audit](memory06-validation.md) records active
+costs, stack frames and evidence. Fabric image still uses 15552 B; publication
+coexists with backup/staging/TLV storage for an 80016-byte payload subtotal.
+PASE/CASE attempts are already per-handshake and disappear after handoff/drain.
+Next: reduce Fabric publication's peak and adapter work, then phase-sized
+PASE/CASE buffers. No device or official CSA rerun.
+
 **Memory05: Invoke/Write/client requests, replies and results allocate on demand.**
 Accepted RX, normalization scratch, declared command bodies, bounded replies and
 validated Write IB descriptors/results replace embedded buffers/tables. Handler

@@ -118,6 +118,9 @@ typedef struct { const uint8_t* data; size_t size; uint8_t opcode; } Matter_Im_R
  * RX allocates the received length before replacing the old copy; OOM returns
  * LIMIT_REACHED with queue/state unchanged, so the owner may retry. TX allocates
  * output_capacity during construction; failure unwinds the context allocation.
+ * Parser/tag scratch is reserved with RX and released after process; yielded
+ * work reacquires it on demand. Selectors allocate the validated count and are
+ * released after expansion/copying. Results/snapshots and ACK/drain stay separate.
  * Owner thread, no tasks, hardware, session ownership or transport queue.
  * Subset: 0..9 local attribute selectors, concrete cluster version filters up to
  * the request payload budget, up to MATTER_IM_READ_MAX_RESULTS expanded results and chunking.

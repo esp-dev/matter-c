@@ -4,6 +4,7 @@
 #include "matter_im_snapshot_internal.h"
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
+#include "matter_im_buffer_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -19,7 +20,17 @@ typedef struct {
     Matter_Event_Filter_T filters[MATTER_EVENT_PATH_CAPACITY];
     Matter_Event_Record_T* records;
 } SubEvents;
+typedef struct {
+    struct { size_t item,start,end; bool prefix; } plan[MATTER_IM_READ_MAX_PATHS];
+    Matter_Tlv_Reader_T value_reader; Matter_Tlv_Element_T element;
+    Matter_Tlv_Reader_T reader;
+    Matter_Tlv_Writer_T writer;
+    Matter_Tlv_Element_T token, root[9], fields[8], revision;
+    Matter_Tlv_Validation_Workspace_T validation;
+    Matter_Tlv_Tag_T tags[48];
+} Matter_Im_Subscribe_Work;
 struct Matter_Im_Subscribe {
+    Matter_Im_Subscribe_Work* work;
     Matter_Im_Read_Events_Port_T event_port; Matter_Im_Event_Enumerate_T event_enumerate;
     Matter_Im_Subscribe_Port_T port;
     Matter_Im_Read_Fabric_Port_T fabric; uint8_t fabric_index;
@@ -30,15 +41,13 @@ struct Matter_Im_Subscribe {
     uint64_t now, expires, last_report,last_activity;
     bool more,report_started;
     size_t count,cursor,list_offset;
-    struct { size_t item,start,end; bool prefix; } plan[MATTER_IM_READ_MAX_PATHS];
     struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } *items;
     size_t item_capacity;
-    Matter_Im_Selector_T requests[MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS];
+    Matter_Im_Selector_T* requests;
     size_t request_count,request_cursor,filter_count,collected,valid;
     struct { uint16_t endpoint; uint32_t cluster,version; } *filters;
     Matter_Im_Path_T after; bool after_valid,expanding,capture_data,attribute_report;
     Matter_Im_Snapshots snapshots; SubEvents* events;
-    Matter_Tlv_Reader_T value_reader; Matter_Tlv_Element_T element;
     uint32_t id;
     uint16_t minimum, maximum;
     bool busy, queued, reserved, active, dirty, status_ok, filtered, terminal_report;
@@ -47,11 +56,6 @@ struct Matter_Im_Subscribe {
     Matter_Im_Path_T path;
     Matter_Im_Attribute_T attribute;
     Matter_Im_Value_T value;
-    Matter_Tlv_Reader_T reader;
-    Matter_Tlv_Writer_T writer;
-    Matter_Tlv_Element_T token, root[9], fields[8], revision;
-    Matter_Tlv_Validation_Workspace_T validation;
-    Matter_Tlv_Tag_T tags[48];
     uint8_t *input, *output;
 };
 static uint64_t add(uint64_t a,uint64_t b) { return UINT64_MAX-a<b ? UINT64_MAX : a+b; }
@@ -130,52 +134,54 @@ Matter_Result_T matter_im_subscribe_receive(Matter_Im_Subscribe_T s,const Matter
     uint8_t* input=d->payload_size?calloc(1,d->payload_size):NULL;
     if(d->payload_size && !input) return MATTER_LIMIT_REACHED;
     if(d->payload_size) memcpy(input,d->payload,d->payload_size);
-    free(s->input); s->input=input;
+    Matter_Im_Subscribe_Work* work=s->work ? s->work : calloc(1,sizeof(*work));
+    if(!work) { free(input); return MATTER_LIMIT_REACHED; }
+    s->work=work; free(s->input); s->input=input;
     s->input_size=d->payload_size; s->queued=true; return MATTER_OK;
 }
 static bool container(Matter_Tlv_Type_T t) { return t==MATTER_TLV_ARRAY || t==MATTER_TLV_STRUCTURE || t==MATTER_TLV_LIST; }
-static bool next(Matter_Im_Subscribe_T s) { return matter_tlv_next(&s->reader,&s->token)==MATTER_TLV_OK; }
+static bool next(Matter_Im_Subscribe_T s) { return matter_tlv_next(&s->work->reader,&s->work->token)==MATTER_TLV_OK; }
 static bool enter(Matter_Im_Subscribe_T s,const Matter_Tlv_Element_T* e) {
-    if(matter_tlv_init(&s->reader,s->input,s->input_size,8)!=MATTER_TLV_OK) return false;
-    do { if(!next(s)) return false; } while(s->token.offset<e->offset);
-    return s->token.offset==e->offset;
+    if(matter_tlv_init(&s->work->reader,s->input,s->input_size,8)!=MATTER_TLV_OK) return false;
+    do { if(!next(s)) return false; } while(s->work->token.offset<e->offset);
+    return s->work->token.offset==e->offset;
 }
 static bool collect(Matter_Im_Subscribe_T s,Matter_Tlv_Element_T* out,size_t count) {
     memset(out,0,count*sizeof(*out));
     while(next(s)) {
-        if(s->token.type==MATTER_TLV_END) return true;
-        if(s->token.tag.control!=1) return false;
-        uint32_t tag=s->token.tag.number;
-        if(tag<count) { if(out[tag].tag.control) return false; out[tag]=s->token; }
-        if(out==s->root && tag==255) s->revision=s->token;
-        if(container(s->token.type) && matter_tlv_skip_container(&s->reader)!=MATTER_TLV_OK) return false;
+        if(s->work->token.type==MATTER_TLV_END) return true;
+        if(s->work->token.tag.control!=1) return false;
+        uint32_t tag=s->work->token.tag.number;
+        if(tag<count) { if(out[tag].tag.control) return false; out[tag]=s->work->token; }
+        if(out==s->work->root && tag==255) s->work->revision=s->work->token;
+        if(container(s->work->token.type) && matter_tlv_skip_container(&s->work->reader)!=MATTER_TLV_OK) return false;
     }
     return false;
 }
 static bool number(const Matter_Tlv_Element_T* e,uint64_t max) { return e->tag.control==1 && e->type==MATTER_TLV_UNSIGNED && e->unsigned_value<=max; }
 static bool boolean(const Matter_Tlv_Element_T* e) { return e->tag.control==1 && e->type==MATTER_TLV_BOOL; }
 static uint8_t decode_filters(Matter_Im_Subscribe_T s) {
-    if(!s->root[8].tag.control) return 0;
+    if(!s->work->root[8].tag.control) return 0;
     /* Count fully validated entries before allocating the exact per-request
      * table. Keep it only through priming, never for the subscription lifetime. */
     for(unsigned pass=0;pass<2;++pass) {
         s->filter_count=0;
-        if(s->root[8].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[8])) return MATTER_IM_INVALID_ACTION;
-        while(next(s) && s->token.type!=MATTER_TLV_END) {
+        if(s->work->root[8].type!=MATTER_TLV_ARRAY || !enter(s,&s->work->root[8])) return MATTER_IM_INVALID_ACTION;
+        while(next(s) && s->work->token.type!=MATTER_TLV_END) {
             if(s->filter_count==MATTER_IM_READ_MAX_FILTERS) return MATTER_IM_RESOURCE_EXHAUSTED;
-            Matter_Tlv_Element_T element=s->token;
-            if(element.type!=MATTER_TLV_STRUCTURE || element.tag.control || !collect(s,s->fields,8) ||
-                !number(&s->fields[1],UINT32_MAX) || s->fields[0].tag.control!=1 || s->fields[0].type!=MATTER_TLV_LIST) return MATTER_IM_INVALID_ACTION;
-            uint32_t version=(uint32_t)s->fields[1].unsigned_value;
-            if(!enter(s,&s->fields[0]) || !collect(s,s->fields,8) || s->fields[0].tag.control ||
-                !number(&s->fields[1],UINT16_MAX) || !number(&s->fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+            Matter_Tlv_Element_T element=s->work->token;
+            if(element.type!=MATTER_TLV_STRUCTURE || element.tag.control || !collect(s,s->work->fields,8) ||
+                !number(&s->work->fields[1],UINT32_MAX) || s->work->fields[0].tag.control!=1 || s->work->fields[0].type!=MATTER_TLV_LIST) return MATTER_IM_INVALID_ACTION;
+            uint32_t version=(uint32_t)s->work->fields[1].unsigned_value;
+            if(!enter(s,&s->work->fields[0]) || !collect(s,s->work->fields,8) || s->work->fields[0].tag.control ||
+                !number(&s->work->fields[1],UINT16_MAX) || !number(&s->work->fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
             if(pass) {
-                s->filters[s->filter_count].endpoint=(uint16_t)s->fields[1].unsigned_value;
-                s->filters[s->filter_count].cluster=(uint32_t)s->fields[2].unsigned_value;
+                s->filters[s->filter_count].endpoint=(uint16_t)s->work->fields[1].unsigned_value;
+                s->filters[s->filter_count].cluster=(uint32_t)s->work->fields[2].unsigned_value;
                 s->filters[s->filter_count].version=version;
             }
             ++s->filter_count;
-            if(!enter(s,&element) || matter_tlv_skip_container(&s->reader)!=MATTER_TLV_OK) return MATTER_IM_INVALID_ACTION;
+            if(!enter(s,&element) || matter_tlv_skip_container(&s->work->reader)!=MATTER_TLV_OK) return MATTER_IM_INVALID_ACTION;
         }
         if(!pass) {
             if(!s->filter_count) return 0;
@@ -189,90 +195,100 @@ static uint8_t decode(Matter_Im_Subscribe_T s) {
     /* Include dense DataVersionFilters; at most one TLV token per input byte. */
     const Matter_Tlv_Validation_Options_T opt={MATTER_IM_READ_MAX_PAYLOAD,MATTER_IM_READ_MAX_PAYLOAD,2048,8,false,0,0};
     Matter_Tlv_Validation_Report_T report;
-    Matter_Tlv_Result_T r=matter_tlv_validate(s->input,s->input_size,&opt,&s->validation,s->tags,48,&report);
+    Matter_Tlv_Result_T r=matter_tlv_validate(s->input,s->input_size,&opt,&s->work->validation,s->work->tags,48,&report);
     if(r!=MATTER_TLV_OK) return r==MATTER_TLV_LIMIT_REACHED || r==MATTER_TLV_DEPTH_LIMIT ? MATTER_IM_RESOURCE_EXHAUSTED : MATTER_IM_INVALID_ACTION;
-    memset(&s->revision,0,sizeof(s->revision));
-    if(matter_tlv_init(&s->reader,s->input,s->input_size,8)!=MATTER_TLV_OK || !next(s) || s->token.type!=MATTER_TLV_STRUCTURE ||
-        s->token.tag.control || !collect(s,s->root,9) || !number(&s->revision,255) || !s->revision.unsigned_value) return MATTER_IM_INVALID_ACTION;
-    if(s->state!=MATTER_IM_SUB_WAITING) return number(&s->root[0],255) ? (uint8_t)s->root[0].unsigned_value : MATTER_IM_INVALID_ACTION;
-    if(!boolean(&s->root[0]) || !number(&s->root[1],UINT16_MAX) || !number(&s->root[2],UINT16_MAX) ||
-        s->root[1].unsigned_value>s->root[2].unsigned_value || !boolean(&s->root[7])) return MATTER_IM_INVALID_ACTION;
-    s->minimum=(uint16_t)s->root[1].unsigned_value; s->maximum=(uint16_t)s->root[2].unsigned_value;
+    memset(&s->work->revision,0,sizeof(s->work->revision));
+    if(matter_tlv_init(&s->work->reader,s->input,s->input_size,8)!=MATTER_TLV_OK || !next(s) || s->work->token.type!=MATTER_TLV_STRUCTURE ||
+        s->work->token.tag.control || !collect(s,s->work->root,9) || !number(&s->work->revision,255) || !s->work->revision.unsigned_value) return MATTER_IM_INVALID_ACTION;
+    if(s->state!=MATTER_IM_SUB_WAITING) return number(&s->work->root[0],255) ? (uint8_t)s->work->root[0].unsigned_value : MATTER_IM_INVALID_ACTION;
+    if(!boolean(&s->work->root[0]) || !number(&s->work->root[1],UINT16_MAX) || !number(&s->work->root[2],UINT16_MAX) ||
+        s->work->root[1].unsigned_value>s->work->root[2].unsigned_value || !boolean(&s->work->root[7])) return MATTER_IM_INVALID_ACTION;
+    s->minimum=(uint16_t)s->work->root[1].unsigned_value; s->maximum=(uint16_t)s->work->root[2].unsigned_value;
     if(!s->maximum) s->maximum=1;
-    s->filtered=s->root[7].unsigned_value!=0;
-    if(s->root[3].tag.control) {
-        if(s->root[3].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[3])) return MATTER_IM_INVALID_ACTION;
-        while(next(s) && s->token.type!=MATTER_TLV_END) {
+    s->filtered=s->work->root[7].unsigned_value!=0;
+    if(s->work->root[3].tag.control) {
+        for(unsigned pass=0;pass<2;++pass) {
+            s->request_count=0;
+        if(s->work->root[3].type!=MATTER_TLV_ARRAY || !enter(s,&s->work->root[3])) return MATTER_IM_INVALID_ACTION;
+        while(next(s) && s->work->token.type!=MATTER_TLV_END) {
             if(s->request_count==MATTER_IM_SUB_MAX_ATTRIBUTE_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
-            if(s->token.type!=MATTER_TLV_LIST || s->token.tag.control || !collect(s,s->fields,8)) return MATTER_IM_INVALID_ACTION;
-    if((s->fields[0].tag.control && (!boolean(&s->fields[0]) || s->fields[0].unsigned_value)) ||
-        s->fields[1].tag.control || s->fields[5].tag.control ||
-        (s->fields[6].tag.control && (!number(&s->fields[6],UINT32_MAX) || s->fields[6].unsigned_value)) ||
-        (s->fields[7].tag.control && !number(&s->fields[7],UINT32_MAX))) return MATTER_IM_INVALID_ACTION;
-            Matter_Im_Selector_T* q=&s->requests[s->request_count++];
-            for(unsigned i=2;i<=4;++i) if(s->fields[i].tag.control) {
-                if(!number(&s->fields[i],i==2?UINT16_MAX:UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+            if(s->work->token.type!=MATTER_TLV_LIST || s->work->token.tag.control || !collect(s,s->work->fields,8)) return MATTER_IM_INVALID_ACTION;
+    if((s->work->fields[0].tag.control && (!boolean(&s->work->fields[0]) || s->work->fields[0].unsigned_value)) ||
+        s->work->fields[1].tag.control || s->work->fields[5].tag.control ||
+        (s->work->fields[6].tag.control && (!number(&s->work->fields[6],UINT32_MAX) || s->work->fields[6].unsigned_value)) ||
+        (s->work->fields[7].tag.control && !number(&s->work->fields[7],UINT32_MAX))) return MATTER_IM_INVALID_ACTION;
+            Matter_Im_Selector_T parsed={0}; Matter_Im_Selector_T* q=&parsed;
+            ++s->request_count;
+            for(unsigned i=2;i<=4;++i) if(s->work->fields[i].tag.control) {
+                if(!number(&s->work->fields[i],i==2?UINT16_MAX:UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
                 q->present|=(uint8_t)(1u<<(i-2));
             }
-            q->path=(Matter_Im_Path_T){(uint16_t)s->fields[2].unsigned_value,(uint32_t)s->fields[3].unsigned_value,(uint32_t)s->fields[4].unsigned_value};
+            q->path=(Matter_Im_Path_T){(uint16_t)s->work->fields[2].unsigned_value,(uint32_t)s->work->fields[3].unsigned_value,(uint32_t)s->work->fields[4].unsigned_value};
             if(!matter_im_read_path_valid(q)) return MATTER_IM_INVALID_ACTION;
+            if(pass) s->requests[s->request_count-1]=parsed;
             if(q->present!=MATTER_IM_CONCRETE) { if(!s->port.attributes.enumerate) return MATTER_IM_INVALID_ACTION; s->expanding=true; }
         }
+            if(!pass) {
+                if(!s->request_count) break;
+                s->requests=calloc(s->request_count,sizeof(*s->requests));
+                if(!s->requests) return MATTER_IM_RESOURCE_EXHAUSTED;
+            }
+        }
     }
-    if(s->root[4].tag.control) {
-        if(s->root[4].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[4])) return MATTER_IM_INVALID_ACTION;
-        while(next(s) && s->token.type!=MATTER_TLV_END) {
+    if(s->work->root[4].tag.control) {
+        if(s->work->root[4].type!=MATTER_TLV_ARRAY || !enter(s,&s->work->root[4])) return MATTER_IM_INVALID_ACTION;
+        while(next(s) && s->work->token.type!=MATTER_TLV_END) {
             if(s->request_count+(s->events?s->events->raw_count:0)>=MATTER_IM_READ_MAX_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
-            if(!s->event_port.log || s->token.type!=MATTER_TLV_LIST || s->token.tag.control || !collect(s,s->fields,8)) return MATTER_IM_INVALID_ACTION;
+            if(!s->event_port.log || s->work->token.type!=MATTER_TLV_LIST || s->work->token.tag.control || !collect(s,s->work->fields,8)) return MATTER_IM_INVALID_ACTION;
             if(!s->events) {
                 s->events=calloc(1,sizeof(*s->events)); if(!s->events) return MATTER_IM_RESOURCE_EXHAUSTED;
                 s->events->port=s->event_port; s->events->expansion.enumerate=s->event_enumerate;
             }
-            if(s->fields[0].tag.control || (s->fields[4].tag.control && !boolean(&s->fields[4]))) return MATTER_IM_INVALID_ACTION;
+            if(s->work->fields[0].tag.control || (s->work->fields[4].tag.control && !boolean(&s->work->fields[4]))) return MATTER_IM_INVALID_ACTION;
             Matter_Im_Event_Selector_T q={0};
-            for(unsigned i=1;i<=3;++i) if(s->fields[i].tag.control) {
-                if(!number(&s->fields[i],i==1?UINT16_MAX:UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+            for(unsigned i=1;i<=3;++i) if(s->work->fields[i].tag.control) {
+                if(!number(&s->work->fields[i],i==1?UINT16_MAX:UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
                 q.present|=(uint8_t)(1u<<(i-1));
             }
             if((q.present&MATTER_IM_EVENT) && !(q.present&MATTER_IM_CLUSTER)) return MATTER_IM_INVALID_ACTION;
             SubEvents* e=s->events;
-            q.path=(Matter_Event_Path_T){(uint16_t)s->fields[1].unsigned_value,(uint32_t)s->fields[2].unsigned_value,(uint32_t)s->fields[3].unsigned_value};
+            q.path=(Matter_Event_Path_T){(uint16_t)s->work->fields[1].unsigned_value,(uint32_t)s->work->fields[2].unsigned_value,(uint32_t)s->work->fields[3].unsigned_value};
             e->expansion.requests[e->raw_count].selector=q;
-            e->expansion.requests[e->raw_count++].urgent=s->fields[4].unsigned_value!=0;
+            e->expansion.requests[e->raw_count++].urgent=s->work->fields[4].unsigned_value!=0;
             if(q.present==MATTER_IM_CONCRETE) {
                 size_t i=matter_im_event_index(e->paths,e->path_count,&q.path);
                 if(i==e->path_count) e->paths[e->path_count++].path=q.path;
-                e->paths[i].urgent|=s->fields[4].unsigned_value!=0;
+                e->paths[i].urgent|=s->work->fields[4].unsigned_value!=0;
             } else {
                 if(!e->expansion.enumerate) return MATTER_IM_INVALID_ACTION;
                 e->expansion.wildcard=true;
             }
-            e->urgent|=s->fields[4].unsigned_value!=0; e->requested=true;
+            e->urgent|=s->work->fields[4].unsigned_value!=0; e->requested=true;
         }
     }
-    if(s->root[5].tag.control) {
-        if(!s->events || !s->events->requested || s->root[5].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[5]) || !next(s)) return MATTER_IM_INVALID_ACTION;
-        if(s->token.type!=MATTER_TLV_END) {
-            if(s->token.type!=MATTER_TLV_STRUCTURE || s->token.tag.control || !collect(s,s->fields,8) ||
-                s->fields[0].tag.control || !number(&s->fields[1],UINT64_MAX) || !next(s) || s->token.type!=MATTER_TLV_END) return MATTER_IM_INVALID_ACTION;
-            s->events->initial_min=s->fields[1].unsigned_value;
+    if(s->work->root[5].tag.control) {
+        if(!s->events || !s->events->requested || s->work->root[5].type!=MATTER_TLV_ARRAY || !enter(s,&s->work->root[5]) || !next(s)) return MATTER_IM_INVALID_ACTION;
+        if(s->work->token.type!=MATTER_TLV_END) {
+            if(s->work->token.type!=MATTER_TLV_STRUCTURE || s->work->token.tag.control || !collect(s,s->work->fields,8) ||
+                s->work->fields[0].tag.control || !number(&s->work->fields[1],UINT64_MAX) || !next(s) || s->work->token.type!=MATTER_TLV_END) return MATTER_IM_INVALID_ACTION;
+            s->events->initial_min=s->work->fields[1].unsigned_value;
         }
     }
     if(!s->request_count && !(s->events && s->events->requested)) return MATTER_IM_INVALID_ACTION;
     return decode_filters(s);
 }
 static bool put(Matter_Im_Subscribe_T s,Matter_Tlv_Type_T type,int tag,uint64_t value) {
-    s->token=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag<0 ? 0 : 1,.number=tag<0 ? 0 : (uint32_t)tag},
+    s->work->token=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag<0 ? 0 : 1,.number=tag<0 ? 0 : (uint32_t)tag},
         .unsigned_value=value,.signed_value=s->value.signed_value};
-    return matter_tlv_write(&s->writer,&s->token,0)==MATTER_TLV_OK;
+    return matter_tlv_write(&s->work->writer,&s->work->token,0)==MATTER_TLV_OK;
 }
 static bool end(Matter_Im_Subscribe_T s) { return put(s,MATTER_TLV_END,-1,0); }
 static bool begin(Matter_Im_Subscribe_T s) {
     size_t cap=s->config.output_capacity;
-    return matter_tlv_writer_init(&s->writer,s->output,cap,8)==MATTER_TLV_OK && put(s,MATTER_TLV_STRUCTURE,-1,0);
+    return matter_tlv_writer_init(&s->work->writer,s->output,cap,8)==MATTER_TLV_OK && put(s,MATTER_TLV_STRUCTURE,-1,0);
 }
 static bool finish(Matter_Im_Subscribe_T s) {
-    return put(s,MATTER_TLV_UNSIGNED,255,MATTER_IM_REVISION) && end(s) && matter_tlv_writer_finish(&s->writer,&s->output_size)==MATTER_TLV_OK;
+    return put(s,MATTER_TLV_UNSIGNED,255,MATTER_IM_REVISION) && end(s) && matter_tlv_writer_finish(&s->work->writer,&s->output_size)==MATTER_TLV_OK;
 }
 static bool status(Matter_Im_Subscribe_T s,uint8_t code) {
     clear_filters(s);
@@ -286,8 +302,8 @@ static uint8_t copy_value(Matter_Im_Subscribe_T s) {
     size_t size=s->value.size;
     if(size>MATTER_IM_READ_MAX_VALUE || size>MATTER_IM_READ_SNAPSHOT_BYTES-s->snapshots.size) return MATTER_IM_RESOURCE_EXHAUSTED;
     if((!s->value.data && size) || (container(s->value.type) && (!s->value.data || size<2))) return MATTER_IM_FAILURE;
-    return matter_im_snapshot_copy(&s->snapshots,&s->value,&s->writer,&s->value_reader,&s->element,
-        &s->validation,s->tags,48);
+    return matter_im_snapshot_copy(&s->snapshots,&s->value,&s->work->writer,&s->work->value_reader,&s->work->element,
+        &s->work->validation,s->work->tags,48);
 }
 static bool filtered_version(Matter_Im_Subscribe_T s,uint32_t version) {
     bool match=false;
@@ -460,29 +476,29 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
 }
 static bool write_value(Matter_Im_Subscribe_T s,size_t part) {
     if(!complex_value(s->value.type)) return put(s,s->value.type,2,s->value.unsigned_value);
-    size_t start=s->plan[part].start,stop=s->plan[part].end;
-    bool prefix=s->plan[part].prefix;
-    if(matter_tlv_init(&s->value_reader,s->value.data,s->value.size,4)!=MATTER_TLV_OK) return false;
+    size_t start=s->work->plan[part].start,stop=s->work->plan[part].end;
+    bool prefix=s->work->plan[part].prefix;
+    if(matter_tlv_init(&s->work->value_reader,s->value.data,s->value.size,4)!=MATTER_TLV_OK) return false;
     if(prefix && !put(s,MATTER_TLV_ARRAY,2,0)) return false;
     Matter_Tlv_Result_T r;
-    while((r=matter_tlv_next(&s->value_reader,&s->element))==MATTER_TLV_OK) {
-        if(stop && s->element.offset>=stop) break;
-        if(s->element.offset<start) continue;
-        if(!prefix && s->element.offset==start) s->element.tag=(Matter_Tlv_Tag_T){.control=1,.number=2};
-        if(matter_tlv_write(&s->writer,&s->element,0)!=MATTER_TLV_OK) return false;
+    while((r=matter_tlv_next(&s->work->value_reader,&s->work->element))==MATTER_TLV_OK) {
+        if(stop && s->work->element.offset>=stop) break;
+        if(s->work->element.offset<start) continue;
+        if(!prefix && s->work->element.offset==start) s->work->element.tag=(Matter_Tlv_Tag_T){.control=1,.number=2};
+        if(matter_tlv_write(&s->work->writer,&s->work->element,0)!=MATTER_TLV_OK) return false;
     }
     return (r==MATTER_TLV_DONE || (stop && r==MATTER_TLV_OK)) && (!prefix || end(s));
 }
 static bool report_attributes(Matter_Im_Subscribe_T s,size_t stop,bool more) {
     if(!begin(s) || !put(s,MATTER_TLV_UNSIGNED,0,s->id) || !put(s,MATTER_TLV_ARRAY,1,0)) return false;
     for(size_t part=0;part<stop;++part) {
-        size_t i=s->plan[part].item;
+        size_t i=s->work->plan[part].item;
         s->path=s->items[i].path; s->value=s->items[i].value; uint8_t code=s->items[i].status;
         if(!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_STRUCTURE,code ? 0 : 1,0) ||
             (!code && !put(s,MATTER_TLV_UNSIGNED,0,s->value.data_version)) || !put(s,MATTER_TLV_LIST,code ? 0 : 1,0) ||
             !put(s,MATTER_TLV_UNSIGNED,2,s->path.endpoint) || !put(s,MATTER_TLV_UNSIGNED,3,s->path.cluster) ||
             !put(s,MATTER_TLV_UNSIGNED,4,s->path.attribute) ||
-            (!code && s->plan[part].start && !s->plan[part].prefix && !put(s,MATTER_TLV_NULL,5,0)) || !end(s)) return false;
+            (!code && s->work->plan[part].start && !s->work->plan[part].prefix && !put(s,MATTER_TLV_NULL,5,0)) || !end(s)) return false;
         if(code) { if(!put(s,MATTER_TLV_STRUCTURE,1,0) || !put(s,MATTER_TLV_UNSIGNED,0,code) || !end(s)) return false; }
         else if(!write_value(s,part)) return false;
         if(!end(s) || !end(s)) return false;
@@ -525,11 +541,11 @@ static bool report_event(Matter_Im_Subscribe_T s) {
         } else {
             const Matter_Event_Record_T* r=record;
             if(!put(s,MATTER_TLV_UNSIGNED,1,r->number) || !put(s,MATTER_TLV_UNSIGNED,2,r->priority) ||
-                !put(s,MATTER_TLV_UNSIGNED,r->epoch?3:4,r->timestamp_ms) || matter_tlv_init(&s->value_reader,r->data,r->size,4)!=MATTER_TLV_OK) return false;
+                !put(s,MATTER_TLV_UNSIGNED,r->epoch?3:4,r->timestamp_ms) || matter_tlv_init(&s->work->value_reader,r->data,r->size,4)!=MATTER_TLV_OK) return false;
             Matter_Tlv_Result_T result;
-            while((result=matter_tlv_next(&s->value_reader,&s->element))==MATTER_TLV_OK) {
-                if(!s->element.offset) s->element.tag=(Matter_Tlv_Tag_T){.control=1,.number=7};
-                if(matter_tlv_write(&s->writer,&s->element,0)!=MATTER_TLV_OK) return false;
+            while((result=matter_tlv_next(&s->work->value_reader,&s->work->element))==MATTER_TLV_OK) {
+                if(!s->work->element.offset) s->work->element.tag=(Matter_Tlv_Tag_T){.control=1,.number=7};
+                if(matter_tlv_write(&s->work->writer,&s->work->element,0)!=MATTER_TLV_OK) return false;
             }
             if(result!=MATTER_TLV_DONE) return false;
         }
@@ -542,12 +558,12 @@ static bool report_event(Matter_Im_Subscribe_T s) {
  * invoke a provider while trying candidate encodings. */
 static size_t list_next(Matter_Im_Subscribe_T s,size_t item,size_t offset) {
     const Matter_Im_Value_T* v=&s->items[item].value;
-    if(matter_tlv_init(&s->value_reader,v->data,v->size,4)!=MATTER_TLV_OK ||
-        matter_tlv_next(&s->value_reader,&s->element)!=MATTER_TLV_OK) return 0;
-    while(matter_tlv_next(&s->value_reader,&s->element)==MATTER_TLV_OK && s->element.type!=MATTER_TLV_END) {
-        size_t current=s->element.offset;
-        if(container(s->element.type) && matter_tlv_skip_container(&s->value_reader)!=MATTER_TLV_OK) return 0;
-        if(current==offset) return matter_tlv_next(&s->value_reader,&s->element)==MATTER_TLV_OK?s->element.offset:0;
+    if(matter_tlv_init(&s->work->value_reader,v->data,v->size,4)!=MATTER_TLV_OK ||
+        matter_tlv_next(&s->work->value_reader,&s->work->element)!=MATTER_TLV_OK) return 0;
+    while(matter_tlv_next(&s->work->value_reader,&s->work->element)==MATTER_TLV_OK && s->work->element.type!=MATTER_TLV_END) {
+        size_t current=s->work->element.offset;
+        if(container(s->work->element.type) && matter_tlv_skip_container(&s->work->value_reader)!=MATTER_TLV_OK) return 0;
+        if(current==offset) return matter_tlv_next(&s->work->value_reader,&s->work->element)==MATTER_TLV_OK?s->work->element.offset:0;
     }
     return 0;
 }
@@ -575,10 +591,10 @@ static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
     size_t n=0,item=s->cursor,offset=s->list_offset;
     while(item<s->count && n<MATTER_IM_READ_MAX_PATHS) {
         if(!s->items[item].included) { ++item; continue; }
-        s->plan[n].item=item; s->plan[n].start=offset; s->plan[n].prefix=false;
+        s->work->plan[n].item=item; s->work->plan[n].start=offset; s->work->plan[n].prefix=false;
         size_t stop=offset?list_next(s,item,offset):0;
         if(offset && !stop) return false;
-        s->plan[n].end=stop;
+        s->work->plan[n].end=stop;
         bool last=!offset || stop==s->items[item].value.size-1;
         size_t next_item=item+1;
         while(next_item<s->count && !s->items[next_item].included) ++next_item;
@@ -587,17 +603,17 @@ static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
         }
         if(n) break; /* First try the whole attribute on an empty report. */
         if(offset || s->items[item].status || s->items[item].value.type!=MATTER_TLV_ARRAY) return false;
-        s->plan[n].prefix=true; s->plan[n].start=1; s->plan[n].end=1;
+        s->work->plan[n].prefix=true; s->work->plan[n].start=1; s->work->plan[n].end=1;
         if(!report_attributes(s,1,true)) return false;
         stop=1;
         while(stop<s->items[item].value.size-1) {
             size_t candidate=list_next(s,item,stop);
             if(!candidate) return false;
-            s->plan[n].end=candidate;
+            s->work->plan[n].end=candidate;
             if(!report_attributes(s,1,true)) break;
             stop=candidate;
         }
-        s->plan[n].end=stop; offset=stop; ++n; break;
+        s->work->plan[n].end=stop; offset=stop; ++n; break;
     }
     s->more=item<s->count || events;
     if(!report_attributes(s,n,s->more)) return false;
@@ -617,13 +633,17 @@ static bool pending_change(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now) {
     Matter_Result_T r=check(s); if(r) return r;
     r=clock_check(s,now); if(r) return r;
+        if((s->queued || s->state==MATTER_IM_SUB_EXPANDING || s->state==MATTER_IM_SUB_COLLECTING || s->state==MATTER_IM_SUB_BUILD_REPORT || (s->state==MATTER_IM_SUB_WAIT_STATUS && s->status_ok)) && !s->work) {
+        s->work=calloc(1,sizeof(*s->work));
+        if(!s->work) { s->now=now; clear_filters(s); matter_im_status_bytes(s->output,MATTER_IM_RESOURCE_EXHAUSTED,MATTER_IM_REVISION); s->output_size=8; s->opcode=1; s->phase=ERROR_REPLY; s->queued=false; s->state=MATTER_IM_SUB_OUTPUT; return MATTER_PENDING; }
+    }
     s->busy=true; bool encoded=true;
     if(s->queued) {
         s->queued=false; uint8_t code=decode(s);
         if(s->state==MATTER_IM_SUB_WAITING) {
             if(!code && !fabric_scope(s)) code=MATTER_IM_INVALID_ACTION;
             if(!code) {
-                code=s->port.reserve(s->port.attributes.user,s->exchange.session,s->root[0].unsigned_value!=0,&s->id);
+                code=s->port.reserve(s->port.attributes.user,s->exchange.session,s->work->root[0].unsigned_value!=0,&s->id);
                 if(!code) {
                     s->reserved=true; s->dirty=false; s->phase=PRIME; capture_begin(s,true);
                     if(s->expanding) s->state=MATTER_IM_SUB_EXPANDING;
@@ -633,12 +653,12 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
                 else if(code!=MATTER_IM_RESOURCE_EXHAUSTED) code=MATTER_IM_FAILURE;
             }
             if(code) { encoded=status(s,code); s->state=MATTER_IM_SUB_OUTPUT; }
-        } else if(code) { r=fail(s); s->busy=false; return r; }
+        } else if(code) { r=fail(s); s->busy=false; goto finished; }
         else s->status_ok=true;
     }
     if(s->state==MATTER_IM_SUB_WAIT_STATUS && s->status_ok) {
         s->status_ok=false;
-        if(s->terminal_report && !s->more) { r=fail(s); s->busy=false; return r; }
+        if(s->terminal_report && !s->more) { r=fail(s); s->busy=false; goto finished; }
         if(s->more) {
             encoded=chunk(s,true); if(!encoded) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);
             s->state=MATTER_IM_SUB_OUTPUT;
@@ -673,7 +693,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
         uint8_t code=capture(s);
         if(code || (s->collected==s->count && (!s->events || s->events->collected))) {
             /* A coarse application notification may concern no selected value.
-             * Attribute-only subscriptions can return to idle without traffic;
+             * Attribute-only subscriptions can { r=to idle without traffic; goto finished; }
              * do not move the heartbeat deadline or suppress access failures.
              * Event subscriptions retain their independent cursor/report rules. */
             if(!code && s->phase==UPDATE && !s->attribute_report && !s->terminal_report &&
@@ -687,8 +707,13 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
         }
     }
     if(!encoded) r=fail(s); else r=MATTER_PENDING;
-    s->busy=false; return r;
+    s->busy=false;
+finished:
+    if(s->state!=MATTER_IM_SUB_WAITING && (!s->expanding || s->request_cursor==s->request_count)) { free(s->requests); s->requests=NULL; }
+    if(!s->queued) { matter_im_workspace_delete(s->work,sizeof(*s->work)); s->work=NULL; }
+    return r;
 }
+
 Matter_Result_T matter_im_subscribe_changed(Matter_Im_Subscribe_T s) {
     Matter_Result_T r=check(s); if(r) return r;
     if(s->state==MATTER_IM_SUB_FAILED) return MATTER_INVALID_STATE;
@@ -755,5 +780,5 @@ Matter_Im_Subscribe_State_T matter_im_subscribe_state(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_delete(Matter_Im_Subscribe_T s) {
     if(!s) return MATTER_OK;
     Matter_Result_T r=check(s); if(r) return r;
-    s->busy=true; release(s); free(s->items); free(s->input); free(s->output); free(s->events); matter_im_snapshots_clear(&s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+    s->busy=true; release(s); free(s->items); free(s->input); free(s->output); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }

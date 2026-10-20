@@ -54,6 +54,10 @@ typedef enum { MATTER_IM_SUB_WAITING, MATTER_IM_SUB_OUTPUT, MATTER_IM_SUB_IN_FLI
  * RX copies use their actual length (<=READ_MAX_PAYLOAD); OOM returns
  * LIMIT_REACHED with queue/state unchanged. TX is a separate allocation of
  * output_capacity bytes (8..READ_MAX_OUTPUT). Both are released by delete.
+ * Parser/tags/chunk-plan scratch exists only for queued RX or process work;
+ * idle polling and ACK/drain allocate none. Selectors use the validated count
+ * and release after expansion. Per-chunk parser OOM can terminate a report;
+ * existing result/snapshot ownership remains subject to its delivery gates.
  * Demand-sized immutable allocations hold encoded spans/containers (each <=4096 B,
  * depth4, total payload <=16384 B per report); optional Events snapshot on heap.
  * Values remain stable through the whole report, then release after final IM

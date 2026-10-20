@@ -54,6 +54,21 @@
     "replace": []
   },
   {
+    "name": "test_case_alloc",
+    "source": "tools/matter/tests/test_case.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/session/matter_case.c",
+      "main/apps/matter/session/matter_secure.c",
+      "main/apps/matter/crypto/matter_crypto_mbedtls.c",
+      "main/apps/matter/runtime/matter_fabric_host.c"
+    ],
+    "malloc": false
+  },
+  {
     "name": "test_case",
     "source": "tools/matter/tests/test_case.c",
     "mode": "normal",

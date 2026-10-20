@@ -765,13 +765,14 @@
       "path": "tools/matter/tests/test_case.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_case"
+        "test_case",
+        "test_case_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_case",
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native alloc variant: CASE/crypto/secure ownership and demand resumption cache OOM/reuse"
     },
     {
       "path": "tools/matter/tests/test_case_fixture.h",

@@ -4,6 +4,7 @@
 #include "matter_im_snapshot_internal.h"
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
+#include "matter_im_buffer_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -17,7 +18,17 @@ typedef struct {
     Matter_Event_Filter_T filters[MATTER_EVENT_PATH_CAPACITY];
     Matter_Event_Record_T* records;
 } ReadEvents;
+typedef struct {
+	Matter_Tlv_Validation_Workspace_T validation;
+	Matter_Tlv_Tag_T tags[48];
+	Matter_Tlv_Reader_T reader;
+	Matter_Tlv_Reader_T value_reader;
+	Matter_Tlv_Element_T token;
+	Matter_Tlv_Writer_T writer;
+	Matter_Tlv_Element_T element, fields[5], revision, path_fields[8], filter_fields[2], filter_element;
+} Matter_Im_Read_Work;
 struct Matter_Im_Read {
+    Matter_Im_Read_Work* work;
     Matter_Im_Read_Events_Port_T event_port; Matter_Im_Event_Enumerate_T event_enumerate;
     ReadEvents* events;
 	Matter_Im_Read_Port_T port;
@@ -34,7 +45,7 @@ struct Matter_Im_Read {
 	/* Each planned IB either carries a whole attribute, a list prefix, or one ADD. */
 	struct { size_t item, start, end; bool prefix; } *plan;
 	size_t plan_capacity,item_capacity;
-	Matter_Im_Selector_T requests[MATTER_IM_READ_MAX_PATHS];
+	Matter_Im_Selector_T* requests;
 	size_t request_count, request_cursor, collected, filter_count;
 	bool expanding, after_valid;
 	Matter_Im_Path_T after;
@@ -51,13 +62,6 @@ struct Matter_Im_Read {
 	Matter_Im_Path_T path;
 	Matter_Im_Attribute_T attribute;
 	Matter_Im_Value_T value;
-	Matter_Tlv_Validation_Workspace_T validation;
-	Matter_Tlv_Tag_T tags[48];
-	Matter_Tlv_Reader_T reader;
-	Matter_Tlv_Reader_T value_reader;
-	Matter_Tlv_Element_T token;
-	Matter_Tlv_Writer_T writer;
-	Matter_Tlv_Element_T element, fields[5], revision, path_fields[8], filter_fields[2], filter_element;
 	uint8_t *input, *output;
 };
 static Matter_Result_T check(Matter_Im_Read_T s) {
@@ -114,111 +118,113 @@ Matter_Result_T matter_im_read_receive(Matter_Im_Read_T s, const Matter_Rx_Decis
 	uint8_t* input=d->payload_size ? calloc(1,d->payload_size) : NULL;
 	if (d->payload_size && !input) return MATTER_LIMIT_REACHED;
 	if (d->payload_size) memcpy(input,d->payload,d->payload_size);
-	free(s->input); s->input=input;
+	Matter_Im_Read_Work* work=s->work ? s->work : calloc(1,sizeof(*work));
+    if(!work) { free(input); return MATTER_LIMIT_REACHED; }
+    s->work=work; free(s->input); s->input=input;
 	s->input_size=d->payload_size; s->opcode=d->header.opcode; s->queued=true;
 	return MATTER_OK;
 }
 static bool container(Matter_Tlv_Type_T t) {
 	return t == MATTER_TLV_STRUCTURE || t == MATTER_TLV_ARRAY || t == MATTER_TLV_LIST;
 }
-static bool next(Matter_Im_Read_T s) { return matter_tlv_next(&s->reader,&s->element) == MATTER_TLV_OK; }
+static bool next(Matter_Im_Read_T s) { return matter_tlv_next(&s->work->reader,&s->work->element) == MATTER_TLV_OK; }
 static bool skip(Matter_Im_Read_T s) {
-	return !container(s->element.type) || matter_tlv_skip_container(&s->reader) == MATTER_TLV_OK;
+	return !container(s->work->element.type) || matter_tlv_skip_container(&s->work->reader) == MATTER_TLV_OK;
 }
 static bool enter(Matter_Im_Read_T s, const Matter_Tlv_Element_T* e) {
-	if (matter_tlv_init(&s->reader,s->input,s->input_size,8) != MATTER_TLV_OK) return false;
-	do { if (!next(s)) return false; } while (s->element.offset < e->offset);
-	return s->element.offset == e->offset;
+	if (matter_tlv_init(&s->work->reader,s->input,s->input_size,8) != MATTER_TLV_OK) return false;
+	do { if (!next(s)) return false; } while (s->work->element.offset < e->offset);
+	return s->work->element.offset == e->offset;
 }
 static bool number(const Matter_Tlv_Element_T* e, uint64_t max) {
 	return e->tag.control == 1 && e->type == MATTER_TLV_UNSIGNED && e->unsigned_value <= max;
 }
 static bool empty_array(Matter_Im_Read_T s, const Matter_Tlv_Element_T* e) {
-	return !e->tag.control || (e->type == MATTER_TLV_ARRAY && enter(s,e) && next(s) && s->element.type == MATTER_TLV_END);
+	return !e->tag.control || (e->type == MATTER_TLV_ARRAY && enter(s,e) && next(s) && s->work->element.type == MATTER_TLV_END);
 }
 static Matter_Im_Status_T decode_fields(Matter_Im_Read_T s) {
-	memset(s->fields,0,sizeof(s->fields)); memset(&s->revision,0,sizeof(s->revision));
+	memset(s->work->fields,0,sizeof(s->work->fields)); memset(&s->work->revision,0,sizeof(s->work->revision));
 	/* Every TLV token consumes at least one input byte. Accept dense filter lists
 	 * within the existing request budget without weakening semantic validation. */
 	const Matter_Tlv_Validation_Options_T opt={MATTER_IM_READ_MAX_PAYLOAD,MATTER_IM_READ_MAX_PAYLOAD,2048,8,false,0,0};
 	Matter_Tlv_Validation_Report_T report;
-	Matter_Tlv_Result_T r=matter_tlv_validate(s->input,s->input_size,&opt,&s->validation,s->tags,48,&report);
+	Matter_Tlv_Result_T r=matter_tlv_validate(s->input,s->input_size,&opt,&s->work->validation,s->work->tags,48,&report);
 	if (r == MATTER_TLV_LIMIT_REACHED || r == MATTER_TLV_DEPTH_LIMIT) return MATTER_IM_RESOURCE_EXHAUSTED;
 	if (r != MATTER_TLV_OK ||
-		matter_tlv_init(&s->reader,s->input,s->input_size,8) != MATTER_TLV_OK || !next(s) ||
-		s->element.type != MATTER_TLV_STRUCTURE || s->element.tag.control) return MATTER_IM_INVALID_ACTION;
-	while (next(s) && s->element.type != MATTER_TLV_END) {
-		if (s->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
-		uint32_t tag=s->element.tag.number;
-		if (tag < 5) s->fields[tag]=s->element;
-		if (tag == 255) s->revision=s->element;
+		matter_tlv_init(&s->work->reader,s->input,s->input_size,8) != MATTER_TLV_OK || !next(s) ||
+		s->work->element.type != MATTER_TLV_STRUCTURE || s->work->element.tag.control) return MATTER_IM_INVALID_ACTION;
+	while (next(s) && s->work->element.type != MATTER_TLV_END) {
+		if (s->work->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
+		uint32_t tag=s->work->element.tag.number;
+		if (tag < 5) s->work->fields[tag]=s->work->element;
+		if (tag == 255) s->work->revision=s->work->element;
 		if (!skip(s)) return MATTER_IM_INVALID_ACTION;
 	}
-	return number(&s->revision,UINT8_MAX) && s->revision.unsigned_value ? MATTER_IM_SUCCESS : MATTER_IM_INVALID_ACTION;
+	return number(&s->work->revision,UINT8_MAX) && s->work->revision.unsigned_value ? MATTER_IM_SUCCESS : MATTER_IM_INVALID_ACTION;
 }
 static Matter_Im_Status_T decode_path(Matter_Im_Read_T s, Matter_Im_Selector_T* selector) {
-	if (s->element.type != MATTER_TLV_LIST || s->element.tag.control) return MATTER_IM_INVALID_ACTION;
-	memset(s->path_fields,0,sizeof(s->path_fields));
-	while (next(s) && s->element.type != MATTER_TLV_END) {
-		if (s->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
-		uint32_t tag=s->element.tag.number;
+	if (s->work->element.type != MATTER_TLV_LIST || s->work->element.tag.control) return MATTER_IM_INVALID_ACTION;
+	memset(s->work->path_fields,0,sizeof(s->work->path_fields));
+	while (next(s) && s->work->element.type != MATTER_TLV_END) {
+		if (s->work->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
+		uint32_t tag=s->work->element.tag.number;
 		if (tag < 8) {
-			if (s->path_fields[tag].tag.control) return MATTER_IM_INVALID_ACTION; /* TLV List permits duplicate tags. */
-			s->path_fields[tag]=s->element;
+			if (s->work->path_fields[tag].tag.control) return MATTER_IM_INVALID_ACTION; /* TLV List permits duplicate tags. */
+			s->work->path_fields[tag]=s->work->element;
 		}
 		if (!skip(s)) return MATTER_IM_INVALID_ACTION;
 	}
-	if (s->path_fields[0].tag.control && (s->path_fields[0].type != MATTER_TLV_BOOL || s->path_fields[0].unsigned_value))
+	if (s->work->path_fields[0].tag.control && (s->work->path_fields[0].type != MATTER_TLV_BOOL || s->work->path_fields[0].unsigned_value))
 		return MATTER_IM_INVALID_ACTION;
-	if (s->path_fields[1].tag.control || s->path_fields[5].tag.control ||
-		(s->path_fields[6].tag.control && (!number(&s->path_fields[6],UINT32_MAX) || s->path_fields[6].unsigned_value)) ||
-		(s->path_fields[7].tag.control && !number(&s->path_fields[7],UINT32_MAX))) return MATTER_IM_INVALID_ACTION;
+	if (s->work->path_fields[1].tag.control || s->work->path_fields[5].tag.control ||
+		(s->work->path_fields[6].tag.control && (!number(&s->work->path_fields[6],UINT32_MAX) || s->work->path_fields[6].unsigned_value)) ||
+		(s->work->path_fields[7].tag.control && !number(&s->work->path_fields[7],UINT32_MAX))) return MATTER_IM_INVALID_ACTION;
 	selector->present=0;
-	for (unsigned i=2; i<=4; ++i) if (s->path_fields[i].tag.control) {
-		if (!number(&s->path_fields[i],i==2 ? UINT16_MAX : UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+	for (unsigned i=2; i<=4; ++i) if (s->work->path_fields[i].tag.control) {
+		if (!number(&s->work->path_fields[i],i==2 ? UINT16_MAX : UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
 		selector->present |= (uint8_t)(1u << (i-2));
 	}
-	selector->path=(Matter_Im_Path_T){(uint16_t)s->path_fields[2].unsigned_value,
-		(uint32_t)s->path_fields[3].unsigned_value,(uint32_t)s->path_fields[4].unsigned_value};
+	selector->path=(Matter_Im_Path_T){(uint16_t)s->work->path_fields[2].unsigned_value,
+		(uint32_t)s->work->path_fields[3].unsigned_value,(uint32_t)s->work->path_fields[4].unsigned_value};
 	return matter_im_read_path_valid(selector) ? MATTER_IM_SUCCESS : MATTER_IM_INVALID_ACTION;
 }
 static Matter_Im_Status_T decode_filters(Matter_Im_Read_T s) {
-	if (!s->fields[4].tag.control) return MATTER_IM_SUCCESS;
+	if (!s->work->fields[4].tag.control) return MATTER_IM_SUCCESS;
 	/* Validate/count before allocating; the second pass fills exactly that many
 	 * entries in this handler's private, immutable request snapshot. */
 	for (unsigned pass=0; pass<2; ++pass) {
 		s->filter_count=0;
-		if (s->fields[4].type != MATTER_TLV_ARRAY || !enter(s,&s->fields[4])) return MATTER_IM_INVALID_ACTION;
-		while (next(s) && s->element.type != MATTER_TLV_END) {
+		if (s->work->fields[4].type != MATTER_TLV_ARRAY || !enter(s,&s->work->fields[4])) return MATTER_IM_INVALID_ACTION;
+		while (next(s) && s->work->element.type != MATTER_TLV_END) {
 			if (s->filter_count == MATTER_IM_READ_MAX_FILTERS) return MATTER_IM_RESOURCE_EXHAUSTED;
-			if (s->element.type != MATTER_TLV_STRUCTURE || s->element.tag.control) return MATTER_IM_INVALID_ACTION;
-			s->filter_element=s->element; memset(s->filter_fields,0,sizeof(s->filter_fields));
-			while (next(s) && s->element.type != MATTER_TLV_END) {
-				if (s->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
-				if (s->element.tag.number < 2) s->filter_fields[s->element.tag.number]=s->element;
+			if (s->work->element.type != MATTER_TLV_STRUCTURE || s->work->element.tag.control) return MATTER_IM_INVALID_ACTION;
+			s->work->filter_element=s->work->element; memset(s->work->filter_fields,0,sizeof(s->work->filter_fields));
+			while (next(s) && s->work->element.type != MATTER_TLV_END) {
+				if (s->work->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
+				if (s->work->element.tag.number < 2) s->work->filter_fields[s->work->element.tag.number]=s->work->element;
 				if (!skip(s)) return MATTER_IM_INVALID_ACTION;
 			}
-			if (!number(&s->filter_fields[1],UINT32_MAX) || !s->filter_fields[0].tag.control ||
-				s->filter_fields[0].type != MATTER_TLV_LIST || !enter(s,&s->filter_fields[0])) return MATTER_IM_INVALID_ACTION;
-			memset(s->path_fields,0,sizeof(s->path_fields));
-			while (next(s) && s->element.type != MATTER_TLV_END) {
-				if (s->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
-				uint32_t tag=s->element.tag.number;
+			if (!number(&s->work->filter_fields[1],UINT32_MAX) || !s->work->filter_fields[0].tag.control ||
+				s->work->filter_fields[0].type != MATTER_TLV_LIST || !enter(s,&s->work->filter_fields[0])) return MATTER_IM_INVALID_ACTION;
+			memset(s->work->path_fields,0,sizeof(s->work->path_fields));
+			while (next(s) && s->work->element.type != MATTER_TLV_END) {
+				if (s->work->element.tag.control != 1) return MATTER_IM_INVALID_ACTION;
+				uint32_t tag=s->work->element.tag.number;
 				if (tag < 3) {
-					if (s->path_fields[tag].tag.control) return MATTER_IM_INVALID_ACTION;
-					s->path_fields[tag]=s->element;
+					if (s->work->path_fields[tag].tag.control) return MATTER_IM_INVALID_ACTION;
+					s->work->path_fields[tag]=s->work->element;
 				}
 				if (!skip(s)) return MATTER_IM_INVALID_ACTION;
 			}
-			if (s->path_fields[0].tag.control || !number(&s->path_fields[1],UINT16_MAX) ||
-				!number(&s->path_fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+			if (s->work->path_fields[0].tag.control || !number(&s->work->path_fields[1],UINT16_MAX) ||
+				!number(&s->work->path_fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
 			if (pass) {
-				s->filters[s->filter_count].endpoint=(uint16_t)s->path_fields[1].unsigned_value;
-				s->filters[s->filter_count].cluster=(uint32_t)s->path_fields[2].unsigned_value;
-				s->filters[s->filter_count].version=(uint32_t)s->filter_fields[1].unsigned_value;
+				s->filters[s->filter_count].endpoint=(uint16_t)s->work->path_fields[1].unsigned_value;
+				s->filters[s->filter_count].cluster=(uint32_t)s->work->path_fields[2].unsigned_value;
+				s->filters[s->filter_count].version=(uint32_t)s->work->filter_fields[1].unsigned_value;
 			}
 			++s->filter_count;
-			if (!enter(s,&s->filter_element) || !skip(s)) return MATTER_IM_INVALID_ACTION;
+			if (!enter(s,&s->work->filter_element) || !skip(s)) return MATTER_IM_INVALID_ACTION;
 		}
 		if (!pass) {
 			if (!s->filter_count) return MATTER_IM_SUCCESS;
@@ -229,31 +235,31 @@ static Matter_Im_Status_T decode_filters(Matter_Im_Read_T s) {
 	return MATTER_IM_SUCCESS;
 }
 static Matter_Im_Status_T decode_events(Matter_Im_Read_T s) {
-    if(empty_array(s,&s->fields[1])) return empty_array(s,&s->fields[2])?MATTER_IM_SUCCESS:MATTER_IM_INVALID_ACTION;
-    if(!s->event_port.log || s->fields[1].type!=MATTER_TLV_ARRAY || !enter(s,&s->fields[1])) return MATTER_IM_INVALID_ACTION;
+    if(empty_array(s,&s->work->fields[1])) return empty_array(s,&s->work->fields[2])?MATTER_IM_SUCCESS:MATTER_IM_INVALID_ACTION;
+    if(!s->event_port.log || s->work->fields[1].type!=MATTER_TLV_ARRAY || !enter(s,&s->work->fields[1])) return MATTER_IM_INVALID_ACTION;
     s->events=calloc(1,sizeof(*s->events)); if(!s->events) return MATTER_IM_RESOURCE_EXHAUSTED;
     ReadEvents* e=s->events; e->port=s->event_port; e->expansion.enumerate=s->event_enumerate;
-    while(next(s) && s->element.type!=MATTER_TLV_END) {
+    while(next(s) && s->work->element.type!=MATTER_TLV_END) {
         if(e->raw_count==MATTER_IM_READ_MAX_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
-        if(s->element.type!=MATTER_TLV_LIST || s->element.tag.control) return MATTER_IM_INVALID_ACTION;
-        memset(s->path_fields,0,sizeof(s->path_fields));
-        while(next(s) && s->element.type!=MATTER_TLV_END) {
-            if(s->element.tag.control!=1) return MATTER_IM_INVALID_ACTION;
-            unsigned tag=s->element.tag.number;
+        if(s->work->element.type!=MATTER_TLV_LIST || s->work->element.tag.control) return MATTER_IM_INVALID_ACTION;
+        memset(s->work->path_fields,0,sizeof(s->work->path_fields));
+        while(next(s) && s->work->element.type!=MATTER_TLV_END) {
+            if(s->work->element.tag.control!=1) return MATTER_IM_INVALID_ACTION;
+            unsigned tag=s->work->element.tag.number;
             if(tag<5) {
-                if(s->path_fields[tag].tag.control) return MATTER_IM_INVALID_ACTION;
-                s->path_fields[tag]=s->element;
+                if(s->work->path_fields[tag].tag.control) return MATTER_IM_INVALID_ACTION;
+                s->work->path_fields[tag]=s->work->element;
             }
             if(!skip(s)) return MATTER_IM_INVALID_ACTION;
         }
-        if(s->path_fields[0].tag.control || (s->path_fields[4].tag.control && s->path_fields[4].type!=MATTER_TLV_BOOL)) return MATTER_IM_INVALID_ACTION;
+        if(s->work->path_fields[0].tag.control || (s->work->path_fields[4].tag.control && s->work->path_fields[4].type!=MATTER_TLV_BOOL)) return MATTER_IM_INVALID_ACTION;
         Matter_Im_Event_Selector_T q={0};
-        for(unsigned i=1;i<=3;++i) if(s->path_fields[i].tag.control) {
-            if(!number(&s->path_fields[i],i==1?UINT16_MAX:UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+        for(unsigned i=1;i<=3;++i) if(s->work->path_fields[i].tag.control) {
+            if(!number(&s->work->path_fields[i],i==1?UINT16_MAX:UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
             q.present|=(uint8_t)(1u<<(i-1));
         }
         if((q.present&MATTER_IM_EVENT) && !(q.present&MATTER_IM_CLUSTER)) return MATTER_IM_INVALID_ACTION;
-        q.path=(Matter_Event_Path_T){(uint16_t)s->path_fields[1].unsigned_value,(uint32_t)s->path_fields[2].unsigned_value,(uint32_t)s->path_fields[3].unsigned_value};
+        q.path=(Matter_Event_Path_T){(uint16_t)s->work->path_fields[1].unsigned_value,(uint32_t)s->work->path_fields[2].unsigned_value,(uint32_t)s->work->path_fields[3].unsigned_value};
         e->expansion.requests[e->raw_count++].selector=q;
         if(q.present==MATTER_IM_CONCRETE) {
             if(matter_im_event_index(e->paths,e->path_count,&q.path)==e->path_count) e->paths[e->path_count++].path=q.path;
@@ -262,49 +268,60 @@ static Matter_Im_Status_T decode_events(Matter_Im_Read_T s) {
             e->expansion.wildcard=true;
         }
     }
-    if(!empty_array(s,&s->fields[2])) {
-        if(s->fields[2].type!=MATTER_TLV_ARRAY || !enter(s,&s->fields[2]) || !next(s) ||
-            s->element.type!=MATTER_TLV_STRUCTURE || s->element.tag.control) return MATTER_IM_INVALID_ACTION;
-        memset(s->filter_fields,0,sizeof(s->filter_fields));
-        while(next(s) && s->element.type!=MATTER_TLV_END) {
-            if(s->element.tag.control!=1) return MATTER_IM_INVALID_ACTION;
-            if(s->element.tag.number<2) s->filter_fields[s->element.tag.number]=s->element;
+    if(!empty_array(s,&s->work->fields[2])) {
+        if(s->work->fields[2].type!=MATTER_TLV_ARRAY || !enter(s,&s->work->fields[2]) || !next(s) ||
+            s->work->element.type!=MATTER_TLV_STRUCTURE || s->work->element.tag.control) return MATTER_IM_INVALID_ACTION;
+        memset(s->work->filter_fields,0,sizeof(s->work->filter_fields));
+        while(next(s) && s->work->element.type!=MATTER_TLV_END) {
+            if(s->work->element.tag.control!=1) return MATTER_IM_INVALID_ACTION;
+            if(s->work->element.tag.number<2) s->work->filter_fields[s->work->element.tag.number]=s->work->element;
             if(!skip(s)) return MATTER_IM_INVALID_ACTION;
         }
-        if(s->filter_fields[0].tag.control || !number(&s->filter_fields[1],UINT64_MAX) || !next(s) || s->element.type!=MATTER_TLV_END) return MATTER_IM_INVALID_ACTION;
-        e->minimum=s->filter_fields[1].unsigned_value;
+        if(s->work->filter_fields[0].tag.control || !number(&s->work->filter_fields[1],UINT64_MAX) || !next(s) || s->work->element.type!=MATTER_TLV_END) return MATTER_IM_INVALID_ACTION;
+        e->minimum=s->work->filter_fields[1].unsigned_value;
     }
     e->requested=true; return MATTER_IM_SUCCESS;
 }
 static Matter_Im_Status_T decode(Matter_Im_Read_T s) {
 	Matter_Im_Status_T r=decode_fields(s); if (r) return r;
-	if (!s->fields[3].tag.control || s->fields[3].type != MATTER_TLV_BOOL) return MATTER_IM_INVALID_ACTION;
-	s->fabric_filtered=s->fields[3].unsigned_value != 0;
+	if (!s->work->fields[3].tag.control || s->work->fields[3].type != MATTER_TLV_BOOL) return MATTER_IM_INVALID_ACTION;
+	s->fabric_filtered=s->work->fields[3].unsigned_value != 0;
 	r=decode_events(s); if(r) return r;
-	if (s->fields[0].tag.control) {
-		if (s->fields[0].type != MATTER_TLV_ARRAY || !enter(s,&s->fields[0])) return MATTER_IM_INVALID_ACTION;
-		while (next(s) && s->element.type != MATTER_TLV_END) {
+	if (s->work->fields[0].tag.control) {
+		for(unsigned pass=0;pass<2;++pass) {
+            s->request_count=0;
+		if (s->work->fields[0].type != MATTER_TLV_ARRAY || !enter(s,&s->work->fields[0])) return MATTER_IM_INVALID_ACTION;
+		while (next(s) && s->work->element.type != MATTER_TLV_END) {
 			if (s->request_count + (s->events ? s->events->raw_count : 0) == MATTER_IM_READ_MAX_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
-			r=decode_path(s,&s->requests[s->request_count]); if (r) return r;
-			if (s->requests[s->request_count++].present != MATTER_IM_CONCRETE) s->expanding=true;
+			Matter_Im_Selector_T parsed={0};
+            r=decode_path(s,&parsed); if (r) return r;
+			if(pass) s->requests[s->request_count]=parsed;
+            ++s->request_count;
+            if (parsed.present != MATTER_IM_CONCRETE) s->expanding=true;
 		}
+            if(!pass) {
+                if(!s->request_count) break;
+                s->requests=calloc(s->request_count,sizeof(*s->requests));
+                if(!s->requests) return MATTER_IM_RESOURCE_EXHAUSTED;
+            }
+        }
 	}
 	r=decode_filters(s); if (r) return r;
 	return s->expanding && !s->port.enumerate ? MATTER_IM_FAILURE : MATTER_IM_SUCCESS;
 }
 static bool put(Matter_Im_Read_T s, Matter_Tlv_Type_T type, int tag, uint64_t n) {
-	s->element=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag < 0 ? 0 : 1,.number=tag < 0 ? 0 : (uint32_t)tag},
+	s->work->element=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag < 0 ? 0 : 1,.number=tag < 0 ? 0 : (uint32_t)tag},
 		.unsigned_value=n,.signed_value=s->value.signed_value};
-	return matter_tlv_write(&s->writer,&s->element,0) == MATTER_TLV_OK;
+	return matter_tlv_write(&s->work->writer,&s->work->element,0) == MATTER_TLV_OK;
 }
 static bool end(Matter_Im_Read_T s) { return put(s,MATTER_TLV_END,-1,0); }
 static bool begin(Matter_Im_Read_T s) {
-	return matter_tlv_writer_init(&s->writer,s->output,s->config.output_capacity,8) == MATTER_TLV_OK &&
+	return matter_tlv_writer_init(&s->work->writer,s->output,s->config.output_capacity,8) == MATTER_TLV_OK &&
 		put(s,MATTER_TLV_STRUCTURE,-1,0);
 }
 static bool finish(Matter_Im_Read_T s) {
 	return put(s,MATTER_TLV_UNSIGNED,255,MATTER_IM_REVISION) && end(s) &&
-		matter_tlv_writer_finish(&s->writer,&s->output_size) == MATTER_TLV_OK;
+		matter_tlv_writer_finish(&s->work->writer,&s->output_size) == MATTER_TLV_OK;
 }
 static bool status(Matter_Im_Read_T s, Matter_Im_Status_T code) {
 	s->response_opcode=1; s->more=false;
@@ -322,14 +339,14 @@ static bool write_value(Matter_Im_Read_T s, size_t part) {
 	if (!complex_value(s->value.type)) return put(s,s->value.type,2,s->value.unsigned_value);
 	size_t start=s->plan[part].start, stop=s->plan[part].end;
 	bool prefix=s->plan[part].prefix;
-	if (matter_tlv_init(&s->value_reader,s->value.data,s->value.size,4)!=MATTER_TLV_OK) return false;
+	if (matter_tlv_init(&s->work->value_reader,s->value.data,s->value.size,4)!=MATTER_TLV_OK) return false;
 	if (prefix && !put(s,MATTER_TLV_ARRAY,2,0)) return false;
 	Matter_Tlv_Result_T r;
-	while ((r=matter_tlv_next(&s->value_reader,&s->token))==MATTER_TLV_OK) {
-		if (stop && s->token.offset>=stop) break;
-		if (s->token.offset<start) continue;
-		if (!prefix && s->token.offset==start) s->token.tag=(Matter_Tlv_Tag_T){.control=1,.number=2};
-		if (matter_tlv_write(&s->writer,&s->token,0)!=MATTER_TLV_OK) return false;
+	while ((r=matter_tlv_next(&s->work->value_reader,&s->work->token))==MATTER_TLV_OK) {
+		if (stop && s->work->token.offset>=stop) break;
+		if (s->work->token.offset<start) continue;
+		if (!prefix && s->work->token.offset==start) s->work->token.tag=(Matter_Tlv_Tag_T){.control=1,.number=2};
+		if (matter_tlv_write(&s->work->writer,&s->work->token,0)!=MATTER_TLV_OK) return false;
 	}
 	return (r==MATTER_TLV_DONE || (stop && r==MATTER_TLV_OK)) && (!prefix || end(s));
 }
@@ -352,8 +369,8 @@ static bool report_data(Matter_Im_Read_T s, size_t count, bool more) {
 static Matter_Im_Status_T snapshot(Matter_Im_Read_T s) {
 	if (s->value.size>MATTER_IM_READ_MAX_VALUE) return MATTER_IM_RESOURCE_EXHAUSTED;
 	if (!s->value.data && (s->value.size || container(s->value.type))) return MATTER_IM_FAILURE;
-	return matter_im_snapshot_copy(&s->snapshots,&s->value,&s->writer,&s->value_reader,&s->token,
-        &s->validation,s->tags,48);
+	return matter_im_snapshot_copy(&s->snapshots,&s->value,&s->work->writer,&s->work->value_reader,&s->work->token,
+        &s->work->validation,s->work->tags,48);
 }
 static bool privilege(Matter_Im_Privilege_T p) {
 	return p == MATTER_IM_VIEW || p == MATTER_IM_OPERATE || p == MATTER_IM_MANAGE || p == MATTER_IM_ADMINISTER;
@@ -422,11 +439,11 @@ static bool event_chunk(Matter_Im_Read_T s) {
             const Matter_Event_Record_T* r=record;
             if(!put(s,MATTER_TLV_UNSIGNED,1,r->number) || !put(s,MATTER_TLV_UNSIGNED,2,r->priority) ||
                 !put(s,MATTER_TLV_UNSIGNED,r->epoch?3:4,r->timestamp_ms) ||
-                matter_tlv_init(&s->value_reader,r->data,r->size,4)!=MATTER_TLV_OK) goto space;
+                matter_tlv_init(&s->work->value_reader,r->data,r->size,4)!=MATTER_TLV_OK) goto space;
             Matter_Tlv_Result_T result;
-            while((result=matter_tlv_next(&s->value_reader,&s->token))==MATTER_TLV_OK) {
-                if(!s->token.offset) s->token.tag=(Matter_Tlv_Tag_T){.control=1,.number=7};
-                if(matter_tlv_write(&s->writer,&s->token,0)!=MATTER_TLV_OK) goto space;
+            while((result=matter_tlv_next(&s->work->value_reader,&s->work->token))==MATTER_TLV_OK) {
+                if(!s->work->token.offset) s->work->token.tag=(Matter_Tlv_Tag_T){.control=1,.number=7};
+                if(matter_tlv_write(&s->work->writer,&s->work->token,0)!=MATTER_TLV_OK) goto space;
             }
             if(result!=MATTER_TLV_DONE) return status(s,MATTER_IM_FAILURE);
         }
@@ -528,12 +545,12 @@ static void compact(Matter_Im_Read_T s) {
  * Snapshot validation already established anonymous root, balance and limits. */
 static size_t list_next(Matter_Im_Read_T s, size_t item, size_t offset) {
 	const Matter_Im_Value_T* v=&s->items[item].value;
-	if (matter_tlv_init(&s->value_reader,v->data,v->size,4)!=MATTER_TLV_OK ||
-		matter_tlv_next(&s->value_reader,&s->token)!=MATTER_TLV_OK) return 0;
-	while (matter_tlv_next(&s->value_reader,&s->token)==MATTER_TLV_OK && s->token.type!=MATTER_TLV_END) {
-		size_t current=s->token.offset;
-		if (container(s->token.type) && matter_tlv_skip_container(&s->value_reader)!=MATTER_TLV_OK) return 0;
-		if (current==offset) return matter_tlv_next(&s->value_reader,&s->token)==MATTER_TLV_OK ? s->token.offset : 0;
+	if (matter_tlv_init(&s->work->value_reader,v->data,v->size,4)!=MATTER_TLV_OK ||
+		matter_tlv_next(&s->work->value_reader,&s->work->token)!=MATTER_TLV_OK) return 0;
+	while (matter_tlv_next(&s->work->value_reader,&s->work->token)==MATTER_TLV_OK && s->work->token.type!=MATTER_TLV_END) {
+		size_t current=s->work->token.offset;
+		if (container(s->work->token.type) && matter_tlv_skip_container(&s->work->value_reader)!=MATTER_TLV_OK) return 0;
+		if (current==offset) return matter_tlv_next(&s->work->value_reader,&s->work->token)==MATTER_TLV_OK ? s->work->token.offset : 0;
 	}
 	return 0;
 }
@@ -595,7 +612,11 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 	if (s->state == MATTER_IM_READ_COMPLETE) return MATTER_OK;
 	if (s->state == MATTER_IM_READ_FAILED) return MATTER_INVALID_STATE;
 	r=clock_check(s,now); if (r != MATTER_OK) return r;
-	s->busy=true;
+    if((s->queued || s->state==MATTER_IM_READ_EXPANDING || s->state==MATTER_IM_READ_COLLECTING || (s->state==MATTER_IM_READ_WAIT_STATUS && s->status_received)) && !s->work) {
+        s->work=calloc(1,sizeof(*s->work));
+        if(!s->work) { s->now=now; matter_im_status_bytes(s->output,MATTER_IM_RESOURCE_EXHAUSTED,MATTER_IM_REVISION); s->output_size=8; s->response_opcode=1; s->more=false; s->queued=false; s->state=MATTER_IM_READ_OUTPUT; return MATTER_PENDING; }
+    }
+    s->busy=true;
 	bool produce=false, encoded=true;
 	if (s->queued) {
 		s->queued=false;
@@ -612,11 +633,11 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 			}
 		} else {
 			s->continuation_error=decode_fields(s);
-			if (!s->continuation_error && !number(&s->fields[0],UINT8_MAX)) s->continuation_error=MATTER_IM_INVALID_ACTION;
+			if (!s->continuation_error && !number(&s->work->fields[0],UINT8_MAX)) s->continuation_error=MATTER_IM_INVALID_ACTION;
 			if (!s->continuation_error) {
-				s->peer_status_valid=true; s->peer_status=(uint8_t)s->fields[0].unsigned_value;
+				s->peer_status_valid=true; s->peer_status=(uint8_t)s->work->fields[0].unsigned_value;
 				if (s->peer_status) {
-					s->state=MATTER_IM_READ_FAILED; s->output_size=0; s->busy=false; return MATTER_PORT_ERROR;
+					s->state=MATTER_IM_READ_FAILED; s->output_size=0; s->busy=false; r=MATTER_PORT_ERROR; goto finished;
 				}
 			}
 			s->status_received=true;
@@ -660,8 +681,13 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 		s->status_received=false; s->continuation_error=MATTER_IM_SUCCESS; produce=true;
 	}
 	if (produce) s->state=encoded ? MATTER_IM_READ_OUTPUT : MATTER_IM_READ_FAILED;
-	s->busy=false; return encoded ? MATTER_PENDING : MATTER_PORT_ERROR;
+	s->busy=false; r=encoded ? MATTER_PENDING : MATTER_PORT_ERROR;
+finished:
+    if(s->state!=MATTER_IM_READ_WAITING && (!s->expanding || s->request_cursor==s->request_count)) { free(s->requests); s->requests=NULL; }
+    if(!s->queued) { matter_im_workspace_delete(s->work,sizeof(*s->work)); s->work=NULL; }
+    return r;
 }
+
 Matter_Result_T matter_im_read_output(Matter_Im_Read_T s, Matter_Im_Read_Message_T* m) {
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
 	if (!m) return MATTER_INVALID_ARGUMENT;
@@ -697,7 +723,7 @@ Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	free(s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) free(s->events->records); free(s->events); matter_im_snapshots_clear(&s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	free(s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) free(s->events->records); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

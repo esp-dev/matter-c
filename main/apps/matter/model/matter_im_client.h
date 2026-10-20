@@ -6,6 +6,8 @@
  * Heap-owned state, bounded 1024-byte messages. No chunked/multiple response
  * commands. Fields are copied; response body is borrowed until delete.
  * Request, result body and optional 8-byte StatusResponse allocate on demand.
+ * Validation/tag scratch exists only during construction or receive; OOM
+ * unwinds construction or leaves receive waiting without publishing a result.
  * Output borrows until sent/delete: COPY to MRP-owned bytes before sent. MRP
  * retains its copy through ACK and transport drain. Receive OOM returns
  * LIMIT_REACHED, keeps the client waiting and does not publish a result. */

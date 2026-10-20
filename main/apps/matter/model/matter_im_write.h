@@ -61,6 +61,8 @@ typedef enum { MATTER_IM_WRITE_WAITING, MATTER_IM_WRITE_OUTPUT, MATTER_IM_WRITE_
  * value scratch and per-IB descriptors/results allocate on demand. All scratch
  * and bounded reply storage is reserved before the first effect in a message.
  * RX OOM returns LIMIT_REACHED without accepting/queueing the request.
+ * Parser/tag scratch is reserved with RX and released after processing; queued
+ * continuation scratch cannot overwrite the previous reply waiting for drain.
  * Owner thread, no task,
  * transport ownership or hardware dependency. One concrete unicast/PASE attribute,
  * optionally TimedRequest then Write on this same session/exchange.

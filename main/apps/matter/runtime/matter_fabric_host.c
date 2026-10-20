@@ -2,6 +2,10 @@
 #include "matter_host_limits.h"
 #include <stdlib.h>
 #include <string.h>
+typedef struct Resumption_Node {
+    struct Resumption_Node* next;
+    Matter_Case_Resumption_T value;
+} Resumption_Node;
 struct Matter_Fabric_Host {
     Matter_Store_Fabrics_T* backup;
     Matter_Fabric_Host_Image_T image; Matter_Opcreds_Host_T keys;
@@ -11,7 +15,7 @@ struct Matter_Fabric_Host {
     Matter_Fabric_Host_Events_T events; Matter_Acl_Entry_T bootstrap;
     bool busy,reset_requested; unsigned slot;
     uint32_t case_revision[5],next_case_revision;
-    Matter_Case_Resumption_T resumption[5][MATTER_HOST_CASE_PER_FABRIC];
+    Resumption_Node* resumption;
     uint64_t credential_revision[5],next_credential_revision;
     Matter_Exchange_Session_T update_session;
     Matter_Exchange_Session_T session;
@@ -26,6 +30,15 @@ Matter_Result_T matter_fabric_host_bind_events(Matter_Fabric_Host_T h,const Matt
     h->events=*p; return MATTER_OK;
 }
 static void erase(void* p,size_t n) { volatile uint8_t* b=p; while(n--) *b++=0; }
+static void clear_resumptions(Matter_Fabric_Host_T h,uint8_t index) {
+    Resumption_Node** link=&h->resumption;
+    while(*link) {
+        Resumption_Node* node=*link;
+        if(!index || node->value.identity.fabric_index==index) {
+            *link=node->next; erase(node,sizeof(*node)); free(node);
+        } else link=&node->next;
+    }
+}
 Matter_Fabric_Host_Image_T matter_fabric_host_image_new(void) {
     Matter_Fabric_Host_Image_T i=calloc(1,sizeof(*i)); if(i) { i->data.next_index=1; i->data.acl.version=1; i->data.groupkey.version=1; } return i;
 }
@@ -73,7 +86,7 @@ static Matter_Result_T after(Matter_Fabric_Host_T h) {
             memcmp(h->backup->groupkeys[j][0],h->image->data.groupkeys[j][0],sizeof(h->backup->groupkeys[j][0])) ||
             memcmp(&h->backup->groupkey.fabrics[j].sets[0],&h->image->data.groupkey.fabrics[j].sets[0],sizeof(h->backup->groupkey.fabrics[j].sets[0]))) {
             h->case_revision[j]=++h->next_case_revision;
-            erase(h->resumption[j],sizeof(h->resumption[j]));
+            if(a->index) clear_resumptions(h,a->index);
         }
     }
     clear_backup(h);
@@ -290,7 +303,7 @@ static Matter_Result_T remove_fabric(void* u,uint8_t index) {
             d->next_index=1; d->saved_next=0;
             r=h->image->persist.reset(h->image->persist.user,d);
             if(r!=MATTER_OK) *d=*h->backup; else {
-                h->case_revision[j]=++h->next_case_revision; erase(h->resumption,sizeof(h->resumption)); removed(h,index);
+                h->case_revision[j]=++h->next_case_revision; clear_resumptions(h,0); removed(h,index);
             }
             clear_backup(h);
         } else r=after(h);
@@ -367,7 +380,7 @@ Matter_Result_T matter_fabric_host_delete(Matter_Fabric_Host_T h) {
     if(!h) return MATTER_INVALID_ARGUMENT;
     if(h->busy) return MATTER_BUSY;
     Matter_Result_T r=matter_opcreds_host_collision(h->keys,NULL,NULL); if(r!=MATTER_OK) return r;
-    h->image->attached=false; erase(h,sizeof(*h)); free(h); return MATTER_OK;
+    h->image->attached=false; clear_resumptions(h,0); erase(h,sizeof(*h)); free(h); return MATTER_OK;
 }
 static unsigned slot(Matter_Fabric_Host_T h,uint8_t index) {
     for(unsigned j=0;j<5;++j) if(index && h->image->data.view.records[j].index==index) return j;

@@ -20,7 +20,9 @@ Matter_Fabric_Host_T matter_fabric_host_new(Matter_Fabric_Host_Image_T, Matter_O
 Matter_Fabric_Port_T matter_fabric_host_port(Matter_Fabric_Host_T);
 /* Borrowed CASE candidate port: up to 3 operational IPKs/fabric, preferred first.
  * Includes volatile resumption MRU cache (3 peers/fabric), erased on local
- * credential/IPK change, removal or adapter delete. No durable schema change. */
+ * credential/IPK change, removal or adapter delete. Nodes allocate on first save;
+ * OOM preserves old entries and merely forgoes caching this handshake. Updates
+ * and per-fabric oldest eviction reuse nodes. No durable schema change. */
 Matter_Case_Port_T matter_fabric_host_case_port(Matter_Fabric_Host_T);
 Matter_Result_T matter_fabric_host_delete(Matter_Fabric_Host_T);
 /* Last removal committed: owner must drain/delete the entire instance. */

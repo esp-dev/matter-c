@@ -175,8 +175,10 @@ int main(void) {
         fail_at=calls+allocation; CHECK(!matter_im_read_new(&p,&c,0)); fail_at=0; CHECK(!live);
     }
     f=create(1198); d=decision(im_request,sizeof(im_request)); size_t before=live;
-    fail_at=calls+1; CHECK(matter_im_read_receive(f->s,&d)==MATTER_LIMIT_REACHED); fail_at=0;
-    CHECK(live==before && matter_im_read_state(f->s)==MATTER_IM_READ_WAITING);
+    for(size_t site=1;site<=2;++site) {
+        fail_at=calls+site; CHECK(matter_im_read_receive(f->s,&d)==MATTER_LIMIT_REACHED); fail_at=0;
+        CHECK(live==before && matter_im_read_state(f->s)==MATTER_IM_READ_WAITING);
+    }
     execute(f,im_request,sizeof(im_request)); release(f); CHECK(!live);
 #endif
     puts("PASS IM read: literal request/report/status, access order, malformed TLV, bounds, timeout/cancel and OOM");

@@ -177,18 +177,21 @@ static void selector_tests(void) {
     }
     /* Delete during collection and fail allocation of the first copied span. */
 #ifdef MATTER_TEST_ALLOC
-    for(unsigned allocation=1;allocation<=2;++allocation) {
+    for(unsigned allocation=1;allocation<=7;++allocation) {
         s=selector_new(24,true); selector_request(s,1,false,0,false);
         fail_at=calls+allocation; Matter_Im_Subscribe_Message_T error=selector_output(s); fail_at=0;
         CHECK(error.opcode==1 && error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && !s->rich.model.reads);
-        rich_free(&s->rich); CHECK(!live); /* Initial/growing result allocation. */
+        rich_free(&s->rich); CHECK(!live); /* Selectors, yielded parsers and initial/growing results. */
     }
-    s=selector_new(12,true); selector_request(s,1,false,83,false); size_t filter_base=live; fail_at=calls+1;
+    s=selector_new(12,true); selector_request(s,1,false,83,false); size_t filter_base=live; fail_at=calls+2; /* Selectors, then filters. */
     Matter_Im_Subscribe_Message_T filter_error=selector_output(s); fail_at=0;
     CHECK(filter_error.opcode==1 && filter_error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==filter_base);
     CHECK(!s->rich.model.reads && !s->rich.model.reserves); rich_free(&s->rich); CHECK(!live);
     s=selector_new(12,true); selector_request(s,1,false,83,false); filter_base=live;
-    selector_finish(s,true); CHECK(live==filter_base+1); /* Filters released; one owned result table remains live. */
+    selector_finish(s,true); CHECK(live==filter_base); /* Parser/selectors/filters released; one result table remains. */
+    size_t idle_calls=calls,idle_bytes=live_bytes; fail_at=calls+1;
+    for(unsigned i=0;i<64;++i) CHECK(matter_im_subscribe_process(s->rich.model.active,0)==MATTER_PENDING);
+    CHECK(calls==idle_calls && live_bytes==idle_bytes && matter_im_subscribe_state(s->rich.model.active)==MATTER_IM_SUB_IDLE); fail_at=0;
     rich_free(&s->rich); CHECK(!live);
     s=selector_new(12,true); selector_request(s,1,false,83,false);
     while(matter_im_subscribe_state(s->rich.model.active)!=MATTER_IM_SUB_COLLECTING) CHECK(matter_im_subscribe_process(s->rich.model.active,0)==MATTER_PENDING);
@@ -199,7 +202,7 @@ static void selector_tests(void) {
     rich_free(&s->rich); CHECK(!live);
     s=selector_new(2,true); selector_request(s,2,true,0,false); size_t base=live; fail_at=calls+1;
     Matter_Im_Subscribe_Message_T out=selector_output(s); fail_at=0;
-    CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==base); rich_free(&s->rich); CHECK(!live);
+    CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live+1==base); rich_free(&s->rich); CHECK(!live); /* RX parser freed after selector failure. */
 #endif
     puts("PASS Subscribe selectors: bounded wildcard/ACL, result cap and overflow, duplicate/conflicting/one-time DVF, fast/fallback version, UTF8/bytes snapshots/empty/invalid, enumeration errors");
 }

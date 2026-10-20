@@ -13,6 +13,7 @@ static Matter_Rx_Decision_T rx(uint8_t opcode,const uint8_t* data,size_t size) {
         .header={.protocol_id=1,.opcode=opcode,.exchange_id=0x1234,.exchange_flags=5},.payload=data,.payload_size=size};
 }
 static void clean(void) { CHECK(!live && !live_bytes && !allocations); fail_at=0; }
+static size_t invoke_scratch,write_scratch;
 static Matter_Im_Command_Result_T invoke_noalloc(void* u,const Matter_Im_Command_Path_T* p,const uint8_t* d,size_t n,Matter_Tlv_Writer_T* w) {
     Matter_Im_Command_Result_T result=invoke_execute(u,p,d,n,w); fail_at=calls+1; return result;
 }
@@ -30,7 +31,7 @@ static void invoke_oom(void) {
             Matter_Rx_Decision_T d=rx(8,invoke_request,sizeof(invoke_request));
             Matter_Result_T r=matter_im_invoke_receive(m->active,&d);
             if(r==MATTER_OK) {
-                if(!failure) CHECK(live_bytes==owner+sizeof(invoke_request));
+                if(!failure) { CHECK(live==3); invoke_scratch=live_bytes-owner-sizeof(invoke_request); CHECK(invoke_scratch>1024); }
                 r=matter_im_invoke_process(m->active,0);
                 if(!failure) {
                     sites=calls-first; CHECK(m->executions==1 && r==MATTER_PENDING);
@@ -52,8 +53,8 @@ static void invoke_oom(void) {
         } else CHECK(failure==1);
         clean();
     }
-    CHECK(sites==6);
-    printf("Invoke owner=%zu, response=80, injected sites=%zu\n",owner,sites);
+    CHECK(sites==7);
+    printf("Invoke owner=%zu, scratch=%zu, response=80, injected sites=%zu\n",owner,invoke_scratch,sites);
     free(m);
 }
 typedef struct { InvokeModel model; unsigned cancels; } Pending;
@@ -75,7 +76,7 @@ static void pending(void) {
         size_t owner=live_bytes; Matter_Rx_Decision_T d=rx(8,invoke_request,sizeof(invoke_request));
         CHECK(matter_im_invoke_receive(p->model.active,&d)==MATTER_OK);
         CHECK(matter_im_invoke_process(p->model.active,0)==MATTER_PENDING);
-        CHECK(live==3 && live_bytes==owner+80+16); /* body writer retained, input/args consumed */
+        CHECK(live==4 && live_bytes==owner+80+16+invoke_scratch); /* async writer retained, input/args consumed */
         size_t before=calls;
         CHECK(matter_im_invoke_process(p->model.active,1)==MATTER_PENDING && calls==before);
         if(mode==1) CHECK(matter_im_invoke_cancel(p->model.active)==MATTER_OK);
@@ -127,7 +128,7 @@ static void write_oom(void) {
             Matter_Rx_Decision_T d=rx(6,request,n);
             Matter_Result_T r=matter_im_write_receive_at(s,&d,0);
             if(r==MATTER_OK) {
-                if(!failure) CHECK(live_bytes==owner+n);
+                if(!failure) { CHECK(live==3); write_scratch=live_bytes-owner-n; CHECK(write_scratch>1024); }
                 r=matter_im_write_process(s,0);
                 if(!failure) {
                     sites=calls-first; CHECK(r==MATTER_PENDING && model.writes==4);
@@ -144,8 +145,8 @@ static void write_oom(void) {
         } else CHECK(failure==1);
         clean();
     }
-    CHECK(sites==6);
-    printf("Write owner=%zu, four-IB response=200, injected sites=%zu\n",owner,sites);
+    CHECK(sites==7);
+    printf("Write owner=%zu, scratch=%zu, four-IB response=200, injected sites=%zu\n",owner,write_scratch,sites);
 }
 static void queued(void) {
     WriteModel* m=calloc(1,sizeof(*m)); CHECK(m);
@@ -171,11 +172,11 @@ static void client_oom(void) {
     const uint8_t reply[]={0x15,0x28,0,0x36,1,0x15,0x35,0,0x37,0,0x24,0,1,0x24,1,0x29,0x24,2,1,0x18,
         0x35,1,0x24,0,2,0x18,0x18,0x18,0x18,0x24,255,13,0x18};
     Matter_Im_Command_Path_T path={1,0x29,0}; size_t owner=0;
-    for(size_t failure=0;failure<=4;++failure) {
+    for(size_t failure=0;failure<=6;++failure) {
         fail_at=failure ? calls+failure : 0;
         Matter_Im_Client_T c=matter_im_client_new(&path,1,fields,sizeof(fields));
         if(c) {
-            CHECK(failure==0 || failure>=3);
+            CHECK(failure==0 || failure>=4);
             if(!failure) { CHECK(live==2); owner=live_bytes-(sizeof(fields)+48); }
             CHECK(matter_im_client_sent(c)==MATTER_OK && live_bytes==owner);
             Matter_Result_T r=matter_im_client_receive(c,9,reply,sizeof(reply));
@@ -191,10 +192,10 @@ static void client_oom(void) {
             CHECK(matter_im_client_sent(c)==MATTER_OK && calls==before && live_bytes==owner+6);
             CHECK(matter_im_client_result(c,&code,&body,&n)==MATTER_OK && !code && n==sizeof(fields) && !memcmp(body,fields,n));
             matter_im_client_delete(c);
-        } else CHECK(failure==1 || failure==2);
+        } else CHECK(failure>=1 && failure<=3);
         clean();
     }
-    printf("Client owner=%zu, request=%zu, result=6, status=8, injected sites=4\n",owner,sizeof(fields)+48);
+    printf("Client owner=%zu, request=%zu, result=6, status=8, injected sites=6\n",owner,sizeof(fields)+48);
 }
 int main(void) {
     invoke_oom(); pending(); write_oom(); queued(); client_oom();

@@ -53,6 +53,8 @@ typedef enum { MATTER_IM_INVOKE_WAITING, MATTER_IM_INVOKE_OUTPUT, MATTER_IM_INVO
  * RX and normalized arguments allocate on demand (1024-byte ceiling). Command
  * bodies reserve the declared capacity; replies reserve a bounded envelope plus
  * that capacity before effects. No allocation during async poll or delivery.
+ * Parser/tag scratch is reserved with RX, retained while async work is pending,
+ * then erased/freed after encoding. It never owns response/MRP bytes.
  * One concrete unicast command on a fresh authenticated exchange, optionally
  * preceded by TimedRequest on this SAME handler/session/exchange.
  * Transport authenticates, excludes group sessions, deduplicates RX, and owns

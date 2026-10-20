@@ -239,6 +239,27 @@ until client deletion. All three handlers share private checked buffer growth
 and erase/free operations; ceilings, public signatures and encodings are unchanged.
 See [measurements and regression evidence](oss/memory05-validation.md).
 
+Read/Subscribe/Invoke/Write/client parser, field and tag arrays now live in
+per-handler demand workspaces. Accepted RX reserves its workspace atomically;
+Read/Subscribe erase/free it after process and reacquire it for yielded work or
+a drained continuation. Idle polling, sent and confirm do not allocate. Exact
+attribute-selector tables survive expansion and then release. Subscribe's chunk
+plan is temporary; output, result tables and immutable snapshots are independent
+and keep their original status/ACK/drain gates. Invoke retains its workspace
+through async start/poll, so no new handler allocation occurs after effects;
+Write retains queued parser state until it may process. Client validation state
+is temporary while result bodies retain their public lifetime. Missing parser
+memory rejects RX atomically or produces ResourceExhausted before yielded work.
+
+Fabric host allocates CASE resumption nodes only after authenticated save,
+retaining the three-peer/fabric MRU policy. Hits do not refresh recency, new-node
+OOM preserves old entries, and updates/full-cache eviction reuse nodes. Secret
+nodes clear on the same identity/IPK/removal/reset/delete boundaries; installing
+another fabric cannot clear an existing cache. Dense Fabric image/DTO and the
+PASE/CASE handshake buffers remain separate work: their persistent and peak
+costs, including the 80016-byte Fabric publication coexistence subtotal, are
+documented in [the Memory06 audit](oss/memory06-validation.md).
+
 Read/Subscribe expanded attribute results now grow on the heap per interaction,
 starting at nine entries and doubling up to the 512-entry application ceiling.
 That ceiling is not a Matter protocol maximum. A full-tree Read of the metered

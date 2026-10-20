@@ -122,7 +122,7 @@ static void list_tests(void) {
     }
 #ifdef MATTER_TEST_ALLOC
     l=list_new(80,12,2); r=&l->rich; list_start(l,1); size_t base=live; fail_at=calls+1;
-    out=output(&r->model,0); fail_at=0; CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==base); rich_free(r); CHECK(!live);
+    out=output(&r->model,0); fail_at=0; CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live+1==base); rich_free(r); CHECK(!live); /* Parser released after selector OOM. */
 #endif
     puts("PASS list Subscribe: whole/empty/prefix REPLACE, ordered ADD, capacity sweep, owned snapshots/version, dirty/min/max, live ACL/fabric, oversized item/schema/OOM");
 }

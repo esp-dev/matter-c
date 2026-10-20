@@ -4,6 +4,13 @@ test-map.json enumerates 251 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
+Memory06 registers `test_case_alloc` for the existing CASE/cache suite. Cache
+OOM preserves old entries; same-peer saves and full per-fabric eviction allocate
+nothing. Existing IM byte/fault checks now include both RX allocations, all seven
+yielded Subscribe expansion allocations, parser reacquisition OOM and 64 idle
+polls with the next allocation forced to fail. Snapshot/ACK oracles are retained;
+allocation-position expectations account for parser/selector lifetimes.
+
 Memory05 registers `test_im_request_memory`: requested-byte ownership, all six
 Invoke and Write allocation failures, all four client allocation failures,
 allocation-free effects/async polling, four-IB Write admission before mutations,

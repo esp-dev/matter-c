@@ -246,8 +246,10 @@ int main(void) {
         fail_at=calls+allocation; CHECK(!matter_im_subscribe_new(&p,&c,0)); fail_at=0; CHECK(live==base);
     }
     Matter_Rx_Decision_T d=decision(sub_request,sizeof(sub_request),3,12,true);
-    fail_at=calls+1; CHECK(matter_im_subscribe_receive(m->active,&d)==MATTER_LIMIT_REACHED); fail_at=0;
-    CHECK(live==base && matter_im_subscribe_state(m->active)==MATTER_IM_SUB_WAITING);
+    for(size_t site=1;site<=2;++site) {
+        fail_at=calls+site; CHECK(matter_im_subscribe_receive(m->active,&d)==MATTER_LIMIT_REACHED); fail_at=0;
+        CHECK(live==base && matter_im_subscribe_state(m->active)==MATTER_IM_SUB_WAITING);
+    }
     prime(m,false); release(m); CHECK(!live);
 #endif
     puts("PASS Subscribe: literal prime/status/response, IM and MRP ordering, min/max, dirty during TX, new exchanges, heartbeat, access/schema, timeout/cancel and OOM");
