@@ -150,6 +150,22 @@ Applying event generation/delivery/capture across simulated reboot before fixing
 only a confirmed native defect. Do not rerun already-attributed TC_SU_4_1 status
 vector assumptions without new evidence. No full-suite/certification claim.
 
+## CSA61: original event startup-order failure confirmed
+
+Completed: [receipt](csa61-results.json) and [analysis](csa61-validation.md).
+Original606 fails step1 before Applying. This is the same default-provider query
+before event callback issue documented in CSA26. Checkout helper does not queue
+initial reports; a separate late subscriber proves the earlier Querying event is
+available. Independent14 checks per memory variant pass, with no memory errors
+or leaks. Native sources/binaries match CSA60; no new build or policy change.
+
+Next: CSA62, attribute the instant-reboot Applying capture gap from CSA60. Trace
+state-event generation, queued reliable reports, shutdown and restart boundaries.
+Fix only an attributed native or host-lifecycle defect, preserve correct polling
+and original tests. Do not repeat the known original startup-order failure until
+observation prerequisites change. Keep external questions and untouched original
+outcomes visible; successful alternative-delay cases do not close this gap.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

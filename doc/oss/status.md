@@ -7,6 +7,15 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA61: OTA initial-report/callback boundary confirmed; original FAIL retained.**
+Original TC_SU_2_7 run606 repeats CSA26's startup ordering: default-provider query
+starts before step1 callback; first callback event is already Downloading.
+A separate late subscription receives the earlier Querying event.14 checks per
+memory variant pass; Memcheck has zero errors/live blocks and separate sanitizers
+are clean. Native code/binaries remain CSA60-identical. [Report](csa61-validation.md).
+Counts remain122 PASS/28 FAIL/5 prerequisites. Next: CSA62, attribute Applying
+capture across fast simulated reboot; this run fails before that boundary.
+
 **CSA60: explicit application query added; original OTA FAIL retained.**
 The new owner-only query action preserves rate limits, urgent jitter and retry
 backoff. Original TC_SU_2_2 run605 now reaches step3, where the provider restart/
@@ -498,7 +507,7 @@ script, PICS or progress semantics were weakened. Counts remain **97 PASS,
 15 FAIL, 9 BLOCKED, 37 MANUAL, 704 NA**; other rows are inherited, not rerun for
 the larger budget. See [evidence and limits](csa24a-validation.md) and
 [delta](csa24a-results.json).
-**Next: CSA24b â€” prepare the progress-predicate report for CSA and agree an
+**Next: CSA24b — prepare the progress-predicate report for CSA and agree an
 accepted correction/test version.**
 
 **CSA24: automatic TC_SU_2_5 FAIL, run449.** Both AwaitNextAction/provider-loss
@@ -517,7 +526,7 @@ changes; manual CSA23 and other results are inherited. See
 The capacity follow-up is recorded in CSA24a above.
 
 Native Windows desktop is implemented in C/Win32: independent node processes
-from one EXE, per-user state, integration selection/removal, Â±10 kW slider and
+from one EXE, per-user state, integration selection/removal, ±10 kW slider and
 runtime-gated QR/status. The interface is English and includes a transparent
 slate/teal icon embedded at nine sizes; its presentation update retains existing
 settings and pairings. Two concurrent workers pass CHIP under Memcheck (three
@@ -611,7 +620,7 @@ byte requests, oversize rejection and allocation failure. Linux passes 11 focuse
 tests in normal and sanitizer builds; Windows passes five. Full IM and OTA
 scenarios pass under Memcheck and separately ASan/UBSan/LSan. See
 [CSA22 evidence, commands and limits](csa22-validation.md).
-**Next: CSA23 â€” TC-SU-2.5, ApplyUpdateResponse actions and real delay/retry timing.**
+**Next: CSA23 — TC-SU-2.5, ApplyUpdateResponse actions and real delay/retry timing.**
 
 DataVersionFilters recovery fixes a reproduced Apple Home resubscription failure:
 the old 16-entry table rejected a 547-byte SubscribeRequest with ResourceExhausted.
@@ -645,7 +654,7 @@ this manual PASS does not increase automatic coverage. Other official rows are
 inherited. See [CSA21 evidence](csa21-validation.md), [delta](csa21-results.json)
 and [fixture contract](../ota-host.md). Host simulation is not firmware installation
 or certification; Windows, hardware and Home UI acceptance remain unperformed here.
-**Next: CSA22 â€” TC-SU-2.4, ApplyUpdateRequest fields and token/version binding.**
+**Next: CSA22 — TC-SU-2.4, ApplyUpdateRequest fields and token/version binding.**
 
 CSA20 fixes an early OTA retry after repeated AnnounceOTAProvider: the
 conservative 120-second floor now survives asynchronous CASE setup and starts
@@ -662,7 +671,7 @@ Latest matrix: **97 PASS, 14 FAIL, 13 BLOCKED, 34 MANUAL, 704 NA**;
 the changed row stays MANUAL with recorded PASS, not automatic CSA coverage.
 See [CSA20 evidence](csa20-validation.md), [result delta](csa20-results.json)
 and [fixture contract](../ota-host.md). Other official rows are inherited.
-**Next: CSA21 â€” TC-SU-2.3, applicable OTA image-transfer procedures and failure paths.**
+**Next: CSA21 — TC-SU-2.3, applicable OTA image-transfer procedures and failure paths.**
 
 CSA19 prepares the official CHIP OTA provider, a signed simulation image and
 restart orchestration. **TC-SU-2.1 passes as a manual TH procedure in run442**:
@@ -682,7 +691,7 @@ The entries below retain preceding campaigns; the newest entry supersedes
 their next-task pointers without changing inherited results or limitations.
 
 CSA18 completes the targeted energy fixture for the existing three-phase host.
-Unchanged official **TC_EPM_2_2 passes on EP1/3/4/5 (runs435â€“438)** and
+Unchanged official **TC_EPM_2_2 passes on EP1/3/4/5 (runs435–438)** and
 **TC_EEM_2_2/2_3 pass on EP1 (runs439/440)** after baseline run434 reproduces
 the missing trigger route. Latest matrix: **97 PASS, 14 FAIL, 15 BLOCKED,
 32 MANUAL, 704 NA**; only those six previously blocked rows change classification.

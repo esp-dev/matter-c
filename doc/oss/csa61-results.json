@@ -1,0 +1,420 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa60-results.json",
+  "previous_sha256": "d773e0443dd5d84746784c2047a65aa6a52f131d07433024bd753c6684c76585",
+  "source_base_commit": "dd3afdbf8b6e6af6c49a50130e09c93f5409b4d5",
+  "scope": "Unchanged original OTA event test after CSA60 query trigger, startup-order attribution and independent late-subscription control. No public code/test assertion/PICS changes.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC_SU_2_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "FAIL",
+      "status": "FAIL",
+      "run_id": 606
+    }
+  ],
+  "original_sources_sha256": {
+    "TC_SU_2_2.py": "d5e9fbf867982ba7b1c8c8305c70a6fc6b04f018b521562d2e7028b6e672b8e4",
+    "TC_SU_2_5.py": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+    "TC_SU_2_7.py": "9a8b0ffa278180cf3aaa772dae3d2d3a1650114c3260a035d784db11a4f8dd31",
+    "TC_SU_4_1.py": "644dde23f969393db842b84190978144a9279b02fa17e3d1e5ba4e0514811061",
+    "TC_SUTestBase.py": "9e9b2af9fcca6b039da12273b89560bd55121ec11fdb72de0f4973499318615b"
+  },
+  "checkout_event_subscription_helper_sha256": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322",
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "binaries": {
+    "normal": "33e1e62f955bdff56a945bc802085e450a3e834fbc28ea1839e048562ee217c4",
+    "sanitize": "5e39a2d3af51d3853b3788adca8d95962ec6c0f1e1587e1a9416f564d8fbd0fb"
+  },
+  "original_run": {
+    "case": "TC_SU_2_7",
+    "endpoint": 0,
+    "collection": "SDK Python Tests",
+    "run_id": 606,
+    "verdict": "FAIL",
+    "started_at_utc": "2026-10-20 03:37:47.590425",
+    "completed_at_utc": "2026-10-20 03:38:01.034573",
+    "raw_sha256": "bf7418b7728df1f2cb50051f0b9e1288fc718ddbc2457f1b50448b4a6a27c168",
+    "log_sha256": "42326e2685952732a66877a85c68c4ee3ddc37c2fb4cf36511f98fbde105bddd",
+    "step_counts": {
+      "passed": 3,
+      "failed": 1,
+      "pending": 5
+    },
+    "failure": "First callback event has previous Querying2/new Downloading4/version2; test expected Idle1/new Querying2. Steps2 through6 not executed."
+  },
+  "conclusion": {
+    "kind": "DEFAULT_QUERY_BEFORE_EVENT_CALLBACK_CSA_QUESTION",
+    "previous_analysis": "csa26-validation.md",
+    "new_native_defect_confirmed": false,
+    "reason": "Default provider is written before step1 subscription. Native starts QueryImage then. Checkout helper sets callback after initial ReadEvent returns, without enqueuing initial cached events. Installed container package was not independently byte-compared; this is a source-based explanation supported by a separate late-subscriber control. Independent late subscriber checks the earlier event separately.",
+    "CSA_report_sent": false,
+    "certification": false,
+    "unresolved": "Fast simulated reboot Applying capture failure from CSA60 remains untested by this original run; it stops earlier."
+  },
+  "independent": [
+    {
+      "variant": "normal",
+      "result": "PASS",
+      "check_count": 14,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "late-event-subscription-after-query-start",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-query-before-ignoring-response",
+          "status": "PASS"
+        },
+        {
+          "name": "query-failure-idle-without-download",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-version-and-boot",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "query-failure-event-reason",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "late_subscription_after_query_start": true,
+      "events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "NewState": 2,
+            "PreviousState": 1,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "NewState": 1,
+            "PreviousState": 2,
+            "Reason": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "NewState": 2,
+            "PreviousState": 1,
+            "Reason": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "NewState": 1,
+            "PreviousState": 2,
+            "Reason": 2
+          }
+        }
+      ],
+      "decoded_client_events": {
+        "fresh-reader": [
+          {
+            "event": "StateTransition",
+            "fields": {
+              "TargetSoftwareVersion": null,
+              "NewState": 2,
+              "Reason": 1,
+              "PreviousState": 1
+            }
+          },
+          {
+            "event": "StateTransition",
+            "fields": {
+              "TargetSoftwareVersion": null,
+              "NewState": 1,
+              "Reason": 2,
+              "PreviousState": 2
+            }
+          }
+        ],
+        "controller": [
+          {
+            "event": "StateTransition",
+            "fields": {
+              "TargetSoftwareVersion": null,
+              "NewState": 2,
+              "Reason": 1,
+              "PreviousState": 1
+            }
+          },
+          {
+            "event": "StateTransition",
+            "fields": {
+              "TargetSoftwareVersion": null,
+              "NewState": 1,
+              "Reason": 2,
+              "PreviousState": 2
+            }
+          }
+        ]
+      },
+      "raw_sha256": "7ecd799618efeb1739d1017c0f99b350194957470687e777f7a64da7438f841e",
+      "logs_sha256": {
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "valgrind-1.log": "aee310926a2270be0c4d8a35fd14b375f9b7c4604a3890718c93452b002560a3",
+        "provider.log": "bdf02c46d6cc0e6e796459d4742da6f5a155a4c61ffa2bc261a4c11832fba67f",
+        "node-1.log": "44010b3972d333642c51ee2ed2d59f25a8181e910ef4e64926a4007f50466e71",
+        "fresh-reader/interactive.log": "81aa2179e18047f8f015b5c2066c2f83198f672617314ac808fe03effc1fd202",
+        "controller/interactive.log": "de47ca417aefe24672b26a92c78ffb024d67a4b45d0e5f6477f8113a2efaeeee"
+      },
+      "driver_sha256": "e472a19c9b65e9a4e0d7e0e3d98d8cb6fa99c72b164fd0757931a4ec99dd1c71",
+      "Memcheck": [
+        {
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            37906,
+            37906
+          ]
+        }
+      ],
+      "native_stderr_empty": true
+    },
+    {
+      "variant": "sanitize",
+      "result": "PASS",
+      "check_count": 14,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "default-provider-readback-before-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "late-event-subscription-after-query-start",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-query-before-ignoring-response",
+          "status": "PASS"
+        },
+        {
+          "name": "query-failure-idle-without-download",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-version-and-boot",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "query-failure-event-reason",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "late_subscription_after_query_start": true,
+      "events": [
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "Reason": 1,
+            "PreviousState": 1,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "Reason": 2,
+            "PreviousState": 2,
+            "NewState": 1
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "Reason": 1,
+            "PreviousState": 1,
+            "NewState": 2
+          }
+        },
+        {
+          "event": "StateTransition",
+          "fields": {
+            "TargetSoftwareVersion": null,
+            "Reason": 2,
+            "PreviousState": 2,
+            "NewState": 1
+          }
+        }
+      ],
+      "decoded_client_events": {
+        "fresh-reader": [
+          {
+            "event": "StateTransition",
+            "fields": {
+              "TargetSoftwareVersion": null,
+              "NewState": 2,
+              "Reason": 1,
+              "PreviousState": 1
+            }
+          },
+          {
+            "event": "StateTransition",
+            "fields": {
+              "TargetSoftwareVersion": null,
+              "NewState": 1,
+              "Reason": 2,
+              "PreviousState": 2
+            }
+          }
+        ],
+        "controller": [
+          {
+            "event": "StateTransition",
+            "fields": {
+              "TargetSoftwareVersion": null,
+              "NewState": 2,
+              "Reason": 1,
+              "PreviousState": 1
+            }
+          },
+          {
+            "event": "StateTransition",
+            "fields": {
+              "TargetSoftwareVersion": null,
+              "NewState": 1,
+              "Reason": 2,
+              "PreviousState": 2
+            }
+          }
+        ]
+      },
+      "raw_sha256": "ce98dd236d9d5a7e1d0a8cd683a96de01d451f97d0c1670f1329bb8a9532bff7",
+      "logs_sha256": {
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "provider.log": "a496034b7d52ed044529e64395cfdacbfc6cd3954c54de49e21ca8eea3965b12",
+        "node-1.log": "3f25216bd4cc990b92b697329c5a79027dc9b2b9c073cf133c685e189fdda70b",
+        "fresh-reader/interactive.log": "73774e272f9f2d953b0f442d9c1beabf7aad0cb4a5cf1886ceff0c21f21e83f8",
+        "controller/interactive.log": "d8641139d8d061640fee1fd8e3c103be6dd9b65130653f263107edfcf98ab849"
+      },
+      "driver_sha256": "e472a19c9b65e9a4e0d7e0e3d98d8cb6fa99c72b164fd0757931a4ec99dd1c71",
+      "Memcheck": [],
+      "native_stderr_empty": true
+    }
+  ],
+  "identity": {
+    "native_source_inputs_verified": 362,
+    "new_build": false,
+    "focused_acceptance_reused": "csa60-results.json: 8/8 normal and8/8 sanitizer; matching362 C/H inputs",
+    "native_source_changes": false
+  },
+  "cleanup": {
+    "original_final": {
+      "TH": {
+        "state": "idle"
+      },
+      "PAA_removed": true,
+      "supervisor_stopped": true,
+      "original_sources_unchanged": true
+    },
+    "original_nodes": [
+      {
+        "boot": 1,
+        "exit": 0,
+        "stderr_empty": true
+      }
+    ],
+    "TH_state": {
+      "state": "idle"
+    },
+    "stage_native_processes": [],
+    "paired_Windows_nodes_changed": false
+  },
+  "limitations": [
+    "Original startup-order failure was already known in CSA26; no repeated-run PASS is inferred.",
+    "Fast-reboot Applying delivery remains open; diagnostic query failure has no OTA reboot.",
+    "Prepared operator restore/reboot branches were not reached or accepted.",
+    "No Windows/physical/full-matrix acceptance or certification."
+  ]
+}
