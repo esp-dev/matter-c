@@ -7,6 +7,15 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA70: original TC_DA_1_7 passes with two distinct laboratory identities.**
+Unmodified runs611/612 pass18/18 under Memcheck then separate ASan/UBSan/LSan.
+Cloned-DAC control610 fails only the final key comparison, as required; exact
+observed key pairs match the intended fixtures. No native/test/PICS change.
+[Report](csa70-validation.md). Laboratory PAA was removed, nodes stopped, TH idle.
+Production PAA/DCL provenance and manufacturing uniqueness are not established.
+Original172 and infrastructure609 retained; counts now123 PASS/27 FAIL/5 prerequisites.
+Next:CSA71, consolidate TC_SU_4_1 attribution from CSA27 before any rerun.
+
 **CSA69: TC_DA_1_2 is blocked by the development VID, not a demonstrated signature defect.**
 Historical FAIL171 stops at step6.2 on0xFFF1; installed source is unchanged.
 Current public CD still has VID0xFFF1/PID0x8001/type0. Type0 test CD is permitted

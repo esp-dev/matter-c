@@ -1,0 +1,445 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa69-results.json",
+  "previous_sha256": "344c06d83436306eb41c956d03dca6fb9b8d985a0408fee8c1726cbc8560f0ca",
+  "source_base_commit": "6977da4f97fbd3b17dcfa173bda912d31d6d6808",
+  "scope": "Original TC_DA_1_7 on two isolated Linux native hosts: expected cloned-DAC rejection, distinct-DAC PASS under Memcheck, then distinct-DAC PASS under separate ASan/UBSan/LSan. Laboratory PAA, not production/DCL qualification.",
+  "latest_counts": {
+    "PASS": 99,
+    "FAIL": 18,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [
+    {
+      "case": "TC_DA_1_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "FAIL",
+      "status": "PASS",
+      "run_id": 612,
+      "reason": "Two real isolated native instances with distinct DAC keys; original unmodified test passes18/18 in611 and612. Original172 and control610 retained. Laboratory trust scope only."
+    }
+  ],
+  "original_runs": [
+    {
+      "case": "TC_DA_1_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 610,
+      "state": "TestStateEnum.failed",
+      "role": "expected-negative-control",
+      "classification_override": false
+    },
+    {
+      "case": "TC_DA_1_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 611,
+      "state": "TestStateEnum.passed",
+      "role": "positive-acceptance",
+      "classification_override": false
+    },
+    {
+      "case": "TC_DA_1_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 612,
+      "state": "TestStateEnum.passed",
+      "role": "positive-acceptance",
+      "classification_override": false
+    }
+  ],
+  "conclusion": {
+    "result": "ORIGINAL_AUTOMATED_CASE_PASS_WITH_DISTINCT_LAB_DAC_KEYS",
+    "positive_runs": [
+      611,
+      612
+    ],
+    "expected_negative_run": 610,
+    "native_defect_found": false,
+    "fixture_defect_fixed": "Original172 supplied only one DUT; now two setup payloads, node IDs, ports, stores and independently generated DAC keys.",
+    "production_PAA_or_DCL_provenance_verified": false,
+    "certification_claimed": false
+  },
+  "prior_evidence": {
+    "run_id": 172,
+    "state": "FAIL",
+    "record_sha256": "d1680c0fac715f27432b67f4c2334636f594a17a8b2443bed706e957f5f8e4c6",
+    "log_sha256": "1d9692e05765c7f638fbde09b2211bb93e3c322884d62bb16d741726a74c6b07",
+    "reason": "Only one setup payload; uniqueness assertions never reached",
+    "source_sha256": "c71532d1ca884b3063a7def69f4bf0238a6179f947091147482c41bbda731af2",
+    "reviewed": [
+      "csa01-validation.md",
+      "csa01-matrix.json",
+      "csa69-validation.md",
+      "provenance.md"
+    ]
+  },
+  "unchanged_test": {
+    "source_sha256": "c71532d1ca884b3063a7def69f4bf0238a6179f947091147482c41bbda731af2",
+    "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "allow_sdk_dac": false,
+    "post_cert_test": false,
+    "PICS_SDK_CI_ONLY": false,
+    "assertions_modified": false,
+    "selection": "Exact SDK Python Tests / Python Testing Suite / TC_DA_1_7"
+  },
+  "fixture": {
+    "nodes": 2,
+    "separate_states_ports_discriminators_and_node_ids": true,
+    "credentials": "Fresh random P-256 laboratory PAA/PAI and two DACs; shared PAA/PAI allowed, distinct DAC subjects/serials/keys for positives. Negative deliberately points both hosts at DAC-A.",
+    "certificate_sha256": {
+      "paa": "979e15e8a6e0d39a63a351336d97c2d6a57cf2804444b1af5bba5a27e04ab5a1",
+      "pai": "4073e9a35b886c2b27eba1ba926c11bf227a28ef0f080b0707cb0cd3452e91c8",
+      "dac-a": "aef281ae20f1eeafdc2d4fd190e670ecd6ab20426258dceeb83ca5d183311e22",
+      "dac-b": "9b4647ec6ce92a8fd05b40dd29c05a5db836c373d563fe26ebb30e23bbfacf31"
+    },
+    "DAC_public_key_sha256": {
+      "dac-a": "6eece705e0eb14483a10dfe2c9c852787dc9db05a528a76026fbaec182d96749",
+      "dac-b": "2ef05c99a85a44fb7045ea01a3eb61e09a800ca56ae4e35dd138598c9c100a7d"
+    },
+    "CD_sha256": "0c25d394f40cdbfa51653fe32d8d18a09bc032c2a5d477470893e30f699da951",
+    "independent_credential_signature_checks": 3,
+    "private_key_storage": "Only new scoped files on the TH host, mode0600 inside mode0700 credential directories. No existing private key exported or committed.",
+    "PAA_trust": "One scoped laboratory root temporarily added to mounted TH trust store, then removed with exact hash check.",
+    "PAA_in_DCL_claimed": false
+  },
+  "native_binaries": {
+    "matter-node": "05dc2d32cd2bdf8a2685372f53682e32dbc6d131852c6a40c71412c1a5eab171",
+    "matter-node-sanitize": "a68a49775c33c5454b8fd75d451f7c19476b66c28f9ea3e681db5b01624dfb74"
+  },
+  "source_and_build": {
+    "C_H_unchanged_since": "644b827",
+    "fresh_build_performed": false,
+    "build_and_focused_CTests": "Reused CSA67 pinned binaries and prior focused CTests; no new compilation or CTest claim.",
+    "new_memory_execution": true
+  },
+  "memory_tools": {
+    "normal": "Memcheck3.22.0, full leak check, origins, error-exitcode99; two live nodes per run.",
+    "sanitize": "Separate native ASan/UBSan/LSan, detect_leaks=1, halt_on_error=1, no Valgrind/GDB.",
+    "valgrind_package": {
+      "package": "valgrind_1%3a3.22.0-0ubuntu3_amd64.deb",
+      "sha256": "744e081e5cf3d5c598b499dbb7d2250ea3f2869dde4a4d7b231fe6114f347d7d",
+      "metadata": "Package: valgrind\nVersion: 1:3.22.0-0ubuntu3\nArchitecture: amd64\n"
+    },
+    "debuginfo_package": {
+      "name": "libc6-dbg_2.39-0ubuntu8.9_amd64.deb",
+      "sha256": "c4b086cef3a6bbb6a90299969b3c0bf3867f40cb8e9bbbb0edfe5ae23f2c04f0"
+    },
+    "installation": "Packages extracted locally only; matching loader build-id/.gnu_debuglink used. No system libc/package/service change."
+  },
+  "execution": [
+    {
+      "mode": "cloned-negative",
+      "run_id": 610,
+      "state": "TestStateEnum.failed",
+      "runner_exit": 0,
+      "record_sha256": "a4b6c4960254d8f2c8e8c9ca9190fc4852222461724635cedbe7bbee6e4d8d2e",
+      "log_sha256": "525e6c6da6878c775a5cef5e2528fba09ec49bb51c1aef462197fb71b71875de",
+      "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at": "2026-10-20 16:09:20.379010",
+      "completed_at": "2026-10-20 16:09:59.111245",
+      "step_states": {
+        "TestStateEnum.passed": 17,
+        "TestStateEnum.failed": 1
+      },
+      "nonpassing_steps": [
+        {
+          "title": "Verify that `pk_1` is not equal to `pk_2",
+          "state": "TestStateEnum.failed"
+        }
+      ],
+      "cleanup": {
+        "nodes": [
+          {
+            "index": 1,
+            "exit": 0,
+            "stderr_empty": true
+          },
+          {
+            "index": 2,
+            "exit": 0,
+            "stderr_empty": true
+          }
+        ],
+        "prompts": [
+          {
+            "prompt": "Do you want to reuse the previous commissioning information?\nIf you select NO, a new commissioning will be performed",
+            "answer": "NO"
+          },
+          {
+            "prompt": "Make sure the DUT is in Commissioning Mode",
+            "answer": "DONE"
+          }
+        ],
+        "binary_sha256": "05dc2d32cd2bdf8a2685372f53682e32dbc6d131852c6a40c71412c1a5eab171"
+      },
+      "memcheck": [
+        {
+          "index": 1,
+          "log_sha256": "6513a09aa79a93056e983689cde877abf90a6f6becf41c410bee4721d49765eb",
+          "zero_errors_and_live_blocks": true
+        },
+        {
+          "index": 2,
+          "log_sha256": "fa6fb8a7259547c9b9f477413ecd86efa05b6eda05134a0cb3826bca80c186d3",
+          "zero_errors_and_live_blocks": true
+        }
+      ],
+      "observed_DAC_key_hashes": [
+        "6eece705e0eb14483a10dfe2c9c852787dc9db05a528a76026fbaec182d96749",
+        "6eece705e0eb14483a10dfe2c9c852787dc9db05a528a76026fbaec182d96749"
+      ],
+      "PAI_signature_validated_count": 2,
+      "memory": [
+        {
+          "node": 1,
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_sha256": "68f5ddc534d239baeb74673acf788dee5cb009c12de643f4e0fe40a1cb5db782",
+          "clean_stop": true,
+          "allocs": 30733,
+          "frees": 30733,
+          "allocated_bytes": 2622997
+        },
+        {
+          "node": 2,
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_sha256": "b2aa5005a7928619e628229667c1af80fb0e9ae5138fa16bfa01b9bd6321caaf",
+          "clean_stop": true,
+          "allocs": 30729,
+          "frees": 30729,
+          "allocated_bytes": 2606561
+        }
+      ]
+    },
+    {
+      "mode": "memcheck",
+      "run_id": 611,
+      "state": "TestStateEnum.passed",
+      "runner_exit": 0,
+      "record_sha256": "f0a607697bca61de97dde103a54c714906a17a90da4e017969c6807ba85c7572",
+      "log_sha256": "a5db0feb78dfa2db16b4c79c3e88c5836782cfa77550d47c87df78e8b22a94d7",
+      "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at": "2026-10-20 16:10:10.987701",
+      "completed_at": "2026-10-20 16:10:49.500329",
+      "step_states": {
+        "TestStateEnum.passed": 18
+      },
+      "nonpassing_steps": [],
+      "cleanup": {
+        "nodes": [
+          {
+            "index": 1,
+            "exit": 0,
+            "stderr_empty": true
+          },
+          {
+            "index": 2,
+            "exit": 0,
+            "stderr_empty": true
+          }
+        ],
+        "prompts": [
+          {
+            "prompt": "Do you want to reuse the previous commissioning information?\nIf you select NO, a new commissioning will be performed",
+            "answer": "NO"
+          },
+          {
+            "prompt": "Make sure the DUT is in Commissioning Mode",
+            "answer": "DONE"
+          }
+        ],
+        "binary_sha256": "05dc2d32cd2bdf8a2685372f53682e32dbc6d131852c6a40c71412c1a5eab171"
+      },
+      "memcheck": [
+        {
+          "index": 1,
+          "log_sha256": "d70f6bdcac0f305b2e6736c40e708eaa3b23a607118cbe6bf40b7aa88c71794d",
+          "zero_errors_and_live_blocks": true
+        },
+        {
+          "index": 2,
+          "log_sha256": "27d59f7ae1e830cd0472ccf6378f3fcd35cbf1dc7086b028cdd63d20871f04b3",
+          "zero_errors_and_live_blocks": true
+        }
+      ],
+      "observed_DAC_key_hashes": [
+        "2ef05c99a85a44fb7045ea01a3eb61e09a800ca56ae4e35dd138598c9c100a7d",
+        "6eece705e0eb14483a10dfe2c9c852787dc9db05a528a76026fbaec182d96749"
+      ],
+      "PAI_signature_validated_count": 2,
+      "memory": [
+        {
+          "node": 1,
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_sha256": "b10cdb734b83132d1876b0aaecafb36d2e49fe21ae1fa6e856eb1c29ec16576c",
+          "clean_stop": true,
+          "allocs": 30691,
+          "frees": 30691,
+          "allocated_bytes": 2621342
+        },
+        {
+          "node": 2,
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_sha256": "ee584412492ad37019b5951495a6c073602686d70e6b5164832a46a3161c6816",
+          "clean_stop": true,
+          "allocs": 30710,
+          "frees": 30710,
+          "allocated_bytes": 2605802
+        }
+      ]
+    },
+    {
+      "mode": "sanitize",
+      "run_id": 612,
+      "state": "TestStateEnum.passed",
+      "runner_exit": 0,
+      "record_sha256": "c4f27ca86bcc2d0e52f4ef80612f5fc57ad4fc13be0ba979a5d8fb02e52afd4c",
+      "log_sha256": "005f90d7b03228b5283be89d18ff6979a9e0317039ea0c998d6affc10ad39ed8",
+      "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at": "2026-10-20 16:10:56.576692",
+      "completed_at": "2026-10-20 16:11:20.299913",
+      "step_states": {
+        "TestStateEnum.passed": 18
+      },
+      "nonpassing_steps": [],
+      "cleanup": {
+        "nodes": [
+          {
+            "index": 1,
+            "exit": 0,
+            "stderr_empty": true
+          },
+          {
+            "index": 2,
+            "exit": 0,
+            "stderr_empty": true
+          }
+        ],
+        "prompts": [
+          {
+            "prompt": "Do you want to reuse the previous commissioning information?\nIf you select NO, a new commissioning will be performed",
+            "answer": "NO"
+          },
+          {
+            "prompt": "Make sure the DUT is in Commissioning Mode",
+            "answer": "DONE"
+          }
+        ],
+        "binary_sha256": "a68a49775c33c5454b8fd75d451f7c19476b66c28f9ea3e681db5b01624dfb74"
+      },
+      "memcheck": [],
+      "observed_DAC_key_hashes": [
+        "2ef05c99a85a44fb7045ea01a3eb61e09a800ca56ae4e35dd138598c9c100a7d",
+        "6eece705e0eb14483a10dfe2c9c852787dc9db05a528a76026fbaec182d96749"
+      ],
+      "PAI_signature_validated_count": 2,
+      "memory": [
+        {
+          "node": 1,
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_sha256": "214d34416c55436e7f1e73283269f7f6d2e8fc88ca256f564f5f82e63b22ffb5",
+          "clean_stop": true
+        },
+        {
+          "node": 2,
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_sha256": "4bace9b8b2c199f9fd87f25a28ede1952200aece7af1f6d0904e38eb14fb09c5",
+          "clean_stop": true
+        }
+      ]
+    }
+  ],
+  "retained_infrastructure_attempts": {
+    "before_TH": [
+      "Missing Valgrind executable; no DUT/TH run.",
+      "Local Valgrind startup lacked loader symbols; failed before native main; no TH run.",
+      "Debug-info smoke failures and a readelf text-decoding error retained; corrected local search using exact matching .gnu_debuglink."
+    ],
+    "run609": [
+      {
+        "mode": "cloned-negative",
+        "run_id": 609,
+        "state": "TestStateEnum.cancelled",
+        "runner_exit": 0,
+        "record_sha256": "9c62c22f0a6630d708a5563944cd631dc1eb717ed60acd0058e684480c27e506",
+        "log_sha256": "151a14c3cf39a0a507044d3ef7207b766d89d3ea9132d541e495bc2d101b688f",
+        "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+        "started_at": "2026-10-20 16:07:14.098370",
+        "completed_at": "2026-10-20 16:07:36.973384",
+        "step_states": {
+          "TestStateEnum.cancelled": 18
+        },
+        "nonpassing_steps": [],
+        "cleanup": {
+          "nodes": [
+            {
+              "index": 1,
+              "exit": 0,
+              "stderr_empty": true
+            },
+            {
+              "index": 2,
+              "exit": 0,
+              "stderr_empty": true
+            }
+          ],
+          "prompts": [
+            {
+              "prompt": "Do you want to reuse the previous commissioning information?\nIf you select NO, a new commissioning will be performed",
+              "answer": "NO"
+            },
+            {
+              "prompt": "Make sure the DUT is in Commissioning Mode",
+              "answer": "DONE"
+            }
+          ],
+          "binary_sha256": "05dc2d32cd2bdf8a2685372f53682e32dbc6d131852c6a40c71412c1a5eab171"
+        },
+        "memcheck": [
+          {
+            "index": 1,
+            "log_sha256": "73e6230c7123d2cd4504976351388c6bb87787c1b59fd7d10c26d496f5c10ae6",
+            "zero_errors_and_live_blocks": true
+          },
+          {
+            "index": 2,
+            "log_sha256": "a7fad745a0ee6f3fe5effc9364a644a1cc64a4cd2dd6e29336902fed775802d4",
+            "zero_errors_and_live_blocks": true
+          }
+        ]
+      }
+    ],
+    "run609_attribution": "Suite ERROR/case CANCELLED before assertions. Copied fixture configuration pointed at old laboratory PAA store; corrected only this project to the mounted store containing CSA70 root. Not an attestation uniqueness FAIL."
+  },
+  "collector_review": {
+    "initial_result": "FAIL: an extra collector assumed key order A,B; the valid TH run observed B,A.",
+    "correction": "Compare the exact multiset of two expected key hashes, preserving duplicate multiplicity for A,A control. No original test/log or assertion changed; no TH rerun for this collector correction.",
+    "original_results_retained": true
+  },
+  "normative_review": {
+    "document": "Supplied Matter Core R1.6.1, Document23-27349, September16 2026",
+    "references": [
+      "6.2.2: device DAC and corresponding private key are unique to the device; attestation chain ends at an approved PAA.",
+      "6.2.2: DAC/PAI subjects unique among certificates issued by their issuer."
+    ],
+    "test_limit": "Installed code checks PAI signature against the configured PAA store and denies two SDK roots. It does not itself query DCL or prove PAA approval. These laboratory PASS outcomes do not close that production prerequisite or validate manufacturing key-injection security."
+  },
+  "cleanup": {
+    "TH": {
+      "state": "idle"
+    },
+    "temporary_PAA_removed": true,
+    "test_source_unchanged": true
+  },
+  "stage_processes_remaining": [],
+  "not_verified": [
+    "Approved production PAA/DCL provenance, assigned production VID/CD and physical manufacturing uniqueness",
+    "TC_DA_1_2 after its separate VID prerequisite; FAIL171 remains unchanged",
+    "Physical devices, new Windows build or whole applicable matrix rerun"
+  ],
+  "next": "CSA71: close the generic TC_SU_4_1 triage using the existing CSA27 response-vector evidence and current original script/helper fingerprints. Prepare a specific CSA question if still unchanged; no repeat of the known full failure or native list-status workaround."
+}

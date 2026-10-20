@@ -1200,9 +1200,9 @@
       "cases": [
         "TC_DA_1_7"
       ],
-      "kind": "PROVISIONING_REVIEW",
-      "evidence": "status.md",
-      "action": "Review development credentials versus production policy. Do not change production identity or claim certification."
+      "kind": "DISTINCT_LAB_DAC_PASS_PRODUCTION_PROVENANCE_OPEN",
+      "evidence": "csa70-results.json",
+      "action": "Original611/612 PASS; control610 rejects cloned DAC. Retain172 and infrastructure609. Laboratory PAA is not approved production/DCL identity or manufacturing certification; TC_DA_1_2 remains separate."
     },
     {
       "cases": [

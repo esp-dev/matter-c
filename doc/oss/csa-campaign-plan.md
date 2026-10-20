@@ -313,6 +313,28 @@ requirements. Determine whether two isolated instances with separate attestation
 keys can satisfy the unchanged procedure; never infer uniqueness from shared DAC
 or a single simulated node.
 
+## CSA70: two real instances and a cloned-key negative control
+
+[Receipt](csa70-results.json) and [acceptance](csa70-validation.md) supersede
+original TC_DA_1_7 FAIL172 with original611/612 PASS18/18. The fixture supplies
+two setup payloads/node IDs and distinct DAC credentials; it changes no native
+code, original test, PICS or assertions. Control610 reaches both DUTs and fails
+only the final key-equality check when both use DAC-A. Full two-node Memcheck and
+separate ASan/UBSan/LSan executions are clean; observed key hashes match fixtures.
+
+Retain pre-run environment errors and suite ERROR609 with its cancelled case;
+correcting the project's PAA path is not a native repair. The collector's first
+ordering assumption is retained separately, with a multiset correction that still
+requires two entries and preserves cloned-key multiplicity. Temporary PAA removed,
+all stage nodes stopped, TH idle. Laboratory trust is not production PAA/DCL
+qualification, physical manufacturing uniqueness or certification. TC_DA_1_2
+retains its independent VID prerequisite. Counts now123 PASS/27 FAIL/5 prerequisites.
+
+Next: **CSA71**, consolidate the remaining generic TC_SU_4_1 triage from CSA27
+and verify current original script/helper identity before any repetition. Prepare
+a specific CSA question if unchanged; do not repeat the known failure or distort
+the native list-operation status vector to obtain a green first status.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation
