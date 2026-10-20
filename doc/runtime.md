@@ -178,16 +178,23 @@ events evict the original records from the node log. Deferred OOM produces the
 existing ResourceExhausted status; binding itself no longer has an allocation
 failure. Attribute-only interactions do not allocate event selector/record state.
 
-Storage encoding uses a small operation-owned codec. Atomic decoding retains a
-separate complete staging image until the entire blob has been validated.
-The store's work image and blob buffer, and the fabric adapter's rollback image,
-exist only during their synchronous operations and are erased/freed on all exits.
+Storage encoding uses a small operation-owned codec. Publication staging copies
+only Wi-Fi/root/meter/provider metadata and borrows the guarded Fabric candidate
+during synchronous encoding. The same TLV writer first measures within the
+32,768-byte ceiling, then encodes into an exactly sized allocation. The encoder
+retains no candidate reference after return. The output and staging, and the fabric
+adapter's full rollback image, are erased/freed after their synchronous operation.
+Atomic decoding retains a separate complete staging image until the entire blob
+has been validated.
 Allocation failure precedes model publication; persistence failure restores the
 old fabric image and leaves the durable blob unchanged. Schema versions 1..7 and
 existing callback signatures remain compatible. The 32,768-byte blob ceiling is
-retained as a temporary buffer: the current blob-read callback requires the caller
-to supply capacity before reading. Exact serialized-size buffers/streaming are a
-later optimization, not a smaller persistence limit in this stage.
+retained for restore: the current blob-read callback requires the caller to supply
+capacity before reading. The public contiguous DTO encoder/decoder APIs and wire
+schema remain unchanged; exact publication buffers do not reduce a storage limit.
+All publication allocations complete before blob.replace; its atomic contract
+and the callback busy guards still apply. No scheduler, ACK/drain or fail-safe
+boundary moves. [Memory07](oss/memory07-validation.md) records peak and stack costs.
 
 Read and Subscribe allocate DataVersionFilters for the exact validated entry
 count in each request. Empty/absent lists allocate nothing; Read owns the table
@@ -255,10 +262,10 @@ Fabric host allocates CASE resumption nodes only after authenticated save,
 retaining the three-peer/fabric MRU policy. Hits do not refresh recency, new-node
 OOM preserves old entries, and updates/full-cache eviction reuse nodes. Secret
 nodes clear on the same identity/IPK/removal/reset/delete boundaries; installing
-another fabric cannot clear an existing cache. Dense Fabric image/DTO and the
-PASE/CASE handshake buffers remain separate work: their persistent and peak
-costs, including the 80016-byte Fabric publication coexistence subtotal, are
-documented in [the Memory06 audit](oss/memory06-validation.md).
+another fabric cannot clear an existing cache. Dense Fabric image and rollback
+DTO remain, while Memory07 removes the second Fabric copy from storage staging
+and sizes publication output. PASE/CASE handshake buffers remain separate work;
+the prior larger-allocation inventory is in [Memory06](oss/memory06-validation.md).
 
 Read/Subscribe expanded attribute results now grow on the heap per interaction,
 starting at nine entries and doubling up to the 512-entry application ceiling.

@@ -1,35 +1,41 @@
 #include "matter_store_host.h"
 #include "matter_store_internal.h"
+#include "../storage/matter_store_source_internal.h"
 #include <stdlib.h>
 #include <string.h>
+typedef struct {
+    Matter_Store_Source_T source;
+    Matter_Store_Wifi_T wifi; Matter_Root_Settings_T root;
+    Matter_Eem_Checkpoint_T eem; Matter_Ota_Provider_T ota[5];
+} Store_Work;
 struct Matter_Store_Host {
     Matter_Store_Blob_Port_T blob; Matter_Fabric_Host_Image_T fabric;
     Matter_Commissioning_Host_Image_T commissioning; Matter_Root_Settings_T* root; Matter_Diagnostics_Host_Image_T* diagnostics;
     Matter_Eem_Checkpoint_T eem; uint64_t event_high; Matter_Ota_Provider_T ota[5];
-    Matter_Store_Data_T* work; uint8_t* bytes; bool busy;
+    Store_Work* work; uint8_t* bytes; size_t bytes_size; bool busy;
 };
 static void wipe(void* p,size_t n) { volatile unsigned char* b=p; while(n--) *b++=0; }
 static bool capture(Matter_Store_Host_T s,const Matter_Store_Fabrics_T* f,const Matter_Store_Wifi_T* w) {
     s->work=calloc(1,sizeof(*s->work)); if(!s->work) return false;
-    s->work->schema=7;
-    s->work->fabrics=f?*f:s->fabric->data; s->work->wifi=w?*w:s->commissioning->data; s->work->root=*s->root;
-    s->work->eem=s->eem; s->work->event_high=s->event_high;
+    s->work->wifi=w?*w:s->commissioning->data; s->work->root=*s->root;
+    s->work->eem=s->eem;
+    s->work->source=(Matter_Store_Source_T){7,f?f:&s->fabric->data,&s->work->wifi,&s->work->root,
+        s->diagnostics->hours,s->diagnostics->reboots,&s->work->eem,s->event_high,s->work->ota};
     memcpy(s->work->ota,s->ota,sizeof(s->ota));
     for(unsigned i=0;i<5;++i) if(s->work->ota[i].fabric) {
-        bool live=false; for(unsigned j=0;j<5;++j) if(s->work->fabrics.view.records[j].index==s->work->ota[i].fabric) live=true;
+        bool live=false; for(unsigned j=0;j<5;++j) if(s->work->source.fabrics->view.records[j].index==s->work->ota[i].fabric) live=true;
         if(!live) s->work->ota[i]=(Matter_Ota_Provider_T){0};
     }
-    s->work->hours=s->diagnostics->hours; s->work->reboots=s->diagnostics->reboots; return true;
+    return true;
 }
 /* Per-operation scratch; callbacks remain guarded until it has been erased. */
 static void clear_work(Matter_Store_Host_T s) {
-    if(s->bytes) { wipe(s->bytes,MATTER_STORE_BLOB_MAX); free(s->bytes); s->bytes=NULL; }
+    if(s->bytes) { wipe(s->bytes,s->bytes_size); free(s->bytes); s->bytes=NULL; s->bytes_size=0; }
     if(s->work) { wipe(s->work,sizeof(*s->work)); free(s->work); s->work=NULL; }
 }
 static Matter_Result_T save(Matter_Store_Host_T s) {
-    s->bytes=calloc(1,MATTER_STORE_BLOB_MAX);
-    size_t n; Matter_Result_T r=s->bytes?matter_store_tlv_encode(s->work,s->bytes,MATTER_STORE_BLOB_MAX,&n):MATTER_LIMIT_REACHED;
-    if(r==MATTER_OK) r=s->blob.replace(s->blob.user,s->bytes,n);
+    Matter_Result_T r=matter_store_source_encode(&s->work->source,&s->bytes,&s->bytes_size);
+    if(r==MATTER_OK) r=s->blob.replace(s->blob.user,s->bytes,s->bytes_size);
     if(r==MATTER_OK) memcpy(s->ota,s->work->ota,sizeof(s->ota));
     clear_work(s); return r;
 }
@@ -39,8 +45,9 @@ static Matter_Result_T publish(void* u,const Matter_Store_Fabrics_T* f,const Mat
 }
 static Matter_Result_T reset(void* u,const Matter_Store_Fabrics_T* f) {
     Matter_Store_Host_T s=u; if(s->busy) return MATTER_BUSY;
-    s->busy=true; s->work=calloc(1,sizeof(*s->work)); if(!s->work) { s->busy=false; return MATTER_LIMIT_REACHED; } s->work->schema=7; s->work->fabrics=*f;
-    s->work->eem=s->eem; s->work->event_high=s->event_high;
+    s->busy=true; s->work=calloc(1,sizeof(*s->work)); if(!s->work) { s->busy=false; return MATTER_LIMIT_REACHED; }
+    s->work->eem=s->eem;
+    s->work->source=(Matter_Store_Source_T){7,f,&s->work->wifi,&s->work->root,0,0,&s->work->eem,s->event_high,s->work->ota};
     s->work->root.location[0]=s->work->root.location[1]='X'; s->work->wifi.settings.enabled=true;
     Matter_Result_T r=save(s);
     if(r==MATTER_OK) {
@@ -56,20 +63,28 @@ Matter_Store_Host_T matter_store_host_new(const Matter_Store_Blob_Port_T* p,Matt
         (restore && (f->attached || c->attached || diag->attached))) return NULL;
     Matter_Store_Host_T s=calloc(1,sizeof(*s)); if(!s) return NULL;
     s->blob=*p; s->fabric=f; s->commissioning=c; s->root=root; s->diagnostics=diag;
-    if(!capture(s,NULL,NULL)) goto fail;
+    Matter_Store_Data_T* restored=NULL;
+    Matter_Store_Source_T source;
     if(restore) {
         s->bytes=calloc(1,MATTER_STORE_BLOB_MAX); if(!s->bytes) goto fail;
+        s->bytes_size=MATTER_STORE_BLOB_MAX;
         size_t n=0; Matter_Result_T r=p->read(p->user,s->bytes,MATTER_STORE_BLOB_MAX,&n);
         if(r==MATTER_OK) {
-            if(matter_store_tlv_decode(s->bytes,n,s->work)!=MATTER_OK) goto fail;
+            restored=calloc(1,sizeof(*restored)); if(!restored) goto fail;
+            if(matter_store_tlv_decode(s->bytes,n,restored)!=MATTER_OK) goto fail;
         } else if(r!=MATTER_OFFLINE) goto fail;
     }
-    if(!matter_store_data_valid(s->work)) goto fail;
-    f->data=s->work->fabrics; c->data=s->work->wifi; *root=s->work->root; diag->hours=s->work->hours; diag->reboots=s->work->reboots;
-    s->eem=s->work->eem; s->event_high=s->work->event_high; memcpy(s->ota,s->work->ota,sizeof(s->ota));
+    if(restored) source=matter_store_source(restored);
+    else { if(!capture(s,NULL,NULL)) goto fail; source=s->work->source; }
+    if(!matter_store_source_valid(&source)) goto fail;
+    f->data=*source.fabrics; c->data=*source.wifi; *root=*source.root; diag->hours=source.hours; diag->reboots=source.reboots;
+    s->eem=*source.eem; s->event_high=source.event_high; memcpy(s->ota,source.ota,sizeof(s->ota));
     f->persist=c->persist=(Matter_Store_Persist_T){s,publish,reset};
+    if(restored) { wipe(restored,sizeof(*restored)); free(restored); }
     clear_work(s); return s;
-fail: clear_work(s); wipe(s,sizeof(*s)); free(s); return NULL;
+fail:
+    if(restored) { wipe(restored,sizeof(*restored)); free(restored); }
+    clear_work(s); wipe(s,sizeof(*s)); free(s); return NULL;
 }
 Matter_Result_T matter_store_host_delete(Matter_Store_Host_T s) {
     if(!s) return MATTER_INVALID_ARGUMENT;
@@ -112,7 +127,7 @@ Matter_Result_T matter_store_host_event_store(void* u,uint64_t high) {
     if(s->busy) return MATTER_BUSY;
     if(high<s->event_high) return MATTER_INVALID_ARGUMENT;
     if(high==s->event_high) return MATTER_OK;
-    s->busy=true; if(!capture(s,NULL,NULL)) { s->busy=false; return MATTER_LIMIT_REACHED; } s->work->event_high=high; Matter_Result_T r=save(s);
+    s->busy=true; if(!capture(s,NULL,NULL)) { s->busy=false; return MATTER_LIMIT_REACHED; } s->work->source.event_high=high; Matter_Result_T r=save(s);
     if(r==MATTER_OK) s->event_high=high;
     s->busy=false; return r;
 }

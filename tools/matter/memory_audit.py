@@ -53,7 +53,8 @@ PROBES = {
     },
     "runtime/matter_store_host": {
         "store_host": "sizeof(struct Matter_Store_Host)",
-        "store_work": "sizeof(Matter_Store_Data_T)",
+        "store_work": "sizeof(Store_Work)",
+        "store_data": "sizeof(Matter_Store_Data_T)",
         "store_blob": "MATTER_STORE_BLOB_MAX",
         "fabric_image": "sizeof(struct Matter_Fabric_Host_Image)",
     },
@@ -72,6 +73,7 @@ PROBES = {
         "fabric_previous": "sizeof(((Matter_Store_Fabrics_T*)0)->previous)",
     },
     "storage/matter_store_tlv": {"store_codec": "sizeof(Codec)", "store_codec_data": "sizeof(((Decoder*)0)->data)", "store_decoder": "sizeof(Decoder)"},
+    "codec/matter_tlv_writer": {"tlv_writer": "sizeof(Matter_Tlv_Writer_T)"},
     "runtime/matter_runtime": {"runtime": "sizeof(struct Matter_Runtime)"},
     "transport/matter_exchange": {"exchange_table": "sizeof(struct Matter_Exchange_Table)"},
     "transport/matter_rx": {"rx": "sizeof(struct Matter_Rx)"},

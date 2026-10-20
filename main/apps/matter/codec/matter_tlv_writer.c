@@ -109,11 +109,15 @@ Matter_Tlv_Result_T matter_tlv_write(Matter_Tlv_Writer_T* writer,
 	if (element->type == MATTER_TLV_UTF8 && !valid_utf8(element->data, element->size))
 		return MATTER_TLV_INVALID_ENCODING;
 	/* No remaining failure path; publish bytes and state together. */
-	uint8_t* output = writer->data + writer->size;
-	memcpy(output, header, header_size);
-	if (string) {
-		if (payload_size) memcpy(output + header_size, element->data, payload_size);
-	} else put_little_endian(output + header_size, bits, payload_size);
+	/* Private sizing contexts validate/account without accessing output. Public
+	 * init permits NULL only at capacity zero, so public write behavior is unchanged. */
+	if (writer->data) {
+		uint8_t* output = writer->data + writer->size;
+		memcpy(output, header, header_size);
+		if (string) {
+			if (payload_size) memcpy(output + header_size, element->data, payload_size);
+		} else put_little_endian(output + header_size, bits, payload_size);
+	}
 	writer->size += header_size + payload_size;
 	writer->root_seen = true;
 	if (end) --writer->depth;

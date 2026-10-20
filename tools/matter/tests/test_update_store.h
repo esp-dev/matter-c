@@ -63,7 +63,7 @@ static void update_checks(StoreTest* t,FabFixture* f) {
         !memcmp(&t->data.fabrics.groupkey,&t->previous.fabrics.groupkey,sizeof(t->data.fabrics.groupkey)) &&
         !memcmp(t->data.fabrics.groupkeys,t->previous.fabrics.groupkeys,sizeof(t->data.fabrics.groupkeys)));
     /* schema1/2 cannot silently discard an active credential rollback image. */
-    size_t n=0; t->data.schema=2; OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_INVALID_ARGUMENT);
+    size_t n=0; t->data.schema=2; OC_CHECK(encode_checked(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_INVALID_ARGUMENT);
     matter_store_file_fault(t->file,4); OC_CHECK(matter_opcreds_rollback(f->o->core)==MATTER_PORT_ERROR);
     OC_CHECK(f->port.view(f->host)->records[0].node_id==101); matter_store_file_fault(t->file,0);
     OC_CHECK(f->port.label(f->host,1,(const uint8_t*)"new label",9)==MATTER_OK);

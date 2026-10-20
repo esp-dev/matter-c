@@ -1,4 +1,5 @@
 #include "matter_store_tlv.h"
+#include "matter_store_source_internal.h"
 #include "../codec/matter_tlv_internal.h"
 #include <stdlib.h>
 #include <string.h>
@@ -56,18 +57,47 @@ static bool encode_value(Codec* c,const Field* f,const unsigned char* p,int tag)
         f->kind==U64?*(const uint64_t*)p:f->kind==BOOL?*(const bool*)p:*(const size_t*)p;
     return put(c,f->kind==BOOL?MATTER_TLV_BOOL:MATTER_TLV_UNSIGNED,tag,v,NULL,0);
 }
+static bool encode_field(Codec* c,const Field* f,const unsigned char* p,int tag) {
+    if(f->count>1 && f->kind!=BYTES) {
+        if(!put(c,MATTER_TLV_ARRAY,tag,0,NULL,0)) return false;
+        for(size_t i=0;i<f->count;++i) if(!encode_value(c,f,p+i*f->stride,-1)) return false;
+        return put(c,MATTER_TLV_END,-1,0,NULL,0);
+    }
+    return encode_value(c,f,p,tag);
+}
 static bool encode_object(Codec* c,const Field* fields,const void* object,int tag) {
     if(!put(c,MATTER_TLV_STRUCTURE,tag,0,NULL,0)) return false;
     for(unsigned t=0;fields[t].name;++t) {
         if(!field_present(fields,t,c->schema)) break;
         const Field* f=&fields[t]; const unsigned char* p=(const unsigned char*)object+f->offset;
-        if(f->count>1 && f->kind!=BYTES) {
-            if(!put(c,MATTER_TLV_ARRAY,(int)t,0,NULL,0)) return false;
-            for(size_t i=0;i<f->count;++i) if(!encode_value(c,f,p+i*f->stride,-1)) return false;
-            if(!put(c,MATTER_TLV_END,-1,0,NULL,0)) return false;
-        } else if(!encode_value(c,f,p,(int)t)) return false;
+        if(!encode_field(c,f,p,(int)t)) return false;
     }
     return put(c,MATTER_TLV_END,-1,0,NULL,0);
+}
+static bool encode_source(Codec* c,const Matter_Store_Source_T* d) {
+    const void* values[]={&d->schema,d->fabrics,d->wifi,d->root,&d->hours,&d->reboots,d->eem,&d->event_high,d->ota};
+    if(!put(c,MATTER_TLV_STRUCTURE,-1,0,NULL,0)) return false;
+    for(unsigned t=0;schema[t].name && field_present(schema,t,c->schema);++t)
+        if(!encode_field(c,&schema[t],values[t],(int)t)) return false;
+    return put(c,MATTER_TLV_END,-1,0,NULL,0);
+}
+Matter_Result_T matter_store_source_encode(const Matter_Store_Source_T* d,uint8_t** bytes,size_t* size) {
+    if(!bytes || !size) return MATTER_INVALID_ARGUMENT;
+    *bytes=NULL; *size=0;
+    if(!matter_store_source_valid(d)) return MATTER_INVALID_ARGUMENT;
+    Codec* c=calloc(1,sizeof(*c)); if(!c) return MATTER_LIMIT_REACHED;
+    c->schema=d->schema;
+    size_t n=0,encoded=0; uint8_t* output=NULL;
+    bool ok=matter_tlv_measure_init(&c->writer,MATTER_STORE_BLOB_MAX,16)==MATTER_TLV_OK &&
+        encode_source(c,d) && matter_tlv_writer_finish(&c->writer,&n)==MATTER_TLV_OK;
+    if(ok) { output=calloc(1,n); ok=output!=NULL; }
+    if(ok) {
+        ok=matter_tlv_writer_init(&c->writer,output,n,16)==MATTER_TLV_OK && encode_source(c,d) &&
+            matter_tlv_writer_finish(&c->writer,&encoded)==MATTER_TLV_OK && encoded==n;
+    }
+    if(ok) { *bytes=output; *size=n; }
+    else if(output) { wipe(output,n); free(output); }
+    wipe(c,sizeof(*c)); free(c); return ok?MATTER_OK:MATTER_LIMIT_REACHED;
 }
 static bool next(Codec* c) { return matter_tlv_next(&c->reader,&c->e)==MATTER_TLV_OK; }
 static bool end(Codec* c) { return next(c) && c->e.type==MATTER_TLV_END && !c->e.tag.control; }
@@ -130,15 +160,21 @@ static bool vid_valid(const Matter_Fabric_Record_T* r,uint32_t schema) {
         !(r->icac_size && r->vvsc_size) && (schema>=4 || (!r->vvs_size && !r->vvsc_size));
 }
 bool matter_store_data_valid(const Matter_Store_Data_T* d) {
-    if(!d || (d->schema!=1 && d->schema!=2 && d->schema!=3 && d->schema!=4 && d->schema!=5 && d->schema!=6 && d->schema!=7) || d->root.node_label_size>32 || !valid_utf8(d->root.node_label,d->root.node_label_size) ||
-        d->root.location[0]<'A' || d->root.location[0]>'Z' || d->root.location[1]<'A' || d->root.location[1]>'Z') return false;
-    const Matter_Eem_Checkpoint_T* e=&d->eem;
+    if(!d) return false;
+    Matter_Store_Source_T source=matter_store_source(d); return matter_store_source_valid(&source);
+}
+bool matter_store_source_valid(const Matter_Store_Source_T* d) {
+    if(!d || !d->fabrics || !d->wifi || !d->root || !d->eem || !d->ota ||
+        (d->schema!=1 && d->schema!=2 && d->schema!=3 && d->schema!=4 && d->schema!=5 && d->schema!=6 && d->schema!=7) ||
+        d->root->node_label_size>32 || !valid_utf8(d->root->node_label,d->root->node_label_size) ||
+        d->root->location[0]<'A' || d->root->location[0]>'Z' || d->root->location[1]<'A' || d->root->location[1]>'Z') return false;
+    const Matter_Eem_Checkpoint_T* e=d->eem;
     if((d->schema<7 && (e->registers || e->register_mask)) || e->register_mask>3 ||
         (e->registers ? (e->initialized!=!!e->register_mask) : e->register_mask!=0) ||
         (d->schema<5 && (e->initialized || d->event_high)) ||
         (!e->initialized && (e->registers || e->generation || e->raw_mwh[0] || e->raw_mwh[1] || e->total_mwh[0] || e->total_mwh[1]))) return false;
     for(unsigned i=0;i<2;++i) if(e->raw_mwh[i]<0 || e->raw_mwh[i]>MATTER_EEM_LIMIT || e->total_mwh[i]<0 || e->total_mwh[i]>MATTER_EEM_LIMIT || (e->registers && e->total_mwh[i]!=e->raw_mwh[i])) return false;
-    const Matter_Store_Wifi_T* w=&d->wifi;
+    const Matter_Store_Wifi_T* w=d->wifi;
     if(w->settings.count>4 || w->connected.size>32) return false;
     for(unsigned i=0;i<w->settings.count;++i) {
         const Matter_Wifi_Network_T* n=&w->settings.networks[i]; unsigned z=n->credential_size;
@@ -146,7 +182,7 @@ bool matter_store_data_valid(const Matter_Store_Data_T* d) {
         if(z==64) for(unsigned k=0;k<z;++k) if(!((n->credentials[k]>='0' && n->credentials[k]<='9') || (n->credentials[k]>='a' && n->credentials[k]<='f') || (n->credentials[k]>='A' && n->credentials[k]<='F'))) return false;
         for(unsigned j=0;j<i;++j) if(n->id.size==w->settings.networks[j].id.size && !memcmp(n->id.bytes,w->settings.networks[j].id.bytes,n->id.size)) return false;
     }
-    const Matter_Store_Fabrics_T* f=&d->fabrics; const Matter_Fabric_View_T* v=&f->view;
+    const Matter_Store_Fabrics_T* f=d->fabrics; const Matter_Fabric_View_T* v=&f->view;
     for(unsigned i=0;i<5;++i) {
         const Matter_Ota_Provider_T* p=&d->ota[i];
         if(!p->fabric) { if(p->node || p->endpoint) return false; continue; }

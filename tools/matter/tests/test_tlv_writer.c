@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "codec/matter_tlv_writer.h"
+#include "codec/matter_tlv_internal.h"
 
 #define CHECK(condition) do { if (!(condition)) { \
     fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, #condition); \
@@ -28,11 +29,17 @@ static bool vector(const char* expected, size_t size, const Token* tokens, size_
         uint8_t output[96], before[96]; /* Small host-only test snapshots. */
         memset(output,0xa5,sizeof(output));
         Matter_Tlv_Writer_T writer, saved;
+        Matter_Tlv_Writer_T measure;
+        CHECK(matter_tlv_measure_init(&measure,capacity,16)==MATTER_TLV_OK);
         CHECK(matter_tlv_writer_init(&writer,output,capacity,16) == MATTER_TLV_OK);
         bool failed = false;
         for (size_t i = 0; i < count; ++i) {
             memcpy(before,output,sizeof(output)); memcpy(&saved,&writer,sizeof(writer));
             Matter_Tlv_Result_T result = matter_tlv_write(&writer,&tokens[i].element,tokens[i].width);
+            Matter_Tlv_Writer_T measured_before=measure;
+            CHECK(matter_tlv_write(&measure,&tokens[i].element,tokens[i].width)==result);
+            CHECK(measure.size==writer.size && measure.depth==writer.depth && measure.root_seen==writer.root_seen);
+            if(result!=MATTER_TLV_OK) CHECK(!memcmp(&measure,&measured_before,sizeof(measure)));
             if (result == MATTER_TLV_NO_SPACE) {
                 CHECK(memcmp(output,before,sizeof(output)) == 0);
                 CHECK(memcmp(&writer,&saved,sizeof(writer)) == 0);
@@ -45,6 +52,9 @@ static bool vector(const char* expected, size_t size, const Token* tokens, size_
             CHECK(matter_tlv_writer_finish(&writer,&written) ==
                 (i + 1 == count ? MATTER_TLV_OK : MATTER_TLV_TRUNCATED));
             CHECK(written == (i + 1 == count ? size : SIZE_MAX));
+            size_t measured=SIZE_MAX;
+            CHECK(matter_tlv_writer_finish(&measure,&measured)==(i+1==count?MATTER_TLV_OK:MATTER_TLV_TRUNCATED));
+            CHECK(measured==written);
         }
         CHECK(failed == (capacity < size));
         for (size_t i = writer.size; i < sizeof(output); ++i) CHECK(output[i] == 0xa5);
@@ -96,6 +106,10 @@ static bool rejected(Matter_Tlv_Writer_T* writer, const Matter_Tlv_Element_T* el
     uint8_t before[96]; Matter_Tlv_Writer_T saved;
     CHECK(size <= sizeof(before));
     memcpy(before,output,size); memcpy(&saved,writer,sizeof(saved));
+    Matter_Tlv_Writer_T measure=*writer, measured_before;
+    measure.data=NULL; measured_before=measure;
+    CHECK(matter_tlv_write(&measure,element,width)==expected);
+    CHECK(!memcmp(&measure,&measured_before,sizeof(measure)));
     CHECK(matter_tlv_write(writer,element,width) == expected);
     CHECK(memcmp(before,output,size) == 0 && memcmp(&saved,writer,sizeof(saved)) == 0);
     return true;

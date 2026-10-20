@@ -1,5 +1,21 @@
 # Development status
 
+**Memory07: Fabric publication stages metadata and sizes TLV output exactly.**
+The guarded Fabric candidate is borrowed during synchronous encoding; the live
+image, complete rollback, schemas1..7, five-fabric/storage limits, fail-safe and
+ACK/drain ordering remain unchanged. The same writer measures and encodes, and
+shared field/validation operations avoid a second schema implementation.
+Tracked host publication peak falls 64,632 -> 32,313 B; ESP32 staging falls
+16,160 -> 648 B. For the measured blob, the image/rollback/staging/output subtotal
+falls 80,016 -> 47,681 B. Dense image/rollback and populated-blob restore remain.
+Linux CTest is 90/90 and two-instance checks 6/6 per memory variant; focused
+committed/pending seed/load Memcheck cases are clean. Windows is 90/93 in the
+sandbox plus 3/3 socket retries. ESP32 probes have no compiler diagnostics.
+[Report](memory07-validation.md) and [results](memory07-results.json) distinguish
+heap measurements, layout subtotals, stack growth and remaining limits.
+Next: phase-sized PASE/CASE buffers with handoff, fail-safe and ACK/drain preserved.
+No physical ESP32 or official CSA rerun.
+
 **Memory06: IM parser/tag/selector workspaces and CASE cache allocate on demand.**
 Read/Subscribe erase temporary parser state after work; Subscribe also releases
 its temporary chunk plan, and exact attribute selectors release after expansion.

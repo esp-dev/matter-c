@@ -835,6 +835,7 @@
       "main/apps/matter/runtime/matter_fabric_host.c",
       "main/apps/matter/runtime/matter_opcreds_host.c",
       "main/apps/matter/runtime/matter_store_host.c",
+      "main/apps/matter/storage/matter_store_tlv.c",
       "main/apps/matter/runtime/matter_commissioning_host.c",
       "main/apps/matter/runtime/matter_diagnostics_host.c",
       "main/apps/matter/runtime/matter_runtime.c",
