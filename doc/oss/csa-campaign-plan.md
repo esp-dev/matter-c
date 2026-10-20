@@ -275,6 +275,25 @@ evidence and the unchanged installed script. Check existing attribution first;
 rerun only when a verified prerequisite changes. Actual local address replacement
 and Windows execution remain outside this acceptance.
 
+## CSA68: automatic ApplyUpdateResponse failure already attributed
+
+[Receipt](csa68-results.json) and [analysis](csa68-validation.md) reconfirm
+CSA24a/24b: retained original450 FAIL versus explicitly local-corrected451 PASS.
+The installed test/helper and archived logs are byte-identical to that evidence.
+The original repeats the same three offline control failures; the existing patch
+passes11/11. No full TH repetition, native change or new current-host OTA claim.
+The generated queue now points to this attribution instead of generic fixture review.
+
+The [CSA question draft](csa68-csa-question.md) is prepared, not sent. Full rerun
+requires an accepted correction or a verified approved test version. Device-side
+progress suppression or inflated capacity is not a remedy. Preserve both original
+FAIL and historical local PASS, plus the separate manual YAML result.
+
+Next: **CSA69**, review TC_DA_1_2 development-attestation/provisioning prerequisites
+and prior evidence before any rerun. Separate production identity/trust prerequisites
+from a native verification defect. Known OTA tester defects do not need another
+multi-minute run while their prerequisites remain unchanged.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

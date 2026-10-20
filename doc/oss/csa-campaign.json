@@ -1207,7 +1207,6 @@
     },
     {
       "cases": [
-        "TC_SU_2_5",
         "TC_SU_4_1"
       ],
       "kind": "FIXTURE_OR_INFRASTRUCTURE_REVIEW",
@@ -1350,6 +1349,14 @@
       "kind": "DEFAULT_QUERY_BEFORE_EVENT_CALLBACK_CSA_QUESTION",
       "evidence": "csa61-results.json",
       "action": "Retain original FAIL606 and earlier CSA26 startup ordering attribution. CSA62 independently repairs Applying delivery at simulated reboot; the original fails earlier and was not rerun. Do not repeat until observation prerequisites change; no official PASS inferred."
+    },
+    {
+      "cases": [
+        "TC_SU_2_5"
+      ],
+      "kind": "PROGRESS_HISTORY_REPLAY_AND_SUBSCRIPTION_LIFECYCLE_CSA_QUESTION",
+      "evidence": "csa68-results.json",
+      "action": "Original FAIL450 retained. CSA24b local corrected PASS451 is historical and separate. CSA68 reconfirms identical installed source/helper, archived hashes and red/green controls. Seek CSA acceptance or a verified approved fixed test before full rerun; no device progress/resource workaround."
     }
   ],
   "completion_gate": "Every applicable position must have an evidenced outcome or a specific external blocker. Then triage every remaining FAIL, fix confirmed native defects, rerun original failing tests plus related memory/recovery scenarios and close with a stable full applicable rerun. External blockers and open CSA questions remain open; they are not PASS or certification."

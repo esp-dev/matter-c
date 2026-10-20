@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa67-results.json",
+  "previous_sha256": "f7df25bdc0d6a069faea536e1f20836006b04b4359cf83b12f17af59e15e29ea",
+  "source_base_commit": "644b827c4d4cde2e9ce69b6b470850b575dcf7f0",
+  "scope": "Read-only TH source/history review and existing offline source regression for automatic TC_SU_2_5. No native change, installed test patch or full original rerun.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [],
+  "original_runs": [],
+  "conclusion": {
+    "result": "EXISTING_TEST_HISTORY_REPLAY_AND_SUBSCRIPTION_LIFECYCLE_RECONFIRMED",
+    "official_automatic_result": "FAIL",
+    "official_reference_run": 450,
+    "local_corrected_reference_run": 451,
+    "local_corrected_result": "LOCAL_PATCHED_PASS",
+    "CSA_accepted_correction": false,
+    "new_native_defect_demonstrated": false,
+    "rerun_gate": "CSA-accepted correction or a different approved test/helper whose ordering and subscription-lifecycle behavior has been verified. A native rebuild alone does not remove the reproduced test behavior."
+  },
+  "prior_evidence_reviewed": [
+    "csa24-validation.md",
+    "csa24a-validation.md",
+    "csa24b-validation.md",
+    "csa23-validation.md",
+    "csa24a-results.json",
+    "csa24b-results.json"
+  ],
+  "historical_results": {
+    "449": {
+      "status": "FAIL",
+      "reason": "Fourth concurrent subscription exceeds declared three-subscription guarantee; prior evidence only."
+    },
+    "450": {
+      "record_sha256": "2dc606a7a4d14bbd531858a33cc3007cb19a66ac5f9a823f8d27b80cdba9bbd5",
+      "log_sha256": "9efb81375b423f734885b90b184f2a351c274c645b3eb917a627a37f5ebf9fd9",
+      "state": "TestStateEnum.failed",
+      "steps": [
+        "TestStateEnum.passed",
+        "TestStateEnum.passed",
+        "TestStateEnum.passed",
+        "TestStateEnum.passed",
+        "TestStateEnum.failed",
+        "TestStateEnum.passed"
+      ]
+    },
+    "451": {
+      "record_sha256": "d7194b2a3678c11c1b631f43fc27feb6038b6e62e9d1528d6f89884df959f909",
+      "log_sha256": "596bc15d2adb4e5021de9a7c5258efade9b9cc1f69a87ed93e20bad20a844607",
+      "state": "TestStateEnum.passed",
+      "steps": [
+        "TestStateEnum.passed",
+        "TestStateEnum.passed",
+        "TestStateEnum.passed",
+        "TestStateEnum.passed",
+        "TestStateEnum.passed",
+        "TestStateEnum.passed"
+      ]
+    },
+    "446": {
+      "case": "TC-SU-2.5",
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL_PASS",
+      "new_rerun": false
+    }
+  },
+  "current_source_review": {
+    "installed": {
+      "case": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+      "helper": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322"
+    },
+    "corrected_sha256": "cb0e16c451093f51e153bd9d56c8d780bc8f1b7ceeaf06b94bad9136b929b588",
+    "patch_sha256": "709a5042ce3e668e8dde688cfc05fd1848e39e515e37f01363cdc09bfe76d08d",
+    "regression_sha256": "4fb1264d38d9bd4d2d63b85138260f895d2ae01a6f409810879c8b337541a037",
+    "regressions": {
+      "original": {
+        "exit_code": 1,
+        "checks": 11,
+        "failed": [
+          "initial-null-is-not-completion",
+          "hundred-without-later-null",
+          "fresh-scenario-preserves-its-second-subscription"
+        ],
+        "raw_sha256": "21256c5146a491fc1d60dc54c07bcd43b587431c1bcdeeac7e52fc247ae97cd2"
+      },
+      "corrected": {
+        "exit_code": 0,
+        "checks": 11,
+        "failed": [],
+        "raw_sha256": "aeb19f2fab629458cc2ee11aca08a0b599ae887b8d98c40a6b7f6f17e4b8627b"
+      }
+    }
+  },
+  "installed_hashes_after_review": {
+    "case": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+    "helper": "038e99c144a66640375d483ae9e5a8fc5fbf6421d3b44129f6b1a5f7551be322"
+  },
+  "reproduced_failure": {
+    "test_lines": "TC_SU_2_5.py:404-435",
+    "helper_lines": "event_attribute_reporting.py:470-489",
+    "input_reports": [
+      null,
+      0,
+      1
+    ],
+    "expected": "Keep waiting: no null received after positive progress.",
+    "actual": "Historical null replayed after progress_seen becomes true; false completion.",
+    "consequence_in_run450": "Provider queried before ApplyUpdateRequest; action0/count0 fail Discontinue/action2 assertion at line433. Test teardown interrupts ongoing download.",
+    "second_issue": "Scenario subscriptions retained across scenarios; run449 exceeds guaranteed budget three. Local patch bounds lifecycle to two live subscriptions without deleting original assertions."
+  },
+  "normative_review": {
+    "specification": "Matter Core R1.6.1, Document23-27349, September16 2026; local supplied text",
+    "references": [
+      "11.20.7.5 UpdateStateProgress: progress relative to current state; null when inapplicable, zero beginning, 100 completion.",
+      "11.20.3.6 Apply action: Await minimum120s and Discontinue image-disposal policy remain unchanged.",
+      "11.1.4.4 CapabilityMinimaStruct: subscriptions-per-fabric3..10000; declared minimum is a resource guarantee.",
+      "8.5.2.1 KeepSubscriptions=false terminates existing subscriptions from initiator."
+    ],
+    "inference": "An old null is not evidence of a later state transition. Do not suppress valid null reports, forge completion or inflate resource promises merely to bypass the test."
+  },
+  "verification": {
+    "new_full_TH_run": false,
+    "current_native_acceptance_claimed": false,
+    "new_native_build_or_memory_run": false,
+    "external_sources_modified": false,
+    "native_C_H_modified": false,
+    "PICS_modified": false,
+    "paired_nodes_changed": false,
+    "message_sent_to_CSA": false
+  },
+  "not_verified": [
+    "CSA acceptance of the existing patch or availability of an approved fixed release",
+    "Current native host end-to-end TC_SU_2_5 result; run451 is historical, not a current-build acceptance",
+    "New Windows/Linux native build, Memcheck, sanitizers, physical firmware or certification"
+  ],
+  "next": "CSA69: review TC_DA_1_2 development-attestation/provisioning failure against prior TH07/OSS provenance and original test before any rerun; distinguish missing production identity/trust prerequisites from a native certificate-validation defect. Do not repeat already attributed OTA failures without changed prerequisites."
+}

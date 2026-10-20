@@ -7,6 +7,15 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA68: existing automatic TC_SU_2_5 test behavior reconfirmed.**
+Installed test/helper hashes still match CSA24a/24b; archived FAIL450 and local
+corrected PASS451 retain their exact logs/results. Existing offline regression:
+original fails the same three controls, corrected11/11. No new full rerun or
+native change. [Report](csa68-validation.md) and [CSA question draft](csa68-csa-question.md).
+Official FAIL stays open pending accepted test correction; local PASS is historical,
+not acceptance of the current binary. Counts remain122 PASS/28 FAIL/5 prerequisites.
+Next:CSA69, TC_DA_1_2 attestation/provisioning attribution. Paired nodes untouched.
+
 **CSA67: resolver offline latch after fatal receive repaired.**
 Old library reproduces permanent OFFLINE after one ENETDOWN. New valid requests
 reopen sockets without background retries or losing old results. API33/35 checks,
