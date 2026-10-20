@@ -2020,13 +2020,14 @@
       "path": "tools/matter/tests/test_secure.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_secure"
+        "test_secure",
+        "test_secure_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_secure",
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "test_secure_alloc; plaintext and backend OOM, erasure and replay atomicity"
     },
     {
       "path": "tools/matter/tests/test_server_time.c",
@@ -2655,6 +2656,16 @@
         "tools/matter/tests/test_im_request_memory.c"
       ],
       "allocation_variant": "test-only byte accounting and allocation fault injection"
+    },
+    {
+      "path": "tools/matter/tests/test_subscribe_memory.h",
+      "kind": "native-test-helper",
+      "ctest": [],
+      "entrypoint": "Included by test_im_subscribe.c; test_im_subscribe_alloc --memory-only or --memory-profile.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_subscribe.c"
+      ],
+      "allocation_variant": "test_im_subscribe_alloc"
     }
   ],
   "local_only_files": []

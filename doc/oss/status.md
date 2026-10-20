@@ -1,5 +1,27 @@
 # Development status
 
+**Memory09: compact report values, consumed-chunk cleanup and transient secure RX.**
+Read results use a private scalar/span representation. Subscribe separates
+persistent paths/versions from its report-only value table. Complete attributes
+release only after their chunk's IM Success and MRP confirmation; partial lists
+stay immutable and the16384-byte cumulative report cap is unchanged. Secure
+receive allocates exact temporary plaintext, erases/frees it after admission and
+preserves replay/time on OOM. Public APIs, admission/default limits and ACK/drain
+remain unchanged. ESP32 Read items fall72 ->48 B, Subscribe persistent items
+72 ->24 B plus16 B per captured value, secure owners1552 ->320 B.
+The saturated fifteen-report/five-Read component peak falls1127553 ->819193 B;
+idle subscriptions fall701370 ->210090 B. This excludes other host/platform
+allocations and remains larger than a small target RAM budget. Linux CTest92/92
+per build, two-instance checks6/6 per memory variant, focused Memcheck and separate
+saturated sanitizers pass. Windows92/95 plus3/3 local socket retries and9/9 final
+focused checks. [Report](memory09-validation.md) and [results](memory09-results.json)
+separate configured-cap arithmetic, component demand and whole-host samples.
+Native capacity checks pass50/50 at3 seconds and Massif checks50/50 at30 seconds;
+the whole-host sample is388317 B heap,6752 B maximum sampled stack and399176 B
+maximum heap+metadata+used-stack combined (different stack-maximum snapshot).
+Next: application-specific whole-node event/reporting and delivery-tail budgets
+before ESP32 RAM sizing; no physical ESP32 or official CSA rerun.
+
 **Memory08: PASE/CASE buffers follow handshake phases.**
 Exact RX, process-only parsers, exact PASE parameter transcripts and temporary
 CASE Sigma work replace embedded buffers. TX releases at sent after the owner's

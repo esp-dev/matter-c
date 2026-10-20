@@ -148,11 +148,13 @@ static void complex_tests(void) {
             CHECK(matter_im_subscribe_confirm(gated->model.active,0)==MATTER_OK);
         }
         CHECK(live==held+(order?1u:0u)); /* Queued status parser only until processed; both values remain owned. */
-        CHECK(!rich_report(gated,output(&gated->model,0)) && live==held);
-        rich_ack(gated,true,false); CHECK(live==held);
+        size_t first_bytes=live_bytes;
+        CHECK(!rich_report(gated,output(&gated->model,0)) && live==held-1);
+        CHECK(first_bytes-live_bytes>=sizeof(void*)+8); /* Snapshot plus any queued parser workspace. */
+        rich_ack(gated,true,false); CHECK(live==held-1);
         size_t bytes=live_bytes;
         literal(output(&gated->model,0),4,sub_response,sizeof(sub_response));
-        CHECK(live==held-2 && bytes-live_bytes==2*(sizeof(void*)+8));
+        CHECK(live==held-3 && bytes-live_bytes>sizeof(void*)+8); /* Remaining value and captured-value table. */
         rich_prime_finish(gated);
         CHECK(matter_im_subscribe_changed(gated->model.active)==MATTER_OK); rich_update(gated,2000);
         CHECK(rich_report(gated,output(&gated->model,2000)) && live==held);

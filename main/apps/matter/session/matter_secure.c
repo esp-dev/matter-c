@@ -14,7 +14,6 @@ struct Matter_Secure {
 	uint64_t now, sent, received_at;
 	size_t pins;
 	bool busy, closing, admitting;
-	uint8_t plain[MATTER_SECURE_MAX_PACKET];
 };
 static Matter_Result_T check(Matter_Secure_T s) {
 	return !s ? MATTER_INVALID_ARGUMENT : s->busy ? MATTER_BUSY : MATTER_OK;
@@ -131,18 +130,23 @@ Matter_Result_T matter_secure_receive(Matter_Secure_T s, const uint8_t* packet, 
 	s->busy = true;
 	uint8_t iv[13]; nonce(&header, s->identity.peer_node_id, iv);
 	size_t plain_size = size - offset - 16, payload_offset;
+	/* Admission is synchronous and copies its own RX bytes before returning.
+	 * Keep no plaintext allocation on an idle session. Even an empty malformed
+	 * protocol gets a non-NULL crypto output without changing wire limits. */
+	uint8_t* plain=calloc(1,plain_size ? plain_size : 1);
+	if(!plain) { s->busy=false; return MATTER_LIMIT_REACHED; }
 	r = s->port.ccm_decrypt(s->port.user, s->keys.receive_key, iv, packet, offset,
-		packet + offset, plain_size, s->plain);
+		packet + offset, plain_size, plain);
 	if (r != MATTER_OK) goto done;
-	if (matter_protocol_header_read(s->plain, plain_size, &s->received.protocol, &payload_offset) != MATTER_MESSAGE_OK) {
+	if (matter_protocol_header_read(plain, plain_size, &s->received.protocol, &payload_offset) != MATTER_MESSAGE_OK) {
 		r = MATTER_INVALID_ARGUMENT; goto done;
 	}
 	s->received.message = header;
 	r = matter_reception_classify(&s->rx, header.message_counter, &s->received.duplicate);
 	if (r != MATTER_OK) goto done;
-	s->received.payload = s->received.duplicate ? NULL : s->plain + payload_offset;
+	s->received.payload = s->received.duplicate ? NULL : plain + payload_offset;
 	s->received.size = s->received.duplicate ? 0 : plain_size - payload_offset;
-	s->received.encoded = s->plain;
+	s->received.encoded = plain;
 	s->received.encoded_size = s->received.duplicate ? payload_offset : plain_size;
 	s->received.payload_size_on_wire = plain_size - payload_offset;
 	s->admitting = true;
@@ -154,7 +158,7 @@ Matter_Result_T matter_secure_receive(Matter_Secure_T s, const uint8_t* packet, 
 		s->received_at = s->now = now;
 	}
 done:
-	s->port.clear(s->plain, sizeof(s->plain));
+	s->port.clear(plain, plain_size ? plain_size : 1); free(plain);
 	s->port.clear((uint8_t*)&s->received, sizeof(s->received));
 	s->busy = false; return r;
 }

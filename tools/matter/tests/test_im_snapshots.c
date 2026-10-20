@@ -102,4 +102,32 @@ static void errors_and_oom(void) {
     CHECK(calls==before && !live && !f->snapshots.size); destroy(f);
     printf("PASS snapshot OOM/error: each of 9 allocations, retry, earlier references preserved, malformed/deep/UTF8 cleanup; node header=%zu\n",sizeof(Matter_Im_Snapshot_Node));
 }
-int main(void) { exact_and_boundaries(); errors_and_oom(); return 0; }
+static void consumed_and_compact(void) {
+    Fixture* f=create();
+    for(size_t i=0;i<4;++i) { string(f,4093,false); CHECK(copy(f)==0); f->retained[i]=f->value.data; }
+    /* Unlink tail, middle and head independently. A completed chunk must not
+     * replenish the original report's admission budget. No allocations here. */
+    size_t before=calls;
+    matter_im_snapshot_release(&f->snapshots,f->retained[0]);
+    matter_im_snapshot_release(&f->snapshots,f->retained[2]);
+    matter_im_snapshot_release(&f->snapshots,f->retained[3]);
+    matter_im_snapshot_release(&f->snapshots,NULL);
+    CHECK(live==1 && calls==before && f->snapshots.size==16384 && f->retained[1][3]=='a');
+    string(f,0,false); CHECK(copy(f)==MATTER_IM_RESOURCE_EXHAUSTED && calls==before);
+    destroy(f);
+    CHECK(sizeof(Matter_Im_Snapshot_Value)<sizeof(Matter_Im_Value_T));
+    const Matter_Tlv_Type_T types[]={MATTER_TLV_UNSIGNED,MATTER_TLV_SIGNED,MATTER_TLV_BOOL,MATTER_TLV_NULL,
+        MATTER_TLV_UTF8,MATTER_TLV_BYTES,MATTER_TLV_STRUCTURE,MATTER_TLV_ARRAY};
+    for(size_t i=0;i<sizeof(types)/sizeof(*types);++i) {
+        Matter_Im_Value_T value={.type=types[i],.unsigned_value=UINT64_MAX,.signed_value=INT64_MIN,
+            .data_version=UINT32_MAX,.data=(const uint8_t*)types,.size=4096};
+        Matter_Im_Snapshot_Value stored=matter_im_snapshot_store(&value);
+        Matter_Im_Value_T restored; matter_im_snapshot_load(&restored,&stored);
+        CHECK(restored.type==value.type && restored.data_version==value.data_version);
+        if(matter_im_snapshot_complex(value.type)) CHECK(restored.data==value.data && restored.size==value.size);
+        else if(value.type==MATTER_TLV_SIGNED) CHECK(restored.signed_value==INT64_MIN);
+        else CHECK(restored.unsigned_value==UINT64_MAX);
+    }
+    puts("PASS consumed snapshot release: stable remaining references, cumulative limit and compact scalar/span round trips");
+}
+int main(void) { exact_and_boundaries(); errors_and_oom(); consumed_and_compact(); return 0; }

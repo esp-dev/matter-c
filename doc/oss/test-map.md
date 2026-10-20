@@ -1,8 +1,16 @@
 # Test inventory
 
-test-map.json enumerates 252 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 253 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory09 registers `test_secure_alloc` for checked plaintext/backend allocation,
+erasure, atomic replay admission and retry. `test_im_subscribe_alloc` instruments
+both Subscribe and Read; `--memory-only` holds fifteen 512-result/16-KiB reports
+and five nine-path large-list Reads, poisons provider scratch and checks both
+ACK/status orders. It also faults every initial-capture allocation and both
+continuation-RX allocations. `test_im_snapshots` checks compact scalar/span
+round trips and that releasing consumed values cannot replenish the report cap.
 
 Memory08 registers `test_pase_alloc`, retaining the full existing PASE/MRP/admin
 suite with matching core/crypto allocation instrumentation. Both PASE and CASE

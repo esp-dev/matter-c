@@ -505,6 +505,16 @@
     "replace": []
   },
   {
+    "name": "test_secure_alloc",
+    "source": "tools/matter/tests/test_secure.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": ["main/apps/matter/crypto/matter_crypto_mbedtls.c"],
+    "malloc": false
+  },
+  {
     "name": "test_server_time",
     "source": "tools/matter/tests/test_server_time.c",
     "mode": "normal",
@@ -763,7 +773,8 @@
     "privileged": false,
     "variant": "alloc",
     "replace": [
-      "main/apps/matter/model/matter_im_subscribe.c"
+      "main/apps/matter/model/matter_im_subscribe.c",
+      "main/apps/matter/model/matter_im_read.c"
     ],
     "malloc": false
   },

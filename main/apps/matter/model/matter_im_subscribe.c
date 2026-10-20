@@ -40,8 +40,9 @@ struct Matter_Im_Subscribe {
     Matter_Im_Subscribe_State_T state;
     uint64_t now, expires, last_report,last_activity;
     bool more,report_started;
-    size_t count,cursor,list_offset;
-    struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } *items;
+    size_t count,cursor,list_offset,released;
+    struct { Matter_Im_Path_T path; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } *items;
+    Matter_Im_Snapshot_Value* values; /* Only the current captured report, not idle subscription state. */
     size_t item_capacity;
     Matter_Im_Selector_T* requests;
     size_t request_count,request_cursor,filter_count,collected,valid;
@@ -296,7 +297,7 @@ static bool status(Matter_Im_Subscribe_T s,uint8_t code) {
     return begin(s) && put(s,MATTER_TLV_UNSIGNED,0,code) && finish(s);
 }
 static bool complex_value(Matter_Tlv_Type_T type) {
-    return type==MATTER_TLV_STRUCTURE || type==MATTER_TLV_ARRAY || type==MATTER_TLV_UTF8 || type==MATTER_TLV_BYTES;
+    return matter_im_snapshot_complex(type);
 }
 static uint8_t copy_value(Matter_Im_Subscribe_T s) {
     size_t size=s->value.size;
@@ -408,7 +409,17 @@ static uint8_t expand(Matter_Im_Subscribe_T s) {
 static void clear_snapshots(Matter_Im_Subscribe_T s) {
     matter_im_snapshots_clear(&s->snapshots);
     s->value.data=NULL; s->value.size=0;
-    for(size_t i=0;i<s->count;++i) { s->items[i].value.data=NULL; s->items[i].value.size=0; }
+    free(s->values); s->values=NULL; s->released=0;
+}
+static void release_consumed(Matter_Im_Subscribe_T s) {
+    /* cursor advances past whole attributes only; a partial ARRAY stays live. */
+    while(s->released<s->cursor) {
+        size_t i=s->released++;
+        if(s->values) {
+            matter_im_snapshot_release_value(&s->snapshots,&s->values[i]);
+        }
+    }
+    s->value.data=NULL; s->value.size=0;
 }
 static void capture_begin(Matter_Im_Subscribe_T s,bool data) {
     clear_snapshots(s);
@@ -419,6 +430,10 @@ static void capture_begin(Matter_Im_Subscribe_T s,bool data) {
 }
 static uint8_t capture(Matter_Im_Subscribe_T s) {
     bool prime=s->phase==PRIME;
+    if(s->capture_data && s->count && !s->values) {
+        s->values=calloc(s->count,sizeof(*s->values));
+        if(!s->values) return MATTER_IM_RESOURCE_EXHAUSTED;
+    }
     unsigned budget=s->expanding?MATTER_IM_READ_WORK_BATCH:MATTER_IM_READ_MAX_PATHS;
     while(budget-- && s->collected<s->count) {
         size_t i=s->collected++; bool omit=false;
@@ -430,7 +445,7 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
         if(prime && s->items[i].wildcard && path_error(code)) omit=true;
         if(!prime && !code && s->capture_data && s->value.report_on_version_change &&
             s->items[i].reported && s->items[i].reported_version==s->value.data_version) omit=true;
-        s->items[i].status=code; s->items[i].value=s->value;
+        s->items[i].status=code; if(s->values) s->values[i]=matter_im_snapshot_store(&s->value);
         if(prime) s->items[i].active=code==0;
         else if(code) s->terminal_report=true;
         if(!code) ++s->valid;
@@ -493,7 +508,9 @@ static bool report_attributes(Matter_Im_Subscribe_T s,size_t stop,bool more) {
     if(!begin(s) || !put(s,MATTER_TLV_UNSIGNED,0,s->id) || !put(s,MATTER_TLV_ARRAY,1,0)) return false;
     for(size_t part=0;part<stop;++part) {
         size_t i=s->work->plan[part].item;
-        s->path=s->items[i].path; s->value=s->items[i].value; uint8_t code=s->items[i].status;
+        s->path=s->items[i].path;
+        if(s->values) matter_im_snapshot_load(&s->value,&s->values[i]); else memset(&s->value,0,sizeof(s->value));
+        uint8_t code=s->items[i].status;
         if(!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_STRUCTURE,code ? 0 : 1,0) ||
             (!code && !put(s,MATTER_TLV_UNSIGNED,0,s->value.data_version)) || !put(s,MATTER_TLV_LIST,code ? 0 : 1,0) ||
             !put(s,MATTER_TLV_UNSIGNED,2,s->path.endpoint) || !put(s,MATTER_TLV_UNSIGNED,3,s->path.cluster) ||
@@ -557,8 +574,8 @@ static bool report_event(Matter_Im_Subscribe_T s) {
 /* Walk validated direct ARRAY children, as in Read. Never split an element or
  * invoke a provider while trying candidate encodings. */
 static size_t list_next(Matter_Im_Subscribe_T s,size_t item,size_t offset) {
-    const Matter_Im_Value_T* v=&s->items[item].value;
-    if(matter_tlv_init(&s->work->value_reader,v->data,v->size,4)!=MATTER_TLV_OK ||
+    const Matter_Im_Snapshot_Value* v=&s->values[item];
+    if(matter_tlv_init(&s->work->value_reader,v->as.span.data,v->as.span.size,4)!=MATTER_TLV_OK ||
         matter_tlv_next(&s->work->value_reader,&s->work->element)!=MATTER_TLV_OK) return 0;
     while(matter_tlv_next(&s->work->value_reader,&s->work->element)==MATTER_TLV_OK && s->work->element.type!=MATTER_TLV_END) {
         size_t current=s->work->element.offset;
@@ -595,18 +612,18 @@ static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
         size_t stop=offset?list_next(s,item,offset):0;
         if(offset && !stop) return false;
         s->work->plan[n].end=stop;
-        bool last=!offset || stop==s->items[item].value.size-1;
+        bool last=!offset || stop==s->values[item].as.span.size-1;
         size_t next_item=item+1;
         while(next_item<s->count && !s->items[next_item].included) ++next_item;
         if(report_attributes(s,n+1,!last || next_item<s->count || events)) {
             ++n; offset=last?0:stop; if(last) item=next_item; continue;
         }
         if(n) break; /* First try the whole attribute on an empty report. */
-        if(offset || s->items[item].status || s->items[item].value.type!=MATTER_TLV_ARRAY) return false;
+        if(offset || s->items[item].status || !s->values || s->values[item].type!=MATTER_TLV_ARRAY) return false;
         s->work->plan[n].prefix=true; s->work->plan[n].start=1; s->work->plan[n].end=1;
         if(!report_attributes(s,1,true)) return false;
         stop=1;
-        while(stop<s->items[item].value.size-1) {
+        while(stop<s->values[item].as.span.size-1) {
             size_t candidate=list_next(s,item,stop);
             if(!candidate) return false;
             s->work->plan[n].end=candidate;
@@ -658,6 +675,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
     }
     if(s->state==MATTER_IM_SUB_WAIT_STATUS && s->status_ok) {
         s->status_ok=false;
+        release_consumed(s);
         if(s->terminal_report && !s->more) { r=fail(s); s->busy=false; goto finished; }
         if(s->more) {
             encoded=chunk(s,true); if(!encoded) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);
@@ -780,5 +798,5 @@ Matter_Im_Subscribe_State_T matter_im_subscribe_state(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_delete(Matter_Im_Subscribe_T s) {
     if(!s) return MATTER_OK;
     Matter_Result_T r=check(s); if(r) return r;
-    s->busy=true; release(s); free(s->items); free(s->input); free(s->output); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+    s->busy=true; release(s); free(s->items); free(s->values); free(s->input); free(s->output); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }

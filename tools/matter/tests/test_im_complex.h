@@ -22,7 +22,7 @@ static void test_im_complex(void) {
     max_request=0; values_start(small); CHECK(max_request<MATTER_IM_READ_SNAPSHOT_BYTES);
     size_t held=live,bytes=live_bytes;
     CHECK(matter_im_read_sent(small->active)==MATTER_OK && matter_im_read_confirm(small->active,1)==MATTER_OK);
-    CHECK(matter_im_read_state(small->active)==MATTER_IM_READ_COMPLETE && live==held && live_bytes==bytes);
+    CHECK(matter_im_read_state(small->active)==MATTER_IM_READ_COMPLETE && live==held-1 && bytes-live_bytes==sizeof(void*)+3);
     values_delete(small); CHECK(!live && !live_bytes);
 #endif
     const Matter_Tlv_Type_T types[]={MATTER_TLV_UTF8,MATTER_TLV_BYTES,MATTER_TLV_STRUCTURE,MATTER_TLV_ARRAY};

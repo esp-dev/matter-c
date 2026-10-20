@@ -49,6 +49,7 @@ PROBES = {
         "subscribe_parser": "sizeof(Matter_Im_Subscribe_Work)",
         "subscribe_events": "sizeof(SubEvents)",
         "subscribe_item": "sizeof(*((struct Matter_Im_Subscribe*)0)->items)",
+        "subscribe_value": "sizeof(Matter_Im_Snapshot_Value)",
         "subscribe_event_records": "sizeof(((SubEvents*)0)->records)",
     },
     "runtime/matter_store_host": {

@@ -142,11 +142,17 @@ and the separate result ceiling remain unchanged. Node metadata/allocator
 overhead are additional to that payload budget. Scalars and filtered values
 allocate no snapshot bytes; empty strings still need their two encoded bytes.
 
-Read retains its value copies until deletion, including cancellation and timeout.
-Subscribe retains them through all chunks, their IM Success and MRP confirmation,
-then frees them before the response/idle phase. Skipped updates without TX also
-release copies. Failed/cancelled subscriptions retain value storage until owner
-transport drain and deletion. Collection and output planning never realloc/move
+Read/Subscribe store private compact scalar-or-span results without changing the
+public provider DTO. Subscribe keeps paths/versions while idle and allocates its
+compact value table only for a captured data report; heartbeat-only work needs no
+value table. A complete attribute's copy releases after its chunk's IM Success
+AND MRP confirmation. A partially transmitted list retains its complete immutable
+copy until its last item drains. The original encoded-byte budget stays cumulative
+until the whole report ends, even when earlier copies have been freed. Final
+Read confirmation frees remaining value copies; Subscribe frees its value table
+before response/idle. Skipped updates without TX also release copies. Failed or
+cancelled interactions retain remaining value storage until owner transport
+drain and deletion. Collection and output planning never realloc/move
 snapshot bytes; per-instance stores are independent, with no global pool or new
 scheduler. OOM/validation failure preserves earlier copies and byte accounting
 and follows the existing Read path-status / Subscribe error-response policy.
@@ -280,6 +286,13 @@ Failure/cancel/delete erase and release temporary storage. Key-transfer, fabric
 revision/resumption checks and PASE ACK versus CASE sent completion gates remain
 unchanged. [Memory08](oss/memory08-validation.md) distinguishes owner savings,
 active peaks, full-buffer ceilings and whole-host profiling from ESP32 budgets.
+
+Secure sessions allocate exact plaintext scratch only during synchronous receive
+and erase/free it after admission, including crypto/parser/admission errors and
+duplicates. No plaintext scratch remains on an idle session. Allocation failure
+returns LIMIT_REACHED before crypto, replay commit or receive timestamp changes;
+the same packet may be retried. The admitted RX queue and immutable MRP TX still
+own independent copies through their existing reference and ACK/drain gates.
 
 Read/Subscribe expanded attribute results now grow on the heap per interaction,
 starting at nine entries and doubling up to the 512-entry application ceiling.

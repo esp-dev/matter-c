@@ -79,12 +79,23 @@ static void case_tests(void) {
 #include "test_subscribe_complex.h"
 #include "test_subscribe_lists.h"
 #include "test_subscribe_selectors.h"
+#include "test_subscribe_memory.h"
 #define TEST_MULTI_SUB
 #include "test_im_multi_events.h"
 #include "test_im_event_wildcards.h"
 #define TEST_PATH_SUB
 #include "test_im_path_grammar.h"
-int main(void) {
+int main(int argc,char** argv) {
+    if(argc==2 && (!strcmp(argv[1],"--memory-only") || !strcmp(argv[1],"--memory-profile"))) {
+        subscription_memory_profile();
+#ifdef MATTER_TEST_ALLOC
+        if(!strcmp(argv[1],"--memory-only")) subscription_memory_oom();
+#endif
+        return 0;
+    }
+#ifdef MATTER_TEST_ALLOC
+    subscription_memory_oom();
+#endif
     path_grammar_tests();
     /* MP04 countdown quality: unrelated dirty notifications and heartbeat must
      * not report a new IdentifyTime until an explicitly reportable version. */

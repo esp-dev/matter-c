@@ -1,0 +1,301 @@
+{
+  "baseline": "e09beb4",
+  "date": "2026-10-20",
+  "scope": "Component allocation payloads, compile-only ESP32 layouts/frames, separate full Linux host scenarios and sampled x86_64 Massif. Not an ESP32 memory or full normative/conformance guarantee.",
+  "source_sha256": {
+    "cmake/test-cases.json": "72c82bdfca87bbfad1ac8fa4afbe5172cc2a27498984a6973364fad5a00de243",
+    "doc/oss/test-map.json": "0671cb62b99b970d720d34f9c1f479e6a88c0dd9c19b75b77f2268546044c845",
+    "main/apps/matter/model/matter_im_read.c": "a46a612c3e88af73eff4397a968e6c3b383ac8e56b3abb51a09681d5a7b045fa",
+    "main/apps/matter/model/matter_im_read.h": "012d353cf93ba3cbe55642c5044f5b37c36b893b8d229d561aa8135c9c8f945f",
+    "main/apps/matter/model/matter_im_snapshot_internal.h": "601f95f4d9a205561296a1a9c24099df56745b241fa95944c79be5c4911925b6",
+    "main/apps/matter/model/matter_im_subscribe.c": "c6cf399a1752437161756135298a361f6899fa847c8c406f1e24f033d6dff5cb",
+    "main/apps/matter/model/matter_im_subscribe.h": "bab8eb6e9747149318b4ff2357ec91085d2c07ce7abe9121b2de59f14cac2177",
+    "main/apps/matter/session/matter_secure.c": "3ddba4a8de2302bb0d37cb181a7c61acb87e8b527cd9df347e011902e1c055f4",
+    "main/apps/matter/session/matter_secure.h": "b1b3042c981cdb50482684e11df1a98da3c774680f0c3906246acff9fb9913bb",
+    "tools/matter/memory_audit.py": "44efd904288034807e64581991caa1b7ec71ab2962eb8a16752515ea23855018",
+    "tools/matter/tests/test_im_complex.h": "1ede16b743d3310b9661accc1c1d1f4f3fa383c5ff2d25f0ddbaf0e9f663a0c4",
+    "tools/matter/tests/test_im_snapshots.c": "5500f2eff776b08e38070375e0ccd4722d1845fc89f3ed960c2b2d26fbd399ab",
+    "tools/matter/tests/test_im_subscribe.c": "11daa3282aee29ab004d4b9756dc2b0c32f71f5277a86875fffaf394bc26efa0",
+    "tools/matter/tests/test_secure.c": "a5b58e38912f0e8dd66e73f0e80824a8904d93a057f9b2f5921cb6a62ee44e8f",
+    "tools/matter/tests/test_subscribe_complex.h": "55d75105e64acb1f3190746b41973853e1149ec170a067f0f0c7a8209dfbf3e5",
+    "tools/matter/tests/test_subscribe_memory.h": "4e6694c570f18784b18fd7560758a46cf211e9336852280e701c89b11970f478"
+  },
+  "verified_export_source_files": 227,
+  "export_source_manifest_sha256": "68579cbd0ce0d09127e74c19a007bf0382fac199803bfb434c2144c0b19d912f",
+  "verified_baseline_core_files": 156,
+  "baseline_manifest_sha256": "fc4528ad881acd8732d162b3dc657dff9ef68e9a0a7bfc359416b5dee3c2eecb",
+  "esp32": {
+    "compiler": "xtensa-esp-elf-gcc.exe (crosstool-NG esp-13.2.0_20230928) 13.2.0",
+    "layouts": {
+      "read": 288,
+      "read_item": 48,
+      "subscribe": 336,
+      "subscribe_item": 24,
+      "subscribe_value": 16,
+      "secure": 320
+    },
+    "frames": {
+      "report_data": 48,
+      "matter_im_read_process": 160,
+      "report_attributes": 48,
+      "matter_im_subscribe_process": 208,
+      "matter_secure_receive": 128
+    },
+    "diagnostics": {},
+    "probe_count": 27,
+    "saturated_attribute_subtotal_before": 55624,
+    "saturated_attribute_subtotal_after": 39248,
+    "fifteen_attribute_subtotals_before": 834360,
+    "fifteen_attribute_subtotals_after": 588720,
+    "largest_secure_plaintext_request": 1208
+  },
+  "component_payloads": {
+    "before": {
+      "captured": 1008840,
+      "with_reads": 1125225,
+      "half": 1124955,
+      "idle": 701370,
+      "peak": 1127553,
+      "largest_request": 45056,
+      "rounds": 57
+    },
+    "after": {
+      "captured": 701880,
+      "with_reads": 816865,
+      "half": 659995,
+      "idle": 210090,
+      "peak": 819193,
+      "largest_request": 12288,
+      "rounds": 57
+    },
+    "initial_capture_oom_positions": 14,
+    "continuation_rx_oom_positions": 4,
+    "subscriptions": 15,
+    "fabrics_as_engine_identities": 5,
+    "results_per_subscription": 512,
+    "encoded_bytes_per_subscription": 16384,
+    "concurrent_read_engines": 5,
+    "paths_per_read": 9,
+    "encoded_bytes_per_read": 15858,
+    "verified_read_list_entries": 2475,
+    "exclusions": [
+      "fixture and tracker allocations",
+      "allocator metadata",
+      "dispatcher, networking and MRP TX",
+      "crypto/backend",
+      "other application/platform resources"
+    ]
+  },
+  "validation": {
+    "windows_full": {
+      "passed": 92,
+      "total": 95,
+      "socket_failures_in_sandbox": 3
+    },
+    "windows_socket_retry": {
+      "passed": 3,
+      "total": 3
+    },
+    "windows_final_focused": {
+      "passed": 9,
+      "total": 9
+    },
+    "linux_ctest_per_variant": {
+      "passed": 92,
+      "total": 92
+    },
+    "linux_two_instance_checks_per_variant": 6,
+    "saturated_profile_also_passed_separate_sanitizers": true,
+    "variants": [
+      "Memcheck",
+      "separate ASan/UBSan/LSan"
+    ],
+    "inventory": {
+      "test_files": 253,
+      "native_definitions": 94,
+      "core_sources": 59,
+      "public_headers": 75
+    },
+    "compiler_diagnostics": []
+  },
+  "memcheck": {
+    "two_instances": {
+      "allocations": 50601,
+      "frees": 50601,
+      "cumulative_bytes": 5307946,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "saturated_reports": {
+      "allocations": 24952,
+      "frees": 24952,
+      "cumulative_bytes": 9391041,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "read_suite": {
+      "allocations": 10150,
+      "frees": 10150,
+      "cumulative_bytes": 7108447,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "secure_suite": {
+      "allocations": 195,
+      "frees": 195,
+      "cumulative_bytes": 44622,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    }
+  },
+  "capacity_workloads": {
+    "capacity-normal": {
+      "checks": 50,
+      "controller_exits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "maximum_interval_seconds": 3
+    },
+    "capacity": {
+      "checks": 50,
+      "controller_exits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "maximum_interval_seconds": 30
+    }
+  },
+  "massif_observed_maxima": {
+    "heap": {
+      "snapshot": 492,
+      "time_ms": 198923,
+      "heap": 388317,
+      "allocator_extra": 5387,
+      "stack": 5472,
+      "kind": "peak",
+      "combined": 399176
+    },
+    "stack": {
+      "snapshot": 4,
+      "time_ms": 1939,
+      "heap": 31327,
+      "allocator_extra": 641,
+      "stack": 6752,
+      "kind": "detailed",
+      "combined": 38720
+    },
+    "combined": {
+      "snapshot": 492,
+      "time_ms": 198923,
+      "heap": 388317,
+      "allocator_extra": 5387,
+      "stack": 5472,
+      "kind": "peak",
+      "combined": 399176
+    }
+  },
+  "massif_samples": 524,
+  "duplicates": {
+    "before": {
+      "lines": 16034,
+      "tokens": 310273,
+      "sources": 66,
+      "clones": 7,
+      "duplicatedLines": 69,
+      "duplicatedTokens": 1301,
+      "percentage": 0.43,
+      "percentageTokens": 0.42,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    },
+    "after": {
+      "lines": 16067,
+      "tokens": 314872,
+      "sources": 66,
+      "clones": 7,
+      "duplicatedLines": 69,
+      "duplicatedTokens": 1358,
+      "percentage": 0.43,
+      "percentageTokens": 0.43,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "evidence_sha256": {
+    "current-profile.log": "59cdf48803c8c1b49ba127cf022d6fd999e172e772cb4a6b6dcccf28e22ceb97",
+    "baseline-profile.log": "b7ff4799d91b7e05da61f448a9cf35b797953f1a40b5daaf2da1d35eba2bdcc6",
+    "windows-ctest.log": "5e40eb12bae6f2ef0d3b9c4ecc6a38d26967f593ffa816a3ba370f618a6a760b",
+    "windows-focused.log": "e1d4b74e26bd5b0c4a279f190b5f9bc1c482ee4b1d9700f2bc33bce465b8219f",
+    "windows-udp-ctest.log": "d7f51f2a8d40af40d955f0544f6f57212975f3fe1041898da2c75cca28e5198b",
+    "esp32/layouts.json": "ca5d5851895eb6bfaa5f29c70f987d9e0a4be6faf8561cf2b445afe50fb3711a",
+    "linux-evidence/baseline-build.log": "6fa5ff9ee5b5d8f39f3188dbda49d710ca99a20e6f06688afb94e26fa48526aa",
+    "linux-evidence/baseline-configure.log": "f1b5671d1256645a0b0f28448db85f2bf41300c133f98be2406035fd3960e1ce",
+    "linux-evidence/baseline-profile.log": "4d9bce8c5dcdec5df8002e2564a1bdab3e34d13756748ebeb8fc4d8db8a956fd",
+    "linux-evidence/capacity-normal.log": "7be63e86dda64fa7eae823f3ccbdad823e7740fa639b13e568b3323bca55f7dd",
+    "linux-evidence/capacity-verified.log": "7be63e86dda64fa7eae823f3ccbdad823e7740fa639b13e568b3323bca55f7dd",
+    "linux-evidence/final-inventory.log": "1716feff542f04090ae3e72c8f0afb2c429176c804a63e76342573b45053e678",
+    "linux-evidence/normal-build.log": "030016cecff91c37292eee653458131db082a87b8a1cc38907f487ee34a77c67",
+    "linux-evidence/normal-configure.log": "67e303952927416e1e1c3f822e584a0fdddcfeca68060d93cae8ab9c1990778d",
+    "linux-evidence/normal-ctest.log": "ace5ece5cf76bd7696f7dc67d6bfd3a5cce35dc2a15e4818bfc59e6808e30a8f",
+    "linux-evidence/normal-pair.log": "a055b0375a75118660e1f32c2aa0c8720de2005d846f6d4e17e5543e85f1f178",
+    "linux-evidence/sanitize-build.log": "a72aab39188cd3cea400f34ed1b14cd66086638c5de2b0fe090ab12c632fbbea",
+    "linux-evidence/sanitize-configure.log": "5baa0d1edb6810bdae168f40716fadb65128302fdd371e576abbcb764bf2c24c",
+    "linux-evidence/sanitize-ctest.log": "26a6df60a07e2a4832b4aab368d9b822601b6df7d3905eaba4c61c366bb9918e",
+    "linux-evidence/sanitize-pair.log": "a055b0375a75118660e1f32c2aa0c8720de2005d846f6d4e17e5543e85f1f178",
+    "linux-evidence/saturated-sanitize.log": "d53c36d714200d975e81cce07c347ce21cf88717934be294a9a21f4b146b1c18",
+    "linux-evidence/test_im_read_alloc-memcheck.log": "8c9be9d02b54bdab2245747f8620509affc84b3e813775126d98ffad910eff44",
+    "linux-evidence/test_im_subscribe_alloc-memcheck.log": "cfffb42f3e85489ad634d9f84e421716c8a71140dcd6b3e594852d9fd97dd898",
+    "linux-evidence/test_secure_alloc-memcheck.log": "19af62f92de0aac2051f20eefcfea7364f6586af4b7f7afc549ad0667cdc25ce",
+    "linux-evidence/worker.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "linux-evidence/normal/memcheck.log": "6050d0f29d3718af867e58f617313593135ff7f7121a8fc99e275d5b047fad8b",
+    "linux-evidence/normal/controller/pair-results.json": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+    "linux-evidence/sanitize/controller/pair-results.json": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+    "linux-evidence/capacity-normal/controller/result.json": "3fdeba002d868b38701443153653c0eaa1df30b9bbf9c63fc0d285856ae9de89",
+    "linux-evidence/capacity/controller/result.json": "17785c3d8c948771a7b667fc5017fce3c6a0eccdb295e9cdc88d97876468c980",
+    "linux-evidence/capacity/massif.out": "fe0400ceca2e0aa8a8d19a1629ced63908029e2140377c1f586c51547f8eba35"
+  },
+  "limitations": [
+    "No linked or physical ESP32 test or RTOS high-water",
+    "No allocator fragmentation/endurance/latency guarantee",
+    "No exhaustive event/TX/closing-handler saturation",
+    "Sampled whole-host maxima do not bound every accepted request or normative profile",
+    "No official CSA rerun"
+  ]
+}

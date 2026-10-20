@@ -15,12 +15,59 @@ typedef struct {
     size_t size; /* Encoded payload only, with the original per-report ceiling. */
 } Matter_Im_Snapshots;
 
+/* A captured value is either a scalar OR an encoded span. The public provider
+ * DTO keeps independent fields; report storage need not retain all of them or
+ * the provider's update-policy flag after capture. No public layout changes. */
+typedef struct {
+    Matter_Tlv_Type_T type;
+    uint32_t data_version;
+    union {
+        uint64_t unsigned_value;
+        int64_t signed_value;
+        struct { const uint8_t* data; size_t size; } span;
+    } as;
+} Matter_Im_Snapshot_Value;
+static inline bool matter_im_snapshot_complex(Matter_Tlv_Type_T type) {
+    return type==MATTER_TLV_STRUCTURE || type==MATTER_TLV_ARRAY || type==MATTER_TLV_UTF8 || type==MATTER_TLV_BYTES;
+}
+static inline Matter_Im_Snapshot_Value matter_im_snapshot_store(const Matter_Im_Value_T* value) {
+    Matter_Im_Snapshot_Value stored={.type=value->type,.data_version=value->data_version};
+    if(matter_im_snapshot_complex(value->type)) { stored.as.span.data=value->data; stored.as.span.size=value->size; }
+    else if(value->type==MATTER_TLV_SIGNED) stored.as.signed_value=value->signed_value;
+    else stored.as.unsigned_value=value->unsigned_value;
+    return stored;
+}
+static inline void matter_im_snapshot_load(Matter_Im_Value_T* value,const Matter_Im_Snapshot_Value* stored) {
+    memset(value,0,sizeof(*value)); value->type=stored->type; value->data_version=stored->data_version;
+    if(matter_im_snapshot_complex(stored->type)) { value->data=stored->as.span.data; value->size=stored->as.span.size; }
+    else if(stored->type==MATTER_TLV_SIGNED) value->signed_value=stored->as.signed_value;
+    else value->unsigned_value=stored->as.unsigned_value;
+}
+
 static inline void matter_im_snapshots_clear(Matter_Im_Snapshots* snapshots) {
     while(snapshots->head) {
         Matter_Im_Snapshot_Node* next=snapshots->head->next;
         free(snapshots->head); snapshots->head=next;
     }
     snapshots->size=0;
+}
+/* A consumed attribute can be released once BOTH its transport and IM users
+ * drain. Keep size cumulative until clear: reclaiming storage must not let a
+ * report exceed its original total encoded snapshot budget. */
+static inline void matter_im_snapshot_release(Matter_Im_Snapshots* snapshots,const uint8_t* data) {
+    if(!data) return;
+    Matter_Im_Snapshot_Node** link=&snapshots->head;
+    while(*link) {
+        Matter_Im_Snapshot_Node* node=*link;
+        if(node->data==data) { *link=node->next; free(node); return; }
+        link=&node->next;
+    }
+}
+static inline void matter_im_snapshot_release_value(Matter_Im_Snapshots* snapshots,Matter_Im_Snapshot_Value* value) {
+    if(matter_im_snapshot_complex(value->type)) {
+        matter_im_snapshot_release(snapshots,value->as.span.data);
+        value->as.span.data=NULL; value->as.span.size=0;
+    }
 }
 /* Private immutable values, never realloc/move earlier copies. Caller performs
  * its existing type/pointer preflight and owns all scratch on its heap context.
