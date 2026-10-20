@@ -294,6 +294,25 @@ and prior evidence before any rerun. Separate production identity/trust prerequi
 from a native verification defect. Known OTA tester defects do not need another
 multi-minute run while their prerequisites remain unchanged.
 
+## CSA69: separate development VID from certification-time CD policy
+
+[Receipt](csa69-results.json) and [analysis](csa69-validation.md) preserve
+original FAIL171 at step6.2. Installed source matches CSA01; current public CD
+still uses0xFFF1/0x8001/type0. No new full run or native change. Test CD type0
+is allowed at certification testing with signer/signature validation; the
+manufacturer VID assertion independently rejects the simulation identity.
+Do not repeat unchanged inputs or mark downstream signature checks as passed.
+
+Re-run only with authorized consistent identity/trust inputs and an isolated
+fixture supporting them, or accepted guidance for a development profile. No
+borrowed VID, SDK-CI flag, weakened signature or synthetic PASS. This is an
+identified provisioning prerequisite, not a demonstrated test or native defect.
+
+Next: **CSA70**, review TC_DA_1_7 original evidence and distinct-device credential
+requirements. Determine whether two isolated instances with separate attestation
+keys can satisfy the unchanged procedure; never infer uniqueness from shared DAC
+or a single simulated node.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

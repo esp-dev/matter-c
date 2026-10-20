@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa68-results.json",
+  "previous_sha256": "363974dafa2e590ce763312213c0c85008fa9b6139109612d819be482379b269",
+  "source_base_commit": "a25b9fa50c392bfe67db87cf437e0760dab32570",
+  "scope": "TC_DA_1_2 attestation/provisioning review using exact CSA01 evidence, current original test and public laboratory credential metadata. Analysis only.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [],
+  "original_runs": [],
+  "identity": {
+    "case": "TC_DA_1_2",
+    "endpoint": 0,
+    "collection": "SDK Python Tests"
+  },
+  "conclusion": {
+    "result": "DEVELOPMENT_TEST_VID_REJECTED_BY_CERTIFICATION_IDENTITY_CHECK",
+    "official_result": "FAIL",
+    "run_id": 171,
+    "step": "6.2",
+    "test_line": 369,
+    "assertion": "asserts.assert_in(vendor_id, range(1, 0xfff0), \"Vendor ID is out of range\")",
+    "actual_vendor_id": 65521,
+    "accepted_range_in_test": "0x0001..0xFFEF",
+    "native_signature_defect_demonstrated": false,
+    "test_defect_claimed": false,
+    "test_CD_type_zero_allowed_for_certification_testing": true,
+    "current_production_identity_readiness": "NOT_ESTABLISHED"
+  },
+  "prior_evidence_reviewed": [
+    "csa01-validation.md",
+    "csa01-matrix.json",
+    "provenance.md",
+    "Source/fixture provenance and current attestation implementation"
+  ],
+  "historical": {
+    "run_id": 171,
+    "state": "TestStateEnum.failed",
+    "record_sha256": "be43a852ff8d48290d065c456fff33cdf261f0562e6ae77ba6dfc390f8a7fbc1",
+    "log_sha256": "ae2fcabbef95f8283003877667a79e3fd1b94507d84ce776e828f853fdac9565",
+    "source_sha256": "e40e0eee6bb7d54ac1fb9e31c71211739f5cc4027c83dc7843aa45c271a0d442",
+    "execution_PICS_sha256": "a77f7c927171a2401daceb4a6af963c91120dab0c1fc91d6eeb575373a737530",
+    "step_states": {
+      "passed": 13,
+      "failed": 1,
+      "pending": 18
+    },
+    "failed_step_indices": [
+      12
+    ],
+    "failure_detail": "65521 not found in range(1, 65520) Vendor ID is out of range",
+    "later_assertions_not_executed": [
+      "CD PID/device-type/remaining field checks after6.2",
+      "CD versus DAC/PAI identity/origin checks",
+      "CD signer/signature at step9",
+      "Attestation nonce/signature checks and later request-negative controls"
+    ]
+  },
+  "fresh_review": {
+    "source_unchanged": true,
+    "test_sha256": "e40e0eee6bb7d54ac1fb9e31c71211739f5cc4027c83dc7843aa45c271a0d442",
+    "historical_run_id": 171,
+    "historical_record_sha256": "be43a852ff8d48290d065c456fff33cdf261f0562e6ae77ba6dfc390f8a7fbc1",
+    "historical_log_sha256": "ae2fcabbef95f8283003877667a79e3fd1b94507d84ce776e828f853fdac9565",
+    "current_public_CD": {
+      "sha256": "0c25d394f40cdbfa51653fe32d8d18a09bc032c2a5d477470893e30f699da951",
+      "format_version": 1,
+      "vendor_id": 65521,
+      "product_ids": [
+        32769
+      ],
+      "certification_type": 0,
+      "signature_verified_in_this_review": false
+    },
+    "public_certificate_hashes": {
+      "dac.der": "bd942ef4afa25b180ae5391e447b164a48040afd5babc89b5a5cbb70f4f39fe2",
+      "pai.der": "1b1e61aa688b55a7b9e14105b09e1f4a8a2037605284be2ba05291681256235b",
+      "paa.der": "178632f8f235c0fa6a820de1d4c9b69568e2d16b7c2912b22f056136df75babc",
+      "cd.der": "0c25d394f40cdbfa51653fe32d8d18a09bc032c2a5d477470893e30f699da951"
+    },
+    "private_key_read": false,
+    "full_test_rerun": false
+  },
+  "normative_review": {
+    "document": "Supplied Matter Core R1.6.1, Document23-27349, September16 2026",
+    "references": [
+      "2.5.2: 0xFFF1..0xFFF4 reserved for test/development; not assigned manufacturer identity.",
+      "6.3.1: certification_type0 is development/test; CD signed by a test certificate MAY be used for certification testing; production CDs require valid CSA signing certificate."
+    ],
+    "installed_test_policy": [
+      "Outside SDK CI, step6.2 excludes test VID range.",
+      "With post_cert_test false, step6.9 accepts kTest/kProvisional/kOfficial.",
+      "Step9 permits configured development/test CD signers for kTest and still verifies ECDSA signature.",
+      "Post-certification mode requires provisional/official CD; not selected or changed in this review."
+    ],
+    "distinction": "Test CD policy and test VID policy are separate. Do not claim that an official production CD is required merely to reach certification-time test execution."
+  },
+  "implementation_trace": [
+    {
+      "file": "tools/matter/host/matter_node.c",
+      "finding": "Simulation model sets VID0xFFF1/PID0x8001; text branding macros do not provide production identity."
+    },
+    {
+      "file": "tools/matter/host/matter_server.c",
+      "finding": "Loads caller-directory dac.der/pai.der/paa.der/cd.der plus DAC private key; this review read only public files, never that key."
+    },
+    {
+      "file": "main/apps/matter/runtime/matter_runtime.c",
+      "finding": "Root identity VID/PID passed to attestation configuration."
+    },
+    {
+      "file": "main/apps/matter/runtime/matter_opcreds_host.c",
+      "finding": "Constructor verifies DAC/PAI/PAA profile/chain and DAC private/public-key match via ports."
+    },
+    {
+      "file": "main/apps/matter/crypto/matter_attestation_cert.c",
+      "finding": "Checks DAC VID/PID against configured identity and delegates chain verification."
+    },
+    {
+      "file": "main/apps/matter/clusters/matter_opcreds.c",
+      "finding": "Transmits supplied CD inside attestation elements and signs elements plus challenge. It does not issue or mint a CD."
+    }
+  ],
+  "rerun_prerequisites": [
+    "An authorized assigned manufacturer VID and selected PID, or explicit accepted guidance for an alternative development test profile; no arbitrary borrowed VID.",
+    "Consistent Basic Information, onboarding/discovery identity and supplied CD; DAC/PAI relationship including permitted CD origin fields must satisfy original assertions.",
+    "For certification-time kTest CD: correct content and genuine signature with tester-configured trusted CD signer; no signature or range assertion disabled.",
+    "Correct attestation chain and PAA trust input; CD signing trust and PAA trust are separate.",
+    "Isolated host fixture must support that actual identity; current matter-node numeric IDs are fixed. Any future adapter change requires its own build/memory/end-to-end acceptance.",
+    "Then rerun unchanged TC_DA_1_2 and observe all later assertions, rather than infer their result from passing step6.2."
+  ],
+  "verification": {
+    "new_full_TH_run": false,
+    "private_keys_read": false,
+    "CD_signature_reverified": false,
+    "DAC_chain_reverified": false,
+    "CD_issuer_trust_established": false,
+    "native_code_changed": false,
+    "test_or_PICS_changed": false,
+    "paired_nodes_changed": false,
+    "new_native_build_or_memory_run": false,
+    "CSA_message_sent": false
+  },
+  "not_verified": [
+    "Downstream original test assertions after step6.2",
+    "Actual assigned VID, production credentials, CD signer authorization or manufacturing uniqueness",
+    "Fresh native compilation, Memcheck/sanitizers, physical firmware or certification"
+  ],
+  "next": "CSA70: review TC_DA_1_7 using its original failure and current source before rerun; determine whether two isolated instances with distinct attestation credentials satisfy the unchanged test prerequisites. Do not reuse shared DAC identity, enable SDK-only bypasses or claim manufacturing uniqueness from a single simulation.",
+  "profile_limits": [
+    "Current constructor enforces DAC VID/PID equal to configured identity. A differing CD dac_origin_* profile needs separate support/review; original run171 never reached that optional branch."
+  ]
+}

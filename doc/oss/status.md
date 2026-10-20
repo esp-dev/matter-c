@@ -7,6 +7,15 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA69: TC_DA_1_2 is blocked by the development VID, not a demonstrated signature defect.**
+Historical FAIL171 stops at step6.2 on0xFFF1; installed source is unchanged.
+Current public CD still has VID0xFFF1/PID0x8001/type0. Type0 test CD is permitted
+for certification testing; that does not bypass the separate VID requirement.
+[Analysis and rerun prerequisites](csa69-validation.md). No full rerun, native
+change or trust/signature bypass; later test assertions remain unverified.
+Counts stay122 PASS/28 FAIL/5 prerequisites; FAIL is retained, not reclassified.
+Next:CSA70, TC_DA_1_7 and distinct-device attestation prerequisites.
+
 **CSA68: existing automatic TC_SU_2_5 test behavior reconfirmed.**
 Installed test/helper hashes still match CSA24a/24b; archived FAIL450 and local
 corrected PASS451 retain their exact logs/results. Existing offline regression:
