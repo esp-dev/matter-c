@@ -1,8 +1,18 @@
 # Test inventory
 
-test-map.json enumerates 254 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 255 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory11 registers `test_im_blocks`: 512 aligned/zeroed stable entries across
+growth, forward/backward indexing, unchanged old capacity/links/cache/payload at
+each of64 staged allocation failures, overflow/limit rejection and allocation-
+free double cleanup. `test_im_node_memory` adds a separate pre-provider512-result
+Read growth peak, with the identical public-API harness compiled against baseline
+and final core. Existing Read/Subscribe tests retain result overflow, filtering,
+ordered chunks/lists, all14 initial-capture OOM positions, four continuation RX
+faults and ACK/drain. The Subscribe idle-filter allocation assertion now expects
+two stable blocks rather than one geometrically grown array.
 
 Memory10 registers `test_im_node_memory`: 24 subscription/replacement engines,
 six active 512-result Reads, fourteen final Read delivery tails and 52 independent

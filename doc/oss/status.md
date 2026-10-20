@@ -1,5 +1,30 @@
 # Development status
 
+**Memory11: stable demand-allocated Read/Subscribe result blocks.**
+Read results, Subscribe persistent results and report-only values share typed
+blocks of at most16 entries. Growth stages new blocks atomically and never copies
+or reallocates old storage. Indexed lookup uses an owner-local cache;512-result
+limits, filtering/report order, independent immutable packets and ACK/drain
+remain unchanged. ESP32 largest Read result requests fall24576 ->776 B, Subscribe
+12288 ->392 B, captured-value table8192 ->264 B. Read growth table payload falls
+38400 ->24840 B; full steady tables and owners grow slightly. The x86_64
+pre-provider512-result Read peak falls54142 ->38558 B (28.8%), node component
+625602 ->620266 B, while fifteen full subscription reports plus Reads increase
+819313 ->835673 B (2.0%). The largest report request in that workload falls
+12288 ->4800 B. These tradeoffs and scoped compiler-derived envelopes are in the
+[report](memory11-validation.md) and [results](memory11-results.json).
+Windows CTest94/97 plus3/3 local socket retries and7/7 focused checks; Linux
+CTest94/94 per build, two-instance6/6 per memory variant, separate saturated
+sanitizers and dedicated Memcheck pass. The new block test faults all64 staged
+OOM positions and checks old addresses/data/cache/links/capacity and cleanup.
+All27 ESP32 probes have no diagnostics. Process frames stay144/192 B; Read's
+encoder/compaction and Subscribe's reserve specialization grow16 B each, with
+additional nested32-byte accessors. No target stack high-water claim.
+Both full-host capacity runs pass50/50; Massif observes389010 B heap,6688 B maximum
+sampled used stack and401048 B maximum combined, a small increase over Memory10.
+Next: demand-sized event path/selector metadata, now the largest allocation in
+the node component. No linked/physical ESP32 or official CSA rerun.
+
 **Memory10: shared event records, compact final Read tails and node reporting budget.**
 Private snapshots retain immutable event-node references, preserving bytes and
 membership through eviction/removal. OOM/reference overflow preserve old captures;

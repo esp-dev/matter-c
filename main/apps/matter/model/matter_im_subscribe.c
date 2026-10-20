@@ -5,6 +5,7 @@
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
 #include "matter_im_buffer_internal.h"
+#include "matter_im_blocks_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -29,6 +30,9 @@ typedef struct {
     Matter_Tlv_Validation_Workspace_T validation;
     Matter_Tlv_Tag_T tags[48];
 } Matter_Im_Subscribe_Work;
+typedef struct { Matter_Im_Path_T path; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } SubItem;
+MATTER_IM_BLOCK_TABLE(sub_items,SubItem)
+MATTER_IM_BLOCK_TABLE(sub_values,Matter_Im_Snapshot_Value)
 struct Matter_Im_Subscribe {
     Matter_Im_Subscribe_Work* work;
     Matter_Im_Read_Events_Port_T event_port; Matter_Im_Event_Enumerate_T event_enumerate;
@@ -41,9 +45,8 @@ struct Matter_Im_Subscribe {
     uint64_t now, expires, last_report,last_activity;
     bool more,report_started;
     size_t count,cursor,list_offset,released;
-    struct { Matter_Im_Path_T path; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } *items;
-    Matter_Im_Snapshot_Value* values; /* Only the current captured report, not idle subscription state. */
-    size_t item_capacity;
+    Matter_Im_Blocks items;
+    Matter_Im_Blocks values; /* Only the current captured report, not idle subscription state. */
     Matter_Im_Selector_T* requests;
     size_t request_count,request_cursor,filter_count,collected,valid;
     struct { uint16_t endpoint; uint32_t cluster,version; } *filters;
@@ -375,15 +378,7 @@ static int compare_path(const Matter_Im_Path_T* a,const Matter_Im_Path_T* b) {
     return a->attribute==b->attribute?0:a->attribute<b->attribute?-1:1;
 }
 static bool reserve_items(Matter_Im_Subscribe_T s,size_t needed) {
-    if(needed<=s->item_capacity) return true;
-    if(needed>MATTER_IM_READ_MAX_RESULTS) return false;
-    size_t capacity=s->item_capacity?s->item_capacity*2:MATTER_IM_READ_MAX_PATHS;
-    if(capacity<needed) capacity=needed;
-    if(capacity>MATTER_IM_READ_MAX_RESULTS) capacity=MATTER_IM_READ_MAX_RESULTS;
-    if(capacity>SIZE_MAX/sizeof(*s->items)) return false;
-    void* items=calloc(capacity,sizeof(*s->items)); if(!items) return false;
-    if(s->count) memcpy(items,s->items,s->count*sizeof(*s->items));
-    free(s->items); s->items=items; s->item_capacity=capacity; return true;
+    return sub_items_reserve(&s->items,needed,MATTER_IM_READ_MAX_RESULTS);
 }
 static uint8_t expand(Matter_Im_Subscribe_T s) {
     for(unsigned step=0;step<MATTER_IM_READ_WORK_BATCH && s->request_cursor<s->request_count;++step) {
@@ -399,7 +394,8 @@ static uint8_t expand(Matter_Im_Subscribe_T s) {
             s->after=s->path; s->after_valid=true;
         } else { s->path=q->path; ++s->request_cursor; }
         if(!reserve_items(s,s->count+1)) return MATTER_IM_RESOURCE_EXHAUSTED;
-        s->items[s->count].path=s->path; s->items[s->count++].wildcard=wildcard;
+        SubItem* result=sub_items_at(&s->items,s->count++);
+        result->path=s->path; result->wildcard=wildcard;
     }
     if(s->request_cursor==s->request_count) s->state=MATTER_IM_SUB_COLLECTING;
     return 0;
@@ -409,14 +405,14 @@ static uint8_t expand(Matter_Im_Subscribe_T s) {
 static void clear_snapshots(Matter_Im_Subscribe_T s) {
     matter_im_snapshots_clear(&s->snapshots);
     s->value.data=NULL; s->value.size=0;
-    free(s->values); s->values=NULL; s->released=0;
+    matter_im_blocks_clear(&s->values); s->released=0;
 }
 static void release_consumed(Matter_Im_Subscribe_T s) {
     /* cursor advances past whole attributes only; a partial ARRAY stays live. */
     while(s->released<s->cursor) {
         size_t i=s->released++;
-        if(s->values) {
-            matter_im_snapshot_release_value(&s->snapshots,&s->values[i]);
+        if(s->values.head) {
+            matter_im_snapshot_release_value(&s->snapshots,sub_values_at(&s->values,i));
         }
     }
     s->value.data=NULL; s->value.size=0;
@@ -431,27 +427,27 @@ static void capture_begin(Matter_Im_Subscribe_T s,bool data) {
 }
 static uint8_t capture(Matter_Im_Subscribe_T s) {
     bool prime=s->phase==PRIME;
-    if(s->capture_data && s->count && !s->values) {
-        s->values=calloc(s->count,sizeof(*s->values));
-        if(!s->values) return MATTER_IM_RESOURCE_EXHAUSTED;
+    if(s->capture_data && s->count && !s->values.head) {
+        if(!sub_values_reserve(&s->values,s->count,MATTER_IM_READ_MAX_RESULTS)) return MATTER_IM_RESOURCE_EXHAUSTED;
     }
     unsigned budget=s->expanding?MATTER_IM_READ_WORK_BATCH:MATTER_IM_READ_MAX_PATHS;
     while(budget-- && s->collected<s->count) {
         size_t i=s->collected++; bool omit=false;
-        s->items[i].included=false;
-        if(!prime && !s->items[i].active) continue;
-        s->path=s->items[i].path;
-        uint8_t code=snapshot(s,s->capture_data,prime && s->items[i].wildcard,&omit);
+        SubItem* result=sub_items_at(&s->items,i);
+        result->included=false;
+        if(!prime && !result->active) continue;
+        s->path=result->path;
+        uint8_t code=snapshot(s,s->capture_data,prime && result->wildcard,&omit);
         if(code==MATTER_IM_RESOURCE_EXHAUSTED) return code;
-        if(prime && s->items[i].wildcard && path_error(code)) omit=true;
+        if(prime && result->wildcard && path_error(code)) omit=true;
         if(!prime && !code && s->capture_data && s->value.report_on_version_change &&
-            s->items[i].reported && s->items[i].reported_version==s->value.data_version) omit=true;
-        s->items[i].status=code; if(s->values) s->values[i]=matter_im_snapshot_store(&s->value);
-        if(prime) s->items[i].active=code==0;
+            result->reported && result->reported_version==s->value.data_version) omit=true;
+        result->status=code; if(s->values.head) *sub_values_at(&s->values,i)=matter_im_snapshot_store(&s->value);
+        if(prime) result->active=code==0;
         else if(code) s->terminal_report=true;
         if(!code) ++s->valid;
-        s->items[i].included=!omit && (s->capture_data || code); s->attribute_report|=s->items[i].included;
-        if(!code && s->items[i].included) { s->items[i].reported=true; s->items[i].reported_version=s->value.data_version; }
+        result->included=!omit && (s->capture_data || code); s->attribute_report|=result->included;
+        if(!code && result->included) { result->reported=true; result->reported_version=s->value.data_version; }
     }
     if(s->collected<s->count) return 0;
     SubEvents* e=s->events;
@@ -509,9 +505,9 @@ static bool report_attributes(Matter_Im_Subscribe_T s,size_t stop,bool more) {
     if(!begin(s) || !put(s,MATTER_TLV_UNSIGNED,0,s->id) || !put(s,MATTER_TLV_ARRAY,1,0)) return false;
     for(size_t part=0;part<stop;++part) {
         size_t i=s->work->plan[part].item;
-        s->path=s->items[i].path;
-        if(s->values) matter_im_snapshot_load(&s->value,&s->values[i]); else memset(&s->value,0,sizeof(s->value));
-        uint8_t code=s->items[i].status;
+        SubItem* result=sub_items_at(&s->items,i); s->path=result->path;
+        if(s->values.head) matter_im_snapshot_load(&s->value,sub_values_at(&s->values,i)); else memset(&s->value,0,sizeof(s->value));
+        uint8_t code=result->status;
         if(!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_STRUCTURE,code ? 0 : 1,0) ||
             (!code && !put(s,MATTER_TLV_UNSIGNED,0,s->value.data_version)) || !put(s,MATTER_TLV_LIST,code ? 0 : 1,0) ||
             !put(s,MATTER_TLV_UNSIGNED,2,s->path.endpoint) || !put(s,MATTER_TLV_UNSIGNED,3,s->path.cluster) ||
@@ -538,7 +534,7 @@ static void recheck_events(Matter_Im_Subscribe_T s) {
     for(size_t i=0;i<e->path_count;++i) e->active|=e->paths[i].active;
     if(!e->active) {
         bool active=false;
-        for(size_t i=0;i<s->count;++i) active|=s->items[i].active;
+        for(size_t i=0;i<s->count;++i) active|=sub_items_at(&s->items,i)->active;
         if(!active) s->terminal_report=true;
     }
 }
@@ -575,7 +571,7 @@ static bool report_event(Matter_Im_Subscribe_T s) {
 /* Walk validated direct ARRAY children, as in Read. Never split an element or
  * invoke a provider while trying candidate encodings. */
 static size_t list_next(Matter_Im_Subscribe_T s,size_t item,size_t offset) {
-    const Matter_Im_Snapshot_Value* v=&s->values[item];
+    const Matter_Im_Snapshot_Value* v=sub_values_at(&s->values,item);
     if(matter_tlv_init(&s->work->value_reader,v->as.span.data,v->as.span.size,4)!=MATTER_TLV_OK ||
         matter_tlv_next(&s->work->value_reader,&s->work->element)!=MATTER_TLV_OK) return 0;
     while(matter_tlv_next(&s->work->value_reader,&s->work->element)==MATTER_TLV_OK && s->work->element.type!=MATTER_TLV_END) {
@@ -588,43 +584,43 @@ static size_t list_next(Matter_Im_Subscribe_T s,size_t item,size_t offset) {
 static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
     s->opcode=5;
     /* Permissions may change between chunks; never read providers again here. */
-    if(recheck) for(size_t i=s->cursor;i<s->count;++i) if(s->items[i].active && s->items[i].included) {
-        s->path=s->items[i].path; bool omit=false; uint8_t code=snapshot(s,false,s->phase==PRIME && s->items[i].wildcard,&omit);
+    if(recheck) for(size_t i=s->cursor;i<s->count;++i) if(sub_items_at(&s->items,i)->active && sub_items_at(&s->items,i)->included) {
+        s->path=sub_items_at(&s->items,i)->path; bool omit=false; uint8_t code=snapshot(s,false,s->phase==PRIME && sub_items_at(&s->items,i)->wildcard,&omit);
         if(code) {
-            s->items[i].status=code;
-            if(s->phase==PRIME && s->items[i].wildcard && path_error(code)) { s->items[i].included=false; s->items[i].active=false; }
+            sub_items_at(&s->items,i)->status=code;
+            if(s->phase==PRIME && sub_items_at(&s->items,i)->wildcard && path_error(code)) { sub_items_at(&s->items,i)->included=false; sub_items_at(&s->items,i)->active=false; }
             else s->terminal_report=true;
         }
     }
     if(recheck && s->events && s->events->report) recheck_events(s);
     if(s->phase==PRIME) {
         bool active=s->events && s->events->active;
-        for(size_t i=0;i<s->count;++i) active|=s->items[i].active;
+        for(size_t i=0;i<s->count;++i) active|=sub_items_at(&s->items,i)->active;
         if(!active) return status(s,MATTER_IM_INVALID_ACTION);
     }
-    while(s->cursor<s->count && !s->items[s->cursor].included) { ++s->cursor; s->list_offset=0; }
-    if(s->cursor<s->count && s->items[s->cursor].status) s->list_offset=0;
+    while(s->cursor<s->count && !sub_items_at(&s->items,s->cursor)->included) { ++s->cursor; s->list_offset=0; }
+    if(s->cursor<s->count && sub_items_at(&s->items,s->cursor)->status) s->list_offset=0;
     bool events=s->events && s->events->report;
     if(s->cursor==s->count && events) return report_event(s);
     size_t n=0,item=s->cursor,offset=s->list_offset;
     while(item<s->count && n<MATTER_IM_READ_MAX_PATHS) {
-        if(!s->items[item].included) { ++item; continue; }
+        if(!sub_items_at(&s->items,item)->included) { ++item; continue; }
         s->work->plan[n].item=item; s->work->plan[n].start=offset; s->work->plan[n].prefix=false;
         size_t stop=offset?list_next(s,item,offset):0;
         if(offset && !stop) return false;
         s->work->plan[n].end=stop;
-        bool last=!offset || stop==s->values[item].as.span.size-1;
+        bool last=!offset || stop==sub_values_at(&s->values,item)->as.span.size-1;
         size_t next_item=item+1;
-        while(next_item<s->count && !s->items[next_item].included) ++next_item;
+        while(next_item<s->count && !sub_items_at(&s->items,next_item)->included) ++next_item;
         if(report_attributes(s,n+1,!last || next_item<s->count || events)) {
             ++n; offset=last?0:stop; if(last) item=next_item; continue;
         }
         if(n) break; /* First try the whole attribute on an empty report. */
-        if(offset || s->items[item].status || !s->values || s->values[item].type!=MATTER_TLV_ARRAY) return false;
+        if(offset || sub_items_at(&s->items,item)->status || !s->values.head || sub_values_at(&s->values,item)->type!=MATTER_TLV_ARRAY) return false;
         s->work->plan[n].prefix=true; s->work->plan[n].start=1; s->work->plan[n].end=1;
         if(!report_attributes(s,1,true)) return false;
         stop=1;
-        while(stop<s->values[item].as.span.size-1) {
+        while(stop<sub_values_at(&s->values,item)->as.span.size-1) {
             size_t candidate=list_next(s,item,stop);
             if(!candidate) return false;
             s->work->plan[n].end=candidate;
@@ -666,7 +662,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
                     s->reserved=true; s->dirty=false; s->phase=PRIME; capture_begin(s,true);
                     if(s->expanding) s->state=MATTER_IM_SUB_EXPANDING;
                     else if(!reserve_items(s,s->request_count)) code=MATTER_IM_RESOURCE_EXHAUSTED;
-                    else { s->count=s->request_count; for(size_t i=0;i<s->count;++i) s->items[i].path=s->requests[i].path; }
+                    else { s->count=s->request_count; for(size_t i=0;i<s->count;++i) sub_items_at(&s->items,i)->path=s->requests[i].path; }
                 }
                 else if(code!=MATTER_IM_RESOURCE_EXHAUSTED) code=MATTER_IM_FAILURE;
             }
@@ -799,5 +795,5 @@ Matter_Im_Subscribe_State_T matter_im_subscribe_state(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_delete(Matter_Im_Subscribe_T s) {
     if(!s) return MATTER_OK;
     Matter_Result_T r=check(s); if(r) return r;
-    s->busy=true; release(s); free(s->items); free(s->values); free(s->input); free(s->output); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+    s->busy=true; release(s); matter_im_blocks_clear(&s->items); matter_im_blocks_clear(&s->values); free(s->input); free(s->output); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }

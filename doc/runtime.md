@@ -157,6 +157,22 @@ snapshot bytes; per-instance stores are independent, with no global pool or new
 scheduler. OOM/validation failure preserves earlier copies and byte accounting
 and follows the existing Read path-status / Subscribe error-response policy.
 
+Result tables and Subscribe's report value table use a shared private block
+store. Typed flexible arrays hold at most16 entries per block; a first small
+reservation retains the previous nine-entry initial result budget, and the last
+block is capped at the unchanged512-result limit. Appending never reallocates,
+copies or moves an existing block. One cached block accelerates forward indexed
+scans; backwards lookups restart from the head, bounded by33 result blocks.
+Multi-block reservations stage all new blocks before linking any of them, so OOM
+preserves old addresses, capacity, links, cache and payload. Read still compacts
+omitted logical results in order; allocation-address stability during growth does
+not change that existing filtering behavior. No public result-table pointers are
+exposed. Cleanup allocates nothing. Subscribe reserves its full report value
+table before provider collection and releases it at the existing report boundary;
+persistent result blocks remain while idle. Metadata/slack and extra allocator
+calls are additional costs. [Memory11](oss/memory11-validation.md) records both
+reduced growth peaks/contiguous requests and the full-report heap regression.
+
 After final Read `sent`, the independent immutable MRP packet owns transport
 bytes. Read releases its result table, chunk plan, selectors/filters, input/output
 and event path metadata. Only the small owner and remaining immutable value/event

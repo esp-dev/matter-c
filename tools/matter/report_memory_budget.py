@@ -33,20 +33,28 @@ def calculate(probe, subscriptions=None, legacy=False):
     while capacity < results:
         old_capacity = capacity
         capacity = min(2 * capacity, results)
+    blocked = 'result_block_items' in s
+    block_count = (results - s['result_block_initial'] + s['result_block_items'] - 1) // s['result_block_items'] + 1 if blocked else 0
+    value_block_count = (results + s['result_block_items'] - 1) // s['result_block_items'] if blocked else 0
+    read_header = block_count * s['read_block_header'] if blocked else 0
+    sub_header = block_count * s['subscribe_block_header'] if blocked else 0
+    value_header = value_block_count * s['subscribe_value_block_header'] if blocked else 0
+    if blocked:
+        old_capacity = 0
     values = s['snapshot_budget'] + results * s['value_snapshot_node']
     event_refs = events * (s['event_record'] if legacy else pointer)
     filters = s['read_filter_limit'] * s['read_filter']
     read_plan = s['read_plan_limit'] * s['read_plan_entry']
-    read = {'owner': s['read'], 'results': results * s['read_item'],
+    read = {'owner': s['read'], 'results': results * s['read_item'] + read_header,
             'old_table_during_growth': old_capacity * s['read_item'],
             'attribute_values_and_links': values, 'event_selector_state': s['read_events'],
             'event_snapshot_storage': event_refs, 'parser': s['read_parser'],
             'selectors': s['read_path_limit'] * s['read_selector'], 'version_filters': filters,
             'input_and_atomic_replacement': 2 * s['read_max_input'],
             'output': s['read_max_output'], 'chunk_plan': read_plan}
-    sub = {'owner': s['subscribe'], 'persistent_results': results * s['subscribe_item'],
+    sub = {'owner': s['subscribe'], 'persistent_results': results * s['subscribe_item'] + sub_header,
            'old_table_during_growth': old_capacity * s['subscribe_item'],
-           'captured_values': results * s['subscribe_value'],
+           'captured_values': results * s['subscribe_value'] + value_header,
            'attribute_values_and_links': values, 'event_selector_state': s['subscribe_events'],
            'event_snapshot_storage': event_refs, 'parser_and_chunk_plan': s['subscribe_parser'],
            'selectors': s['subscribe_path_limit'] * s['subscribe_selector'],
@@ -78,8 +86,15 @@ def calculate(probe, subscriptions=None, legacy=False):
                 'event_node_bytes': shared_nodes * s['event_node'], 'total_requested_bytes': base + shared_nodes * s['event_node']},
             'all_snapshots_distinct_generations': {'event_nodes': distinct_nodes,
                 'event_node_bytes': distinct_nodes * s['event_node'], 'total_requested_bytes': base + distinct_nodes * s['event_node']},
-            'largest_report_allocation': max(results * s['read_item'], results * s['subscribe_item'],
-                results * s['subscribe_value'], event_refs, s['read_max_value'] + s['value_snapshot_node']),
+            'largest_report_allocation': max(
+                s['read_block_header'] + s['result_block_items'] * s['read_item'] if blocked else results * s['read_item'],
+                s['subscribe_block_header'] + s['result_block_items'] * s['subscribe_item'] if blocked else results * s['subscribe_item'],
+                s['subscribe_value_block_header'] + s['result_block_items'] * s['subscribe_value'] if blocked else results * s['subscribe_value'],
+                event_refs, s['read_max_value'] + s['value_snapshot_node'],
+                s['read_events'], s['subscribe_events'], s['read_parser'], s['subscribe_parser'],
+                read_plan, filters, s['read_filter_limit'] * s['subscribe_filter'],
+                s['read_path_limit'] * s['read_selector'], s['subscribe_path_limit'] * s['subscribe_selector'],
+                s['read_max_input'], s['read_max_output'], s['read'], s['subscribe']),
             'not_included': ['Allocator metadata, fragmentation and alignment beyond probed object sizes',
                 'Other transport owners and secure session/channel owners',
                 'Invoke/Write/client/BDX and PASE/CASE/backend work',

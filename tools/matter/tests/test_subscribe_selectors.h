@@ -188,7 +188,7 @@ static void selector_tests(void) {
     CHECK(filter_error.opcode==1 && filter_error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==filter_base);
     CHECK(!s->rich.model.reads && !s->rich.model.reserves); rich_free(&s->rich); CHECK(!live);
     s=selector_new(12,true); selector_request(s,1,false,83,false); filter_base=live;
-    selector_finish(s,true); CHECK(live==filter_base); /* Parser/selectors/filters released; one result table remains. */
+    selector_finish(s,true); CHECK(live==filter_base+1); /* Parser/selectors/filters released; two stable result blocks remain. */
     size_t idle_calls=calls,idle_bytes=live_bytes; fail_at=calls+1;
     for(unsigned i=0;i<64;++i) CHECK(matter_im_subscribe_process(s->rich.model.active,0)==MATTER_PENDING);
     CHECK(calls==idle_calls && live_bytes==idle_bytes && matter_im_subscribe_state(s->rich.model.active)==MATTER_IM_SUB_IDLE); fail_at=0;

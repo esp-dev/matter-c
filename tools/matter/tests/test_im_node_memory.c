@@ -15,7 +15,7 @@ typedef struct {
     Node* node; unsigned slot,attributes,events,reads; bool sub,more;
     uint8_t fabric; Matter_Im_Read_T read; Matter_Im_Subscribe_T subscription;
     Matter_Tlv_Writer_T writer; Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T token;
-    uint8_t request[128]; size_t size,packet_size; uint32_t digest;
+    uint8_t request[128]; size_t size,packet_size,growth_peak; uint32_t digest;
 } Engine;
 struct Node {
     Matter_Events_T log; uint64_t high; uint32_t next_id;
@@ -36,7 +36,7 @@ static Matter_Im_Status_T describe_event(void* u,const Matter_Event_Path_T* p,Ma
     CHECK(p->event==1); return describe(u,NULL,a);
 }
 static Matter_Im_Status_T read_value(void* u,const Matter_Im_Path_T* p,bool filtered,Matter_Im_Value_T* v) {
-    Engine* e=u; CHECK(filtered); ++e->reads;
+    Engine* e=u; CHECK(filtered); if(!e->reads) e->growth_peak=peak_bytes; ++e->reads;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=p->attribute,.data_version=7}; return 0;
 }
 static Matter_Result_T enumerate(void* u,const Matter_Im_Selector_T* q,const Matter_Im_Path_T* after,Matter_Im_Path_T* next,bool* found) {
@@ -169,7 +169,18 @@ static void cancelled_tails(void) {
     }
     puts("PASS final Read cancellation/timeout: snapshots retained through drain, independent packet unchanged, no allocation, cleanup after lease completion");
 }
+static void read_growth(void) {
+    Node* n=calloc(1,sizeof(*n)); CHECK(n && !live); peak_bytes=max_request=0;
+    Matter_Events_Port_T p={n,load,store}; n->log=matter_events_new(&p); CHECK(n->log);
+    n->packets[0]=matter_test_calloc(1,MATTER_SECURE_MAX_PACKET); CHECK(n->packets[0]);
+    size_t base=live_bytes; Engine* e=&n->engines[0]; create(e,n,0,false);
+    CHECK(e->reads==MATTER_IM_READ_MAX_RESULTS && e->growth_peak>=base);
+    printf("GROWTH read_results=%u before_collection_peak=%zu largest=%zu\n",MATTER_IM_READ_MAX_RESULTS,e->growth_peak-base,max_request);
+    CHECK(!matter_im_read_cancel(e->read)); matter_test_free(n->packets[0]);
+    CHECK(!matter_im_read_delete(e->read) && !matter_events_delete(n->log)); free(n); CHECK(!live && !live_bytes);
+}
 int main(void) {
+    read_growth();
     Node* n=calloc(1,sizeof(*n)); CHECK(n && !live); peak_bytes=max_request=0;
     Matter_Events_Port_T p={n,load,store}; n->log=matter_events_new(&p); CHECK(n->log);
     for(unsigned i=0;i<MATTER_EVENTS_CAPACITY;++i) append(n,i);

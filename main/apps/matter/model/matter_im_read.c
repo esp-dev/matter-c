@@ -5,6 +5,7 @@
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
 #include "matter_im_buffer_internal.h"
+#include "matter_im_blocks_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -27,6 +28,14 @@ typedef struct {
 	Matter_Tlv_Writer_T writer;
 	Matter_Tlv_Element_T element, fields[5], revision, path_fields[8], filter_fields[2], filter_element;
 } Matter_Im_Read_Work;
+typedef struct {
+		Matter_Im_Path_T path;
+		Matter_Im_Attribute_T attribute;
+		Matter_Im_Snapshot_Value value;
+		Matter_Im_Status_T status;
+		bool wildcard, omit;
+} ReadItem;
+MATTER_IM_BLOCK_TABLE(read_items,ReadItem)
 struct Matter_Im_Read {
     Matter_Im_Read_Work* work;
     Matter_Im_Read_Events_Port_T event_port; Matter_Im_Event_Enumerate_T event_enumerate;
@@ -45,19 +54,13 @@ struct Matter_Im_Read {
 	size_t list_offset;
 	/* Each planned IB either carries a whole attribute, a list prefix, or one ADD. */
 	struct { size_t item, start, end; bool prefix; } *plan;
-	size_t plan_capacity,item_capacity;
+	size_t plan_capacity;
 	Matter_Im_Selector_T* requests;
 	size_t request_count, request_cursor, collected, filter_count;
 	bool expanding, after_valid;
 	Matter_Im_Path_T after;
 	struct { uint16_t endpoint; uint32_t cluster, version; } *filters;
-	struct {
-		Matter_Im_Path_T path;
-		Matter_Im_Attribute_T attribute;
-		Matter_Im_Snapshot_Value value;
-		Matter_Im_Status_T status;
-		bool wildcard, omit;
-	} *items;
+	Matter_Im_Blocks items;
 	uint8_t opcode, response_opcode;
 	size_t input_size, output_size;
 	Matter_Im_Path_T path;
@@ -356,8 +359,9 @@ static bool report_data(Matter_Im_Read_T s, size_t count, bool more) {
 	if (!begin(s) || !put(s,MATTER_TLV_ARRAY,1,0)) return false;
 	for (size_t part=0; part<count; ++part) {
 		size_t i=s->plan[part].item;
-		s->path=s->items[i].path; matter_im_snapshot_load(&s->value,&s->items[i].value);
-		Matter_Im_Status_T code=s->items[i].status;
+		ReadItem* result=read_items_at(&s->items,i);
+		s->path=result->path; matter_im_snapshot_load(&s->value,&result->value);
+		Matter_Im_Status_T code=result->status;
 		if (!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_STRUCTURE,code ? 0 : 1,0)) return false;
 		if (code) {
 			if (!path(s,0,false) || !put(s,MATTER_TLV_STRUCTURE,1,0) || !put(s,MATTER_TLV_UNSIGNED,0,code) || !end(s)) return false;
@@ -509,15 +513,7 @@ static bool matches(const Matter_Im_Selector_T* q, const Matter_Im_Path_T* p) {
 		(!(q->present & MATTER_IM_ATTRIBUTE) || q->path.attribute==p->attribute);
 }
 static bool reserve_items(Matter_Im_Read_T s,size_t needed) {
-    if(needed<=s->item_capacity) return true;
-    if(needed>MATTER_IM_READ_MAX_RESULTS) return false;
-    size_t capacity=s->item_capacity?s->item_capacity*2:MATTER_IM_READ_MAX_PATHS;
-    if(capacity<needed) capacity=needed;
-    if(capacity>MATTER_IM_READ_MAX_RESULTS) capacity=MATTER_IM_READ_MAX_RESULTS;
-    if(capacity>SIZE_MAX/sizeof(*s->items)) return false;
-    void* items=calloc(capacity,sizeof(*s->items)); if(!items) return false;
-    if(s->count) memcpy(items,s->items,s->count*sizeof(*s->items));
-    free(s->items); s->items=items; s->item_capacity=capacity; return true;
+    return read_items_reserve(&s->items,needed,MATTER_IM_READ_MAX_RESULTS);
 }
 static Matter_Im_Status_T expand(Matter_Im_Read_T s) {
 	for (unsigned step=0; step<MATTER_IM_READ_WORK_BATCH && s->request_cursor<s->request_count; ++step) {
@@ -531,21 +527,25 @@ static Matter_Im_Status_T expand(Matter_Im_Read_T s) {
 			s->after=s->path; s->after_valid=true;
 		} else { s->path=q->path; ++s->request_cursor; }
 		if (!reserve_items(s,s->count+1)) return MATTER_IM_RESOURCE_EXHAUSTED;
-		s->items[s->count].path=s->path; s->items[s->count++].wildcard=wildcard;
+		ReadItem* result=read_items_at(&s->items,s->count++);
+		result->path=s->path; result->wildcard=wildcard;
 	}
 	if (s->request_cursor==s->request_count) s->state=MATTER_IM_READ_COLLECTING;
 	return MATTER_IM_SUCCESS;
 }
 static void compact(Matter_Im_Read_T s) {
-	if (s->cursor<s->count && (s->items[s->cursor].omit || s->items[s->cursor].status)) s->list_offset=0;
+	if (s->cursor<s->count && (read_items_at(&s->items,s->cursor)->omit || read_items_at(&s->items,s->cursor)->status)) s->list_offset=0;
 	size_t out=s->cursor;
-	for (size_t i=s->cursor; i<s->count; ++i) if (!s->items[i].omit) s->items[out++]=s->items[i];
+	for (size_t i=s->cursor; i<s->count; ++i) {
+        ReadItem* result=read_items_at(&s->items,i);
+        if(!result->omit) { if(out!=i) *read_items_at(&s->items,out)=*result; ++out; }
+    }
 	s->count=out;
 }
 /* Find the next direct ARRAY child boundary using the public reader API only.
  * Snapshot validation already established anonymous root, balance and limits. */
 static size_t list_next(Matter_Im_Read_T s, size_t item, size_t offset) {
-	const Matter_Im_Snapshot_Value* v=&s->items[item].value;
+	const Matter_Im_Snapshot_Value* v=&read_items_at(&s->items,item)->value;
 	if (matter_tlv_init(&s->work->value_reader,v->as.span.data,v->as.span.size,4)!=MATTER_TLV_OK ||
 		matter_tlv_next(&s->work->value_reader,&s->work->token)!=MATTER_TLV_OK) return 0;
 	while (matter_tlv_next(&s->work->value_reader,&s->work->token)==MATTER_TLV_OK && s->work->token.type!=MATTER_TLV_END) {
@@ -571,19 +571,19 @@ static bool report_chunk(Matter_Im_Read_T s) {
 		size_t stop=offset ? list_next(s,item,offset) : 0;
 		if (offset && !stop) return status(s,MATTER_IM_FAILURE);
 		s->plan[n].end=stop;
-		bool last=!offset || stop==s->items[item].value.as.span.size-1;
+		bool last=!offset || stop==read_items_at(&s->items,item)->value.as.span.size-1;
 		if (report_data(s,n+1,!last || item+1<s->count || events)) {
 			++n; offset=last ? 0 : stop; if (last) ++item; continue;
 		}
 		if (n) break; /* Retry a whole attribute on a fresh report before splitting. */
-		if (offset || s->items[item].status || s->items[item].value.type!=MATTER_TLV_ARRAY)
+		if (offset || read_items_at(&s->items,item)->status || read_items_at(&s->items,item)->value.type!=MATTER_TLV_ARRAY)
 			return status(s,MATTER_IM_RESOURCE_EXHAUSTED);
 		/* Whole list did not fit even an empty report. Select the largest prefix,
 		 * possibly empty; following reports append complete items with null index. */
 		s->plan[n].prefix=true; s->plan[n].start=1; s->plan[n].end=1;
 		if (!report_data(s,1,true)) return status(s,MATTER_IM_RESOURCE_EXHAUSTED);
 		stop=1;
-		while (stop<s->items[item].value.as.span.size-1) {
+		while (stop<read_items_at(&s->items,item)->value.as.span.size-1) {
 			size_t candidate=list_next(s,item,stop);
 			if (!candidate) return status(s,MATTER_IM_FAILURE);
 			s->plan[n].end=candidate;
@@ -610,7 +610,7 @@ static void release_consumed(Matter_Im_Read_T s) {
     /* cursor advances past whole attributes only; a partial ARRAY stays live. */
     while(s->released<s->cursor) {
         size_t i=s->released++;
-        matter_im_snapshot_release_value(&s->snapshots,&s->items[i].value);
+        matter_im_snapshot_release_value(&s->snapshots,&read_items_at(&s->items,i)->value);
     }
     s->value.data=NULL; s->value.size=0;
     if(s->events) matter_events_snapshot_release_before(&s->events->records,s->events->cursor);
@@ -637,7 +637,7 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 				if (s->expanding) s->state=MATTER_IM_READ_EXPANDING;
 				else if(!reserve_items(s,s->request_count)) { encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED); produce=true; }
 				else {
-					for (size_t i=0; i<s->request_count; ++i) s->items[i].path=s->requests[i].path;
+					for (size_t i=0; i<s->request_count; ++i) read_items_at(&s->items,i)->path=s->requests[i].path;
 					s->count=s->request_count; s->state=MATTER_IM_READ_COLLECTING;
 				}
 			}
@@ -661,9 +661,9 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 		/* Preserve the one-call concrete-only API; wildcard work yields in batches. */
 		unsigned budget=s->expanding ? MATTER_IM_READ_WORK_BATCH : MATTER_IM_READ_MAX_PATHS;
 		while (budget-- && s->collected<s->count) {
-			size_t i=s->collected++; s->path=s->items[i].path;
-			s->items[i].status=read_value(s,s->items[i].wildcard,&s->items[i].omit);
-			s->items[i].value=matter_im_snapshot_store(&s->value); s->items[i].attribute=s->attribute;
+            ReadItem* result=read_items_at(&s->items,s->collected++); s->path=result->path;
+            result->status=read_value(s,result->wildcard,&result->omit);
+            result->value=matter_im_snapshot_store(&s->value); result->attribute=s->attribute;
 		}
 		if (s->collected==s->count) {
             Matter_Im_Status_T code=collect_events(s);
@@ -678,12 +678,13 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 		else {
 			release_consumed(s);
 			for (size_t i=s->cursor; i<s->count; ++i) {
-				s->path=s->items[i].path;
+                ReadItem* result=read_items_at(&s->items,i);
+				s->path=result->path;
 				Matter_Im_Status_T code=authorize(s,MATTER_IM_VIEW);
-				if (!code && !s->items[i].status) code=authorize(s,s->items[i].attribute.privilege);
+				if (!code && !result->status) code=authorize(s,result->attribute.privilege);
 				if (code) {
-					s->items[i].status=code;
-					if (s->items[i].wildcard && (code==MATTER_IM_UNSUPPORTED_ACCESS || code==MATTER_IM_ACCESS_RESTRICTED)) s->items[i].omit=true;
+					result->status=code;
+					if (result->wildcard && (code==MATTER_IM_UNSUPPORTED_ACCESS || code==MATTER_IM_ACCESS_RESTRICTED)) result->omit=true;
 				}
 			}
 			compact(s);
@@ -716,8 +717,8 @@ Matter_Result_T matter_im_read_sent(Matter_Im_Read_T s) {
         /* Output was copied to independent immutable MRP storage. No future
          * continuation can use these tables; value/event references retain
          * their existing confirmation/cancel/drain lifetime. */
-        free(s->items); s->items=NULL; s->count=s->cursor=s->released=0;
-        free(s->plan); s->plan=NULL; s->plan_capacity=s->item_capacity=0;
+        matter_im_blocks_clear(&s->items); s->count=s->cursor=s->released=0;
+        free(s->plan); s->plan=NULL; s->plan_capacity=0;
         free(s->requests); s->requests=NULL; free(s->filters); s->filters=NULL;
         free(s->input); s->input=NULL; free(s->output); s->output=NULL;
         s->input_size=s->output_size=0;
@@ -748,7 +749,7 @@ Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	free(s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) matter_events_snapshot_clear(&s->events->records); matter_events_snapshot_clear(&s->event_tail); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	matter_im_blocks_clear(&s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) matter_events_snapshot_clear(&s->events->records); matter_events_snapshot_clear(&s->event_tail); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

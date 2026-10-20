@@ -2676,6 +2676,16 @@
       "entrypoint": "ctest --test-dir <build> -R test_im_node_memory",
       "referenced_by": [],
       "allocation_variant": "Read/Subscribe/event-log byte accounting; role envelope with held TX leases and delivery tails"
+    },
+    {
+      "path": "tools/matter/tests/test_im_blocks.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_blocks"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_blocks",
+      "referenced_by": [],
+      "allocation_variant": "Private stable block storage: every staged allocation OOM, unchanged old addresses/capacity/cache, limit/overflow and cleanup"
     }
   ],
   "local_only_files": []

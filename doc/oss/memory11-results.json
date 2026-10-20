@@ -1,0 +1,588 @@
+{
+  "baseline": "735b547",
+  "date": "2026-10-21",
+  "scope": "Requested component payloads, compile-only ESP32 layouts/frames, conservative reporting/event/dispatcher/TX arithmetic and sampled Linux whole-host Massif. No total ESP32 or normative RAM guarantee.",
+  "source_sha256": {
+    "cmake/sources.json": "925264be8082f89f7db94cbebb48969de7fdb8dd584e2f94fb7e6e98090b8282",
+    "cmake/test-cases.json": "c2c45688658c3b9710da187bed8c34541696e9a9fb024f17c78e22717c2b5908",
+    "doc/oss/test-map.json": "8bca17201c515d75a5ed0a0d1a9a213a6a433e45c02d9d2855a8eae483a565ad",
+    "main/apps/matter/model/matter_im_read.c": "2308725e8d04d68a10c88992f0055ab66e6fc2ca1447967915ea184cde90942b",
+    "main/apps/matter/model/matter_im_subscribe.c": "05ed8bfcfa4ec68cb73108ff1aab5fcbf5021fed30b521d63382b7950ff6ad66",
+    "tools/matter/memory_audit.py": "cfd18f0b9e1a9863db266d144348c619adf384edeb55ce733b3ed701f981e9d1",
+    "tools/matter/report_memory_budget.py": "7e5af715e4cbf4f1bcd2d33739a7ab94d8cc3304fe26de346f293d591528cb8f",
+    "tools/matter/tests/test_im_node_memory.c": "70db2b90d0862f4292418cdd9a703a32a969ae549ce96b337d2eb38b19279783",
+    "tools/matter/tests/test_subscribe_selectors.h": "a14700863b073a87372ecd3aebfc131b9574ee06ff6222e7e0cd9984ceb953a8",
+    "main/apps/matter/model/matter_im_blocks_internal.h": "faaf12a557d0a595a709429bbca5fddbef3dc2c1ce2722724225ac2ce694cb20",
+    "tools/matter/tests/test_im_blocks.c": "4100a45d880ac8df601d37b4c1ac9ed7620075270c7b35f932a0db460b03c924"
+  },
+  "verified_export_source_files": 234,
+  "export_source_manifest_sha256": "84415249d09ca43a96c5a483c51ff986cbbe7903f78d4e40a4e30b227f6cccf4",
+  "verified_baseline_core_files": 157,
+  "baseline_manifest_sha256": "2e5b5cc92fe3030ac76db46610fc3db66926bd3660137836417f081d8bf7739a",
+  "esp32": {
+    "compiler": "xtensa-esp-elf-gcc.exe (crosstool-NG esp-13.2.0_20230928) 13.2.0",
+    "layouts": {
+      "before": {
+        "read": 296,
+        "subscribe": 336,
+        "read_item": 48,
+        "subscribe_item": 24,
+        "subscribe_value": 16
+      },
+      "after": {
+        "read": 304,
+        "subscribe": 360,
+        "read_item": 48,
+        "subscribe_item": 24,
+        "subscribe_value": 16,
+        "result_block_items": 16,
+        "result_block_initial": 9,
+        "read_block_header": 8,
+        "subscribe_block_header": 8,
+        "subscribe_value_block_header": 8,
+        "result_block_owner": 16
+      }
+    },
+    "frames": {
+      "before": {
+        "read": {
+          "compact": 32,
+          "reserve_items": 32,
+          "report_data": 48,
+          "matter_im_read_process": 144,
+          "matter_im_read_sent": 32
+        },
+        "subscribe": {
+          "reserve_items": 32,
+          "report_attributes": 48,
+          "matter_im_subscribe_process": 192
+        }
+      },
+      "after": {
+        "read": {
+          "read_items_at": 32,
+          "compact": 48,
+          "matter_im_blocks_free": 32,
+          "report_data": 64,
+          "matter_im_blocks_reserve.constprop": 32,
+          "matter_im_read_process": 144,
+          "matter_im_read_sent": 32
+        },
+        "subscribe": {
+          "matter_im_blocks_find": 32,
+          "sub_items_at": 32,
+          "sub_values_at": 32,
+          "matter_im_blocks_free": 32,
+          "report_attributes": 48,
+          "matter_im_blocks_reserve.constprop": 48,
+          "matter_im_subscribe_process": 192
+        }
+      }
+    },
+    "diagnostics": {},
+    "probe_count": 27,
+    "read_table_growth_before": 38400,
+    "read_table_growth_after": 24840,
+    "subscribe_table_growth_before": 19200,
+    "subscribe_table_growth_after": 12552,
+    "largest_read_result_request_before": 24576,
+    "largest_read_result_request_after": 776,
+    "largest_subscribe_result_request_after": 392,
+    "largest_subscribe_value_table_request_after": 264
+  },
+  "component_payloads": {
+    "pre_provider_read_growth": {
+      "before": {
+        "results": 512,
+        "before_collection_peak": 54142,
+        "largest_request": 28672
+      },
+      "after": {
+        "results": 512,
+        "before_collection_peak": 38558,
+        "largest_request": 5640
+      }
+    },
+    "node_envelope": {
+      "before": {
+        "buckets": 6,
+        "subscriptions_and_replacements": 24,
+        "active_reads": 6,
+        "read_tails": 14,
+        "tx_leases": 52,
+        "log": 34712,
+        "active": 551908,
+        "held": 572964,
+        "evicted": 606756,
+        "drained": 285352,
+        "peak": 625602,
+        "largest_request": 28672
+      },
+      "after": {
+        "buckets": 6,
+        "subscriptions_and_replacements": 24,
+        "active_reads": 6,
+        "read_tails": 14,
+        "tx_leases": 52,
+        "log": 34712,
+        "active": 556132,
+        "held": 577412,
+        "evicted": 611204,
+        "drained": 286632,
+        "peak": 620266,
+        "largest_request": 5656
+      }
+    },
+    "saturated_subscriptions": {
+      "before": {
+        "captured": 701880,
+        "with_reads": 816985,
+        "half": 660115,
+        "idle": 210090,
+        "peak": 819313,
+        "largest_request": 12288,
+        "rounds": 57
+      },
+      "after": {
+        "captured": 718080,
+        "with_reads": 833345,
+        "half": 676475,
+        "idle": 218610,
+        "peak": 835673,
+        "largest_request": 4800,
+        "rounds": 57
+      }
+    },
+    "private_block_oom_positions": 64,
+    "capture_oom_positions": 14,
+    "continuation_rx_oom_positions": 4,
+    "node_peak_saving_bytes": 5336,
+    "saturated_subscription_peak_increase_bytes": 16360,
+    "scope": "Production allocation payloads, with explicit max-packet proxies only in the node envelope. Fixture/tracker/libc metadata, dispatcher objects, other handlers, crypto/model/platform excluded."
+  },
+  "conservative_reporting_event_dispatcher_tx_subtotal": {
+    "before": {
+      "scope": "Conservative requested payload envelope for reporting, event retention and dispatcher/TX; additive phase overcounts, not an observed peak or total process RAM bound.",
+      "representation": "immutable shared event references and compact Read delivery tails",
+      "roles": {
+        "subscriptions_and_replacements": 24,
+        "active_reads": 6,
+        "read_delivery_tails": 14,
+        "other_admissions_and_delivery": 8
+      },
+      "transaction_slots": 52,
+      "snapshot_slots": 44,
+      "per_handler_additive_bytes": {
+        "subscription": {
+          "owner": 336,
+          "persistent_results": 12288,
+          "old_table_during_growth": 6912,
+          "captured_values": 8192,
+          "attribute_values_and_links": 18432,
+          "event_selector_state": 5584,
+          "event_snapshot_storage": 512,
+          "parser_and_chunk_plan": 1912,
+          "selectors": 512,
+          "version_filters": 1020,
+          "input_and_atomic_replacement": 2404,
+          "output": 1198
+        },
+        "active_read": {
+          "owner": 296,
+          "results": 24576,
+          "old_table_during_growth": 13824,
+          "attribute_values_and_links": 18432,
+          "event_selector_state": 5576,
+          "event_snapshot_storage": 512,
+          "parser": 1712,
+          "selectors": 144,
+          "version_filters": 1020,
+          "input_and_atomic_replacement": 2404,
+          "output": 1198,
+          "chunk_plan": 2400
+        },
+        "read_delivery_tail": {
+          "owner": 296,
+          "attribute_values_and_links": 18432,
+          "event_snapshot_storage": 512
+        }
+      },
+      "owned_allocation_groups": {
+        "subscription_handlers": 1423248,
+        "active_read_handlers": 432564,
+        "read_delivery_handlers": 269360,
+        "transaction_nodes": 14560,
+        "retained_maximum_tx_packets": 64064,
+        "dispatcher_owner": 8160,
+        "event_log_owner": 808
+      },
+      "one_shared_evicted_generation": {
+        "event_nodes": 384,
+        "event_node_bytes": 95232,
+        "total_requested_bytes": 2307996
+      },
+      "all_snapshots_distinct_generations": {
+        "event_nodes": 5888,
+        "event_node_bytes": 1460224,
+        "total_requested_bytes": 3672988
+      },
+      "largest_report_allocation": 24576,
+      "not_included": [
+        "Allocator metadata, fragmentation and alignment beyond probed object sizes",
+        "Other transport owners and secure session/channel owners",
+        "Invoke/Write/client/BDX and PASE/CASE/backend work",
+        "Fabric publication/rollback/restore and persistence adapters",
+        "Root/cluster/application/model allocations and callbacks",
+        "Platform networking/radio/RTOS stack reservations and used task stacks"
+      ],
+      "layout_sha256": "f82195244a4c6d0666cc05463fc2eed017fa0a0f1761a58e8cb8a782db89a508",
+      "compiler": "xtensa-esp-elf-gcc.exe (crosstool-NG esp-13.2.0_20230928) 13.2.0"
+    },
+    "after": {
+      "scope": "Conservative requested payload envelope for reporting, event retention and dispatcher/TX; additive phase overcounts, not an observed peak or total process RAM bound.",
+      "representation": "immutable shared event references and compact Read delivery tails",
+      "roles": {
+        "subscriptions_and_replacements": 24,
+        "active_reads": 6,
+        "read_delivery_tails": 14,
+        "other_admissions_and_delivery": 8
+      },
+      "transaction_slots": 52,
+      "snapshot_slots": 44,
+      "per_handler_additive_bytes": {
+        "subscription": {
+          "owner": 360,
+          "persistent_results": 12552,
+          "old_table_during_growth": 0,
+          "captured_values": 8448,
+          "attribute_values_and_links": 18432,
+          "event_selector_state": 5584,
+          "event_snapshot_storage": 512,
+          "parser_and_chunk_plan": 1912,
+          "selectors": 512,
+          "version_filters": 1020,
+          "input_and_atomic_replacement": 2404,
+          "output": 1198
+        },
+        "active_read": {
+          "owner": 304,
+          "results": 24840,
+          "old_table_during_growth": 0,
+          "attribute_values_and_links": 18432,
+          "event_selector_state": 5576,
+          "event_snapshot_storage": 512,
+          "parser": 1712,
+          "selectors": 144,
+          "version_filters": 1020,
+          "input_and_atomic_replacement": 2404,
+          "output": 1198,
+          "chunk_plan": 2400
+        },
+        "read_delivery_tail": {
+          "owner": 304,
+          "attribute_values_and_links": 18432,
+          "event_snapshot_storage": 512
+        }
+      },
+      "owned_allocation_groups": {
+        "subscription_handlers": 1270416,
+        "active_read_handlers": 351252,
+        "read_delivery_handlers": 269472,
+        "transaction_nodes": 14560,
+        "retained_maximum_tx_packets": 64064,
+        "dispatcher_owner": 8160,
+        "event_log_owner": 808
+      },
+      "one_shared_evicted_generation": {
+        "event_nodes": 384,
+        "event_node_bytes": 95232,
+        "total_requested_bytes": 2073964
+      },
+      "all_snapshots_distinct_generations": {
+        "event_nodes": 5888,
+        "event_node_bytes": 1460224,
+        "total_requested_bytes": 3438956
+      },
+      "largest_report_allocation": 5584,
+      "not_included": [
+        "Allocator metadata, fragmentation and alignment beyond probed object sizes",
+        "Other transport owners and secure session/channel owners",
+        "Invoke/Write/client/BDX and PASE/CASE/backend work",
+        "Fabric publication/rollback/restore and persistence adapters",
+        "Root/cluster/application/model allocations and callbacks",
+        "Platform networking/radio/RTOS stack reservations and used task stacks"
+      ],
+      "layout_sha256": "0c853ec495759e006edf3b1249d209a08531c09fd78d61b460646803d2479331",
+      "compiler": "xtensa-esp-elf-gcc.exe (crosstool-NG esp-13.2.0_20230928) 13.2.0"
+    }
+  },
+  "validation": {
+    "windows_full": {
+      "passed": 94,
+      "total": 97,
+      "socket_failures_in_sandbox": 3
+    },
+    "windows_socket_retry": {
+      "passed": 3,
+      "total": 3
+    },
+    "windows_final_focused": {
+      "passed": 7,
+      "total": 7
+    },
+    "linux_ctest_per_variant": {
+      "passed": 94,
+      "total": 94
+    },
+    "linux_two_instance_checks_per_variant": 6,
+    "component_profiles_also_passed_separate_sanitizers": true,
+    "variants": [
+      "Memcheck",
+      "separate ASan/UBSan/LSan"
+    ],
+    "inventory": {
+      "test_files": 255,
+      "native_definitions": 96,
+      "core_sources": 59,
+      "public_headers": 75
+    },
+    "compiler_diagnostics": []
+  },
+  "memcheck": {
+    "two_instances": {
+      "allocations": 50358,
+      "frees": 50358,
+      "cumulative_bytes": 4904030,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "node_component": {
+      "allocations": 40213,
+      "frees": 40213,
+      "cumulative_bytes": 27614386,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "private_blocks": {
+      "allocations": 2120,
+      "frees": 2120,
+      "cumulative_bytes": 851656,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "read_suite": {
+      "allocations": 11150,
+      "frees": 11150,
+      "cumulative_bytes": 7017791,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "subscribe_suite": {
+      "allocations": 28748,
+      "frees": 28748,
+      "cumulative_bytes": 17051758,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    },
+    "saturated_subscriptions": {
+      "allocations": 26662,
+      "frees": 26662,
+      "cumulative_bytes": 9223673,
+      "live_bytes": 0,
+      "live_blocks": 0,
+      "errors": 0,
+      "suppressions": 0
+    }
+  },
+  "capacity_workloads": {
+    "capacity-normal": {
+      "checks": 50,
+      "controller_exits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "maximum_interval_seconds": 3
+    },
+    "capacity": {
+      "checks": 50,
+      "controller_exits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "maximum_interval_seconds": 30
+    }
+  },
+  "massif_observed_maxima": {
+    "heap": {
+      "snapshot": 846,
+      "time_ms": 193219,
+      "heap": 389010,
+      "allocator_extra": 6518,
+      "stack": 5520,
+      "kind": "peak",
+      "combined": 401048
+    },
+    "stack": {
+      "snapshot": 4,
+      "time_ms": 1184,
+      "heap": 31162,
+      "allocator_extra": 566,
+      "stack": 6688,
+      "kind": "detailed",
+      "combined": 38416
+    },
+    "combined": {
+      "snapshot": 846,
+      "time_ms": 193219,
+      "heap": 389010,
+      "allocator_extra": 6518,
+      "stack": 5520,
+      "kind": "peak",
+      "combined": 401048
+    }
+  },
+  "massif_samples": 905,
+  "previous_memory10_massif_observed_maxima": {
+    "heap": {
+      "snapshot": 744,
+      "time_ms": 193823,
+      "heap": 388288,
+      "allocator_extra": 6128,
+      "stack": 5304,
+      "kind": "detailed",
+      "combined": 399720
+    },
+    "stack": {
+      "snapshot": 6,
+      "time_ms": 1826,
+      "heap": 31322,
+      "allocator_extra": 606,
+      "stack": 6680,
+      "kind": "detailed",
+      "combined": 38608
+    },
+    "combined": {
+      "snapshot": 744,
+      "time_ms": 193823,
+      "heap": 388288,
+      "allocator_extra": 6128,
+      "stack": 5304,
+      "kind": "detailed",
+      "combined": 399720
+    }
+  },
+  "duplicates": {
+    "before": {
+      "lines": 16124,
+      "tokens": 311495,
+      "sources": 66,
+      "clones": 7,
+      "duplicatedLines": 69,
+      "duplicatedTokens": 1301,
+      "percentage": 0.43,
+      "percentageTokens": 0.42,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    },
+    "after": {
+      "lines": 16119,
+      "tokens": 315464,
+      "sources": 66,
+      "clones": 6,
+      "duplicatedLines": 58,
+      "duplicatedTokens": 1152,
+      "percentage": 0.36,
+      "percentageTokens": 0.37,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "evidence_sha256": {
+    "current-profile.log": "d534b0891477d0963d84c5c955c1ede83fa52341ac7a7039f42f3ab550fc4cb6",
+    "current-subscriptions-profile.log": "c446611c15d8dec32239cb5471ccc3f030031df5c1b657abef1d4757693f08f4",
+    "blocks-profile.log": "50ab8806fd0c854977d297aea8dcc6d024f73d048395f94c4566d4e0b4a51944",
+    "windows-ctest.log": "30f10b50a1f97339a5d771683df5a85e8410a65a9c6d06e3a6b9adc8d49f61d1",
+    "windows-focused.log": "2c876f0ea66886dfe7f1ed3eeb3dfa83d44203717fa7c3258c8b666fdbc7094c",
+    "windows-udp-ctest.log": "ca9c9e351b209eee2cd3b6be2b31318d8fa1fb6eb9a78617252c0de9caf72335",
+    "esp32/layouts.json": "0c853ec495759e006edf3b1249d209a08531c09fd78d61b460646803d2479331",
+    "esp32-before/layouts.json": "f82195244a4c6d0666cc05463fc2eed017fa0a0f1761a58e8cb8a782db89a508",
+    "esp32-budget.json": "645a11962fba780238d80aeff5d865c16e488f5df79782ffc756b7f91fd2ab1a",
+    "esp32-before-budget.json": "9128b341ed54f82c80943bde086164d60c5afa81ed315260a504d905823bb51f",
+    "linux-evidence/baseline-build.log": "160e64f85a5cd2fd79bb0effd80bd73d96ae44d4367402675ac4d3cf4a34d467",
+    "linux-evidence/baseline-configure.log": "a48c1947a7d96d32addfd8c5d502a61bdf2dacd169bea43faab07f7321c71ba6",
+    "linux-evidence/baseline-profile.log": "4fc41ed57e4d083928735bfa0ab20925d6bb20ecf4fae23b9ea9938018efc6d1",
+    "linux-evidence/baseline-subscriptions-profile.log": "c8ab3fd9265a3b7fc84f49e86fe358aa7de79d18c667ed8b283c83130e759994",
+    "linux-evidence/capacity-normal.log": "7be63e86dda64fa7eae823f3ccbdad823e7740fa639b13e568b3323bca55f7dd",
+    "linux-evidence/capacity-verified.log": "7be63e86dda64fa7eae823f3ccbdad823e7740fa639b13e568b3323bca55f7dd",
+    "linux-evidence/normal-build.log": "1b4ff7ad22b3eed601bbc0ea8a44a272f8b922a1faa656147a920e2cf17ca2d2",
+    "linux-evidence/normal-configure.log": "bf54f83cc2c2e2650a4dee866ab674d50d0d121d175c997cd8ba8afdff62d505",
+    "linux-evidence/normal-ctest.log": "dd9e5632385ccd2863c85feffba35e39d90a0acb81415644e501abba77ebb4d4",
+    "linux-evidence/normal-pair.log": "a055b0375a75118660e1f32c2aa0c8720de2005d846f6d4e17e5543e85f1f178",
+    "linux-evidence/normal-subscriptions-profile.log": "285db4196f522f624bda32ea4ef43f480f3e7160f30f88945763ef289737968a",
+    "linux-evidence/sanitize-build.log": "d79073b1c77a7d0ae1e939ca694c08eca09ee99fb640dd81f9f5bc816c6c2e27",
+    "linux-evidence/sanitize-configure.log": "d1cfe69246e34d1043f421fee7a9ac2048416fc1001bd564b82dbdd5d1d0d6ef",
+    "linux-evidence/sanitize-ctest.log": "bddd22d305e8ed41c29b5384f03903be2faac89e1b4858a8125cbf48d4da484c",
+    "linux-evidence/sanitize-pair.log": "a055b0375a75118660e1f32c2aa0c8720de2005d846f6d4e17e5543e85f1f178",
+    "linux-evidence/sanitize-subscriptions-profile.log": "285db4196f522f624bda32ea4ef43f480f3e7160f30f88945763ef289737968a",
+    "linux-evidence/subscriptions-profile-memcheck.log": "eae53a106246a1138ebf2be789c5fde0d919e8cfb666786e0a4b0a2e398ba2b0",
+    "linux-evidence/test_im_blocks-memcheck.log": "69409e5720505bb460713dbb06f9aed0d4af5803107c03bdaa5b159d1c1d6793",
+    "linux-evidence/test_im_node_memory-memcheck.log": "4bf903c92bead5e886912aa6b892f7a95dae1ac73b9b4b243bdcad9786ac2e92",
+    "linux-evidence/test_im_read_alloc-memcheck.log": "d7d00401eab92fb4926b6daa4c9f596b96ae56f5a6eed5ed010acfbfae743268",
+    "linux-evidence/test_im_subscribe_alloc-memcheck.log": "3cd7a750721fbba5ff277c62840a3881113b936e8161b89e61d5e0b76c3c106d",
+    "linux-evidence/worker.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "linux-evidence/normal/memcheck.log": "c4de4cad7e8d91927298c5144dbedc35ffd4cb9bf4e99dbc5aa9992ebe254a08",
+    "linux-evidence/normal/controller/pair-results.json": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+    "linux-evidence/sanitize/controller/pair-results.json": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+    "linux-evidence/capacity-normal/controller/result.json": "3fdeba002d868b38701443153653c0eaa1df30b9bbf9c63fc0d285856ae9de89",
+    "linux-evidence/capacity/controller/result.json": "17785c3d8c948771a7b667fc5017fce3c6a0eccdb295e9cdc88d97876468c980",
+    "linux-evidence/capacity/massif.out": "71ede5419e0fd8dd210d85032583b9a2f91a41ea446a25bb4fb74e645520fec9"
+  },
+  "limitations": [
+    "No linked/physical ESP32 or RTOS high-water",
+    "Additional block metadata/allocator churn and measured full-subscription heap regression",
+    "Bounded lookup traversals replace direct array access; no latency guarantee",
+    "No allocator fragmentation/endurance guarantee",
+    "Component TX leases are allocation/borrow proxies; real transport checked separately",
+    "Reporting envelope adds mutually exclusive phases and omits other node/platform resources",
+    "Sampled whole-host maxima do not bound every request or normative profile",
+    "No official CSA rerun"
+  ]
+}

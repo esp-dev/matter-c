@@ -525,7 +525,9 @@
     "platform": "all",
     "privileged": false,
     "variant": "alloc",
-    "replace": ["main/apps/matter/crypto/matter_crypto_mbedtls.c"],
+    "replace": [
+      "main/apps/matter/crypto/matter_crypto_mbedtls.c"
+    ],
     "malloc": false
   },
   {
@@ -1034,6 +1036,15 @@
   {
     "name": "test_gui_pairing",
     "source": "tools/matter/tests/test_gui_pairing.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_im_blocks",
+    "source": "tools/matter/tests/test_im_blocks.c",
     "mode": "normal",
     "platform": "all",
     "privileged": false,
