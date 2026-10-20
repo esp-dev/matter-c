@@ -54,9 +54,12 @@ typedef enum { MATTER_IM_SUB_WAITING, MATTER_IM_SUB_OUTPUT, MATTER_IM_SUB_IN_FLI
  * RX copies use their actual length (<=READ_MAX_PAYLOAD); OOM returns
  * LIMIT_REACHED with queue/state unchanged. TX is a separate allocation of
  * output_capacity bytes (8..READ_MAX_OUTPUT). Both are released by delete.
- * A lazy 16 KiB snapshot arena
- * holds encoded spans/containers (each <=4096 B, depth4); optional Events snapshot on heap.
- * Snapshots reused between transactions, released by delete; no per-chunk snapshot allocation.
+ * Demand-sized immutable allocations hold encoded spans/containers (each <=4096 B,
+ * depth4, total payload <=16384 B per report); optional Events snapshot on heap.
+ * Values remain stable through the whole report, then release after final IM
+ * Success and MRP confirmation. Skipped reports release without TX. Failure/
+ * cancellation retains value storage until delete after owner transport drain.
+ * No per-chunk snapshot allocation; scalar values need no snapshot allocation.
  * Max chosen = requested ceiling (1 second when ceiling=0, within publisher limit).
  * An attribute-only update whose values are all unchanged returns to IDLE without
  * output until the maximum interval; its last-report/activity clocks are retained.

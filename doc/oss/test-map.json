@@ -1339,6 +1339,18 @@
       "allocation_variant": "native"
     },
     {
+      "path": "tools/matter/tests/test_im_snapshots.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_snapshots"
+      ],
+      "entrypoint": "ctest --test-dir build/cmake -R ^test_im_snapshots$ --output-on-failure",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "Built-in byte accounting and per-value OOM injection"
+    },
+    {
       "path": "tools/matter/tests/test_im_subscribe.c",
       "kind": "ctest-native",
       "ctest": [
@@ -2613,7 +2625,8 @@
         "tools/matter/tests/test_store.c",
         "tools/matter/tests/test_im_read.c",
         "tools/matter/tests/test_im_subscribe.c",
-        "tools/matter/tests/test_events.c"
+        "tools/matter/tests/test_events.c",
+        "tools/matter/tests/test_im_snapshots.c"
       ],
       "allocation_variant": "test-only byte accounting and allocation fault injection"
     }

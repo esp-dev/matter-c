@@ -1,6 +1,7 @@
 #include "matter_im_read.h"
 #include "matter_im_paths_internal.h"
 #include "matter_im_events_internal.h"
+#include "matter_im_snapshot_internal.h"
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
 #include <stdlib.h>
@@ -28,8 +29,8 @@ struct Matter_Im_Read {
 	uint8_t peer_status;
 	Matter_Im_Status_T continuation_error;
 	size_t count, cursor;
-	uint8_t* snapshots;
-	size_t snapshot_size, list_offset;
+	Matter_Im_Snapshots snapshots;
+	size_t list_offset;
 	/* Each planned IB either carries a whole attribute, a list prefix, or one ADD. */
 	struct { size_t item, start, end; bool prefix; } *plan;
 	size_t plan_capacity,item_capacity;
@@ -351,32 +352,8 @@ static bool report_data(Matter_Im_Read_T s, size_t count, bool more) {
 static Matter_Im_Status_T snapshot(Matter_Im_Read_T s) {
 	if (s->value.size>MATTER_IM_READ_MAX_VALUE) return MATTER_IM_RESOURCE_EXHAUSTED;
 	if (!s->value.data && (s->value.size || container(s->value.type))) return MATTER_IM_FAILURE;
-	if (!s->snapshots) {
-		s->snapshots=calloc(1,MATTER_IM_READ_SNAPSHOT_BYTES);
-		if (!s->snapshots) return MATTER_IM_RESOURCE_EXHAUSTED;
-	}
-	size_t available=MATTER_IM_READ_SNAPSHOT_BYTES-s->snapshot_size, size=s->value.size;
-	if (available>MATTER_IM_READ_MAX_VALUE) available=MATTER_IM_READ_MAX_VALUE;
-	uint8_t* data=s->snapshots+s->snapshot_size;
-	if (container(s->value.type)) {
-		if (size>available) return MATTER_IM_RESOURCE_EXHAUSTED;
-		if (size) memcpy(data,s->value.data,size);
-	} else {
-		s->token=(Matter_Tlv_Element_T){.type=s->value.type,.data=s->value.data,.size=size};
-		if (matter_tlv_writer_init(&s->writer,data,available,4)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-		Matter_Tlv_Result_T r=matter_tlv_write(&s->writer,&s->token,0);
-		if (r==MATTER_TLV_NO_SPACE) return MATTER_IM_RESOURCE_EXHAUSTED;
-		if (r!=MATTER_TLV_OK || matter_tlv_writer_finish(&s->writer,&size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-	}
-	const Matter_Tlv_Validation_Options_T opt={MATTER_IM_READ_MAX_VALUE,1024,4096,4,false,0,0};
-	Matter_Tlv_Validation_Report_T report;
-	Matter_Tlv_Result_T r=matter_tlv_validate(data,size,&opt,&s->validation,s->tags,48,&report);
-	if (r==MATTER_TLV_LIMIT_REACHED || r==MATTER_TLV_DEPTH_LIMIT) return MATTER_IM_RESOURCE_EXHAUSTED;
-	if (r!=MATTER_TLV_OK || matter_tlv_init(&s->value_reader,data,size,4)!=MATTER_TLV_OK ||
-		matter_tlv_next(&s->value_reader,&s->token)!=MATTER_TLV_OK || s->token.tag.control ||
-		s->token.type!=s->value.type) return MATTER_IM_FAILURE;
-	s->snapshot_size+=size; s->value.data=data; s->value.size=size;
-	return MATTER_IM_SUCCESS;
+	return matter_im_snapshot_copy(&s->snapshots,&s->value,&s->writer,&s->value_reader,&s->token,
+        &s->validation,s->tags,48);
 }
 static bool privilege(Matter_Im_Privilege_T p) {
 	return p == MATTER_IM_VIEW || p == MATTER_IM_OPERATE || p == MATTER_IM_MANAGE || p == MATTER_IM_ADMINISTER;
@@ -720,7 +697,7 @@ Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	free(s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) free(s->events->records); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	free(s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) free(s->events->records); free(s->events); matter_im_snapshots_clear(&s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

@@ -135,6 +135,34 @@ static void rich_update(RichSub* r,uint64_t now) {
     Matter_Exchange_Info_T e={1,13,true}; CHECK(matter_im_subscribe_bind_report(r->model.active,&e,now)==MATTER_OK);
 }
 static void complex_tests(void) {
+#ifdef MATTER_TEST_ALLOC
+    for(unsigned order=0;order<2;++order) {
+        RichSub* gated=rich_new(false,64); rich_request(gated,2,false,false,0);
+        receive(&gated->model,gated->model.input,gated->size,3,12,true);
+        CHECK(rich_report(gated,output(&gated->model,0))); size_t held=live;
+        CHECK(matter_im_subscribe_sent_at(gated->model.active,0)==MATTER_OK);
+        if(order) CHECK(matter_im_subscribe_confirm(gated->model.active,0)==MATTER_OK);
+        receive(&gated->model,sub_success,sizeof(sub_success),1,12,true);
+        if(!order) {
+            CHECK(matter_im_subscribe_process(gated->model.active,0)==MATTER_PENDING && live==held);
+            CHECK(matter_im_subscribe_confirm(gated->model.active,0)==MATTER_OK);
+        }
+        CHECK(live==held); /* Chunk one drained; chunk two still owns both values. */
+        CHECK(!rich_report(gated,output(&gated->model,0)) && live==held);
+        rich_ack(gated,true,false); CHECK(live==held);
+        size_t bytes=live_bytes;
+        literal(output(&gated->model,0),4,sub_response,sizeof(sub_response));
+        CHECK(live==held-2 && bytes-live_bytes==2*(sizeof(void*)+8));
+        rich_prime_finish(gated);
+        CHECK(matter_im_subscribe_changed(gated->model.active)==MATTER_OK); rich_update(gated,2000);
+        CHECK(rich_report(gated,output(&gated->model,2000)) && live==held);
+        CHECK(matter_im_subscribe_sent_at(gated->model.active,2000)==MATTER_OK);
+        if(!order) CHECK(matter_im_subscribe_cancel(gated->model.active)==MATTER_OK);
+        else CHECK(matter_im_subscribe_process(gated->model.active,32000)==MATTER_PORT_ERROR);
+        CHECK(live==held); /* Cancellation/timeout still leaves cleanup to drain/delete. */
+        rich_free(gated); CHECK(!live && !live_bytes);
+    }
+#endif
     /* Sensitive history and subsequent updates never leak another fabric,
      * even if FabricFiltered=false. Cursor advances over foreign records. */
     for(unsigned filtered=0;filtered<2;++filtered) {

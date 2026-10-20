@@ -1,8 +1,13 @@
 # Test inventory
 
-test-map.json enumerates 249 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 250 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory04 registers `test_im_snapshots`: exact encoded byte accounting, unchanged
+4096/16384-byte limits, 512 stable references, per-value OOM/retry and malformed
+value cleanup. Existing Read/Subscribe tests add live-byte/count checks through
+whole-report ACK/StatusResponse, new reports, cancellation/timeout and deletion.
 
 Memory03 registers `test_events`: requested-byte accounting, constructor/node
 OOM, allocation-free finish/abort, durable reservation faults/restart, full-log

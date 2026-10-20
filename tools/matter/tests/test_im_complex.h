@@ -17,6 +17,14 @@ static void values_continue(ImValues* m) {
     CHECK(matter_im_read_receive(m->active,&d)==MATTER_OK && matter_im_read_process(m->active,1)==MATTER_PENDING);
 }
 static void test_im_complex(void) {
+#ifdef MATTER_TEST_ALLOC
+    ImValues* small=values_new(1024,MATTER_TLV_BYTES,0); small->size=1; small->data[0]='a';
+    max_request=0; values_start(small); CHECK(max_request<MATTER_IM_READ_SNAPSHOT_BYTES);
+    size_t held=live,bytes=live_bytes;
+    CHECK(matter_im_read_sent(small->active)==MATTER_OK && matter_im_read_confirm(small->active,1)==MATTER_OK);
+    CHECK(matter_im_read_state(small->active)==MATTER_IM_READ_COMPLETE && live==held && live_bytes==bytes);
+    values_delete(small); CHECK(!live && !live_bytes);
+#endif
     const Matter_Tlv_Type_T types[]={MATTER_TLV_UTF8,MATTER_TLV_BYTES,MATTER_TLV_STRUCTURE,MATTER_TLV_ARRAY};
     for(unsigned type=0;type<4;++type) for(unsigned small=0;small<2;++small) {
         ImValues* m=values_new(small ? 96 : 1024,types[type],40); values_start(m);

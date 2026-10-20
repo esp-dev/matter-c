@@ -133,6 +133,24 @@ Other CLI options, credentials and state paths remain unchanged.
 
 ## Request storage
 
+Read/Subscribe share a private immutable value-snapshot implementation. Each
+captured complex value owns one allocation sized to its encoded bytes plus a
+link; earlier values never move as collection grows. Anonymous UTF8/BYTES still
+use the existing TLV writer, and all four complex types use the same validation
+budgets as before. Encoded value <=4096 B, aggregate encoded payload <=16384 B
+and the separate result ceiling remain unchanged. Node metadata/allocator
+overhead are additional to that payload budget. Scalars and filtered values
+allocate no snapshot bytes; empty strings still need their two encoded bytes.
+
+Read retains its value copies until deletion, including cancellation and timeout.
+Subscribe retains them through all chunks, their IM Success and MRP confirmation,
+then frees them before the response/idle phase. Skipped updates without TX also
+release copies. Failed/cancelled subscriptions retain value storage until owner
+transport drain and deletion. Collection and output planning never realloc/move
+snapshot bytes; per-instance stores are independent, with no global pool or new
+scheduler. OOM/validation failure preserves earlier copies and byte accounting
+and follows the existing Read path-status / Subscribe error-response policy.
+
 The node event log allocates one stable node per retained record, up to the
 unchanged `MATTER_EVENTS_CAPACITY` (16..1024; package default 128). Atomic
 `matter_events_prepare()` owns new nodes only for its input batch; it marks

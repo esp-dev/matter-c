@@ -112,7 +112,7 @@ typedef enum { MATTER_IM_READ_WAITING, MATTER_IM_READ_OUTPUT, MATTER_IM_READ_IN_
 typedef struct { const uint8_t* data; size_t size; uint8_t opcode; } Matter_Im_Read_Message_T;
 
 /* One transaction, heap context plus separately allocated RX/TX buffers and a
- * lazy bounded snapshot arena for complex
+ * demand-sized immutable snapshots for complex
  * values and an exactly sized validated filter table, all released by delete;
  * copied config/port, borrowed port.user. Empty/absent filters allocate nothing.
  * RX allocates the received length before replacing the old copy; OOM returns
@@ -120,10 +120,12 @@ typedef struct { const uint8_t* data; size_t size; uint8_t opcode; } Matter_Im_R
  * output_capacity during construction; failure unwinds the context allocation.
  * Owner thread, no tasks, hardware, session ownership or transport queue.
  * Subset: 0..9 local attribute selectors, concrete cluster version filters up to
- * the request payload budget, up to 320 expanded attribute results and chunking.
+ * the request payload budget, up to MATTER_IM_READ_MAX_RESULTS expanded results and chunking.
  * Enumeration and collection are bounded
  * to 8 candidates each per process call (concrete-only reads keep their original
- * single-call budget of 9); no snapshot allocation per chunk. Scalars keep the old API.
+ * single-call budget of 9); one stable allocation per encoded complex value,
+ * within the same 4096-byte value / 16384-byte total payload budget. No snapshot
+ * allocation per chunk. Scalars keep the old API and allocate no snapshot bytes.
  * Lists fitting one report use one ARRAY. Larger lists start with an ARRAY
  * prefix, followed by complete item IBs with ListIndex=null (Core 10.6.4.3.1).
  * Strings, structures and individual list items are never split; an item that

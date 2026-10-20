@@ -1,5 +1,15 @@
 # Development status
 
+**Memory04: Read/Subscribe share demand-sized immutable value storage.**
+Each encoded value owns a stable allocation; the 4096/16384-byte payload budgets
+and result ceilings are unchanged. Subscribe frees after the whole report's
+IM/MRP gates, Read on delete; cancellation/timeout retain values through owner
+drain. ESP32 owner sizes remain unchanged; an 8-byte string requests 14 B instead
+of a 16384-byte arena, while 512 saturated values add 2048 B of link metadata.
+Linux CTest 88/88 and two-instance checks 6/6 per memory variant, snapshot OOM
+Memcheck and 16/1024-capacity tests are clean. [Report](memory04-validation.md).
+No device or official CSA rerun. Next: inspect Invoke/Write/client allocations.
+
 **Memory03: event-log retention and batch staging allocate on demand.**
 Stable event nodes replace both fixed arrays, preserving number reservations,
 oldest lowest-priority eviction, same-batch protection and atomic prepare/finish.

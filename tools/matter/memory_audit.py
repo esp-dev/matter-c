@@ -36,6 +36,8 @@ PROBES = {
     },
     "model/matter_im_read": {
         "read": "sizeof(struct Matter_Im_Read)",
+        "value_snapshots": "sizeof(Matter_Im_Snapshots)",
+        "value_snapshot_node": "sizeof(Matter_Im_Snapshot_Node)",
         "read_events": "sizeof(ReadEvents)",
         "read_event_records": "sizeof(((ReadEvents*)0)->records)",
         "read_item": "sizeof(*((struct Matter_Im_Read*)0)->items)",

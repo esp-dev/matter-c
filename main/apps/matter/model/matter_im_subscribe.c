@@ -1,6 +1,7 @@
 #include "matter_im_subscribe.h"
 #include "matter_im_paths_internal.h"
 #include "matter_im_events_internal.h"
+#include "matter_im_snapshot_internal.h"
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
 #include <stdlib.h>
@@ -28,7 +29,7 @@ struct Matter_Im_Subscribe {
     Matter_Im_Subscribe_State_T state;
     uint64_t now, expires, last_report,last_activity;
     bool more,report_started;
-    size_t count,cursor,snapshot_size,list_offset;
+    size_t count,cursor,list_offset;
     struct { size_t item,start,end; bool prefix; } plan[MATTER_IM_READ_MAX_PATHS];
     struct { Matter_Im_Path_T path; Matter_Im_Value_T value; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } *items;
     size_t item_capacity;
@@ -36,7 +37,7 @@ struct Matter_Im_Subscribe {
     size_t request_count,request_cursor,filter_count,collected,valid;
     struct { uint16_t endpoint; uint32_t cluster,version; } *filters;
     Matter_Im_Path_T after; bool after_valid,expanding,capture_data,attribute_report;
-    uint8_t* snapshots; SubEvents* events;
+    Matter_Im_Snapshots snapshots; SubEvents* events;
     Matter_Tlv_Reader_T value_reader; Matter_Tlv_Element_T element;
     uint32_t id;
     uint16_t minimum, maximum;
@@ -283,27 +284,10 @@ static bool complex_value(Matter_Tlv_Type_T type) {
 }
 static uint8_t copy_value(Matter_Im_Subscribe_T s) {
     size_t size=s->value.size;
-    if(size>MATTER_IM_READ_MAX_VALUE || size>MATTER_IM_READ_SNAPSHOT_BYTES-s->snapshot_size) return MATTER_IM_RESOURCE_EXHAUSTED;
+    if(size>MATTER_IM_READ_MAX_VALUE || size>MATTER_IM_READ_SNAPSHOT_BYTES-s->snapshots.size) return MATTER_IM_RESOURCE_EXHAUSTED;
     if((!s->value.data && size) || (container(s->value.type) && (!s->value.data || size<2))) return MATTER_IM_FAILURE;
-    if(!s->snapshots) { s->snapshots=calloc(1,MATTER_IM_READ_SNAPSHOT_BYTES); if(!s->snapshots) return MATTER_IM_RESOURCE_EXHAUSTED; }
-    uint8_t* data=s->snapshots+s->snapshot_size;
-    if(container(s->value.type)) memcpy(data,s->value.data,size);
-    else {
-        size_t cap=MATTER_IM_READ_SNAPSHOT_BYTES-s->snapshot_size;
-        if(cap>MATTER_IM_READ_MAX_VALUE) cap=MATTER_IM_READ_MAX_VALUE;
-        s->element=(Matter_Tlv_Element_T){.type=s->value.type,.data=s->value.data,.size=size};
-        if(matter_tlv_writer_init(&s->writer,data,cap,4)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-        Matter_Tlv_Result_T r=matter_tlv_write(&s->writer,&s->element,0);
-        if(r==MATTER_TLV_NO_SPACE) return MATTER_IM_RESOURCE_EXHAUSTED;
-        if(r!=MATTER_TLV_OK || matter_tlv_writer_finish(&s->writer,&size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    }
-    const Matter_Tlv_Validation_Options_T opt={MATTER_IM_READ_MAX_VALUE,1024,4096,4,false,0,0};
-    Matter_Tlv_Validation_Report_T report;
-    Matter_Tlv_Result_T r=matter_tlv_validate(data,size,&opt,&s->validation,s->tags,48,&report);
-    if(r==MATTER_TLV_LIMIT_REACHED || r==MATTER_TLV_DEPTH_LIMIT) return MATTER_IM_RESOURCE_EXHAUSTED;
-    if(r!=MATTER_TLV_OK || matter_tlv_init(&s->value_reader,data,size,4)!=MATTER_TLV_OK ||
-        matter_tlv_next(&s->value_reader,&s->element)!=MATTER_TLV_OK || s->element.tag.control || s->element.type!=s->value.type) return MATTER_IM_FAILURE;
-    s->value.data=data; s->value.size=size; s->snapshot_size+=size; return 0;
+    return matter_im_snapshot_copy(&s->snapshots,&s->value,&s->writer,&s->value_reader,&s->element,
+        &s->validation,s->tags,48);
 }
 static bool filtered_version(Matter_Im_Subscribe_T s,uint32_t version) {
     bool match=false;
@@ -403,8 +387,16 @@ static uint8_t expand(Matter_Im_Subscribe_T s) {
     if(s->request_cursor==s->request_count) s->state=MATTER_IM_SUB_COLLECTING;
     return 0;
 }
+/* Only after whole-report IM success and MRP confirmation, on a skipped
+ * report with no TX, or before a new capture in the drained idle state. */
+static void clear_snapshots(Matter_Im_Subscribe_T s) {
+    matter_im_snapshots_clear(&s->snapshots);
+    s->value.data=NULL; s->value.size=0;
+    for(size_t i=0;i<s->count;++i) { s->items[i].value.data=NULL; s->items[i].value.size=0; }
+}
 static void capture_begin(Matter_Im_Subscribe_T s,bool data) {
-    s->cursor=0; s->list_offset=0; s->snapshot_size=0; s->report_started=false; s->terminal_report=false;
+    clear_snapshots(s);
+    s->cursor=0; s->list_offset=0; s->report_started=false; s->terminal_report=false;
     s->collected=s->valid=0; s->attribute_report=false; s->capture_data=data;
     if(s->events) { s->events->access_cursor=s->events->filter_count=0; s->events->collected=false; }
     s->state=MATTER_IM_SUB_COLLECTING;
@@ -651,6 +643,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
             encoded=chunk(s,true); if(!encoded) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);
             s->state=MATTER_IM_SUB_OUTPUT;
         } else {
+            clear_snapshots(s);
             if(s->events) {
                 if(s->events->active) s->events->next=s->events->pending_next;
                 free(s->events->records); s->events->records=NULL; s->events->count=s->events->cursor=0;
@@ -685,7 +678,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
              * Event subscriptions retain their independent cursor/report rules. */
             if(!code && s->phase==UPDATE && !s->attribute_report && !s->terminal_report &&
                 (!s->events || !s->events->requested) && now<add(s->last_activity,(uint64_t)s->maximum*1000)) {
-                s->state=MATTER_IM_SUB_IDLE;
+                clear_snapshots(s); s->state=MATTER_IM_SUB_IDLE;
             } else {
                 encoded=code?status(s,code):chunk(s,true);
                 if(!encoded) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);
@@ -762,5 +755,5 @@ Matter_Im_Subscribe_State_T matter_im_subscribe_state(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_delete(Matter_Im_Subscribe_T s) {
     if(!s) return MATTER_OK;
     Matter_Result_T r=check(s); if(r) return r;
-    s->busy=true; release(s); free(s->items); free(s->input); free(s->output); free(s->events); free(s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+    s->busy=true; release(s); free(s->items); free(s->input); free(s->output); free(s->events); matter_im_snapshots_clear(&s->snapshots); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }

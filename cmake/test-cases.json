@@ -207,6 +207,15 @@
     "replace": []
   },
   {
+    "name": "test_im_snapshots",
+    "source": "tools/matter/tests/test_im_snapshots.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
     "name": "test_im_subscribe",
     "source": "tools/matter/tests/test_im_subscribe.c",
     "mode": "normal",
