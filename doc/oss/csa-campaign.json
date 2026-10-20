@@ -1340,8 +1340,8 @@
         "TC_SU_2_2"
       ],
       "kind": "OTA_QUERY_PHASE_HANDOFF_RACE_AND_BACKOFF_WINDOW",
-      "evidence": "csa65-results.json",
-      "action": "Retain original FAIL607 and separate fault608. CSA65 journal confirms VM link/address outage overlapping the estimated CSA64 failed attempt; exact native errno remains uncaptured. Four diagnostic full updates PASS27 each (GDB LSan OFF), no production fix justified. CSA66: isolated same-instance transient-network recovery and first-error capture; preserve real retry guards. Original handoff/observation clarification remains."
+      "evidence": "csa66-results.json",
+      "action": "Retain original FAIL607, separate fault608 and historical CSA64 functional FAIL. CSA65 confirms VM outage during the estimated attempt; exact errno remains unknown. CSA66 process-local resolver send failure recovers in the same instance, PASS25 per memory variant with full memory acceptance. No native fix justified. CSA67: bounded receive-error recovery; actual link/address replacement is not covered. Original handoff/observation clarification remains."
     },
     {
       "cases": [

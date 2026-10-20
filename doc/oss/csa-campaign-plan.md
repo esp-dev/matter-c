@@ -241,6 +241,22 @@ first-error capture. Isolate the fault to the test process, preserve real retry
 guards and do not disconnect the shared VM/SSH interface. Fresh-state diagnostic
 passes do not establish recovery of the same instance after interface loss.
 
+## CSA66: controlled resolver send failure and full recovery pass
+
+[Receipt](csa66-results.json) and [analysis](csa66-validation.md) prove one
+ENETUNREACH followed by same-instance full CASE and signed simulated OTA, without
+recommissioning or provider restart. Independent25 checks per memory variant;
+actual event retry gaps120020/120027ms, full two-boot Memcheck zero errors/live
+blocks and separate ASan/UBSan/LSan. Hook controls36 each, four offline oracle
+controls and five rejected CLI combinations pass. No native/test-PICS workaround
+or original CSA result change; the historical CSA64 functional FAIL remains.
+
+Next: **CSA67**, bounded resolver receive-error recovery with first-result capture
+using the existing public API and a process-local fault. This send-failure result
+does not prove interface/address replacement or recovery from a fatal RX error.
+Do not disconnect the shared VM or blindly rerun already-attributed original
+failures. Reproduce a native defect before changing code.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

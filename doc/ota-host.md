@@ -304,3 +304,28 @@ scenario then checks exact BDX bytes/counters/EOF, token/version binding, signed
 simulated installation, live Applying, restart, Notify and fresh CASE readback.
 Run first under Memcheck, then separately ASan/UBSan/LSan. These are independent
 fault/recovery checks and cannot replace the original TC_SU_2_2 outcome.
+
+For a process-local resolver send failure, compile the optional Linux fixture:
+
+```sh
+gcc -shared -fPIC -Wall -Wextra -Werror -O0 -o build/network-fault.so tools/matter/tests/test_ota_network_fault.c -ldl
+```
+
+Use `--mode query-network-recovery --network-fault-library <absolute-fault.so>
+--events --event-min-interval 5 --local-query --require-trace --apply-binding
+--bdx-profile` with the existing private executable/provider/controller options.
+Run the normal native executable directly with `--valgrind`; do not wrap it in
+a Python launcher that might lose Memcheck coverage across exec. For a separate
+sanitized executable omit Valgrind and pass `--asan-runtime <absolute-libasan.so>`
+(the compiler reports its location with `gcc -print-file-name=libasan.so`).
+
+The fixture returns ENETUNREACH once for the requestor's initial operational
+resolver query. It records scalar fault metadata, leaves all real interfaces up,
+and is disabled on the later simulated OTA boot. The provider/controller do not
+receive this preload. Initial Querying must become Idle/Failure before any peer
+QueryImage or download. A repeated announcement/local request must preserve the
+existing120s first-failure backoff. Check the actual StateTransition timestamps,
+same requestor PID/no recommissioning, authenticated CASE bound to QueryImage,
+then the ordinary full signed OTA/Notify acceptance. This is a controlled send
+failure, not proof of link/address replacement or fatal receive-error recovery,
+and it does not identify the uncaptured errno of the historical CSA64 outage.

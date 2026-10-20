@@ -15,8 +15,11 @@ apply-* modes cover TC-SU-2.5 with real provider delays, never an accelerated
 requestor clock. They verify peer responses, retry counts and image disposal.
 query-restart loses the provider's CASE session after Busy60, observes the stale
 session timeout and real240s backoff, then requires fresh CASE and full OTA.
+query-network-recovery injects one process-local resolver send failure, preserves
+the real120s first-failure backoff and completes OTA without recommissioning.
 """
 import argparse
+import errno
 import hashlib
 import json
 import os
@@ -24,6 +27,7 @@ from pathlib import Path
 import re
 import struct
 import subprocess
+import sys
 import time
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec, utils
@@ -324,7 +328,9 @@ def main():
                    'not-available', 'same-version', 'older-version', 'invalid-uri',
                    'interrupt-retry', 'version-mismatch', 'apply-proceed-0',
                    'apply-proceed-180', 'apply-await-60', 'apply-await-180',
-                   'apply-discontinue', 'query-timeout', 'query-restart'), default='busy-update')
+                   'apply-discontinue', 'query-timeout', 'query-restart', 'query-network-recovery'), default='busy-update')
+    p.add_argument('--network-fault-library', help='Linux test_ota_network_fault.c shared library; query-network-recovery only, loaded into the requestor alone.')
+    p.add_argument('--asan-runtime', help='Explicit libasan.so preload before the fault library for a sanitized requestor; never with --valgrind.')
     p.add_argument('--stall-provider', help='Separate laboratory provider that stalls BDX data but keeps MRP alive; interrupt-retry only.')
     p.add_argument('--recovery-announcement-reason', type=int, choices=(0, 1),
                    help='Explicit AnnounceOTAProvider reason after provider restart; interrupt-retry only. Omitted preserves the initial announcement reason.')
@@ -343,6 +349,13 @@ def main():
         p.error('--event-min-interval requires --events and a value in 0..65535')
     if a.local_query and a.default_provider:
         p.error('--local-query and --default-provider select different fixtures')
+    network_recovery = a.mode == 'query-network-recovery'
+    if network_recovery and (not a.local_query or not a.events or not a.network_fault_library):
+        p.error('query-network-recovery requires --local-query --events --network-fault-library')
+    if a.network_fault_library and (not network_recovery or sys.platform != 'linux' or not Path(a.network_fault_library).is_file()):
+        p.error('--network-fault-library requires query-network-recovery on Linux and an existing shared library')
+    if a.asan_runtime and (not network_recovery or a.valgrind or not Path(a.asan_runtime).is_file()):
+        p.error('--asan-runtime requires query-network-recovery without --valgrind and an existing runtime')
     apply_policy = {'apply-proceed-0': (0, 0), 'apply-proceed-180': (0, 180),
                     'apply-await-60': (1, 60), 'apply-await-180': (1, 180),
                     'apply-discontinue': (2, 180)}.get(a.mode)
@@ -355,10 +368,10 @@ def main():
         p.error('--stall-provider requires --mode interrupt-retry')
     if a.recovery_announcement_reason is not None and a.mode != 'interrupt-retry':
         p.error('--recovery-announcement-reason requires --mode interrupt-retry')
-    if a.apply_binding and a.mode not in ('update', 'query-restart'):
-        p.error('--apply-binding requires --mode update or query-restart')
-    if a.bdx_profile and a.mode not in ('update', 'interrupt-retry', 'query-restart'):
-        p.error('--bdx-profile requires --mode update, interrupt-retry or query-restart')
+    if a.apply_binding and a.mode not in ('update', 'query-restart', 'query-network-recovery'):
+        p.error('--apply-binding requires --mode update, query-restart or query-network-recovery')
+    if a.bdx_profile and a.mode not in ('update', 'interrupt-retry', 'query-restart', 'query-network-recovery'):
+        p.error('--bdx-profile requires --mode update, interrupt-retry, query-restart or query-network-recovery')
     image_version = {'same-version': 1, 'older-version': 0, 'version-mismatch': 3}.get(a.mode, a.image_version)
     need_trace = a.events or a.require_trace or a.apply_binding or a.bdx_profile or a.mode not in ('busy-update', 'update')
     out = Path(a.output).resolve(); out.mkdir(parents=True, exist_ok=False)
@@ -373,6 +386,8 @@ def main():
                            [('requestor', a.exe), ('provider', a.provider), ('chip-tool', a.chip_tool)]}}
     if a.stall_provider:
         report['fault_provider_sha256'] = hashlib.sha256(Path(a.stall_provider).read_bytes()).hexdigest()
+    if network_recovery:
+        report['fault_library_sha256'] = hashlib.sha256(Path(a.network_fault_library).read_bytes()).hexdigest()
     provider = node = client = reader = None
     logs = []; phase = 0; provider_phase = 0
 
@@ -498,7 +513,15 @@ def main():
             argv = ['valgrind', '--leak-check=full', '--show-leak-kinds=all',
                     '--errors-for-leak-kinds=definite,indirect,possible', '--track-origins=yes',
                     '--error-exitcode=99', '--log-file=' + str(out / f'valgrind-{phase}.log'), *argv]
-        node = subprocess.Popen(argv, stdin=subprocess.PIPE if a.local_query else None, stdout=log(f'node-{phase}.log'), stderr=log(f'node-{phase}.err'), env=env)
+        node_env = env
+        if network_recovery:
+            node_env = dict(env, LD_PRELOAD=':'.join(str(Path(x).resolve()) for x in
+                            (a.asan_runtime, a.network_fault_library) if x))
+            if phase == 1:
+                node_env['MATTER_TEST_DNS_FAILURE_LOG'] = str(out / 'network-fault.jsonl')
+            else:
+                node_env.pop('MATTER_TEST_DNS_FAILURE_LOG', None)
+        node = subprocess.Popen(argv, stdin=subprocess.PIPE if a.local_query else None, stdout=log(f'node-{phase}.log'), stderr=log(f'node-{phase}.err'), env=node_env)
         wait(lambda: 'NODE instance=' in node_text())
 
     def command(c, argv, pattern=r'SuppressResponse = true', timeout=30):
@@ -581,6 +604,26 @@ def main():
             check('default-provider-readback-before-update-available', bool(re.search(r'ProviderNodeID: 2\b', selected))
                   and 'Endpoint: 0' in selected and 'FabricIndex: 1' in selected)
         announce()
+        if network_recovery:
+            original_node = node.pid
+            wait(lambda: 'OTA_STATE state=1 reason=2' in node_text())
+            failed_at = time.monotonic()
+            injected = [json.loads(line) for line in (out / 'network-fault.jsonl').read_text().splitlines()]
+            check('one-resolver-send-fault-without-peer-query', len(injected) == 1
+                  and injected[0]['operation'] == 'sendto' and injected[0]['errno'] == errno.ENETUNREACH
+                  and query_count() == 0 and not responses() and 'OTA_DOWNLOAD' not in node_text()
+                  and node.poll() is None, injected)
+            announce()  # A repeated offer and owner request must not erase backoff.
+            wait(lambda: query_count() == 1, 150, allow_node_exit=True)
+            elapsed = time.monotonic() - failed_at
+            report['network_recovery'] = {'fault': injected[0],
+                'observer_failure_to_query_seconds': elapsed,
+                'CASE': query_case(provider_logs()[0]),
+                'requestor_restarts_before_recovery': phase - 1,
+                'provider_restarts': provider_phase - 1}
+            check('same-requestor-recovers-after-real-backoff', node.pid == original_node
+                  and phase == provider_phase == 1 and elapsed >= 119.5,
+                  report['network_recovery'])
         if a.mode == 'query-timeout':
             wait(lambda: bool(ota_messages(out / 'provider.log', 0, True)))
             check('provider-received-query-before-ignoring-response', True)
@@ -817,7 +860,27 @@ def main():
                 [(1, 2), (2, 1)] if a.mode in ('query-timeout', 'not-available', 'same-version', 'older-version', 'invalid-uri') else (
                 [(1, 2), (2, 3), (3, 2), (2, 4), (4, 5)] if busy_mode else [(1, 2), (2, 4)])
             )
+            if network_recovery:
+                prefix = [(1, 2), (2, 1), (1, 2), (2, 4), (4, 5)]
             check('ota-event-transition-sequence', sequence[:len(prefix)] == prefix, sequence)
+            if network_recovery:
+                states = {}
+                for frame in frames(client.text() + reader.text()):
+                    if frame['kind'] == 'Event' and frame['path'] == (0, 0x2a, 0):
+                        body = frame['body']
+                        states[integer(body, 'Event number')] = {
+                            key: integer(body, key) for key in ('Timestamp', 'PreviousState', 'NewState', 'Reason')}
+                ordered = [states[k] for k in sorted(states)]
+                failures = [x for x in ordered if (x['PreviousState'], x['NewState'], x['Reason']) == (2, 1, 2)]
+                assert len(failures) == 1, 'Expected exactly one transport-failure state event'
+                failure = failures[0]
+                retries = [x for x in ordered if x['Timestamp'] > failure['Timestamp']
+                           and (x['PreviousState'], x['NewState']) == (1, 2)]
+                assert len(retries) == 1, 'Expected exactly one post-failure Querying event'
+                retry = retries[0]
+                gap = retry['Timestamp'] - failure['Timestamp']
+                report['network_recovery']['event_retry_gap_ms'] = gap
+                check('failure-reason-and-monotonic-backoff', gap >= 120000, {'failure': failure, 'retry': retry, 'gap_ms': gap})
             if not negative:
                 check('downloading-directly-to-applying', (4, 5) in sequence and (4, 1) not in sequence
                       if a.mode != 'interrupt-retry' else (4, 5) in sequence, sequence)

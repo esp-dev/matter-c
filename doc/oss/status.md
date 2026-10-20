@@ -7,6 +7,15 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA66: same-instance recovery from an injected resolver send failure passes.**
+Independent full OTA checks25/25 per memory variant: one ENETUNREACH, preserved
+120020/120027ms retry intervals, full CASE, signed BDX/apply/reboot/Notify and
+version2 readback. Memcheck has zero errors/live blocks; separate ASan/UBSan/LSan
+is clean. [Report](csa66-validation.md). No native change or original CSA rerun;
+counts stay122 PASS/28 FAIL/5 prerequisites. Actual link/address replacement and
+fatal receive-error recovery are not covered. Next:CSA67, bounded resolver
+receive-error recovery with first-result capture. Paired Windows nodes untouched.
+
 **CSA65: VM network outage identified during the early sanitizer failure.**
 Historical journal confirms link down/address removal during the estimated
 attempt around10:01:46 UTC; delayed reports arrived after network return.
