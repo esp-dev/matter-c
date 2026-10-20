@@ -7,6 +7,16 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA65: VM network outage identified during the early sanitizer failure.**
+Historical journal confirms link down/address removal during the estimated
+attempt around10:01:46 UTC; delayed reports arrived after network return.
+Four independent diagnostic full updates pass27 checks each; three include
+ASan/UBSan/LSan, while GDB explicitly disables LSan. Exact historical errno is
+unknown; no native fix is justified. [Report](csa65-validation.md). Preserve
+CSA64 functional FAIL and original607; counts remain122 PASS/28 FAIL/5 prerequisites.
+Next:CSA66, controlled same-instance network-failure/recovery with first-error
+capture, without disconnecting the shared VM. Paired Windows nodes untouched.
+
 **CSA64: recovery completes under Memcheck; sanitizer variant retains FAIL.**
 Normal host passes27 checks: real backoff, new resumed CASE, exact signed BDX,
 apply/reboot/Notify and version2 readback. Two boots have zero Memcheck errors/live

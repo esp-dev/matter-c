@@ -1,0 +1,797 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa64-results.json",
+  "previous_sha256": "b70bce1a9bb0cd1fb8c4af7b2a7cd24d072b9ff7430f5a77a039e286017fe4b3",
+  "source_base_commit": "c7454cf5c29b335ded6678ed860e1f8613bb204e",
+  "scope": "Bounded investigation of CSA64 sanitizer attempt failing32ms before a new CASE reaches the peer. Historical system journal confirms VM link/address outage at the estimated attempt time. Four full diagnostic reruns pass; no native fix is justified.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [],
+  "original_runs": [],
+  "original_rerun": {
+    "performed": false,
+    "retained": "TC_SU_2_2 FAIL607;608 injected-loss diagnostic remains separate. CSA64 functional sanitizer FAIL remains unsuperseded."
+  },
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "PICS_note": "Inherited unchanged profile; no original CSA execution in CSA65.",
+  "conclusion": {
+    "state": "ENVIRONMENT_OUTAGE_CONFIRMED_NATIVE_ERROR_UNCAPTURED",
+    "native_production_change": false,
+    "fix_justified": false,
+    "historical_failure_retained": true,
+    "counts_changed": false,
+    "certification": false,
+    "reason": "The VM lost carrier and addresses during the estimated attempt. Controller receipt was delayed until connectivity returned. This invalidates a stable-network interpretation of that run; exact native branch/errno is still unknown. No evidence justifies changing production behavior."
+  },
+  "historical_boundary": {
+    "retry_wait_ms": 240024,
+    "failed_attempt_ms": 32,
+    "new_CASE_seen_by_provider": false,
+    "outgoing_accepted": true,
+    "evidence": "Original third OTA_QUERY confirms accepted asynchronous outgoing invocation, not successful resolution, transmission or handshake. Empty sanitizer stderr did not imply functional acceptance."
+  },
+  "production_identity": {
+    "tracked_C_H_inputs_checked": 362,
+    "source_changed": false,
+    "binaries_sha256": {
+      "normal": "0d552a6e4323f16eef9cba665e5699dbed3d45d9e9e8c5aa5aec96bbb63ffeee",
+      "sanitize": "401f694938f23185a0bfcbdc8474a72e2544be5c67d4c2042b8da25095f94605"
+    },
+    "normal_Memcheck": "CSA64 prior acceptance only; no new normal Memcheck run in CSA65."
+  },
+  "scenarios": [
+    {
+      "variant": "scalar",
+      "purpose": "Private scalar diagnostics at resolver admission/completion, outgoing preparation, CASE creation and query completion.",
+      "result": "PASS",
+      "check_count": 27,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-provider-killed-before-retry",
+          "status": "PASS"
+        },
+        {
+          "name": "stale-case-query-fails-without-response-or-download",
+          "status": "PASS"
+        },
+        {
+          "name": "same-requestor-new-case-after-provider-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "second-failure-backoff-not-bypassed",
+          "status": "PASS"
+        },
+        {
+          "name": "recovery-query-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "7ea75e1a4f8bb974936f99c3a9be2e3f5013adf1ee51fe528bc7319c00d6797f",
+      "logs_sha256": {
+        "provider-2.log": "97afe76a7e67757cc0cd5701ee2a11854d415f35f1c822414538d5e76f466bff",
+        "node-2.log": "af5b098d11765b26f17236e6167065ef63fe38e63eec2fc95b976b1b7a1716ef",
+        "provider.log": "a10d4b781fe624d145273286846612e19b1f923fbab56b84c273b76a8b128482",
+        "node-1.log": "2065297785be70a2b423d1daf7964016099c6c574fd6b9113d6c6ba7804a3091",
+        "fresh-reader/interactive.log": "2e3e0306f6cd568b69531a0623852d7ce75de8f461a4d736cf8ace419abb52b6",
+        "controller/interactive.log": "995b74b5fa641d75f9a3faafefed2c03256c8ee69829543646afd82bd997f7f0"
+      },
+      "driver_sha256": "674ebe2bd8c752958188d1b7b440372ad0a0231a9cea66c438889100b3aca686",
+      "launcher_sha256": "ace9751c845669d489d4eb9986ed376e4a57b503aa678cbdcd456c8507dfa935",
+      "native_sha256": "ace9751c845669d489d4eb9986ed376e4a57b503aa678cbdcd456c8507dfa935",
+      "peer_binaries_sha256": {
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "memory": {
+        "ASan": true,
+        "UBSan": true,
+        "LSan": true,
+        "native_stderr_empty": true,
+        "sanitizer_errors": 0,
+        "limit": "No sanitizer diagnostic observed across the completed two-boot scenario; this does not explain the historical failure."
+      },
+      "recovery": {
+        "CASE_mode": "resumed",
+        "unknown_session_drops": 5,
+        "observer_failure_to_recovery_seconds": 240.17090038163587,
+        "requestor_restarts_before_recovery": 0,
+        "provider_restarts": 1,
+        "native_boots": 2
+      },
+      "update": {
+        "bytes": 16585,
+        "blocks": 17,
+        "EOF": 16,
+        "AckEOF": 16,
+        "image_sha256": "ee11f3003a3bd3b920d453133a34eff4d5daf3a183c48de9eb829b066f09e072",
+        "version": 2,
+        "coverage": "Signed host simulation, exact BDX bytes, bound Apply/Notify, live Applying, simulated reboot, fresh CASE version2/SoftwareUpdateCompleted readback."
+      }
+    },
+    {
+      "variant": "gdb",
+      "purpose": "Original frozen sanitizer binary with hardware watch on outgoing.failed during the third operation; debugger/wrapper changes execution environment.",
+      "result": "PASS",
+      "check_count": 27,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-provider-killed-before-retry",
+          "status": "PASS"
+        },
+        {
+          "name": "stale-case-query-fails-without-response-or-download",
+          "status": "PASS"
+        },
+        {
+          "name": "same-requestor-new-case-after-provider-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "second-failure-backoff-not-bypassed",
+          "status": "PASS"
+        },
+        {
+          "name": "recovery-query-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "cd878f8b10b1b6a3b07f5c96516eee179d3e106055e31a20a5ff74765f042791",
+      "logs_sha256": {
+        "provider-2.log": "19dc79a1e1514cab300be24d3481869d5fbb8497603c8922e9ad2e36d220da7b",
+        "node-2.log": "538d69f34abc22cbf53d50599f6abaa4b62ebb9845ab0335c07cfc92e038f21c",
+        "provider.log": "884a64f833ec0b3505a29d90cd4bc6cf96e7e49d6424fe9a5948294867a86c92",
+        "node-1.log": "32d6471df1aadde339e61d0bf56d2e3dc67cc24fecaab47bc2e594dc7d1c2ecd",
+        "fresh-reader/interactive.log": "b37593979a88528663f4ebb2f9d42a6d87d75b150d79370f79beb6eca952d61a",
+        "controller/interactive.log": "c30075a74f0f431efcd0f1a2c4bbade658a2e560990b08c641c18a262c58bcfe"
+      },
+      "driver_sha256": "674ebe2bd8c752958188d1b7b440372ad0a0231a9cea66c438889100b3aca686",
+      "launcher_sha256": "2e080dbe35611f89a77c30e7fc37450b1c5c7bb5eb424bda73efcf9dda05de3d",
+      "native_sha256": "401f694938f23185a0bfcbdc8474a72e2544be5c67d4c2042b8da25095f94605",
+      "peer_binaries_sha256": {
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "memory": {
+        "ASan": true,
+        "UBSan": true,
+        "LSan": false,
+        "native_stderr_empty": true,
+        "sanitizer_errors": 0,
+        "limit": "GDB uses ptrace, so leak detection was explicitly disabled. Native stdout/stderr share a PTY and its combined log was scanned. Empty driver stderr and raw memory-diagnostics-clean check are not independent native-stderr or LSan acceptance."
+      },
+      "recovery": {
+        "CASE_mode": "resumed",
+        "unknown_session_drops": 5,
+        "observer_failure_to_recovery_seconds": 240.2225423580967,
+        "requestor_restarts_before_recovery": 0,
+        "provider_restarts": 1,
+        "native_boots": 2
+      },
+      "update": {
+        "bytes": 16585,
+        "blocks": 17,
+        "EOF": 16,
+        "AckEOF": 16,
+        "image_sha256": "41ec62a5da9854faa799ad5d82fe970646b2032ef5e2c7b30d7962b22a4d29d1",
+        "version": 2,
+        "coverage": "Signed host simulation, exact BDX bytes, bound Apply/Notify, live Applying, simulated reboot, fresh CASE version2/SoftwareUpdateCompleted readback."
+      }
+    },
+    {
+      "variant": "quiet",
+      "purpose": "Private first-failure branch diagnostics, silent on successful operations to reduce logging perturbation.",
+      "result": "PASS",
+      "check_count": 27,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-provider-killed-before-retry",
+          "status": "PASS"
+        },
+        {
+          "name": "stale-case-query-fails-without-response-or-download",
+          "status": "PASS"
+        },
+        {
+          "name": "same-requestor-new-case-after-provider-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "second-failure-backoff-not-bypassed",
+          "status": "PASS"
+        },
+        {
+          "name": "recovery-query-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "509fdaa1c46239061db23832ae38f49fa0f41e087dbd0740f0d5f68c38f335b7",
+      "logs_sha256": {
+        "provider-2.log": "8fb70ac59a3bfaef75b62529b321d6e447454ca79d1f495494d6e5140f494e30",
+        "node-2.log": "f35f59f21f43a2d33aac8f1d378c13b9a61b9815009ae429dbcb9661eb9eeb1d",
+        "provider.log": "c5c76393a22bd153c96804abfad4c354d8433bcb2431a1a88dd75aba370da1d2",
+        "node-1.log": "f7c16afc84a9091d51e4b5930e93409ba934a5704e3dea63524a3f08c7a2d57b",
+        "fresh-reader/interactive.log": "f795067df1bce1adc49e8c19911c135ae2a31cd3b139da9cf37871de31a30748",
+        "controller/interactive.log": "b4ace9465294fb98b328e4c6c46cc4d4a121d00b6c491374ca0de6468c649184"
+      },
+      "driver_sha256": "674ebe2bd8c752958188d1b7b440372ad0a0231a9cea66c438889100b3aca686",
+      "launcher_sha256": "fd34444124ec89763aecc2b17bebd542ab79567bd012ea055c298e10591c27cc",
+      "native_sha256": "fd34444124ec89763aecc2b17bebd542ab79567bd012ea055c298e10591c27cc",
+      "peer_binaries_sha256": {
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "memory": {
+        "ASan": true,
+        "UBSan": true,
+        "LSan": true,
+        "native_stderr_empty": true,
+        "sanitizer_errors": 0,
+        "limit": "No sanitizer diagnostic observed across the completed two-boot scenario; this does not explain the historical failure."
+      },
+      "recovery": {
+        "CASE_mode": "resumed",
+        "unknown_session_drops": 5,
+        "observer_failure_to_recovery_seconds": 240.16650245292112,
+        "requestor_restarts_before_recovery": 0,
+        "provider_restarts": 1,
+        "native_boots": 2
+      },
+      "update": {
+        "bytes": 16585,
+        "blocks": 17,
+        "EOF": 16,
+        "AckEOF": 16,
+        "image_sha256": "be521d745978741210326e13a2c3133c174cd09facb600db4c03de7cc6d97abc",
+        "version": 2,
+        "coverage": "Signed host simulation, exact BDX bytes, bound Apply/Notify, live Applying, simulated reboot, fresh CASE version2/SoftwareUpdateCompleted readback."
+      }
+    },
+    {
+      "variant": "io",
+      "purpose": "Original frozen sanitizer binary with error-only sendmsg/sendto/recvmsg interposition; wrapper/preload changes execution environment.",
+      "result": "PASS",
+      "check_count": 27,
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "busy-provider-killed-before-retry",
+          "status": "PASS"
+        },
+        {
+          "name": "stale-case-query-fails-without-response-or-download",
+          "status": "PASS"
+        },
+        {
+          "name": "same-requestor-new-case-after-provider-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "second-failure-backoff-not-bypassed",
+          "status": "PASS"
+        },
+        {
+          "name": "recovery-query-update-available",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "delayed-on-query-event",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "raw_sha256": "17dcf8f717a188c266fe89cefe9cc3e5c27a3630cf56f70c71eb51dcdd722237",
+      "logs_sha256": {
+        "provider-2.log": "6d1e1ff989bcfc579cc1ee62d3915eb2e3e6f63e0f11c4ce886d139f219e14f9",
+        "node-2.log": "72abb37638233d4cb93ca39a494669b102f909b0e1674a96c7d51f78371d5203",
+        "provider.log": "1ba93b3a89c654f50a28a840b0e5f3d85b8937b4e868114d73408767de0afb4e",
+        "node-1.log": "4b396f914a2d626d300e4d6b4310fcc8e519c7a99fd4b88c6a0d70a7acd63bc4",
+        "fresh-reader/interactive.log": "5c0eb5944b9f33b3ea8d5e474b7b571c9112d9df019780f2ca09667d67571715",
+        "controller/interactive.log": "2cf54e3118e630b6eab26d3b41599f981b846455ec827a678805f0838629acc5"
+      },
+      "driver_sha256": "674ebe2bd8c752958188d1b7b440372ad0a0231a9cea66c438889100b3aca686",
+      "launcher_sha256": "c38baecb1b9cdd5f49575af957038ed058c3f73567aed5d1ccce836f167f0da1",
+      "native_sha256": "401f694938f23185a0bfcbdc8474a72e2544be5c67d4c2042b8da25095f94605",
+      "peer_binaries_sha256": {
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "memory": {
+        "ASan": true,
+        "UBSan": true,
+        "LSan": true,
+        "native_stderr_empty": true,
+        "sanitizer_errors": 0,
+        "limit": "No sanitizer diagnostic observed across the completed two-boot scenario; this does not explain the historical failure."
+      },
+      "recovery": {
+        "CASE_mode": "resumed",
+        "unknown_session_drops": 5,
+        "observer_failure_to_recovery_seconds": 240.14319192804396,
+        "requestor_restarts_before_recovery": 0,
+        "provider_restarts": 1,
+        "native_boots": 2
+      },
+      "update": {
+        "bytes": 16585,
+        "blocks": 17,
+        "EOF": 16,
+        "AckEOF": 16,
+        "image_sha256": "135d9d6b6ae21a08abad0f4d1eccf133f1c1a658ff5fb460103b17899d70714d",
+        "version": 2,
+        "coverage": "Signed host simulation, exact BDX bytes, bound Apply/Notify, live Applying, simulated reboot, fresh CASE version2/SoftwareUpdateCompleted readback."
+      }
+    }
+  ],
+  "diagnostic_builds": {
+    "scalar": {
+      "sha256": "ce40a87264b289940e2dfbe2415d05a3062e5cfe752517a779b499a62a5f104e",
+      "warnings": []
+    },
+    "quiet": {
+      "sha256": "bdbd35f01ee707c0646909bc5fee306a427b769804b51dd905b65d53487e560b",
+      "warnings": []
+    },
+    "io_hook": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "warnings": []
+    }
+  },
+  "diagnostic_source_sha256": {
+    "diagnostic-changes.json": {
+      "main/apps/matter/runtime/matter_dispatch.c": "97ddbec21ccecfbc5d0cdaedda348ccbc8d183d626c7be2abe5b37024c5d99e3",
+      "main/apps/matter/session/matter_case.c": "d91d8fbf2fa3fc3e6877bf3ed39e8b82ac8ab59863aab81b5842e340006e7842",
+      "tools/matter/host/matter_mdns_windows.c": "b53f9d4c9b6a3f6a435a07d5c9ffcfee6cdbc0b9fb6773207bcc824556752afb",
+      "main/apps/matter/clusters/matter_ota_query.c": "cdb90161cd154b111614a9247832f8ee57af68bcf941db9cf5e145e88384f318"
+    },
+    "quiet-changes.json": {
+      "main/apps/matter/runtime/matter_dispatch.c": "9a1851375f4be918cd6e6c3eb09e2e3dc059a04d0ff533f4b9cc3853e22d3ebe",
+      "main/apps/matter/session/matter_case.c": "0db643d7ce47a4a477f859c3ff8f6a1db6f322ccb572a50db36a502d836083c0",
+      "tools/matter/host/matter_mdns_windows.c": "8129a24942509a88b507c5d8920de2df651a636a7d8debf5de9062d4b5ea8ab3"
+    }
+  },
+  "diagnostic_artifacts_sha256": {
+    "scalar": "ace9751c845669d489d4eb9986ed376e4a57b503aa678cbdcd456c8507dfa935",
+    "quiet": "fd34444124ec89763aecc2b17bebd542ab79567bd012ea055c298e10591c27cc",
+    "io_hook": "8860d8f8ceea1313177c6c805229333efba9e9eb536ab347516efa31a1b60b0b"
+  },
+  "gdb_metadata": {
+    "node-1025779.log": {
+      "sha256": "2abdfc9c7499eabfd3566ce2b31c73de2fad47a4473c4fad70b2ffba7ffc0097",
+      "metadata": [
+        "CSA65_WATCH_ARM now=370775",
+        "[Inferior 1 (process 1025790) exited normally]"
+      ]
+    },
+    "node-1025927.log": {
+      "sha256": "7dee75c0d41ba903f0f979e3b250fd8dea0b0186ec5afb889cec532083f2875a",
+      "metadata": [
+        "[Inferior 1 (process 1025938) exited normally]"
+      ]
+    }
+  },
+  "io_error_logs": {
+    "node-1027689.jsonl": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "errors": []
+    },
+    "node-1027385.jsonl": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "errors": []
+    }
+  },
+  "system_journal": {
+    "state": "READ_AND_CORRELATED",
+    "requested_window_UTC": [
+      "2026-10-20T10:01:38Z",
+      "2026-10-20T10:02:08Z"
+    ],
+    "checked": true,
+    "available": true,
+    "evidence": {
+      "journal_sha256": "df4753b984ba80dec679f64603afe7e1b4ed69e92e52a343e05a1f29b19115fe",
+      "journal_bytes": 6433,
+      "events": [
+        {
+          "event": "link_down",
+          "UTC": "2026-10-20T10:01:39.000Z"
+        },
+        {
+          "event": "manager_disconnected",
+          "UTC": "2026-10-20T10:01:46.000Z"
+        },
+        {
+          "event": "link_up",
+          "UTC": "2026-10-20T10:01:49.000Z"
+        },
+        {
+          "event": "activation_success",
+          "UTC": "2026-10-20T10:01:51.000Z"
+        }
+      ],
+      "clock_correlation": {
+        "first_Busy_send_UTC": "2026-10-20T09:55:39.369Z",
+        "Busy_state_uptime_ms": 3981,
+        "Querying_uptime_ms": 370572,
+        "failure_uptime_ms": 370604,
+        "estimated_Querying_UTC": "2026-10-20T10:01:45.960Z",
+        "estimated_failure_UTC": "2026-10-20T10:01:45.992Z",
+        "estimate_limit": "Busy send is an approximate wall-clock anchor for a subsequent owner-loop state event; local packet/loop scheduling prevents an exact millisecond claim. No new wall-clock jump is inferred.",
+        "first_Querying_to_peer_Sigma1_upper_bound_failure_UTC": "2026-10-20T10:01:46.151Z",
+        "upper_bound_limit": "Causal bound assumes no intervening wall-clock step relative to monotonic time; owner-loop sampling can add local processing latency. Use with the Busy anchor, not as independent proof of an exact failure time.",
+        "controller_receipt_UTC": {
+          "370572": "2026-10-20T10:01:53.461Z",
+          "370604": "2026-10-20T10:01:53.495Z"
+        }
+      },
+      "attribution": "Confirmed VM link/address outage overlapping estimated failed OTA attempt. Exact native branch/errno and cause of VMware link change were not captured. No native defect is established by this failed attempt.",
+      "evidence_limit": "Four diagnostic passes are separate outcomes. They do not prove same-instance recovery after this physical/VM network outage or supersede the historical functional FAIL."
+    }
+  },
+  "cleanup": {
+    "stage_processes_remaining": 0,
+    "paired_Windows_nodes_changed": false,
+    "original_tests_PICS_changed": false
+  },
+  "not_performed": [
+    "New original CSA execution",
+    "Fresh normal Memcheck run",
+    "Full applicable-matrix rerun",
+    "Production native fix",
+    "Windows rebuild",
+    "Physical-device or bootloader update"
+  ],
+  "next": "CSA66: controlled same-instance recovery after a transient host-network fault, with first-error result capture and preserved real retry guards. Use isolated per-process fault injection; do not disconnect the shared VM/SSH interface. A confirmed recovery defect, if any, needs reproduction before a native fix."
+}

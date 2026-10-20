@@ -223,6 +223,24 @@ preparation and CASE creation, then make a bounded repro of the early failure.
 Reuse the failed trace and avoid blind multi-minute repeats. Change production
 code only after attribution; require complete memory acceptance for a fix.
 
+## CSA65: historical VM outage correlated; no native fix justified
+
+[Receipt](csa65-results.json) and [analysis](csa65-validation.md) retain the
+CSA64 functional FAIL and original607. The supplied journal confirms a VM link/
+address outage spanning the estimated failed attempt around10:01:46 UTC. The
+10:01:53 receipt was delayed delivery of earlier monotonic-timestamped events.
+Exact native branch/errno was not captured; no speculative production fix.
+
+Four distinct diagnostic full updates pass27 checks each; three include LSan,
+while the GDB run explicitly disables it under ptrace. Instrumentation/timing
+limits remain. All362 tracked C/H files and original binaries retain identity;
+no original test/PICS, paired-node or campaign classification change.
+
+Next: **CSA66**, controlled same-instance transient-network recovery with
+first-error capture. Isolate the fault to the test process, preserve real retry
+guards and do not disconnect the shared VM/SSH interface. Fresh-state diagnostic
+passes do not establish recovery of the same instance after interface loss.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

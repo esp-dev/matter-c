@@ -1340,8 +1340,8 @@
         "TC_SU_2_2"
       ],
       "kind": "OTA_QUERY_PHASE_HANDOFF_RACE_AND_BACKOFF_WINDOW",
-      "evidence": "csa63-results.json",
-      "action": "Retain original FAIL607 and separate fault608. CSA64 independent normal Memcheck recovery passes27; sanitizer retry preserves240024ms but fails32ms later before peer sees new CASE. Cause unconfirmed: CSA65 needs bounded resolver/outgoing/CASE-creation diagnostics before further long reruns or any native correction. Original handoff/observation clarification remains; do not weaken timing guards."
+      "evidence": "csa65-results.json",
+      "action": "Retain original FAIL607 and separate fault608. CSA65 journal confirms VM link/address outage overlapping the estimated CSA64 failed attempt; exact native errno remains uncaptured. Four diagnostic full updates PASS27 each (GDB LSan OFF), no production fix justified. CSA66: isolated same-instance transient-network recovery and first-error capture; preserve real retry guards. Original handoff/observation clarification remains."
     },
     {
       "cases": [
