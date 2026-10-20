@@ -7,6 +7,14 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA71: TC_SU_4_1 first-status assumption reconfirmed from CSA27.**
+Installed test/helper and archived456 hashes still match. The original examines
+the successful clear at response0, before the expected ConstraintError on the
+second append. [Analysis](csa71-validation.md) and [CSA draft](csa71-csa-question.md).
+No full test, historical regression or native change repeated; original FAIL stays.
+Counts remain123 PASS/27 FAIL/5 prerequisites. Paired nodes untouched, TH idle.
+Next:CSA72, consolidate the existing clarification package and exact rerun gates.
+
 **CSA70: original TC_DA_1_7 passes with two distinct laboratory identities.**
 Unmodified runs611/612 pass18/18 under Memcheck then separate ASan/UBSan/LSan.
 Cloned-DAC control610 fails only the final key comparison, as required; exact

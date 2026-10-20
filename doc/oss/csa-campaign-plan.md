@@ -335,6 +335,28 @@ and verify current original script/helper identity before any repetition. Prepar
 a specific CSA question if unchanged; do not repeat the known failure or distort
 the native list-operation status vector to obtain a green first status.
 
+## CSA71: preserve complete list-write statuses; reuse CSA27 attribution
+
+[Receipt](csa71-results.json) and [analysis](csa71-validation.md) reconfirm
+unchanged TC_SU_4_1/helper and original456 record/log hashes. The test checks the
+successful first clear in[0,0,135] and stops before partial-state readbacks.
+Existing CSA27 two-fabric/restart and memory evidence remains historical; no
+network or offline regression repeated. Current source retains ordered per-IB
+results and one provider per fabric. No native workaround, original-test change
+or classification delta; the generated triage now points to this concrete issue.
+
+The [CSA question draft](csa71-csa-question.md) requests accepted full-vector/client
+aggregation handling while preserving partial-state and fabric-isolation checks.
+It is not sent or approved. Re-run only on an accepted test change, verified client
+aggregation change, guidance, or a demonstrated relevant native regression.
+Matching script hashes does not establish identity of a compiled SDK binding;
+the SDK directory's parent Git HEAD must not be misreported as its revision.
+
+Next: **CSA72**, consolidate existing CSA clarification drafts and evidence into
+one local review package. Group specification/test questions, provisioning and
+physical/manual prerequisites; name the requested decision and exact rerun gate
+for every remaining FAIL. No automatic sending or unchanged long-test repeats.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

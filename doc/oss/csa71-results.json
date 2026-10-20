@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa70-results.json",
+  "previous_sha256": "c44d7fdf323b21b83114da920b7f136c03dd729bc0dad0d12706ecef219e5a00",
+  "source_base_commit": "d76270c53d2982587494959c25cff705b3b0dfdb",
+  "scope": "Read-only TC_SU_4_1 review against CSA27; current original script/helper fingerprints and archived456 hashes reconfirmed. Specific CSA question prepared; no full or independent network test repeated.",
+  "latest_counts": {
+    "PASS": 99,
+    "FAIL": 18,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [],
+  "original_runs": [],
+  "identity": {
+    "case": "TC_SU_4_1",
+    "collection": "SDK Python Tests",
+    "endpoint": 0
+  },
+  "conclusion": {
+    "result": "EXISTING_FIRST_STATUS_ASSUMPTION_RECONFIRMED",
+    "official_result": "FAIL",
+    "original_run_id": 456,
+    "failure_step": 5,
+    "line": 310,
+    "actual_status_vector": [
+      0,
+      0,
+      135
+    ],
+    "test_assertion": "resp[0].Status == Status.ConstraintError",
+    "explanation": "The first Success belongs to the list clear; expected ConstraintError belongs to the later second append. The test fails before its partial-state readback.",
+    "CSA_accepted_correction": false,
+    "new_native_defect_demonstrated": false
+  },
+  "prior_evidence_reviewed": [
+    "csa27-validation.md",
+    "csa27-results.json",
+    "Retained run456 and independent two-fabric readback/restart evidence"
+  ],
+  "source_review": {
+    "test_sha256": "644dde23f969393db842b84190978144a9279b02fa17e3d1e5ba4e0514811061",
+    "helper_sha256": "9e9b2af9fcca6b039da12273b89560bd55121ec11fdb72de0f4973499318615b",
+    "original_sources_unchanged": true,
+    "local_snapshot_line_endings": "Archived Windows copies contain CRLF; LF-normalized bytes match exact fresh Linux source hashes.",
+    "SDK_checkout_git_identity_available": false,
+    "git_scope_correction": "rev-parse from SDK directory resolves the parent TH backend repository. Do not report that HEAD as the SDK revision or infer compiled Python-binding identity from it."
+  },
+  "historical_original": {
+    "run_id": 456,
+    "state": "FAIL",
+    "step_states": {
+      "passed": 7,
+      "failed": 1,
+      "pending": 3
+    },
+    "remaining_steps_not_executed": [
+      6,
+      7,
+      8
+    ],
+    "execution_PICS_sha256": "21ec86cad497f4054e3cc0d14c2f4478d2a7df842817d0494bb1a9bd57dff4fb",
+    "record_sha256": "859247522b2cd69d977be698ed06d8a2aa86191bedf7c41a4b0d9bc8933ef6b3",
+    "log_sha256": "2d4dc41481e87c0e43658777629513a96fbc4e137fdb145d02341d8a62c34f24",
+    "archived_bytes_freshly_rechecked": true
+  },
+  "current_campaign_PICS": {
+    "sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+    "note": "Inherited campaign fingerprint, not a new TC_SU_4_1 execution. Historical456 used its separately recorded profile."
+  },
+  "normative_basis": {
+    "specification": "Matter Core R1.6.1",
+    "11.20.7.5": "DefaultOTAProviders is fabric-scoped; at most one entry per fabric; adding another requires ConstraintError. Announcement must not replace defaults.",
+    "10.6.4.3.1": "List writes may be encoded as clear plus ordered append IBs and may leave partial changes on failure.",
+    "8.7.3.3": "Process data fields in order; generate statuses for changes and constraint violations.",
+    "8.7.3.4": "Include each generated AttributeStatusIB in WriteResponses."
+  },
+  "native_static_review": [
+    {
+      "file": "main/apps/matter/model/matter_im_write.c",
+      "unchanged_from_CSA27_base": false,
+      "current_git_blob_sha256": "cc3a7c3e70d8f8f90167b44a8cd17f2d8165b65b755374109f5275fc5774030d",
+      "change_review": "Only writable-list admission guard refactored to additionally admit GroupKeyMap0x3f. Existing OTA0x2a admission and ordered result/response loops unchanged from CSA27 base."
+    },
+    {
+      "file": "main/apps/matter/clusters/matter_ota_requestor.c",
+      "unchanged_from_CSA27_base": true,
+      "current_git_blob_sha256": "2cf5af06207780c272e76db714ffa76d0e4d88001d931ab014a5c246cc2acc54"
+    }
+  ],
+  "static_findings": [
+    "Shared IM Write retains an ordered per-block result table and serializes every result.",
+    "DefaultOTAProviders validation rejects an append when the accessing fabric already has an entry.",
+    "Do not drop/reorder successful operation statuses, forge ConstraintError for a successful clear, or claim failure is atomic."
+  ],
+  "historical_independent_acceptance": {
+    "normal_checks": 29,
+    "sanitize_checks": 27,
+    "driver_sha256": "ea72dad1a2a787da850a0ca77c23627ba4cbb559eaf4140a1f530e0f2a373afc",
+    "driver_current_bytes_match": true,
+    "memory": {
+      "memcheck_boots": 2,
+      "allocations": 190974,
+      "frees": 190974,
+      "errors": 0,
+      "live_bytes": 0,
+      "suppressions": false,
+      "separate_sanitizer_boots": 2,
+      "all_host_stderr_empty": true,
+      "scope": "C host only, not external controller processes"
+    },
+    "oracle_review": {
+      "capture_rechecks": 34,
+      "negative_controls": {
+        "wrong-provider": "REJECTED",
+        "wrong-fabric": "REJECTED",
+        "wrong-endpoint": "REJECTED",
+        "missing-field": "REJECTED",
+        "wrong-count": "REJECTED",
+        "missing-report": "REJECTED",
+        "constraint-missing": "REJECTED",
+        "constraint-misplaced": "REJECTED"
+      },
+      "note": "Attribute-kind and declared-list-count guards were tightened after network execution. Final parser replayed over both actual captures; network scenarios were not rerun."
+    },
+    "scope": "Historical CSA27 evidence only. Not rerun in CSA71 and not a fresh acceptance of the current host."
+  },
+  "rerun_gate": [
+    "CSA-accepted corrected test/helper or documented guidance handling all per-operation statuses.",
+    "If SDK client aggregation changes, pin and verify its actual compiled behavior before repeating; matching two Python source hashes alone does not establish binding binary identity.",
+    "Any independently demonstrated relevant native regression; a routine rebuild or unrelated profile change alone is not justification.",
+    "After the prerequisite changes, run unchanged accepted procedure and verify remaining step5 readbacks plus steps6..8; historical independent passes do not replace those original assertions."
+  ],
+  "verification": {
+    "new_full_TH_run": false,
+    "new_independent_network_run": false,
+    "new_native_build_or_memory_run": false,
+    "new_offline_regression_run": false,
+    "native_code_changed": false,
+    "original_test_helper_or_PICS_changed": false,
+    "paired_nodes_changed": false,
+    "CSA_message_sent": false,
+    "TH_state": {
+      "state": "idle"
+    }
+  },
+  "not_verified": [
+    "Current compiled SDK binding identity or fresh current-host wire response",
+    "Original assertions after run456 failure, local-corrected full acceptance or CSA approval",
+    "Fresh Memcheck/sanitizer/build/CTest, physical firmware or certification"
+  ],
+  "next": "CSA72: consolidate the remaining CSA clarification package from existing reports and drafts, grouping test/spec questions, provisioning prerequisites and physical/manual requirements. For each open FAIL specify the original evidence, requested decision and exact rerun gate; prepare locally only, do not send or repeat unchanged failures."
+}

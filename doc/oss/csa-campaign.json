@@ -1208,9 +1208,9 @@
       "cases": [
         "TC_SU_4_1"
       ],
-      "kind": "FIXTURE_OR_INFRASTRUCTURE_REVIEW",
-      "evidence": "status.md",
-      "action": "Reassess automatic OTA test prerequisites using the existing provider before attributing failure to native code."
+      "kind": "LIST_WRITE_FIRST_STATUS_ASSUMPTION_CSA_QUESTION",
+      "evidence": "csa71-results.json",
+      "action": "Original FAIL456 retained. CSA27 observed Success/Success/ConstraintError and separately verified partial state/fabric isolation. CSA71 reconfirms unchanged test/helper and archive hashes; seek accepted full-vector/SDK aggregation guidance before rerun. Do not change native status order or infer atomic rollback."
     },
     {
       "cases": [
