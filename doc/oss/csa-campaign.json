@@ -1340,8 +1340,8 @@
         "TC_SU_2_2"
       ],
       "kind": "OTA_QUERY_PHASE_HANDOFF_RACE_AND_BACKOFF_WINDOW",
-      "evidence": "csa66-results.json",
-      "action": "Retain original FAIL607, separate fault608 and historical CSA64 functional FAIL. CSA65 confirms VM outage during the estimated attempt; exact errno remains unknown. CSA66 process-local resolver send failure recovers in the same instance, PASS25 per memory variant with full memory acceptance. No native fix justified. CSA67: bounded receive-error recovery; actual link/address replacement is not covered. Original handoff/observation clarification remains."
+      "evidence": "csa67-results.json",
+      "action": "Retain original FAIL607, separate fault608 and historical CSA64 functional FAIL. CSA65 confirms VM outage; exact historical errno remains unknown. CSA67 independently reproduces and repairs the resolver RX offline latch: API33/35 and fullOTA25 pass per memory variant with clean memory acceptance. Actual local address replacement remains unverified. Original handoff/observation clarification remains; this fix does not reclassify that test."
     },
     {
       "cases": [

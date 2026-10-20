@@ -257,6 +257,24 @@ does not prove interface/address replacement or recovery from a fatal RX error.
 Do not disconnect the shared VM or blindly rerun already-attributed original
 failures. Reproduce a native defect before changing code.
 
+## CSA67: fatal receive offline latch repaired
+
+[Receipt](csa67-results.json) and [analysis](csa67-validation.md) retain the
+old-library functional failure after one ENETDOWN. New admitted owner requests
+reopen the existing backend sockets; failed partial reopen preserves ID/results
+and permits a later request. No new thread, timer or core dependency.
+
+API33/35 checks, full signed OTA25/25 and CTests8/8 pass per memory variant;
+full Memcheck zero errors/live blocks and separate ASan/UBSan/LSan. Partial-open
+descriptor check excludes the explicitly inherited diagnostic log, not a hidden
+resolver socket. Existing send controls36 each remain green. No original CSA
+result/PICS change or historical CSA64 errno attribution is claimed.
+
+Next: **CSA68**, review remaining automatic TC_SU_2_5 against prior CSA20/23/53
+evidence and the unchanged installed script. Check existing attribution first;
+rerun only when a verified prerequisite changes. Actual local address replacement
+and Windows execution remain outside this acceptance.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

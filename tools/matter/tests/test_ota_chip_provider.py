@@ -330,6 +330,7 @@ def main():
                    'apply-proceed-180', 'apply-await-60', 'apply-await-180',
                    'apply-discontinue', 'query-timeout', 'query-restart', 'query-network-recovery'), default='busy-update')
     p.add_argument('--network-fault-library', help='Linux test_ota_network_fault.c shared library; query-network-recovery only, loaded into the requestor alone.')
+    p.add_argument('--network-fault-kind', choices=('send', 'receive'), default='send', help='One ENETUNREACH send or ENETDOWN receive, query-network-recovery only.')
     p.add_argument('--asan-runtime', help='Explicit libasan.so preload before the fault library for a sanitized requestor; never with --valgrind.')
     p.add_argument('--stall-provider', help='Separate laboratory provider that stalls BDX data but keeps MRP alive; interrupt-retry only.')
     p.add_argument('--recovery-announcement-reason', type=int, choices=(0, 1),
@@ -352,6 +353,8 @@ def main():
     network_recovery = a.mode == 'query-network-recovery'
     if network_recovery and (not a.local_query or not a.events or not a.network_fault_library):
         p.error('query-network-recovery requires --local-query --events --network-fault-library')
+    if a.network_fault_kind != 'send' and not network_recovery:
+        p.error('--network-fault-kind=receive requires query-network-recovery')
     if a.network_fault_library and (not network_recovery or sys.platform != 'linux' or not Path(a.network_fault_library).is_file()):
         p.error('--network-fault-library requires query-network-recovery on Linux and an existing shared library')
     if a.asan_runtime and (not network_recovery or a.valgrind or not Path(a.asan_runtime).is_file()):
@@ -519,6 +522,7 @@ def main():
                             (a.asan_runtime, a.network_fault_library) if x))
             if phase == 1:
                 node_env['MATTER_TEST_DNS_FAILURE_LOG'] = str(out / 'network-fault.jsonl')
+                node_env['MATTER_TEST_DNS_FAILURE_KIND'] = a.network_fault_kind
             else:
                 node_env.pop('MATTER_TEST_DNS_FAILURE_LOG', None)
         node = subprocess.Popen(argv, stdin=subprocess.PIPE if a.local_query else None, stdout=log(f'node-{phase}.log'), stderr=log(f'node-{phase}.err'), env=node_env)
@@ -609,8 +613,9 @@ def main():
             wait(lambda: 'OTA_STATE state=1 reason=2' in node_text())
             failed_at = time.monotonic()
             injected = [json.loads(line) for line in (out / 'network-fault.jsonl').read_text().splitlines()]
-            check('one-resolver-send-fault-without-peer-query', len(injected) == 1
-                  and injected[0]['operation'] == 'sendto' and injected[0]['errno'] == errno.ENETUNREACH
+            operation, error = ('recvmsg', errno.ENETDOWN) if a.network_fault_kind == 'receive' else ('sendto', errno.ENETUNREACH)
+            check('one-resolver-' + a.network_fault_kind + '-fault-without-peer-query', len(injected) == 1
+                  and injected[0]['operation'] == operation and injected[0]['errno'] == error
                   and query_count() == 0 and not responses() and 'OTA_DOWNLOAD' not in node_text()
                   and node.poll() is None, injected)
             announce()  # A repeated offer and owner request must not erase backoff.

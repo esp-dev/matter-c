@@ -7,6 +7,16 @@ defects and rerun the original failures. Local commits are made per batch;
 the owner performs the eventual push. Check the queue with
 `python tools/matter/csa_campaign.py`; earlier entries below remain historical.
 
+**CSA67: resolver offline latch after fatal receive repaired.**
+Old library reproduces permanent OFFLINE after one ENETDOWN. New valid requests
+reopen sockets without background retries or losing old results. API33/35 checks,
+full OTA25/25 and focused CTests8/8 pass per memory variant. Memcheck zero errors/
+live blocks; separate ASan/UBSan/LSan clean. [Report](csa67-validation.md).
+Actual local address replacement and Windows execution remain unverified.
+Original CSA verdicts unchanged:122 PASS/28 FAIL/5 prerequisites. Next:CSA68,
+review remaining automatic TC_SU_2_5 using prior evidence before another rerun.
+Paired Windows nodes untouched.
+
 **CSA66: same-instance recovery from an injected resolver send failure passes.**
 Independent full OTA checks25/25 per memory variant: one ENETUNREACH, preserved
 120020/120027ms retry intervals, full CASE, signed BDX/apply/reboot/Notify and

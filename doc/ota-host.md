@@ -329,3 +329,25 @@ same requestor PID/no recommissioning, authenticated CASE bound to QueryImage,
 then the ordinary full signed OTA/Notify acceptance. This is a controlled send
 failure, not proof of link/address replacement or fatal receive-error recovery,
 and it does not identify the uncaptured errno of the historical CSA64 outage.
+
+Select `--network-fault-kind receive` for one ENETDOWN on the resolver socket
+immediately after its first successful query send. The remaining query/backoff,
+same-instance CASE and full OTA checks stay identical. Fatal receive errors
+complete pending jobs as FAILED and close both resolver sockets. The next valid
+start opens fresh sockets on the same configured interface; a failed reopen
+returns OFFLINE without claiming a new job/ID. This does not discover replacement
+local addresses and performs no retry in the background.
+
+The optional `test_resolver_receive.c` public-API probe fills all four jobs,
+checks failure fan-out/unchanged answer bytes, wrong-interface rejection,
+recovery with a fresh ID, cancellation, stale-ID rejection and busy deletion.
+Compile it against the matching Linux `matter_host`, `matter_runtime`, `matter`
+and `matter_mbedtls` static archives, with the same capacity/sanitizer flags.
+Supply the selected interface index as its first argument. Its preload uses
+`MATTER_TEST_DNS_FAILURE_KIND=receive` and a fresh
+`MATTER_TEST_DNS_FAILURE_LOG=<absolute-marker.jsonl>`.
+For `--fail-reopen`, also set `MATTER_TEST_DNS_FAIL_REOPEN=1`: the fixture fails
+the first IPv4 socket reopen with EMFILE after IPv6 creation, then lets the
+next attempt proceed. This checks partial cleanup and unchanged ID on rejection.
+Use explicit libasan-first preload for a sanitizer process; never combine
+sanitizers with Valgrind. No physical interface or TH configuration is modified.

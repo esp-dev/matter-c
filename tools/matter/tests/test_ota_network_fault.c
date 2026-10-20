@@ -1,5 +1,5 @@
 /* Linux laboratory interposition only; never linked into the Matter library.
- * Fail exactly one operational SRV/TXT resolver query in this process. Ordinary
+ * Fail exactly one operational resolver send or its following receive. Ordinary
  * publications/probes and all other processes/interfaces remain untouched. */
 #define _GNU_SOURCE
 #include <sys/socket.h>
@@ -10,11 +10,25 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
 static int log_fd=-1;
 static int injected;
+static int receive_fd=-1;
+static int reopen_failed;
+
+static void fault(const char* operation,int error,const char* path) {
+    if(log_fd<0) { log_fd=open(path,O_WRONLY|O_CREAT|O_EXCL|O_CLOEXEC,0600); if(log_fd<0) _exit(126); }
+    struct timespec now;
+    if(clock_gettime(CLOCK_MONOTONIC,&now)) _exit(126);
+    char line[144];
+    int n=snprintf(line,sizeof(line),"{\"operation\":\"%s\",\"errno\":%d,\"monotonic_ms\":%llu}\n",
+        operation,error,(unsigned long long)now.tv_sec*1000+(unsigned long long)now.tv_nsec/1000000);
+    if(n<=0 || (size_t)n>=sizeof(line) || write(log_fd,line,(size_t)n)!=n) _exit(126);
+    injected=1; errno=error;
+}
 
 __attribute__((destructor)) static void cleanup(void) {
     if(log_fd>=0) close(log_fd);
@@ -42,17 +56,35 @@ ssize_t sendto(int fd,const void* data,size_t size,int flags,const struct sockad
     if(!next) _exit(126);
     const char* path=getenv("MATTER_TEST_DNS_FAILURE_LOG");
     if(path && !injected && resolver_query(data,size,peer,length)) {
+        const char* kind=getenv("MATTER_TEST_DNS_FAILURE_KIND");
+        if(kind && !strcmp(kind,"receive")) {
+            ssize_t n=next(fd,data,size,flags,peer,length);
+            if(n==(ssize_t)size && receive_fd<0) receive_fd=fd;
+            return n;
+        }
         /* Open lazily: the Valgrind launcher can load this library too, but
          * only the requestor's matching query may claim the one-shot marker. */
-        log_fd=open(path,O_WRONLY|O_CREAT|O_EXCL|O_CLOEXEC,0600);
-        if(log_fd<0) _exit(126);
-        struct timespec now;
-        if(clock_gettime(CLOCK_MONOTONIC,&now)) _exit(126);
-        char line[144];
-        int n=snprintf(line,sizeof(line),"{\"operation\":\"sendto\",\"errno\":%d,\"monotonic_ms\":%llu}\n",
-            ENETUNREACH,(unsigned long long)now.tv_sec*1000+(unsigned long long)now.tv_nsec/1000000);
-        if(n<=0 || (size_t)n>=sizeof(line) || write(log_fd,line,(size_t)n)!=n) _exit(126);
-        injected=1; errno=ENETUNREACH; return -1;
+        fault("sendto",ENETUNREACH,path); return -1;
     }
     return next(fd,data,size,flags,peer,length);
+}
+ssize_t recvmsg(int fd,struct msghdr* message,int flags) {
+    static ssize_t (*next)(int,struct msghdr*,int);
+    if(!next) *(void**)(&next)=dlsym(RTLD_NEXT,"recvmsg");
+    if(!next) _exit(126);
+    const char* path=getenv("MATTER_TEST_DNS_FAILURE_LOG");
+    if(path && !injected && fd==receive_fd) { fault("recvmsg",ENETDOWN,path); return -1; }
+    return next(fd,message,flags);
+}
+int socket(int family,int type,int protocol) {
+    static int (*next)(int,int,int);
+    if(!next) *(void**)(&next)=dlsym(RTLD_NEXT,"socket");
+    if(!next) _exit(126);
+    const char* path=getenv("MATTER_TEST_DNS_FAILURE_LOG");
+    const char* fail=getenv("MATTER_TEST_DNS_FAIL_REOPEN");
+    if(path && injected && receive_fd>=0 && !reopen_failed && fail && !strcmp(fail,"1") &&
+        family==AF_INET && type==(SOCK_DGRAM|SOCK_NONBLOCK|SOCK_CLOEXEC) && protocol==IPPROTO_UDP) {
+        reopen_failed=1; fault("socket",EMFILE,path); return -1;
+    }
+    return next(family,type,protocol);
 }

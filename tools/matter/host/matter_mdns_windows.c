@@ -779,8 +779,11 @@ static Resolve_Job* job(Matter_Resolver_Windows_T r,uint64_t id) {
 static Matter_Result_T resolve_start(void* u,const Matter_Resolver_Query_T* q,uint64_t* id) {
     Matter_Resolver_Windows_T r=u;
     if(!r || !q || !id || !q->node_id || q->node_id>UINT64_C(0xffffffefffffffff)) return MATTER_INVALID_ARGUMENT;
-    if(r->offline || q->interface_id!=r->io->iface.index) return MATTER_OFFLINE;
+    if(q->interface_id!=r->io->iface.index) return MATTER_OFFLINE;
     Resolve_Job* j=job(r,0); if(!j || r->next==UINT64_MAX) return MATTER_LIMIT_REACHED;
+    /* RX failure has already completed pending jobs and closed both sockets.
+     * Reopen on demand; leave old results and the caller's ID intact on failure. */
+    if(r->offline) { if(!open_sockets(r->io)) return MATTER_OFFLINE; r->offline=false; }
     memset(j,0,sizeof(*j)); j->id=++r->next; j->scheduled=true;
     static const char hex[]="0123456789ABCDEF";
     for(unsigned i=0;i<8;++i) { j->instance[2*i]=hex[q->compressed_fabric[i]>>4]; j->instance[2*i+1]=hex[q->compressed_fabric[i]&15]; }

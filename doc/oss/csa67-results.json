@@ -1,0 +1,507 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa66-results.json",
+  "previous_sha256": "4a1be268c4a9005195e8e31d4cb3515707c872db7824fb1cef7408c17bcf44b4",
+  "source_base_commit": "7d016ea5667263d78ce890a2461746002f3eee9a",
+  "scope": "Reproduce and repair the host resolver offline latch after one fatal receive error. Owner-demand socket reopen; focused public-API/error-cleanup tests and full independent OTA under Memcheck then separate sanitizers.",
+  "latest_counts": {
+    "PASS": 98,
+    "FAIL": 19,
+    "BLOCKED": 1,
+    "MANUAL": 37,
+    "NA": 707
+  },
+  "classification_changes": [],
+  "original_runs": [],
+  "original_rerun": {
+    "performed": false,
+    "retained": "Original TC_SU_2_2 FAIL607, separate diagnostic608 and CSA64 historical functional FAIL remain unchanged; this does not attribute the uncaptured historical errno."
+  },
+  "PICS_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+  "PICS_note": "Inherited unchanged profile; no original CSA source, helper or PICS change.",
+  "conclusion": {
+    "result": "CONFIRMED_HOST_DEFECT_REPAIRED",
+    "native_production_change": true,
+    "defect": "Fatal read_packet error closed both sockets and latched offline. Every future valid start returned OFFLINE, with no recovery path in that object.",
+    "fix": "After validating interface/capacity, a new start reopens sockets on the existing configured interface. Failed reopen leaves the backend offline, retains old terminal results, and claims no new job or ID.",
+    "no_new_timer_thread_heap_buffer": true,
+    "counts_changed": false,
+    "certification": false
+  },
+  "baseline_reproduction": {
+    "initial": {
+      "exit": 1,
+      "stdout": "RX_FAILURE jobs=4\nRECOVERY start=8 id_preserved=1\n",
+      "stderr": "resolver:45: start==MATTER_PENDING && extra>last && extra!=UINT64_MAX\n"
+    },
+    "final_test_on_old_library": {
+      "exit": 1,
+      "stdout": "RX_FAILURE jobs=4\nRECOVERY start=8 id_preserved=1\n",
+      "stderr": "resolver:50: start==MATTER_PENDING && extra>last && extra!=UINT64_MAX\n",
+      "compiler_stderr": "",
+      "probe_source_sha256": "4ff4ebea8a6bd75fec4c0463c3829656cad88530363abd607c1d39d82b3673e6",
+      "old_backend_source_sha256": "9c0500b1659d3dedc715886dea4b0f166b3c350f96c27a66c4d096d3b69aa535"
+    },
+    "initial_Memcheck": {
+      "sha256": "fd65871c5bca8b8c1a80dcf1c218c25d1d937a9b307f365955aa9d3dcc9bb6de",
+      "zero_errors": true,
+      "zero_live": true,
+      "allocations_frees": [
+        15,
+        15
+      ]
+    },
+    "final_Memcheck": {
+      "sha256": "f5e62ba60d283287194e3fc835bae08d9f93d54fde8716fe3898c9f7b165b20f",
+      "zero_errors": true,
+      "zero_live": true,
+      "allocations_frees": [
+        15,
+        15
+      ]
+    },
+    "fault": [
+      {
+        "operation": "recvmsg",
+        "errno": 100,
+        "monotonic_ms": 3586395951
+      }
+    ],
+    "limit": "Both old-library runs fail functionally with zero memory errors/leaks. Final probe source is identical to the repaired-library probe; no assertion was removed to obtain PASS."
+  },
+  "source_identity": {
+    "pre_existing_C_H_inputs": 363,
+    "changed_C_H": {
+      "tools/matter/host/matter_mdns_windows.c": {
+        "before": "9c0500b1659d3dedc715886dea4b0f166b3c350f96c27a66c4d096d3b69aa535",
+        "after": "d40724f1a37c5cc6ff30b98b3f87d772d9a55a103661b247f034be7a7f793a94"
+      },
+      "tools/matter/host/matter_resolver_windows.h": {
+        "before": "e136de442280a4c53b786b8fa8c0d9caafb9e01c8aa59e8ae1669f86494b9d41",
+        "after": "d6f3e691ec572240b9642526fd0f8508cc57557963c7c94e7c2dfc93162e7a52"
+      },
+      "tools/matter/tests/test_ota_network_fault.c": {
+        "before": "bd5f0f7cb817471110e9dc6e344fabc7254325f4ec4baa18f08bca65ab541954",
+        "after": "132967c4ee5bbbb915f90fa9545ef75afb422841a3afd15e7f58288c4948a82b"
+      }
+    },
+    "comparison": "Git baseline blobs compared after CRLF-to-LF normalization; actual compiled source-export byte hashes separately checked against current files.",
+    "pre_existing_checkout_CRLF_differences": 19,
+    "new_probe_sha256": "4ff4ebea8a6bd75fec4c0463c3829656cad88530363abd607c1d39d82b3673e6",
+    "driver_sha256": "bd90102ffe0e0f0f79f1ce4172ac03f6d400882400f52ab213f7602da9534331",
+    "clean_export_build_inputs_match_current_source": true,
+    "core_library_C_H_changed": false
+  },
+  "builds": {
+    "normal": {
+      "binary_sha256": "05dc2d32cd2bdf8a2685372f53682e32dbc6d131852c6a40c71412c1a5eab171",
+      "ctest_logs": {
+        "ctest": {
+          "sha256": "f4721e44ec25a05ead956eaf14484befbca8b39d0c1649b48254cfda32d1ec47",
+          "passed": [
+            "6"
+          ]
+        },
+        "discovery-ctest": {
+          "sha256": "db067ac253f9781ee55eba7fb132f80a18070aaa850d69a88ba0334084c82c0c",
+          "passed": [
+            "2"
+          ]
+        }
+      },
+      "warnings": {
+        "configure": [],
+        "build": [],
+        "probe-build": []
+      }
+    },
+    "sanitize": {
+      "binary_sha256": "a68a49775c33c5454b8fd75d451f7c19476b66c28f9ea3e681db5b01624dfb74",
+      "ctest_logs": {
+        "ctest": {
+          "sha256": "0c2a180d001914d7524f10d8c352bb0e78b300489d5dd8c28e717f8c550006ab",
+          "passed": [
+            "6"
+          ]
+        },
+        "discovery-ctest": {
+          "sha256": "6106b0cd830244709f8ef88d2cb6223dfe44dc08f20280b468516b4f2da0af83",
+          "passed": [
+            "2"
+          ]
+        }
+      },
+      "warnings": {
+        "configure": [],
+        "build": [],
+        "probe-build": []
+      }
+    }
+  },
+  "hook": {
+    "sha256": "e7c8130bf6ed980c6ed238a03658fdd20c785ecedffe1aff5cd61c5ba52d3466",
+    "compiler_output": ""
+  },
+  "public_API_probes": {
+    "normal-probe": {
+      "stdout": "RX_FAILURE jobs=4\nRECOVERY start=4 id_preserved=0\nPASS resolver receive recovery: 33\n",
+      "faults": [
+        {
+          "operation": "recvmsg",
+          "errno": 100,
+          "monotonic_ms": 3586110769
+        }
+      ],
+      "Memcheck": {
+        "sha256": "37ebf3ae2796fc7876ae9c83e209d726040dea3d3d00d0aff6636710247aebb9",
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations_frees": [
+          15,
+          15
+        ]
+      }
+    },
+    "normal-reopen-failure": {
+      "stdout": "RX_FAILURE jobs=4\nREOPEN_FAILURE id_preserved=1\nRECOVERY start=4 id_preserved=0\nPASS resolver receive recovery: 35\n",
+      "faults": [
+        {
+          "operation": "recvmsg",
+          "errno": 100,
+          "monotonic_ms": 3586111518
+        },
+        {
+          "operation": "socket",
+          "errno": 24,
+          "monotonic_ms": 3586111536
+        }
+      ],
+      "Memcheck": {
+        "sha256": "70dec3ab3f7637d2eafbfc42c66ba649a64de94a5171eee7d924858dff210351",
+        "zero_errors": true,
+        "zero_live": true,
+        "allocations_frees": [
+          15,
+          15
+        ]
+      }
+    },
+    "sanitize-probe": {
+      "stdout": "RX_FAILURE jobs=4\nRECOVERY start=4 id_preserved=0\nPASS resolver receive recovery: 33\n",
+      "faults": [
+        {
+          "operation": "recvmsg",
+          "errno": 100,
+          "monotonic_ms": 3586303480
+        }
+      ],
+      "Memcheck": null
+    },
+    "sanitize-reopen-failure": {
+      "stdout": "RX_FAILURE jobs=4\nREOPEN_FAILURE id_preserved=1\nRECOVERY start=4 id_preserved=0\nPASS resolver receive recovery: 35\n",
+      "faults": [
+        {
+          "operation": "recvmsg",
+          "errno": 100,
+          "monotonic_ms": 3586303530
+        },
+        {
+          "operation": "socket",
+          "errno": 24,
+          "monotonic_ms": 3586303530
+        }
+      ],
+      "Memcheck": null
+    }
+  },
+  "send_mode_controls": [
+    {
+      "variant": "normal",
+      "exit": 0,
+      "stdout": "PASS hook controls: 36\n",
+      "stderr": "",
+      "compiler_stderr": ""
+    },
+    {
+      "variant": "sanitize",
+      "exit": 0,
+      "stdout": "PASS hook controls: 36\n",
+      "stderr": "",
+      "compiler_stderr": ""
+    }
+  ],
+  "descriptor_check": {
+    "probe_exit": 0,
+    "Memcheck": {
+      "sha256": "9b5b647347fa16608e483c8ef05c3c80340e03bc10525b80ca66f39da55aeb2d",
+      "zero_errors": true,
+      "zero_live": true,
+      "allocations_frees": [
+        15,
+        15
+      ]
+    },
+    "open_at_exit": 4,
+    "standard": 3,
+    "inherited_diagnostic_log": 1,
+    "resolver_sockets_or_fault_marker_left": 0,
+    "limit": "The one extra inherited descriptor is the Valgrind diagnostic log, identified from its detailed FD report. Do not present four open descriptors as zero descriptors."
+  },
+  "common_checks": [
+    {
+      "name": "commission-provider",
+      "status": "PASS"
+    },
+    {
+      "name": "commission-requestor",
+      "status": "PASS"
+    },
+    {
+      "name": "provider-authorizes-requestor",
+      "status": "PASS"
+    },
+    {
+      "name": "advertised-subscription-budget",
+      "status": "PASS"
+    },
+    {
+      "name": "ota-event-subscription-before-announcement",
+      "status": "PASS"
+    },
+    {
+      "name": "one-resolver-receive-fault-without-peer-query",
+      "status": "PASS"
+    },
+    {
+      "name": "same-requestor-recovers-after-real-backoff",
+      "status": "PASS"
+    },
+    {
+      "name": "query-image-fields",
+      "status": "PASS"
+    },
+    {
+      "name": "query-response-fields",
+      "status": "PASS"
+    },
+    {
+      "name": "response-has-usable-bdx-location",
+      "status": "PASS"
+    },
+    {
+      "name": "signed-download-and-reboot",
+      "status": "PASS"
+    },
+    {
+      "name": "live-applying-before-reboot",
+      "status": "PASS"
+    },
+    {
+      "name": "download-matches-image",
+      "status": "PASS"
+    },
+    {
+      "name": "provider-received-final-block-ack",
+      "status": "PASS"
+    },
+    {
+      "name": "bdx-peer-binary-transfer-profile",
+      "status": "PASS"
+    },
+    {
+      "name": "notify-update-applied",
+      "status": "PASS"
+    },
+    {
+      "name": "apply-token-and-version-bound-to-query-and-image",
+      "status": "PASS"
+    },
+    {
+      "name": "fresh-case-after-restart",
+      "status": "PASS"
+    },
+    {
+      "name": "state-transition-target-version-fields",
+      "status": "PASS"
+    },
+    {
+      "name": "ota-event-transition-sequence",
+      "status": "PASS"
+    },
+    {
+      "name": "failure-reason-and-monotonic-backoff",
+      "status": "PASS"
+    },
+    {
+      "name": "downloading-directly-to-applying",
+      "status": "PASS"
+    },
+    {
+      "name": "version-applied-event-matches-basic-information",
+      "status": "PASS"
+    },
+    {
+      "name": "clean-requestor-stop",
+      "status": "PASS"
+    },
+    {
+      "name": "memory-diagnostics-clean",
+      "status": "PASS"
+    }
+  ],
+  "scenarios": [
+    {
+      "variant": "normal",
+      "result": "PASS",
+      "check_count": 25,
+      "raw_sha256": "9666c428406b554aade1ac105f297b2296be284cf8f8541bb775cc28147d40ad",
+      "logs_sha256": {
+        "valgrind-1.log": "cbe9e94c4b3a558c004b8162b71ab3c3888dbd888473cfc245f9762a9edb73ca",
+        "valgrind-2.log": "fbc46e478f298b57c0dddf30b86dab36242ddeb8f328235329ea19c8443efe24",
+        "node-2.log": "8c96981041bd4fc55a686a0defe9a2ba9252331b9f5323fb92d2950278c04f7c",
+        "provider.log": "3adb5e1733e1530f8ed9c57fbd6f51a1d2182ab7cc5b3bae13b9f5e82e5f8f9f",
+        "node-1.log": "1b5542bd71cd7dc1610004fed4697565dd9b44273e3957fbb55be08d32e9fbf6",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/interactive.log": "98c5276933713bc0519df8b2148e5330afa52f5dc8b7b4578326ce672a7c03cc",
+        "controller/interactive.log": "b0935a87efee6c1e306e8cc042e6a3a2d35a00fa6b8e21378d345892e5434e9b"
+      },
+      "native_sha256": "05dc2d32cd2bdf8a2685372f53682e32dbc6d131852c6a40c71412c1a5eab171",
+      "driver_sha256": "bd90102ffe0e0f0f79f1ce4172ac03f6d400882400f52ab213f7602da9534331",
+      "recovery": {
+        "fault": {
+          "operation": "recvmsg",
+          "errno": 100,
+          "monotonic_ms": 3586124815
+        },
+        "observer_failure_to_query_seconds": 122.0444549121894,
+        "CASE": {
+          "mode": "full",
+          "session_id": 6850,
+          "exchange_id": 52542,
+          "handshake_times_ms": [
+            1792510316135,
+            1792510316136,
+            1792510317910
+          ],
+          "query_time_ms": 1792510317990
+        },
+        "requestor_restarts_before_recovery": 0,
+        "provider_restarts": 0,
+        "event_retry_gap_ms": 120022
+      },
+      "update": {
+        "native_boots": 2,
+        "image_bytes": 16585,
+        "image_sha256": "fd727aaf4c5cf4ed1375f6efc2c5a7f2e3d3d590c05ac39d19868e0ebd408e70",
+        "BDX_blocks": 17,
+        "EOF": 16,
+        "AckEOF": 16,
+        "version": 2,
+        "signed_apply_notify_binding": true,
+        "live_Applying": true,
+        "fresh_CASE_version_boot_readback": true
+      },
+      "peer_binaries_sha256": {
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "Memcheck": [
+        {
+          "sha256": "cbe9e94c4b3a558c004b8162b71ab3c3888dbd888473cfc245f9762a9edb73ca",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            35874,
+            35874
+          ]
+        },
+        {
+          "sha256": "fbc46e478f298b57c0dddf30b86dab36242ddeb8f328235329ea19c8443efe24",
+          "zero_errors": true,
+          "zero_live": true,
+          "allocations_frees": [
+            19565,
+            19565
+          ]
+        }
+      ],
+      "native_stderr_empty": true,
+      "sanitizer_errors": 0,
+      "memory_mode": "Full native Memcheck, two boots"
+    },
+    {
+      "variant": "sanitize",
+      "result": "PASS",
+      "check_count": 25,
+      "raw_sha256": "8d0cf9bcf4567211ed53d2e07e03aba42bc9634ef2e2180f2c94962ac13ed4e6",
+      "logs_sha256": {
+        "node-2.log": "57777b6df383829f86c62bcc5ee0a201b1aef49b15a08687e2110ac7c9a50e8c",
+        "provider.log": "43c76f1f69565e6d8c23832fae876b59a5c3ae8045b5858aefdc829c5d090af5",
+        "node-1.log": "aa5a75ce51fd8e363550e302cc64bb0c90bf2d6cae29b665eafbced27c738ee9",
+        "node-1.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "node-2.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fresh-reader/interactive.log": "6862956230d1211447ce9ec25b81062ccf75bc381efbf4c2662d5679254fc091",
+        "controller/interactive.log": "ada2596138d57582af44f23e8ca7bd056983164f1d5ef1c10bad13a9b3622c8e"
+      },
+      "native_sha256": "a68a49775c33c5454b8fd75d451f7c19476b66c28f9ea3e681db5b01624dfb74",
+      "driver_sha256": "bd90102ffe0e0f0f79f1ce4172ac03f6d400882400f52ab213f7602da9534331",
+      "recovery": {
+        "fault": {
+          "operation": "recvmsg",
+          "errno": 100,
+          "monotonic_ms": 3586307825
+        },
+        "observer_failure_to_query_seconds": 120.22994459792972,
+        "CASE": {
+          "mode": "full",
+          "session_id": 64047,
+          "exchange_id": 45834,
+          "handshake_times_ms": [
+            1792510499061,
+            1792510499063,
+            1792510499148
+          ],
+          "query_time_ms": 1792510499196
+        },
+        "requestor_restarts_before_recovery": 0,
+        "provider_restarts": 0,
+        "event_retry_gap_ms": 120031
+      },
+      "update": {
+        "native_boots": 2,
+        "image_bytes": 16585,
+        "image_sha256": "103c72541f725f68072c1074b7396d936c56dd519d57805327ec7401cae90358",
+        "BDX_blocks": 17,
+        "EOF": 16,
+        "AckEOF": 16,
+        "version": 2,
+        "signed_apply_notify_binding": true,
+        "live_Applying": true,
+        "fresh_CASE_version_boot_readback": true
+      },
+      "peer_binaries_sha256": {
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "Memcheck": [],
+      "native_stderr_empty": true,
+      "sanitizer_errors": 0,
+      "memory_mode": "Separate native ASan/UBSan/LSan with detect_leaks=1, no GDB or Valgrind"
+    }
+  ],
+  "cleanup": {
+    "stage_processes_remaining": 0,
+    "paired_Windows_nodes_changed": false,
+    "shared_interfaces_or_TH_services_modified": false
+  },
+  "not_verified": [
+    "Windows branch compilation/execution",
+    "Actual local interface/address replacement",
+    "Exact native branch/errno of historical CSA64 failure",
+    "Full applicable CSA rerun",
+    "Physical firmware/bootloader installation"
+  ],
+  "next": "CSA68: review the remaining automatic TC_SU_2_5 failure using prior CSA20/23/53 evidence and the unchanged installed test. Check existing attribution before proposing a fixture or native change; rerun the original only when a verified prerequisite changes. Do not repeat known long failures blindly."
+}

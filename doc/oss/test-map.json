@@ -1747,7 +1747,7 @@
       "path": "tools/matter/tests/test_ota_chip_provider.py",
       "kind": "external-chip-tool",
       "ctest": [],
-      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP provider plus an optional separate live-MRP stall peer. Explicit --recovery-announcement-reason selects the post-restart trigger; Python cryptography, chip-tool and disposable Linux lab required. --local-query uses the explicit application stdin query after reason1 selection; no default-provider write, timing acceleration or original-test patch. Busy180, full signed update/reboot/Notify and fresh CASE are run under Memcheck and separately sanitizers. --events --event-min-interval 5 requires live Applying before reboot; history alone cannot satisfy it. --mode query-restart kills only its Busy60 provider, preserves real240s second-failure backoff and requires a complete new CASE bound to QueryImage, BDX bytes/EOF, signed apply, reboot and Notify. --mode query-network-recovery uses the process-local test_ota_network_fault.c library, one ENETUNREACH, unchanged120s backoff and same-instance CASE/full OTA; no shared-interface change.",
+      "entrypoint": "python tools/matter/tests/test_ota_chip_provider.py --help; unmodified CHIP provider plus an optional separate live-MRP stall peer. Explicit --recovery-announcement-reason selects the post-restart trigger; Python cryptography, chip-tool and disposable Linux lab required. --local-query uses the explicit application stdin query after reason1 selection; no default-provider write, timing acceleration or original-test patch. Busy180, full signed update/reboot/Notify and fresh CASE are run under Memcheck and separately sanitizers. --events --event-min-interval 5 requires live Applying before reboot; history alone cannot satisfy it. --mode query-restart kills only its Busy60 provider, preserves real240s second-failure backoff and requires a complete new CASE bound to QueryImage, BDX bytes/EOF, signed apply, reboot and Notify. --mode query-network-recovery uses the process-local test_ota_network_fault.c library, one ENETUNREACH (or --network-fault-kind receive for ENETDOWN), unchanged120s backoff and same-instance CASE/full OTA; no shared-interface change.",
       "referenced_by": [],
       "allocation_variant": "not applicable"
     },
@@ -1755,9 +1755,17 @@
       "path": "tools/matter/tests/test_ota_network_fault.c",
       "kind": "external-network-fixture",
       "ctest": [],
-      "entrypoint": "Linux shared-library fixture: gcc -shared -fPIC -Wall -Wextra -Werror -O0 -o <fault.so> tools/matter/tests/test_ota_network_fault.c -ldl. Explicit test_ota_chip_provider.py query-network-recovery mode loads it into the requestor only; not a library/host build input.",
-      "referenced_by": ["tools/matter/tests/test_ota_chip_provider.py"],
+      "entrypoint": "Linux shared-library fixture: gcc -shared -fPIC -Wall -Wextra -Werror -O0 -o <fault.so> tools/matter/tests/test_ota_network_fault.c -ldl. Explicit query-network-recovery mode selects send ENETUNREACH or receive ENETDOWN; optional API probe additionally injects one partial-reopen EMFILE. Requestor/test process only; not a library/host build input.",
+      "referenced_by": ["tools/matter/tests/test_ota_chip_provider.py", "tools/matter/tests/test_resolver_receive.c"],
       "allocation_variant": "normal host under Memcheck, separately ASan/UBSan/LSan with explicit libasan preload"
+    },
+    {
+      "path": "tools/matter/tests/test_resolver_receive.c",
+      "kind": "external-network-fixture",
+      "ctest": [],
+      "entrypoint": "Optional Linux public-API probe, linked against matter_host/runtime/core/mbedTLS archives from the matching build. Run with interface index, receive-fault preload and optional --fail-reopen; see doc/ota-host.md. Not a default CTest because it requires an explicit interface and fault fixture.",
+      "referenced_by": ["tools/matter/tests/test_ota_network_fault.c"],
+      "allocation_variant": "normal native probe under Memcheck, separately ASan/UBSan/LSan"
     },
     {
       "path": "tools/matter/tests/test_ota_update_network.py",
