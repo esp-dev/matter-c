@@ -16,9 +16,10 @@ typedef struct {
     bool collected;
     Matter_Im_Event_Request_T paths[MATTER_EVENT_PATH_CAPACITY];
     Matter_Event_Filter_T filters[MATTER_EVENT_PATH_CAPACITY];
-    Matter_Event_Record_T records[MATTER_EVENTS_CAPACITY];
+    Matter_Event_Record_T* records;
 } SubEvents;
 struct Matter_Im_Subscribe {
+    Matter_Im_Read_Events_Port_T event_port; Matter_Im_Event_Enumerate_T event_enumerate;
     Matter_Im_Subscribe_Port_T port;
     Matter_Im_Read_Fabric_Port_T fabric; uint8_t fabric_index;
     bool fabric_resolved;
@@ -59,6 +60,7 @@ static void clear_filters(Matter_Im_Subscribe_T s) {
 }
 static void release(Matter_Im_Subscribe_T s) {
     clear_filters(s);
+    if(s->events) { free(s->events->records); s->events->records=NULL; s->events->count=s->events->cursor=0; }
     if(s->reserved) { s->reserved=false; s->port.release(s->port.attributes.user,s->id); }
 }
 static Matter_Result_T fail(Matter_Im_Subscribe_T s) {
@@ -96,15 +98,14 @@ Matter_Im_Subscribe_T matter_im_subscribe_new_case(const Matter_Im_Subscribe_Por
 Matter_Result_T matter_im_subscribe_bind_events(Matter_Im_Subscribe_T s,const Matter_Im_Read_Events_Port_T* p) {
     Matter_Result_T r=check(s); if(r) return r;
     if(!p || !p->log || !p->describe) return MATTER_INVALID_ARGUMENT;
-    if(s->state!=MATTER_IM_SUB_WAITING || s->queued || s->events) return MATTER_INVALID_STATE;
-    s->events=calloc(1,sizeof(*s->events)); if(!s->events) return MATTER_LIMIT_REACHED;
-    s->events->port=*p; return MATTER_OK;
+    if(s->state!=MATTER_IM_SUB_WAITING || s->queued || s->event_port.log) return MATTER_INVALID_STATE;
+    s->event_port=*p; return MATTER_OK;
 }
 Matter_Result_T matter_im_subscribe_bind_event_enumerator(Matter_Im_Subscribe_T s,Matter_Im_Event_Enumerate_T callback) {
     Matter_Result_T r=check(s); if(r) return r;
     if(!callback) return MATTER_INVALID_ARGUMENT;
-    if(s->state!=MATTER_IM_SUB_WAITING || s->queued || !s->events || s->events->expansion.enumerate) return MATTER_INVALID_STATE;
-    s->events->expansion.enumerate=callback; return MATTER_OK;
+    if(s->state!=MATTER_IM_SUB_WAITING || s->queued || !s->event_port.log || s->event_enumerate) return MATTER_INVALID_STATE;
+    s->event_enumerate=callback; return MATTER_OK;
 }
 static bool fabric_scope(Matter_Im_Subscribe_T s) {
     if(!s->fabric.index) return true;
@@ -221,7 +222,11 @@ static uint8_t decode(Matter_Im_Subscribe_T s) {
         if(s->root[4].type!=MATTER_TLV_ARRAY || !enter(s,&s->root[4])) return MATTER_IM_INVALID_ACTION;
         while(next(s) && s->token.type!=MATTER_TLV_END) {
             if(s->request_count+(s->events?s->events->raw_count:0)>=MATTER_IM_READ_MAX_PATHS) return MATTER_IM_PATHS_EXHAUSTED;
-            if(!s->events || s->token.type!=MATTER_TLV_LIST || s->token.tag.control || !collect(s,s->fields,8)) return MATTER_IM_INVALID_ACTION;
+            if(!s->event_port.log || s->token.type!=MATTER_TLV_LIST || s->token.tag.control || !collect(s,s->fields,8)) return MATTER_IM_INVALID_ACTION;
+            if(!s->events) {
+                s->events=calloc(1,sizeof(*s->events)); if(!s->events) return MATTER_IM_RESOURCE_EXHAUSTED;
+                s->events->port=s->event_port; s->events->expansion.enumerate=s->event_enumerate;
+            }
             if(s->fields[0].tag.control || (s->fields[4].tag.control && !boolean(&s->fields[4]))) return MATTER_IM_INVALID_ACTION;
             Matter_Im_Event_Selector_T q={0};
             for(unsigned i=1;i<=3;++i) if(s->fields[i].tag.control) {
@@ -443,8 +448,9 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
         }
         if(e->access_cursor<e->path_count) return 0;
         e->count=e->cursor=0; e->dirty=false;
-        if(matter_events_copy_selected(e->port.log,e->filters,e->filter_count,prime?e->initial_min:e->next,s->fabric_index,e->records,&e->count)!=MATTER_OK ||
-            matter_events_position(e->port.log,&e->pending_next)!=MATTER_OK)
+        Matter_Result_T r=matter_im_event_snapshot(e->port.log,e->filters,e->filter_count,prime?e->initial_min:e->next,s->fabric_index,&e->records,&e->count);
+        if(r==MATTER_LIMIT_REACHED) return MATTER_IM_RESOURCE_EXHAUSTED;
+        if(r!=MATTER_OK || matter_events_position(e->port.log,&e->pending_next)!=MATTER_OK)
             for(size_t i=0;i<e->path_count;++i) if(!e->paths[i].status) e->paths[i].status=MATTER_IM_FAILURE;
         e->active=false;
         for(size_t i=0;i<e->path_count;++i) {
@@ -645,7 +651,10 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
             encoded=chunk(s,true); if(!encoded) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);
             s->state=MATTER_IM_SUB_OUTPUT;
         } else {
-            if(s->events && s->events->active) s->events->next=s->events->pending_next;
+            if(s->events) {
+                if(s->events->active) s->events->next=s->events->pending_next;
+                free(s->events->records); s->events->records=NULL; s->events->count=s->events->cursor=0;
+            }
             if(s->phase==PRIME) {
                 clear_filters(s);
                 s->phase=RESPONSE; s->opcode=4;

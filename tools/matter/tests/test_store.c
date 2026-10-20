@@ -8,9 +8,7 @@
 #include "storage/matter_store_tlv.h"
 #include "test_vid.h"
 #ifdef MATTER_TEST_ALLOC
-static size_t live,calls,fail_at;
-void* matter_test_calloc(size_t n,size_t z) { if(++calls==fail_at) return NULL; void* p=calloc(n,z); if(p) ++live; return p; }
-void matter_test_free(void* p) { if(p) { OC_CHECK(live); --live; } free(p); }
+#include "test_alloc_bytes.h"
 #endif
 typedef struct {
     CaseFixture* cases; Matter_Store_File_T file; Matter_Store_Blob_Port_T blob; Matter_Store_Host_T store;
@@ -29,6 +27,29 @@ static void model_drop(FabFixture* f) {
 static void model_attach(FabFixture* f) { f->o->core=matter_opcreds_new(&f->o->config.identity,&f->o->port); OC_CHECK(f->o->core); fab_attach(f); }
 static void read_file(StoreTest* t) { OC_CHECK(t->blob.read(t->blob.user,t->bytes,sizeof(t->bytes),&t->size)==MATTER_OK); }
 static void same_file(StoreTest* t) { read_file(t); OC_CHECK(t->size==t->copy_size && !memcmp(t->bytes,t->copy,t->size)); }
+#ifdef MATTER_TEST_ALLOC
+static void scratch_checks(StoreTest* t,FabFixture* f) {
+    size_t idle=live_bytes,start=calls; peak_bytes=idle; max_request=0;
+    OC_CHECK(matter_store_host_save(t->store)==MATTER_OK && live_bytes==idle);
+    size_t count=calls-start,peak=peak_bytes-idle;
+    read_file(t); memcpy(t->copy,t->bytes,t->size); t->copy_size=t->size;
+    t->changed=t->root; t->changed.node_label_size=1; t->changed.node_label[0]='Q';
+    for(size_t i=1;i<=count;++i) {
+        fail_at=calls+i;
+        OC_CHECK(matter_store_host_root(t->store,&t->changed)==MATTER_LIMIT_REACHED);
+        fail_at=0; same_file(t);
+        OC_CHECK(live_bytes==idle && memcmp(&t->root,&t->changed,sizeof(t->root)));
+    }
+    /* A failed rollback-image allocation must precede every model mutation. */
+    const Matter_Fabric_View_T* view=f->port.view(f->host);
+    uint32_t version=view->revision; uint8_t label_size=view->records[0].label_size;
+    fail_at=calls+1;
+    OC_CHECK(f->port.label(f->host,1,(const uint8_t*)"oom-check",9)==MATTER_LIMIT_REACHED);
+    fail_at=0; same_file(t);
+    OC_CHECK(view->revision==version && view->records[0].label_size==label_size && live_bytes==idle);
+    printf("MEMORY store save: idle_tracked=%zu transient_peak=%zu largest_request=%zu fault_sites=%zu\n",idle,peak,max_request,count);
+}
+#endif
 static void ota_seed(StoreTest* t) {
     Matter_Ota_Provider_T provider={UINT64_C(0x20000000000001),0,1};
     OC_CHECK(matter_store_host_ota_store(t->store,1,&provider)==MATTER_OK);
@@ -120,7 +141,7 @@ static void restore_checks(StoreTest* t,const char* path) {
         OC_CHECK(blob.replace(blob.user,t->copy,fault==0?t->copy_size/2:t->copy_size)==MATTER_OK);
         if(fault==2) {
 #ifdef MATTER_TEST_ALLOC
-            fail_at=calls+2; /* Store allocation succeeds, codec allocation fails. */
+            fail_at=calls+2; /* Object succeeds; deferred work-image allocation fails. */
             OC_CHECK(!matter_store_host_new(&blob,fabric,image,root,diag,true)); fail_at=0;
 #else
             continue;
@@ -130,7 +151,22 @@ static void restore_checks(StoreTest* t,const char* path) {
         t->copy[3]=7;
     }
     OC_CHECK(blob.replace(blob.user,t->copy,t->copy_size)==MATTER_OK);
+#ifdef MATTER_TEST_ALLOC
+    size_t start=calls;
+#endif
     store=matter_store_host_new(&blob,fabric,image,root,diag,true); OC_CHECK(store && root->location[0]=='Z' && !diag->hours);
+#ifdef MATTER_TEST_ALLOC
+    size_t restore_allocations=calls-start;
+    OC_CHECK(matter_store_host_delete(store)==MATTER_OK);
+    root->location[0]='P'; root->location[1]='L'; diag->hours=13;
+    size_t base=live_bytes;
+    for(size_t i=1;i<=restore_allocations;++i) {
+        fail_at=calls+i; OC_CHECK(!matter_store_host_new(&blob,fabric,image,root,diag,true)); fail_at=0;
+        OC_CHECK(root->location[0]=='P' && root->location[1]=='L' && diag->hours==13 && live_bytes==base);
+    }
+    store=matter_store_host_new(&blob,fabric,image,root,diag,true); OC_CHECK(store && root->location[0]=='Z' && !diag->hours);
+    printf("MEMORY store restore: all %zu allocation faults preserve RAM and release scratch\n",restore_allocations);
+#endif
     OC_CHECK(matter_store_host_delete(store)==MATTER_OK && matter_store_file_delete(file)==MATTER_OK);
     OC_CHECK(matter_fabric_host_image_delete(fabric)==MATTER_OK && matter_commissioning_host_image_delete(image)==MATTER_OK);
     free(root); free(diag);
@@ -180,6 +216,9 @@ int main(int argc,char** argv) {
     t->store=matter_store_host_new(&t->blob,server->image,t->image,&t->root,&t->diag,load); OC_CHECK(t->store);
     if(!load) meter_store_seed(t); else meter_store_restored(t);
     if(load) model_attach(server); /* Boot rolls back journal BEFORE CASE publication. */
+#ifdef MATTER_TEST_ALLOC
+    if(!load) scratch_checks(t,server);
+#endif
     t->config.initial=*matter_commissioning_host_settings(t->image); t->config.connected=*matter_commissioning_host_connected(t->image);
     t->sim=matter_wifi_sim_new(&t->config,0); OC_CHECK(t->sim); Matter_Wifi_Port_T wp=matter_wifi_sim_port(t->sim); Matter_Wifi_Config_T wc={4,2,2,1,1,100};
     t->wifi=matter_wifi_new(&wc,&wp,0); OC_CHECK(t->wifi);

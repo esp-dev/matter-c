@@ -22,8 +22,9 @@ typedef struct {
 } Matter_Store_Data_T;
 enum { MATTER_STORE_BLOB_MAX=32768 };
 /* Versioned TLV storage schema, independent of RAM layout. Existing Matter TLV
- * codec, no JSON or third-party persistence library. Encode/decode use one heap
- * workspace; schema1 imports empty fabric labels, schema2 persists labels, schema3 journals credential rotation.
+ * codec, no JSON or third-party persistence library. Encode uses a small heap
+ * workspace; decode also stages one complete DTO for atomic publication.
+ * Schema1 imports empty fabric labels, schema2 persists labels, schema3 journals credential rotation.
  * Schema4 appends VID verification metadata, also in the rollback record.
  * Schema5 appends node-wide EEM checkpoint and exclusive event high-water.
  * Schema6 appends fabric-scoped default OTA providers. Schema7 appends EEM mode

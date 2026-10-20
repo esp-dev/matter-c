@@ -124,6 +124,30 @@ Other CLI options, credentials and state paths remain unchanged.
 
 ## Request storage
 
+Event-log binding in Read/Subscribe copies only the borrowed port and optional
+enumerator; it allocates nothing. Event selector state is allocated when an
+actual event path is decoded. A shared private helper counts authorized matches
+and copies exactly that many records on the same serialized owner turn, without
+intervening callbacks. Empty snapshots allocate no records. The configured
+event/path/UDP limits and event numbering, priority and fabric rules are unchanged.
+Read owns its immutable snapshot until deletion. Subscribe releases report
+records after the complete report's IM Success and MRP confirmation, or on
+failure/cancellation/deletion. This preserves chunk consistency even when later
+events evict the original records from the node log. Deferred OOM produces the
+existing ResourceExhausted status; binding itself no longer has an allocation
+failure. Attribute-only interactions do not allocate event selector/record state.
+
+Storage encoding uses a small operation-owned codec. Atomic decoding retains a
+separate complete staging image until the entire blob has been validated.
+The store's work image and blob buffer, and the fabric adapter's rollback image,
+exist only during their synchronous operations and are erased/freed on all exits.
+Allocation failure precedes model publication; persistence failure restores the
+old fabric image and leaves the durable blob unchanged. Schema versions 1..7 and
+existing callback signatures remain compatible. The 32,768-byte blob ceiling is
+retained as a temporary buffer: the current blob-read callback requires the caller
+to supply capacity before reading. Exact serialized-size buffers/streaming are a
+later optimization, not a smaller persistence limit in this stage.
+
 Read and Subscribe allocate DataVersionFilters for the exact validated entry
 count in each request. Empty/absent lists allocate nothing; Read owns the table
 until deletion, while Subscribe frees it after priming or on error/cancel/delete.

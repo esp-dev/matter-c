@@ -27,7 +27,10 @@ static EventsFixture* ev_create(size_t capacity) {
     Matter_Im_Read_Config_T c={{1,0x1234,false},1000,capacity,false}; f->f.s=matter_im_read_new_case(&p,&fp,&c,10); CHECK(f->f.s);
     Matter_Im_Read_Events_Port_T ep={f,f->log,ev_describe};
 #ifdef MATTER_TEST_ALLOC
-    size_t base=live; fail_at=calls+1; CHECK(matter_im_read_bind_events(f->f.s,&ep)==MATTER_LIMIT_REACHED); fail_at=0; CHECK(live==base);
+    size_t base=live,allocations_before=calls;
+    fail_at=calls+1; CHECK(matter_im_read_bind_events(f->f.s,&ep)==MATTER_OK); fail_at=0;
+    CHECK(live==base && calls==allocations_before);
+    CHECK(matter_im_read_bind_events(f->f.s,&ep)==MATTER_INVALID_STATE); return f;
 #endif
     CHECK(matter_im_read_bind_events(f->f.s,&ep)==MATTER_OK && matter_im_read_bind_events(f->f.s,&ep)==MATTER_INVALID_STATE); return f;
 }

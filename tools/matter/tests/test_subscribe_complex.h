@@ -39,9 +39,12 @@ static Matter_Im_Status_T rich_event_describe(void* u,const Matter_Event_Path_T*
 static void rich_bind(RichSub* r,Matter_Events_T log) {
     r->log=log; Matter_Im_Read_Events_Port_T p={r,log,rich_event_describe};
 #ifdef MATTER_TEST_ALLOC
-    size_t base=live; fail_at=calls+1; CHECK(matter_im_subscribe_bind_events(r->model.active,&p)==MATTER_LIMIT_REACHED); fail_at=0; CHECK(live==base);
-#endif
+    size_t base=live,allocations_before=calls; fail_at=calls+1;
+    CHECK(matter_im_subscribe_bind_events(r->model.active,&p)==MATTER_OK); fail_at=0;
+    CHECK(live==base && calls==allocations_before);
+#else
     CHECK(matter_im_subscribe_bind_events(r->model.active,&p)==MATTER_OK);
+#endif
     CHECK(matter_im_subscribe_bind_events(r->model.active,&p)==MATTER_INVALID_STATE);
 }
 static RichSub* rich_new(bool events,size_t cap) {

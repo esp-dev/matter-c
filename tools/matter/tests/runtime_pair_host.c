@@ -17,6 +17,7 @@ static bool open_node(Node* n,unsigned index,unsigned id,const char* creds,const
     /* Different short discriminators too: framework setup-code discovery may
      * filter only the high four bits of a long discriminator. */
     n->port=(uint16_t)(5541+id); n->discriminator=(uint16_t)(id?1234:3846);
+    n->subscriptions_per_fabric=MATTER_HOST_SUBS_PER_FABRIC;
     n->switch_enabled=true;
     Matter_Udp_Address_T bind={.port=n->port}; Matter_Udp_Listener_T listener={n,received,sent};
     n->udp=matter_udp_windows_new(n->owner,&bind,index,&listener);
@@ -58,6 +59,10 @@ static bool close_node(Node* n,uint64_t now) {
     REQUIRE(matter_resolver_windows_delete(n->resolver)==MATTER_OK); n->resolver=NULL;
     if(n->eem) REQUIRE(matter_cluster_delete(n->eem)==MATTER_OK);
     if(n->test_switch) REQUIRE(matter_cluster_delete(n->test_switch)==MATTER_OK);
+    if(n->plug_power) REQUIRE(matter_cluster_delete(n->plug_power)==MATTER_OK);
+    if(n->plug_energy) REQUIRE(matter_cluster_delete(n->plug_energy)==MATTER_OK);
+    if(n->plug_topology) REQUIRE(matter_cluster_delete(n->plug_topology)==MATTER_OK);
+    if(n->plug_file) REQUIRE(matter_store_file_delete(n->plug_file)==MATTER_OK);
     if(n->source) REQUIRE(matter_cluster_delete(n->source)==MATTER_OK);
     free(n->source_sim); n->source_sim=NULL;
     for(unsigned i=0;i<HOST_METER_SERVICES_COUNT;++i) if(n->utilities[i]) REQUIRE(matter_cluster_delete(n->utilities[i])==MATTER_OK);

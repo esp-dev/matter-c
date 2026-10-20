@@ -60,7 +60,9 @@ typedef struct { Matter_Event_Path_T path; bool scoped; } Matter_Event_Filter_T;
 /* Union of up to EVENT_PATH_CAPACITY authorized concrete paths, one copy per event in
  * increasing number order. Same fabric rules as copy_fabric. Caller checks ACL
  * before constructing filters. out=NULL counts matches without copying payload
- * (e.g. urgent subscription wakeup); otherwise out has CAPACITY heap entries.
+ * (e.g. urgent subscription wakeup); otherwise out has CAPACITY heap entries,
+ * or the exact count obtained immediately beforehand on the same owner turn,
+ * with no intervening log mutation or application callback.
  * No allocation, retained pointers or duplicate records for overlapping filters. */
 Matter_Result_T matter_events_copy_selected(Matter_Events_T,const Matter_Event_Filter_T*,size_t paths,
     uint64_t minimum,uint8_t fabric,Matter_Event_Record_T* out,size_t* count);

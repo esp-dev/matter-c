@@ -1,6 +1,21 @@
 #ifndef MATTER_IM_EVENTS_INTERNAL_H
 #define MATTER_IM_EVENTS_INTERNAL_H 1
 #include "matter_im_read.h"
+#include <stdlib.h>
+/* The owner thread cannot mutate the log between count and copy: neither call
+ * invokes an application callback. Publish the new immutable snapshot atomically. */
+static inline Matter_Result_T matter_im_event_snapshot(Matter_Events_T log,const Matter_Event_Filter_T* filters,
+    size_t paths,uint64_t minimum,uint8_t fabric,Matter_Event_Record_T** records,size_t* count) {
+    size_t n=0;
+    Matter_Result_T r=matter_events_copy_selected(log,filters,paths,minimum,fabric,NULL,&n);
+    if(r!=MATTER_OK) return r;
+    if(n>MATTER_EVENTS_CAPACITY || n>SIZE_MAX/sizeof(**records)) return MATTER_LIMIT_REACHED;
+    Matter_Event_Record_T* next=n?calloc(n,sizeof(*next)):NULL;
+    if(n && !next) return MATTER_LIMIT_REACHED;
+    if(n) r=matter_events_copy_selected(log,filters,paths,minimum,fabric,next,&n);
+    if(r!=MATTER_OK) { free(next); return r; }
+    free(*records); *records=next; *count=n; return MATTER_OK;
+}
 /* Small per-path metadata; the handlers retain ONE node-log snapshot. */
 typedef struct {
     Matter_Event_Path_T path;

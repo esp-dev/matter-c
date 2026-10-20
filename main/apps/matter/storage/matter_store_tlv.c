@@ -31,7 +31,14 @@ static const Field root[]={F(Matter_Root_Settings_T,node_label_size,SIZE),H(Matt
 static const Field eem[]={F(Matter_Eem_Checkpoint_T,generation,U64),A(Matter_Eem_Checkpoint_T,raw_mwh,I64,2),A(Matter_Eem_Checkpoint_T,total_mwh,I64,2),F(Matter_Eem_Checkpoint_T,initialized,BOOL),F(Matter_Eem_Checkpoint_T,registers,BOOL),F(Matter_Eem_Checkpoint_T,register_mask,U8),LAST};
 static const Field ota[]={F(Matter_Ota_Provider_T,node,U64),F(Matter_Ota_Provider_T,endpoint,U16),F(Matter_Ota_Provider_T,fabric,U8),LAST};
 static const Field schema[]={F(Matter_Store_Data_T,schema,U32),O(Matter_Store_Data_T,fabrics,fabrics),O(Matter_Store_Data_T,wifi,wifi),O(Matter_Store_Data_T,root,root),F(Matter_Store_Data_T,hours,U32),F(Matter_Store_Data_T,reboots,U16),O(Matter_Store_Data_T,eem,eem),F(Matter_Store_Data_T,event_high,U64),OA(Matter_Store_Data_T,ota,ota,5),LAST};
-typedef struct { Matter_Store_Data_T data; Matter_Tlv_Reader_T reader; Matter_Tlv_Writer_T writer; Matter_Tlv_Element_T e; } Codec;
+typedef struct { uint32_t schema; Matter_Tlv_Reader_T reader; Matter_Tlv_Writer_T writer; Matter_Tlv_Element_T e; } Codec;
+typedef struct { Codec codec; Matter_Store_Data_T data; } Decoder;
+/* One schema gate for both directions; field ordinals and legacy layouts stay fixed. */
+static bool field_present(const Field* fields,unsigned t,uint32_t version) {
+    return !((fields==eem && t==4 && version<7) || (fields==schema && t==6 && version<5) ||
+        (fields==schema && t==8 && version<6) || (fields==record && t==15 && version==1) ||
+        (fields==record && t==17 && version<4) || (fields==fabrics && t==8 && version<3));
+}
 static void wipe(void* p,size_t n) { volatile unsigned char* b=p; while(n--) *b++=0; }
 static bool put(Codec* c,Matter_Tlv_Type_T type,int tag,uint64_t v,const void* data,size_t n) {
     c->e=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag<0?0:1,.number=tag<0?0:(unsigned)tag},.unsigned_value=v,.data=data,.size=n};
@@ -52,12 +59,7 @@ static bool encode_value(Codec* c,const Field* f,const unsigned char* p,int tag)
 static bool encode_object(Codec* c,const Field* fields,const void* object,int tag) {
     if(!put(c,MATTER_TLV_STRUCTURE,tag,0,NULL,0)) return false;
     for(unsigned t=0;fields[t].name;++t) {
-        if(fields==eem && t==4 && c->data.schema<7) break;
-        if(fields==schema && t==6 && c->data.schema<5) break;
-        if(fields==schema && t==8 && c->data.schema<6) break;
-        if(fields==record && t==15 && c->data.schema==1) break;
-        if(fields==record && t==17 && c->data.schema<4) break;
-        if(fields==fabrics && t==8 && c->data.schema<3) break;
+        if(!field_present(fields,t,c->schema)) break;
         const Field* f=&fields[t]; const unsigned char* p=(const unsigned char*)object+f->offset;
         if(f->count>1 && f->kind!=BYTES) {
             if(!put(c,MATTER_TLV_ARRAY,(int)t,0,NULL,0)) return false;
@@ -90,12 +92,7 @@ static bool decode_value(Codec* c,const Field* f,unsigned char* p) {
 static bool decode_object(Codec* c,const Field* fields,void* object) {
     if(c->e.type!=MATTER_TLV_STRUCTURE) return false;
     for(unsigned t=0;fields[t].name;++t) {
-        if(fields==eem && t==4 && c->data.schema<7) break;
-        if(fields==schema && t==6 && c->data.schema<5) break;
-        if(fields==schema && t==8 && c->data.schema<6) break;
-        if(fields==record && t==15 && c->data.schema==1) break;
-        if(fields==record && t==17 && c->data.schema<4) break;
-        if(fields==fabrics && t==8 && c->data.schema<3) break;
+        if(!field_present(fields,t,c->schema)) break;
         const Field* f=&fields[t]; unsigned char* p=(unsigned char*)object+f->offset;
         if(!next(c) || c->e.tag.control!=1 || c->e.tag.number!=t) return false;
         if(f->count>1 && f->kind!=BYTES) {
@@ -103,24 +100,26 @@ static bool decode_object(Codec* c,const Field* fields,void* object) {
             for(size_t i=0;i<f->count;++i) if(!next(c) || c->e.tag.control || !decode_value(c,f,p+i*f->stride)) return false;
             if(!end(c)) return false;
         } else if(!decode_value(c,f,p)) return false;
+        if(fields==schema && t==0) c->schema=*(const uint32_t*)p;
     }
     return end(c);
 }
 Matter_Result_T matter_store_tlv_encode(const Matter_Store_Data_T* d,uint8_t* out,size_t cap,size_t* n) {
     if(!d || !out || !n || !cap || cap>MATTER_STORE_BLOB_MAX || !matter_store_data_valid(d)) return MATTER_INVALID_ARGUMENT;
     *n=0; Codec* c=calloc(1,sizeof(*c)); if(!c) return MATTER_LIMIT_REACHED;
-    c->data.schema=d->schema;
+    c->schema=d->schema;
     bool ok=matter_tlv_writer_init(&c->writer,out,cap,16)==MATTER_TLV_OK && encode_object(c,schema,d,-1) && matter_tlv_writer_finish(&c->writer,n)==MATTER_TLV_OK;
     if(!ok) wipe(out,cap);
     wipe(c,sizeof(*c)); free(c); return ok?MATTER_OK:MATTER_LIMIT_REACHED;
 }
 Matter_Result_T matter_store_tlv_decode(const uint8_t* data,size_t n,Matter_Store_Data_T* out) {
     if(!out || !data || !n || n>MATTER_STORE_BLOB_MAX) return MATTER_INVALID_ARGUMENT;
-    Codec* c=calloc(1,sizeof(*c)); if(!c) return MATTER_LIMIT_REACHED;
-    bool ok=matter_tlv_init(&c->reader,data,n,16)==MATTER_TLV_OK && next(c) && !c->e.tag.control && decode_object(c,schema,&c->data) &&
-        matter_tlv_next(&c->reader,&c->e)==MATTER_TLV_DONE && matter_store_data_valid(&c->data);
-    if(ok) { c->data.schema=7; *out=c->data; }
-    wipe(c,sizeof(*c)); free(c); return ok?MATTER_OK:MATTER_INVALID_ARGUMENT;
+    Decoder* d=calloc(1,sizeof(*d)); if(!d) return MATTER_LIMIT_REACHED;
+    Codec* c=&d->codec;
+    bool ok=matter_tlv_init(&c->reader,data,n,16)==MATTER_TLV_OK && next(c) && !c->e.tag.control && decode_object(c,schema,&d->data) &&
+        matter_tlv_next(&c->reader,&c->e)==MATTER_TLV_DONE && matter_store_data_valid(&d->data);
+    if(ok) { d->data.schema=7; *out=d->data; }
+    wipe(d,sizeof(*d)); free(d); return ok?MATTER_OK:MATTER_INVALID_ARGUMENT;
 }
 static bool acl_subject(uint64_t v,unsigned mode) {
     return mode==3?(v && v<=65535):((v && v<=UINT64_C(0xffffffefffffffff)) ||

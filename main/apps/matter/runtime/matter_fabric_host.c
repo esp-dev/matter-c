@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 struct Matter_Fabric_Host {
-    Matter_Store_Fabrics_T backup;
+    Matter_Store_Fabrics_T* backup;
     Matter_Fabric_Host_Image_T image; Matter_Opcreds_Host_T keys;
     Matter_Crypto_Port_T crypto; Matter_Credentials_Port_T credentials;
     Matter_Cert_Time_Policy_T time;
@@ -34,7 +34,13 @@ Matter_Result_T matter_fabric_host_image_delete(Matter_Fabric_Host_Image_T i) {
     if(i->attached || i->persist.publish) return MATTER_BUSY;
     erase(i,sizeof(*i)); free(i); return MATTER_OK;
 }
-static void before(Matter_Fabric_Host_T h) { h->backup=h->image->data; }
+static void clear_backup(Matter_Fabric_Host_T h) {
+    if(h->backup) { erase(h->backup,sizeof(*h->backup)); free(h->backup); h->backup=NULL; }
+}
+static bool before(Matter_Fabric_Host_T h) {
+    h->backup=calloc(1,sizeof(*h->backup)); if(!h->backup) return false;
+    *h->backup=h->image->data; return true;
+}
 static void removed(Matter_Fabric_Host_T h,uint8_t index) {
     if(h->events.log) (void)matter_events_forget_fabric(h->events.log,index);
     if(h->events.removed) h->events.removed(h->events.user,index);
@@ -43,34 +49,34 @@ static Matter_Result_T after(Matter_Fabric_Host_T h) {
     Matter_Result_T r=MATTER_OK;
     unsigned changed=0;
     for(unsigned j=0;j<5;++j) {
-        const Matter_Fabric_Record_T* a=&h->backup.view.records[j],*b=&h->image->data.view.records[j];
+        const Matter_Fabric_Record_T* a=&h->backup->view.records[j],*b=&h->image->data.view.records[j];
         if(a->index!=b->index || a->noc_size!=b->noc_size || a->icac_size!=b->icac_size ||
-            memcmp(a->noc,b->noc,400) || memcmp(a->icac,b->icac,400) || memcmp(h->backup.keys[j],h->image->data.keys[j],32)) ++changed;
+            memcmp(a->noc,b->noc,400) || memcmp(a->icac,b->icac,400) || memcmp(h->backup->keys[j],h->image->data.keys[j],32)) ++changed;
     }
     if(changed>UINT64_MAX-h->next_credential_revision || h->next_case_revision>UINT32_MAX-5) {
-        h->image->data=h->backup; erase(&h->backup,sizeof(h->backup)); return MATTER_LIMIT_REACHED;
+        h->image->data=*h->backup; clear_backup(h); return MATTER_LIMIT_REACHED;
     }
     if(h->image->persist.publish) {
         r=h->image->persist.publish(h->image->persist.user,&h->image->data,NULL);
-        if(r!=MATTER_OK) h->image->data=h->backup;
+        if(r!=MATTER_OK) h->image->data=*h->backup;
     }
     if(r==MATTER_OK) for(unsigned j=0;j<5;++j) {
         /* Label changes do not change operational identity. Other fabrics must
          * not invalidate this one's in-progress CASE snapshot. */
-        const Matter_Fabric_Record_T* a=&h->backup.view.records[j],*b=&h->image->data.view.records[j];
+        const Matter_Fabric_Record_T* a=&h->backup->view.records[j],*b=&h->image->data.view.records[j];
         if(a->index && a->index!=b->index) removed(h,a->index);
         if(a->index!=b->index || a->noc_size!=b->noc_size || a->icac_size!=b->icac_size ||
             memcmp(a->noc,b->noc,400) || memcmp(a->icac,b->icac,400) ||
-            memcmp(h->backup.keys[j],h->image->data.keys[j],32)) h->credential_revision[j]=++h->next_credential_revision;
+            memcmp(h->backup->keys[j],h->image->data.keys[j],32)) h->credential_revision[j]=++h->next_credential_revision;
         if(a->index!=b->index || a->noc_size!=b->noc_size || a->icac_size!=b->icac_size ||
-            memcmp(a->noc,b->noc,400) || memcmp(a->icac,b->icac,400) || memcmp(h->backup.keys[j],h->image->data.keys[j],32) ||
-            memcmp(h->backup.groupkeys[j][0],h->image->data.groupkeys[j][0],sizeof(h->backup.groupkeys[j][0])) ||
-            memcmp(&h->backup.groupkey.fabrics[j].sets[0],&h->image->data.groupkey.fabrics[j].sets[0],sizeof(h->backup.groupkey.fabrics[j].sets[0]))) {
+            memcmp(a->noc,b->noc,400) || memcmp(a->icac,b->icac,400) || memcmp(h->backup->keys[j],h->image->data.keys[j],32) ||
+            memcmp(h->backup->groupkeys[j][0],h->image->data.groupkeys[j][0],sizeof(h->backup->groupkeys[j][0])) ||
+            memcmp(&h->backup->groupkey.fabrics[j].sets[0],&h->image->data.groupkey.fabrics[j].sets[0],sizeof(h->backup->groupkey.fabrics[j].sets[0]))) {
             h->case_revision[j]=++h->next_case_revision;
             erase(h->resumption[j],sizeof(h->resumption[j]));
         }
     }
-    erase(&h->backup,sizeof(h->backup));
+    clear_backup(h);
     return r;
 }
 static const Matter_Fabric_View_T* view(void* u) { return &((Matter_Fabric_Host_T)u)->image->data.view; }
@@ -78,7 +84,7 @@ static Matter_Result_T rollback(void* u) {
     Matter_Fabric_Host_T h=u; Matter_Fabric_Host_Image_T i=h->image; Matter_Fabric_View_T* v=&i->data.view;
     if(h->busy) return MATTER_BUSY;
     if(h->control.fail_rollback) return MATTER_PORT_ERROR;
-    before(h);
+    if(!before(h)) return MATTER_LIMIT_REACHED;
     if(i->data.journal) {
         for(unsigned j=0;j<5;++j) if(v->pending_index && v->records[j].index==v->pending_index) {
             if(i->data.previous.index) {
@@ -126,7 +132,7 @@ static uint8_t root(void* u,Matter_Cert_Tlv_T cert) {
      * AddNOC as NOCResponse.TableFull (Core 11.18.6.8), not an IM error here. */
     uint8_t status=r!=MATTER_OK?MATTER_IM_INVALID_COMMAND:h->control.fail_store?MATTER_IM_FAILURE:0;
     if(!status && !v->root_ready) {
-        before(h);
+        if(!before(h)) { h->busy=false; return MATTER_IM_FAILURE; }
         i->data.saved_next=i->data.next_index; i->data.journal=true;
         memcpy(v->root,cert.data,cert.size); v->root_size=(uint16_t)cert.size; v->root_ready=true;
         if(!duplicate) ++v->revision;
@@ -143,7 +149,10 @@ static Matter_Result_T store(void* u,const uint8_t key[32]) {
         q.fabric=h->work.index;
         r=matter_acl_prepare_added(h->events.acl,&q,&h->bootstrap); if(r!=MATTER_OK) return r;
     }
-    before(h);
+    if(!before(h)) {
+        if(h->events.log) matter_acl_finish_added(h->events.acl,false);
+        return MATTER_LIMIT_REACHED;
+    }
     /* Single owner transaction. CSR is consumed only after durable publication.
      * Every cryptographic preflight has already run.
      * ACL, KeySet0 and discovery registry are materialized in this SAME image.
@@ -209,7 +218,7 @@ done:
     erase(h->ipk,16); erase(&h->work,sizeof(h->work)); h->busy=false; return result;
 }
 static Matter_Result_T store_update(void* u,const uint8_t key[32]) {
-    Matter_Fabric_Host_T h=u; Matter_Store_Fabrics_T* d=&h->image->data; before(h);
+    Matter_Fabric_Host_T h=u; Matter_Store_Fabrics_T* d=&h->image->data; if(!before(h)) return MATTER_LIMIT_REACHED;
     d->previous=d->view.records[h->slot]; memcpy(d->previous_key,d->keys[h->slot],32);
     d->view.records[h->slot]=h->work; memcpy(d->keys[h->slot],key,32);
     d->saved_next=d->next_index; d->journal=true; d->view.added=true; d->view.pending_index=h->work.index;
@@ -253,7 +262,8 @@ static Matter_Result_T label(void* u,uint8_t index,const uint8_t* value,size_t s
     for(unsigned j=0;j<5;++j) if(h->image->data.view.records[j].index==index) {
         Matter_Fabric_Record_T* f=&h->image->data.view.records[j];
         if(f->label_size==size && (!size || !memcmp(f->label,value,size))) return MATTER_OK;
-        before(h); erase(f->label,32); if(size) memcpy(f->label,value,size); f->label_size=(uint8_t)size;
+        if(!before(h)) return MATTER_LIMIT_REACHED;
+        erase(f->label,32); if(size) memcpy(f->label,value,size); f->label_size=(uint8_t)size;
         ++h->image->data.view.revision; h->busy=true; Matter_Result_T r=after(h); h->busy=false; return r;
     }
     return MATTER_INVALID_STATE;
@@ -264,7 +274,8 @@ static Matter_Result_T remove_fabric(void* u,uint8_t index) {
     if(h->busy || h->control.fail_store) return MATTER_PORT_ERROR;
     if(h->next_case_revision==UINT32_MAX) return MATTER_LIMIT_REACHED;
     for(unsigned j=0;j<5;++j) if(v->records[j].index==index) {
-        before(h); h->busy=true;
+        if(!before(h)) return MATTER_LIMIT_REACHED;
+        h->busy=true;
         erase(&v->records[j],sizeof(v->records[j])); erase(d->keys[j],sizeof(d->keys[j])); erase(d->groupkeys[j],sizeof(d->groupkeys[j]));
         erase(&d->acl.fabrics[j],sizeof(d->acl.fabrics[j])); erase(&d->groupkey.fabrics[j],sizeof(d->groupkey.fabrics[j]));
         --v->count; ++v->revision; ++d->acl.version; ++d->groupkey.version;
@@ -278,10 +289,10 @@ static Matter_Result_T remove_fabric(void* u,uint8_t index) {
         if(!v->count && h->image->persist.reset) {
             d->next_index=1; d->saved_next=0;
             r=h->image->persist.reset(h->image->persist.user,d);
-            if(r!=MATTER_OK) *d=h->backup; else {
+            if(r!=MATTER_OK) *d=*h->backup; else {
                 h->case_revision[j]=++h->next_case_revision; erase(h->resumption,sizeof(h->resumption)); removed(h,index);
             }
-            erase(&h->backup,sizeof(h->backup));
+            clear_backup(h);
         } else r=after(h);
         if(r==MATTER_OK && clears_journal) h->update_session=0;
         if(r==MATTER_OK && !v->count) h->reset_requested=true;
@@ -306,7 +317,8 @@ static Matter_Result_T vid(void* u,uint8_t index,const Matter_Fabric_Vid_T* a) {
         bool changed=f->vendor!=h->work.vendor || f->vvs_size!=h->work.vvs_size || f->vvsc_size!=h->work.vvsc_size ||
             memcmp(f->vvs,h->work.vvs,85) || memcmp(f->vvsc,h->work.vvsc,400);
         Matter_Result_T r=MATTER_OK;
-        if(changed) { before(h); *f=h->work; ++h->image->data.view.revision; h->busy=true; r=after(h); h->busy=false; }
+        if(changed && !before(h)) r=MATTER_LIMIT_REACHED;
+        else if(changed) { *f=h->work; ++h->image->data.view.revision; h->busy=true; r=after(h); h->busy=false; }
         erase(&h->work,sizeof(h->work)); return r;
     }
     return MATTER_INVALID_STATE;
@@ -336,12 +348,13 @@ Matter_Result_T matter_fabric_host_apply_commit(Matter_Fabric_Host_T h) {
 Matter_Result_T matter_fabric_host_publish_commit(Matter_Fabric_Host_T h,const Matter_Store_Wifi_T* wifi) {
     if(!h || h->busy) return MATTER_INVALID_STATE;
     if(!h->image->persist.publish) return MATTER_OK;
-    h->backup=h->image->data; h->backup.journal=false;
-    erase(&h->backup.previous,sizeof(h->backup.previous)); erase(h->backup.previous_key,32);
-    Matter_Fabric_View_T* v=&h->backup.view;
+    if(!before(h)) return MATTER_LIMIT_REACHED;
+    h->backup->journal=false;
+    erase(&h->backup->previous,sizeof(h->backup->previous)); erase(h->backup->previous_key,32);
+    Matter_Fabric_View_T* v=&h->backup->view;
     v->pase_session=0; v->pase_index=0; v->added=v->root_ready=false; v->pending_index=0; v->root_size=0; erase(v->root,400);
-    h->busy=true; Matter_Result_T r=h->image->persist.publish(h->image->persist.user,&h->backup,wifi); h->busy=false;
-    erase(&h->backup,sizeof(h->backup)); return r;
+    h->busy=true; Matter_Result_T r=h->image->persist.publish(h->image->persist.user,h->backup,wifi); h->busy=false;
+    clear_backup(h); return r;
 }
 Matter_Result_T matter_fabric_host_commit(Matter_Fabric_Host_T h) {
     if(!h) return MATTER_INVALID_ARGUMENT;
@@ -376,7 +389,7 @@ static uint8_t acl_store(void* u,uint8_t index,const Matter_Acl_Entry_T* entries
     if(h->busy || count>MATTER_ACL_ENTRIES || (count && !entries)) return MATTER_IM_FAILURE;
     unsigned j=slot(h,index); if(j==5) return MATTER_IM_UNSUPPORTED_ACCESS;
     if(h->control.fail_store || h->control.fail_acl) return MATTER_IM_FAILURE;
-    before(h);
+    if(!before(h)) return MATTER_IM_FAILURE;
     Matter_Acl_Fabric_T* f=&h->image->data.acl.fabrics[j];
     if(f->count!=count || memcmp(f->entries,entries,count*sizeof(*entries))) {
         memset(f->entries,0,sizeof(f->entries)); if(count) memcpy(f->entries,entries,count*sizeof(*entries));
@@ -441,13 +454,13 @@ static uint8_t groupkey_store(void* u,uint8_t index,const Matter_Groupkey_Set_T*
     for(unsigned i=0;i<set->count;++i) if(set->times[i]!=UINT64_MAX &&
         h->crypto.hkdf_sha256(h->crypto.user,keys[i],16,h->image->data.view.records[j].compressed_id,8,
             (const uint8_t*)"GroupKey v1.0",13,h->groupwork[i],16)!=MATTER_OK) { status=MATTER_IM_FAILURE; break; }
-    before(h);
+    if(!status && !before(h)) status=MATTER_IM_FAILURE;
     if(!status && (memcmp(&f->sets[dest],set,sizeof(*set)) || memcmp(h->image->data.groupkeys[j][dest],h->groupwork,sizeof(h->groupwork)))) {
         f->sets[dest]=*set; memcpy(h->image->data.groupkeys[j][dest],h->groupwork,sizeof(h->groupwork)); ++h->image->data.groupkey.version;
         if(!set->id) ++h->image->data.view.revision; /* Invalidate in-progress CASE snapshots. */
     }
     if(!status && after(h)!=MATTER_OK) status=MATTER_IM_FAILURE;
-    erase(&h->backup,sizeof(h->backup)); erase(h->groupwork,sizeof(h->groupwork)); h->busy=false; return status;
+    clear_backup(h); erase(h->groupwork,sizeof(h->groupwork)); h->busy=false; return status;
 }
 static uint8_t groupkey_remove(void* u,uint8_t index,uint16_t id) {
     Matter_Fabric_Host_T h=u; unsigned j=slot(h,index);
@@ -457,7 +470,7 @@ static uint8_t groupkey_remove(void* u,uint8_t index,uint16_t id) {
     Matter_Groupkey_Fabric_T* f=&h->image->data.groupkey.fabrics[j];
     for(unsigned i=0;i<MATTER_GROUPKEY_SETS;++i) if(f->sets[i].count && f->sets[i].id==id) {
         if(h->control.fail_store) return MATTER_IM_FAILURE;
-        before(h);
+        if(!before(h)) return MATTER_IM_FAILURE;
         erase(&f->sets[i],sizeof(f->sets[i])); erase(h->image->data.groupkeys[j][i],sizeof(h->image->data.groupkeys[j][i]));
         ++h->image->data.groupkey.version; h->busy=true; Matter_Result_T result=after(h); h->busy=false;
         return result==MATTER_OK?0:MATTER_IM_FAILURE;

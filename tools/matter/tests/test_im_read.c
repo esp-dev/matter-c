@@ -5,9 +5,7 @@
 #include "test_im_vectors.h"
 #define CHECK(c) do { if (!(c)) { fprintf(stderr,"IM:%d: %s\n",__LINE__,#c); abort(); } } while (0)
 #ifdef MATTER_TEST_ALLOC
-static size_t live,calls,fail_at;
-void* matter_test_calloc(size_t n,size_t z) { if (++calls==fail_at) return NULL; void* p=calloc(n,z); if(p) ++live; return p; }
-void matter_test_free(void* p) { if(p) { CHECK(live); --live; } free(p); }
+#include "test_alloc_bytes.h"
 #endif
 typedef struct {
     Matter_Im_Read_T s;

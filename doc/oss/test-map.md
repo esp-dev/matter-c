@@ -1,8 +1,18 @@
 # Test inventory
 
-test-map.json enumerates 242 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 248 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+The memory01 stage registers `test_store_alloc` in native CTest. Shared
+`test_alloc_bytes.h` measures requested live/peak bytes and injects allocation
+failures for storage and Read/Subscribe. Storage checks every temporary save
+allocation, unchanged durable data/RAM after OOM, rollback-image admission and
+existing schema migrations/file faults. IM checks allocation-free event binding,
+exact snapshot growth for one/eight records, every deferred event allocation,
+attribute-only memory bounds, and all configured retained events surviving log
+eviction during multi-chunk delivery. Existing IM/MRP ordering and fabric/ACL
+regressions remain enabled. These are local tests, not official CSA results.
 
 `test_pase_exchange_chip.py` records unmodified chip-tool's actual PASE UDP
 datagrams across two full commissions, with the first fabric's CASE active when

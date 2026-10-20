@@ -161,7 +161,7 @@ def pair(args, out):
                     'SuppressResponse = true')
             time.sleep(.4)
             data = c.text()[start:]
-            inventory(data, True, 0xfff1fc01 if args.source_registers else None, args.meter_services)
+            inventory(data, True, 0xfff1fc01 if args.source_registers else None, args.meter_services, metered_switch=True)
             if args.source_registers:
                 from chip_tool_meter_source import validate_source
                 validate_source(data)

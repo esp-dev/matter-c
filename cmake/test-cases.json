@@ -423,6 +423,21 @@
     "replace": []
   },
   {
+    "name": "test_store_alloc",
+    "source": "tools/matter/tests/test_store.c",
+    "mode": "store",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/crypto/matter_operational_cert.c",
+      "main/apps/matter/storage/matter_store_tlv.c",
+      "main/apps/matter/runtime/matter_store_host.c",
+      "main/apps/matter/runtime/matter_fabric_host.c"
+    ],
+    "malloc": false
+  },
+  {
     "name": "test_store_file_posix",
     "source": "tools/matter/tests/test_store_file_posix.c",
     "mode": "normal",
