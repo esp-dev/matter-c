@@ -1,0 +1,131 @@
+#include "matter_idf_udp.h"
+#include "matter_idf_ip6_internal.h"
+#include <stdlib.h>
+#include <string.h>
+#include "lwip/udp.h"
+#include "lwip/tcpip.h"
+#include "lwip/ip6.h"
+#include "esp_netif_net_stack.h"
+typedef struct { Matter_Udp_Datagram_T packet; uint8_t bytes[MATTER_UDP_MAX_PAYLOAD]; } Rx;
+struct Matter_Idf_Udp {
+    Matter_Udp_T module; struct netif* iface; struct udp_pcb* pcb;
+    Rx* rx; uint16_t port; Matter_Operation_Id_T epoch;
+    uint64_t pending; bool reading,busy; Matter_Idf_Udp_Stats_T stats;
+};
+static Matter_Result_T error(err_t e) {
+    return e==ERR_OK?MATTER_OK:e==ERR_MEM || e==ERR_BUF?MATTER_WOULD_BLOCK:
+        e==ERR_RTE || e==ERR_IF?MATTER_OFFLINE:MATTER_PORT_ERROR;
+}
+static void receive(void* user,struct udp_pcb* pcb,struct pbuf* p,const ip_addr_t* peer,u16_t port) {
+    Matter_Idf_Udp_T s=user; (void)pcb;
+    if(!s->epoch || !IP_IS_V6(peer) || ip_current_input_netif()!=s->iface || !p->tot_len) goto drop;
+    if(p->tot_len>MATTER_UDP_MAX_PAYLOAD || 40u+IP6H_PLEN(ip6_current_header())>1280u) {
+        ++s->stats.oversize; goto drop;
+    }
+    if(!matter_idf_ip6_headers((const uint8_t*)ip6_current_header(),ip_current_header_tot_len())) {
+        ++s->stats.extensions; goto drop;
+    }
+    if(s->reading || s->rx->packet.size) goto drop;
+    Matter_Udp_Datagram_T* d=&s->rx->packet;
+    memcpy(d->path.local.address,ip_2_ip6(ip_current_dest_addr())->addr,16);
+    memcpy(d->path.peer.address,ip_2_ip6(peer)->addr,16);
+    d->path.local.port=s->port; d->path.peer.port=port;
+    d->path.interface_id=netif_get_index(s->iface);
+    d->data=s->rx->bytes; d->size=p->tot_len; pbuf_copy_partial(p,s->rx->bytes,p->tot_len,0);
+    ++s->stats.received; pbuf_free(p); return;
+drop:
+    ++s->stats.dropped; pbuf_free(p);
+}
+static Matter_Result_T activate(void* user,Matter_Operation_Id_T epoch) {
+    Matter_Idf_Udp_T s=user;
+    Rx* rx=calloc(1,sizeof(*rx)); if(!rx) return MATTER_WOULD_BLOCK;
+    LOCK_TCPIP_CORE();
+    err_t e=ERR_IF;
+    if(netif_is_up(s->iface) && netif_is_link_up(s->iface)) {
+        s->pcb=udp_new_ip_type(IPADDR_TYPE_V6); e=s->pcb?ERR_OK:ERR_MEM;
+        /* Wi-Fi stop/start removes/re-adds the same netif with a new index.
+         * A PCB's cached bind_netif index would silently reject all later RX.
+         * Filter the live input interface in receive; TX selects it explicitly. */
+        if(!e) e=udp_bind(s->pcb,IP6_ADDR_ANY,s->port);
+        if(!e) { s->rx=rx; s->epoch=epoch; udp_recv(s->pcb,receive,s); }
+        else if(s->pcb) { udp_remove(s->pcb); s->pcb=NULL; }
+    }
+    UNLOCK_TCPIP_CORE(); if(e) free(rx); return error(e);
+}
+static void deactivate(void* user,Matter_Operation_Id_T epoch) {
+    Matter_Idf_Udp_T s=user; (void)epoch;
+    LOCK_TCPIP_CORE(); s->epoch=0;
+    if(s->pcb) { udp_remove(s->pcb); s->pcb=NULL; }
+    Rx* rx=s->rx; s->rx=NULL; UNLOCK_TCPIP_CORE(); free(rx);
+    /* A locally accepted send still has its deferred completion. */
+}
+static bool zero(const uint8_t* p) { for(unsigned i=0;i<16;++i) if(p[i]) return false; return true; }
+static Matter_Result_T send_packet(void* user,uint64_t request,const Matter_Udp_Datagram_T* d) {
+    Matter_Idf_Udp_T s=user; const Matter_Udp_Path_T* path=&d->path;
+    unsigned index=netif_get_index(s->iface);
+    if(s->pending || path->local.port!=s->port || (path->interface_id && path->interface_id!=index) ||
+        zero(path->peer.address) || path->peer.address[0]==0xff ||
+        (path->peer.address[0]==0xfe && (path->peer.address[1]&0xc0)==0x80 && !path->interface_id)) return MATTER_PORT_ERROR;
+    ip_addr_t peer,local; IP_SET_TYPE_VAL(peer,IPADDR_TYPE_V6); IP_SET_TYPE_VAL(local,IPADDR_TYPE_V6);
+    memcpy(ip_2_ip6(&peer)->addr,path->peer.address,16); ip6_addr_set_zone(ip_2_ip6(&peer),index);
+    memcpy(ip_2_ip6(&local)->addr,path->local.address,16); ip6_addr_set_zone(ip_2_ip6(&local),index);
+    LOCK_TCPIP_CORE(); err_t e=ERR_IF;
+    if(s->epoch && s->pcb && netif_is_link_up(s->iface)) {
+        bool valid=zero(path->local.address);
+        for(unsigned i=0;i<LWIP_IPV6_NUM_ADDRESSES;++i)
+            if(ip6_addr_isvalid(netif_ip6_addr_state(s->iface,i)) &&
+                !memcmp(netif_ip6_addr(s->iface,i)->addr,path->local.address,16)) valid=true;
+        if(valid) {
+            struct pbuf* p=pbuf_alloc(PBUF_TRANSPORT,d->size,PBUF_RAM); e=p?ERR_OK:ERR_MEM;
+            if(p) {
+                e=pbuf_take(p,d->data,d->size);
+                if(!e) e=zero(path->local.address)?udp_sendto_if(s->pcb,p,&peer,path->peer.port,s->iface):
+                    udp_sendto_if_src(s->pcb,p,&peer,path->peer.port,s->iface,&local);
+                pbuf_free(p);
+            }
+        } else e=ERR_ARG;
+    }
+    UNLOCK_TCPIP_CORE();
+    if(!e) { s->pending=request; ++s->stats.sent; } return error(e);
+}
+static void cancel(void* user,uint64_t id) { (void)user; (void)id; /* Completed OS send wins cancellation. */ }
+static void detach(void* user) { Matter_Idf_Udp_T s=user; deactivate(s,s->epoch); s->module=NULL; }
+Matter_Idf_Udp_T matter_idf_udp_new(Matter_T owner,esp_netif_t* iface,uint16_t port,const Matter_Udp_Listener_T* listener) {
+    if(!owner || !iface || !port) return NULL;
+    Matter_Idf_Udp_T s=calloc(1,sizeof(*s)); if(!s) return NULL;
+    s->iface=esp_netif_get_netif_impl(iface); s->port=port;
+    if(!s->iface) { free(s); return NULL; }
+    Matter_Udp_Port_T p={s,activate,deactivate,send_packet,cancel,detach};
+    s->module=matter_udp_new(owner,&p,listener); if(!s->module) { free(s); return NULL; } return s;
+}
+Matter_Udp_T matter_idf_udp_module(Matter_Idf_Udp_T s) { return s?s->module:NULL; }
+Matter_Result_T matter_idf_udp_process(Matter_Idf_Udp_T s) {
+    if(!s) return MATTER_INVALID_ARGUMENT;
+    if(s->busy) return MATTER_BUSY;
+    s->busy=true;
+    if(s->pending) {
+        uint64_t id=s->pending; s->pending=0;
+        Matter_Result_T r=matter_udp_complete(s->module,id,MATTER_OPERATION_SUCCEEDED);
+        if(r==MATTER_BUSY) s->pending=id;
+        s->busy=false; return r;
+    }
+    LOCK_TCPIP_CORE();
+    Rx* rx=s->rx; Matter_Operation_Id_T epoch=s->epoch;
+    bool deliver=rx && rx->packet.size && epoch; s->reading=deliver;
+    UNLOCK_TCPIP_CORE();
+    Matter_Result_T r=MATTER_WOULD_BLOCK;
+    if(deliver) {
+        r=matter_udp_receive(s->module,epoch,&rx->packet,false);
+        LOCK_TCPIP_CORE(); rx->packet.size=0; s->reading=false; UNLOCK_TCPIP_CORE();
+    }
+    s->busy=false; return r;
+}
+Matter_Result_T matter_idf_udp_delete(Matter_Idf_Udp_T s) {
+    if(!s) return MATTER_OK;
+    if(s->busy || s->pending) return MATTER_BUSY;
+    Matter_Result_T r=matter_udp_delete(s->module); if(r==MATTER_OK) free(s); return r;
+}
+Matter_Idf_Udp_Stats_T matter_idf_udp_stats(Matter_Idf_Udp_T s) {
+    Matter_Idf_Udp_Stats_T result={0};
+    if(s) { LOCK_TCPIP_CORE(); result=s->stats; UNLOCK_TCPIP_CORE(); } return result;
+}

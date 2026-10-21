@@ -9,6 +9,9 @@ typedef struct Matter_Runtime* Matter_Runtime_T;
  * initialize only stages the restored checkpoint before Wi-Fi model creation;
  * no pending work or retained pointers on return, including failure. Radio
  * work/completions are pumped by process, after the model advances its clock.
+ * During pending-checkpoint boot recovery, process must return PENDING until
+ * restored connectivity is ready (or restored offline state is fully drained).
+ * Errors/PENDING keep the durable marker and commissioning admission closed.
  * control.load is a bounded snapshot, also used at fail-safe begin/commit.
  * Each instance needs independent mutable backend state. */
 typedef struct {

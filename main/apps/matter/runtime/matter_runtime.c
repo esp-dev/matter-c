@@ -217,7 +217,7 @@ static void fabric_removed(void* u,uint8_t index) {
     matter_dispatch_changed(s->dispatch);
 }
 Matter_Root_T matter_runtime_root(Matter_Runtime_T s) { return s?s->root:NULL; }
-bool matter_runtime_commissionable(Matter_Runtime_T s) { return s && (s->window || s->enhanced) && !s->stopping; }
+bool matter_runtime_commissionable(Matter_Runtime_T s) { return s && (s->window || s->enhanced) && !s->stopping && !s->recovering; }
 uint8_t matter_runtime_commissioning_mode(Matter_Runtime_T s,uint16_t* discriminator) {
     if(!matter_runtime_commissionable(s)) return 0;
     if(s->enhanced) { if(discriminator) *discriminator=s->enhanced_discriminator; return 2; }
@@ -610,14 +610,23 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Ud
 void matter_runtime_received(Matter_Runtime_T s,const Matter_Udp_Datagram_T* d) { if(s) matter_dispatch_received(s->dispatch,d); }
 void matter_runtime_sent(Matter_Runtime_T s,uint64_t id,Matter_Operation_Result_T result) { if(s) matter_dispatch_sent(s->dispatch,id,result); }
 void matter_runtime_changed(Matter_Runtime_T s) { if(s) matter_dispatch_changed(s->dispatch); }
+static Matter_Result_T recover(Matter_Runtime_T s,uint64_t now) {
+    /* initialize only staged restored radio state. Pump it before allowing
+     * cleanup to clear the durable marker, also when restore/cancel is pending.
+     * No dispatch admission until the physical backend reports restoration. */
+    Matter_Result_T r=s->platform.wifi.process(s->platform.wifi.control.user,s->wifi,now);
+    if(r!=MATTER_OK) return r;
+    r=matter_commissioning_host_cleanup(s->commission);
+    if(r==MATTER_OK) s->recovering=false;
+    return r;
+}
 Matter_Result_T matter_runtime_process(Matter_Runtime_T s,uint64_t now) {
     if(!s) return MATTER_OK;
     if(now<s->now || s->stopped) return MATTER_INVALID_STATE;
     s->now=now;
     if(s->recovering) {
-        Matter_Result_T recovery=matter_commissioning_host_cleanup(s->commission);
+        Matter_Result_T recovery=recover(s,now);
         if(recovery!=MATTER_OK) return recovery;
-        s->recovering=false;
     }
     if(s->reset || s->stopping) (void)matter_ota_query_stop(s->query);
     download_process(s);
@@ -659,12 +668,11 @@ Matter_Result_T matter_runtime_stop(Matter_Runtime_T s,uint64_t now) {
     if(!s) return MATTER_OK;
     if(now<s->now) return MATTER_INVALID_ARGUMENT;
     if(s->stopped) return MATTER_OK;
-    if(s->recovering) {
-        Matter_Result_T recovery=matter_commissioning_host_cleanup(s->commission);
-        if(recovery!=MATTER_OK) return MATTER_PENDING;
-        s->recovering=false;
-    }
     s->stopping=true; s->window=false; s->enhanced=false; s->now=now;
+    if(s->recovering) {
+        Matter_Result_T recovery=recover(s,now);
+        if(recovery!=MATTER_OK) return MATTER_PENDING;
+    }
     (void)matter_ota_query_stop(s->query);
     download_process(s);
     notify_process(s);

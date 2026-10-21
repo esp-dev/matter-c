@@ -1,0 +1,152 @@
+# ESP32-C6 runtime laboratory
+
+Native ESP-IDF **v6.1** composition of the complete C runtime with application
+owned IPv6 UDP, ESP mDNS, Wi-Fi and atomic checkpoint storage. No task is created
+by the C runtime. The application explicitly starts/stops SDK radio, lwIP and
+mDNS services, pumps all core calls from one owner, and retains ports through
+stop/drain/delete. Defaults remain 128 events, 56 transport slots, three
+subscriptions per fabric and the existing five-fabric limit.
+
+This is a development laboratory with public TEST DAC/key/CD and passcode
+20202021. Its initial UTC comes from build time, not a trusted clock service.
+The controller's development attestation policy is not production validation.
+Provisioning, a trusted clock and encrypted storage are application responsibilities.
+
+## Dependencies and build
+
+Use the unchanged official IDF v6.1 checkout and a separate official Espressif
+`esp-protocols` checkout pinned to `mdns-v1.12.0`, commit
+`db06b19b7be729c163d346f62ec0eba01047b7f1`. No SDK sources are vendored or patched.
+The mDNS component retains its own Apache-2.0 license. Configuration/build does
+not download dependencies. The application owns `mdns_init`, hostname, netif and
+`mdns_free`; the adapter only installs/removes its exact service instance.
+
+Keep `matter_lab_wifi.h` in ignored `local/` as described in the
+[first laboratory](../esp32-memory/README.md). Use native activated IDF:
+
+```powershell
+$repo = (Resolve-Path .).Path
+idf.py -C "$repo/examples/esp32-runtime" -B "$repo/build/idf61-runtime" `
+  -D SDKCONFIG="$repo/build/idf61-runtime/sdkconfig" -D IDF_TARGET=esp32c6 `
+  -D MATTER_C_LAB_CONFIG_DIR="<private-header-directory>" `
+  -D MATTER_LAB_MDNS_DIR="<esp-protocols>/components/mdns" build
+```
+
+The component requires software ECC, TCP/IP core locking and disabled IPv6
+reassembly. UDP validates the full IPv6 packet ceiling 1280 B, actual destination
+and interface, rejecting fragments including atomic fragments. Supported hop,
+routing and destination headers reduce available UDP payload by their size.
+One RX slot allocates on activation; occupied/busy slots drop datagrams and rely
+on the existing MRP behavior. No allocation or Matter callback runs in raw RX.
+The binding reserves its UDP port globally and filters the actual input netif;
+it does not cache the numeric netif index, which changes on Wi-Fi stop/start.
+Accepted TX releases lwIP buffers before an owner-deferred completion; local
+success is not a peer ACK. Stop's RX barrier does not cancel that obligation.
+
+The laboratory explicitly selects the existing `CHIP` CASE resumption profile,
+matching the host driver and Matter.js0.17.9. The peers use the previous ID for
+`SessionResumptionKeys`; the core's default `SPEC` profile uses the new
+Sigma2Resume ID and is unchanged. Set `CONFIG_MATTER_C_RUNTIME_CHIP_RESUMPTION=n`
+only for a peer configured for that profile. No ciphertext-based autodetection.
+After changing Kconfig options, run `idf.py reconfigure build` and inspect the
+generated config plus the target's `CASE_PROFILE` marker.
+
+## Partition and persistence
+
+**The partition table differs from the earlier memory example.** It retains the
+default SDK NVS/PHY regions, adds a dedicated 256 KiB `matter` NVS partition at
+0x10000 and starts the application at 0x50000. Preserve a full device backup and
+plan migration before changing an existing partition layout. Never flash the
+older example over this partition: its app would overwrite Matter state.
+
+For a first disposable lab setup, erase only the newly allocated `matter`
+region after preserving original firmware/state. The app never erases the whole
+partition, silently formats a damaged store or falls back to an older selected
+checkpoint. Keep the partition across subsequent flashes/reboots.
+
+Two NVS keys hold complete, unchanged TLV blobs, with a one-byte active selector.
+Replacement writes/commits only the inactive candidate before changing that
+selector. A selected blob's corruption/missing data is an error, not an empty
+fabric set. The adapter is reviewed against IDF6.1's synchronous `set_item` and
+no-op `commit` implementation: `REMOVE_FAILED` on the selector means publication
+already occurred, so it succeeds and latches further writes offline. Other
+physical storage errors also latch writes offline. A power interruption can
+recover an entire old or new checkpoint; no partial model is published. Physical
+flash-failure ambiguity is not equivalent to a deliberately rejected precommit.
+Re-review these semantics on any SDK upgrade.
+
+The 256 KiB partition budgets one node's 32768-byte blob ceiling, versions and
+NVS GC plus the separate disposable test namespace. The earlier 128 KiB lab
+layout ran out of staging space when the maximum-size fixture coexisted with
+the live checkpoint. The final layout runs that fixture on every boot, including
+after commissioning, then clears only its own namespace.
+NVS partition initialization/teardown belongs to the application. Credentials,
+fabric keys, controller state, firmware images, backups and UART captures stay
+in ignored directories.
+
+## Execution and local controls
+
+The default first run faults every tracked runtime-constructor allocation and
+tests adapter OOM/retry, scan cancellation, maximum checkpoint size, rejected
+publication/reopen, and a durable fail-safe restart. Completed long tests are
+marked in a separate lab namespace. Disable `CONFIG_MATTER_C_RUNTIME_OOM_SWEEP`
+in a separate profiling configuration to exclude that fixture's startup work.
+The owner runs at idle priority so synchronous crypto does not starve idle's
+watchdog. This is not an asynchronous crypto or production latency guarantee.
+
+Wait for `RUNTIME_READY`. Network requests go through the real runtime dispatcher,
+PASE/CASE and IM authorization. Discovery follows runtime commissioning mode
+and all live fabric identities, draining old records before replacing them.
+
+- Send local UART `r` to persist a pending Wi-Fi recovery checkpoint and restart.
+  This explicitly marked crash fixture preserves committed fabrics. The next
+  boot forces actual Wi-Fi reconnect while admission remains closed, then clears
+  the durable marker and emits `FAILSAFE_REBOOT_PASS`.
+- Send local UART `q` to stop. Runtime retirement, UDP completions, MRP/IM delivery
+  gates and advertisement withdrawal drain before any borrowed port is deleted.
+  No timeout permits a force-free. `RUNTIME_PASS` requires zero tracked live
+  allocations and SDK heap integrity. SDK process-wide resources can remain.
+
+`MEMORY`, `TASK_MEMORY` and `NETWORK` expose heap/task and ingress-drop samples.
+Tracked allocations include the C library, these IDF adapters and the Wi-Fi
+backend; SDK/PSA internals and application fixtures are only in system heap.
+All tracked allocations run on the owner, including the optional profiler.
+Stacks are already in system heap. SDK low-water marks sum per-region minima;
+neither those nor samples prove an exhaustive coincident whole-node peak.
+
+Measurements and actual regression/physical-test scope are recorded in the
+[Memory14 report](../../doc/oss/memory14-validation.md). A Wi-Fi AP with link-local
+IPv6 suffices for same-link tests; routed IPv6/RA and a full concurrency envelope
+require separate validation. No CSA result follows from this laboratory.
+
+## Independent network oracles
+
+Install the pinned `tools/matter/controller` package/lock into an ignored test
+directory using `npm ci --ignore-scripts`. Keep its `node_modules` and controller
+state outside version control. Run the public oracle with native Node.js:
+
+```powershell
+node examples/esp32-runtime/tests/controller.mjs <node_modules> `
+  '<C6-link-local>%<PC-interface-index>' commission <private-state> Wi-Fi c6-lab
+```
+
+Use the same state/id for `reconnect` (remote persistent label, one fabric,
+Read/Write and full Subscribe), `open` (ECM discriminator 1234), then `second`
+(separate controller/fabric, full snapshot and acknowledged removal of that
+fabric). `reconnect` saves an event watermark in private state; after local UART
+`r`, use `recovered` to require all reported event numbers to exceed it. All
+these commands use the default laboratory passcode and fixed first node ID.
+The public unbound-client factory avoids the normal SDK wrapper's automatic
+cached DataVersionFilters, so the snapshot assertion exercises actual wire data.
+
+This pinned wrapper's known-address commissioning branch uses its default
+development attestation policy and does not forward a custom failure callback.
+It accepts a parser finding for the public TEST CD (`Structure element tags
+should have an id.`). Commissioning success here does not validate attestation.
+
+For discovery, install `zeroconf==0.147.0` in an isolated Python environment and
+run `tests/discovery.py <PC-interface-index> <C6-IPv6-without-zone>
+<service-type> <private-result.json>`. It checks target AAAA, PTR/SRV/TXT and port
+5540; the initial `_matterc._udp.local.` case also checks the default 3840
+discriminator subtypes and CM1. Use `_matter._tcp.local.` for operational
+discovery, not the initial-window check for an ECM with discriminator 1234.

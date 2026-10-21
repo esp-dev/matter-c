@@ -1,5 +1,29 @@
 # Development status
 
+**Memory14: physical C6 network runtime and durable recovery.**
+Application-owned IDF 6.1 UDP/IPv6, mDNS, Wi-Fi and two-slot atomic NVS ports
+now serve PASE/CASE, resumption, remote Read/Write and full 133-attribute
+Subscribe snapshots. ECM/second-fabric commissioning and acknowledged removal
+pass; a persisted fail-safe fixture forces real radio stop/start before
+admission, then CASE confirms the original fabric, label and higher event
+numbers. Physical validation fixed stale lwIP interface-index binding and core
+cleanup that ran before deferred radio restoration. Existing limits remain.
+NVS grows to 256 KiB to budget the 32 KiB blob ceiling beside a live checkpoint.
+Final drain has zero tracked live allocations and passes SDK heap integrity.
+Observed maxima: 191992 B sampled system heap, 133612 B tracked allocation-event
+peak and 2600 B owner-stack use from a 12288 B reservation. These are separate
+measurements of a scoped workload, not a complete specification memory bound.
+Windows CTest97/98 plus corrected-PATH packaging retry1/1, focused runtime2/2;
+Linux CTest95/95 per build and two-instance6/6 under Memcheck and separately
+sanitizers pass. The target also passes constructor/adapter/model OOM and
+maximum-blob/rejected-publication/reopen tests. See the
+[report](memory14-validation.md) and [results](memory14-results.json).
+The controller accepts a public TEST CD attestation finding under its development
+policy; no strict attestation/CSA result or electrical power-cut test is claimed.
+TL-MR3020 required no firmware/configuration change. Next: sustained C6
+concurrency, fragmentation and reconnect/OOM envelope before another memory
+representation change.
+
 **Memory13: ESP-IDF component and physical C6 memory laboratory.**
 The VM now has isolated IDF 6.0.2 tools and a successful ESP-Matter 1.6.1 light
 build for C6. The C library has an optional IDF 6.1 component, a private Mbed TLS 4

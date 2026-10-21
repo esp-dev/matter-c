@@ -1,0 +1,16 @@
+menu "Matter C runtime laboratory"
+config MATTER_C_RUNTIME_CHIP_RESUMPTION
+    bool "Explicit CHIP-compatible CASE resumption traffic KDF for lab peers"
+    default y
+    help
+        Mirrors the existing host lab. ConnectedHomeIP and Matter.js0.17.9 use
+        the previous resumption ID for SessionResumptionKeys. Disabling selects
+        the core's SPEC profile (new Sigma2Resume ID). No ciphertext detection
+        or fallback between profiles; both peers must agree.
+config MATTER_C_RUNTIME_OOM_SWEEP
+    bool "Fault every tracked runtime-constructor allocation once per lab state"
+    default y
+    help
+        Deliberately slow test, completed before serving. Tracks library/adapter
+        allocations only, not all internal SDK/PSA failures.
+endmenu

@@ -1,0 +1,1320 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-21",
+  "stage": "C6 network runtime and durable checkpoint laboratory",
+  "target": {
+    "chip": "ESP32-C6FH4",
+    "revision": "0.0",
+    "flash_bytes": 4194304,
+    "psram": false,
+    "idf": "6.1",
+    "idf_commit": "fff9895c82d744c7237be8847347bdd1b07c6643",
+    "gcc": "15.2.0",
+    "mbedtls": "4.1.0",
+    "mdns": "1.12.0",
+    "mdns_commit": "db06b19b7be729c163d346f62ec0eba01047b7f1",
+    "secure_boot": false,
+    "flash_encryption": false,
+    "hardware_ecc": false,
+    "case_resumption_profile": "CHIP"
+  },
+  "limits": {
+    "events": 128,
+    "transports": 56,
+    "fabrics": 5,
+    "subscriptions_per_fabric": 3,
+    "udp_payload_bytes": 1232,
+    "ipv6_packet_bytes": 1280,
+    "store_blob_bytes": 32768,
+    "nvs_partition_bytes": 262144
+  },
+  "physical": {
+    "final_uart_sha256": "e6afff444bdf091692ab48e8f6d0a86ded1f32ac980d70b1077fe54044a6b349",
+    "boots": [
+      {
+        "workload": "CASE/resumption/ECM/second-fabric/remove/local-crash-fixture",
+        "samples": [
+          {
+            "phase": "boot",
+            "ms": 50,
+            "heap_free": 367400,
+            "heap_allocated": 24312,
+            "heap_min": 367400,
+            "largest_free": 335872,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 12036,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 0,
+            "core_largest": 0,
+            "core_failures": 0
+          },
+          {
+            "phase": "wifi-ipv6-ready",
+            "ms": 3699,
+            "heap_free": 302000,
+            "heap_allocated": 88952,
+            "heap_min": 289336,
+            "largest_free": 278528,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 11380,
+            "core_live": 1,
+            "core_bytes": 496,
+            "core_peak": 496,
+            "core_largest": 496,
+            "core_failures": 0
+          },
+          {
+            "phase": "runtime-created",
+            "ms": 8423,
+            "heap_free": 237108,
+            "heap_allocated": 153608,
+            "heap_min": 208896,
+            "largest_free": 221184,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9720,
+            "core_live": 29,
+            "core_bytes": 59560,
+            "core_peak": 88032,
+            "core_largest": 32768,
+            "core_failures": 8
+          },
+          {
+            "phase": "runtime-started",
+            "ms": 9176,
+            "heap_free": 205800,
+            "heap_allocated": 184828,
+            "heap_min": 188512,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9720,
+            "core_live": 50,
+            "core_bytes": 90700,
+            "core_peak": 107428,
+            "core_largest": 32768,
+            "core_failures": 11
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 19098,
+            "heap_free": 205000,
+            "heap_allocated": 185568,
+            "heap_min": 188512,
+            "largest_free": 184320,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9720,
+            "core_live": 54,
+            "core_bytes": 91220,
+            "core_peak": 107428,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 49178,
+            "heap_free": 204880,
+            "heap_allocated": 185684,
+            "heap_min": 188512,
+            "largest_free": 184320,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9720,
+            "core_live": 54,
+            "core_bytes": 91220,
+            "core_peak": 107428,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 79228,
+            "heap_free": 198496,
+            "heap_allocated": 191992,
+            "heap_min": 179676,
+            "largest_free": 176128,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9688,
+            "core_live": 73,
+            "core_bytes": 97528,
+            "core_peak": 112300,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 109278,
+            "heap_free": 202176,
+            "heap_allocated": 188292,
+            "heap_min": 162392,
+            "largest_free": 176128,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9688,
+            "core_live": 67,
+            "core_bytes": 93620,
+            "core_peak": 132232,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 139318,
+            "heap_free": 203716,
+            "heap_allocated": 186828,
+            "heap_min": 161664,
+            "largest_free": 180224,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9688,
+            "core_live": 59,
+            "core_bytes": 92268,
+            "core_peak": 133612,
+            "core_largest": 32768,
+            "core_failures": 12
+          }
+        ],
+        "tasks": [
+          {
+            "id": 2,
+            "name": "main",
+            "min_free_bytes": 9720
+          },
+          {
+            "id": 3,
+            "name": "IDLE",
+            "min_free_bytes": 1240
+          },
+          {
+            "id": 5,
+            "name": "tcpip",
+            "min_free_bytes": 2628
+          },
+          {
+            "id": 6,
+            "name": "sys_evt",
+            "min_free_bytes": 3728
+          },
+          {
+            "id": 8,
+            "name": "mdns",
+            "min_free_bytes": 2360
+          },
+          {
+            "id": 7,
+            "name": "wifi",
+            "min_free_bytes": 4808
+          },
+          {
+            "id": 1,
+            "name": "esp_timer",
+            "min_free_bytes": 3660
+          },
+          {
+            "id": 4,
+            "name": "Tmr?Svc",
+            "min_free_bytes": 1768
+          }
+        ],
+        "network": [
+          {
+            "rx": 0,
+            "tx": 0,
+            "dropped": 0,
+            "oversize": 0,
+            "extensions": 0
+          },
+          {
+            "rx": 31,
+            "tx": 50,
+            "dropped": 4,
+            "oversize": 0,
+            "extensions": 0
+          },
+          {
+            "rx": 78,
+            "tx": 136,
+            "dropped": 54,
+            "oversize": 0,
+            "extensions": 0
+          },
+          {
+            "rx": 115,
+            "tx": 195,
+            "dropped": 59,
+            "oversize": 0,
+            "extensions": 0
+          }
+        ],
+        "maximum_sampled_heap_allocated": 191992,
+        "minimum_sdk_heap_low_water": 161664,
+        "tracked_allocation_event_peak": 133612,
+        "largest_tracked_request": 32768,
+        "owner_stack_reserved": 12288,
+        "owner_stack_observed_used": 2600
+      },
+      {
+        "workload": "persisted-recovery/CASE/Read/Write/Subscribe/UDP-bounds/stop",
+        "samples": [
+          {
+            "phase": "boot",
+            "ms": 50,
+            "heap_free": 367400,
+            "heap_allocated": 24312,
+            "heap_min": 367400,
+            "largest_free": 335872,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 12036,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 0,
+            "core_largest": 0,
+            "core_failures": 0
+          },
+          {
+            "phase": "wifi-ipv6-ready",
+            "ms": 3699,
+            "heap_free": 302000,
+            "heap_allocated": 88952,
+            "heap_min": 289204,
+            "largest_free": 278528,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 11288,
+            "core_live": 1,
+            "core_bytes": 496,
+            "core_peak": 496,
+            "core_largest": 496,
+            "core_failures": 0
+          },
+          {
+            "phase": "runtime-created",
+            "ms": 8401,
+            "heap_free": 237136,
+            "heap_allocated": 153580,
+            "heap_min": 208932,
+            "largest_free": 217088,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9732,
+            "core_live": 29,
+            "core_bytes": 59540,
+            "core_peak": 88020,
+            "core_largest": 32768,
+            "core_failures": 8
+          },
+          {
+            "phase": "runtime-started",
+            "ms": 9143,
+            "heap_free": 205836,
+            "heap_allocated": 184792,
+            "heap_min": 188488,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9732,
+            "core_live": 50,
+            "core_bytes": 90672,
+            "core_peak": 107400,
+            "core_largest": 32768,
+            "core_failures": 11
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 32818,
+            "heap_free": 205148,
+            "heap_allocated": 185424,
+            "heap_min": 169580,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9732,
+            "core_live": 54,
+            "core_bytes": 91188,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 62918,
+            "heap_free": 205060,
+            "heap_allocated": 185508,
+            "heap_min": 169580,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9732,
+            "core_live": 54,
+            "core_bytes": 91188,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 92948,
+            "heap_free": 205060,
+            "heap_allocated": 185508,
+            "heap_min": 169580,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9732,
+            "core_live": 54,
+            "core_bytes": 91188,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 123008,
+            "heap_free": 201832,
+            "heap_allocated": 188724,
+            "heap_min": 169580,
+            "largest_free": 184320,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9716,
+            "core_live": 57,
+            "core_bytes": 94404,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 153048,
+            "heap_free": 204480,
+            "heap_allocated": 186080,
+            "heap_min": 169580,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9716,
+            "core_live": 57,
+            "core_bytes": 91764,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 183108,
+            "heap_free": 204488,
+            "heap_allocated": 186072,
+            "heap_min": 169580,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9716,
+            "core_live": 57,
+            "core_bytes": 91764,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 213138,
+            "heap_free": 204492,
+            "heap_allocated": 186068,
+            "heap_min": 169580,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9716,
+            "core_live": 57,
+            "core_bytes": 91764,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 243178,
+            "heap_free": 204492,
+            "heap_allocated": 186068,
+            "heap_min": 169580,
+            "largest_free": 188416,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9716,
+            "core_live": 57,
+            "core_bytes": 91764,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "complete",
+            "ms": 244559,
+            "heap_free": 360084,
+            "heap_allocated": 31444,
+            "heap_min": 169580,
+            "largest_free": 278528,
+            "owner_stack_reserved": 12288,
+            "owner_stack_min_free": 9716,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 123452,
+            "core_largest": 32768,
+            "core_failures": 12
+          }
+        ],
+        "tasks": [
+          {
+            "id": 2,
+            "name": "main",
+            "min_free_bytes": 9732
+          },
+          {
+            "id": 3,
+            "name": "IDLE",
+            "min_free_bytes": 1240
+          },
+          {
+            "id": 5,
+            "name": "tcpip",
+            "min_free_bytes": 2628
+          },
+          {
+            "id": 8,
+            "name": "mdns",
+            "min_free_bytes": 2360
+          },
+          {
+            "id": 6,
+            "name": "sys_evt",
+            "min_free_bytes": 3728
+          },
+          {
+            "id": 7,
+            "name": "wifi",
+            "min_free_bytes": 4808
+          },
+          {
+            "id": 1,
+            "name": "esp_timer",
+            "min_free_bytes": 3660
+          },
+          {
+            "id": 4,
+            "name": "Tmr?Svc",
+            "min_free_bytes": 1768
+          },
+          {
+            "id": 2,
+            "name": "main",
+            "min_free_bytes": 9716
+          },
+          {
+            "id": 3,
+            "name": "IDLE",
+            "min_free_bytes": 1240
+          },
+          {
+            "id": 5,
+            "name": "tcpip",
+            "min_free_bytes": 2580
+          },
+          {
+            "id": 4,
+            "name": "Tmr?Svc",
+            "min_free_bytes": 1768
+          },
+          {
+            "id": 1,
+            "name": "esp_timer",
+            "min_free_bytes": 3660
+          }
+        ],
+        "network": [
+          {
+            "rx": 0,
+            "tx": 0,
+            "dropped": 0,
+            "oversize": 0,
+            "extensions": 0
+          },
+          {
+            "rx": 0,
+            "tx": 0,
+            "dropped": 0,
+            "oversize": 0,
+            "extensions": 0
+          },
+          {
+            "rx": 2,
+            "tx": 3,
+            "dropped": 1,
+            "oversize": 0,
+            "extensions": 0
+          },
+          {
+            "rx": 32,
+            "tx": 58,
+            "dropped": 6,
+            "oversize": 0,
+            "extensions": 0
+          },
+          {
+            "rx": 34,
+            "tx": 58,
+            "dropped": 8,
+            "oversize": 1,
+            "extensions": 0
+          },
+          {
+            "rx": 34,
+            "tx": 58,
+            "dropped": 8,
+            "oversize": 1,
+            "extensions": 0
+          },
+          {
+            "rx": 34,
+            "tx": 58,
+            "dropped": 8,
+            "oversize": 1,
+            "extensions": 0
+          }
+        ],
+        "maximum_sampled_heap_allocated": 188724,
+        "minimum_sdk_heap_low_water": 169580,
+        "tracked_allocation_event_peak": 123452,
+        "largest_tracked_request": 32768,
+        "owner_stack_reserved": 12288,
+        "owner_stack_observed_used": 2572
+      }
+    ],
+    "controller": {
+      "controller-reconnect07.log": {
+        "sha256": "1013773e5a7ce092c71e04f7e73418d6862eab2afd062754f6476c4ff96e72d0",
+        "markers": [
+          "C6_CASE_RECONNECTED 1",
+          "C6_PERSISTENT_LABEL_PASS",
+          "C6_FABRIC_COUNT_PASS 1",
+          "C6_CASE_READ_WRITE_PASS",
+          "C6_SUBSCRIBE_INITIAL_COUNTS 133 2",
+          "C6_SUBSCRIBE_PASS 133 2"
+        ],
+        "case_resumed": false
+      },
+      "controller-ecm07.log": {
+        "sha256": "0203fdaa37bbf918453d571dbe7653d9bc1691207fc531e1e3e1a287c6e37767",
+        "markers": [
+          "C6_CASE_RECONNECTED 1",
+          "C6_ECM_OPEN"
+        ],
+        "case_resumed": true
+      },
+      "controller-second07.log": {
+        "sha256": "79c3bdd84daa807b7913515c57d3ad0fcdac29a2061bc64df0871958d2d08479",
+        "markers": [
+          "C6_COMMISSIONED 2",
+          "C6_FABRIC_COUNT_PASS 2",
+          "C6_CASE_READ_WRITE_PASS",
+          "C6_SUBSCRIBE_INITIAL_COUNTS 133 3",
+          "C6_SUBSCRIBE_PASS 133 3",
+          "C6_REMOVE_FABRIC_RESPONSE_PASS 3"
+        ],
+        "case_resumed": false
+      },
+      "controller-before-recovery07.log": {
+        "sha256": "21967135a3e816786150208fc2586e29198ab82367a67801ffbd2985ce98f978",
+        "markers": [
+          "C6_CASE_RECONNECTED 1",
+          "C6_PERSISTENT_LABEL_PASS",
+          "C6_FABRIC_COUNT_PASS 1",
+          "C6_CASE_READ_WRITE_PASS",
+          "C6_SUBSCRIBE_INITIAL_COUNTS 133 2",
+          "C6_SUBSCRIBE_PASS 133 2"
+        ],
+        "case_resumed": true
+      },
+      "controller-after-recovery07.log": {
+        "sha256": "256967f96a2f9da36f8ee83473c414caf1a70868803654819e75004329b4bb7c",
+        "markers": [
+          "C6_CASE_RECONNECTED 1",
+          "C6_PERSISTENT_LABEL_PASS",
+          "C6_FABRIC_COUNT_PASS 1",
+          "C6_CASE_READ_WRITE_PASS",
+          "C6_SUBSCRIBE_INITIAL_COUNTS 133 2",
+          "C6_SUBSCRIBE_PASS 133 2",
+          "C6_EVENT_REBOOT_WATERMARK_PASS 256 257"
+        ],
+        "case_resumed": false
+      }
+    },
+    "operational_discovery_before_and_after_recovery": true,
+    "initial_commissionable_discovery_earlier_run": true,
+    "strict_attestation_pass": false,
+    "accepted_test_cd_parser_finding": "Structure element tags should have an id.",
+    "persisted_recovery_fixture": true,
+    "electrical_power_cut_tested": false,
+    "constructor_oom_earlier_run": {
+      "positions": 41,
+      "uart_sha256": "f4d81f1cc9d1332d33f27d5500f6064a343c8b0b249168d5b863bce18a02f38d",
+      "core_archive_identical": true
+    },
+    "additional_tracked_faults_per_final_boot": 12,
+    "atomic_store_prefault_positions": 2,
+    "final_tracked_live": 0,
+    "sdk_heap_integrity_pass": true,
+    "runtime_pass": true,
+    "udp_probes": [
+      {
+        "size": 0,
+        "sent": 0
+      },
+      {
+        "size": 1,
+        "sent": 1
+      },
+      {
+        "size": 1232,
+        "sent": 1232
+      },
+      {
+        "size": 1233,
+        "sent": 1233
+      },
+      {
+        "size": 1500,
+        "sent": 1500
+      }
+    ]
+  },
+  "host": {
+    "windows_full": {
+      "passed": 97,
+      "total": 98,
+      "initial_failure": "installed_consumer child compiler DLL PATH",
+      "corrected_path_retry_passed": 1,
+      "corrected_path_retry_total": 1
+    },
+    "windows_focused_runtime_passed": 2,
+    "linux_ctest_normal_passed": 95,
+    "linux_ctest_sanitizers_passed": 95,
+    "two_instance_memcheck_passed": 6,
+    "two_instance_sanitizers_passed": 6,
+    "memcheck_errors": 0,
+    "memcheck_live_bytes": 0,
+    "memcheck_live_blocks": 0,
+    "memcheck_suppressions": 0,
+    "sanitizer_stderr_bytes": 0,
+    "verified_source_header_hash_count": 159,
+    "source_hashes_match": true,
+    "inventory": {
+      "mapped_files": 256,
+      "native_definitions": 97,
+      "core_sources": 59,
+      "public_headers": 75
+    }
+  },
+  "build": {
+    "artifacts": {
+      "matter_c_runtime.bin": {
+        "bytes": 1280192,
+        "sha256": "30d23ea0f74e8f524795f281e38e561b18b35f7d848c2cc96fdd50f98bbb55b6"
+      },
+      "matter_c_runtime.elf": {
+        "bytes": 13455672,
+        "sha256": "e13927309918b080d7d28f426dac76be9796035b0bf32c8bd05abeee58da0faa"
+      },
+      "matter_c_runtime.map": {
+        "bytes": 7858969,
+        "sha256": "29c52970f49e1f37aedff87cb9c8e6efeafbd5ae899e6020f572c29dd3669508"
+      }
+    },
+    "archives": {
+      "libmatter_c.a": {
+        "final_sha256": "7ef364140a2bd4fbd691343bd647f5e34406d10e54fb1faca040b23e69efe1c5",
+        "runtime05_sha256": "7ef364140a2bd4fbd691343bd647f5e34406d10e54fb1faca040b23e69efe1c5",
+        "same_as_runtime05": true
+      },
+      "libmatter_c_esp32.a": {
+        "final_sha256": "a98f020239f6a06bd5dfc77be5198084d33ed73d4226e70d0b1f98d94833bb43",
+        "runtime05_sha256": "9610057a4c663ae6c69611b3cfbfaa1c8837651db5a8f3e2a1671f2193b8f09d",
+        "same_as_runtime05": false
+      }
+    },
+    "size": {
+      "version": "1.2",
+      "total_size": 1279813,
+      "layout": [
+        {
+          "name": "Flash Code",
+          "total": 0,
+          "used": 1164446,
+          "free": 0,
+          "parts": {
+            ".text": {
+              "size": 1014542
+            },
+            ".rodata": {
+              "size": 149368
+            },
+            ".init_array": {
+              "size": 264
+            },
+            ".appdesc": {
+              "size": 256
+            },
+            ".tdata": {
+              "size": 16
+            }
+          }
+        },
+        {
+          "name": "DIRAM",
+          "total": 452112,
+          "used": 140735,
+          "free": 311377,
+          "parts": {
+            ".text": {
+              "size": 99652
+            },
+            ".bss": {
+              "size": 25104
+            },
+            ".data": {
+              "size": 15979
+            }
+          }
+        },
+        {
+          "name": "LP SRAM",
+          "total": 16384,
+          "used": 24,
+          "free": 16360,
+          "parts": {
+            ".rtc_reserved": {
+              "size": 24
+            }
+          }
+        }
+      ]
+    },
+    "compiler_frames": [
+      {
+        "translation_unit": "matter_idf_discovery.c.su",
+        "function": "publish",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_discovery.c.su",
+        "function": "remove_record",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_discovery.c.su",
+        "function": "cancel",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_discovery.c.su",
+        "function": "detach",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_discovery.c.su",
+        "function": "matter_idf_discovery_new",
+        "bytes": 48,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_discovery.c.su",
+        "function": "matter_idf_discovery_module",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_discovery.c.su",
+        "function": "matter_idf_discovery_process",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_discovery.c.su",
+        "function": "matter_idf_discovery_delete",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_store.c.su",
+        "function": "slot",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_store.c.su",
+        "function": "fault",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_store.c.su",
+        "function": "read_blob",
+        "bytes": 48,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_store.c.su",
+        "function": "replace_blob",
+        "bytes": 32,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_store.c.su",
+        "function": "matter_idf_store_new",
+        "bytes": 32,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_store.c.su",
+        "function": "matter_idf_store_port",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_store.c.su",
+        "function": "matter_idf_store_delete",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_store.c.su",
+        "function": "matter_idf_store_fail",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "matter_idf_ip6_headers",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "error",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "zero",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "cancel",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "send_packet",
+        "bytes": 96,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "deactivate",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "detach",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "activate",
+        "bytes": 32,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "receive",
+        "bytes": 32,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "matter_idf_udp_new",
+        "bytes": 64,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "matter_idf_udp_module",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "matter_idf_udp_process",
+        "bytes": 32,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "matter_idf_udp_delete",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "matter_idf_udp.c.su",
+        "function": "matter_idf_udp_stats",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "matter_idf_ip6_headers",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "regulatory",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "log_line",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "header_tests",
+        "bytes": 80,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "wifi_event",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "entropy",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "clear_store_fixture",
+        "bytes": 32,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "store_tests",
+        "bytes": 64,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "network",
+        "bytes": 48,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "timestamp",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "utc",
+        "bytes": 64,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "text",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "configuration",
+        "bytes": 96,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "event_load",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "event_store",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "sent",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "received",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "recovery_restart",
+        "bytes": 64,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "now",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "constructor_faults",
+        "bytes": 160,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "ad_pump",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "ad_stop",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "ad_start",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "discovery_faults",
+        "bytes": 208,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "advertisements",
+        "bytes": 48,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "pump",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "fail_safe_restart",
+        "bytes": 192,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "wifi_tests",
+        "bytes": 256,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "sample",
+        "bytes": 112,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "boot_wifi",
+        "bytes": 256,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "start",
+        "bytes": 112,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "tasks",
+        "bytes": 32,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "app_main.c.su",
+        "function": "app_main",
+        "bytes": 176,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "wipe",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "load",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "configure",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "cancel",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "start",
+        "bytes": 32,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "scan_event",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "scan_done",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "same",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "online",
+        "bytes": 144,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "initialize",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "restore",
+        "bytes": 112,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "observe",
+        "bytes": 112,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "connect_to",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "process",
+        "bytes": 144,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "lab_wifi_new",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "lab_wifi_port",
+        "bytes": 0,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "lab_wifi_delete",
+        "bytes": 16,
+        "kind": "static"
+      },
+      {
+        "translation_unit": "wifi_port.c.su",
+        "function": "lab_wifi_reconnect",
+        "bytes": 0,
+        "kind": "static"
+      }
+    ],
+    "current_public_source_sha256": {
+      "components/matter_c_esp32/CMakeLists.txt": "18a67a1f0dce3c8aeab5fccfe5f2fc29020218a0139f7cab5d0c0d236df02a8c",
+      "components/matter_c_esp32/matter_idf_discovery.c": "15cbacb2f1b5d1445d5c59adf8cedcae070e300d1225f36c0acb5705256dfa76",
+      "components/matter_c_esp32/matter_idf_discovery.h": "82448d016b7f670752b7af98f3146625202cad4d4c3d297600a2aca58854a584",
+      "components/matter_c_esp32/matter_idf_ip6_internal.h": "70da54a3e875a5df316c231c536a3addc2915547a10047f54df768a9d63fc2cf",
+      "components/matter_c_esp32/matter_idf_store.c": "4c9394bcd4a714965de6d9ee8153adaac38a9cc3776a7cc25af74e087094e533",
+      "components/matter_c_esp32/matter_idf_store.h": "5f5ddcc1dba6507c4acf2692098b48ef0256a756db4e083430238c25facf196d",
+      "components/matter_c_esp32/matter_idf_udp.c": "505ae632d4c48de9e857658238663d3b02123d43b0e7bde46ffc6dcef39a9488",
+      "components/matter_c_esp32/matter_idf_udp.h": "5965895df8749de93ba6c9e6a415abcd1a61003d3b134e50640de73557de963e",
+      "examples/esp32-common/matter_lab_memory.h": "a2cb60630bb38a2894f03c322e550657f78057b6e893ec73522e447b16f867ad",
+      "examples/esp32-memory/main/app_main.c": "19cae4cc78f8a797d1e37f181e04ef6b712c777ff17a8676dc48db413e2182ec",
+      "examples/esp32-runtime/CMakeLists.txt": "bd4e53e69eefcf9bf8d75468b4200a88d4643dea9a96417cf4c63d10ea8e86de",
+      "examples/esp32-runtime/main/CMakeLists.txt": "893dfcc2837914d98741f83eab21b1cda0aa5007bc9a2f613e13aefba7433410",
+      "examples/esp32-runtime/main/Kconfig.projbuild": "6c4dc4cb0d8cfdb5a7a1cf05735345e17d0e7d48aab66e3fdc6e71a07891716a",
+      "examples/esp32-runtime/main/app_main.c": "343f3cbaa6ec27c8f5b02470c989f2113209b8875dbe269035bb764a6d49e4b6",
+      "examples/esp32-runtime/main/wifi_port.c": "594cdd88be0ac97fe7424f10cc038160fe9c71a072c8064ef6921a42f3874943",
+      "examples/esp32-runtime/main/wifi_port.h": "fb712b8be6d81a344d0fbdb683abffe9e747223bce4ff6215b940ae6861a3059",
+      "examples/esp32-runtime/partitions.csv": "9646034703ccf5b6a1d23f6f6ec777b3d8613a437ebf6637a815c0725f2923f5",
+      "examples/esp32-runtime/sdkconfig.defaults": "4c5f839273e090f6b30ab98b3117d00520e442452534e7dff45147fa6ba94b5c",
+      "examples/esp32-runtime/tests/controller.mjs": "25cd65c2cb1a68876d48930a219ad1c381922d8627c449b9b101fd30d6dfdb4e",
+      "examples/esp32-runtime/tests/discovery.py": "472f1848c6419ecb674f38f44cfc012f0e99793e12468601a6952999be46c262",
+      "main/apps/matter/runtime/matter_runtime.c": "9ae8a938f9b70c017152774b4585c48350a695454d36abbf2def07976079b251",
+      "main/apps/matter/runtime/matter_runtime.h": "d7fa3c6a687d7da9ed30ffc4d6924c4acebc2c924ca38fa80deb60b40145ffe6",
+      "tools/matter/tests/test_runtime.c": "9e637296bdc57658548e6eccc505756cda8a53bd139305d82e412ac30dc6c76e"
+    },
+    "old_example_compatibility_build_pass": true
+  },
+  "interpretation": {
+    "heap_includes_reserved_task_stacks": true,
+    "low_water_is_sum_of_region_minima": true,
+    "sampled_heap_is_not_exhaustive_peak": true,
+    "tracked_peak_excludes_allocator_headers_and_sdk": true,
+    "specification_wide_memory_bound_established": false,
+    "comparable_before_after_saving_established": false
+  },
+  "lab": {
+    "router_firmware_changed": false,
+    "router_config_changed": false,
+    "uses_same_link_ipv6": true,
+    "routed_ra_dhcpv6_tested": false,
+    "private_data_exported": false,
+    "official_csa_rerun": false,
+    "windows_temporary_wifi_profile_removed": true,
+    "windows_wifi_disconnected_after_tests": true,
+    "windows_ipv6_binding_restored_disabled": true
+  }
+}

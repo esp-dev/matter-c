@@ -34,40 +34,7 @@ int matter_lab_test_im_read(void);
 int matter_lab_test_im_subscribe(void);
 int matter_lab_test_im_event_metadata(void);
 static uint64_t now(void) { return (uint64_t)esp_timer_get_time()/1000; }
-static void tasks(void) {
-    typedef struct { unsigned id,free; char name[configMAX_TASK_NAME_LEN]; } Task;
-    UBaseType_t count=uxTaskGetNumberOfTasks()+4;
-    TaskStatus_t* status=calloc(count,sizeof(*status));
-    Task* copy=calloc(count,sizeof(*copy)); REQUIRE(status && copy);
-    /* Keep borrowed task names live while copying. Do no formatting or heap
-     * work with the scheduler suspended; print only the owned copies. */
-    vTaskSuspendAll();
-    count=uxTaskGetSystemState(status,count,NULL);
-    for(UBaseType_t i=0;i<count;++i) {
-        copy[i].id=(unsigned)status[i].xTaskNumber; copy[i].free=(unsigned)status[i].usStackHighWaterMark;
-        for(size_t j=0;j+1<sizeof(copy[i].name) && status[i].pcTaskName[j];++j) {
-            char c=status[i].pcTaskName[j];
-            copy[i].name[j]=(c>='a' && c<='z') || (c>='A' && c<='Z') ||
-                (c>='0' && c<='9') || c=='_' || c=='-'?c:'?';
-        }
-    }
-    xTaskResumeAll(); REQUIRE(count);
-    for(UBaseType_t i=0;i<count;++i)
-        printf("TASK_MEMORY {\"id\":%u,\"name\":\"%s\",\"min_free_bytes\":%u}\n",
-            copy[i].id,copy[i].name,copy[i].free);
-    free(copy); free(status);
-}
-static void sample(const char* phase) {
-    multi_heap_info_t info; heap_caps_get_info(&info,MALLOC_CAP_INTERNAL|MALLOC_CAP_8BIT);
-    Matter_Idf_Memory m=matter_idf_memory();
-    unsigned free_stack=(unsigned)uxTaskGetStackHighWaterMark(NULL);
-    printf("MEMORY {\"phase\":\"%s\",\"ms\":%llu,\"heap_free\":%u,\"heap_allocated\":%u,\"heap_min\":%u,"
-        "\"largest_free\":%u,\"owner_stack_reserved\":%u,\"owner_stack_min_free\":%u,"
-        "\"core_live\":%u,\"core_bytes\":%u,\"core_peak\":%u,\"core_largest\":%u,\"core_failures\":%u}\n",
-        phase,(unsigned long long)now(),(unsigned)info.total_free_bytes,(unsigned)info.total_allocated_bytes,(unsigned)info.minimum_free_bytes,
-        (unsigned)info.largest_free_block,CONFIG_ESP_MAIN_TASK_STACK_SIZE,free_stack,
-        (unsigned)m.live,(unsigned)m.live_bytes,(unsigned)m.peak_bytes,(unsigned)m.largest_request,(unsigned)m.failures);
-}
+#include "../../esp32-common/matter_lab_memory.h"
 static Matter_Result_T entropy(void* u,uint8_t* out,size_t size) {
     (void)u; esp_fill_random(out,size); return MATTER_OK;
 }
