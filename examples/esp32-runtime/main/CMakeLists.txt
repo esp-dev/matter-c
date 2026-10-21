@@ -1,5 +1,5 @@
 get_filename_component(matter_root "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
-idf_component_register(SRCS "app_main.c" "wifi_port.c" INCLUDE_DIRS "."
+idf_component_register(SRCS "app_main.c" "wifi_port.c" "soak_lab.c" INCLUDE_DIRS "."
     PRIV_INCLUDE_DIRS "${matter_root}/tools/matter/tests"
     REQUIRES matter_c_esp32 esp_wifi esp_event esp_timer bootloader_support esp_driver_uart)
 target_compile_options(${COMPONENT_LIB} PRIVATE -fstack-usage)

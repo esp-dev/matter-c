@@ -18,6 +18,12 @@ integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE
 resumption, Read/Write/Subscribe, a second fabric and durable recovery.
 See the [Memory14 evidence and limits](doc/oss/memory14-validation.md).
+The [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
+with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
+deferred-TX drain. It fixes RX starvation/burst loss and transient interface
+identity; an optional Wi-Fi code-placement profile recovers 33332 B DIRAM.
+The successful hour observes 368184 B sampled internal heap and 2584 B owner
+stack use. These scoped root-node results are not specification-wide bounds.
 The earlier [component memory laboratory](examples/esp32-memory/README.md)
 retains its separate crypto/IM/PASE profiling fixtures.
 

@@ -1,5 +1,29 @@
 # Development status
 
+**Memory15: sustained C6 concurrency and recovery.**
+The physical root-node laboratory completes 3606 s with five fabrics, 15
+protected CASE sessions/full subscriptions, 1392 full Reads, 27 tracked OOM
+cycles, 14 ingress-loss cycles and nine radio reconnects. Healthy traffic has
+zero operation errors/unexpected subscription closures; deliberate faults can
+end subscriptions and their rebuilds are counted. Four fixture fabrics are
+removed with acknowledged responses, the original fabric/label are restored,
+and deferred-TX stop waits for drain: zero tracked live allocations and SDK heap
+integrity pass. Fixes cover TX starving ACK ingress, demand-grown/trimmed stable
+RX FIFO, and a stable interface scope key across lwIP radio re-addition.
+An optional Wi-Fi flash-code profile recovers 33332 B DIRAM without reducing
+driver pools or Matter limits; SDK defaults fail the earlier saturated workload
+with allocation failures. Default project configuration remains unchanged.
+Successful-hour maxima are 368184 B sampled internal heap, 276648 B tracked
+allocation-event peak and 2584 B observed owner-stack use of 12288 B reserved.
+Comparable full-load heap checkpoints stay 291780–292104 B; this is a scoped
+root-node observation with sampling gaps, not a complete specification bound.
+Earlier failures, including a 27-minute CASE BUSY attempt, remain documented.
+Linux CTest95/95 per build and two-instance6/6 under Memcheck and separately
+sanitizers pass; Windows focused2/2, target profiles and physical fixtures pass.
+See the [report](memory15-validation.md) and [results](memory15-results.json).
+No official CSA/strict attestation/routed IPv6 result is claimed. Next: run the
+three-phase product model on C6 through the same maximum-load memory envelope.
+
 **Memory14: physical C6 network runtime and durable recovery.**
 Application-owned IDF 6.1 UDP/IPv6, mDNS, Wi-Fi and two-slot atomic NVS ports
 now serve PASE/CASE, resumption, remote Read/Write and full 133-attribute

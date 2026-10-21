@@ -36,10 +36,13 @@ The component requires software ECC, TCP/IP core locking and disabled IPv6
 reassembly. UDP validates the full IPv6 packet ceiling 1280 B, actual destination
 and interface, rejecting fragments including atomic fragments. Supported hop,
 routing and destination headers reduce available UDP payload by their size.
-One RX slot allocates on activation; occupied/busy slots drop datagrams and rely
-on the existing MRP behavior. No allocation or Matter callback runs in raw RX.
+One RX slot allocates on activation. Observed overflow lets the owner grow a
+stable FIFO to at most eight slots; extra free slots release after ten seconds
+without RX. Growth OOM retains the current FIFO; a full queue drops datagrams
+and relies on existing MRP. No allocation or Matter callback runs in raw RX.
 The binding reserves its UDP port globally and filters the actual input netif;
-it does not cache the numeric netif index, which changes on Wi-Fi stop/start.
+paths retain a stable adapter scope key through Wi-Fi stop/start. TX maps that
+key to the netif's current numeric lwIP index; RX reports the same stable key.
 Accepted TX releases lwIP buffers before an owner-deferred completion; local
 success is not a peer ACK. Stop's RX barrier does not cancel that obligation.
 
@@ -116,8 +119,9 @@ neither those nor samples prove an exhaustive coincident whole-node peak.
 
 Measurements and actual regression/physical-test scope are recorded in the
 [Memory14 report](../../doc/oss/memory14-validation.md). A Wi-Fi AP with link-local
-IPv6 suffices for same-link tests; routed IPv6/RA and a full concurrency envelope
-require separate validation. No CSA result follows from this laboratory.
+IPv6 suffices for same-link tests; routed IPv6/RA still requires separate
+validation. The scoped one-hour concurrency envelope is recorded in
+[Memory15](../../doc/oss/memory15-validation.md). No CSA result follows from this laboratory.
 
 ## Independent network oracles
 
@@ -150,3 +154,93 @@ run `tests/discovery.py <PC-interface-index> <C6-IPv6-without-zone>
 5540; the initial `_matterc._udp.local.` case also checks the default 3840
 discriminator subtypes and CM1. Use `_matter._tcp.local.` for operational
 discovery, not the initial-window check for an ECM with discriminator 1234.
+
+## Sustained concurrency laboratory
+
+Enable `CONFIG_MATTER_C_RUNTIME_SOAK=y` in a separate build/configuration; its
+default is off. Matter resource limits and the receive-slot size remain unchanged.
+For a fresh soak configuration, append `sdkconfig.soak` to `SDKCONFIG_DEFAULTS`.
+The optional `sdkconfig.wifi-flash` additionally places Wi-Fi hot code in flash,
+trading throughput for RAM without reducing driver pools. Use a new `SDKCONFIG`
+and build directory: an existing configuration takes precedence over defaults.
+For example, add these arguments to the build command above:
+
+```text
+-B <fresh-build-dir> -D SDKCONFIG=<fresh-config-path> -D "SDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.soak;sdkconfig.wifi-flash"
+```
+
+The owner samples internal heap nominally every 100 ms, emits `SOAK`/`MEMORY` every five
+seconds and records allocator calls, live/peak bytes, largest free block and
+free/allocated block counts. This is sampled whole-system telemetry, not an
+exhaustive instantaneous heap trace; blocking crypto/SDK calls widen sampling
+gaps. Region boundaries affect the largest-block
+ratio; compare like-for-like quiescent states and retained workload as well.
+The observer allocates one small application-owned state object. All callbacks
+and controls run on the owner. No allocation is added to raw lwIP RX.
+
+The soak build also runs `UDP_FAIRNESS_PASS`: one looped-back datagram and its
+accepted TX completion are both pending before one adapter process call. Both
+callbacks must run in that turn. This guards against continuous TX starving RX
+and its ACKs. The additional `UDP_FIFO_PASS` fixture verifies demand growth,
+growth OOM, ordered delivery, idle trim and cleanup of the bounded RX FIFO.
+`UDP_SCOPE_PASS` additionally restarts the physical radio, requires a changed
+OS interface index and sends/receives through a path saved before that restart.
+
+Keep UART captures, results, control files, controller credentials and topology
+manifests in ignored directories. Start the native Python/pyserial collector:
+
+```text
+python examples/esp32-runtime/tests/uart_capture.py --port COM23 --output <private-uart-dir> --duration 10800 --reset
+```
+
+After `RUNTIME_READY`, run the pinned Node.js oracle:
+
+```text
+node examples/esp32-runtime/tests/soak.mjs <node_modules> <scoped-C6-IPv6> <private-controller-state> <private-uart-dir> 3600 Wi-Fi run wildcard
+```
+
+This fixture expects the original `c6-memory14` controller's first node to be
+commissioned already. It preserves that fabric and creates only its own four
+additional controller environments. The private topology manifest permits
+recovery after a failed test. Do not erase it or reuse it for another device.
+On success, only the four fixture fabrics are removed, the durable label is
+restored and exactly one fabric must remain. `cleanup` performs that recovery
+without starting the load; `probe` runs a shorter supplied duration and cleans
+its fabrics, leaving the runtime serving. Neither mode substitutes for the hour.
+
+Both workloads use separate CASE sessions, three protected sessions/subscriptions
+per fabric, full 133-attribute wire snapshots and simultaneous Reads across all
+five fabrics. `wildcard` requests all 133 attributes in each Read. `bounded`
+(the default if omitted) requests three concrete attributes per fabric and adds
+one full Read every 30 seconds. Record the selected workload with each result.
+DeviceLoadStatus confirms 15 total/3 accessing-fabric subscriptions.
+The oracle rejects unexpected subscription closure and tests fourth-session BUSY.
+Periodic tests inject tracked allocation faults, drop ingress briefly and force
+live radio reconnect, then require full workload recovery. Explicit fault-window
+operation failures/subscription loss are counted separately from healthy traffic.
+The oracle detects retired SDK session handles, closes the remaining load and
+re-establishes all 15 protected sessions/subscriptions when needed. Rebuilds and
+interrupted operations are reported; they do not mean uninterrupted service.
+An operation failure outside the explicit fault/recovery window fails the run.
+During recovery only, CASE `BUSY` admission retries have a 90-second deadline
+and two-second backoff, counted separately. Session closes are staggered across
+fabrics; a best-effort wire close can be lost and old protected slots must drain.
+Initial setup and the fourth-protected-session BUSY probe do not use that retry.
+
+Local UART controls are available only in this build: `m` samples, `1`..`9`/`f`
+arms one tracked allocation failure (expires after 10 s), `a` clears it, `d`
+drops RX for 3 s, `w` forces Wi-Fi reconnect and `h` delays one accepted-send
+completion for 3 s. These are laboratory effects, not network commands or
+production behavior. Final `q` tests runtime retirement while that completion
+is still held; no borrowed packet/port is freed before drain. The UART collector
+serializes control requests and acknowledges actual target markers using an
+append-only reply journal, avoiding Windows replacement/read sharing races.
+SDK failed-allocation attempts are counted separately from injected tracked
+allocation failures; a fallback allocation attempt is not automatically a failed
+protocol operation. See the [Memory15 report](../../doc/oss/memory15-validation.md)
+for measured workloads, failures and configuration boundaries.
+
+After capture, `python tests/summarize.py <private-run-directory> <summary.json>`
+extracts selected telemetry and counters. `runtime_pass` means target drain and
+heap integrity, while `controller.pass` means the requested workload completed;
+require both for a successful `run`. Review the summary before publishing it.

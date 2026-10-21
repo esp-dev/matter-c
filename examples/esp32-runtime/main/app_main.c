@@ -30,6 +30,8 @@
 #include "matter_idf_discovery.h"
 #include "matter_idf_memory.h"
 #include "wifi_port.h"
+#include "soak_lab.h"
+#include "lwip/sockets.h"
 #include "matter_lab_wifi.h"
 #include "test_opcreds_vectors.h" /* Public TEST identity/scalar, never production DAC. */
 #define REQUIRE(x) do { if(!(x)) { printf("RUNTIME_FAIL line=%u\n",(unsigned)__LINE__); abort(); } } while(0)
@@ -43,6 +45,7 @@ typedef struct {
     esp_netif_t* iface; Lab_Wifi_T wifi; Matter_Idf_Store_T disk;
     Matter_Crypto_Mbedtls_T backend; Matter_Runtime_T runtime;
     Matter_T owner; Matter_Idf_Udp_T udp; Matter_Events_T events;
+    Matter_Lab_Soak_T soak;
     Matter_Runtime_Config_T config; Matter_Root_Config_T identity;
     Matter_Wifi_Settings_T initial; uint8_t key[32],mac[6];
     esp_ip6_addr_t addresses[CONFIG_LWIP_IPV6_NUM_ADDRESSES];
@@ -81,10 +84,12 @@ static Matter_Result_T entropy(void* user,uint8_t* out,size_t size) { (void)user
 static Matter_Result_T event_load(void* user,uint64_t* high) { return matter_store_host_event_load(matter_runtime_store(((App*)user)->runtime),high); }
 static Matter_Result_T event_store(void* user,uint64_t high) { return matter_store_host_event_store(matter_runtime_store(((App*)user)->runtime),high); }
 static void received(void* user,const Matter_Udp_Datagram_T* packet) {
-    App* a=user; ++a->rx; matter_runtime_received(a->runtime,packet);
+    App* a=user; ++a->rx;
+    if(matter_lab_soak_received(a->soak)) matter_runtime_received(a->runtime,packet);
 }
 static void sent(void* user,uint64_t id,Matter_Operation_Result_T result) {
-    App* a=user; ++a->tx; matter_runtime_sent(a->runtime,id,result);
+    App* a=user; ++a->tx;
+    if(matter_lab_soak_sent(a->soak,id,result)) matter_runtime_sent(a->runtime,id,result);
 }
 static void log_line(void* user,const char* text) { (void)user; printf("CORE %s",text); }
 static void wifi_event(void* user,esp_event_base_t base,int32_t id,void* event) {
@@ -191,10 +196,82 @@ static void advertisements(App* a,bool stop) {
     for(unsigned j=0;j<6;++j) ad_pump(&a->ads[j]);
 }
 static void pump(App* a) {
+    matter_lab_soak_process(a->soak,a->runtime);
     Matter_Result_T r=matter_runtime_process(a->runtime,now()); REQUIRE(r==MATTER_OK || r==MATTER_PENDING);
     (void)matter_idf_udp_process(a->udp); (void)matter_udp_process(matter_idf_udp_module(a->udp));
     advertisements(a,false); vTaskDelay(pdMS_TO_TICKS(10));
 }
+#if CONFIG_MATTER_C_RUNTIME_SOAK
+typedef struct { unsigned received,sent; uint32_t interface_id; uint8_t values[32]; } Udp_Fairness;
+static void fairness_received(void* user,const Matter_Udp_Datagram_T* packet) {
+    Udp_Fairness* f=user; REQUIRE(packet->size==1 && f->received<sizeof(f->values) && packet->path.interface_id==f->interface_id);
+    f->values[f->received++]=packet->data[0];
+}
+static void fairness_sent(void* user,uint64_t id,Matter_Operation_Result_T result) {
+    (void)id; REQUIRE(result==MATTER_OPERATION_SUCCEEDED); ++((Udp_Fairness*)user)->sent;
+}
+static void udp_fairness(App* a) {
+    size_t live=matter_idf_memory().live;
+    Udp_Fairness f={.interface_id=esp_netif_get_netif_impl_index(a->iface)};
+    Matter_T owner=matter_new(NULL); REQUIRE(owner && matter_start(owner)==MATTER_OK);
+    Matter_Udp_Listener_T listener={&f,fairness_received,fairness_sent};
+    Matter_Idf_Udp_T udp=matter_idf_udp_new(owner,a->iface,5541,&listener); REQUIRE(udp);
+    Matter_Udp_T module=matter_idf_udp_module(udp); REQUIRE(matter_udp_start(module)==MATTER_OK);
+    const uint8_t byte=0xa5; esp_ip6_addr_t ip; REQUIRE(esp_netif_get_ip6_linklocal(a->iface,&ip)==ESP_OK);
+    Matter_Udp_Datagram_T packet={0};
+    memcpy(packet.path.local.address,ip.addr,16); memcpy(packet.path.peer.address,ip.addr,16);
+    packet.path.local.port=packet.path.peer.port=5541; packet.path.interface_id=esp_netif_get_netif_impl_index(a->iface);
+    packet.data=&byte; packet.size=1; uint64_t id=0;
+    REQUIRE(matter_udp_send(module,&packet,&id)==MATTER_PENDING && id);
+    uint64_t end=now()+3000;
+    while(!matter_idf_udp_stats(udp).received && now()<end) vTaskDelay(1);
+    REQUIRE(matter_idf_udp_stats(udp).received==1 && !f.received && !f.sent);
+    REQUIRE(matter_idf_udp_process(udp)==MATTER_OK && f.received==1 && f.sent==1 && f.values[0]==byte);
+    int sender=socket(AF_INET6,SOCK_DGRAM,IPPROTO_UDP); REQUIRE(sender>=0);
+    struct sockaddr_in6 address={.sin6_family=AF_INET6,.sin6_port=htons(5541),.sin6_scope_id=packet.path.interface_id};
+    memcpy(&address.sin6_addr,ip.addr,16);
+    for(unsigned burst=0;burst<5;++burst) {
+        Matter_Idf_Udp_Stats_T before=matter_idf_udp_stats(udp); unsigned delivered=f.received;
+        for(uint8_t value=0;value<6;++value)
+            REQUIRE(sendto(sender,&value,1,0,(struct sockaddr*)&address,sizeof(address))==1);
+        end=now()+3000;
+        while(now()<end) { Matter_Idf_Udp_Stats_T current=matter_idf_udp_stats(udp);
+            if(current.received+current.dropped>=before.received+before.dropped+6) break;
+            vTaskDelay(1);
+        }
+        Matter_Idf_Udp_Stats_T after=matter_idf_udp_stats(udp);
+        REQUIRE(now()<end && after.received>before.received);
+        if(!burst) matter_idf_memory_fail_after(1);
+        REQUIRE(matter_idf_udp_process(udp)==MATTER_OK);
+        matter_idf_memory_fail_after(0);
+        if(!burst) REQUIRE(matter_idf_udp_stats(udp).rx_buffers==1); /* Growth OOM leaves FIFO intact. */
+        while(f.received<after.received) REQUIRE(matter_idf_udp_process(udp)==MATTER_OK);
+        for(unsigned j=delivered;j<f.received;++j) REQUIRE(f.values[j]==j-delivered);
+    }
+    REQUIRE(close(sender)==0 && matter_idf_udp_stats(udp).rx_buffer_peak==8);
+    end=now()+12000;
+    while(matter_idf_udp_stats(udp).rx_buffers>1 && now()<end) { (void)matter_idf_udp_process(udp); vTaskDelay(1); }
+    REQUIRE(now()<end && matter_idf_udp_stats(udp).rx_buffers==1);
+    /* A saved core path must outlive a radio stop/start and OS-index change. */
+    REQUIRE(esp_wifi_stop()==ESP_OK && esp_wifi_start()==ESP_OK && esp_wifi_connect()==ESP_OK);
+    end=now()+30000; esp_netif_ip_info_t v4;
+    while(now()<end && (esp_netif_get_ip6_linklocal(a->iface,&ip)!=ESP_OK ||
+        esp_netif_get_ip_info(a->iface,&v4)!=ESP_OK || !v4.ip.addr)) vTaskDelay(pdMS_TO_TICKS(50));
+    REQUIRE(now()<end && esp_netif_get_netif_impl_index(a->iface)!=f.interface_id);
+    unsigned received=f.received;
+    REQUIRE(matter_udp_send(module,&packet,&id)==MATTER_PENDING);
+    end=now()+3000;
+    while(f.received==received && now()<end) { (void)matter_idf_udp_process(udp); vTaskDelay(1); }
+    REQUIRE(now()<end && f.sent==2 && f.values[received]==byte);
+    REQUIRE(matter_udp_stop(module)==MATTER_PENDING);
+    while(matter_udp_is_active(module)) (void)matter_udp_process(module);
+    REQUIRE(matter_idf_udp_delete(udp)==MATTER_OK);
+    REQUIRE(matter_stop(owner)==MATTER_OK && matter_delete(owner)==MATTER_OK);
+    REQUIRE(matter_idf_memory().live==live); puts("UDP_FAIRNESS_PASS simultaneous-RX-and-TX-completion");
+    puts("UDP_FIFO_PASS demand-growth8 growth-OOM FIFO-order idle-trim1 cleanup");
+    puts("UDP_SCOPE_PASS saved-path-after-radio-restart-and-OS-index-change");
+}
+#endif
 static void wifi_tests(App* a) {
     Matter_Wifi_T model=matter_root_cluster(matter_runtime_root(a->runtime),MATTER_WIFI_CLUSTER);
     size_t live=matter_idf_memory().live;
@@ -401,6 +478,9 @@ static void recovery_restart(App* a) {
     vTaskDelay(pdMS_TO_TICKS(200)); esp_restart();
 }
 void app_main(void) {
+#if CONFIG_MATTER_C_RUNTIME_SOAK
+    REQUIRE(heap_caps_register_failed_alloc_callback(matter_lab_soak_heap_failed)==ESP_OK);
+#endif
     sample("boot"); header_tests(); REQUIRE(psa_crypto_init()==PSA_SUCCESS);
     struct timeval clock={.tv_sec=MATTER_LAB_BOOT_UTC}; REQUIRE(settimeofday(&clock,NULL)==0);
     puts("LAB_CLOCK build-time-bootstrap TEST_DAC enabled");
@@ -409,7 +489,11 @@ void app_main(void) {
      * versions and NVS garbage collection. The fixture clears only its namespace. */
     store_tests();
     App* a=calloc(1,sizeof(*a)); REQUIRE(a);
-    boot_wifi(a); a->disk=matter_idf_store_new("matter","runtime"); REQUIRE(a->disk);
+    boot_wifi(a);
+#if CONFIG_MATTER_C_RUNTIME_SOAK
+    udp_fairness(a);
+#endif
+    a->disk=matter_idf_store_new("matter","runtime"); REQUIRE(a->disk);
     Matter_Crypto_Entropy_Port_T entropy_port={NULL,entropy}; a->backend=matter_crypto_mbedtls_new(&entropy_port); REQUIRE(a->backend);
     configuration(a);
     char hostname[13]; for(unsigned j=0;j<6;++j) snprintf(hostname+2*j,3,"%02X",a->mac[j]);
@@ -419,6 +503,10 @@ void app_main(void) {
     nvs_handle_t lab; REQUIRE(nvs_open_from_partition("matter","lab",NVS_READWRITE,&lab)==ESP_OK);
     fail_safe_restart(a,lab); nvs_close(lab);
     wifi_tests(a);
+    a->soak=matter_lab_soak_new();
+#if CONFIG_MATTER_C_RUNTIME_SOAK
+    REQUIRE(a->soak);
+#endif
     for(unsigned j=0;j<200;++j) pump(a);
     sample("runtime-serving"); tasks(); puts("RUNTIME_READY port=5540 pin=20202021");
     uart_vfs_dev_use_nonblocking(CONFIG_ESP_CONSOLE_UART_NUM);
@@ -428,12 +516,20 @@ void app_main(void) {
         char c=0; (void)read(STDIN_FILENO,&c,1);
         if(c=='q') break;
         if(c=='r') recovery_restart(a);
-        if(now()-last>30000) {
+        (void)matter_lab_soak_control(a->soak,c,a->wifi,a->runtime);
+#if CONFIG_MATTER_C_RUNTIME_SOAK
+        const uint64_t sample_interval=5000;
+#else
+        const uint64_t sample_interval=30000;
+#endif
+        if(now()-last>sample_interval) {
             Matter_Idf_Udp_Stats_T stats=matter_idf_udp_stats(a->udp);
             sample("runtime-serving");
-            printf("NETWORK rx=%llu tx=%llu dropped=%lu oversize=%lu extensions=%lu\n",
+            (void)matter_lab_soak_control(a->soak,'m',a->wifi,a->runtime);
+            printf("NETWORK rx=%llu tx=%llu dropped=%lu oversize=%lu extensions=%lu rx_buffers=%lu rx_peak=%lu\n",
                 (unsigned long long)a->rx,(unsigned long long)a->tx,(unsigned long)stats.dropped,
-                (unsigned long)stats.oversize,(unsigned long)stats.extensions); last=now();
+                (unsigned long)stats.oversize,(unsigned long)stats.extensions,
+                (unsigned long)stats.rx_buffers,(unsigned long)stats.rx_buffer_peak); last=now();
         }
     }
     /* Preserve UDP/backend/radio/storage through runtime retirement and MRP
@@ -444,6 +540,7 @@ void app_main(void) {
         if(done) break;
         (void)matter_idf_udp_process(a->udp); vTaskDelay(1);
     }
+    REQUIRE(matter_lab_soak_delete(a->soak)==MATTER_OK); a->soak=NULL;
     REQUIRE(matter_runtime_delete(a->runtime)==MATTER_OK); a->runtime=NULL;
     REQUIRE(matter_events_delete(a->events)==MATTER_OK);
     (void)matter_stop(a->owner);
