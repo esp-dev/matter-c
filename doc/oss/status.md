@@ -1,5 +1,28 @@
 # Development status
 
+**Memory13: ESP-IDF component and physical C6 memory laboratory.**
+The VM now has isolated IDF 6.0.2 tools and a successful ESP-Matter 1.6.1 light
+build for C6. The C library has an optional IDF 6.1 component, a private Mbed TLS 4
+compatibility boundary and an application-owned lab with heap/task telemetry.
+The attached C6 on COM23 passes eight reused crypto/certificate/IM test units,
+seven injected allocation failures, local two-party PASE and WPA2/DHCP against
+the lab AP. Library allocations drain to zero; SDK heap integrity passes.
+The separate profile observes 110128 B maximum sampled internal heap allocation
+with Wi-Fi and 128 retained events, including SDK resources and reserved task
+stacks. Its library-only peak is 32892 B, and owner stack observed use is 1184 B
+from a 12288 B reservation (2584 B with the larger self-test fixtures).
+These are scoped workload observations, not a complete-node/specification bound.
+Compiler review reduces the new PSA HKDF frame 592 -> 48 B without mutable static
+workspace. Windows CTest 98/98 and final focused 5/5 pass; Linux CTest 95/95 per
+build and two-instance 6/6 under Memcheck and separately sanitizers pass, with
+zero Memcheck errors/live allocations. See the [report](memory13-validation.md)
+and [results](memory13-results.json). Software ECC is currently required;
+private SDK headers need review on upgrades. ESP-Matter is compiled only and its
+different configuration does not support an efficiency comparison.
+Next: actual target UDP/IPv6/discovery and atomic persistence, then controller
+commissioning/CASE/resumption and live subscriptions. No full target runtime,
+long-duration fragmentation result, matching vendor workload or CSA rerun yet.
+
 **Memory12: demand-allocated event path metadata for Read/Subscribe.**
 Raw event selectors use short-lived nodes, deduplicated paths use stable blocks,
 and filters allocate for the expanded path count. Selectors release before

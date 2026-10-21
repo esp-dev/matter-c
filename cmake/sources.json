@@ -207,6 +207,7 @@
     "clusters/matter_time_sync.h"
   ],
   "private_headers": [
+    "crypto/matter_mbedtls_internal.h",
     "model/matter_events_internal.h",
     "model/matter_im_blocks_internal.h",
     "clusters/matter_root_internal.h",

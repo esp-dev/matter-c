@@ -13,6 +13,11 @@ The application owns scheduling, networking, storage and hardware callbacks.
 Multiple runtimes can run in one process/thread. The core does not require
 ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).
 
+An experimental [ESP32-C6 memory laboratory](examples/esp32-memory/README.md)
+integrates the component with ESP-IDF 6.1/Mbed TLS 4.1 and measures real heap/task
+stacks, crypto, local PASE engines and Wi-Fi. It is not yet a commissioned
+network runtime; see the [Memory13 evidence](doc/oss/memory13-validation.md).
+
 ## Build
 
 Requirements: CMake 3.20+, Git, GCC with C99, Python 3.9+ for tests/bootstrap.

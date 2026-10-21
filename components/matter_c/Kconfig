@@ -1,0 +1,18 @@
+menu "Matter C library"
+config MATTER_C_EVENTS_CAPACITY
+    int "Retained event limit"
+    range 16 1024
+    default 128
+config MATTER_C_TRANSPORT_CAPACITY
+    int "Transport slot limit"
+    range 52 128
+    default 56
+config MATTER_C_PROFILE_ALLOCATIONS
+    bool "Single-owner laboratory allocation accounting and fault injection"
+    default n
+    help
+        Instrument only the library's libc allocation calls. Application and
+        Mbed TLS/SDK allocations are excluded. One application owner task must
+        serialize all library instances and profiler access. Not an allocator
+        replacement or a production concurrency facility.
+endmenu

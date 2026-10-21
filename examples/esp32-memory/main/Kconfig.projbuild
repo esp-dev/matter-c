@@ -1,0 +1,8 @@
+menu "Matter C memory laboratory"
+config MATTER_C_LAB_SELF_TESTS
+    bool "Run existing host test suites on the MCU before profiling"
+    default y
+    help
+        These include maximum PBKDF2 and extensive negative certificate tests.
+        Disable in a separate profiling build to exclude their heap/stack peak.
+endmenu
