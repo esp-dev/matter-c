@@ -6,6 +6,8 @@ import {randomBytes} from 'node:crypto';
 import {performance} from 'node:perf_hooks';
 const [modules,ip,stateRoot,uartRoot,secondsText='3600',iface='Wi-Fi',mode='run',readWorkload='bounded']=process.argv.slice(2);
 const seconds=Number(secondsText);
+const expectedAttributes=Number(process.env.MATTER_SOAK_ATTRIBUTES??133);
+if(!Number.isSafeInteger(expectedAttributes) || expectedAttributes<133) throw Error('Invalid MATTER_SOAK_ATTRIBUTES');
 if(!modules || !ip || !stateRoot || !uartRoot || !['run','probe','cleanup'].includes(mode) || !['bounded','wildcard'].includes(readWorkload) || !Number.isFinite(seconds) || seconds<60)
     throw Error('Usage: soak.mjs <pinned-node_modules> <scoped-ipv6> <private-controller-state> <private-uart-dir> [seconds>=60] [interface] [run|probe|cleanup] [bounded|wildcard]');
 const load=p=>import(pathToFileURL(resolve(modules,p)).href);
@@ -27,7 +29,7 @@ const {GeneralDiagnostics}=await load('@matter/types/dist/esm/clusters/general-d
 Logger.level=process.env.MATTER_SOAK_LOG==='info'?LogLevel.INFO:LogLevel.WARN;
 const env=NodeJsEnvironment(); env.vars.set('storage.path',resolve(stateRoot)); env.vars.set('mdns.networkInterface',iface);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const started=performance.now(),summary={mode,read_workload:readWorkload,requested_seconds:seconds,rounds:0,full_reads:0,read_attributes:0,concrete_reads:0,concrete_read_attributes:0,
+const started=performance.now(),summary={mode,read_workload:readWorkload,expected_attributes:expectedAttributes,requested_seconds:seconds,rounds:0,full_reads:0,read_attributes:0,concrete_reads:0,concrete_read_attributes:0,
     subscription_snapshots:0,subscription_updates:0,subscription_closed:0,case_pairs:0,case_resumed:0,
     session_busy_probes:0,oom_cycles:0,fault_operations_rejected:0,reconnect_cycles:0,loss_cycles:0,
     delayed_completion_cycles:0,healthy_operation_errors:0,checkpoints:[],phases:[]};
@@ -99,7 +101,7 @@ async function fullRead(client) {
     const begin=performance.now();
     try {
     const response=await client.getAllAttributesAndEvents({dataVersionFilters:[],eventFilters:[]});
-    if(response.attributeReports.length!==133) throw Error(`Incomplete full Read: ${response.attributeReports.length}`);
+    if(response.attributeReports.length!==expectedAttributes) throw Error(`Incomplete full Read: ${response.attributeReports.length}`);
     const paths=response.attributeReports.map(r=>`${r.path.endpointId}/${r.path.clusterId}/${r.path.attributeId}`);
     if(new Set(paths).size!==paths.length) throw Error('Duplicate attribute paths');
     ++summary.full_reads; summary.read_attributes+=paths.length;
@@ -130,7 +132,7 @@ async function addSubscription(ctx,client) {
         attributeListener:()=>{},eventListener:()=>{},updateReceived:()=>{++summary.subscription_updates;},
         updateTimeoutHandler:()=>{++summary.subscription_closed;
             if(ctx.generation===generation && !ctx.expectedLoss) ++summary.unexpected_subscription_closures;}});
-    if(response.attributeReports.length!==133) throw Error(`Incomplete Subscribe: ${response.attributeReports.length}`);
+    if(response.attributeReports.length!==expectedAttributes) throw Error(`Incomplete Subscribe: ${response.attributeReports.length}`);
     const added=[...registry].filter(s=>!before.has(s));
     if(added.length!==1) throw Error(`SDK subscription registration count ${added.length}`);
     ctx.subscriptions.push(...added); ++summary.subscription_snapshots;
@@ -221,6 +223,17 @@ async function recoverFaultLoad(kind) {
 async function checkpoint(phase) {
     const data=await control('m'); summary.checkpoints.push({phase,...data}); emit('CHECKPOINT',{phase,...data});
 }
+async function reconnectLoad() {
+    await checkpoint('full-load-before-radio-reconnect');
+    for(const ctx of contexts) ctx.expectedLoss=true;
+    await control('w');
+    const interrupted=await Promise.allSettled(contexts.map(c=>burstRead(c.clients[0])));
+    emit('RECONNECT_INTERRUPTED_OPERATIONS',{fulfilled:interrupted.filter(r=>r.status==='fulfilled').length,
+        rejected:interrupted.filter(r=>r.status==='rejected').length});
+    await closeLoad(); for(const ctx of contexts) ctx.expectedLoss=false;
+    await sleep(2000); await buildLoad(true); ++summary.reconnect_cycles;
+    await checkpoint('reconnected-full-load');
+}
 async function cleanupFabrics() {
     for(const ctx of contexts.slice(1).reverse()) {
         if(!ctx.clients.length) ctx.clients=[await peerClient(ctx)];
@@ -258,15 +271,7 @@ try {
         while(performance.now()-loadStarted<seconds*1000) {
             const tick=performance.now();
             if(tick>=reconnectAt) {
-                await checkpoint('full-load-before-radio-reconnect');
-                for(const ctx of contexts) ctx.expectedLoss=true;
-                await control('w');
-                const interrupted=await Promise.allSettled(contexts.map(c=>burstRead(c.clients[0])));
-                emit('RECONNECT_INTERRUPTED_OPERATIONS',{fulfilled:interrupted.filter(r=>r.status==='fulfilled').length,
-                    rejected:interrupted.filter(r=>r.status==='rejected').length});
-                await closeLoad(); for(const ctx of contexts) ctx.expectedLoss=false;
-                await sleep(2000); await buildLoad(true); ++summary.reconnect_cycles;
-                await checkpoint('reconnected-full-load'); reconnectAt=performance.now()+300000;
+                await reconnectLoad(); reconnectAt=performance.now()+300000;
             } else if(tick>=lossAt) {
                 for(const ctx of contexts) ctx.expectedLoss=true;
                 const before=await control('d');
@@ -308,6 +313,11 @@ try {
             if(summary.rounds%10===0) { await assertLoad(15); await checkpoint('steady-load'); }
             await sleep(300);
         }
+        // Recovery/rebuilding can consume a short timed window. A complete run
+        // must still exercise the physical radio with all fifteen subscriptions.
+        if(mode==='run' && !summary.reconnect_cycles) {
+            emit('RECONNECT_REQUIRED_AFTER_TIMED_WINDOW'); await reconnectLoad();
+        }
         summary.sustained_seconds=(performance.now()-loadStarted)/1000;
         await assertLoad(15); await closeLoad(); await sleep(12000);
         await checkpoint('all-subscriptions-and-sessions-drained-idle-trim');
@@ -316,8 +326,13 @@ try {
     await cleanupFabrics(); await checkpoint('original-fabric-restored');
     if(mode==='run') {
         // Stop while the core still awaits a deliberately deferred accepted TX.
+        // Warm the post-cleanup CASE path, then observe the actual held send;
+        // a fixed host delay can expire before a new exchange has even sent.
+        await fullRead(contexts[0].clients[0]);
         await control('h'); const pending=fullRead(contexts[0].clients[0]).then(()=>({status:'fulfilled'}),e=>({status:'rejected',name:e.name}));
-        await sleep(300); const held=await control('m'); if(!held.held_completion) throw Error('TX completion was not held');
+        const until=performance.now()+10000; let held;
+        do { held=await control('m'); if(held.held_completion) break; await sleep(50); } while(performance.now()<until);
+        if(!held.held_completion) throw Error('TX completion was not held');
         const stopStarted=performance.now(); await control('q',90000);
         summary.stop_wait_seconds=(performance.now()-stopStarted)/1000; summary.stop_read_outcome=await pending;
         ++summary.delayed_completion_cycles; emit('STOP_DRAIN_PASS',{wait_seconds:summary.stop_wait_seconds});

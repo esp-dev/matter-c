@@ -1052,6 +1052,15 @@
     "replace": []
   },
   {
+    "name": "test_rgb_light",
+    "source": "tools/matter/tests/test_rgb_light.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": ["main/apps/matter/model/matter_cluster.c"]
+  },
+  {
     "name": "test_im_event_metadata",
     "source": "tools/matter/tests/test_im_event_metadata.c",
     "mode": "normal",

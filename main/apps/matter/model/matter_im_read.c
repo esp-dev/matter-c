@@ -29,10 +29,13 @@ typedef struct {
 	Matter_Tlv_Element_T element, fields[5], revision, path_fields[8], filter_fields[2], filter_element;
 } Matter_Im_Read_Work;
 typedef struct {
-		Matter_Im_Path_T path;
-		Matter_Im_Attribute_T attribute;
 		Matter_Im_Snapshot_Value value;
-		Matter_Im_Status_T status;
+		Matter_Im_Path_T path;
+		/* Only the already-validated privilege is needed at continuation.
+		 * Fabric scope is checked during capture and again by authorize().
+		 * Wire status/privilege codes fit one byte; value-first avoids padding
+		 * before its uint64_t union on 32-bit targets. No public DTO changes. */
+		uint8_t privilege,status;
 		bool wildcard, omit;
 } ReadItem;
 MATTER_IM_BLOCK_TABLE(read_items,ReadItem)
@@ -87,6 +90,12 @@ Matter_Im_Read_T matter_im_read_new_fabric(const Matter_Im_Read_Port_T* p,const 
     const Matter_Im_Read_Config_T* c,uint64_t now) {
     if(!f || !f->index) return NULL;
     Matter_Im_Read_T s=matter_im_read_new(p,c,now); if(s) s->fabric=*f; return s;
+}
+Matter_Result_T matter_im_read_bind_snapshot_pool(Matter_Im_Read_T s,Matter_Im_Snapshot_Pool* pool) {
+    Matter_Result_T r=check(s); if(r) return r;
+    if(!pool) return MATTER_INVALID_ARGUMENT;
+    if(s->state!=MATTER_IM_READ_WAITING || s->queued || s->snapshots.pool) return MATTER_INVALID_STATE;
+    s->snapshots.pool=pool; return MATTER_OK;
 }
 Matter_Result_T matter_im_read_bind_events(Matter_Im_Read_T s,const Matter_Im_Read_Events_Port_T* p) {
     Matter_Result_T r=check(s); if(r!=MATTER_OK) return r;
@@ -662,7 +671,7 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 		while (budget-- && s->collected<s->count) {
             ReadItem* result=read_items_at(&s->items,s->collected++); s->path=result->path;
             result->status=read_value(s,result->wildcard,&result->omit);
-            result->value=matter_im_snapshot_store(&s->value); result->attribute=s->attribute;
+            result->value=matter_im_snapshot_store(&s->value); result->privilege=(uint8_t)s->attribute.privilege;
 		}
 		if (s->collected==s->count) {
             Matter_Im_Status_T code=collect_events(s);
@@ -680,7 +689,7 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
                 ReadItem* result=read_items_at(&s->items,i);
 				s->path=result->path;
 				Matter_Im_Status_T code=authorize(s,MATTER_IM_VIEW);
-				if (!code && !result->status) code=authorize(s,result->attribute.privilege);
+				if (!code && !result->status) code=authorize(s,(Matter_Im_Privilege_T)result->privilege);
 				if (code) {
 					result->status=code;
 					if (result->wildcard && (code==MATTER_IM_UNSUPPORTED_ACCESS || code==MATTER_IM_ACCESS_RESTRICTED)) result->omit=true;

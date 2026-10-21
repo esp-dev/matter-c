@@ -1,4 +1,12 @@
 menu "Matter C runtime laboratory"
+config MATTER_C_RUNTIME_RGB
+    bool "Experimental EP1 RGB light and DevKitM-1 GPIO8 WS2812"
+    default n
+    help
+        Adds a volatile development light using standard OnOff, MoveToLevel,
+        MoveToLevelWithOnOff, MoveToHueAndSaturation and Stop commands.
+        This is an incomplete light profile for memory/IM/hardware testing,
+        not a complete or certified Extended Color Light implementation.
 config MATTER_C_RUNTIME_SOAK
     bool "Owner-thread soak telemetry and local UART fault controls"
     depends on MATTER_C_PROFILE_ALLOCATIONS

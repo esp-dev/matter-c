@@ -1,5 +1,37 @@
 # Development status
 
+**Memory16: lower report peak and optional C6 RGB laboratory.**
+Per-runtime immutable snapshot sharing retains independent authorization,
+provider reads, versions/budgets and ACK/drain. Its bounded index falls back to
+private copies instead of changing admission. Private Read/Subscribe results
+fall 48 ->32 B and 24 ->16 B on C6, preserving full path IDs and stable blocks.
+The opt-in RGB model adds EP1/38 attributes (171 total), standard selected
+OnOff/Level/Color commands, application-owned transitions and GPIO8/RMT output.
+It remains an incomplete development light profile, with volatile settings and
+no complete Extended Color Light conformance/certification claim.
+
+The same RGB workload fails with baseline core and with sharing alone (25 SDK
+allocation attempts fail in each). Final code passes a 437 s load/fault/recovery
+window: five fabrics/15 protected sessions/subscriptions, 121 full Reads, 60 initial/
+rebuilt snapshots, two tracked OOM injections, RX loss, real reconnect and held-TX
+stop/drain. Healthy errors/unexpected closures/SDK allocation failures are zero;
+fault-induced subscription losses and rebuilds are counted. Observed sampled
+heap falls 403016 ->362480 B; tracked peak 310120 ->269696 B. Successful owner
+stack use is 2616/12288 B (2696 B across both attempts of the final image).
+Final tracked live allocations/bytes are zero; SDK heap integrity passes. The
+four fixture fabrics are removed with ACK, original fabric/label restored,
+Windows Wi-Fi disconnected/profile removed and IPv6 kept enabled. C6 is stopped,
+COM23 released and AP unchanged. This is not a new one-hour endurance result or
+an exhaustive RAM bound. Earlier failures/oracle repairs remain recorded.
+
+The heavy host component peak falls 835673 ->637577 B (272 B fixture index extra).
+Final Linux CTest 97/97 per build, three focused Memcheck cases and two-instance
+6/6 under Memcheck/separate sanitizers pass. Windows final focused 17/17 and socket
+retry 3/3 pass; final RGB and default non-RGB IDF builds compile. See the
+[report](memory16-validation.md) and [results](memory16-results.json).
+Next: measure inlining short complex values in existing captured storage before
+accepting that representation.
+
 **Memory15: sustained C6 concurrency and recovery.**
 The physical root-node laboratory completes 3606 s with five fabrics, 15
 protected CASE sessions/full subscriptions, 1392 full Reads, 27 tracked OOM

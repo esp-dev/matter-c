@@ -5,6 +5,7 @@
 #include "transport/matter_unsecured_tx.h"
 #include "transport/matter_secure_channel.h"
 #include "model/matter_im_subscribe.h"
+#include "model/matter_im_snapshot_pool_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,6 +48,7 @@ typedef struct Transaction {
     bool im_packet,im_counted,sub_response,sub_established;
 } Transaction;
 struct Matter_Dispatch {
+    Matter_Im_Snapshot_Pool snapshots;
     Matter_Dispatch_Config_T config; Matter_Udp_T udp; Matter_Rx_T rx;
     Matter_Retransmission_Sender_T tx; Matter_Unsecured_T unsecured;
     Matter_Unsecured_Rx_T ingress; Matter_Unsecured_Tx_T transport;
@@ -618,6 +620,8 @@ static bool create_handler(Matter_Dispatch_T d,Transaction* t,uint8_t opcode) {
             Matter_Im_Read_Fabric_Port_T resolver={sub_index};
             t->sub=c->operational?matter_im_subscribe_new_case(&port,&resolver,&config,d->now):matter_im_subscribe_new(&port,&config,d->now);
         }
+        if(t->read && matter_im_read_bind_snapshot_pool(t->read,&d->snapshots)!=MATTER_OK) return false;
+        if(t->sub && matter_im_subscribe_bind_snapshot_pool(t->sub,&d->snapshots)!=MATTER_OK) return false;
         if(d->config.events) {
             Matter_Im_Read_Events_Port_T events={d->config.root,d->config.events,matter_root_event_describe};
             if(t->read && matter_im_read_bind_events(t->read,&events)!=MATTER_OK) return false;
@@ -1057,6 +1061,7 @@ Matter_Result_T matter_dispatch_delete(Matter_Dispatch_T d) {
     if(!d) return MATTER_OK;
     if(!d->stopped || d->request || d->outgoing.resolve) return MATTER_BUSY;
     if(d->transactions) return MATTER_BUSY;
+    for(unsigned i=0;i<MATTER_IM_SNAPSHOT_BUCKETS;++i) if(d->snapshots.buckets[i]) return MATTER_BUSY;
     if(matter_dispatch_retire(d,true)!=MATTER_OK) return MATTER_BUSY;
     (void)matter_retransmission_sender_stop(d->tx);
     (void)matter_retransmission_sender_delete(d->tx);

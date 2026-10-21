@@ -1,8 +1,15 @@
 # Test inventory
 
-test-map.json enumerates 256 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 257 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory16 adds portable `test_rgb_light` and the shared-report CTest
+`test_im_shared_reports` (`test_im_subscribe_alloc --memory-shared`). Snapshot
+tests cover both allocation failures, reference overflow, a real hash collision,
+bounded-index fallback and reserved large values. Existing wire/ACL/chunk/ACK
+fixtures cover compact private results. The optional C6 RGB/171-attribute
+network envelope is separate physical coverage; see [Memory16](memory16-validation.md).
 
 Memory12 registers `test_im_event_metadata`: stable addresses through120 expanded
 paths, exact filter capacity and OOM, raw-selector/first-block OOM atomicity,

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "model/matter_im_subscribe.h"
+#include "model/matter_im_snapshot_pool_internal.h"
 #define CHECK(c) do { if(!(c)) { fprintf(stderr,"Subscribe:%d: %s\n",__LINE__,#c); abort(); } } while(0)
 #ifdef MATTER_TEST_ALLOC
 #include "test_alloc_bytes.h"
@@ -86,8 +87,8 @@ static void case_tests(void) {
 #define TEST_PATH_SUB
 #include "test_im_path_grammar.h"
 int main(int argc,char** argv) {
-    if(argc==2 && (!strcmp(argv[1],"--memory-only") || !strcmp(argv[1],"--memory-profile"))) {
-        subscription_memory_profile();
+    if(argc==2 && (!strcmp(argv[1],"--memory-only") || !strcmp(argv[1],"--memory-profile") || !strcmp(argv[1],"--memory-shared"))) {
+        subscription_memory_profile(!strcmp(argv[1],"--memory-shared"));
 #ifdef MATTER_TEST_ALLOC
         if(!strcmp(argv[1],"--memory-only")) subscription_memory_oom();
 #endif

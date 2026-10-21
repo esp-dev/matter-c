@@ -2688,6 +2688,14 @@
       "allocation_variant": "Private stable block storage: every staged allocation OOM, unchanged old addresses/capacity/cache, limit/overflow and cleanup"
     },
     {
+      "path": "tools/matter/tests/test_rgb_light.c",
+      "kind": "ctest-native",
+      "ctest": ["test_rgb_light"],
+      "entrypoint": "ctest --test-dir <build> -R test_rgb_light",
+      "referenced_by": [],
+      "allocation_variant": "Experimental RGB model constructor/command OOM, atomic validation, transitions, pixel conversion and pinned lifetime"
+    },
+    {
       "path": "tools/matter/tests/test_im_event_metadata.c",
       "kind": "ctest-native",
       "ctest": [

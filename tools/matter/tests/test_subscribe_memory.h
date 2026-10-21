@@ -1,6 +1,7 @@
 /* Saturate independently owned interactions, without relying on host model
  * attribute sizes. Fifteen CASE subscriptions across five fabric identities.
  * Provider scratch, request encoders and report consumers are heap fixtures. */
+static Matter_Im_Snapshot_Pool* memory_pool;
 static Matter_Im_Status_T memory_read(void* u,const Matter_Im_Path_T* p,bool filtered,Matter_Im_Value_T* v) {
     SelectorSub* s=u; RichSub* r=&s->rich; sub_guard(&r->model); CHECK(filtered);
     ++r->model.reads; memset(r->scratch,(int)(p->attribute&255),30);
@@ -15,6 +16,7 @@ static SelectorSub* memory_new(unsigned count,unsigned fabric) {
     Matter_Im_Read_Fabric_Port_T f={rich_fabric};
     Matter_Im_Subscribe_Config_T c={{1,12,false},30000,1198,false};
     r->model.active=matter_im_subscribe_new_case(&p,&f,&c,0); CHECK(r->model.active);
+    if(memory_pool) CHECK(matter_im_subscribe_bind_snapshot_pool(r->model.active,memory_pool)==MATTER_OK);
     selector_request(s,1,false,0,false); return s;
 }
 static bool memory_report(SelectorSub* s,Matter_Im_Subscribe_Message_T out) {
@@ -59,6 +61,7 @@ static MemoryRead* memory_read_new(void) {
     Matter_Im_Read_Port_T p={m,memory_read_allow,memory_read_describe,memory_read_value,NULL,NULL};
     Matter_Im_Read_Config_T c={{1,12,false},30000,1198,true};
     m->active=matter_im_read_new(&p,&c,0); CHECK(m->active);
+    if(memory_pool) CHECK(matter_im_read_bind_snapshot_pool(m->active,memory_pool)==MATTER_OK);
     CHECK(!matter_tlv_writer_init(&r->writer,r->model.input,sizeof(r->model.input),8));
     rich_put(r,MATTER_TLV_STRUCTURE,-1,0); rich_put(r,MATTER_TLV_ARRAY,0,0);
     for(unsigned i=1;i<=9;++i) {
@@ -99,7 +102,8 @@ static void memory_read_drain(MemoryRead* m) {
     CHECK(m->values==9*55 && m->attributes==9 && m->reads==9 && matter_im_read_state(m->active)==MATTER_IM_READ_COMPLETE);
     CHECK(!matter_im_read_delete(m->active)); free(m);
 }
-static void subscription_memory_profile(void) {
+static void subscription_memory_profile(bool shared) {
+    if(shared) { memory_pool=calloc(1,sizeof(*memory_pool)); CHECK(memory_pool); }
     SelectorSub** subs=calloc(15,sizeof(*subs)); CHECK(subs);
     MemoryRead** reads=calloc(5,sizeof(*reads)); CHECK(reads);
 #ifdef MATTER_TEST_ALLOC
@@ -143,6 +147,10 @@ static void subscription_memory_profile(void) {
 #endif
     for(unsigned i=0;i<15;++i) { CHECK(subs[i]->rich.model.reads==MATTER_IM_READ_MAX_RESULTS); rich_free(&subs[i]->rich); }
     free(subs);
+    if(memory_pool) {
+        for(unsigned i=0;i<MATTER_IM_SNAPSHOT_BUCKETS;++i) CHECK(!memory_pool->buckets[i]);
+        free(memory_pool); memory_pool=NULL;
+    }
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live && !live_bytes);
 #endif

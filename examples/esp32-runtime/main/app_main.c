@@ -31,6 +31,9 @@
 #include "matter_idf_memory.h"
 #include "wifi_port.h"
 #include "soak_lab.h"
+#if CONFIG_MATTER_C_RUNTIME_RGB
+#include "rgb_led.h"
+#endif
 #include "lwip/sockets.h"
 #include "matter_lab_wifi.h"
 #include "test_opcreds_vectors.h" /* Public TEST identity/scalar, never production DAC. */
@@ -46,6 +49,9 @@ typedef struct {
     Matter_Crypto_Mbedtls_T backend; Matter_Runtime_T runtime;
     Matter_T owner; Matter_Idf_Udp_T udp; Matter_Events_T events;
     Matter_Lab_Soak_T soak;
+#if CONFIG_MATTER_C_RUNTIME_RGB
+    Matter_Lab_Rgb_T light; Matter_Lab_Led_T led;
+#endif
     Matter_Runtime_Config_T config; Matter_Root_Config_T identity;
     Matter_Wifi_Settings_T initial; uint8_t key[32],mac[6];
     esp_ip6_addr_t addresses[CONFIG_LWIP_IPV6_NUM_ADDRESSES];
@@ -197,7 +203,14 @@ static void advertisements(App* a,bool stop) {
 }
 static void pump(App* a) {
     matter_lab_soak_process(a->soak,a->runtime);
+#if CONFIG_MATTER_C_RUNTIME_RGB
+    REQUIRE(matter_lab_rgb_process(a->light,now())==MATTER_OK);
+#endif
     Matter_Result_T r=matter_runtime_process(a->runtime,now()); REQUIRE(r==MATTER_OK || r==MATTER_PENDING);
+#if CONFIG_MATTER_C_RUNTIME_RGB
+    bool changed=false; REQUIRE(matter_lab_led_process(a->led,a->light,&changed));
+    if(changed) matter_runtime_changed(a->runtime);
+#endif
     (void)matter_idf_udp_process(a->udp); (void)matter_udp_process(matter_idf_udp_module(a->udp));
     advertisements(a,false); vTaskDelay(pdMS_TO_TICKS(10));
 }
@@ -404,6 +417,12 @@ static void start(App* a) {
     matter_idf_memory_fail_after(1); REQUIRE(!matter_runtime_new(&a->config,20202021,now()));
     matter_idf_memory_fail_after(0); REQUIRE(matter_idf_memory().live==base);
     a->runtime=matter_runtime_new(&a->config,20202021,now()); REQUIRE(a->runtime); sample("runtime-created");
+#if CONFIG_MATTER_C_RUNTIME_RGB
+    a->light=matter_lab_rgb_new(esp_random(),now()); REQUIRE(a->light);
+    REQUIRE(matter_lab_rgb_attach(a->light,matter_runtime_root(a->runtime))==MATTER_OK);
+    a->led=matter_lab_led_new(); REQUIRE(a->led);
+    puts("RGB_MODEL endpoint=1 GPIO8 experimental-light-profile");
+#endif
 #if CONFIG_MATTER_C_RUNTIME_CHIP_RESUMPTION
     REQUIRE(matter_runtime_set_resumption(a->runtime,MATTER_CASE_RESUMPTION_CHIP)==MATTER_OK);
     puts("CASE_PROFILE CHIP previous-ID explicit-lab-configuration");
@@ -542,6 +561,10 @@ void app_main(void) {
     }
     REQUIRE(matter_lab_soak_delete(a->soak)==MATTER_OK); a->soak=NULL;
     REQUIRE(matter_runtime_delete(a->runtime)==MATTER_OK); a->runtime=NULL;
+#if CONFIG_MATTER_C_RUNTIME_RGB
+    while(!matter_lab_led_delete(a->led)) vTaskDelay(1);
+    REQUIRE(matter_lab_rgb_delete(a->light)==MATTER_OK);
+#endif
     REQUIRE(matter_events_delete(a->events)==MATTER_OK);
     (void)matter_stop(a->owner);
     while(matter_get_state(a->owner)==MATTER_STATE_STOPPING) {

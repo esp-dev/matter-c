@@ -130,4 +130,77 @@ static void consumed_and_compact(void) {
     }
     puts("PASS consumed snapshot release: stable remaining references, cumulative limit and compact scalar/span round trips");
 }
-int main(void) { exact_and_boundaries(); errors_and_oom(); consumed_and_compact(); return 0; }
+static void shared_snapshots(void) {
+    Fixture* a=create();
+    Fixture* b=calloc(1,sizeof(*b)); CHECK(b);
+    Matter_Im_Snapshot_Pool* pool=calloc(1,sizeof(*pool)); CHECK(pool);
+    a->snapshots.pool=b->snapshots.pool=pool;
+    string(a,4093,false); CHECK(!copy(a)); const uint8_t* first=a->value.data;
+    size_t retained=live_bytes,used=b->snapshots.size;
+    for(size_t fault=1;fault<=2;++fault) {
+        string(b,4093,false); fail_at=calls+fault;
+        CHECK(copy(b)==MATTER_IM_RESOURCE_EXHAUSTED); fail_at=0;
+        CHECK(live_bytes==retained && b->snapshots.size==used && b->value.data==b->input && first[3]=='a');
+    }
+    string(b,4093,false); CHECK(!copy(b) && b->value.data==first);
+    CHECK(live_bytes==retained+sizeof(Matter_Im_Snapshot_Reference));
+    /* One pool may share identical bytes across different fabric/report
+     * identities only AFTER each independent provider read and validation.
+     * Changed bytes retain their own generation; versions live in each value. */
+    string(b,4093,false); b->input[0]='b'; CHECK(!copy(b) && b->value.data!=first);
+    const uint8_t* changed=b->value.data;
+    memset(a->input,0,sizeof(a->input)); memset(b->input,0,sizeof(b->input));
+    matter_im_snapshots_clear(&a->snapshots); CHECK(first[3]=='a' && changed[3]=='b');
+    CHECK(a->snapshots.pool==pool); /* Binding survives report cleanup. */
+    size_t before=calls;
+    matter_im_snapshot_release(&b->snapshots,first);
+    CHECK(calls==before && changed[3]=='b' && b->snapshots.size==8192);
+    matter_im_snapshots_clear(&b->snapshots); CHECK(!live && !live_bytes);
+    for(unsigned i=0;i<MATTER_IM_SNAPSHOT_BUCKETS;++i) CHECK(!pool->buckets[i]);
+    /* Duplicate references still consume the original per-report byte budget. */
+    for(unsigned i=0;i<4;++i) { string(a,4093,false); CHECK(!copy(a)); }
+    CHECK(a->snapshots.size==16384);
+    string(a,0,false); before=calls; CHECK(copy(a)==MATTER_IM_RESOURCE_EXHAUSTED && before==calls);
+    matter_im_snapshots_clear(&a->snapshots);
+    /* A saturated reference count cannot wrap or publish a partial reference. */
+    string(a,30,false); CHECK(!copy(a)); Matter_Im_Shared_Snapshot* shared=a->snapshots.shared->value;
+    shared->references=SIZE_MAX; string(b,30,false); retained=live_bytes;
+    CHECK(copy(b)==MATTER_IM_RESOURCE_EXHAUSTED && live_bytes==retained && !b->snapshots.size);
+    shared->references=1;
+    matter_im_snapshots_clear(&a->snapshots); CHECK(!live && !live_bytes);
+    free(a); free(b); free(pool);
+    puts("PASS shared snapshots: immutable generations, per-report limits, OOM at both sites, reference overflow, independent release and empty pool");
+}
+static void bounded_index(void) {
+    Fixture* a=create(); Fixture* b=calloc(1,sizeof(*b)); CHECK(b);
+    Matter_Im_Snapshot_Pool* pool=calloc(1,sizeof(*pool)); CHECK(pool);
+    a->snapshots.pool=b->snapshots.pool=pool;
+    for(unsigned i=0;i<120;++i) {
+        string(a,30,false); a->input[0]=(uint8_t)i; CHECK(!copy(a)); a->retained[i]=a->value.data;
+    }
+    CHECK(pool->entries==112 && pool->small_entries==112);
+    string(b,30,false); b->input[0]=0; CHECK(!copy(b) && b->value.data==a->retained[0]);
+    for(unsigned i=0;i<16;++i) {
+        string(b,254,false); b->input[0]=(uint8_t)i; CHECK(!copy(b));
+    }
+    CHECK(pool->entries==128 && pool->small_entries==112);
+    string(a,254,false); a->input[0]=33; size_t before=live_bytes,used=a->snapshots.size;
+    fail_at=calls+1; CHECK(copy(a)==MATTER_IM_RESOURCE_EXHAUSTED); fail_at=0;
+    CHECK(live_bytes==before && a->snapshots.size==used && pool->entries==128);
+    CHECK(!copy(a) && a->value.data==a->snapshots.head->data && pool->entries==128);
+    /* The exhausted index cannot reject a valid report, move old references,
+     * or stop sharing a value already in the index. */
+    matter_im_snapshots_clear(&a->snapshots);
+    CHECK(pool->entries==17 && b->snapshots.shared && b->snapshots.size==4128);
+    CHECK(b->snapshots.shared->value->data[0]==0x10);
+    matter_im_snapshots_clear(&b->snapshots); CHECK(!pool->entries && !pool->small_entries && !live);
+    static const uint8_t collision[2][8]={{0x63,0xa5,0x30,0x85,0x64,0x96,0x5f,0xd7},{0x79,0x93,0xd2,0x25,0x1b,0x5b,0xa3,0xc1}};
+    string(a,30,false); memcpy(a->input,collision[0],8); CHECK(!copy(a));
+    string(b,30,false); memcpy(b->input,collision[1],8); CHECK(!copy(b));
+    CHECK(a->snapshots.shared->value->hash==b->snapshots.shared->value->hash);
+    CHECK(a->value.data!=b->value.data && !memcmp(a->value.data+2,collision[0],8) && !memcmp(b->value.data+2,collision[1],8));
+    matter_im_snapshots_clear(&a->snapshots); matter_im_snapshots_clear(&b->snapshots);
+    CHECK(!pool->entries && !live && !live_bytes); free(a); free(b); free(pool);
+    puts("PASS bounded snapshot index: unique-data fallback/OOM, reserved large entries, sharing at capacity, real hash collision and full cleanup");
+}
+int main(void) { exact_and_boundaries(); errors_and_oom(); consumed_and_compact(); shared_snapshots(); bounded_index(); return 0; }

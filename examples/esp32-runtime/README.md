@@ -123,6 +123,29 @@ IPv6 suffices for same-link tests; routed IPv6/RA still requires separate
 validation. The scoped one-hour concurrency envelope is recorded in
 [Memory15](../../doc/oss/memory15-validation.md). No CSA result follows from this laboratory.
 
+## Experimental RGB profile
+
+Append `sdkconfig.rgb` to the fresh soak/flash-code configuration to enable
+`CONFIG_MATTER_C_RUNTIME_RGB=y` (default off). DevKitM-1 GPIO8 drives a
+WS2812-compatible GRB LED. EP1 adds OnOff, LevelControl and ColorControl:
+On/Off/Toggle, MoveToLevel/WithOnOff, Stop/WithOnOff, MoveToHueAndSaturation and
+StopMoveStep. The application advances transitions; RMT completion releases its
+borrowed pixel buffer. Settings are volatile. This is an incomplete development
+light profile: Identify, Groups, Scenes, XY/CT and other mandatory lighting
+behavior are missing. See [Memory16](../../doc/oss/memory16-validation.md).
+
+The composed model has171 attributes (38 on EP1). With the existing commissioned
+controller state, test selected light commands/transitions and subscriptions:
+
+```text
+node examples/esp32-runtime/tests/rgb.mjs <node_modules> <scoped-C6-IPv6> <private-controller-state> Wi-Fi c6-memory14
+```
+
+Set `MATTER_SOAK_ATTRIBUTES=171` for the full-load soak; its default remains133
+for the root-only model. Run mode requires a radio reconnect even if recovery
+consumes the timed window. Final stop observes an actually held TX completion;
+a host delay alone does not prove the packet was sent.
+
 ## Independent network oracles
 
 Install the pinned `tools/matter/controller` package/lock into an ignored test

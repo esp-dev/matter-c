@@ -96,6 +96,8 @@ set_tests_properties(installed_consumer PROPERTIES LABELS packaging TIMEOUT 240 
 if(MATTER_SANITIZE)
   set_tests_properties(installed_consumer PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=${leaks}:halt_on_error=1;UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1")
 endif()
+add_test(NAME test_im_shared_reports COMMAND test_im_subscribe_alloc --memory-shared)
+set_tests_properties(test_im_shared_reports PROPERTIES LABELS "native;alloc" TIMEOUT 120)
 if(MATTER_ENABLE_LEGACY_TESTS)
   if(NOT WIN32)
     message(FATAL_ERROR "Legacy complete PowerShell runners require MinGW Windows; native CTest works on Linux")

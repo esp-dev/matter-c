@@ -18,7 +18,14 @@ integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE
 resumption, Read/Write/Subscribe, a second fabric and durable recovery.
 See the [Memory14 evidence and limits](doc/oss/memory14-validation.md).
-The [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
+The optional [Memory16 RGB profile](doc/oss/memory16-validation.md) adds a
+development EP1 light on the C6's addressable LED. Shared immutable value bytes
+and compact Read/Subscribe results lower its observed heap peak from 403016 B
+(baseline traffic failure) to 362480 B. A 437 s load/recovery window passes with
+five fabrics/15 protected sessions/subscriptions, OOM/loss/reconnect and held-TX
+drain, with no SDK allocation failures. This is an incomplete light profile,
+not a complete or certified Extended Color Light implementation.
+The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface
 identity; an optional Wi-Fi code-placement profile recovers 33332 B DIRAM.

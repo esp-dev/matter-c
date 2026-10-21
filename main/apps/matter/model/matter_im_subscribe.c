@@ -30,7 +30,19 @@ typedef struct {
     Matter_Tlv_Validation_Workspace_T validation;
     Matter_Tlv_Tag_T tags[48];
 } Matter_Im_Subscribe_Work;
-typedef struct { Matter_Im_Path_T path; uint32_t reported_version; uint8_t status; bool active,included,wildcard,reported; } SubItem;
+/* Keep the full-width path IDs, but use the padding beside endpoint/status for
+ * the four Boolean flags. Private C99 bool bitfields never cross the wire/ABI.
+ * Only the path adapters construct the unchanged public provider DTO. */
+typedef struct {
+    uint32_t cluster,attribute,reported_version; uint16_t endpoint; uint8_t status;
+    bool active:1,included:1,wildcard:1,reported:1;
+} SubItem;
+static Matter_Im_Path_T sub_item_path(const SubItem* item) {
+    return (Matter_Im_Path_T){item->endpoint,item->cluster,item->attribute};
+}
+static void sub_item_set_path(SubItem* item,const Matter_Im_Path_T* path) {
+    item->endpoint=path->endpoint; item->cluster=path->cluster; item->attribute=path->attribute;
+}
 MATTER_IM_BLOCK_TABLE(sub_items,SubItem)
 MATTER_IM_BLOCK_TABLE(sub_values,Matter_Im_Snapshot_Value)
 struct Matter_Im_Subscribe {
@@ -109,6 +121,12 @@ Matter_Result_T matter_im_subscribe_bind_events(Matter_Im_Subscribe_T s,const Ma
     if(!p || !p->log || !p->describe) return MATTER_INVALID_ARGUMENT;
     if(s->state!=MATTER_IM_SUB_WAITING || s->queued || s->event_port.log) return MATTER_INVALID_STATE;
     s->event_port=*p; return MATTER_OK;
+}
+Matter_Result_T matter_im_subscribe_bind_snapshot_pool(Matter_Im_Subscribe_T s,Matter_Im_Snapshot_Pool* pool) {
+    Matter_Result_T r=check(s); if(r) return r;
+    if(!pool) return MATTER_INVALID_ARGUMENT;
+    if(s->state!=MATTER_IM_SUB_WAITING || s->queued || s->snapshots.pool) return MATTER_INVALID_STATE;
+    s->snapshots.pool=pool; return MATTER_OK;
 }
 Matter_Result_T matter_im_subscribe_bind_event_enumerator(Matter_Im_Subscribe_T s,Matter_Im_Event_Enumerate_T callback) {
     Matter_Result_T r=check(s); if(r) return r;
@@ -388,7 +406,7 @@ static uint8_t expand(Matter_Im_Subscribe_T s) {
         } else { s->path=q->path; ++s->request_cursor; }
         if(!reserve_items(s,s->count+1)) return MATTER_IM_RESOURCE_EXHAUSTED;
         SubItem* result=sub_items_at(&s->items,s->count++);
-        result->path=s->path; result->wildcard=wildcard;
+        sub_item_set_path(result,&s->path); result->wildcard=wildcard;
     }
     if(s->request_cursor==s->request_count) s->state=MATTER_IM_SUB_COLLECTING;
     return 0;
@@ -429,7 +447,7 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
         SubItem* result=sub_items_at(&s->items,i);
         result->included=false;
         if(!prime && !result->active) continue;
-        s->path=result->path;
+        s->path=sub_item_path(result);
         uint8_t code=snapshot(s,s->capture_data,prime && result->wildcard,&omit);
         if(code==MATTER_IM_RESOURCE_EXHAUSTED) return code;
         if(prime && result->wildcard && path_error(code)) omit=true;
@@ -500,7 +518,7 @@ static bool report_attributes(Matter_Im_Subscribe_T s,size_t stop,bool more) {
     if(!begin(s) || !put(s,MATTER_TLV_UNSIGNED,0,s->id) || !put(s,MATTER_TLV_ARRAY,1,0)) return false;
     for(size_t part=0;part<stop;++part) {
         size_t i=s->work->plan[part].item;
-        SubItem* result=sub_items_at(&s->items,i); s->path=result->path;
+        SubItem* result=sub_items_at(&s->items,i); s->path=sub_item_path(result);
         if(s->values.head) matter_im_snapshot_load(&s->value,sub_values_at(&s->values,i)); else memset(&s->value,0,sizeof(s->value));
         uint8_t code=result->status;
         if(!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_STRUCTURE,code ? 0 : 1,0) ||
@@ -580,7 +598,7 @@ static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
     s->opcode=5;
     /* Permissions may change between chunks; never read providers again here. */
     if(recheck) for(size_t i=s->cursor;i<s->count;++i) if(sub_items_at(&s->items,i)->active && sub_items_at(&s->items,i)->included) {
-        s->path=sub_items_at(&s->items,i)->path; bool omit=false; uint8_t code=snapshot(s,false,s->phase==PRIME && sub_items_at(&s->items,i)->wildcard,&omit);
+        s->path=sub_item_path(sub_items_at(&s->items,i)); bool omit=false; uint8_t code=snapshot(s,false,s->phase==PRIME && sub_items_at(&s->items,i)->wildcard,&omit);
         if(code) {
             sub_items_at(&s->items,i)->status=code;
             if(s->phase==PRIME && sub_items_at(&s->items,i)->wildcard && path_error(code)) { sub_items_at(&s->items,i)->included=false; sub_items_at(&s->items,i)->active=false; }
@@ -657,7 +675,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
                     s->reserved=true; s->dirty=false; s->phase=PRIME; capture_begin(s,true);
                     if(s->expanding) s->state=MATTER_IM_SUB_EXPANDING;
                     else if(!reserve_items(s,s->request_count)) code=MATTER_IM_RESOURCE_EXHAUSTED;
-                    else { s->count=s->request_count; for(size_t i=0;i<s->count;++i) sub_items_at(&s->items,i)->path=s->requests[i].path; }
+                    else { s->count=s->request_count; for(size_t i=0;i<s->count;++i) sub_item_set_path(sub_items_at(&s->items,i),&s->requests[i].path); }
                 }
                 else if(code!=MATTER_IM_RESOURCE_EXHAUSTED) code=MATTER_IM_FAILURE;
             }
