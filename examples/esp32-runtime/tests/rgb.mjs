@@ -17,7 +17,19 @@ const env=NodeJsEnvironment(); env.vars.set('storage.path',resolve(stateRoot)); 
 const controller=new CommissioningController({environment:{environment:env,id:storageId},autoConnect:false,adminFabricLabel:'C6 memory14'});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let client;
-const read=(cluster,attribute)=>client.getAttribute({endpointId:1,clusterId:cluster,attribute,requestFromRemote:true});
+// Two parallel readbacks may compete for the unchanged one-Read/fabric budget.
+// Retry only explicit resource Busy; timeouts, values and other statuses still fail.
+let busyReadRetries=0;
+const read=async(cluster,attribute)=>{
+    for(let attempt=0;;++attempt) {
+        try { return await client.getAttribute({endpointId:1,clusterId:cluster,attribute,requestFromRemote:true}); }
+        catch(error) {
+            if(error.code!==0x9c || attempt>=9) throw error;
+            ++busyReadRetries; console.log('RGB_READ_BUSY_RETRY',JSON.stringify({cluster,attribute:attribute.id,attempt:attempt+1}));
+            await sleep(Math.min(100*(attempt+1),500));
+        }
+    }
+};
 const invoke=(cluster,command,request)=>client.invoke({endpointId:1,clusterId:cluster,command,request});
 try {
     await controller.start();
@@ -48,5 +60,5 @@ try {
     if(!updates.includes(85) || !updates.includes(170)) throw Error('Missing RGB subscription updates');
     await invoke(6,OnOff.Cluster.commands.off,undefined);
     if(await read(6,OnOff.Cluster.attributes.onOff)!==false) throw Error('Off readback mismatch');
-    console.log('RGB_WIRE_PASS',JSON.stringify({updates:updates.length,concurrent_transitions:true,final_on:false}));
+    console.log('RGB_WIRE_PASS',JSON.stringify({updates:updates.length,concurrent_transitions:true,final_on:false,busyReadRetries}));
 } finally { await controller.close(); }

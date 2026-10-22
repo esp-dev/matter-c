@@ -501,6 +501,24 @@
     "replace": []
   },
   {
+    "name": "test_rx_alloc",
+    "source": "tools/matter/tests/test_rx.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/matter.c",
+      "main/apps/matter/matter_udp.c",
+      "main/apps/matter/transport/matter_exchange.c",
+      "main/apps/matter/transport/matter_rx_policy.c",
+      "main/apps/matter/transport/matter_ack.c",
+      "main/apps/matter/transport/matter_ack_sender.c",
+      "main/apps/matter/transport/matter_rx.c"
+    ],
+    "malloc": false
+  },
+  {
     "name": "test_rx_policy",
     "source": "tools/matter/tests/test_rx_policy.c",
     "mode": "normal",

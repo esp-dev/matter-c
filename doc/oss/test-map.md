@@ -4,6 +4,15 @@ test-map.json enumerates 257 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
+Memory19 registers the existing allocation-fault RX fixture as `test_rx_alloc`.
+It covers all five constructor OOM positions and 1000 allocation-free packet/ACK
+cycles. New held-delivery scenarios also fail the next allocation while testing
+full input, source overwrite, a deferred incoming ACK processed once, blocked
+second input, explicit/double release and close/retire/stop barriers. All ordinary
+inline mutations, including release, remain BUSY; hold succeeds only once inside
+the deliver callback. Dispatcher fixtures now use the real RX queue/loan and keep
+the prior crypto reentry, scratch poison and ACK-before-UDP completion assertions.
+
 Memory18 extends `test_dispatch` with full-size delivery ownership, premature TX
 rejection, reentry from real PASE construction and secure sealing, a queued RX
 event during sealing, and ciphertext overwrite/ACK-before-UDP/drain checks.

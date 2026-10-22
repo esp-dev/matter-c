@@ -46,14 +46,26 @@ concurrent threads or permission for arbitrary callback reentry. Completion
 callbacks can still enqueue received datagrams and send completion metadata in
 their separate storage; another independently owned runtime can be processed.
 
-Dispatcher delivery and TX plaintext share one per-instance 1232-byte work area.
-Delivery owns it until synchronous handler receive returns: handshake/server IM
-handlers copy input, client parsing and BDX sink writes consume it synchronously.
-Only then can TX compose plaintext. The delivery view is cleared at the phase
-boundary. Inbox, deferred RX bytes, standalone ACK and immutable transaction
-ciphertext remain separate. In particular, peer ACK cannot release a packet
-still borrowed by UDP; the normal completion, retry and drain gates are intact.
-No crypto input/output overlap is introduced. See [Memory18](oss/memory18-validation.md).
+The dispatcher opts into `matter_rx_delivery_hold` during RX delivery, copies
+the descriptor and consumes the queue's payload without another byte copy.
+Handshake/server IM handlers copy input; client parsing and BDX sink writes
+consume it synchronously. After dispatch returns, it clears its borrowed view
+and calls `matter_rx_delivery_release`. TX composition retains separate storage
+so a queued RX awaiting ACK/admission cannot block ordinary TX work.
+
+Holding transfers the queue's existing session pin without allocation. Receive
+returns WOULD_BLOCK without effects until release; close/retire/stop keep the
+bytes, pin and exchange alive. Process may advance ACKs but cannot redeliver or
+overwrite held bytes. The release is explicit, idempotent and forbidden inline
+while the executor is busy. This optional API leaves existing deliver callbacks'
+call-only borrowing contract unchanged. Dispatch remains outside the callback
+so ordinary exchange operations do not hit RX's reentry guard.
+
+Inbox, deferred RX bytes, standalone ACK and immutable transaction ciphertext
+remain independent. Peer ACK cannot release a packet still borrowed by UDP;
+normal completion/retry/drain gates and crypto disjoint input/output are intact.
+See [Memory19](oss/memory19-validation.md) and the earlier
+[Memory18 phase audit](oss/memory18-validation.md).
 
 Strict operational certificate validation reads the supplied UTC callback at
 verification, not a cached construction time. The explicit CHIP validity

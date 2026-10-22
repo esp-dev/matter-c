@@ -34,6 +34,11 @@ The [Memory18 report](doc/oss/memory18-validation.md) covers guarded phase shari
 of delivery/TX plaintext: the C6 dispatcher falls 7096 ->5864 B while inbox, ACK
 and retained ciphertext remain independent. Recursive processing/control is
 rejected before work bytes or clocks can change.
+The [Memory19 report](doc/oss/memory19-validation.md) covers an optional held RX
+delivery view. The dispatcher consumes queue bytes directly, removing one
+payload copy without new allocations or changing resident buffer sizes. The
+queue keeps its session pin and drain barrier until explicit release; default
+callback borrowing and all ACK/TX ownership remain compatible.
 The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface

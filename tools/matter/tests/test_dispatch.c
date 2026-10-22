@@ -429,7 +429,7 @@ typedef struct {
 static EncryptProbe* encrypt_probe;
 static Matter_Result_T reentrant_encrypt(void* user,const uint8_t* key,const uint8_t* nonce,
     const uint8_t* aad,size_t aad_size,const uint8_t* plain,size_t size,uint8_t* cipher) {
-    EncryptProbe* p=encrypt_probe; CHECK(p && !p->d->delivered && plain==p->d->work.plain);
+    EncryptProbe* p=encrypt_probe; CHECK(p && !p->d->delivered && plain==p->d->plain);
     reentry_guard(p->d);
     uint8_t* saved=malloc(size); CHECK(saved); memcpy(saved,plain,size);
     const uint8_t invalid[]={0xff}; Matter_Udp_Datagram_T in={p->path,invalid,sizeof(invalid)};
@@ -454,17 +454,22 @@ static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Addr
     busy(t,true);
     /* The complete old RX view must survive even a premature private TX call. */
     uint8_t* input=malloc(PACKET); CHECK(input); memset(input,0xa5,PACKET);
-    Matter_Rx_Decision_T in={.session=100,.exchange=t->handle,.header={.exchange_id=t->key.exchange_id,.protocol_id=1},.payload=input,.payload_size=PACKET};
-    delivered(d,&in); memset(input,0,PACKET);
+    Matter_Protocol_Header_T header={.exchange_id=t->key.exchange_id,.protocol_id=1,.opcode=1};
+    size_t header_size; CHECK(!matter_protocol_header_write(&header,input,PACKET,&header_size));
+    Matter_Rx_Input_T in={100,77,false,input,PACKET};
+    CHECK(!matter_rx_receive(d->rx,&in,d->now)); memset(input,0,PACKET);
+    CHECK(matter_rx_process(d->rx,d->now)==MATTER_PENDING && d->delivered);
+    CHECK(d->decision.payload!=input+header_size && d->decision.payload!=d->plain);
+    CHECK(d->decision.payload_size==PACKET-header_size);
     size_t before=calls; uint32_t counter=99;
     CHECK(prepare_packet(t,1,&counter)==MATTER_BUSY && counter==99);
-    process_transaction(t); CHECK(!t->packet && calls==before && d->work.delivery[PACKET-1]==0xa5);
+    process_transaction(t); CHECK(!t->packet && calls==before && d->decision.payload[d->decision.payload_size-1]==0xa5);
     encrypt_probe=&p; CHECK(matter_dispatch_process(d,d->now)==MATTER_PENDING); encrypt_probe=NULL;
     CHECK(p.calls==1 && !d->processing && !d->delivered && !d->decision.payload && !d->decision.payload_size);
     CHECK(d->queued && wire.borrowed && t->pending);
     size_t size=t->size; uint8_t* packet=t->packet; memcpy(input,packet,size);
     Matter_Message_Header_T h; size_t offset; CHECK(!matter_message_header_read(packet,size,&h,&offset));
-    memset(d->work.delivery,0xcc,PACKET); /* RX phase can recycle while TX is borrowed. */
+    memset(d->plain,0xcc,PACKET); /* TX scratch can recycle while ciphertext is borrowed. */
     CHECK(!matter_retransmission_sender_ack(d->tx,&t->key,h.message_counter));
     CHECK(matter_dispatch_process(d,d->now+1)==MATTER_PENDING && !d->queued);
     release_packet(t); CHECK(t->packet==packet && t->pending && !memcmp(input,packet,size));
@@ -481,7 +486,7 @@ static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Addr
     CHECK(!matter_secure_channel_retire(c->channel,d->rx,d->tx) && !matter_secure_channel_delete(c->channel));
     CHECK(!matter_secure_delete(c->secure)); memset(c,0,sizeof(*c)); CHECK(!matter_crypto_mbedtls_delete(crypto));
     d->im_sent=d->subscriptions_established=0;
-    puts("PASS shared work: full RX stable until consumed, recursive process/control BUSY, queued RX during seal, immutable ciphertext through ACK-before-UDP and drain");
+    puts("PASS shared work: borrowed full RX stable until released, recursive process/control BUSY, queued RX during seal, immutable ciphertext through ACK-before-UDP and drain");
 }
 static void demand_allocations(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Address_T* bind) {
     CHECK(!d->transactions && live==1 && live_bytes==sizeof(*d));
@@ -521,7 +526,7 @@ static void demand_allocations(Matter_Dispatch_T d,Matter_T owner,const Matter_U
         Transaction* t=new_transaction(d); CHECK(t);
         CHECK(matter_rx_initiate(d->rx,c->token,&t->handle)==MATTER_OK && matter_rx_get(d->rx,t->handle,&t->key)==MATTER_OK);
         Matter_Protocol_Header_T h={.protocol_id=1,.opcode=1,.exchange_id=t->key.exchange_id,.exchange_flags=MATTER_PROTOCOL_INITIATOR|MATTER_PROTOCOL_RELIABLE};
-        size_t n; CHECK(matter_protocol_header_write(&h,d->work.plain,sizeof(d->work.plain),&n)==MATTER_MESSAGE_OK);
+        size_t n; CHECK(matter_protocol_header_write(&h,d->plain,sizeof(d->plain),&n)==MATTER_MESSAGE_OK);
         uint32_t counter=0;
         size_t bytes=live_bytes;
         fail_at=calls+1; CHECK(prepare_packet(t,n,&counter)==MATTER_LIMIT_REACHED); fail_at=0;
@@ -567,16 +572,16 @@ static void demand_allocations(Matter_Dispatch_T d,Matter_T owner,const Matter_U
     CHECK(matter_unsecured_resolve(d->unsecured,&mh,true,&token)==MATTER_OK && matter_unsecured_pin(d->unsecured,token)==MATTER_OK);
     Transaction* t=new_transaction(d); CHECK(t); t->key.session=token;
     Matter_Protocol_Header_T ph={.exchange_id=1,.opcode=0x40}; size_t n;
-    CHECK(matter_protocol_header_write(&ph,d->work.plain,sizeof(d->work.plain),&n)==MATTER_MESSAGE_OK);
+    CHECK(matter_protocol_header_write(&ph,d->plain,sizeof(d->plain),&n)==MATTER_MESSAGE_OK);
     uint32_t next=d->counter.next,counter=0;
     fail_at=calls+1; CHECK(prepare_packet(t,n,&counter)==MATTER_LIMIT_REACHED); fail_at=0;
     CHECK(!t->packet && d->counter.next==next && !counter);
     CHECK(prepare_packet(t,n,&counter)==MATTER_OK && t->size==n+MATTER_UNSECURED_OVERHEAD && counter==next);
     CHECK(live_bytes==idle+sizeof(*t)+t->size); release_packet(t);
-    memset(d->work.plain+n,0,PACKET-MATTER_UNSECURED_OVERHEAD-n);
+    memset(d->plain+n,0,PACKET-MATTER_UNSECURED_OVERHEAD-n);
     CHECK(prepare_packet(t,PACKET-MATTER_UNSECURED_OVERHEAD,&counter)==MATTER_OK && t->size==PACKET); release_packet(t);
     CHECK(prepare_packet(t,PACKET-MATTER_UNSECURED_OVERHEAD+1,&counter)==MATTER_LIMIT_REACHED && !t->packet);
-    d->work.plain[0]=0xff; next=d->counter.next;
+    d->plain[0]=0xff; next=d->counter.next;
     CHECK(prepare_packet(t,n,&counter)==MATTER_INVALID_ARGUMENT && !t->packet && d->counter.next==next);
     /* Production R=0 BUSY path closes safely on TX OOM without taking a counter. */
     t->busy_reply=true; t->busy_deadline=d->now+30000;
@@ -872,8 +877,8 @@ static void late_handshake(Matter_Dispatch_T d,const Matter_Udp_Address_T* local
     uint8_t retained[MATTER_UNSECURED_OVERHEAD+10]; memcpy(retained,d->ack,sizeof(retained));
     /* ACK UDP remains outstanding while ingress and normal TX scratch change.
      * A second ACK must neither overwrite the borrowed bytes nor take a nonce. */
-    memset(d->inbox,0xa5,sizeof(d->inbox)); memset(d->work.plain,0x5a,sizeof(d->work.plain));
-    memset(d->work.delivery,0xcc,sizeof(d->work.delivery));
+    memset(d->inbox,0xa5,sizeof(d->inbox)); memset(d->plain,0x5a,sizeof(d->plain));
+    memset(d->plain,0xcc,sizeof(d->plain));
     uint32_t next_counter=d->counter.next; uint64_t request=d->request;
     Matter_Ack_Message_T second={.exchange={token,8,false},.data=bytes,.size=10};
     CHECK(send_ack(d,UINT64_MAX,&second)==MATTER_WOULD_BLOCK && d->counter.next==next_counter && d->request==request);
@@ -897,7 +902,7 @@ typedef struct { Matter_Crypto_Port_T crypto; unsigned notifications; Matter_Dis
 static void failed_pase(void* u,uint64_t token) { CHECK(token==42); ++((FailedPase*)u)->notifications; }
 static Matter_Pase_T reject_pase(void* u,uint16_t id,uint64_t now) {
     FailedPase* f=u;
-    CHECK(f->dispatch->delivered && f->dispatch->decision.payload==f->dispatch->work.delivery);
+    CHECK(f->dispatch->delivered && f->dispatch->decision.payload && f->dispatch->decision.payload!=f->dispatch->plain);
     reentry_guard(f->dispatch);
     Matter_Pase_Config_T c={.responder=true,.local_session_id=id,.timeout_ms=30000,.iterations=1000,.salt_size=16};
     Matter_Pase_T p=matter_pase_new(&f->crypto,&c,now); CHECK(p);

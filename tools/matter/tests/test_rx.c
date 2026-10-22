@@ -37,7 +37,8 @@ typedef struct {
     uint32_t ack_counter;
     uint8_t payload;
     Matter_Result_T submission, retention, ack_result, tx_drain, dependency_result;
-    bool started, probe, clear_tx_on_ack;
+    bool started, probe, clear_tx_on_ack, hold_delivery;
+    const uint8_t* held;
 } Fixture;
 
 static unsigned pins(Fixture* f) { return f->pins[1] + f->pins[2] + f->pins[3]; }
@@ -53,7 +54,8 @@ static void reentry(Fixture* f) {
         matter_rx_register(f->rx, 0, 1) != MATTER_BUSY || matter_rx_unregister(f->rx, 0, 1) != MATTER_BUSY ||
         matter_rx_initiate(f->rx, 1, &handle) != MATTER_BUSY || matter_rx_get(f->rx, 1, &info) != MATTER_BUSY ||
         matter_rx_close(f->rx, 1) != MATTER_BUSY ||
-        matter_rx_retire_session(f->rx, 1) != MATTER_BUSY || handle != 99) ++f->violations;
+        matter_rx_retire_session(f->rx, 1) != MATTER_BUSY ||
+        matter_rx_delivery_release(f->rx) != MATTER_BUSY || handle != 99) ++f->violations;
 }
 
 static Matter_Result_T retain(void* user, Matter_Exchange_Session_T session) {
@@ -95,6 +97,12 @@ static void deliver(void* user, const Matter_Rx_Decision_T* d) {
     f->delivered = *d;
     f->delivered.payload = NULL;
     f->payload = d->payload_size ? d->payload[0] : 0;
+    if (f->hold_delivery) {
+        if (matter_rx_delivery_hold(f->rx) != MATTER_OK ||
+            matter_rx_delivery_hold(f->rx) != MATTER_INVALID_STATE) ++f->violations;
+        f->held = d->payload;
+        reentry(f);
+    }
 }
 static Matter_Result_T send_ack(void* user, uint64_t request, const Matter_Ack_Message_T* message) {
     Fixture* f = user;
@@ -149,6 +157,7 @@ static void cleanup(Fixture* f) {
     f->probe = false;
     f->retention = f->submission = f->ack_result = f->tx_drain = f->dependency_result = MATTER_OK;
     if (f->rx) {
+        matter_rx_delivery_release(f->rx);
         matter_rx_stop(f->rx);
         if (f->started) {
             unsigned steps = 0;
@@ -199,6 +208,62 @@ static void packet(Fixture* f, uint8_t flags, uint16_t protocol, uint32_t counte
     size_t header = flags & 2 ? 10 : 6;
     f->wire[header] = 0xa5;
     f->input = (Matter_Rx_Input_T){1, counter, duplicate, f->wire, header + 1};
+}
+
+static bool held_delivery(void) {
+    bool ok=false; Fixture* f=NULL;
+    CHECK(matter_rx_delivery_hold(NULL)==MATTER_INVALID_ARGUMENT);
+    for(unsigned mode=0;mode<3;++mode) {
+        f=create(true); CHECK(f); f->hold_delivery=true;
+        CHECK(matter_rx_delivery_hold(f->rx)==MATTER_INVALID_STATE);
+        packet(f,mode==2?7:1,1,1,false);
+        size_t header=mode==2?10:6;
+        memset(f->wire+header,0xa5,MATTER_RX_MAX_PLAINTEXT-header);
+        f->input.size=MATTER_RX_MAX_PLAINTEXT;
+#ifdef MATTER_TEST_ALLOC
+        size_t before=calls; fail_at=calls+1;
+#endif
+        CHECK(matter_rx_receive(f->rx,&f->input,0)==MATTER_OK);
+        memset(f->wire,0xcc,sizeof(f->wire));
+        if(mode==2) {
+            f->ack_result=MATTER_WOULD_BLOCK;
+            CHECK(matter_rx_process(f->rx,0)==MATTER_PENDING && !f->deliveries && pins(f)==1);
+            f->ack_result=MATTER_OK;
+        }
+        CHECK(matter_rx_process(f->rx,0)==MATTER_PENDING && f->deliveries==1 && pins(f)==2);
+        CHECK(f->held && f->delivered.payload_size==MATTER_RX_MAX_PLAINTEXT-header);
+        CHECK(matter_rx_delivery_hold(f->rx)==MATTER_INVALID_STATE);
+        packet(f,1,1,2,false); f->input.session=2;
+        CHECK(matter_rx_receive(f->rx,&f->input,0)==MATTER_WOULD_BLOCK && !f->pins[2]);
+        CHECK(matter_rx_im_received(f->rx)==1);
+        if(!mode) CHECK(matter_rx_close(f->rx,f->delivered.exchange)==MATTER_PENDING);
+        else if(mode==1) CHECK(matter_rx_retire_session(f->rx,1)==MATTER_PENDING);
+        else CHECK(matter_rx_stop(f->rx)==MATTER_PENDING);
+        CHECK(matter_rx_process(f->rx,1000)==MATTER_PENDING && f->deliveries==1 && !f->dependencies);
+        for(size_t i=0;i<f->delivered.payload_size;++i) CHECK(f->held[i]==0xa5);
+        CHECK(pins(f)==2 && !f->violations);
+        if(mode==2) CHECK(f->acks==1 && f->ack_calls==2 && f->retained);
+        CHECK(matter_rx_delivery_release(f->rx)==MATTER_OK && pins(f)==1);
+        CHECK(matter_rx_delivery_release(f->rx)==MATTER_OK && pins(f)==1);
+        f->held=NULL;
+        for(unsigned i=0;i<4;++i) {
+            if(f->retained) CHECK(finish(f,MATTER_OPERATION_SUCCEEDED));
+            Matter_Result_T result=matter_rx_process(f->rx,1000);
+            CHECK(result==MATTER_OK || result==MATTER_PENDING);
+        }
+        CHECK(!pins(f) && !f->violations);
+#ifdef MATTER_TEST_ALLOC
+        CHECK(calls==before); fail_at=0;
+#endif
+        cleanup(f); f=NULL;
+    }
+    puts("PASS held RX: full payload, caller overwrite, deferred ACK processed once, close/retire/stop barriers, pin/bytes stable, reentry BUSY, release idempotent; no allocations");
+    ok=true;
+done:
+#ifdef MATTER_TEST_ALLOC
+    fail_at=0;
+#endif
+    cleanup(f); return ok;
 }
 
 static bool im_counts(void) {
@@ -543,7 +608,7 @@ done: fail_at = 0; cleanup(f); return ok && !live;
 int main(void) {
     unsigned passed = 0;
 #define RUN(t) do { if (!(t)()) return 1; ++passed; } while (0)
-    RUN(im_counts); RUN(owned_retry); RUN(ephemeral_roles); RUN(ephemeral_contention); RUN(closing_control); RUN(deferred_close_and_registry);
+    RUN(held_delivery); RUN(im_counts); RUN(owned_retry); RUN(ephemeral_roles); RUN(ephemeral_contention); RUN(closing_control); RUN(deferred_close_and_registry);
     RUN(boundaries_and_errors); RUN(isolation_and_capacity); RUN(terminal_session);
 #ifdef MATTER_TEST_ALLOC
     RUN(allocation);

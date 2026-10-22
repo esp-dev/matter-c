@@ -9,6 +9,7 @@ typedef struct {
 } Exchange;
 
 enum State { NEW, RUNNING, DRAINING, DEPENDENCIES, STOPPED };
+enum { NO_DELIVERY, DELIVERING, HELD_DELIVERY };
 struct Matter_Rx {
 	Matter_T owner;
 	Matter_Rx_Port_T port;
@@ -24,6 +25,7 @@ struct Matter_Rx {
 	uint32_t im_received;
 	enum State state;
 	bool queued, ack_processed, busy;
+	uint8_t delivery;
 	uint8_t bytes[MATTER_RX_MAX_PLAINTEXT];
 };
 
@@ -67,7 +69,8 @@ static Matter_Result_T prepare(void* user, Matter_Exchange_Handle_T handle, cons
 	Matter_Result_T ack = matter_ack_close(rx->ack, info);
 	Matter_Result_T tx = rx->port.exchange_drained(rx->port.user, info);
 	if (tx != MATTER_OK && tx != MATTER_PENDING) tx = MATTER_PORT_ERROR;
-	if (rx->queued && same(info, &rx->queued_key)) ack = combine(ack, MATTER_PENDING);
+	if ((rx->queued || rx->delivery == HELD_DELIVERY) && same(info, &rx->queued_key))
+		ack = combine(ack, MATTER_PENDING);
 	return combine(ack, tx);
 }
 
@@ -210,7 +213,7 @@ Matter_Result_T matter_rx_receive(Matter_Rx_T rx, const Matter_Rx_Input_T* input
 	if (result != MATTER_OK) return result;
 	if (!input || !input->data || !input->session) return MATTER_INVALID_ARGUMENT;
 	if (input->size > sizeof(rx->bytes)) return MATTER_LIMIT_REACHED;
-	if (rx->queued) return MATTER_WOULD_BLOCK;
+	if (rx->queued || rx->delivery == HELD_DELIVERY) return MATTER_WOULD_BLOCK;
 	rx->busy = true;
 	result = matter_rx_policy_receive(rx->policy, input);
 	if (result == MATTER_OK) result = submission(rx->port.retain(rx->port.user, input->session));
@@ -256,6 +259,8 @@ Matter_Result_T matter_rx_retire_session(Matter_Rx_T rx, Matter_Exchange_Session
 		Exchange* entry = &rx->exchanges[i];
 		if (entry->handle && entry->info.session == session) result = combine(result, close_entry(rx, entry));
 	}
+	if (rx->delivery == HELD_DELIVERY && rx->input.session == session)
+		result = combine(result, MATTER_PENDING);
 	rx->busy = false;
 	return result;
 }
@@ -291,11 +296,38 @@ static Matter_Result_T receive_queued(Matter_Rx_T rx) {
 		}
 	}
 	if (result != MATTER_OK) return result;
-	if (d->action != MATTER_RX_DROP) rx->port.deliver(rx->port.user, d);
-	if (!transfer) rx->port.release(rx->port.user, rx->input.session);
+	if (d->action != MATTER_RX_DROP) {
+		rx->delivery = DELIVERING;
+		rx->port.deliver(rx->port.user, d);
+		if (rx->delivery == DELIVERING) rx->delivery = NO_DELIVERY;
+	}
+	if (!transfer && rx->delivery != HELD_DELIVERY)
+		rx->port.release(rx->port.user, rx->input.session);
 	rx->queued = false;
-	rx->input = (Matter_Rx_Input_T){0};
+	if (rx->delivery != HELD_DELIVERY) rx->input = (Matter_Rx_Input_T){0};
 	rx->decision = (Matter_Rx_Decision_T){0};
+	return MATTER_OK;
+}
+
+Matter_Result_T matter_rx_delivery_hold(Matter_Rx_T rx) {
+	if (!rx) return MATTER_INVALID_ARGUMENT;
+	/* The only permitted inline mutation: transfer the queue's existing pin.
+	 * No extra allocation, retain callback or change to ACK admission. */
+	if (!rx->busy || rx->delivery != DELIVERING) return MATTER_INVALID_STATE;
+	rx->delivery = HELD_DELIVERY;
+	return MATTER_OK;
+}
+
+Matter_Result_T matter_rx_delivery_release(Matter_Rx_T rx) {
+	Matter_Result_T result = check(rx);
+	if (result != MATTER_OK) return result;
+	if (rx->delivery != HELD_DELIVERY) return MATTER_OK;
+	rx->busy = true;
+	rx->delivery = NO_DELIVERY;
+	Matter_Exchange_Session_T session = rx->input.session;
+	rx->input = (Matter_Rx_Input_T){0};
+	rx->port.release(rx->port.user, session);
+	rx->busy = false;
 	return MATTER_OK;
 }
 
@@ -328,7 +360,7 @@ Matter_Result_T matter_rx_process(Matter_Rx_T rx, uint64_t now_ms) {
 		}
 		Matter_Result_T sent = matter_ack_sender_process(rx->sender, now_ms);
 		result = combine(result, sent == MATTER_WOULD_BLOCK ? MATTER_OK : sent);
-		if (rx->state == DRAINING && !entries && !rx->queued && !rx->ephemeral.session &&
+		if (rx->state == DRAINING && !entries && !rx->queued && rx->delivery != HELD_DELIVERY && !rx->ephemeral.session &&
 			matter_ack_sender_stop(rx->sender) == MATTER_OK) {
 			Matter_Result_T stopped = matter_exchange_stop(rx->table);
 			if (stopped == MATTER_PENDING) stopped = matter_exchange_process(rx->table);
@@ -340,7 +372,7 @@ Matter_Result_T matter_rx_process(Matter_Rx_T rx, uint64_t now_ms) {
 		result = rx->port.stop_dependencies(rx->port.user);
 		if (result == MATTER_OK) rx->state = STOPPED;
 		else if (result != MATTER_PENDING) result = MATTER_PORT_ERROR;
-	} else if (rx->state == DRAINING || rx->queued || rx->ephemeral.session)
+	} else if (rx->state == DRAINING || rx->queued || rx->delivery == HELD_DELIVERY || rx->ephemeral.session)
 		result = combine(result, MATTER_PENDING);
 	rx->busy = false;
 	return result;

@@ -1,5 +1,33 @@
 # Development status
 
+**Memory19: held RX delivery without the queue-to-dispatch payload copy.**
+Memory18 is committed as `64b9f49`. An optional hold/release transfers the queue's
+existing session pin through synchronous dispatch. Receive cannot overwrite held
+bytes; close/retire/stop preserve the loan and drain barrier. ACK admission and
+deadlines remain unchanged. Existing callback-only users retain their behavior.
+TX plaintext stays independent of pending RX; no new allocation or quota change.
+One payload copy per delivery is removed, with no further fixed RAM saving:
+C6 dispatcher/RX remain 5864/3240 B and the new state byte fits padding.
+
+Windows 102/102 and Linux 99/99 per normal/sanitizer build pass, as do seven
+focused Memcheck cases and complete two-instance 6/6 under Memcheck/separate
+sanitizers. RX constructor OOM and 1000 allocation-free cycles are now native
+CTest coverage. Both IDF profiles compile. Final C6 passes a 283 s load/recovery
+window with five fabrics,15 protected sessions/subscriptions,76 full Reads,
+OOM, RX loss, reconnect and held-TX drain. Observed sampled/tracked peaks are
+356592/264100 B; owner stack 2760/12288 B, with zero SDK allocation failures and
+zero final tracked allocations. The Memory18 comparison is 356980/264412 B and
+2696 B stack; these timing-sensitive differences do not prove another RAM saving.
+
+An initial RGB Busy failure is retained. Unchanged Memory18 reproduces resource
+Busy with overlapping full/concrete Reads; the RGB controller now logs/bounds
+retry for only that status without widening the one-Read budget. Final RGB uses
+zero retries. Original fabric/label are restored, COM23/AP released, temporary
+Wi-Fi profile/XML removed and IPv6 kept enabled. See [report](memory19-validation.md)
+and [results](memory19-results.json) for intermediate attempts and limits.
+Next: audit secure-decrypt scratch to RX admission for reserve/authenticate/commit
+without an extra temporary allocation/copy, preserving replay and ACK atomicity.
+
 **Memory18: delivery/plain phase sharing with reentry guards.**
 Memory17 is committed as `b122565`. One per-instance work area reduces the C6
 dispatcher 7096 ->5864 B without a new allocation or changing limits. Delivery

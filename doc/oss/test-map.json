@@ -1986,13 +1986,14 @@
       "path": "tools/matter/tests/test_rx.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_rx"
+        "test_rx",
+        "test_rx_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_rx",
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native CTest test_rx_alloc; five constructor OOM positions and allocation-free traffic/handoff"
     },
     {
       "path": "tools/matter/tests/test_rx_policy.c",
