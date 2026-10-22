@@ -12,6 +12,9 @@ to check that public evidence and the queue agree.
 The application owns scheduling, networking, storage and hardware callbacks.
 Multiple runtimes can run in one process/thread. The core does not require
 ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).
+The optional [native wire regression](doc/runtime-wire-tests.md) reuses the C6
+oracle for fast loopback RGB/Read/Subscribe tests, controlled ACK/RX/TX faults,
+allocation failures and orderly stop, without a board or access point.
 
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,

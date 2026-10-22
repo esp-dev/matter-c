@@ -5,11 +5,13 @@ import {readFile,writeFile,rename} from 'node:fs/promises';
 import {randomBytes} from 'node:crypto';
 import {performance} from 'node:perf_hooks';
 const [modules,ip,stateRoot,uartRoot,secondsText='3600',iface='Wi-Fi',mode='run',readWorkload='bounded']=process.argv.slice(2);
-const seconds=Number(secondsText);
+const seconds=Number(secondsText),hostMode=mode==='host';
+const port=hostMode?Number(process.env.MATTER_WIRE_PORT??5540):5540;
+if(hostMode && ip!=='::1') throw Error('Host fixture must use IPv6 loopback');
 const expectedAttributes=Number(process.env.MATTER_SOAK_ATTRIBUTES??133);
 if(!Number.isSafeInteger(expectedAttributes) || expectedAttributes<133) throw Error('Invalid MATTER_SOAK_ATTRIBUTES');
-if(!modules || !ip || !stateRoot || !uartRoot || !['run','probe','cleanup'].includes(mode) || !['bounded','wildcard'].includes(readWorkload) || !Number.isFinite(seconds) || seconds<60)
-    throw Error('Usage: soak.mjs <pinned-node_modules> <scoped-ipv6> <private-controller-state> <private-uart-dir> [seconds>=60] [interface] [run|probe|cleanup] [bounded|wildcard]');
+if(!modules || !ip || !stateRoot || !uartRoot || !['run','probe','cleanup','host'].includes(mode) || !['bounded','wildcard'].includes(readWorkload) || !Number.isFinite(seconds) || seconds<60)
+    throw Error('Usage: soak.mjs <pinned-node_modules> <scoped-ipv6> <private-controller-state> <private-uart-dir> [seconds>=60] [interface] [run|probe|cleanup|host] [bounded|wildcard]');
 const load=p=>import(pathToFileURL(resolve(modules,p)).href);
 if(JSON.parse(await readFile(resolve(modules,'@project-chip/matter.js/package.json'),'utf8')).version!=='0.17.9')
     throw Error('Expected pinned Matter.js0.17.9');
@@ -27,7 +29,7 @@ const {OperationalCredentials}=await load('@matter/types/dist/esm/clusters/opera
 const {BasicInformation}=await load('@matter/types/dist/esm/clusters/basic-information.js');
 const {GeneralDiagnostics}=await load('@matter/types/dist/esm/clusters/general-diagnostics.js');
 Logger.level=process.env.MATTER_SOAK_LOG==='info'?LogLevel.INFO:LogLevel.WARN;
-const env=NodeJsEnvironment(); env.vars.set('storage.path',resolve(stateRoot)); env.vars.set('mdns.networkInterface',iface);
+const env=NodeJsEnvironment(); env.vars.set('storage.path',resolve(stateRoot)); if(iface) env.vars.set('mdns.networkInterface',iface);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const started=performance.now(),summary={mode,read_workload:readWorkload,expected_attributes:expectedAttributes,requested_seconds:seconds,rounds:0,full_reads:0,read_attributes:0,concrete_reads:0,concrete_read_attributes:0,
     subscription_snapshots:0,subscription_updates:0,subscription_closed:0,case_pairs:0,case_resumed:0,
@@ -37,7 +39,7 @@ summary.unexpected_subscription_closures=0; summary.oom_lost_subscriptions=0;
 summary.oom_rebuilt_load_cycles=0; summary.fault_operation_errors=[];
 summary.loss_operations_rejected=0; summary.loss_rebuilt_load_cycles=0;
 summary.loss_lost_subscriptions=0; summary.loss_operation_errors=[];
-summary.recovery_busy_retries=0; summary.recovery_busy_wait_ms=0;
+summary.host_close_reconnect_cycles=0; summary.recovery_busy_retries=0; summary.recovery_busy_wait_ms=0;
 const readTimings={full:[],concrete:[]};
 const emit=(kind,data={})=>console.log(JSON.stringify({kind,elapsed_seconds:(performance.now()-started)/1000,...data}));
 function errorInfo(e,depth=0) {
@@ -48,7 +50,8 @@ function errorInfo(e,depth=0) {
 const controlRun=randomBytes(8).toString('hex'); let serial=0;
 async function control(command,timeout=20000) {
     const id=`${controlRun}:${++serial}`,temporary=resolve(uartRoot,'control-request.tmp');
-    await writeFile(temporary,JSON.stringify({id,command})); await rename(temporary,resolve(uartRoot,'control-request.json'));
+    await writeFile(temporary,hostMode?`${id} ${command}\n`:JSON.stringify({id,command}));
+    await rename(temporary,resolve(uartRoot,hostMode?'wire-request.txt':'control-request.json'));
     const end=performance.now()+timeout;
     while(performance.now()<end) {
         try { const text=await readFile(resolve(uartRoot,'control-replies.jsonl'),'utf8');
@@ -73,7 +76,23 @@ const saveTopology=()=>writeFile(manifestPath,JSON.stringify(topology,null,2)+'\
 async function startController(entry) {
     const controller=new CommissioningController({environment:{environment:env,id:entry.environment},autoConnect:false,
         adminFabricLabel:entry.original?'C6 memory14':entry.environment});
-    const ctx={entry,controller,clients:[],subscriptions:[],sessions:[],generation:0}; contexts.push(ctx);
+    let flow;
+    if(hostMode) {
+        const {ControllerCommissioningFlow,PeerSet}=await load('@matter/protocol/dist/esm/index.js');
+        flow=class extends ControllerCommissioningFlow {
+            constructor(...args) {
+                const connect=args[4];
+                args[4]=async (address,concurrent)=>{
+                    const peer=controller.node.env.get(PeerSet).for(address);
+                    peer.descriptor.operationalAddress={type:'udp',ip,port};
+                    peer.service.addresses.add({type:'udp',ip,port});
+                    return connect(address,concurrent);
+                };
+                super(...args);
+            }
+        };
+    }
+    const ctx={entry,controller,flow,clients:[],subscriptions:[],sessions:[],generation:0}; contexts.push(ctx);
     await controller.start(); return ctx;
 }
 async function peerClient(ctx) {
@@ -140,7 +159,7 @@ async function addSubscription(ctx,client) {
 async function pairSession(ctx) {
     const sessions=ctx.controller.node.env.get(SessionManager),exchanges=ctx.controller.node.env.get(ExchangeManager);
     const transport=exchanges.interfaceFor('udp',ip); if(!transport) throw Error('No UDP transport');
-    const channel=await transport.openChannel({type:'udp',ip,port:5540});
+    const channel=await transport.openChannel({type:'udp',ip,port});
     const unsecured=sessions.createUnsecuredSession({channel,isInitiator:true});
     const exchange=exchanges.initiateExchangeForSession(unsecured,0);
     try {
@@ -261,15 +280,23 @@ async function cleanupFabrics() {
         attribute:BasicInformation.Cluster.attributes.nodeLabel,value:'C6 durable label'}});
 }
 try {
-    const primary=await startController(topology[0]); primary.clients=[await peerClient(primary)];
+    const primary=await startController(topology[0]);
+    if(hostMode) {
+        primary.entry.node=String(await primary.controller.commissionNode({passcode:20202021,
+            discovery:{identifierData:{longDiscriminator:3840},knownAddress:{type:'udp',ip,port}},
+            commissioning:{regulatoryLocation:0,regulatoryCountryCode:'XX'}},
+            {connectNodeAfterCommissioning:false,commissioningFlowImpl:primary.flow}));
+        await saveTopology();
+    }
+    primary.clients=[await peerClient(primary)];
     for(const entry of topology.slice(1)) { const ctx=await startController(entry); ctx.clients=[await peerClient(ctx)]; }
     if(mode!=='cleanup') {
         while(topology.length<5) {
             const entry={environment:`c6-memory15-${topology.length}`,original:false};
             await openWindow(primary); const ctx=await startController(entry);
             entry.node=String(await ctx.controller.commissionNode({passcode:20202021,
-                discovery:{identifierData:{longDiscriminator:1234},knownAddress:{type:'udp',ip,port:5540}},
-                commissioning:{regulatoryLocation:0,regulatoryCountryCode:'XX'}},{connectNodeAfterCommissioning:false}));
+                discovery:{identifierData:{longDiscriminator:1234},knownAddress:{type:'udp',ip,port}},
+                commissioning:{regulatoryLocation:0,regulatoryCountryCode:'XX'}},{connectNodeAfterCommissioning:false,...(hostMode?{commissioningFlowImpl:ctx.flow}:{})}));
             topology.push(entry); await saveTopology(); ctx.clients=[await peerClient(ctx)];
             await fabricCount(ctx,topology.length); emit('FABRIC_ADDED',{count:topology.length});
         }
@@ -277,6 +304,12 @@ try {
         await buildLoad(); await checkpoint('five-fabrics-fifteen-sessions-fifteen-subscriptions');
         try { await pairSession(primary); throw Error('Fourth protected CASE unexpectedly accepted'); }
         catch(e) { if(!/busy|resource.?exhaust|no available session/i.test(`${e.name} ${e.message}`)) throw e; ++summary.session_busy_probes; emit('PROTECTED_CASE_LIMIT_PASS'); }
+        if(hostMode) {
+            const {hostScenarios}=await import('../../../tools/matter/tests/wire_scenarios.mjs');
+            await hostScenarios({contexts,summary,control,emit,sleep,fullRead,assertLoad,closeLoad,buildLoad,
+                loadSessions,attribute,GeneralDiagnostics,recoverFaultLoad,write:async value=>primary.clients[0].setAttribute({attributeData:{endpointId:0,
+                    clusterId:0x28,attribute:BasicInformation.Cluster.attributes.nodeLabel,value}})});
+        } else {
         const loadStarted=performance.now(); let faultAt=loadStarted+60000,reconnectAt=loadStarted+300000,lossAt=loadStarted+150000,writeAt=loadStarted+30000,fullAt=loadStarted+30000;
         emit('SOAK_STARTED',{seconds,read_workload:readWorkload});
         while(performance.now()-loadStarted<seconds*1000) {
@@ -334,6 +367,8 @@ try {
         await checkpoint('all-subscriptions-and-sessions-drained-idle-trim');
         for(const ctx of contexts) ctx.clients=[await peerClient(ctx)];
     }
+    }
+    if(!hostMode) {
     await cleanupFabrics(); await checkpoint('original-fabric-restored');
     if(mode==='run') {
         // Stop while the core still awaits a deliberately deferred accepted TX.
@@ -347,6 +382,7 @@ try {
         const stopStarted=performance.now(); await control('q',90000);
         summary.stop_wait_seconds=(performance.now()-stopStarted)/1000; summary.stop_read_outcome=await pending;
         ++summary.delayed_completion_cycles; emit('STOP_DRAIN_PASS',{wait_seconds:summary.stop_wait_seconds});
+    }
     }
     summary.pass=true; emit('SOAK_PASS',summary);
 } catch(e) { summary.pass=false; summary.error={name:e.name,message:e.message,stack:e.stack}; emit('SOAK_FAIL',summary.error); process.exitCode=1; }

@@ -2707,6 +2707,84 @@
       "entrypoint": "ctest --test-dir <build> -R test_im_event_metadata",
       "referenced_by": [],
       "allocation_variant": "Checked stable event path blocks, exact filters, phase selector cleanup, OOM, concrete precedence and urgency"
+    },
+    {
+      "path": "tools/matter/tests/runtime_wire.py",
+      "kind": "controller",
+      "entrypoint": "python tools/matter/tests/runtime_wire.py",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/runtime_wire_host.c",
+      "kind": "fixture",
+      "entrypoint": "runtime-wire-host",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire_alloc.c",
+      "kind": "fixture",
+      "entrypoint": "runtime-wire-host",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire_dispatch.c",
+      "kind": "fixture",
+      "entrypoint": "runtime-wire-host",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire_faults.h",
+      "kind": "fixture",
+      "entrypoint": "runtime-wire-host",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire_scenarios.mjs",
+      "kind": "controller",
+      "entrypoint": "soak.mjs host mode",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire-controller/package.json",
+      "kind": "external-controller-dependency",
+      "entrypoint": "npm ci --ignore-scripts",
+      "ctest": [],
+      "referenced_by": [
+        "tools/matter/tests/runtime_wire.py"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire-controller/package-lock.json",
+      "kind": "external-controller-dependency",
+      "entrypoint": "npm ci --ignore-scripts",
+      "ctest": [],
+      "referenced_by": [
+        "tools/matter/tests/runtime_wire.py"
+      ]
     }
   ],
   "local_only_files": []

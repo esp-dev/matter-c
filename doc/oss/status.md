@@ -1,5 +1,20 @@
 # Development status
 
+**Memory25: reusable host wire regression.**
+Memory23 and Memory24 are committed as `26ee0fd` and `43fbd7c`. The new optional
+native fixture shares the C6 controller, uses fresh loopback state, and checks
+five fabrics/15 CASE sessions/subscriptions, ACK/completion ordering, RX reorder,
+three one-shot OOM positions, a missing-ACK negative control, CASE survival and
+held-TX drain. Production core, limits and protocol timeouts are unchanged.
+Windows CTest passes104/104; Linux99/99 native tests pass normally and separately
+with sanitizers. Both new wire cases and the full six-group two-instance scenario
+pass under Memcheck and separately ASan/UBSan/LSan. Memcheck reports zero errors
+and zero bytes/blocks at exit. The short Windows case takes about86s; the extended
+case about348s. These are scoped lab runs, not timing guarantees or CSA results.
+The original physical C6 finding remains open. See the
+[runner guide](../runtime-wire-tests.md), [validation](memory25-validation.md)
+and [results](memory25-results.json).
+
 **Memory24: host-first startup investigation; physical cause remains open.**
 Eight healthy native UDP/IPv6 comparisons of Memory22 and pending Memory23
 pass15/15 full subscriptions. They cover delayed local TX completion, the C6

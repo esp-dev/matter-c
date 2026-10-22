@@ -240,6 +240,11 @@ After `RUNTIME_READY`, run the pinned Node.js oracle:
 node examples/esp32-runtime/tests/soak.mjs <node_modules> <scoped-C6-IPv6> <private-controller-state> <private-uart-dir> 3600 Wi-Fi run wildcard
 ```
 
+For core regressions without a board, the same oracle also supports the separate
+[native wire fixture](../../doc/runtime-wire-tests.md). Use its Python runner,
+which supplies fresh state and the loopback route; do not reuse this device's
+controller state for host mode.
+
 This fixture expects the original `c6-memory14` controller's first node to be
 commissioned already. It preserves that fabric and creates only its own four
 additional controller environments. The private topology manifest permits
