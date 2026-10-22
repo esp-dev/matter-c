@@ -44,6 +44,13 @@ def main():
                     break
             if text.startswith('NETWORK '):
                 record=dict(kind='NETWORK',data={k:int(v) for k,v in (x.split('=') for x in text[8:].split())})
+            if text.startswith('TRACE26 '):
+                try:
+                    event,*fields=text[8:].split()
+                    record=dict(kind='TRACE26',data=dict(event=event,
+                        **{k:int(v) for k,v in (x.split('=') for x in fields)}))
+                except ValueError:
+                    record=dict(kind='TRACE_PARSE_ERROR')
             if 'RUNTIME_READY' in text:
                 ready=True; record=dict(kind='READY'); print(json.dumps(record),flush=True)
             if any(mark in text for mark in ('RUNTIME_FAIL','Guru Meditation','abort() was called','task_wdt:')):

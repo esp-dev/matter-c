@@ -15,6 +15,10 @@ ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).
 The optional [native wire regression](doc/runtime-wire-tests.md) reuses the C6
 oracle for fast loopback RGB/Read/Subscribe tests, controlled ACK/RX/TX faults,
 allocation failures and orderly stop, without a board or access point.
+The [Memory26 C6 investigation](doc/oss/memory26-validation.md) reproduces startup
+14/15 after one lost ACK and identifies a problem in the pinned test controller's
+exchange-role fallback. It includes a matched controller comparison, physically
+verified 1Mbaud UART and the remaining limit on historical attribution.
 
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,

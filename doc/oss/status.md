@@ -1,5 +1,18 @@
 # Development status
 
+**Memory26: C6 UART 1M and startup ACK attribution.**
+Memory25 is committed as `ac187cc`. Three healthy C6 startup captures pass 15/15.
+On identical C6 firmware/state, exactly one suppressed ACK produces 14/15 with
+Matter.js 0.17.9: fallback ACKs have the opposite exchange role, MRP expires after
+five attempts, and the subscription closes while CASE remains usable. Correcting
+only that role in a private controller copy preserves 15/15 with ACK on attempt 2.
+Production core, limits and ACK/drain checks are unchanged. The original incident's
+first loss/delay remains unproven because it lacks a packet trace. Focused host
+CTest passes 7/7; C6 captures and the final normal RGB image drain to zero tracked
+live allocations/bytes. Normal firmware at 1000000 baud and the original single
+fabric are restored; COM23/AP are released and Windows IPv6 remains enabled.
+See [validation](memory26-validation.md) and [results](memory26-results.json).
+
 **Memory25: reusable host wire regression.**
 Memory23 and Memory24 are committed as `26ee0fd` and `43fbd7c`. The new optional
 native fixture shares the C6 controller, uses fresh loopback state, and checks

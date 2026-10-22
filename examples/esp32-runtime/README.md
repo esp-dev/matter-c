@@ -192,6 +192,15 @@ For example, add these arguments to the build command above:
 -B <fresh-build-dir> -D SDKCONFIG=<fresh-config-path> -D "SDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.soak;sdkconfig.wifi-flash"
 ```
 
+For the C6 DevKitM-1's UART0 console at 1,000,000 baud, additionally append
+`sdkconfig.uart-1m` to that defaults list and pass `--baud 1000000` to the
+collector. This selects custom UART0 on the same GPIO16/17 pins. With an existing
+ESP-IDF6.1 configuration, use menuconfig or remove the `# default:` marker for
+the baud setting before setting its value explicitly; editing a marked default
+alone lets the generator restore 115200. Check the generated
+`config/sdkconfig.h` before flashing. Flashing baud is a separate setting, and
+the existing ROM/bootloader output may still use 115200.
+
 The owner samples internal heap nominally every 100 ms, emits `SOAK`/`MEMORY` every five
 seconds and records allocator calls, live/peak bytes, largest free block and
 free/allocated block counts. This is sampled whole-system telemetry, not an
@@ -228,11 +237,37 @@ manifests in ignored directories. Start the native Python/pyserial collector:
 python examples/esp32-runtime/tests/uart_capture.py --port COM23 --output <private-uart-dir> --duration 10800 --reset
 ```
 
-For a faster UART capture, build the laboratory image with
-`CONFIG_ESP_CONSOLE_UART_BAUDRATE=1000000` and pass `--baud 1000000` to the
-collector. Both ends must use the same rate. The collector defaults to115200
+For a faster UART capture, use the optional `sdkconfig.uart-1m` above and pass
+`--baud 1000000` to the collector. Both ends must use the same rate. It defaults to 115200
 for existing images; the flashing baud is a separate setting. Check the actual
 UART log for intact JSON records after changing the rate.
+
+For startup subscription investigations, `tests/dispatch_trace.py` generates a
+separate diagnostic dispatcher source. Apply it only to a disposable laboratory
+checkout, keeping the original source intact:
+
+```text
+python examples/esp32-runtime/tests/dispatch_trace.py --source main/apps/matter/runtime/matter_dispatch.c --output <private-copy>/main/apps/matter/runtime/matter_dispatch.c
+```
+
+Build that copy with the same limits/configuration. The collector records
+`TRACE26` metadata in `events.jsonl` and raw UART. `QUEUED.a` is the wire counter,
+`QUEUED.b` the opcode; `TX.b` packs `(attempt <<16) | Matter_Result_T`.
+`TIMER` includes the exact MRP deadline. `ACK_RX.a` is the acknowledged counter;
+an OK result alone can be a no-op, so correlate it with `MRP_END` on the same
+session/exchange/counter. `MRP_END.b` packs `(attempts <<16) | outcome`, with
+outcomes 1 ACK, 2 timeout, 3 failed, 4 cancelled. `RX.b` packs opcode/result.
+`CLOSE.line` and `RETIRE.line` refer to the generated source, and `state` is the
+subscription enum. `init` is the local exchange role, opposite the received
+packet's Initiator flag. The transaction's `ack` flag may still describe its
+previous packet while a new one is pending; use the matching `MRP_END` counter.
+`ESTABLISHED` means successful local SubscribeResponse TX,
+not peer ACK. Keep the generated file/hash with the capture. The synchronous
+logging changes timing, stack and layout; exclude it from headline memory
+comparisons and final normal firmware. No fault injection is added by this tool.
+`--failures-only` suppresses healthy packet traffic while retaining subscription
+errors/closes and session lifecycle records for a second capture with less UART
+timing overhead. It preserves the same core limits and transaction layout.
 
 After `RUNTIME_READY`, run the pinned Node.js oracle:
 
