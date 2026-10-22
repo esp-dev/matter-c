@@ -10,16 +10,18 @@ import serial
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--port',required=True)
+    p.add_argument('--baud',type=int,default=115200)
     p.add_argument('--output',required=True,type=Path)
     p.add_argument('--duration',type=int,default=10800)
     p.add_argument('--reset',action='store_true')
     args=p.parse_args()
     if args.duration<60: p.error('duration must be at least 60 seconds')
+    if args.baud<=0: p.error('baud must be positive')
     args.output.mkdir(parents=True,exist_ok=True)
     request=args.output/'control-request.json'
     request.unlink(missing_ok=True)
     pending=None; ready=False; timer_sample=None; started=time.monotonic()
-    with serial.Serial(args.port,115200,timeout=.1) as uart, (args.output/'uart.log').open('wb') as raw, (args.output/'events.jsonl').open('w',encoding='utf-8') as events, (args.output/'control-replies.jsonl').open('a',encoding='utf-8') as replies:
+    with serial.Serial(args.port,args.baud,timeout=.1) as uart, (args.output/'uart.log').open('wb') as raw, (args.output/'events.jsonl').open('w',encoding='utf-8') as events, (args.output/'control-replies.jsonl').open('a',encoding='utf-8') as replies:
         uart.dtr=False
         if args.reset:
             uart.rts=True; time.sleep(.12); uart.reset_input_buffer()

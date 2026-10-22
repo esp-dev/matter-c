@@ -228,6 +228,12 @@ manifests in ignored directories. Start the native Python/pyserial collector:
 python examples/esp32-runtime/tests/uart_capture.py --port COM23 --output <private-uart-dir> --duration 10800 --reset
 ```
 
+For a faster UART capture, build the laboratory image with
+`CONFIG_ESP_CONSOLE_UART_BAUDRATE=1000000` and pass `--baud 1000000` to the
+collector. Both ends must use the same rate. The collector defaults to115200
+for existing images; the flashing baud is a separate setting. Check the actual
+UART log for intact JSON records after changing the rate.
+
 After `RUNTIME_READY`, run the pinned Node.js oracle:
 
 ```text

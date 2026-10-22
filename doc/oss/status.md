@@ -1,5 +1,17 @@
 # Development status
 
+**Memory24: host-first startup investigation; physical cause remains open.**
+Eight healthy native UDP/IPv6 comparisons of Memory22 and pending Memory23
+pass15/15 full subscriptions. They cover delayed local TX completion, the C6
+loop ordering, prior RGB subscription/disconnect, parallel full Reads and all
+four own-fabric removal replies. Two diagnostic missing-ACK controls end at14/15
+on both versions after the existing MRP timeout. That reproduces the count
+signature, not the cause of the original C6 event. Native CTest passes102/102,
+including allocation-fault regressions. No production core/limit changes or new
+hardware/memory/CSA measurements are claimed. The collector accepts `--baud`
+for the next C6 check;1Mbaud has not yet been physically verified.
+See [Memory24 investigation](memory24-validation.md) and [results](memory24-results.json).
+
 **Memory23: smaller Fabric publication scratch; one open startup stress finding.**
 Memory22 is committed as `13ffe87`. Changed-range undo replaces the15536 B
 rollback image with576–5168 B on C6; committed TLV projection removes the second

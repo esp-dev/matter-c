@@ -65,6 +65,11 @@ second Fabric candidate. The common C6 publication workload saves about12kB of
 sampled heap; the full wildcard peak remains about335kB. Format, fail-safe and
 ACK/drain checks pass in the reported runs; an intermittent14/15 full-subscription
 startup result remains open despite a successful unchanged retry and baseline.
+The [Memory24 host investigation](doc/oss/memory24-validation.md) passes eight
+healthy old/new comparisons, including15 full subscriptions and parallel Reads.
+Two missing-ACK controls produce14/15 on both versions; the original C6 cause
+remains unproven. Native CTest passes102/102; the UART collector accepts a selected
+baud rate for the next hardware check.
 The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface
