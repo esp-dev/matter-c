@@ -198,6 +198,18 @@ free/allocated block counts. This is sampled whole-system telemetry, not an
 exhaustive instantaneous heap trace; blocking crypto/SDK calls widen sampling
 gaps. Region boundaries affect the largest-block
 ratio; compare like-for-like quiescent states and retained workload as well.
+Both records include current `heap_free`; `heap_min_sampled` is the minimum
+observed by the sampler, while `MEMORY.heap_min` is the SDK aggregate low
+watermark. Also compare `largest_free`, `largest_min_sampled` and block counts.
+The selected pool is `MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT`: its allocated
+bytes include Wi-Fi/lwIP/mDNS/crypto allocations and dynamically reserved task
+stacks in that pool, including unused stack space. `core_peak` covers only
+instrumented library allocations. Neither value includes static `.data/.bss`,
+code in IRAM or allocations outside the selected capabilities. Stack high
+watermarks measure observed use separately; do not add reserved stacks again
+to the whole-heap peak. Per-region SDK minima need not occur simultaneously.
+The [Memory20 report](../../doc/oss/memory20-validation.md) compares free heap at
+startup, full load, recovery, drain and final release as well as peak use.
 The observer allocates one small application-owned state object. All callbacks
 and controls run on the owner. No allocation is added to raw lwIP RX.
 

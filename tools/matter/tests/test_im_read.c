@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "model/matter_im_read.h"
+#include "model/matter_im_output_internal.h"
 #include "test_im_vectors.h"
 #define CHECK(c) do { if (!(c)) { fprintf(stderr,"IM:%d: %s\n",__LINE__,#c); abort(); } } while (0)
 #ifdef MATTER_TEST_ALLOC
@@ -66,7 +67,48 @@ static void status_response(Fixture* f,uint8_t status) {
 #include "test_im_multi_events.h"
 #include "test_im_event_wildcards.h"
 #include "test_im_path_grammar.h"
+static void shared_encoder_tests(void) {
+    Matter_Im_Output_Pool* pool=calloc(1,sizeof(*pool)); CHECK(pool);
+    for(unsigned mode=0;mode<4;++mode) {
+        Fixture* a=create(1024); Fixture* b=create(8);
+        CHECK(!matter_im_read_bind_output_pool(a->s,pool) && !matter_im_read_bind_output_pool(b->s,pool));
+        CHECK(matter_im_read_bind_output_pool(a->s,pool)==MATTER_INVALID_STATE);
+        execute(a,im_request,sizeof(im_request)); CHECK(pool->owner==a->s && a->out.data==pool->bytes);
+        Matter_Rx_Decision_T d=decision(im_request,sizeof(im_request)); CHECK(!matter_im_read_receive(b->s,&d));
+#ifdef MATTER_TEST_ALLOC
+        size_t before=calls;
+#endif
+        CHECK(matter_im_read_process(b->s,10)==MATTER_PENDING && !b->reads);
+        CHECK(!memcmp(a->out.data,im_report,sizeof(im_report)));
+#ifdef MATTER_TEST_ALLOC
+        CHECK(calls==before);
+#endif
+        if(mode==0) CHECK(!matter_im_read_sent(a->s));
+        if(mode==1) CHECK(!matter_im_read_cancel(a->s));
+        if(mode==2) { release(a); a=NULL; }
+        if(mode==3) CHECK(matter_im_read_process(a->s,1010)==MATTER_PORT_ERROR);
+        CHECK(!pool->owner);
+        CHECK(matter_im_read_process(b->s,10)==MATTER_PENDING && !matter_im_read_output(b->s,&b->out));
+        CHECK(b->out.size==8 && b->out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && pool->owner==b->s);
+        release(b); if(a) release(a); CHECK(!pool->owner);
+    }
+#ifdef MATTER_TEST_ALLOC
+    Fixture* f=create(1024); CHECK(!matter_im_read_bind_output_pool(f->s,pool));
+    Matter_Rx_Decision_T d=decision(im_request,sizeof(im_request)); CHECK(!matter_im_read_receive(f->s,&d));
+    size_t start=calls; CHECK(matter_im_read_process(f->s,10)==MATTER_PENDING);
+    size_t count=calls-start; release(f); CHECK(!live);
+    for(size_t site=1;site<=count;++site) {
+        f=create(1024); CHECK(!matter_im_read_bind_output_pool(f->s,pool)); CHECK(!matter_im_read_receive(f->s,&d));
+        fail_at=calls+site; CHECK(matter_im_read_process(f->s,10)==MATTER_PENDING); fail_at=0;
+        CHECK(!matter_im_read_output(f->s,&f->out)); status_response(f,MATTER_IM_RESOURCE_EXHAUSTED);
+        CHECK(pool->owner==f->s); release(f); CHECK(!pool->owner && !live && !live_bytes);
+    }
+#endif
+    free(pool);
+    puts("PASS shared Read encoder: contention, exact configured cap, sent/cancel/delete/timeout handoff and every concrete capture OOM");
+}
 int main(void) {
+    shared_encoder_tests();
     path_grammar_tests();
     multi_tests();
     event_wild_tests();

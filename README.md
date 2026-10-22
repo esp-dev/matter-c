@@ -39,6 +39,13 @@ delivery view. The dispatcher consumes queue bytes directly, removing one
 payload copy without new allocations or changing resident buffer sizes. The
 queue keeps its session pin and drain barrier until explicit release; default
 callback borrowing and all ACK/TX ownership remain compatible.
+The [Memory20 report](doc/oss/memory20-validation.md) covers one private encoder
+for Read/Subscribe per dispatcher. Snapshot blocks remain stable and immutable
+ciphertext retains its ACK/drain lifetime; Subscribe activation/intervals still
+start at actual UDP send. The C6 sampled heap peak changes
+357148 ->334036 B, minimum sampled free heap
+60792 ->83944 B. The report also gives SDK free
+watermarks, largest blocks, lifecycle free-heap checkpoints and stack evidence.
 The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface

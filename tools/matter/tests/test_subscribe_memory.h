@@ -2,6 +2,7 @@
  * attribute sizes. Fifteen CASE subscriptions across five fabric identities.
  * Provider scratch, request encoders and report consumers are heap fixtures. */
 static Matter_Im_Snapshot_Pool* memory_pool;
+static Matter_Im_Output_Pool* memory_encoder;
 static size_t memory_value_size=30;
 static Matter_Im_Status_T memory_read(void* u,const Matter_Im_Path_T* p,bool filtered,Matter_Im_Value_T* v) {
     SelectorSub* s=u; RichSub* r=&s->rich; sub_guard(&r->model); CHECK(filtered);
@@ -17,6 +18,7 @@ static SelectorSub* memory_new(unsigned count,unsigned fabric) {
     Matter_Im_Read_Fabric_Port_T f={rich_fabric};
     Matter_Im_Subscribe_Config_T c={{1,12,false},30000,1198,false};
     r->model.active=matter_im_subscribe_new_case(&p,&f,&c,0); CHECK(r->model.active);
+    if(memory_encoder) CHECK(matter_im_subscribe_bind_output_pool(r->model.active,memory_encoder)==MATTER_OK);
     if(memory_pool) CHECK(matter_im_subscribe_bind_snapshot_pool(r->model.active,memory_pool)==MATTER_OK);
     selector_request(s,1,false,0,false); return s;
 }
@@ -62,6 +64,7 @@ static MemoryRead* memory_read_new(void) {
     Matter_Im_Read_Port_T p={m,memory_read_allow,memory_read_describe,memory_read_value,NULL,NULL};
     Matter_Im_Read_Config_T c={{1,12,false},30000,1198,true};
     m->active=matter_im_read_new(&p,&c,0); CHECK(m->active);
+    if(memory_encoder) CHECK(matter_im_read_bind_output_pool(m->active,memory_encoder)==MATTER_OK);
     if(memory_pool) CHECK(matter_im_read_bind_snapshot_pool(m->active,memory_pool)==MATTER_OK);
     CHECK(!matter_tlv_writer_init(&r->writer,r->model.input,sizeof(r->model.input),8));
     rich_put(r,MATTER_TLV_STRUCTURE,-1,0); rich_put(r,MATTER_TLV_ARRAY,0,0);

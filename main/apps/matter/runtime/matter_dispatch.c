@@ -6,6 +6,7 @@
 #include "transport/matter_secure_channel.h"
 #include "model/matter_im_subscribe.h"
 #include "model/matter_im_snapshot_pool_internal.h"
+#include "model/matter_im_output_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -50,6 +51,7 @@ typedef struct Transaction {
 } Transaction;
 struct Matter_Dispatch {
     Matter_Im_Snapshot_Pool snapshots;
+    Matter_Im_Output_Pool output;
     Matter_Dispatch_Config_T config; Matter_Udp_T udp; Matter_Rx_T rx;
     Matter_Retransmission_Sender_T tx; Matter_Unsecured_T unsecured;
     Matter_Unsecured_Rx_T ingress; Matter_Unsecured_Tx_T transport;
@@ -630,6 +632,8 @@ static bool create_handler(Matter_Dispatch_T d,Transaction* t,uint8_t opcode) {
         }
         if(t->read && matter_im_read_bind_snapshot_pool(t->read,&d->snapshots)!=MATTER_OK) return false;
         if(t->sub && matter_im_subscribe_bind_snapshot_pool(t->sub,&d->snapshots)!=MATTER_OK) return false;
+        if(t->read && matter_im_read_bind_output_pool(t->read,&d->output)!=MATTER_OK) return false;
+        if(t->sub && matter_im_subscribe_bind_output_pool(t->sub,&d->output)!=MATTER_OK) return false;
         if(d->config.events) {
             Matter_Im_Read_Events_Port_T events={d->config.root,d->config.events,matter_root_event_describe};
             if(t->read && matter_im_read_bind_events(t->read,&events)!=MATTER_OK) return false;
@@ -934,6 +938,7 @@ static void process_transaction(Transaction* t) {
     t->im_packet=h.protocol_id==1; t->im_counted=false; t->sub_response=t->sub && out.opcode==4;
     if(t->pase) (void)matter_pase_sent(t->pase);
     if(t->read) (void)matter_im_read_sent(t->read);
+    if(t->sub && matter_im_subscribe_output_copied(t->sub)!=MATTER_OK) t->closing=true;
 }
 static bool keep_expiry_reply(Matter_Dispatch_T d,Connection* c) {
     if(c->retiring) return false;
@@ -1087,6 +1092,7 @@ Matter_Result_T matter_dispatch_delete(Matter_Dispatch_T d) {
     if(!d->stopped || d->request || d->outgoing.resolve) return MATTER_BUSY;
     if(d->transactions) return MATTER_BUSY;
     for(unsigned i=0;i<MATTER_IM_SNAPSHOT_BUCKETS;++i) if(d->snapshots.buckets[i]) return MATTER_BUSY;
+    if(d->output.owner) return MATTER_BUSY;
     if(matter_dispatch_retire(d,true)!=MATTER_OK) return MATTER_BUSY;
     (void)matter_retransmission_sender_stop(d->tx);
     (void)matter_retransmission_sender_delete(d->tx);

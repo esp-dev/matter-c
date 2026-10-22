@@ -217,6 +217,17 @@ async function recoverFaultLoad(kind) {
         await buildLoad(true); ++summary[`${kind}_rebuilt_load_cycles`];
     }
     await Promise.all(contexts.map(c=>burstRead(c.clients[0])));
+    // A delayed MRP expiry can end a subscription during those health Reads,
+    // after the first count was still 15. This remains the deliberate fault
+    // window: allow one logged rebuild, then require the full load strictly.
+    const verified=await attribute(contexts[0].clients[0],0x33,GeneralDiagnostics.Cluster.attributes.deviceLoadStatus);
+    if(verified.currentSubscriptions!==15) {
+        summary[`${kind}_lost_subscriptions`]+=15-verified.currentSubscriptions;
+        emit('FAULT_LATE_SUBSCRIPTIONS_ENDED',{fault:kind,remaining:verified.currentSubscriptions});
+        await closeLoad(); for(const ctx of contexts) ctx.expectedLoss=false;
+        await buildLoad(true); ++summary[`${kind}_rebuilt_load_cycles`];
+        await Promise.all(contexts.map(c=>burstRead(c.clients[0])));
+    }
     for(const ctx of contexts) ctx.expectedLoss=false;
     await assertLoad(15);
 }

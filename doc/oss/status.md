@@ -1,5 +1,41 @@
 # Development status
 
+**Memory20: shared Read/Subscribe encoder, independent ciphertext and free heap.**
+Memory19 is committed as `95bbb14`. One private per-dispatcher encoder replaces
+retained engine outputs. Snapshot blocks and limits remain unchanged. The lease
+ends after independent immutable ciphertext/MRP retention; Subscribe activation
+and interval clocks still wait for actual UDP acceptance. Standalone APIs retain
+their existing ownership. C6 dispatcher grows1200 B and each engine8 B, yielding
+16650 B net for15 subscriptions, or22600 B with five active Read outputs, before
+allocator overhead. The fixed idle and temporary constructor costs are explicit.
+
+Windows102/102, Linux99/99 normally and separately ASan/UBSan/LSan, nine focused
+Memcheck cases, full two-instance6/6 in both modes and both IDF profiles pass.
+The C6 load/recovery windows are 351.8/
+272.6s with five fabrics/15 sessions/subscriptions,
+OOM, RX loss, reconnect, reentry rejection and held-TX drain. Sampled heap peak is
+357148 ->334036 B, tracked peak
+264428 ->241456 B; minimum sampled free heap
+60792 ->83944 B and SDK aggregate free watermark
+57144 ->80308 B. Minimum sampled largest block
+is 36864 ->59392 B; observed owner stack
+2760 ->2636 /12288 B.
+SDK allocation failures and final tracked allocations/bytes are zero.
+Immediate complete-phase largest block drops303104 ->188416 B despite similar
+390k free and zero core allocations; SDK placement versus deferred reclamation
+remains unresolved. No blanket fragmentation improvement is claimed.
+
+An unchanged Memory19 baseline initially failed on a late subscription expiry
+inside deliberate RX-loss recovery. Its logs are retained and cleanup restored
+the fixture. The oracle now permits one logged late-count rebuild within that
+fault window, followed by strict load verification; both compared runs use it.
+Original fabric/label are restored, COM/AP released and temporary Wi-Fi profile/
+XML removed; IPv6 remains enabled. See [report](memory20-validation.md) and
+[results](memory20-results.json), including free heap before runtime, full load,
+recovery, drain and complete release. These are scoped observations, not Matter
+worst-case memory bounds. Next: settled post-stop heap samples and SDK allocation
+trace to explain the final largest-block decrease, before secure-decrypt/RX work.
+
 **Memory19: held RX delivery without the queue-to-dispatch payload copy.**
 Memory18 is committed as `64b9f49`. An optional hold/release transfers the queue's
 existing session pin through synchronous dispatch. Receive cannot overwrite held

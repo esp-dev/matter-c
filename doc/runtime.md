@@ -296,14 +296,30 @@ packet ceiling minus the 8-byte message header, 16-byte MIC and minimum 6-byte
 protocol header (Core 4.4.4). Actual optional headers reduce the wire budget and
 are checked by framing/transport. Each accepted receive allocates its actual
 length before freeing the old copy; failure returns LIMIT_REACHED without queue
-mutation. Its owner can retry. Output is allocated at construction according to
-output_capacity, now up to 1198 bytes: reserve four additional bytes for an MRP
-ACK. The host dispatcher selects this output budget for Read/Subscribe. Both
-buffers are released with the handler. The defensive filter entry bound derives
+mutation. Its owner can retry. Standalone output is allocated at construction
+according to output_capacity, now up to 1198 bytes: reserve four additional
+bytes for an MRP ACK. The dispatcher selects this unchanged output budget and
+binds Read/Subscribe to one private per-instance encoder instead. Standalone
+buffer ownership and public APIs remain compatible. The defensive filter entry bound derives
 from the minimum 14-byte concrete DataVersionFilterIB encoding.
 Both decoders allow enough TLV tokens for any request within that byte budget.
 Filter allocation failure produces ResourceExhausted without reserving a subscription
 or reading values. See [regression results](oss/im-version-filters-validation.md).
+
+The optional encoder lease covers one process call and, if it produces output,
+the output borrow. Contention yields before parser allocation/provider effects;
+clocks and expiry still advance. Yielded snapshot collection relinquishes the
+lease. Snapshot/result blocks never move into this encoder. After framing,
+encryption and successful MRP retention, Read's existing sent transition releases
+the lease. Subscribe has a separate private copied-output handoff: it releases
+the encoder while preserving OUTPUT until the first actual accepted UDP send.
+Output polling blocks after that handoff, so pending TX cannot reread recycled
+plaintext. Activation and interval anchors still use actual sent_at. Immutable
+ciphertext remains separately owned through ACK and actual UDP completion/drain.
+Cancel, timeout and deletion release any lease. The existing runtime/dispatcher
+reentry guard remains required; this pool is neither global nor a thread mutex.
+See [Memory20 evidence](oss/memory20-validation.md). Construction still briefly
+allocates the standalone output before binding; the pool adds a fixed idle cost.
 
 The UDP ceiling remains 1280 bytes including IPv6/UDP headers. Enlarging heap
 buffers does not authorize larger UDP packets. Invoke, Write, the outbound IM

@@ -1346,7 +1346,7 @@
         "tools/matter/run_tests.ps1",
         "tools/matter/tests/test_im_chunks.h"
       ],
-      "allocation_variant": "native"
+      "allocation_variant": "native; standalone and shared encoder: contention, configured cap, sent/cancel/delete/timeout and every concrete capture allocation failure"
     },
     {
       "path": "tools/matter/tests/test_im_request_memory.c",
@@ -1381,7 +1381,7 @@
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native; shared Read/Subscribe encoder, 15x512 stable snapshots, copied-before-actual-send timing, both ACK/status orders, release and capture/continuation OOM"
     },
     {
       "path": "tools/matter/tests/test_im_values.h",
@@ -2666,7 +2666,7 @@
       "referenced_by": [
         "tools/matter/tests/test_im_subscribe.c"
       ],
-      "allocation_variant": "test_im_subscribe_alloc"
+      "allocation_variant": "test_im_subscribe_alloc; optional encoder binding also covers large Read array continuation and pooled capture/continuation OOM"
     },
     {
       "path": "tools/matter/tests/test_im_node_memory.c",
@@ -2691,7 +2691,9 @@
     {
       "path": "tools/matter/tests/test_rgb_light.c",
       "kind": "ctest-native",
-      "ctest": ["test_rgb_light"],
+      "ctest": [
+        "test_rgb_light"
+      ],
       "entrypoint": "ctest --test-dir <build> -R test_rgb_light",
       "referenced_by": [],
       "allocation_variant": "Experimental RGB model constructor/command OOM, atomic validation, transitions, pixel conversion and pinned lifetime"

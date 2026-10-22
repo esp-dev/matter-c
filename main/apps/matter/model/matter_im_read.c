@@ -5,6 +5,7 @@
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
 #include "matter_im_buffer_internal.h"
+#include "matter_im_output_internal.h"
 #include "matter_im_blocks_internal.h"
 #include <stdlib.h>
 #include <string.h>
@@ -71,6 +72,7 @@ struct Matter_Im_Read {
 	Matter_Im_Attribute_T attribute;
 	Matter_Im_Value_T value;
 	uint8_t *input, *output;
+    Matter_Im_Output_Pool* output_pool;
 };
 static Matter_Result_T check(Matter_Im_Read_T s) {
 	return !s ? MATTER_INVALID_ARGUMENT : s->busy ? MATTER_BUSY : MATTER_OK;
@@ -97,6 +99,12 @@ Matter_Result_T matter_im_read_bind_snapshot_pool(Matter_Im_Read_T s,Matter_Im_S
     if(!pool) return MATTER_INVALID_ARGUMENT;
     if(s->state!=MATTER_IM_READ_WAITING || s->queued || s->snapshots.pool) return MATTER_INVALID_STATE;
     s->snapshots.pool=pool; return MATTER_OK;
+}
+Matter_Result_T matter_im_read_bind_output_pool(Matter_Im_Read_T s,Matter_Im_Output_Pool* pool) {
+    Matter_Result_T r=check(s); if(r) return r;
+    if(!pool) return MATTER_INVALID_ARGUMENT;
+    if(s->state!=MATTER_IM_READ_WAITING || s->queued || s->output_pool) return MATTER_INVALID_STATE;
+    free(s->output); s->output=NULL; s->output_pool=pool; return MATTER_OK;
 }
 Matter_Result_T matter_im_read_bind_events(Matter_Im_Read_T s,const Matter_Im_Read_Events_Port_T* p) {
     Matter_Result_T r=check(s); if(r!=MATTER_OK) return r;
@@ -611,7 +619,8 @@ static Matter_Result_T clock_check(Matter_Im_Read_T s, uint64_t now) {
 	if (now < s->now) return MATTER_INVALID_ARGUMENT;
 	s->now=now;
 	if (now >= s->deadline) {
-		s->state=MATTER_IM_READ_FAILED; s->queued=false; s->output_size=0; return MATTER_PORT_ERROR;
+		s->state=MATTER_IM_READ_FAILED; s->queued=false; s->output_size=0;
+        matter_im_output_release(s->output_pool,s,&s->output); return MATTER_PORT_ERROR;
 	}
 	return MATTER_OK;
 }
@@ -631,6 +640,7 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 	if (s->state == MATTER_IM_READ_COMPLETE) return MATTER_OK;
 	if (s->state == MATTER_IM_READ_FAILED) return MATTER_INVALID_STATE;
 	r=clock_check(s,now); if (r != MATTER_OK) return r;
+    if(!matter_im_output_acquire(s->output_pool,s,&s->output)) return MATTER_PENDING;
     if((s->queued || s->state==MATTER_IM_READ_EXPANDING || s->state==MATTER_IM_READ_COLLECTING || (s->state==MATTER_IM_READ_WAIT_STATUS && s->status_received)) && !s->work) {
         s->work=calloc(1,sizeof(*s->work));
         if(!s->work) { s->now=now; matter_im_status_bytes(s->output,MATTER_IM_RESOURCE_EXHAUSTED,MATTER_IM_REVISION); s->output_size=8; s->response_opcode=1; s->more=false; s->queued=false; s->state=MATTER_IM_READ_OUTPUT; return MATTER_PENDING; }
@@ -705,6 +715,7 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 	if (produce) s->state=encoded ? MATTER_IM_READ_OUTPUT : MATTER_IM_READ_FAILED;
 	s->busy=false; r=encoded ? MATTER_PENDING : MATTER_PORT_ERROR;
 finished:
+    if(s->state!=MATTER_IM_READ_OUTPUT) matter_im_output_release(s->output_pool,s,&s->output);
     if(s->state!=MATTER_IM_READ_WAITING && (!s->expanding || s->request_cursor==s->request_count)) { free(s->requests); s->requests=NULL; }
     if(!s->queued) { matter_im_workspace_delete(s->work,sizeof(*s->work)); s->work=NULL; }
     return r;
@@ -723,6 +734,7 @@ Matter_Result_T matter_im_read_sent(Matter_Im_Read_T s) {
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
 	if (s->state != MATTER_IM_READ_OUTPUT) return MATTER_INVALID_STATE;
 	s->state=MATTER_IM_READ_IN_FLIGHT;
+    matter_im_output_release(s->output_pool,s,&s->output);
     if(!s->more) {
         /* Output was copied to independent immutable MRP storage. No future
          * continuation can use these tables or their inline bytes. External
@@ -731,7 +743,7 @@ Matter_Result_T matter_im_read_sent(Matter_Im_Read_T s) {
         s->value.data=NULL; s->value.size=0;
         free(s->plan); s->plan=NULL; s->plan_capacity=0;
         free(s->requests); s->requests=NULL; free(s->filters); s->filters=NULL;
-        free(s->input); s->input=NULL; free(s->output); s->output=NULL;
+        free(s->input); s->input=NULL; matter_im_output_dispose(s->output_pool,s,&s->output);
         s->input_size=s->output_size=0;
         if(s->events) { s->event_tail=s->events->records; matter_im_event_metadata_clear(&s->events->expansion,&s->events->paths,&s->events->filters); free(s->events); s->events=NULL; }
     }
@@ -754,13 +766,13 @@ Matter_Result_T matter_im_read_peer_status(Matter_Im_Read_T s, uint8_t* code) {
 Matter_Result_T matter_im_read_cancel(Matter_Im_Read_T s) {
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
 	if (s->state != MATTER_IM_READ_COMPLETE) s->state=MATTER_IM_READ_FAILED;
-	s->queued=false; s->output_size=0; return MATTER_OK;
+	s->queued=false; s->output_size=0; matter_im_output_release(s->output_pool,s,&s->output); return MATTER_OK;
 }
 Matter_Im_Read_State_T matter_im_read_state(Matter_Im_Read_T s) { return s ? s->state : MATTER_IM_READ_FAILED; }
 Matter_Result_T matter_im_read_delete(Matter_Im_Read_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r != MATTER_OK) return r;
-	matter_im_blocks_clear(&s->items); free(s->plan); free(s->input); free(s->output); free(s->filters); if(s->events) { matter_events_snapshot_clear(&s->events->records); matter_im_event_metadata_clear(&s->events->expansion,&s->events->paths,&s->events->filters); } matter_events_snapshot_clear(&s->event_tail); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+	matter_im_blocks_clear(&s->items); free(s->plan); free(s->input); matter_im_output_dispose(s->output_pool,s,&s->output); free(s->filters); if(s->events) { matter_events_snapshot_clear(&s->events->records); matter_im_event_metadata_clear(&s->events->expansion,&s->events->paths,&s->events->filters); } matter_events_snapshot_clear(&s->event_tail); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Read_T matter_im_read_new_case(const Matter_Im_Read_Port_T* p,const Matter_Im_Read_Fabric_Port_T* f,

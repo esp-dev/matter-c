@@ -5,6 +5,7 @@
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_writer.h"
 #include "matter_im_buffer_internal.h"
+#include "matter_im_output_internal.h"
 #include "matter_im_blocks_internal.h"
 #include <stdlib.h>
 #include <string.h>
@@ -74,6 +75,8 @@ struct Matter_Im_Subscribe {
     Matter_Im_Attribute_T attribute;
     Matter_Im_Value_T value;
     uint8_t *input, *output;
+    Matter_Im_Output_Pool* output_pool;
+    bool output_copied;
 };
 static uint64_t add(uint64_t a,uint64_t b) { return UINT64_MAX-a<b ? UINT64_MAX : a+b; }
 static Matter_Result_T check(Matter_Im_Subscribe_T s) { return !s ? MATTER_INVALID_ARGUMENT : s->busy ? MATTER_BUSY : MATTER_OK; }
@@ -87,6 +90,7 @@ static void release(Matter_Im_Subscribe_T s) {
 }
 static Matter_Result_T fail(Matter_Im_Subscribe_T s) {
     s->state=MATTER_IM_SUB_FAILED; s->queued=false; s->output_size=0; s->active=false;
+    matter_im_output_release(s->output_pool,s,&s->output);
     bool busy=s->busy; s->busy=true; release(s); s->busy=busy; return MATTER_PORT_ERROR;
 }
 static Matter_Result_T clock_check(Matter_Im_Subscribe_T s,uint64_t now) {
@@ -116,6 +120,12 @@ Matter_Im_Subscribe_T matter_im_subscribe_new_case(const Matter_Im_Subscribe_Por
     Matter_Im_Subscribe_Config_T config=*c; config.pase_commissionee=true;
     Matter_Im_Subscribe_T s=matter_im_subscribe_new(p,&config,now);
     if(s) { s->config=*c; s->fabric=*f; } return s;
+}
+Matter_Result_T matter_im_subscribe_bind_output_pool(Matter_Im_Subscribe_T s,Matter_Im_Output_Pool* pool) {
+    Matter_Result_T r=check(s); if(r) return r;
+    if(!pool) return MATTER_INVALID_ARGUMENT;
+    if(s->state!=MATTER_IM_SUB_WAITING || s->queued || s->output_pool) return MATTER_INVALID_STATE;
+    free(s->output); s->output=NULL; s->output_pool=pool; return MATTER_OK;
 }
 Matter_Result_T matter_im_subscribe_bind_events(Matter_Im_Subscribe_T s,const Matter_Im_Read_Events_Port_T* p) {
     Matter_Result_T r=check(s); if(r) return r;
@@ -662,6 +672,7 @@ static bool pending_change(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now) {
     Matter_Result_T r=check(s); if(r) return r;
     r=clock_check(s,now); if(r) return r;
+    if(s->output_copied || !matter_im_output_acquire(s->output_pool,s,&s->output)) return MATTER_PENDING;
         if((s->queued || s->state==MATTER_IM_SUB_EXPANDING || s->state==MATTER_IM_SUB_COLLECTING || s->state==MATTER_IM_SUB_BUILD_REPORT || (s->state==MATTER_IM_SUB_WAIT_STATUS && s->status_ok)) && !s->work) {
         s->work=calloc(1,sizeof(*s->work));
         if(!s->work) { s->now=now; clear_filters(s); matter_im_status_bytes(s->output,MATTER_IM_RESOURCE_EXHAUSTED,MATTER_IM_REVISION); s->output_size=8; s->opcode=1; s->phase=ERROR_REPLY; s->queued=false; s->state=MATTER_IM_SUB_OUTPUT; return MATTER_PENDING; }
@@ -739,6 +750,7 @@ Matter_Result_T matter_im_subscribe_process(Matter_Im_Subscribe_T s,uint64_t now
     if(!encoded) r=fail(s); else r=MATTER_PENDING;
     s->busy=false;
 finished:
+    if(s->state!=MATTER_IM_SUB_OUTPUT) matter_im_output_release(s->output_pool,s,&s->output);
     if(s->state!=MATTER_IM_SUB_WAITING && (!s->expanding || s->request_cursor==s->request_count)) { free(s->requests); s->requests=NULL; }
     if(!s->queued) { matter_im_workspace_delete(s->work,sizeof(*s->work)); s->work=NULL; }
     return r;
@@ -777,7 +789,17 @@ Matter_Result_T matter_im_subscribe_output(Matter_Im_Subscribe_T s,Matter_Im_Sub
     Matter_Result_T r=check(s); if(r) return r;
     if(!out) return MATTER_INVALID_ARGUMENT;
     if(s->state!=MATTER_IM_SUB_OUTPUT) return MATTER_INVALID_STATE;
+    if(s->output_copied) return MATTER_WOULD_BLOCK;
     *out=(Matter_Im_Subscribe_Message_T){s->output,s->output_size,s->opcode}; return MATTER_OK;
+}
+Matter_Result_T matter_im_subscribe_output_copied(Matter_Im_Subscribe_T s) {
+    Matter_Result_T r=check(s); if(r) return r;
+    if(s->state!=MATTER_IM_SUB_OUTPUT) return MATTER_INVALID_STATE;
+    if(s->output_pool) {
+        if(s->output_copied || s->output_pool->owner!=s) return MATTER_INVALID_STATE;
+        matter_im_output_release(s->output_pool,s,&s->output); s->output_copied=true;
+    }
+    return MATTER_OK;
 }
 Matter_Result_T matter_im_subscribe_sent_at(Matter_Im_Subscribe_T s,uint64_t now) {
     Matter_Result_T r=check(s); if(r) return r;
@@ -787,6 +809,7 @@ Matter_Result_T matter_im_subscribe_sent_at(Matter_Im_Subscribe_T s,uint64_t now
         if(!s->report_started) { s->last_report=now; s->report_started=true; }
         s->last_activity=now;
     } else if(s->phase==RESPONSE) s->active=true;
+    matter_im_output_release(s->output_pool,s,&s->output); s->output_copied=false;
     s->state=MATTER_IM_SUB_IN_FLIGHT; return MATTER_OK;
 }
 Matter_Result_T matter_im_subscribe_confirm(Matter_Im_Subscribe_T s,uint64_t now) {
@@ -810,5 +833,5 @@ Matter_Im_Subscribe_State_T matter_im_subscribe_state(Matter_Im_Subscribe_T s) {
 Matter_Result_T matter_im_subscribe_delete(Matter_Im_Subscribe_T s) {
     if(!s) return MATTER_OK;
     Matter_Result_T r=check(s); if(r) return r;
-    s->busy=true; release(s); matter_im_blocks_clear(&s->items); matter_im_blocks_clear(&s->values); free(s->input); free(s->output); if(s->events) matter_im_event_metadata_clear(&s->events->expansion,&s->events->paths,&s->events->filters); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
+    s->busy=true; release(s); matter_im_blocks_clear(&s->items); matter_im_blocks_clear(&s->values); free(s->input); matter_im_output_dispose(s->output_pool,s,&s->output); if(s->events) matter_im_event_metadata_clear(&s->events->expansion,&s->events->paths,&s->events->filters); free(s->events); matter_im_snapshots_clear(&s->snapshots); matter_im_workspace_delete(s->work,sizeof(*s->work)); free(s->requests); memset(s,0,sizeof(*s)); free(s); return MATTER_OK;
 }
