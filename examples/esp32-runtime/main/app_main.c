@@ -40,6 +40,13 @@
 #define REQUIRE(x) do { if(!(x)) { printf("RUNTIME_FAIL line=%u\n",(unsigned)__LINE__); abort(); } } while(0)
 static uint64_t now(void) { return (uint64_t)esp_timer_get_time()/1000; }
 #include "../../esp32-common/matter_lab_memory.h"
+#include "heap_audit.h"
+#if CONFIG_MATTER_C_RUNTIME_COMPARE_SAMPLER
+#include "../../esp32-common/matter_lab_heap_sample.h"
+#define COMPARE_REPORT(phase) matter_lab_heap_report("HEAP_SAMPLE",phase)
+#else
+#define COMPARE_REPORT(phase) ((void)0)
+#endif
 typedef struct {
     Matter_T owner; Matter_Discovery_T record; Matter_Idf_Discovery_T backend;
     bool stopping; uint64_t retry_at;
@@ -510,6 +517,9 @@ static void recovery_restart(App* a) {
     vTaskDelay(pdMS_TO_TICKS(200)); esp_restart();
 }
 void app_main(void) {
+#if CONFIG_MATTER_C_RUNTIME_COMPARE_SAMPLER
+    matter_lab_heap_start();
+#endif
 #if CONFIG_MATTER_C_RUNTIME_SOAK
     REQUIRE(heap_caps_register_failed_alloc_callback(matter_lab_soak_heap_failed)==ESP_OK);
 #endif
@@ -549,6 +559,9 @@ void app_main(void) {
         char c=0; (void)read(STDIN_FILENO,&c,1);
         if(c=='q') break;
         if(c=='r') recovery_restart(a);
+#if CONFIG_MATTER_C_RUNTIME_COMPARE_SAMPLER
+        if(c=='m') { COMPARE_REPORT("checkpoint"); tasks(); }
+#endif
         (void)matter_lab_soak_control(a->soak,c,a->wifi,a->runtime);
 #if CONFIG_MATTER_C_RUNTIME_SOAK
         const uint64_t sample_interval=5000;
@@ -557,7 +570,7 @@ void app_main(void) {
 #endif
         if(now()-last>sample_interval) {
             Matter_Idf_Udp_Stats_T stats=matter_idf_udp_stats(a->udp);
-            sample("runtime-serving");
+            sample("runtime-serving"); COMPARE_REPORT("runtime-serving");
             (void)matter_lab_soak_control(a->soak,'m',a->wifi,a->runtime);
             printf("NETWORK rx=%llu tx=%llu dropped=%lu oversize=%lu extensions=%lu rx_buffers=%lu rx_peak=%lu\n",
                 (unsigned long long)a->rx,(unsigned long long)a->tx,(unsigned long)stats.dropped,
@@ -567,7 +580,9 @@ void app_main(void) {
     }
     /* Preserve UDP/backend/radio/storage through runtime retirement and MRP
      * drain. A timeout never permits freeing the live runtime. */
+    HEAP_STATE("before-runtime-stop");
     while(matter_runtime_stop(a->runtime,now())!=MATTER_OK) pump(a);
+    HEAP_STATE("runtime-stopped");
     while(true) {
         bool done=true; for(unsigned j=0;j<6;++j) if(!ad_stop(&a->ads[j])) done=false;
         if(done) break;
@@ -575,6 +590,7 @@ void app_main(void) {
     }
     REQUIRE(matter_lab_soak_delete(a->soak)==MATTER_OK); a->soak=NULL;
     REQUIRE(matter_runtime_delete(a->runtime)==MATTER_OK); a->runtime=NULL;
+    HEAP_STATE("runtime-deleted");
 #if CONFIG_MATTER_C_RUNTIME_RGB
     while(!matter_lab_led_delete(a->led)) vTaskDelay(1);
     REQUIRE(matter_lab_rgb_delete(a->light)==MATTER_OK);
@@ -585,14 +601,27 @@ void app_main(void) {
         (void)matter_udp_process(matter_idf_udp_module(a->udp)); (void)matter_idf_udp_process(a->udp); vTaskDelay(1);
     }
     REQUIRE(matter_idf_udp_delete(a->udp)==MATTER_OK); REQUIRE(matter_delete(a->owner)==MATTER_OK);
-    mdns_free(); REQUIRE(lab_wifi_delete(a->wifi)==MATTER_OK); matter_idf_store_delete(a->disk);
+    HEAP_STATE("transport-deleted");
+    mdns_free(); HEAP_STATE("mdns-deleted");
+    REQUIRE(lab_wifi_delete(a->wifi)==MATTER_OK); matter_idf_store_delete(a->disk);
     REQUIRE(matter_crypto_mbedtls_delete(a->backend)==MATTER_OK);
+    HEAP_STATE("backend-deleted");
     REQUIRE(esp_event_handler_unregister(WIFI_EVENT,WIFI_EVENT_STA_CONNECTED,wifi_event)==ESP_OK);
     REQUIRE(esp_wifi_stop()==ESP_OK); REQUIRE(esp_wifi_deinit()==ESP_OK);
+    HEAP_STATE("wifi-deinitialized");
     esp_netif_destroy_default_wifi(a->iface); REQUIRE(esp_event_loop_delete_default()==ESP_OK);
+    HEAP_STATE("event-loop-deleted");
     REQUIRE(nvs_flash_deinit_partition("matter")==ESP_OK); REQUIRE(nvs_flash_deinit()==ESP_OK);
     memset(a,0,sizeof(*a)); free(a);
     REQUIRE(!matter_idf_memory().live && !matter_idf_memory().live_bytes); REQUIRE(heap_caps_check_integrity_all(true));
-    sample("complete"); tasks(); puts("RUNTIME_PASS");
+    COMPARE_REPORT("before-observer-stop");
+#if CONFIG_MATTER_C_RUNTIME_COMPARE_SAMPLER
+    matter_lab_heap_stop();
+#endif
+    sample("complete"); tasks(); HEAP_SETTLE(); HEAP_THREAD_BEFORE();
+    /* This laboratory's owner remains alive after its LAST socket/netif use.
+     * Release only its lwIP thread resource via the public SDK lifecycle API. */
+    lwip_socket_thread_cleanup(); REQUIRE(heap_caps_check_integrity_all(true));
+    HEAP_THREAD_AFTER(); sample("owner-thread-cleaned"); puts("RUNTIME_PASS");
     for(;;) vTaskDelay(pdMS_TO_TICKS(1000));
 }

@@ -18,7 +18,7 @@ def main():
     args.output.mkdir(parents=True,exist_ok=True)
     request=args.output/'control-request.json'
     request.unlink(missing_ok=True)
-    pending=None; ready=False; started=time.monotonic()
+    pending=None; ready=False; timer_sample=None; started=time.monotonic()
     with serial.Serial(args.port,115200,timeout=.1) as uart, (args.output/'uart.log').open('wb') as raw, (args.output/'events.jsonl').open('w',encoding='utf-8') as events, (args.output/'control-replies.jsonl').open('a',encoding='utf-8') as replies:
         uart.dtr=False
         if args.reset:
@@ -36,7 +36,7 @@ def main():
             raw.write(line); raw.flush()
             text=line.decode('utf-8',errors='replace').strip()
             record=None
-            for prefix in ('SOAK ','MEMORY ','TASK_MEMORY '):
+            for prefix in ('SOAK ','MEMORY ','TASK_MEMORY ','HEAP_SAMPLE ','HEAP_STATE ','HEAP_BLOCK ','HEAP_MAP ','HEAP_OWNER '):
                 if text.startswith(prefix):
                     record=dict(kind=prefix.strip(),data=json.loads(text[len(prefix):]))
                     break
@@ -49,11 +49,14 @@ def main():
                 return 1
             if 'RUNTIME_PASS' in text: record=dict(kind='PASS')
             if record:
+                if record['kind']=='HEAP_SAMPLE': timer_sample=record['data']
                 record['unix_ms']=int(time.time()*1000)
                 events.write(json.dumps(record)+'\n'); events.flush()
                 matches=pending and ((record['kind']=='SOAK' and record['data']['command']==pending['command']) or
                     (record['kind']=='PASS' and pending['command']=='q'))
                 if matches:
+                    if pending['command']=='m' and timer_sample and timer_sample['phase']=='checkpoint':
+                        record['data']['timer_sample']=timer_sample
                     # Append acknowledgements: replacing a file concurrently
                     # opened by Node can fail with Windows sharing violation.
                     replies.write(json.dumps(dict(id=pending['id'],record=record))+'\n')

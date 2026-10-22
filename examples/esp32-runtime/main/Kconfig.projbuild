@@ -15,6 +15,30 @@ config MATTER_C_RUNTIME_SOAK
         Samples internal heap every 100 ms and logs every five seconds.
         Local UART can inject one tracked allocation failure, reconnect the
         radio, drop RX briefly or defer one completion. No capacity changes.
+config MATTER_C_RUNTIME_COMPARE_SAMPLER
+    bool "SDK timer heap sampler for matched external-stack comparison"
+    depends on MATTER_C_RUNTIME_SOAK
+    default n
+    help
+        Adds the same 100 ms SDK timer observer as the ESP-Matter reference.
+        Includes short blocking crypto phases missed by owner-loop sampling.
+        Timer and observer costs are included. No protocol or limit changes.
+config MATTER_C_RUNTIME_HEAP_AUDIT
+    bool "Post-teardown heap maps and settled SDK memory samples"
+    depends on MATTER_C_RUNTIME_SOAK
+    default n
+    help
+        Laboratory-only allocation-free heap walks and samples through five
+        seconds after teardown. Prints addresses/sizes, never block contents.
+        UART logs belong in ignored private output. No protocol timer changes.
+config MATTER_C_RUNTIME_HEAP_QUEUE_OWNERS
+    bool "Record SDK queue/mutex creation sites for heap audit"
+    depends on MATTER_C_RUNTIME_HEAP_AUDIT
+    default n
+    help
+        Diagnostic link wrappers keep at most 128 live queue identities and
+        creation PCs in static RAM. No allocation or log inside wrappers.
+        Changes memory layout; use for attribution, not headline RAM numbers.
 config MATTER_C_RUNTIME_CHIP_RESUMPTION
     bool "Explicit CHIP-compatible CASE resumption traffic KDF for lab peers"
     default y

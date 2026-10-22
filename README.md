@@ -46,6 +46,14 @@ start at actual UDP send. The C6 sampled heap peak changes
 357148 ->334036 B, minimum sampled free heap
 60792 ->83944 B. The report also gives SDK free
 watermarks, largest blocks, lifecycle free-heap checkpoints and stack evidence.
+The [Memory21 report](doc/oss/memory21-validation.md) attributes persistent
+post-stop holes to SDK MPI/RMT mutex placement, adds settled heap observations
+and explicit owner-thread lwIP cleanup, and compares two physical C6 boards
+with ESP-Matter1.6.1/IDF6.0.2. A common SDK-timer sampler captures crypto peaks
+missed by owner-loop sampling. The C fixture leaves37772 B less free heap in
+the matched small-path loaded scenario despite69305 B less static D/IRAM;
+limits and model/configuration differences are explicit. It also corrects the
+previous main-stack reservation by IDF's additional512 B. No new CSA PASS.
 The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface

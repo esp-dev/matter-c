@@ -218,3 +218,10 @@ C6 run is short, not another hour or an exhaustive OOM/packet/stack proof.
 Next: measure settled post-stop heap and trace remaining SDK allocations to
 explain the complete-phase largest-block decrease before the secure-decrypt / RX
 reserve-authenticate-commit optimization.
+
+Later correction from [Memory21](memory21-validation.md): the recorded owner
+reservation used only the12288 B configuration value. IDF actually reserves
+12800 B for main in these builds. Absolute observed stack use therefore changes
+from the reported2760 ->2636 B to3272 ->3148 B; the124 B reduction is unchanged.
+Raw Memory20 observations remain intact. Memory21 also supplies the settled SDK
+mutex attribution and the separate SDK-timer peak sampler.

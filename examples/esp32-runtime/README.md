@@ -279,3 +279,22 @@ After capture, `python tests/summarize.py <private-run-directory> <summary.json>
 extracts selected telemetry and counters. `runtime_pass` means target drain and
 heap integrity, while `controller.pass` means the requested workload completed;
 require both for a successful `run`. Review the summary before publishing it.
+
+Memory21 adds two optional diagnostic profiles, both default off:
+`MATTER_C_RUNTIME_HEAP_AUDIT` samples settled post-stop heap through5s and
+prints paginated maps; `MATTER_C_RUNTIME_HEAP_QUEUE_OWNERS` adds a bounded
+128-entry SDK queue/libc-lock attribution table. The table changes layout, so
+use it for attribution rather than comparing headline free-heap figures.
+Walk callbacks copy at most eight descriptors and never format/allocate under
+the SDK heap lock. Maps expose stable/complete flags and never print contents.
+The normal lab now calls lwIP's public owner-thread cleanup after its last
+network operation and full drain. It does not delete global SDK locks.
+
+`MATTER_C_RUNTIME_COMPARE_SAMPLER` instead enables the same SDK-timer heap
+observer as the [external ESP-Matter reference](../esp-matter-memory/README.md).
+This catches blocking-crypto peaks missed by owner-loop sampling. Both modes
+include SDK/Wi-Fi allocations and dynamic stack reservations in internal8-bit
+heap; static RAM and IRAM remain separate. Task watermarks are measured bytes;
+the owner reservation now uses `ESP_TASK_MAIN_STACK`, including IDF's extra512 B
+in these builds, rather than only the configuration value. See the historical
+correction and measured limits in [Memory21](../../doc/oss/memory21-validation.md).

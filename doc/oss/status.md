@@ -1,5 +1,32 @@
 # Development status
 
+**Memory21: settled SDK heap attribution and physical external-stack reference.**
+Memory20 is committed as `230e815`. New optional lab maps identify persistent
+92-byte SDK RMT/MPI singleton mutexes that split large holes after core teardown.
+Waiting5s leaves largest blocks unchanged; tracked core allocations/bytes are
+zero. Explicit final owner-thread lwIP cleanup recovers112 B, without increasing
+the largest block. No SDK global is manually freed, and core limits/lifetimes,
+fail-safe and ACK/drain are unchanged.
+
+The matched five-fabric/15-session/15-subscription workload passes on COM23 C RGB
+and COM24 ESP-Matter1.6.1/IDF6.0.2. Static D/IRAM is110493 /179798 B; common
+SDK-timer heap peak256136 /143016 B; sampled minimum free163804 /206396 B;
+loaded free198856 /236628 B. These are complete lab profiles with different
+SDKs/models, not identical feature sets. The old C owner-loop sampler sees only
+227600 B peak here. Static memory and free heap must accompany comparisons.
+The owner-stack reporting correction adds IDF's512 B: actual main reservation
+12800 B, observed matched C use3288 B. See the report's historical erratum.
+
+Windows102/102, native quick chip-tool six groups in17.50s, final IDF builds,
+normal RGB/drain and the506s C-only OOM/loss/reconnect/held-TX regression pass.
+Reference path exhaustion and the initial C loaded own-fabric response timeout
+remain recorded. Final common cleanup uses explicit close/drain/fresh CASE;
+fully live three-session self-removal remains an unresolved edge-case finding.
+No official CSA rerun or matched reference fault campaign is claimed.
+See [Memory21 evidence](memory21-validation.md), [results](memory21-results.json)
+and [fast versus full regression strategy](memory-regression-strategy.md).
+
+**Previous Memory20 measurements (with the stack correction described above).**
 **Memory20: shared Read/Subscribe encoder, independent ciphertext and free heap.**
 Memory19 is committed as `95bbb14`. One private per-dispatcher encoder replaces
 retained engine outputs. Snapshot blocks and limits remain unchanged. The lease
@@ -23,7 +50,8 @@ is 36864 ->59392 B; observed owner stack
 SDK allocation failures and final tracked allocations/bytes are zero.
 Immediate complete-phase largest block drops303104 ->188416 B despite similar
 390k free and zero core allocations; SDK placement versus deferred reclamation
-remains unresolved. No blanket fragmentation improvement is claimed.
+was unresolved at Memory20; Memory21 attributes persistent SDK mutex placement.
+No blanket fragmentation improvement is claimed.
 
 An unchanged Memory19 baseline initially failed on a late subscription expiry
 inside deliberate RX-loss recovery. Its logs are retained and cleanup restored

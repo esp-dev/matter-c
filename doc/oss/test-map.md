@@ -4,6 +4,13 @@ test-map.json enumerates 257 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
+Memory21 adds external C6 reference/controller tools under
+`examples/esp-matter-memory/`, outside this native inventory's scope roots.
+The matched physical workload and failed exploratory cases are recorded in
+[Memory21](memory21-validation.md); the existing native chip-tool pair scenario
+also passes six assertion groups in17.50s. No native definition, PICS value or
+official CSA result changes. See the [regression strategy](memory-regression-strategy.md).
+
 Memory19 registers the existing allocation-fault RX fixture as `test_rx_alloc`.
 It covers all five constructor OOM positions and 1000 allocation-free packet/ACK
 cycles. New held-delivery scenarios also fail the next allocation while testing

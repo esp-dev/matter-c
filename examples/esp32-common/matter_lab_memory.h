@@ -6,6 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_heap_caps.h"
+#include "esp_task.h"
 #include "matter_idf_memory.h"
 static void tasks(void) {
     typedef struct { unsigned id,free; char name[configMAX_TASK_NAME_LEN]; } Task;
@@ -38,7 +39,7 @@ static void sample(const char* phase) {
         "\"largest_free\":%u,\"owner_stack_reserved\":%u,\"owner_stack_min_free\":%u,"
         "\"core_live\":%u,\"core_bytes\":%u,\"core_peak\":%u,\"core_largest\":%u,\"core_failures\":%u}\n",
         phase,(unsigned long long)now(),(unsigned)info.total_free_bytes,(unsigned)info.total_allocated_bytes,(unsigned)info.minimum_free_bytes,
-        (unsigned)info.largest_free_block,CONFIG_ESP_MAIN_TASK_STACK_SIZE,free_stack,
+        (unsigned)info.largest_free_block,(unsigned)ESP_TASK_MAIN_STACK,free_stack,
         (unsigned)m.live,(unsigned)m.live_bytes,(unsigned)m.peak_bytes,(unsigned)m.largest_request,(unsigned)m.failures);
 }
 #endif
