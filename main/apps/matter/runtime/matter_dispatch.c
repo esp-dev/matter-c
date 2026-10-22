@@ -55,9 +55,13 @@ struct Matter_Dispatch {
     Matter_Unsecured_Rx_T ingress; Matter_Unsecured_Tx_T transport;
     Matter_Counter_T counter; Route routes[ROUTES]; Connection connections[CONNECTIONS];
     Transaction *transactions,*last_transaction; size_t transaction_count,transaction_limit; uint16_t subscriptions_per_fabric;
-    Matter_Udp_Path_T received_path; uint8_t inbox[PACKET],plain[PACKET],ack[ACK_PACKET],delivery[PACKET];
+    Matter_Udp_Path_T received_path; uint8_t inbox[PACKET],ack[ACK_PACKET];
+    /* RX delivery is consumed synchronously before transaction processing can
+     * compose TX plaintext. Neither span escapes that phase. ACK and immutable
+     * transaction ciphertext have independent asynchronous lifetimes. */
+    union { uint8_t delivery[PACKET],plain[PACKET]; } work;
     size_t inbox_size; Matter_Rx_Decision_T decision;
-    bool queued,delivered,ack_waiting,stopping,stopped,started;
+    bool queued,delivered,ack_waiting,stopping,stopped,started,processing;
     uint64_t now,request,producer,next_token; uint32_t next_subscription; uint16_t next_id;
     Connection* sending; Matter_Exchange_Session_T ack_token;
     bool completion; Matter_Operation_Result_T outcome;
@@ -113,6 +117,7 @@ static Transaction* transaction(Matter_Dispatch_T d,const Matter_Exchange_Info_T
  * Allocate before sealing/taking the counter: OOM never consumes a nonce. */
 static Matter_Result_T prepare_packet(Transaction* t,size_t plain_size,uint32_t* counter) {
     Matter_Dispatch_T d=t->owner; Connection* c=connection(d,t->key.session);
+    if(d->delivered) return MATTER_BUSY;
     if(t->packet) return MATTER_BUSY; /* Never replace retained ciphertext. */
     size_t overhead=c?MATTER_SECURE_OVERHEAD:MATTER_UNSECURED_OVERHEAD;
     if(plain_size>PACKET-overhead) return MATTER_LIMIT_REACHED;
@@ -121,11 +126,11 @@ static Matter_Result_T prepare_packet(Transaction* t,size_t plain_size,uint32_t*
     Matter_Result_T r;
     if(c) {
         Matter_Secure_Prepared_T p;
-        r=matter_secure_channel_prepare(c->channel,d->plain,plain_size,d->now,t->packet,capacity,&p);
+        r=matter_secure_channel_prepare(c->channel,d->work.plain,plain_size,d->now,t->packet,capacity,&p);
         if(r==MATTER_OK) { t->size=p.size; *counter=p.counter; }
     } else {
         Matter_Unsecured_Prepared_T p;
-        r=matter_unsecured_prepare_encoded(d->unsecured,t->key.session,&d->counter,d->plain,plain_size,t->packet,capacity,&p);
+        r=matter_unsecured_prepare_encoded(d->unsecured,t->key.session,&d->counter,d->work.plain,plain_size,t->packet,capacity,&p);
         if(r==MATTER_OK) { t->size=p.size; *counter=p.counter; }
     }
     if(r!=MATTER_OK) release_packet(t);
@@ -294,9 +299,9 @@ static Matter_Result_T dependencies(void* u) {
 }
 static void delivered(void* u,const Matter_Rx_Decision_T* in) {
     Matter_Dispatch_T d=u;
-    if(d->delivered || in->payload_size>sizeof(d->delivery)) return;
-    d->decision=*in; memcpy(d->delivery,in->payload,in->payload_size);
-    d->decision.payload=d->delivery; d->delivered=true;
+    if(d->delivered || in->payload_size>sizeof(d->work.delivery)) return;
+    d->decision=*in; memcpy(d->work.delivery,in->payload,in->payload_size);
+    d->decision.payload=d->work.delivery; d->delivered=true;
 }
 static Matter_Result_T tx_retain(void* u,const Matter_Exchange_Info_T* k,const uint8_t* bytes,size_t size) {
     Transaction* t=transaction(u,k);
@@ -782,7 +787,9 @@ static void dispose(Transaction* t) {
     free_transaction(t);
 }
 static void process_transaction(Transaction* t) {
-    Matter_Dispatch_T d=t->owner; release_packet(t); confirm(t);
+    Matter_Dispatch_T d=t->owner;
+    if(d->delivered) return; /* Work still belongs to RX, including callbacks. */
+    release_packet(t); confirm(t);
     delivery_slot(t);
     if((t->busy_reply || t->im_busy) && d->now>=t->busy_deadline) t->closing=true;
     if(!t->pending && t->invoke && t->write && t->timed_target) {
@@ -811,8 +818,8 @@ static void process_transaction(Transaction* t) {
         Matter_Protocol_Header_T h={.opcode=0x40,.exchange_id=t->key.exchange_id,
             .exchange_flags=MATTER_PROTOCOL_ACK,.acknowledged_message_counter=t->received_counter};
         uint32_t counter;
-        if(matter_protocol_header_write(&h,d->plain,sizeof(d->plain),&n)!=MATTER_MESSAGE_OK) { t->closing=true; return; }
-        memcpy(d->plain+n,busy,sizeof(busy));
+        if(matter_protocol_header_write(&h,d->work.plain,sizeof(d->work.plain),&n)!=MATTER_MESSAGE_OK) { t->closing=true; return; }
+        memcpy(d->work.plain+n,busy,sizeof(busy));
         Matter_Result_T r=prepare_packet(t,n+sizeof(busy),&counter);
         if(r==MATTER_OK) r=matter_unsecured_tx_send(d->transport,t->key.session,t->packet,t->size,&d->request);
         if(r==MATTER_PENDING) { d->control=true; d->control_transaction=t; d->sending=NULL; d->ack_token=0; t->pending=true; }
@@ -919,8 +926,8 @@ static void process_transaction(Transaction* t) {
     Matter_Protocol_Header_T h={.protocol_id=(t->pase || t->case_attempt)?0:bdx_out.data?bdx_out.protocol:1,.opcode=out.opcode,.exchange_id=t->key.exchange_id,
         .exchange_flags=MATTER_PROTOCOL_RELIABLE|(t->key.initiator?MATTER_PROTOCOL_INITIATOR:0)|
             (t->has_ack?MATTER_PROTOCOL_ACK:0),.acknowledged_message_counter=t->received_counter};
-    size_t n; if(matter_protocol_header_write(&h,d->plain,sizeof(d->plain),&n)!=MATTER_MESSAGE_OK || out.size>sizeof(d->plain)-n) { t->closing=true; return; }
-    memcpy(d->plain+n,out.data,out.size); n+=out.size; uint32_t counter;
+    size_t n; if(matter_protocol_header_write(&h,d->work.plain,sizeof(d->work.plain),&n)!=MATTER_MESSAGE_OK || out.size>sizeof(d->work.plain)-n) { t->closing=true; return; }
+    memcpy(d->work.plain+n,out.data,out.size); n+=out.size; uint32_t counter;
     r=prepare_packet(t,n,&counter);
     if(r!=MATTER_OK) { t->closing=true; return; }
     r=matter_retransmission_sender_add(d->tx,&t->key,counter,t->packet,t->size,&t->message);
@@ -1008,8 +1015,8 @@ bool matter_dispatch_removal_pending(Matter_Dispatch_T d) {
         if(d->connections[i].token && d->connections[i].removal_reply && !d->connections[i].retiring) return true;
     return false;
 }
-Matter_Result_T matter_dispatch_process(Matter_Dispatch_T d,uint64_t now) {
-    if(!d || now<d->now) return MATTER_INVALID_ARGUMENT;
+static Matter_Result_T dispatch_process(Matter_Dispatch_T d,uint64_t now) {
+    if(now<d->now) return MATTER_INVALID_ARGUMENT;
     d->now=now; Matter_Result_T result=take_completion(d); if(result!=MATTER_OK) return result;
     reconcile(d);
     resolve_process(d);
@@ -1030,7 +1037,12 @@ Matter_Result_T matter_dispatch_process(Matter_Dispatch_T d,uint64_t now) {
         d->queued=false;
     }
     d->ack_waiting=false; (void)matter_rx_process(d->rx,now);
-    if(d->delivered) { if(!d->stopping) dispatch(d); d->delivered=false; }
+    if(d->delivered) {
+        if(!d->stopping) dispatch(d);
+        /* Handshake/server IM copied input; client/BDX consumed it (and any
+         * borrowed sink bytes) before return. End the RX view before TX reuse. */
+        d->decision.payload=NULL; d->decision.payload_size=0; d->delivered=false;
+    }
     for(Transaction *t=d->transactions,*next;t;t=next) { next=t->next; if(t->handle) process_transaction(t); }
     (void)matter_retransmission_sender_process(d->tx,now);
     for(unsigned i=0;i<CONNECTIONS;++i) { Connection* c=&d->connections[i]; if(c->retiring) {
@@ -1049,8 +1061,16 @@ Matter_Result_T matter_dispatch_process(Matter_Dispatch_T d,uint64_t now) {
     if(d->stopping) (void)matter_dispatch_retire(d,true);
     return d->stopped?MATTER_OK:MATTER_PENDING;
 }
+Matter_Result_T matter_dispatch_process(Matter_Dispatch_T d,uint64_t now) {
+    if(!d) return MATTER_INVALID_ARGUMENT;
+    if(d->processing) return MATTER_BUSY;
+    d->processing=true;
+    Matter_Result_T r=dispatch_process(d,now);
+    d->processing=false; return r;
+}
 Matter_Result_T matter_dispatch_stop(Matter_Dispatch_T d) {
     if(!d) return MATTER_OK;
+    if(d->processing) return MATTER_BUSY;
     d->stopping=true;
     for(Transaction* t=d->transactions;t;t=t->next) t->closing=true;
     (void)matter_unsecured_rx_close(d->ingress);
@@ -1064,6 +1084,7 @@ Matter_Result_T matter_dispatch_stop(Matter_Dispatch_T d) {
 }
 Matter_Result_T matter_dispatch_delete(Matter_Dispatch_T d) {
     if(!d) return MATTER_OK;
+    if(d->processing) return MATTER_BUSY;
     if(!d->stopped || d->request || d->outgoing.resolve) return MATTER_BUSY;
     if(d->transactions) return MATTER_BUSY;
     for(unsigned i=0;i<MATTER_IM_SNAPSHOT_BUCKETS;++i) if(d->snapshots.buckets[i]) return MATTER_BUSY;
@@ -1140,6 +1161,7 @@ static Matter_Result_T outgoing_start(Matter_Dispatch_T d,uint8_t fabric,uint64_
 }
 Matter_Result_T matter_dispatch_invoke(Matter_Dispatch_T d,uint8_t fabric,uint64_t node,
     const Matter_Im_Command_Path_T* path,uint32_t response,const uint8_t* fields,size_t size,uint64_t* id) {
+    if(d && d->processing) return MATTER_BUSY;
     Matter_Im_Client_T client=matter_im_client_new(path,response,fields,size); if(!client) return MATTER_LIMIT_REACHED;
     Matter_Result_T r=outgoing_start(d,fabric,node,client,NULL,id);
     if(r!=MATTER_PENDING) matter_im_client_delete(client);
@@ -1148,12 +1170,14 @@ Matter_Result_T matter_dispatch_invoke(Matter_Dispatch_T d,uint8_t fabric,uint64
 Matter_Result_T matter_dispatch_bdx(Matter_Dispatch_T d,uint8_t fabric,uint64_t node,
     const uint8_t* fd,size_t size,const Matter_Bdx_Sink_T* sink,uint64_t limit,uint64_t* id) {
     if(!d) return MATTER_INVALID_ARGUMENT;
+    if(d->processing) return MATTER_BUSY;
     Matter_Bdx_T b=matter_bdx_new(fd,size,1024,limit,sink,d->now); if(!b) return MATTER_LIMIT_REACHED;
     Matter_Result_T r=outgoing_start(d,fabric,node,NULL,b,id);
     if(r!=MATTER_PENDING) matter_bdx_delete(b);
     return r;
 }
 Matter_Result_T matter_dispatch_bdx_take(Matter_Dispatch_T d,uint64_t id,uint64_t* bytes) {
+    if(d && d->processing) return MATTER_BUSY;
     if(!d || !id || id!=d->outgoing.id || !bytes || !d->outgoing.bdx) return MATTER_INVALID_ARGUMENT;
     if(d->outgoing.resolve || outgoing_transactions(d)) return MATTER_PENDING;
     /* Fabric may have changed in the last dispatched command after the job's
@@ -1170,6 +1194,7 @@ void matter_dispatch_invoke_cancel(Matter_Dispatch_T d,uint64_t id) {
     if(d && id && id==d->outgoing.id) d->outgoing.cancelled=true;
 }
 Matter_Result_T matter_dispatch_invoke_take(Matter_Dispatch_T d,uint64_t id,uint8_t* status,const uint8_t** fields,size_t* size) {
+    if(d && d->processing) return MATTER_BUSY;
     if(!d || !id || id!=d->outgoing.id || !status || !fields || !size) return MATTER_INVALID_ARGUMENT;
     if(d->outgoing.resolve || outgoing_transactions(d)) return MATTER_PENDING;
     Matter_Exchange_Session_T ignored;

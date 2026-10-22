@@ -9,6 +9,9 @@
 /* Host composition of existing engines, one application owner. No socket,
  * thread or clock. Ports/root/UDP outlive delete. Receive/sent only copy events;
  * process performs protocol work outside UDP callbacks. All storage is owned.
+ * Delivery and TX plaintext share per-instance storage in disjoint phases.
+ * Recursive process/stop/delete and outgoing start/take during process return
+ * BUSY without effects; received/sent may still enqueue their separate events.
  * Bounded host profile (matter_host_limits.h): 3 CASE sessions/fabric, one PASE,
  * configurable subscriptions/fabric, one Read/fabric, global one Invoke/Write.
  * Root CapabilityMinima.subscriptions is the single source of that budget.

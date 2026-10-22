@@ -28,6 +28,7 @@ typedef struct {
     bool ack_pase_failures,pending_failure_ack; uint32_t failure_counter; uint16_t failure_exchange;
     bool fail_store,fail_clock,fail_initialize,fail_snapshot,hold_radio,fail_radio;
     bool fail_network,oversized_network,invalid_network,network_online;
+    bool reenter; unsigned reentries; Matter_Runtime_T other;
     uint64_t wifi_token; bool cancelling,hold_cancel;
     Matter_Cluster_T time_sync; Matter_Time_Sync_Sample_T time_sample;
 } Node;
@@ -63,6 +64,15 @@ static Matter_Result_T initialize(void* u,const Matter_Wifi_Settings_T* s,const 
 }
 static Matter_Result_T pump(void* u,Matter_Wifi_T w,uint64_t now) {
     Node* n=u; ++n->pumps;
+    if(n->reenter) {
+        n->reenter=false; /* A missing guard fails finitely, rather than recursing. */
+        unsigned pumps=n->pumps;
+        CHECK(matter_runtime_process(n->runtime,now+1000)==MATTER_BUSY);
+        CHECK(matter_runtime_stop(n->runtime,now+1000)==MATTER_BUSY);
+        CHECK(matter_runtime_delete(n->runtime)==MATTER_BUSY && n->pumps==pumps);
+        Matter_Result_T peer=matter_runtime_process(n->other,now);
+        CHECK(peer==MATTER_OK || peer==MATTER_PENDING); ++n->reentries;
+    }
     if(n->cancelling) n->hold_cancel=false; /* Simulated deferred hardware drain. */
     Matter_Result_T r=matter_wifi_process(w,now);
     return n->fail_radio?MATTER_PORT_ERROR:n->hold_radio?MATTER_PENDING:r;
@@ -335,8 +345,10 @@ int main(void) {
     CHECK(matter_runtime_fabrics(a->runtime)!=matter_runtime_fabrics(b->runtime));
     CHECK(matter_runtime_set_certificate_validity(a->runtime,true)==MATTER_INVALID_STATE);
     CHECK(matter_runtime_commissionable(a->runtime) && matter_runtime_commissionable(b->runtime));
+    a->other=b->runtime; a->reenter=true;
     for(uint64_t now=1;now<20;++now) { run(a,now); run(b,now*2); }
-    CHECK(a->pumps==19 && b->pumps==19);
+    CHECK(a->reentries==1 && a->pumps==19 && b->pumps==20);
+    puts("PASS runtime process reentry: future-clock process/stop/delete BUSY without effects; independent nested peer allowed");
     diagnostic_time(a,b);
     diagnostic_network(a,b);
     Matter_Store_Host_T sa=matter_runtime_store(a->runtime),sb=matter_runtime_store(b->runtime);
@@ -357,7 +369,7 @@ int main(void) {
     CHECK(matter_runtime_stop(a->runtime,20)==MATTER_PENDING);
     CHECK(matter_runtime_delete(a->runtime)==MATTER_BUSY);
     close_runtime(a,20); free(response); run(b,50);
-    CHECK(b->pumps==20 && matter_runtime_commissionable(b->runtime));
+    CHECK(b->pumps==21 && matter_runtime_commissionable(b->runtime));
     /* Recreate A from its own blob while B retains live dispatcher/events. */
     start_node(a); run(a,1); run(b,60);
     CHECK(matter_store_host_event_load(matter_runtime_store(a->runtime),&a->event_high)==MATTER_OK && a->event_high>ha+100);

@@ -4,6 +4,15 @@ test-map.json enumerates 257 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
+Memory18 extends `test_dispatch` with full-size delivery ownership, premature TX
+rejection, reentry from real PASE construction and secure sealing, a queued RX
+event during sealing, and ciphertext overwrite/ACK-before-UDP/drain checks.
+Recursive process/control/outgoing operations leave the instance and outputs
+unchanged and allocate nothing. `test_runtime` and its allocation variant reject
+recursive process/stop/delete before a future clock can be published, while
+allowing a nested independent peer. The optional C6 SOAK image also probes runtime
+reentry from its actual diagnostics callback; this is separate physical coverage.
+
 Memory17 adds `test_im_short_reports` (`test_im_subscribe_alloc --memory-short`):
 15 subscriptions x512 short values plus five concurrent large-list Reads.
 Snapshot tests verify the 8/9-byte boundary, no short-value allocations, scratch

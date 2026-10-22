@@ -34,7 +34,7 @@ struct Matter_Runtime {
     Matter_Ota_Update_T update; Matter_Ota_Signed_T proof;
     Matter_Events_T events; uint64_t applying_event; bool applying_event_valid;
     uint64_t notify; uint8_t notify_args[48]; bool ota_reboot,applied_event;
-    uint64_t deadline; bool window,enhanced,stopping,stopped,reset,recovering;
+    uint64_t deadline; bool window,enhanced,stopping,stopped,reset,recovering,processing;
     uint64_t commissioning_epoch; unsigned commissioning_failures;
     bool close_failed_window;
     char log_buffer[384];
@@ -620,8 +620,7 @@ static Matter_Result_T recover(Matter_Runtime_T s,uint64_t now) {
     if(r==MATTER_OK) s->recovering=false;
     return r;
 }
-Matter_Result_T matter_runtime_process(Matter_Runtime_T s,uint64_t now) {
-    if(!s) return MATTER_OK;
+static Matter_Result_T runtime_process(Matter_Runtime_T s,uint64_t now) {
     if(now<s->now || s->stopped) return MATTER_INVALID_STATE;
     s->now=now;
     if(s->recovering) {
@@ -664,8 +663,16 @@ Matter_Result_T matter_runtime_process(Matter_Runtime_T s,uint64_t now) {
     if(r==MATTER_OK || r==MATTER_PENDING) notify_process(s);
     return r;
 }
+Matter_Result_T matter_runtime_process(Matter_Runtime_T s,uint64_t now) {
+    if(!s) return MATTER_OK;
+    if(s->processing) return MATTER_BUSY;
+    s->processing=true;
+    Matter_Result_T r=runtime_process(s,now);
+    s->processing=false; return r;
+}
 Matter_Result_T matter_runtime_stop(Matter_Runtime_T s,uint64_t now) {
     if(!s) return MATTER_OK;
+    if(s->processing) return MATTER_BUSY;
     if(now<s->now) return MATTER_INVALID_ARGUMENT;
     if(s->stopped) return MATTER_OK;
     s->stopping=true; s->window=false; s->enhanced=false; s->now=now;
@@ -689,6 +696,7 @@ Matter_Result_T matter_runtime_stop(Matter_Runtime_T s,uint64_t now) {
 }
 Matter_Result_T matter_runtime_delete(Matter_Runtime_T s) {
     if(!s) return MATTER_OK;
+    if(s->processing) return MATTER_BUSY;
     if(!s->stopped || s->download || s->notify || matter_ota_apply_busy(s->apply) || matter_ota_query_stop(s->query)!=MATTER_OK || matter_dispatch_delete(s->dispatch)!=MATTER_OK) return MATTER_BUSY;
     s->dispatch=NULL;
     if(matter_ota_query_delete(s->query)!=MATTER_OK) return MATTER_BUSY;

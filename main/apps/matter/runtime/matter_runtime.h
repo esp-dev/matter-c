@@ -91,6 +91,8 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T,Matter_T,Matter_Udp_T,Matt
 void matter_runtime_received(Matter_Runtime_T,const Matter_Udp_Datagram_T*);
 void matter_runtime_sent(Matter_Runtime_T,uint64_t,Matter_Operation_Result_T);
 void matter_runtime_changed(Matter_Runtime_T);
+/* Recursive process, or stop/delete from its callbacks, returns BUSY before
+ * advancing clocks or models. This is an owner-thread guard, not a mutex. */
 Matter_Result_T matter_runtime_process(Matter_Runtime_T,uint64_t now_ms);
 bool matter_runtime_commissionable(Matter_Runtime_T);
 uint8_t matter_runtime_commissioning_mode(Matter_Runtime_T,uint16_t* discriminator);

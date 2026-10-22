@@ -1,5 +1,25 @@
 # Development status
 
+**Memory18: delivery/plain phase sharing with reentry guards.**
+Memory17 is committed as `b122565`. One per-instance work area reduces the C6
+dispatcher 7096 ->5864 B without a new allocation or changing limits. Delivery
+ends before TX composition; inbox, ACK and retained ciphertext stay independent.
+Dispatcher and enclosing runtime reject recursive processing/control before
+changing bytes, clocks or models. Normal fail-safe retirement and event queues
+remain usable; this owner-thread guard does not provide thread synchronization.
+
+Consecutive short C6 RGB runs pass with five fabrics,15 protected CASE sessions/
+subscriptions,71 full Reads each, OOM, RX loss, reconnect and held-TX drain.
+Sampled heap peak is357584 ->356980 B, tracked peak265272 ->264412 B; minimum
+sampled largest block remains35840 B. Observed owner stack is2728 ->2696 B of
+12288 B reserved; SDK allocation failures and final tracked live bytes are zero.
+The fixed1232 B owner saving is distinct from variable whole-device peaks.
+Windows101/101, Linux98/98 per normal/sanitizer build, five focused Memcheck
+cases and full two-instance6/6 under Memcheck/separate sanitizers pass. Both C6
+profiles compile and actual diagnostics-callback reentry is rejected on C6.
+See [report](memory18-validation.md) and [results](memory18-results.json).
+Next: audit/remove the RX-service-to-delivery copy with deferred ACK/drain intact.
+
 **Memory17: inline short snapshots and packet-buffer lifetime audit.**
 Memory16 is committed as `16fe40d`. Validated values through eight encoded bytes
 now live in the existing 16 B C6 capture record; common accessors preserve Read

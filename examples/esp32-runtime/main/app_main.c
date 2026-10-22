@@ -56,6 +56,9 @@ typedef struct {
     Matter_Wifi_Settings_T initial; uint8_t key[32],mac[6];
     esp_ip6_addr_t addresses[CONFIG_LWIP_IPV6_NUM_ADDRESSES];
     Ad ads[6]; uint8_t mode; uint16_t disc; bool advertised;
+#if CONFIG_MATTER_C_RUNTIME_SOAK
+    bool reentry_probe;
+#endif
     uint64_t rx,tx;
 } App;
 static Matter_Result_T utc(void* user,Matter_Cert_Time_T* out) {
@@ -77,6 +80,16 @@ static Matter_Result_T regulatory(void* user,const Matter_Root_Settings_T* setti
 }
 static Matter_Result_T network(void* user,Matter_Diagnostics_Interface_T* out,size_t cap,size_t* count) {
     App* a=user; *count=1; if(!cap) return MATTER_LIMIT_REACHED;
+#if CONFIG_MATTER_C_RUNTIME_SOAK
+    if(a->reentry_probe) {
+        a->reentry_probe=false;
+        uint64_t future=now()+1000;
+        REQUIRE(matter_runtime_process(a->runtime,future)==MATTER_BUSY);
+        REQUIRE(matter_runtime_stop(a->runtime,future)==MATTER_BUSY);
+        REQUIRE(matter_runtime_delete(a->runtime)==MATTER_BUSY);
+        puts("REENTRY_PASS runtime-process-stop-delete callback");
+    }
+#endif
     memset(out,0,sizeof(*out)); memcpy(out->name,"wifi",4); out->name_size=4; out->type=1;
     out->reachable4=out->reachable6=-1; memcpy(out->hardware+2,a->mac,6);
     out->operational=esp_netif_is_netif_up(a->iface);
@@ -525,6 +538,7 @@ void app_main(void) {
     a->soak=matter_lab_soak_new();
 #if CONFIG_MATTER_C_RUNTIME_SOAK
     REQUIRE(a->soak);
+    a->reentry_probe=true; /* Next diagnostics snapshot is inside runtime process. */
 #endif
     for(unsigned j=0;j<200;++j) pump(a);
     sample("runtime-serving"); tasks(); puts("RUNTIME_READY port=5540 pin=20202021");

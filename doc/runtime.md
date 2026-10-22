@@ -38,6 +38,23 @@ and persistent images should not be placed on an embedded task stack.
    External clusters/events remain caller-owned. Recreate a fresh instance to
    restart; it reloads only its own persisted blob.
 
+The runtime rejects recursive `process`, and `stop`/`delete` from an active
+`process` callback, with `MATTER_BUSY` before changing clocks or models. The
+dispatcher also rejects recursive processing/control and outgoing start/take
+during processing. This is an owner-thread guard, not synchronization for
+concurrent threads or permission for arbitrary callback reentry. Completion
+callbacks can still enqueue received datagrams and send completion metadata in
+their separate storage; another independently owned runtime can be processed.
+
+Dispatcher delivery and TX plaintext share one per-instance 1232-byte work area.
+Delivery owns it until synchronous handler receive returns: handshake/server IM
+handlers copy input, client parsing and BDX sink writes consume it synchronously.
+Only then can TX compose plaintext. The delivery view is cleared at the phase
+boundary. Inbox, deferred RX bytes, standalone ACK and immutable transaction
+ciphertext remain separate. In particular, peer ACK cannot release a packet
+still borrowed by UDP; the normal completion, retry and drain gates are intact.
+No crypto input/output overlap is introduced. See [Memory18](oss/memory18-validation.md).
+
 Strict operational certificate validation reads the supplied UTC callback at
 verification, not a cached construction time. The explicit CHIP validity
 profile still waives only validity dates, preserving signatures/root/identity.

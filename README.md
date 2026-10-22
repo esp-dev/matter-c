@@ -30,6 +30,10 @@ snapshots and the packet-buffer lifetime audit. Encoded values through eight
 bytes need no separate payload allocation; the C6 snapshot record stays 16 B.
 The standalone unsecured ACK envelope falls 1232 ->26 B without changing UDP
 limits or asynchronous completion/ACK ownership.
+The [Memory18 report](doc/oss/memory18-validation.md) covers guarded phase sharing
+of delivery/TX plaintext: the C6 dispatcher falls 7096 ->5864 B while inbox, ACK
+and retained ciphertext remain independent. Recursive processing/control is
+rejected before work bytes or clocks can change.
 The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface
