@@ -407,6 +407,77 @@ static void wire_deactivate(void* u,Matter_Operation_Id_T id) { (void)u;(void)id
 static Matter_Result_T wire_send(void* u,uint64_t id,const Matter_Udp_Datagram_T* p) { (void)id; ((Wire*)u)->borrowed=p; return MATTER_OK; }
 static void wire_cancel(void* u,uint64_t id) { (void)u;(void)id; }
 static void wire_detach(void* u) { (void)u; }
+/* A stale ACK on the invoking CASE session must not starve its final MRP
+ * response. Other sessions of that fabric retire; the reply retains its real
+ * UDP borrow through completion, including an early peer ACK and local OOM. */
+static bool removal_live(void* u,uint8_t index) { return index!=1 || !*(bool*)u; }
+static void removal_ack_priority(Matter_T owner,Matter_Root_T root,const Matter_Udp_Address_T* bind) {
+    Matter_Crypto_Mbedtls_T crypto=matter_crypto_mbedtls_new(NULL); CHECK(crypto);
+    Matter_Crypto_Port_T port; CHECK(!matter_crypto_mbedtls_port(crypto,&port));
+    for(unsigned mode=0;mode<5;++mode) {
+        size_t before=live_bytes; bool revoked=false,fail_random=false; Wire wire={0};
+        Matter_Udp_Port_T wp={&wire,wire_activate,wire_deactivate,wire_send,wire_cancel,wire_detach};
+        Matter_Udp_T udp=matter_udp_new(owner,&wp,NULL); CHECK(udp && !matter_udp_start(udp));
+        Matter_Dispatch_Config_T cfg={.root=root,.crypto={.user=&fail_random,.random=entropy},.user=&revoked,.fabric_live=removal_live};
+        Matter_Dispatch_T d=matter_dispatch_new(owner,udp,&cfg); CHECK(d);
+        Matter_Udp_Path_T path={.local=*bind,.peer=*bind}; path.local.port=5540; path.peer.port=9;
+        for(unsigned i=0;i<3;++i) {
+            Connection* c=&d->connections[i]; c->token=100+i; c->operational=true; c->fabric_index=i==2?2:1;
+            c->secure=matter_secure_from_case(&port,&i,take_keys,0); CHECK(c->secure);
+            c->channel=matter_secure_channel_new(c->secure,c->token,&path); CHECK(c->channel);
+        }
+        Transaction* old=new_transaction(d); CHECK(old);
+        CHECK(!matter_rx_initiate(d->rx,100,&old->handle) && !matter_rx_get(d->rx,old->handle,&old->key));
+        uint8_t input[16]; size_t n;
+        Matter_Protocol_Header_T h={.protocol_id=1,.opcode=1,.exchange_id=old->key.exchange_id,.exchange_flags=MATTER_PROTOCOL_RELIABLE};
+        CHECK(!matter_protocol_header_write(&h,input,sizeof(input),&n));
+        Matter_Rx_Input_T rx={100,77,false,input,n}; CHECK(!matter_rx_receive(d->rx,&rx,0));
+        CHECK(matter_rx_process(d->rx,0)==MATTER_PENDING && d->delivered);
+        d->delivered=false; d->decision=(Matter_Rx_Decision_T){0}; CHECK(!matter_rx_delivery_release(d->rx));
+        old->closing=true; CHECK(matter_rx_close(d->rx,old->handle)==MATTER_PENDING);
+        if(mode==4) {
+            CHECK(matter_rx_process(d->rx,0)==MATTER_PENDING && wire.borrowed && d->request);
+        }
+        Transaction* reply=new_transaction(d); CHECK(reply);
+        CHECK(!matter_rx_initiate(d->rx,100,&reply->handle) && !matter_rx_get(d->rx,reply->handle,&reply->key));
+        busy(reply,true); d->connections[0].removal_reply=reply->handle; d->connections[0].removal_deadline=30000;
+        revoked=true;
+        if(mode==3) fail_at=calls+1; /* Reply packet OOM after revocation. */
+        CHECK(matter_dispatch_process(d,1)==MATTER_PENDING); fail_at=0;
+        if(mode!=3) {
+            if(mode==4) {
+                CHECK(wire.borrowed && wire.borrowed->data!=reply->packet && reply->pending);
+                uint64_t request=d->request; wire.borrowed=NULL;
+                CHECK(!matter_udp_complete(udp,request,MATTER_OPERATION_SUCCEEDED));
+                matter_dispatch_sent(d,request,MATTER_OPERATION_SUCCEEDED);
+                CHECK(matter_dispatch_process(d,2)==MATTER_PENDING);
+            }
+            CHECK(wire.borrowed && d->sending_message==reply && reply->pending);
+            uint8_t* packet=reply->packet; size_t size=reply->size;
+            uint8_t copy[128]; CHECK(size<=sizeof(copy)); memcpy(copy,packet,size);
+            Matter_Message_Header_T mh; CHECK(!matter_message_header_read(packet,size,&mh,&n));
+            if(mode==1) {
+                CHECK(!matter_retransmission_sender_ack(d->tx,&reply->key,mh.message_counter));
+                CHECK(matter_dispatch_process(d,2)==MATTER_PENDING);
+                CHECK(reply->packet==packet && reply->pending && !memcmp(copy,packet,size));
+            }
+            uint64_t request=d->request; wire.borrowed=NULL;
+            Matter_Operation_Result_T outcome=mode==2?MATTER_OPERATION_FAILED:MATTER_OPERATION_SUCCEEDED;
+            CHECK(!matter_udp_complete(udp,request,outcome)); matter_dispatch_sent(d,request,outcome);
+            if(mode==0 || mode==4) CHECK(!matter_retransmission_sender_ack(d->tx,&reply->key,mh.message_counter));
+        }
+        for(unsigned i=0;i<16 && d->connections[0].token;++i) CHECK(matter_dispatch_process(d,3+i)==MATTER_PENDING);
+        CHECK(!d->connections[0].token && !d->connections[1].token && d->connections[2].token==102 && !d->connections[2].retiring);
+        CHECK(!d->transactions && !d->request && !matter_dispatch_removal_pending(d));
+        CHECK(matter_dispatch_stop(d)==MATTER_PENDING);
+        for(unsigned i=0;i<16 && !d->stopped;++i) (void)matter_dispatch_process(d,32+i);
+        CHECK(!matter_dispatch_stop(d) && !matter_dispatch_delete(d) && live_bytes==before);
+        CHECK(matter_udp_stop(udp)==MATTER_PENDING); (void)matter_udp_process(udp);
+        CHECK(!matter_udp_process(udp) && !matter_udp_delete(udp));
+    }
+    CHECK(!matter_crypto_mbedtls_delete(crypto));
+    puts("PASS own-fabric final MRP bypasses revoked exchange ACK: sibling retirement, other fabric, ACK-before/after-UDP, accepted old ACK borrow, failed completion, packet OOM and full drain");
+}
 /* No scratch, clock, admission or ownership change is allowed on recursive
  * entry, including entry from allocation/crypto/handler callbacks. */
 static void reentry_guard(Matter_Dispatch_T d) {
@@ -1032,6 +1103,7 @@ int main(void) {
     Matter_Root_Port_T rp={NULL,load_root,denied,store_root}; Matter_Root_T root=matter_root_new(&rp); CHECK(root);
     Matter_Dispatch_T d=NULL; bool fail_random=false,reset=false;
     Matter_Udp_Address_T bind={0}; bind.address[15]=1;
+    removal_ack_priority(owner,root,&bind);
     Matter_Udp_Listener_T listener={&d,udp_received,udp_sent};
     Matter_Udp_Windows_T udp=matter_udp_windows_new(owner,&bind,0,&listener); CHECK(udp);
     CHECK(matter_udp_start(matter_udp_windows_module(udp))==MATTER_OK && matter_udp_windows_local(udp,&bind)==MATTER_OK);

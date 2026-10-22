@@ -80,6 +80,15 @@ fixture closes subscriptions/sessions, waits12s for retirement, then creates
 fresh CASE sessions and requires successful temporary-fabric removal responses.
 NodeLabel is restored, the LED ends off, and the primary fabric is retained.
 
+The final optional argument selects cleanup: `drained` (default), `live`, or
+`local-close`. `live` removes each temporary fabric through one of its three
+still-open CASE sessions, reads through every surviving session, and requires
+fresh Hue updates on all surviving subscriptions after every removal.
+`local-close` closes only local subscription listeners, waits2s, and removes
+through the existing sessions while server exchanges may still owe ACKs.
+Both variants require four successful RemoveFabric responses and record their
+latencies. These are transport regressions; they do not shorten Matter timers.
+
 Full wildcard inventories are recorded separately (the models differ). A
 seven-path subscription workload exhausted the stock reference's shared path
 pool; that failure is retained rather than increasing its limits. Our custom

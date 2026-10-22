@@ -390,10 +390,15 @@ static void finished(void* u,const Matter_Retransmission_Result_T* result) {
     }
 }
 static Matter_Result_T send_ack(void* u,uint64_t id,const Matter_Ack_Message_T* m) {
-    Matter_Dispatch_T d=u; d->ack_waiting=true; if(d->request) return MATTER_WOULD_BLOCK;
+    Matter_Dispatch_T d=u;
     Connection* c=connection(d,m->exchange.session); Matter_Result_T r;
     Transaction* t=transaction(d,&m->exchange);
     if(c && (c->retiring || (c->removal_reply && (!t || c->removal_reply!=t->handle)))) return MATTER_PORT_ERROR;
+    /* Only an eligible ACK has priority over MRP. A revoked exchange's ACK
+     * remains in RX until session retirement; letting it block TX would
+     * deadlock the final RemoveFabric reply which enables that retirement.
+     * An already accepted ACK still owns UDP until actual completion. */
+    d->ack_waiting=true; if(d->request) return MATTER_WOULD_BLOCK;
     if(c) r=matter_secure_channel_send_ack(c->channel,d->udp,m,d->now,&d->request);
     else {
         /* The ACK sender emits exactly ten protocol bytes, with no payload.

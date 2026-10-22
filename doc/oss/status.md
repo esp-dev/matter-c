@@ -1,5 +1,24 @@
 # Development status
 
+**Memory22: own-fabric reply progress with multiple live CASE sessions.**
+Memory21 is committed as `5a577e4`. A rejected ACK from another exchange of
+the reply-only connection incorrectly held priority over MRP and starved the
+RemoveFabric response. Eligibility now precedes ACK priority; accepted UDP
+borrows, ciphertext lifetime, limits, fail-safe and retirement remain intact.
+The deterministic regression fails before the fix and covers ACK ordering,
+held old-ACK completion, transport failure, packet OOM and other-fabric isolation.
+The physical live/local-close variants receive all four removal responses;
+the final live oracle also checks fresh updates on surviving subscriptions.
+
+The measured Memory21 heap difference113120 B is offset by69305 B more static
+D/IRAM in the reference: total sampled-peak accounting differs43815 B, and
+loaded free heap37772 B. Both Wi-Fi IRAM settings match. C6 allocation attribution
+identifies persistent cluster workspaces and image/rollback/TLV publication
+overlap, rather than attributing the full difference to Wi-Fi.
+See [Memory22 validation](memory22-validation.md) and [results](memory22-results.json).
+No official CSA rerun is claimed.
+
+**Previous Memory21 measurements.**
 **Memory21: settled SDK heap attribution and physical external-stack reference.**
 Memory20 is committed as `230e815`. New optional lab maps identify persistent
 92-byte SDK RMT/MPI singleton mutexes that split large holes after core teardown.

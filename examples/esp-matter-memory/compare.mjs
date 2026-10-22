@@ -5,9 +5,9 @@ import {pathToFileURL} from 'node:url';
 import {readFile,writeFile,rename} from 'node:fs/promises';
 import {randomBytes} from 'node:crypto';
 import {performance} from 'node:perf_hooks';
-const [modules,ip,stateRoot,storageId,uartRoot,kind,mode='reuse',iface='Wi-Fi']=process.argv.slice(2);
-if(!modules || !uartRoot || !['reference','c'].includes(kind) || !['reuse','commission'].includes(mode))
-    throw Error('Usage: compare.mjs <node_modules> <scoped-ipv6> <private-state> <storage-id> <private-uart> <reference|c> [reuse|commission] [interface]');
+const [modules,ip,stateRoot,storageId,uartRoot,kind,mode='reuse',iface='Wi-Fi',cleanup='drained']=process.argv.slice(2);
+if(!modules || !uartRoot || !['reference','c'].includes(kind) || !['reuse','commission'].includes(mode) || !['drained','live','local-close'].includes(cleanup))
+    throw Error('Usage: compare.mjs <node_modules> <scoped-ipv6> <private-state> <storage-id> <private-uart> <reference|c> [reuse|commission] [interface] [drained|live|local-close]');
 const load=p=>import(pathToFileURL(resolve(modules,p)).href);
 if(JSON.parse(await readFile(resolve(modules,'@project-chip/matter.js/package.json'),'utf8')).version!=='0.17.9') throw Error('Expected Matter.js0.17.9');
 const {Logger,LogLevel,Seconds}=await load('@matter/general/dist/esm/index.js'); Logger.level=LogLevel.WARN;
@@ -28,7 +28,7 @@ const {ColorControl}=await load('@matter/types/dist/esm/clusters/color-control.j
 const env=NodeJsEnvironment(); env.vars.set('storage.path',resolve(stateRoot)); env.vars.set('mdns.networkInterface',iface);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms)), started=performance.now(), run=randomBytes(6).toString('hex');
 const emit=(phase,data={})=>console.log(JSON.stringify({phase,seconds:(performance.now()-started)/1000,...data}));
-const summary={kind,mode,inventory:0,reads:0,reports:0,writes:0,invokes:0,casePairs:0,resumed:0,subscriptions:0,updates:0,busyRetries:0,colorSettlePolls:0,unexpectedClosures:0,checkpoints:[]};
+const summary={kind,mode,cleanup,inventory:0,reads:0,reports:0,writes:0,invokes:0,casePairs:0,resumed:0,subscriptions:0,updates:0,busyRetries:0,colorSettlePolls:0,unexpectedClosures:0,removals:[],checkpoints:[]};
 const contexts=[];
 const paths=[{endpointId:0,clusterId:0x28,attributeId:BasicInformation.Cluster.attributes.nodeLabel.id},
     {endpointId:0,clusterId:0x3e,attributeId:OperationalCredentials.Cluster.attributes.commissionedFabrics.id},
@@ -102,7 +102,7 @@ async function subscribe(ctx,client) {
     const seen=new Set(); ctx.seenHues.push(seen);
     const report=await client.subscribeMultipleAttributesAndEvents({attributes:subscriptionPaths,minIntervalFloorSeconds:1,maxIntervalCeilingSeconds:5,
         keepSubscriptions:true,isUrgent:true,dataVersionFilters:[],attributeListener:r=>{++summary.updates; seen.add(r.value);},
-        updateTimeoutHandler:()=>{if(!closing) ++summary.unexpectedClosures;}});
+        updateTimeoutHandler:()=>{if(!closing && !ctx.removed) ++summary.unexpectedClosures;}});
     if(report.attributeReports.length!==subscriptionPaths.length) throw Error('Incomplete common Subscribe snapshot');
     const added=[...registry].filter(s=>!before.has(s)); if(added.length!==1) throw Error('Subscription registry mismatch');
     ctx.subs.push(...added); ++summary.subscriptions;
@@ -119,6 +119,14 @@ async function loadContext(ctx) {
         if(j) ctx.clients.push(await pair(ctx));
         await read(ctx.clients[j]); await subscribe(ctx,ctx.clients[j]);
     }
+}
+async function removeFabric(client) {
+    const index=await attr(client,0,0x3e,OperationalCredentials.Cluster.attributes.currentFabricIndex);
+    const started=performance.now();
+    const result=await invoke(client,0x3e,OperationalCredentials.Cluster.commands.removeFabric,{fabricIndex:index},0);
+    if(result.statusCode!==0) throw Error('Fabric removal response failed');
+    const removed={index,milliseconds:performance.now()-started}; summary.removals.push(removed);
+    emit('REMOVE_FABRIC_ACK',removed);
 }
 let primary,oldLabel;
 try {
@@ -158,21 +166,44 @@ try {
     await checkpoint('loaded-after-thirty-seconds');
     if(summary.unexpectedClosures || contexts.some(ctx=>ctx.seenHues.some(seen=>!seen.has(85) || !seen.has(170))))
         throw Error('Subscription loss or missing hue updates');
-    closing=true;
-    for(const ctx of contexts) for(const sub of ctx.subs) await sub.close();
-    for(const ctx of contexts) {
-        await ctx.controller.disconnectNode(ctx.node,true);
-        ctx.clients=[];
-        await sleep(100); // Stagger the bounded RX queue's close traffic.
-    }
-    await sleep(12000); await checkpoint('subscriptions-closed');
-    for(const ctx of contexts.slice(1).reverse()) {
-        const cached=await ctx.controller.createInteractionClient(ctx.node,undefined,{forcedConnection:true});
-        const client=await ctx.provider.interactionClientFor(cached.address);
-        const index=await attr(client,0,0x3e,OperationalCredentials.Cluster.attributes.currentFabricIndex);
-        const result=await invoke(client,0x3e,OperationalCredentials.Cluster.commands.removeFabric,{fabricIndex:index},0);
-        if(result.statusCode!==0) throw Error('Fabric removal response failed');
-        emit('REMOVE_FABRIC_ACK',{index});
+    if(cleanup==='drained') {
+        closing=true;
+        for(const ctx of contexts) for(const sub of ctx.subs) await sub.close();
+        for(const ctx of contexts) {
+            await ctx.controller.disconnectNode(ctx.node,true);
+            ctx.clients=[];
+            await sleep(100); // Stagger the bounded RX queue's close traffic.
+        }
+        await sleep(12000); await checkpoint('subscriptions-closed');
+        for(const ctx of contexts.slice(1).reverse()) {
+            const cached=await ctx.controller.createInteractionClient(ctx.node,undefined,{forcedConnection:true});
+            await removeFabric(await ctx.provider.interactionClientFor(cached.address));
+        }
+    } else {
+        if(cleanup==='local-close') {
+            closing=true;
+            for(const ctx of contexts) for(const sub of ctx.subs) await sub.close();
+            await sleep(2000); // Sessions remain open; server can still owe ACKs.
+        }
+        for(const ctx of contexts.slice(1).reverse()) {
+            ctx.removed=true;
+            await removeFabric(ctx.clients[0]); // Three live CASE sessions/fabric.
+            for(const survivor of contexts.filter(c=>!c.removed))
+                for(const client of survivor.clients) await read(client);
+            if(cleanup==='live') {
+                const hue=10+summary.removals.length;
+                await invoke(primary.clients[0],0x300,ColorControl.Cluster.commands.moveToHueAndSaturation,
+                    {hue,saturation:254,transitionTime:0,optionsMask:0,optionsOverride:0});
+                ++summary.invokes;
+                const until=performance.now()+10000;
+                while(contexts.filter(c=>!c.removed).some(c=>c.seenHues.some(seen=>!seen.has(hue)))) {
+                    if(performance.now()>=until) throw Error('Surviving fabric subscription stopped after removal');
+                    await sleep(100);
+                }
+            }
+        }
+        closing=true;
+        for(const ctx of contexts) for(const sub of ctx.subs) await sub.close();
     }
     const cached=await primary.controller.createInteractionClient(primary.node,undefined,{forcedConnection:true});
     primary.clients=[await primary.provider.interactionClientFor(cached.address)];

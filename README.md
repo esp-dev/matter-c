@@ -54,6 +54,11 @@ missed by owner-loop sampling. The C fixture leaves37772 B less free heap in
 the matched small-path loaded scenario despite69305 B less static D/IRAM;
 limits and model/configuration differences are explicit. It also corrects the
 previous main-stack reservation by IDF's additional512 B. No new CSA PASS.
+The [Memory22 report](doc/oss/memory22-validation.md) fixes MRP starvation of
+  own-fabric RemoveFabric replies by rejected stale ACKs, adds live-session
+  removal regressions, and attributes C6 allocation peaks to actual call sites.
+  It separates the reference's lower heap figure from its larger static D/IRAM
+  footprint and identifies retained cluster workspaces/publication overlap.
 The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface
