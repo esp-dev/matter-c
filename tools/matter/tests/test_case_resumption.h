@@ -170,7 +170,9 @@ static void resume_cache_tests(const Matter_Crypto_Port_T* crypto,const Matter_C
     OC_CHECK(p->resume_find(p->user,1,101,NULL,&saved[1])==MATTER_OK && !memcmp(saved,&saved[1],sizeof(*saved)));
     saved[1]=saved[0]; saved[1].identity.fabric_index=snapshot->index;
     saved[1].identity.fabric_id=snapshot->fabric_id; saved[1].identity.local_node_id=snapshot->node_id;
-    saved[1].revision=snapshot->revision; saved[1].id[0]=0xfe;
+    /* Keep this fabric distinct for every random original ID, including while
+     * the eviction fixture below varies byte zero through 0..4. */
+    saved[1].revision=snapshot->revision; saved[1].id[15]^=0x80;
     OC_CHECK(p->resume_save(p->user,&saved[1])==MATTER_OK);
     memset(snapshot,0,sizeof(*snapshot)); free(snapshot);
     /* Three peers per fabric, authenticated write order, oldest eviction. */

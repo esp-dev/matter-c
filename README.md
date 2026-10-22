@@ -25,6 +25,11 @@ and compact Read/Subscribe results lower its observed heap peak from 403016 B
 five fabrics/15 protected sessions/subscriptions, OOM/loss/reconnect and held-TX
 drain, with no SDK allocation failures. This is an incomplete light profile,
 not a complete or certified Extended Color Light implementation.
+The [Memory17 report](doc/oss/memory17-validation.md) covers inline short
+snapshots and the packet-buffer lifetime audit. Encoded values through eight
+bytes need no separate payload allocation; the C6 snapshot record stays 16 B.
+The standalone unsecured ACK envelope falls 1232 ->26 B without changing UDP
+limits or asynchronous completion/ACK ownership.
 The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface

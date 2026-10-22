@@ -9,7 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum { CONNECTIONS=MATTER_HOST_CONNECTIONS, TRANSACTIONS=MATTER_HOST_TRANSACTIONS, ROUTES=8, PACKET=1232 };
+enum { CONNECTIONS=MATTER_HOST_CONNECTIONS, TRANSACTIONS=MATTER_HOST_TRANSACTIONS, ROUTES=8, PACKET=1232,
+    ACK_PROTOCOL=10, ACK_PACKET=MATTER_UNSECURED_OVERHEAD+ACK_PROTOCOL };
 typedef char TransportBudget[(MATTER_TRANSPORT_CAPACITY>=MATTER_HOST_TRANSACTIONS)?1:-1];
 typedef enum { NONE, READ, SUBSCRIBE, WRITE, INVOKE, TIMED, HANDSHAKE, REJECT, CLIENT } Admission;
 typedef struct { Matter_Exchange_Session_T token; Matter_Udp_Path_T path; uint64_t touched; } Route;
@@ -54,7 +55,7 @@ struct Matter_Dispatch {
     Matter_Unsecured_Rx_T ingress; Matter_Unsecured_Tx_T transport;
     Matter_Counter_T counter; Route routes[ROUTES]; Connection connections[CONNECTIONS];
     Transaction *transactions,*last_transaction; size_t transaction_count,transaction_limit; uint16_t subscriptions_per_fabric;
-    Matter_Udp_Path_T received_path; uint8_t inbox[PACKET],plain[PACKET],ack[PACKET],delivery[PACKET];
+    Matter_Udp_Path_T received_path; uint8_t inbox[PACKET],plain[PACKET],ack[ACK_PACKET],delivery[PACKET];
     size_t inbox_size; Matter_Rx_Decision_T decision;
     bool queued,delivered,ack_waiting,stopping,stopped,started;
     uint64_t now,request,producer,next_token; uint32_t next_subscription; uint16_t next_id;
@@ -390,6 +391,10 @@ static Matter_Result_T send_ack(void* u,uint64_t id,const Matter_Ack_Message_T* 
     if(c && (c->retiring || (c->removal_reply && (!t || c->removal_reply!=t->handle)))) return MATTER_PORT_ERROR;
     if(c) r=matter_secure_channel_send_ack(c->channel,d->udp,m,d->now,&d->request);
     else {
+        /* The ACK sender emits exactly ten protocol bytes, with no payload.
+         * This separate envelope remains borrowed through actual UDP completion,
+         * while ordinary TX preparation may reuse plain and inbox receives RX. */
+        if(m->size!=ACK_PROTOCOL) return MATTER_INVALID_ARGUMENT;
         Matter_Unsecured_Prepared_T out;
         r=matter_unsecured_prepare_encoded(d->unsecured,m->exchange.session,&d->counter,m->data,m->size,d->ack,sizeof(d->ack),&out);
         if(r!=MATTER_OK) return r;

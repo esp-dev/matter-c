@@ -87,8 +87,9 @@ static void case_tests(void) {
 #define TEST_PATH_SUB
 #include "test_im_path_grammar.h"
 int main(int argc,char** argv) {
-    if(argc==2 && (!strcmp(argv[1],"--memory-only") || !strcmp(argv[1],"--memory-profile") || !strcmp(argv[1],"--memory-shared"))) {
-        subscription_memory_profile(!strcmp(argv[1],"--memory-shared"));
+    if(argc==2 && (!strcmp(argv[1],"--memory-only") || !strcmp(argv[1],"--memory-profile") || !strcmp(argv[1],"--memory-shared") || !strcmp(argv[1],"--memory-short"))) {
+        if(!strcmp(argv[1],"--memory-short")) memory_value_size=6;
+        subscription_memory_profile(!strcmp(argv[1],"--memory-shared") || !strcmp(argv[1],"--memory-short"));
 #ifdef MATTER_TEST_ALLOC
         if(!strcmp(argv[1],"--memory-only")) subscription_memory_oom();
 #endif

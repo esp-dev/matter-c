@@ -792,6 +792,16 @@ static void late_handshake(Matter_Dispatch_T d,const Matter_Udp_Address_T* local
     CHECK(matter_message_header_read(d->ack,sizeof(d->ack),&ack_header,&n)==MATTER_MESSAGE_OK);
     CHECK(matter_protocol_header_read(d->ack+n,sizeof(d->ack)-n,&ack_protocol,&h)==MATTER_MESSAGE_OK &&
         ack_protocol.opcode==0x10 && ack_protocol.exchange_id==7 && ack_protocol.acknowledged_message_counter==100);
+    CHECK(d->request && !d->completion && n+h==MATTER_UNSECURED_OVERHEAD+10);
+    uint8_t retained[MATTER_UNSECURED_OVERHEAD+10]; memcpy(retained,d->ack,sizeof(retained));
+    /* ACK UDP remains outstanding while ingress and normal TX scratch change.
+     * A second ACK must neither overwrite the borrowed bytes nor take a nonce. */
+    memset(d->inbox,0xa5,sizeof(d->inbox)); memset(d->plain,0x5a,sizeof(d->plain));
+    memset(d->delivery,0xcc,sizeof(d->delivery));
+    uint32_t next_counter=d->counter.next; uint64_t request=d->request;
+    Matter_Ack_Message_T second={.exchange={token,8,false},.data=bytes,.size=10};
+    CHECK(send_ack(d,UINT64_MAX,&second)==MATTER_WOULD_BLOCK && d->counter.next==next_counter && d->request==request);
+    CHECK(!memcmp(d->ack,retained,sizeof(retained)));
     CHECK(!d->transactions);
     /* Normal owner completion/stop below drains the generated control ACK. */
     puts("PASS late CASE: duplicate final StatusReport control ACK; fresh counter, wrong route/opcode denied; no handler restart");

@@ -1,5 +1,33 @@
 # Development status
 
+**Memory17: inline short snapshots and packet-buffer lifetime audit.**
+Memory16 is committed as `16fe40d`. Validated values through eight encoded bytes
+now live in the existing 16 B C6 capture record; common accessors preserve Read
+compaction and tiny-list REPLACE/ADD continuation. Limits, report budgets and
+MRP/IM/actual UDP drain remain intact. The standalone unsecured ACK envelope
+falls 1232 ->26 B, reducing the C6 dispatcher 8296 ->7096 B. Other packet buffers
+retain separate ownership; guarded delivery/plain phase reuse is the next task.
+
+The all-short host component peak falls 526729 ->403857 B (23.33%), removing 7680
+payload allocations across 15 x512 results; long shared values cost 8 B extra
+transient scratch. Actual C6 RGB heap peak is 362408 ->358332 B (1.12%), tracked
+peak 269832 ->266120 B; minimum sampled largest free block 31232 ->35840 B.
+Observed owner stack is 2616/12288 B in both. Two short load/recovery runs pass
+with five fabrics/15 protected sessions/subscriptions, 71 full Reads each, OOM,
+loss, reconnect and held-TX drain. SDK allocation failures are zero; tracked
+allocations/bytes return to zero and SDK heap integrity passes. Different fault
+recovery timing yields 351/278 s windows, not a new hour or exhaustive RAM bound.
+
+Final Linux CTest 98/98 per build, four focused Memcheck cases and full two-instance
+6/6 under Memcheck/separate sanitizers pass. Windows full 101/101 passes, followed
+by 2/2 after a fixture-only CASE identity correction. IDF 6.1 RGB/default builds
+pass. An existing random-ID fixture collision is deterministically reproduced
+and fixed without CASE product changes; intermediate failures remain recorded.
+Original fabric/label are restored, COM23/AP released, temporary Wi-Fi profile
+removed and IPv6 kept enabled. See [report](memory17-validation.md) and
+[results](memory17-results.json) for scope, measured costs and commands. The RGB
+model remains incomplete.
+
 **Memory16: lower report peak and optional C6 RGB laboratory.**
 Per-runtime immutable snapshot sharing retains independent authorization,
 provider reads, versions/budgets and ACK/drain. Its bounded index falls back to

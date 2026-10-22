@@ -4,6 +4,14 @@ test-map.json enumerates 257 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
 
+Memory17 adds `test_im_short_reports` (`test_im_subscribe_alloc --memory-short`):
+15 subscriptions x512 short values plus five concurrent large-list Reads.
+Snapshot tests verify the 8/9-byte boundary, no short-value allocations, scratch
+overwrite, relocated records, cumulative budgets and malformed input. Read and
+Subscribe reconstruct inline ARRAY values even with REPLACE/ADD chunking. The
+dispatcher test keeps an unsecured ACK pending while RX/TX scratch changes and
+checks that another ACK cannot overwrite its bytes or consume a counter.
+
 Memory16 adds portable `test_rgb_light` and the shared-report CTest
 `test_im_shared_reports` (`test_im_subscribe_alloc --memory-shared`). Snapshot
 tests cover both allocation failures, reference overflow, a real hash collision,

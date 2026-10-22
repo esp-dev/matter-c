@@ -25,12 +25,14 @@ typedef struct {
 /* A captured value is either a scalar OR an encoded span. The public provider
  * DTO keeps independent fields; report storage need not retain all of them or
  * the provider's update-policy flag after capture. No public layout changes. */
+enum { MATTER_IM_SNAPSHOT_INLINE = 8 };
 typedef struct {
-    Matter_Tlv_Type_T type;
+    uint8_t type,inline_size;
     uint32_t data_version;
     union {
         uint64_t unsigned_value;
         int64_t signed_value;
+        uint8_t encoded[MATTER_IM_SNAPSHOT_INLINE];
         struct { const uint8_t* data; size_t size; } span;
     } as;
 } Matter_Im_Snapshot_Value;
@@ -39,14 +41,26 @@ static inline bool matter_im_snapshot_complex(Matter_Tlv_Type_T type) {
 }
 static inline Matter_Im_Snapshot_Value matter_im_snapshot_store(const Matter_Im_Value_T* value) {
     Matter_Im_Snapshot_Value stored={.type=value->type,.data_version=value->data_version};
-    if(matter_im_snapshot_complex(value->type)) { stored.as.span.data=value->data; stored.as.span.size=value->size; }
+    if(matter_im_snapshot_complex(value->type)) {
+        if(value->data && value->size && value->size<=MATTER_IM_SNAPSHOT_INLINE) {
+            stored.inline_size=(uint8_t)value->size; memcpy(stored.as.encoded,value->data,value->size);
+        } else { stored.as.span.data=value->data; stored.as.span.size=value->size; }
+    }
     else if(value->type==MATTER_TLV_SIGNED) stored.as.signed_value=value->signed_value;
     else stored.as.unsigned_value=value->unsigned_value;
     return stored;
 }
+static inline const uint8_t* matter_im_snapshot_data(const Matter_Im_Snapshot_Value* stored) {
+    return stored->inline_size?stored->as.encoded:stored->as.span.data;
+}
+static inline size_t matter_im_snapshot_size(const Matter_Im_Snapshot_Value* stored) {
+    return stored->inline_size?stored->inline_size:stored->as.span.size;
+}
 static inline void matter_im_snapshot_load(Matter_Im_Value_T* value,const Matter_Im_Snapshot_Value* stored) {
     memset(value,0,sizeof(*value)); value->type=stored->type; value->data_version=stored->data_version;
-    if(matter_im_snapshot_complex(stored->type)) { value->data=stored->as.span.data; value->size=stored->as.span.size; }
+    if(matter_im_snapshot_complex(stored->type)) {
+        value->data=matter_im_snapshot_data(stored); value->size=matter_im_snapshot_size(stored);
+    }
     else if(stored->type==MATTER_TLV_SIGNED) value->signed_value=stored->as.signed_value;
     else value->unsigned_value=stored->as.unsigned_value;
 }
@@ -93,7 +107,8 @@ static inline void matter_im_snapshot_release(Matter_Im_Snapshots* snapshots,con
 }
 static inline void matter_im_snapshot_release_value(Matter_Im_Snapshots* snapshots,Matter_Im_Snapshot_Value* value) {
     if(matter_im_snapshot_complex(value->type)) {
-        matter_im_snapshot_release(snapshots,value->as.span.data);
+        if(!value->inline_size) matter_im_snapshot_release(snapshots,value->as.span.data);
+        value->inline_size=0;
         value->as.span.data=NULL; value->as.span.size=0;
     }
 }
@@ -104,7 +119,7 @@ static inline void matter_im_snapshot_release_value(Matter_Im_Snapshots* snapsho
 static inline Matter_Im_Status_T matter_im_snapshot_copy(Matter_Im_Snapshots* snapshots,
     Matter_Im_Value_T* value,Matter_Tlv_Writer_T* writer,Matter_Tlv_Reader_T* reader,
     Matter_Tlv_Element_T* element,Matter_Tlv_Validation_Workspace_T* validation,
-    Matter_Tlv_Tag_T* tags,size_t tag_count) {
+    Matter_Tlv_Tag_T* tags,size_t tag_count,uint8_t short_data[MATTER_IM_SNAPSHOT_INLINE]) {
     size_t size=value->size;
     if(size>MATTER_IM_READ_MAX_VALUE || size>MATTER_IM_READ_SNAPSHOT_BYTES-snapshots->size)
         return MATTER_IM_RESOURCE_EXHAUSTED;
@@ -118,6 +133,11 @@ static inline Matter_Im_Status_T matter_im_snapshot_copy(Matter_Im_Snapshots* sn
         if(size>available || prefix>available-size) return MATTER_IM_RESOURCE_EXHAUSTED;
         size+=prefix;
     }
+    /* Scratch belongs to this capture's heap workspace. The caller immediately
+     * stores the validated bytes in its value record before reusing scratch.
+     * Load derives the inline pointer from that record, so compaction/copying
+     * records never leaves a self-pointer aimed at their previous address. */
+    bool inlined=size<=MATTER_IM_SNAPSHOT_INLINE;
     bool sharing=snapshots->pool && size>=MATTER_IM_SNAPSHOT_SHARE_MIN;
     /* Bound metadata for all-unique data. This is an index budget, never an
      * admission quota: new values fall back to unchanged private storage.
@@ -129,14 +149,15 @@ static inline Matter_Im_Status_T matter_im_snapshot_copy(Matter_Im_Snapshots* sn
     Matter_Im_Shared_Snapshot* candidate=NULL;
     void* allocation;
     uint8_t* data;
-    if(room) {
+    if(inlined) { allocation=NULL; data=short_data; }
+    else if(room) {
         candidate=calloc(1,sizeof(*candidate)+size); allocation=candidate;
         data=candidate?candidate->data:NULL;
     } else {
         node=calloc(1,sizeof(*node)+size); allocation=node;
         data=node?node->data:NULL;
     }
-    if(!allocation) return MATTER_IM_RESOURCE_EXHAUSTED;
+    if(!inlined && !allocation) return MATTER_IM_RESOURCE_EXHAUSTED;
     if(container) { if(size) memcpy(data,value->data,size); }
     else {
         *element=(Matter_Tlv_Element_T){.type=value->type,.data=value->data,.size=value->size};
@@ -174,7 +195,7 @@ static inline Matter_Im_Status_T matter_im_snapshot_copy(Matter_Im_Snapshots* sn
         } else {
             node->next=snapshots->head; snapshots->head=node;
         }
-    } else { node->next=snapshots->head; snapshots->head=node; }
+    } else if(node) { node->next=snapshots->head; snapshots->head=node; }
     snapshots->size+=size; value->data=data; value->size=size; return MATTER_IM_SUCCESS;
 }
 #endif

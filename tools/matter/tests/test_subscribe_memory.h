@@ -2,10 +2,11 @@
  * attribute sizes. Fifteen CASE subscriptions across five fabric identities.
  * Provider scratch, request encoders and report consumers are heap fixtures. */
 static Matter_Im_Snapshot_Pool* memory_pool;
+static size_t memory_value_size=30;
 static Matter_Im_Status_T memory_read(void* u,const Matter_Im_Path_T* p,bool filtered,Matter_Im_Value_T* v) {
     SelectorSub* s=u; RichSub* r=&s->rich; sub_guard(&r->model); CHECK(filtered);
-    ++r->model.reads; memset(r->scratch,(int)(p->attribute&255),30);
-    *v=(Matter_Im_Value_T){.type=MATTER_TLV_BYTES,.data=r->scratch,.size=30,.data_version=7};
+    ++r->model.reads; memset(r->scratch,(int)(p->attribute&255),memory_value_size);
+    *v=(Matter_Im_Value_T){.type=MATTER_TLV_BYTES,.data=r->scratch,.size=memory_value_size,.data_version=7};
     return MATTER_IM_SUCCESS;
 }
 static SelectorSub* memory_new(unsigned count,unsigned fabric) {
@@ -29,7 +30,7 @@ static bool memory_report(SelectorSub* s,Matter_Im_Subscribe_Message_T out) {
         if(depth==1 && e->tag.number==3) more=e->unsigned_value!=0;
         if(depth==5 && e->tag.number==4) attribute=(unsigned)e->unsigned_value;
         if(depth==4 && e->tag.number==2) {
-            CHECK(attribute==s->seen+1 && e->type==MATTER_TLV_BYTES && e->size==30);
+            CHECK(attribute==s->seen+1 && e->type==MATTER_TLV_BYTES && e->size==memory_value_size);
             for(size_t i=0;i<e->size;++i) CHECK(e->data[i]==(uint8_t)attribute);
             ++s->seen;
         }
@@ -116,7 +117,7 @@ static void subscription_memory_profile(bool shared) {
         memset(subs[i]->rich.scratch,0xff,sizeof(subs[i]->rich.scratch));
     }
 #ifdef MATTER_TEST_ALLOC
-    size_t captured=live_bytes,half=0;
+    size_t captured=live_bytes,captured_blocks=live,half=0;
 #endif
     for(unsigned i=0;i<5;++i) reads[i]=memory_read_new();
 #ifdef MATTER_TEST_ALLOC
@@ -142,8 +143,9 @@ static void subscription_memory_profile(bool shared) {
     for(unsigned i=0;i<5;++i) memory_read_drain(reads[i]);
     free(reads);
 #ifdef MATTER_TEST_ALLOC
-    printf("MEMORY subscriptions=15 results_each=%u encoded_each=%u captured=%zu with_reads=%zu half=%zu idle=%zu peak=%zu largest=%zu rounds=%u\n",
-        MATTER_IM_READ_MAX_RESULTS,MATTER_IM_READ_SNAPSHOT_BYTES,captured,with_reads,half,live_bytes,peak_bytes,max_request,rounds);
+    printf("MEMORY subscriptions=15 results_each=%u encoded_each=%zu report_budget=%u captured=%zu with_reads=%zu half=%zu idle=%zu peak=%zu largest=%zu rounds=%u\n",
+        MATTER_IM_READ_MAX_RESULTS,memory_value_size+2,MATTER_IM_READ_SNAPSHOT_BYTES,captured,with_reads,half,live_bytes,peak_bytes,max_request,rounds);
+    printf("MEMORY_BLOCKS captured=%zu idle=%zu\n",captured_blocks,live);
 #endif
     for(unsigned i=0;i<15;++i) { CHECK(subs[i]->rich.model.reads==MATTER_IM_READ_MAX_RESULTS); rich_free(&subs[i]->rich); }
     free(subs);

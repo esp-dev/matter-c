@@ -149,12 +149,12 @@ static void complex_tests(void) {
         }
         CHECK(live==held+(order?1u:0u)); /* Queued status parser only until processed; both values remain owned. */
         size_t first_bytes=live_bytes;
-        CHECK(!rich_report(gated,output(&gated->model,0)) && live==held-1);
-        CHECK(first_bytes-live_bytes>=sizeof(void*)+8); /* Snapshot plus any queued parser workspace. */
-        rich_ack(gated,true,false); CHECK(live==held-1);
+        CHECK(!rich_report(gated,output(&gated->model,0)) && live==held); /* Tiny inline values have no individually freed node. */
+        CHECK(order?first_bytes>live_bytes:first_bytes==live_bytes); /* Only the queued parser can disappear here. */
+        rich_ack(gated,true,false); CHECK(live==held);
         size_t bytes=live_bytes;
         literal(output(&gated->model,0),4,sub_response,sizeof(sub_response));
-        CHECK(live==held-3 && bytes-live_bytes>sizeof(void*)+8); /* Remaining value and captured-value table. */
+        CHECK(live==held-1 && bytes>live_bytes); /* Captured-value table frees only after both gates. */
         rich_prime_finish(gated);
         CHECK(matter_im_subscribe_changed(gated->model.active)==MATTER_OK); rich_update(gated,2000);
         CHECK(rich_report(gated,output(&gated->model,2000)) && live==held);

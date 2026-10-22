@@ -17,13 +17,22 @@ typedef struct {
     Matter_Tlv_Element_T element;
     Matter_Tlv_Validation_Workspace_T validation;
     Matter_Tlv_Tag_T tags[48];
+    uint8_t short_data[MATTER_IM_SNAPSHOT_INLINE];
+    Matter_Im_Snapshot_Value saved[MATTER_IM_READ_MAX_RESULTS];
+    size_t saved_count;
     uint8_t input[MATTER_IM_READ_MAX_VALUE+1];
     const uint8_t* retained[MATTER_IM_READ_MAX_RESULTS];
 } Fixture;
 static Fixture* create(void) { Fixture* f=calloc(1,sizeof(*f)); CHECK(f && !live && !live_bytes); return f; }
 static void destroy(Fixture* f) { matter_im_snapshots_clear(&f->snapshots); CHECK(!live && !live_bytes); free(f); }
 static uint8_t copy(Fixture* f) {
-    return matter_im_snapshot_copy(&f->snapshots,&f->value,&f->writer,&f->reader,&f->element,&f->validation,f->tags,48);
+    uint8_t status=matter_im_snapshot_copy(&f->snapshots,&f->value,&f->writer,&f->reader,&f->element,&f->validation,f->tags,48,f->short_data);
+    if(!status) {
+        CHECK(f->saved_count<MATTER_IM_READ_MAX_RESULTS);
+        Matter_Im_Snapshot_Value* stored=&f->saved[f->saved_count++];
+        *stored=matter_im_snapshot_store(&f->value); matter_im_snapshot_load(&f->value,stored);
+    }
+    return status;
 }
 static void string(Fixture* f,size_t size,bool text) {
     memset(f->input,'a',sizeof(f->input));
@@ -36,7 +45,9 @@ static void exact_and_boundaries(void) {
         if(!sizes[i]) f->value.data=NULL;
         CHECK(copy(f)==0);
         size_t encoded=sizes[i]+(sizes[i]<=255?2:3);
-        CHECK(f->value.size==encoded && f->snapshots.size==encoded && live==1 && live_bytes==sizeof(Matter_Im_Snapshot_Node)+encoded);
+        bool inlined=encoded<=MATTER_IM_SNAPSHOT_INLINE;
+        CHECK(f->value.size==encoded && f->snapshots.size==encoded && live==(inlined?0:1) &&
+            live_bytes==(inlined?0:sizeof(Matter_Im_Snapshot_Node)+encoded));
         const uint8_t* data=f->value.data; CHECK(data!=f->input);
         CHECK(data[0]==(text?(sizes[i]<=255?0x0c:0x0d):(sizes[i]<=255?0x10:0x11)));
         CHECK(data[1]==(uint8_t)sizes[i] && (sizes[i]<=255 || data[2]==(uint8_t)(sizes[i]>>8)));
@@ -130,6 +141,43 @@ static void consumed_and_compact(void) {
     }
     puts("PASS consumed snapshot release: stable remaining references, cumulative limit and compact scalar/span round trips");
 }
+static void inline_values(void) {
+    Fixture* f=create(); size_t before=calls;
+    for(unsigned text=0;text<2;++text) for(size_t n=0;n<=7;++n) {
+        string(f,n,text!=0); size_t used=f->snapshots.size;
+        if(n<=6) fail_at=calls+1;
+        CHECK(!copy(f)); fail_at=0;
+        CHECK(f->snapshots.size==used+n+2);
+        CHECK(f->saved[f->saved_count-1].inline_size==(n<=6?n+2:0));
+        if(n<=6) CHECK(calls==before); else { CHECK(calls==before+1); before=calls; }
+        const uint8_t* bytes=f->value.data;
+        memset(f->short_data,0xff,sizeof(f->short_data)); memset(f->input,0xff,sizeof(f->input));
+        for(size_t i=2;i<n+2;++i) CHECK(bytes[i]=='a');
+    }
+    /* Values may move during Read compaction: load must derive their new
+     * address, and releasing either copy must never free inline storage. */
+    Matter_Im_Snapshot_Value moved=f->saved[6];
+    memset(&f->saved[6],0,sizeof(f->saved[6]));
+    Matter_Im_Value_T loaded; matter_im_snapshot_load(&loaded,&moved);
+    CHECK(loaded.size==8 && loaded.data==moved.as.encoded && loaded.data[7]=='a');
+    matter_im_snapshot_release_value(&f->snapshots,&moved);
+    CHECK(!moved.inline_size && !moved.as.span.data && !moved.as.span.size);
+    static const uint8_t containers[][8]={{0x16,0x18},{0x15,0x18},{0x16,0x04,1,0x04,2,0x04,3,0x18}};
+    const size_t lengths[]={2,2,8};
+    for(unsigned i=0;i<3;++i) {
+        memcpy(f->input,containers[i],lengths[i]);
+        f->value=(Matter_Im_Value_T){.type=i==1?MATTER_TLV_STRUCTURE:MATTER_TLV_ARRAY,.data=f->input,.size=lengths[i],.data_version=UINT32_MAX};
+        before=calls; CHECK(!copy(f) && calls==before);
+        CHECK(f->value.data_version==UINT32_MAX && !memcmp(f->value.data,containers[i],lengths[i]));
+    }
+    matter_im_snapshots_clear(&f->snapshots); CHECK(!live);
+    /* Inline bytes still consume the original cumulative admission budget. */
+    f->snapshots.size=MATTER_IM_READ_SNAPSHOT_BYTES-8; string(f,6,false);
+    before=calls; CHECK(!copy(f) && calls==before && f->snapshots.size==MATTER_IM_READ_SNAPSHOT_BYTES);
+    string(f,0,false); CHECK(copy(f)==MATTER_IM_RESOURCE_EXHAUSTED && calls==before);
+    destroy(f);
+    printf("PASS inline snapshots: strings/bytes through 8 encoded bytes, 9-byte fallback, ARRAY/STRUCTURE, scratch overwrite, record relocation, cumulative budget; value=%zu\n",sizeof(Matter_Im_Snapshot_Value));
+}
 static void shared_snapshots(void) {
     Fixture* a=create();
     Fixture* b=calloc(1,sizeof(*b)); CHECK(b);
@@ -203,4 +251,4 @@ static void bounded_index(void) {
     CHECK(!pool->entries && !live && !live_bytes); free(a); free(b); free(pool);
     puts("PASS bounded snapshot index: unique-data fallback/OOM, reserved large entries, sharing at capacity, real hash collision and full cleanup");
 }
-int main(void) { exact_and_boundaries(); errors_and_oom(); consumed_and_compact(); shared_snapshots(); bounded_index(); return 0; }
+int main(void) { exact_and_boundaries(); errors_and_oom(); consumed_and_compact(); inline_values(); shared_snapshots(); bounded_index(); return 0; }

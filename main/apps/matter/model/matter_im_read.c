@@ -21,6 +21,7 @@ typedef struct {
 } ReadEvents;
 typedef struct {
 	Matter_Tlv_Validation_Workspace_T validation;
+	uint8_t short_snapshot[MATTER_IM_SNAPSHOT_INLINE];
 	Matter_Tlv_Tag_T tags[48];
 	Matter_Tlv_Reader_T reader;
 	Matter_Tlv_Reader_T value_reader;
@@ -380,7 +381,7 @@ static Matter_Im_Status_T snapshot(Matter_Im_Read_T s) {
 	if (s->value.size>MATTER_IM_READ_MAX_VALUE) return MATTER_IM_RESOURCE_EXHAUSTED;
 	if (!s->value.data && (s->value.size || container(s->value.type))) return MATTER_IM_FAILURE;
 	return matter_im_snapshot_copy(&s->snapshots,&s->value,&s->work->writer,&s->work->value_reader,&s->work->token,
-        &s->work->validation,s->work->tags,48);
+        &s->work->validation,s->work->tags,48,s->work->short_snapshot);
 }
 static bool privilege(Matter_Im_Privilege_T p) {
 	return p == MATTER_IM_VIEW || p == MATTER_IM_OPERATE || p == MATTER_IM_MANAGE || p == MATTER_IM_ADMINISTER;
@@ -554,7 +555,7 @@ static void compact(Matter_Im_Read_T s) {
  * Snapshot validation already established anonymous root, balance and limits. */
 static size_t list_next(Matter_Im_Read_T s, size_t item, size_t offset) {
 	const Matter_Im_Snapshot_Value* v=&read_items_at(&s->items,item)->value;
-	if (matter_tlv_init(&s->work->value_reader,v->as.span.data,v->as.span.size,4)!=MATTER_TLV_OK ||
+	if (matter_tlv_init(&s->work->value_reader,matter_im_snapshot_data(v),matter_im_snapshot_size(v),4)!=MATTER_TLV_OK ||
 		matter_tlv_next(&s->work->value_reader,&s->work->token)!=MATTER_TLV_OK) return 0;
 	while (matter_tlv_next(&s->work->value_reader,&s->work->token)==MATTER_TLV_OK && s->work->token.type!=MATTER_TLV_END) {
 		size_t current=s->work->token.offset;
@@ -579,7 +580,7 @@ static bool report_chunk(Matter_Im_Read_T s) {
 		size_t stop=offset ? list_next(s,item,offset) : 0;
 		if (offset && !stop) return status(s,MATTER_IM_FAILURE);
 		s->plan[n].end=stop;
-		bool last=!offset || stop==read_items_at(&s->items,item)->value.as.span.size-1;
+		bool last=!offset || stop==matter_im_snapshot_size(&read_items_at(&s->items,item)->value)-1;
 		if (report_data(s,n+1,!last || item+1<s->count || events)) {
 			++n; offset=last ? 0 : stop; if (last) ++item; continue;
 		}
@@ -591,7 +592,7 @@ static bool report_chunk(Matter_Im_Read_T s) {
 		s->plan[n].prefix=true; s->plan[n].start=1; s->plan[n].end=1;
 		if (!report_data(s,1,true)) return status(s,MATTER_IM_RESOURCE_EXHAUSTED);
 		stop=1;
-		while (stop<read_items_at(&s->items,item)->value.as.span.size-1) {
+		while (stop<matter_im_snapshot_size(&read_items_at(&s->items,item)->value)-1) {
 			size_t candidate=list_next(s,item,stop);
 			if (!candidate) return status(s,MATTER_IM_FAILURE);
 			s->plan[n].end=candidate;
@@ -671,7 +672,8 @@ Matter_Result_T matter_im_read_process(Matter_Im_Read_T s, uint64_t now) {
 		while (budget-- && s->collected<s->count) {
             ReadItem* result=read_items_at(&s->items,s->collected++); s->path=result->path;
             result->status=read_value(s,result->wildcard,&result->omit);
-            result->value=matter_im_snapshot_store(&s->value); result->privilege=(uint8_t)s->attribute.privilege;
+            result->value=result->status || result->omit ? (Matter_Im_Snapshot_Value){0} : matter_im_snapshot_store(&s->value);
+            result->privilege=(uint8_t)s->attribute.privilege;
 		}
 		if (s->collected==s->count) {
             Matter_Im_Status_T code=collect_events(s);
@@ -723,9 +725,10 @@ Matter_Result_T matter_im_read_sent(Matter_Im_Read_T s) {
 	s->state=MATTER_IM_READ_IN_FLIGHT;
     if(!s->more) {
         /* Output was copied to independent immutable MRP storage. No future
-         * continuation can use these tables; value/event references retain
-         * their existing confirmation/cancel/drain lifetime. */
+         * continuation can use these tables or their inline bytes. External
+         * value/event references retain their confirmation/cancel/drain lifetime. */
         matter_im_blocks_clear(&s->items); s->count=s->cursor=s->released=0;
+        s->value.data=NULL; s->value.size=0;
         free(s->plan); s->plan=NULL; s->plan_capacity=0;
         free(s->requests); s->requests=NULL; free(s->filters); s->filters=NULL;
         free(s->input); s->input=NULL; free(s->output); s->output=NULL;

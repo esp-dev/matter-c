@@ -28,6 +28,7 @@ typedef struct {
     Matter_Tlv_Writer_T writer;
     Matter_Tlv_Element_T token, root[9], fields[8], revision;
     Matter_Tlv_Validation_Workspace_T validation;
+    uint8_t short_snapshot[MATTER_IM_SNAPSHOT_INLINE];
     Matter_Tlv_Tag_T tags[48];
 } Matter_Im_Subscribe_Work;
 /* Keep the full-width path IDs, but use the padding beside endpoint/status for
@@ -318,7 +319,7 @@ static uint8_t copy_value(Matter_Im_Subscribe_T s) {
     if(size>MATTER_IM_READ_MAX_VALUE || size>MATTER_IM_READ_SNAPSHOT_BYTES-s->snapshots.size) return MATTER_IM_RESOURCE_EXHAUSTED;
     if((!s->value.data && size) || (container(s->value.type) && (!s->value.data || size<2))) return MATTER_IM_FAILURE;
     return matter_im_snapshot_copy(&s->snapshots,&s->value,&s->work->writer,&s->work->value_reader,&s->work->element,
-        &s->work->validation,s->work->tags,48);
+        &s->work->validation,s->work->tags,48,s->work->short_snapshot);
 }
 static bool filtered_version(Matter_Im_Subscribe_T s,uint32_t version) {
     bool match=false;
@@ -453,7 +454,8 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
         if(prime && result->wildcard && path_error(code)) omit=true;
         if(!prime && !code && s->capture_data && s->value.report_on_version_change &&
             result->reported && result->reported_version==s->value.data_version) omit=true;
-        result->status=code; if(s->values.head) *sub_values_at(&s->values,i)=matter_im_snapshot_store(&s->value);
+        result->status=code;
+        if(s->values.head) *sub_values_at(&s->values,i)=code || omit ? (Matter_Im_Snapshot_Value){0} : matter_im_snapshot_store(&s->value);
         if(prime) result->active=code==0;
         else if(code) s->terminal_report=true;
         if(!code) ++s->valid;
@@ -585,7 +587,7 @@ static bool report_event(Matter_Im_Subscribe_T s) {
  * invoke a provider while trying candidate encodings. */
 static size_t list_next(Matter_Im_Subscribe_T s,size_t item,size_t offset) {
     const Matter_Im_Snapshot_Value* v=sub_values_at(&s->values,item);
-    if(matter_tlv_init(&s->work->value_reader,v->as.span.data,v->as.span.size,4)!=MATTER_TLV_OK ||
+    if(matter_tlv_init(&s->work->value_reader,matter_im_snapshot_data(v),matter_im_snapshot_size(v),4)!=MATTER_TLV_OK ||
         matter_tlv_next(&s->work->value_reader,&s->work->element)!=MATTER_TLV_OK) return 0;
     while(matter_tlv_next(&s->work->value_reader,&s->work->element)==MATTER_TLV_OK && s->work->element.type!=MATTER_TLV_END) {
         size_t current=s->work->element.offset;
@@ -622,7 +624,7 @@ static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
         size_t stop=offset?list_next(s,item,offset):0;
         if(offset && !stop) return false;
         s->work->plan[n].end=stop;
-        bool last=!offset || stop==sub_values_at(&s->values,item)->as.span.size-1;
+        bool last=!offset || stop==matter_im_snapshot_size(sub_values_at(&s->values,item))-1;
         size_t next_item=item+1;
         while(next_item<s->count && !sub_items_at(&s->items,next_item)->included) ++next_item;
         if(report_attributes(s,n+1,!last || next_item<s->count || events)) {
@@ -633,7 +635,7 @@ static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
         s->work->plan[n].prefix=true; s->work->plan[n].start=1; s->work->plan[n].end=1;
         if(!report_attributes(s,1,true)) return false;
         stop=1;
-        while(stop<sub_values_at(&s->values,item)->as.span.size-1) {
+        while(stop<matter_im_snapshot_size(sub_values_at(&s->values,item))-1) {
             size_t candidate=list_next(s,item,stop);
             if(!candidate) return false;
             s->work->plan[n].end=candidate;

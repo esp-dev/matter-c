@@ -3,7 +3,7 @@
 typedef struct {
     RichSub rich;
     unsigned entries,bytes,base,expected_base,seen[2],replaces[2],adds[2];
-    bool deny,filtered,wrong_type;
+    bool deny,filtered,wrong_type,short_list;
 } ListSub;
 static Matter_Im_Status_T list_allow(void* u,Matter_Exchange_Session_T token,const Matter_Im_Path_T* p,Matter_Im_Privilege_T privilege) {
     ListSub* l=u; sub_guard(&l->rich.model);
@@ -19,6 +19,7 @@ static Matter_Im_Status_T list_read(void* u,const Matter_Im_Path_T* p,bool filte
     CHECK(matter_tlv_writer_init(&r->writer,r->scratch,sizeof(r->scratch),4)==MATTER_TLV_OK);
     rich_put(r,MATTER_TLV_ARRAY,-1,0);
     for(unsigned i=0;i<l->entries;++i) {
+        if(l->short_list) { rich_put(r,MATTER_TLV_UNSIGNED,-1,l->base+10*p->attribute+i); continue; }
         rich_put(r,MATTER_TLV_STRUCTURE,-1,0); rich_put(r,MATTER_TLV_UNSIGNED,0,l->base+10*p->attribute+i);
         /* Request input is no longer borrowed once receive() has copied it. */
         memset(r->model.input,(int)(l->base+i),l->bytes);
@@ -53,8 +54,11 @@ static bool list_report(ListSub* l,Matter_Im_Subscribe_Message_T out) {
         if(depth==5 && e->tag.number==4) { CHECK(e->unsigned_value==1 || e->unsigned_value==2); attr=(unsigned)e->unsigned_value-1; }
         if(depth==5 && e->tag.number==5) { CHECK(e->type==MATTER_TLV_NULL); append=true; }
         if(depth==4 && e->tag.number==2) {
-            if(append) { CHECK(e->type==MATTER_TLV_STRUCTURE && l->replaces[attr]==1); ++l->adds[attr]; }
+            if(append) { CHECK(e->type==(l->short_list?MATTER_TLV_UNSIGNED:MATTER_TLV_STRUCTURE) && l->replaces[attr]==1); ++l->adds[attr]; }
             else { CHECK(e->type==MATTER_TLV_ARRAY && !l->replaces[attr]); ++l->replaces[attr]; l->seen[attr]=0; }
+        }
+        if(l->short_list && e->type==MATTER_TLV_UNSIGNED && ((!e->tag.control && depth==5) || (depth==4 && e->tag.number==2))) {
+            CHECK(e->unsigned_value==l->expected_base+10*(attr+1)+l->seen[attr]); ++l->seen[attr];
         }
         if(depth==(append?5u:6u) && e->tag.number==0) {
             CHECK(e->type==MATTER_TLV_UNSIGNED && e->unsigned_value==l->expected_base+10*(attr+1)+l->seen[attr]);
@@ -74,6 +78,19 @@ static void list_start(ListSub* l,unsigned paths) {
     receive(&r->model,r->model.input,r->size,3,12,true);
 }
 static void list_tests(void) {
+    unsigned short_adds=0;
+    for(size_t cap=40;cap<=48;++cap) {
+        ListSub* tiny=list_new(cap,3,0); tiny->short_list=true; list_start(tiny,1);
+        bool more; unsigned chunks=0;
+        do {
+            more=list_report(tiny,output(&tiny->rich.model,0)); CHECK(++chunks<8);
+            memset(tiny->rich.scratch,0xff,sizeof(tiny->rich.scratch));
+            rich_ack(&tiny->rich,true,chunks%2!=0);
+        } while(more);
+        CHECK(tiny->seen[0]==3 && tiny->rich.model.reads==1); short_adds+=tiny->adds[0];
+        rich_prime_finish(&tiny->rich); rich_free(&tiny->rich);
+    }
+    CHECK(short_adds);
     /* Empty/whole/prefix lists, multiple paths sharing scratch, exact capacity
      * boundaries and multiple ADD IBs packed together. Alternate ACK ordering. */
     for(unsigned entries=0;entries<=12;entries+=6) for(size_t cap=50;cap<=180;++cap) {
