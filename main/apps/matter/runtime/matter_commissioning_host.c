@@ -39,7 +39,7 @@ Matter_Result_T matter_commissioning_host_begin(void* u) {
         h->candidate=h->image->data;
         r=h->platform.load(h->platform.user,&h->candidate.settings,&h->candidate.connected); h->candidate.pending=true;
         h->busy=true;
-        if(r==MATTER_OK && h->image->persist.publish) r=h->image->persist.publish(h->image->persist.user,NULL,&h->candidate);
+        if(r==MATTER_OK && h->image->persist.publish) r=h->image->persist.publish(h->image->persist.user,NULL,&h->candidate,false);
         if(r==MATTER_OK) h->image->data=h->candidate;
         else (void)matter_wifi_commit(h->wifi); /* Undo checkpoint only; no radio changes. */
         h->busy=false; erase(&h->candidate,sizeof(h->candidate));
@@ -56,7 +56,7 @@ Matter_Result_T matter_commissioning_host_cleanup(void* u) {
     if(r==MATTER_OK) r=matter_wifi_rollback(h->wifi);
     if(r==MATTER_OK) {
         h->candidate=h->image->data; h->candidate.pending=false;
-        if(r==MATTER_OK && h->image->persist.publish) r=h->image->persist.publish(h->image->persist.user,NULL,&h->candidate);
+        if(r==MATTER_OK && h->image->persist.publish) r=h->image->persist.publish(h->image->persist.user,NULL,&h->candidate,false);
         if(r==MATTER_OK) h->image->data=h->candidate;
         erase(&h->candidate,sizeof(h->candidate));
     }

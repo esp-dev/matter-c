@@ -1,5 +1,31 @@
 # Development status
 
+**Memory23: smaller Fabric publication scratch; one open startup stress finding.**
+Memory22 is committed as `13ffe87`. Changed-range undo replaces the15536 B
+rollback image with576–5168 B on C6; committed TLV projection removes the second
+Fabric candidate entirely. The stable live image and one exact-size contiguous
+TLV blob remain. Public APIs/limits, storage schemas, atomic publication,
+fail-safe and ACK/drain are unchanged.
+
+The common fully live/local-close workloads receive all own-fabric responses.
+Their final system-heap sampled peaks change256348→244480 /256156→244228 B;
+minimum sampled free becomes175504/175748 B. Static D/IRAM remains unchanged.
+The strict full-wildcard retry passes OOM/loss/reconnect/held-TX drain, with
+334644 B peak and83408 B minimum sampled free: whole-model snapshots still
+dominate the broad workload. Native Windows102 tests (three socket tests rerun
+with network access), Linux99/99 normal and99/99 sanitizer tests,17 focused
+Memcheck executions and the full six-group pair separately under Memcheck and
+sanitizers pass. These are lab results, not new CSA results.
+
+The first wildcard startup nevertheless observed14 live subscriptions after15
+initial snapshots. The unchanged full retry and an initial-load-only Memory22
+replay reach15/15; the cause remains unresolved and is not dismissed as network
+noise. This is the next investigation before calling stress acceptance clean.
+The RGB profile still lacks complete required lighting behavior; current Apple
+Home/Google Home pairing has not been physically retested in those apps.
+See [Memory23 validation](memory23-validation.md) and [results](memory23-results.json).
+
+**Previous Memory22 measurements.**
 **Memory22: own-fabric reply progress with multiple live CASE sessions.**
 Memory21 is committed as `5a577e4`. A rejected ACK from another exchange of
 the reply-only connection incorrectly held priority over MRP and starved the

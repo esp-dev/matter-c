@@ -59,6 +59,12 @@ The [Memory22 report](doc/oss/memory22-validation.md) fixes MRP starvation of
   removal regressions, and attributes C6 allocation peaks to actual call sites.
   It separates the reference's lower heap figure from its larger static D/IRAM
   footprint and identifies retained cluster workspaces/publication overlap.
+The [Memory23 report](doc/oss/memory23-validation.md) replaces whole-image Fabric
+rollback copies with bounded changed-range undo and emits committed TLV without a
+second Fabric candidate. The common C6 publication workload saves about12kB of
+sampled heap; the full wildcard peak remains about335kB. Format, fail-safe and
+ACK/drain checks pass in the reported runs; an intermittent14/15 full-subscription
+startup result remains open despite a successful unchanged retry and baseline.
 The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
 with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
 deferred-TX drain. It fixes RX starvation/burst loss and transient interface

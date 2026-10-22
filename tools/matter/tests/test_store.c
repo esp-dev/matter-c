@@ -20,12 +20,14 @@ typedef struct {
     Matter_Case_Resumption_T resumption[2];
     Matter_Store_Data_T data,previous; Matter_Acl_Entry_T entries[4]; Matter_Groupkey_Set_T set;
     uint8_t keys[3][16],bytes[MATTER_STORE_BLOB_MAX],copy[MATTER_STORE_BLOB_MAX]; size_t size,copy_size,reentries;
+    bool check_commit;
 } StoreTest;
 static Matter_Result_T guarded_read(void* u,uint8_t* bytes,size_t cap,size_t* size) {
     StoreTest* t=u; return t->blob.read(t->blob.user,bytes,cap,size);
 }
 static Matter_Result_T guarded_replace(void* u,const uint8_t* bytes,size_t size) {
     StoreTest* t=u;
+    if(t->check_commit) OC_CHECK(!memcmp(&t->cases->fabrics[1]->image->data,&t->previous.fabrics,sizeof(t->previous.fabrics)));
     if(t->store) {
         OC_CHECK(matter_store_host_save(t->store)==MATTER_BUSY && matter_store_host_delete(t->store)==MATTER_BUSY);
         OC_CHECK(matter_store_host_root(t->store,&t->changed)==MATTER_BUSY);
@@ -49,6 +51,36 @@ static Matter_Result_T encode_checked(const Matter_Store_Data_T* d,uint8_t* byte
 #endif
     }
     return r;
+}
+static void projection_check(StoreTest* t) {
+    size_t original_size=0,expected_size=0;
+    OC_CHECK(matter_store_tlv_encode(&t->data,t->bytes,sizeof(t->bytes),&original_size)==MATTER_OK);
+    t->previous=t->data;
+    Matter_Store_Fabrics_T* f=&t->previous.fabrics;
+    f->journal=false; memset(&f->previous,0,sizeof(f->previous)); memset(f->previous_key,0,32);
+    f->view.pase_session=0; f->view.pase_index=0; f->view.pending_index=0;
+    f->view.added=f->view.root_ready=false; f->view.root_size=0; memset(f->view.root,0,400);
+    OC_CHECK(matter_store_tlv_encode(&t->previous,t->copy,sizeof(t->copy),&expected_size)==MATTER_OK);
+    Matter_Store_Source_T source=matter_store_source(&t->data); source.commit_fabrics=true;
+    uint8_t* encoded=NULL; size_t size=0;
+#ifdef MATTER_TEST_ALLOC
+    size_t idle=live_bytes; peak_bytes=idle;
+#endif
+    OC_CHECK(matter_store_source_encode(&source,&encoded,&size)==MATTER_OK && size==expected_size && !memcmp(encoded,t->copy,size));
+#ifdef MATTER_TEST_ALLOC
+    OC_CHECK(peak_bytes-idle<size+1024); /* No hidden full image or rollback copy. */
+    matter_test_free(encoded);
+    for(size_t i=1;i<=2;++i) {
+        fail_at=calls+i; encoded=(uint8_t*)1; size=SIZE_MAX;
+        OC_CHECK(matter_store_source_encode(&source,&encoded,&size)==MATTER_LIMIT_REACHED && !encoded && !size);
+        fail_at=0; OC_CHECK(live_bytes==idle);
+    }
+#else
+    free(encoded);
+#endif
+    /* Both successful projection and each OOM leave every persisted input byte. */
+    size=0; OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&size)==MATTER_OK &&
+        size==original_size && !memcmp(t->copy,t->bytes,size));
 }
 static void saturated_codec_checks(StoreTest* t) {
     OC_CHECK(matter_store_tlv_decode(t->bytes,t->size,&t->data)==MATTER_OK);
@@ -92,6 +124,28 @@ static void saturated_codec_checks(StoreTest* t) {
 #endif
     source.fabrics=NULL; encoded=(uint8_t*)1; size=SIZE_MAX;
     OC_CHECK(matter_store_source_encode(&source,&encoded,&size)==MATTER_INVALID_ARGUMENT && !encoded && !size);
+    for(unsigned version=7;version;--version) {
+        t->data.schema=version;
+        if(version<6) memset(t->data.ota,0,sizeof(t->data.ota));
+        if(version<5) { memset(&t->data.eem,0,sizeof(t->data.eem)); t->data.event_high=0; }
+        for(unsigned i=0;i<5;++i) {
+            Matter_Fabric_Record_T* r=&f->view.records[i];
+            if(version<4) { r->vvs_size=0; r->vvsc_size=0; memset(r->vvs,0,85); memset(r->vvsc,0,400); }
+            if(version<2) { r->label_size=0; memset(r->label,0,32); }
+        }
+        if(version>=3) {
+            f->previous=f->view.records[0]; memcpy(f->previous_key,f->keys[0],32);
+            f->view.root_ready=false; f->view.root_size=0; f->view.added=true; f->view.pending_index=1;
+            projection_check(t); /* Full credential-rotation journal. */
+        }
+        memset(&f->previous,0,sizeof(f->previous)); memset(f->previous_key,0,32);
+        f->view.root_ready=true; f->view.root_size=400; memset(f->view.root,0xa7,400);
+        f->view.added=true; f->view.pending_index=1;
+        projection_check(t); /* AddNOC; pending root also disappears. */
+        f->view.added=false; f->view.pending_index=0;
+        projection_check(t); /* Root staged without an installed pending fabric. */
+    }
+    puts("PASS committed projection: byte-identical schemas1..7, five full slots, AddNOC/UpdateNOC/root journals, immutable input and OOM");
     puts("PASS saturated codec: exact-size/byte-identical encoding at all Fabric/ACL/groupkey/provider limits, rotation and scalar maxima");
 }
 static Matter_Result_T retire(void* u,bool success) { (void)u; (void)success; return MATTER_OK; }
@@ -126,6 +180,7 @@ static void scratch_checks(StoreTest* t,FabFixture* f) {
     start=calls; peak_bytes=idle; max_request=0;
     OC_CHECK(f->port.label(f->host,1,(const uint8_t*)"peak",4)==MATTER_OK && live_bytes==idle);
     count=calls-start; peak=peak_bytes-idle;
+    OC_CHECK(peak<t->size+8192); /* Publication cannot retain another full DTO. */
     printf("MEMORY fabric publication: transient_peak=%zu largest_request=%zu fault_sites=%zu\n",peak,max_request,count);
     read_file(t); memcpy(t->copy,t->bytes,t->size); t->copy_size=t->size;
     version=view->revision;
@@ -139,12 +194,21 @@ static void scratch_checks(StoreTest* t,FabFixture* f) {
     t->previous.fabrics=f->image->data;
     t->previous.wifi=t->image->data; t->previous.root=t->root;
     t->previous.hours=t->diag.hours; t->previous.reboots=t->diag.reboots;
+    start=calls; peak_bytes=idle; max_request=0; t->check_commit=true;
+    OC_CHECK(matter_fabric_host_publish_commit(f->host,&t->image->data)==MATTER_OK && live_bytes==idle);
+    size_t commit_count=calls-start;
+    OC_CHECK(!memcmp(&f->image->data,&t->previous.fabrics,sizeof(f->image->data)));
+    printf("MEMORY committed publication: transient_peak=%zu largest_request=%zu fault_sites=%zu; pending live image unchanged\n",peak_bytes-idle,max_request,commit_count);
+    read_file(t); OC_CHECK(matter_store_tlv_decode(t->bytes,t->size,&t->data)==MATTER_OK &&
+        !t->data.fabrics.journal && !t->data.fabrics.previous.index && !t->data.fabrics.view.added && !t->data.fabrics.view.root_size);
+    OC_CHECK(t->blob.replace(t->blob.user,t->copy,t->copy_size)==MATTER_OK);
+    same_file(t); t->check_commit=false;
     Matter_Acl_Port_T acl=matter_fabric_host_acl_port(f->host);
     memcpy(t->entries,acl.view(acl.user)->fabrics[0].entries,sizeof(t->entries));
     t->entries[0].subject_count=2; t->entries[0].subjects[1]=102;
     Matter_Groupkey_Port_T group=matter_fabric_host_groupkey_port(f->host);
     t->set=(Matter_Groupkey_Set_T){.id=9,.count=1,.times={1}}; memset(t->keys,0x37,sizeof(t->keys));
-    for(unsigned op=0;op<5;++op) for(size_t i=1;i<=count;++i) {
+    for(unsigned op=0;op<5;++op) for(size_t i=1;i<=(op==0?commit_count:count);++i) {
         fail_at=calls+i;
         switch(op) {
         case 0: OC_CHECK(matter_fabric_host_publish_commit(f->host,&t->image->data)==MATTER_LIMIT_REACHED); break;
@@ -159,7 +223,7 @@ static void scratch_checks(StoreTest* t,FabFixture* f) {
             !memcmp(&t->root,&t->previous.root,sizeof(t->root)) && t->diag.hours==t->previous.hours &&
             t->diag.reboots==t->previous.reboots && !matter_fabric_host_reset_requested(f->host));
     }
-    printf("PASS publication OOM: all %zu sites for label/combined commit/fail-safe rollback/last-fabric reset/ACL/groupkey; full RAM and durable bytes preserved\n",count);
+    printf("PASS publication OOM: all %zu mutation / %zu commit sites; label/combined commit/fail-safe rollback/last-fabric reset/ACL/groupkey preserve full RAM and durable bytes\n",count,commit_count);
 }
 #endif
 static void ota_seed(StoreTest* t) {

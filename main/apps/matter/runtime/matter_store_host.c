@@ -20,7 +20,7 @@ static bool capture(Matter_Store_Host_T s,const Matter_Store_Fabrics_T* f,const 
     s->work->wifi=w?*w:s->commissioning->data; s->work->root=*s->root;
     s->work->eem=s->eem;
     s->work->source=(Matter_Store_Source_T){7,f?f:&s->fabric->data,&s->work->wifi,&s->work->root,
-        s->diagnostics->hours,s->diagnostics->reboots,&s->work->eem,s->event_high,s->work->ota};
+        s->diagnostics->hours,s->diagnostics->reboots,&s->work->eem,s->event_high,s->work->ota,false};
     memcpy(s->work->ota,s->ota,sizeof(s->ota));
     for(unsigned i=0;i<5;++i) if(s->work->ota[i].fabric) {
         bool live=false; for(unsigned j=0;j<5;++j) if(s->work->source.fabrics->view.records[j].index==s->work->ota[i].fabric) live=true;
@@ -39,15 +39,17 @@ static Matter_Result_T save(Matter_Store_Host_T s) {
     if(r==MATTER_OK) memcpy(s->ota,s->work->ota,sizeof(s->ota));
     clear_work(s); return r;
 }
-static Matter_Result_T publish(void* u,const Matter_Store_Fabrics_T* f,const Matter_Store_Wifi_T* w) {
+static Matter_Result_T publish(void* u,const Matter_Store_Fabrics_T* f,const Matter_Store_Wifi_T* w,bool commit_fabrics) {
     Matter_Store_Host_T s=u; if(s->busy) return MATTER_BUSY;
-    s->busy=true; if(!capture(s,f,w)) { s->busy=false; return MATTER_LIMIT_REACHED; } Matter_Result_T r=save(s); s->busy=false; return r;
+    s->busy=true; if(!capture(s,f,w)) { s->busy=false; return MATTER_LIMIT_REACHED; }
+    s->work->source.commit_fabrics=commit_fabrics;
+    Matter_Result_T r=save(s); s->busy=false; return r;
 }
 static Matter_Result_T reset(void* u,const Matter_Store_Fabrics_T* f) {
     Matter_Store_Host_T s=u; if(s->busy) return MATTER_BUSY;
     s->busy=true; s->work=calloc(1,sizeof(*s->work)); if(!s->work) { s->busy=false; return MATTER_LIMIT_REACHED; }
     s->work->eem=s->eem;
-    s->work->source=(Matter_Store_Source_T){7,f,&s->work->wifi,&s->work->root,0,0,&s->work->eem,s->event_high,s->work->ota};
+    s->work->source=(Matter_Store_Source_T){7,f,&s->work->wifi,&s->work->root,0,0,&s->work->eem,s->event_high,s->work->ota,false};
     s->work->root.location[0]=s->work->root.location[1]='X'; s->work->wifi.settings.enabled=true;
     Matter_Result_T r=save(s);
     if(r==MATTER_OK) {
@@ -99,7 +101,7 @@ Matter_Result_T matter_store_host_root(void* u,const Matter_Root_Settings_T* roo
     if(r==MATTER_OK) *s->root=*root;
     s->busy=false; return r;
 }
-Matter_Result_T matter_store_host_save(Matter_Store_Host_T s) { return s?publish(s,NULL,NULL):MATTER_INVALID_ARGUMENT; }
+Matter_Result_T matter_store_host_save(Matter_Store_Host_T s) { return s?publish(s,NULL,NULL,false):MATTER_INVALID_ARGUMENT; }
 
 Matter_Result_T matter_store_host_eem_load(void* u,Matter_Eem_Checkpoint_T* out) {
     Matter_Store_Host_T s=u; if(!s || !out) return MATTER_INVALID_ARGUMENT;

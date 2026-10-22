@@ -13,9 +13,10 @@ typedef struct {
     const Matter_Eem_Checkpoint_T* eem;
     uint64_t event_high;
     const Matter_Ota_Provider_T* ota;
+    bool commit_fabrics;
 } Matter_Store_Source_T;
 static inline Matter_Store_Source_T matter_store_source(const Matter_Store_Data_T* d) {
-    return (Matter_Store_Source_T){d->schema,&d->fabrics,&d->wifi,&d->root,d->hours,d->reboots,&d->eem,d->event_high,d->ota};
+    return (Matter_Store_Source_T){d->schema,&d->fabrics,&d->wifi,&d->root,d->hours,d->reboots,&d->eem,d->event_high,d->ota,false};
 }
 bool matter_store_source_valid(const Matter_Store_Source_T*);
 /* On success caller owns exactly *size zero-initialized/encoded bytes, to erase
