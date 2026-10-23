@@ -78,7 +78,15 @@ block 61440 B; observed owner stack use remains 3288/12800 B. The report covers
 key/challenge lifetime, bounded response copies, OOM, reentry and ACK/drain.
 It also retains the worse post-fault largest-free-block observation, despite
 zero remaining core allocations; its exact SDK allocation placement needs a
-separate settled-heap follow-up.
+separate settled-heap follow-up, completed in Memory36 below.
+
+The [Memory36 settled-heap investigation](doc/oss/memory36-validation.md) compares
+the exact Memory34/35 images and identifies a 16-byte lwIP timeout node splitting
+large free spans after full ACK/drain. In the instrumented long probe, releasing
+20 B of accounting after the 5 s sample grows the largest block from 147456 B to
+286720 B by 15 s, stable through 65 s. RMT/MPI mutexes form other SDK islands.
+Nine C6 fault runs and checked exact-ELF maps separate deferred SDK lifetime,
+persistent allocation placement and core leaks; normal firmware/fabric are restored.
 
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,

@@ -62,15 +62,30 @@ static void heap_audit_settle(void) {
     heap_audit_state("complete-immediate");
     /* Relative deadlines include map/UART time; actual timestamps are emitted.
      * Delay yields to idle/timer/tcpip tasks without adding a protocol timeout. */
-    const unsigned delays[]={20,100,500,2000,5000};
-    const char* phases[]={"complete-20ms","complete-100ms","complete-500ms","complete-2s","complete-5s"};
+    const unsigned delays[]={20,100,500,2000,5000
+#if CONFIG_MATTER_C_RUNTIME_HEAP_SETTLE_LONG
+        ,15000,30000,65000
+#endif
+    };
+    const char* phases[]={"complete-20ms","complete-100ms","complete-500ms","complete-2s","complete-5s"
+#if CONFIG_MATTER_C_RUNTIME_HEAP_SETTLE_LONG
+        ,"complete-15s","complete-30s","complete-65s"
+#endif
+    };
     for(size_t i=0;i<sizeof(delays)/sizeof(*delays);++i) {
         uint64_t elapsed=now()-begin;
         if(elapsed<delays[i]) vTaskDelay(pdMS_TO_TICKS(delays[i]-elapsed)+1);
         REQUIRE(heap_caps_check_integrity_all(true));
         sample(phases[i]); heap_audit_state(phases[i]);
+#if CONFIG_MATTER_C_RUNTIME_HEAP_SETTLE_LONG
+        if(delays[i]==5000) heap_audit_map("complete-5s");
+#endif
     }
+#if CONFIG_MATTER_C_RUNTIME_HEAP_SETTLE_LONG
+    heap_audit_map("complete-65s"); heap_audit_state("after-final-map");
+#else
     heap_audit_map("complete-5s"); heap_audit_state("after-final-map");
+#endif
 #if CONFIG_MATTER_C_RUNTIME_HEAP_QUEUE_OWNERS
     printf("HEAP_OWNER {\"name\":\"queue-map-overflows\",\"count\":%u}\n",matter_lab_heap_queue_overflows());
 #endif

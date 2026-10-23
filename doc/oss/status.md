@@ -1,5 +1,28 @@
 # Development status
 
+**Memory36: fault-teardown fragmentation attributed on C6.**
+Exact normal-image repeats finish with zero core live bytes: Memory34 free 390200 B,
+largest 233472 B; Memory35 free 390216 B, largest 221184 B. Those largest-block values
+differ from their historical snapshots despite unchanged images and nearly equal
+total free. Five-second maps expose a persistent 16-byte separator. A longer
+Memory35 probe directly identifies it as lwIP `MEMP_SYS_TIMEOUT` from
+`sys_timeout_abs`: free spans 138184/148884 B are separated at 5 s. Between 5 and 15 s
+the node is released, free rises only 20 B and largest grows 147456 -> 286720 B,
+stable through 65 s. Three other SDK timeout nodes remain; RMT 92/MPI 92 mutexes and
+an IRQ descriptor 24 form additional islands. The historical 151552 B snapshot has
+no map and is not retroactively assigned a particular address.
+Optional default-off queue/TLS/small/pool attribution and 65-second observations
+preserve Matter limits and ACK/drain. Attribution costs 1544/12296 B BSS and is
+excluded from normal-image headline metrics. Nine full C6 fault runs pass, with
+all core allocations drained, no healthy errors and no SDK OOM. Fourteen offline
+decoder tests, 15 checked maps and all conditional builds pass. SDK tracked source
+stays clean; no new full host/CSA/Home/reference campaign is claimed. Normal
+Memory35 and original fabric restored; COM23/AP free, COM24 untouched, temporary
+profile/XML removed and Windows IPv6 enabled.
+See [report](memory36-validation.md) and [results](memory36-results.json).
+Next: evaluate supported early RMT initialization before large Matter allocations,
+then compare serving peaks and long-settled largest blocks without deleting SDK globals.
+
 **Memory35: phase-owned Operational Credentials workspaces.**
 Opcreds context shrinks 2016 -> 464 B on C6 (1552 B resident saving). CSR512
 exists only during PREPARE; exact-size elements plus the challenge tail survive

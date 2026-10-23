@@ -32,13 +32,30 @@ config MATTER_C_RUNTIME_HEAP_AUDIT
         seconds after teardown. Prints addresses/sizes, never block contents.
         UART logs belong in ignored private output. No protocol timer changes.
 config MATTER_C_RUNTIME_HEAP_QUEUE_OWNERS
-    bool "Record SDK queue/mutex creation sites for heap audit"
+    bool "Record SDK queue/mutex and pthread TLS owners for heap audit"
     depends on MATTER_C_RUNTIME_HEAP_AUDIT
     default n
     help
-        Diagnostic link wrappers keep at most 128 live queue identities and
+        Diagnostic link wrappers keep at most 128 live queue/TLS identities and
         creation PCs in static RAM. No allocation or log inside wrappers.
         Changes memory layout; use for attribution, not headline RAM numbers.
+config MATTER_C_RUNTIME_HEAP_SETTLE_LONG
+    bool "Observe SDK heap through 65 seconds after full teardown"
+    depends on MATTER_C_RUNTIME_HEAP_AUDIT
+    default n
+    help
+        Additional post-stop samples through 15/30/65 seconds and a second
+        settled map cover long-lived SDK timers without changing their periods.
+        UART q completion includes this delay; no protocol drain is extended.
+config MATTER_C_RUNTIME_HEAP_SMALL_OWNERS
+    bool "Also record allocation callers for requests up to 32 bytes"
+    depends on MATTER_C_RUNTIME_HEAP_QUEUE_OWNERS
+    default n
+    help
+        Attribution-only malloc/calloc/realloc, caps-API and small lwIP-pool wrappers reuse an
+        enlarged 1024-entry static table. Free/resize forget old identities;
+        failure preserves them. Explicit overflow invalidates attribution.
+        Adds about 12 KiB BSS; never compare its whole heap to normal images.
 config MATTER_C_RUNTIME_CHIP_RESUMPTION
     bool "Explicit CHIP-compatible CASE resumption traffic KDF for lab peers"
     default y

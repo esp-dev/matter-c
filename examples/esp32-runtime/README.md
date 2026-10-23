@@ -331,6 +331,16 @@ Memory21 adds two optional diagnostic profiles, both default off:
 prints paginated maps; `MATTER_C_RUNTIME_HEAP_QUEUE_OWNERS` adds a bounded
 128-entry SDK queue/libc-lock attribution table. The table changes layout, so
 use it for attribution rather than comparing headline free-heap figures.
+The owner profile also identifies pthread TLS list heads. Its optional
+`MATTER_C_RUNTIME_HEAP_SMALL_OWNERS` subprofile traces allocation requests up to
+32 B using 1024 records instead of 128, adding 12296 B BSS in the C6 builds.
+It follows free and realloc identities and reports overflow; use it to identify
+small persistent SDK islands, separately from normal-image RAM measurements.
+The final profile also tags small lwIP pools, distinguishing timeout nodes from
+other same-size objects. `MATTER_C_RUNTIME_HEAP_SETTLE_LONG` adds samples through
+65 seconds and a second settled map after the original 5-second map. Both are
+default off. UART `q` completion then includes that observation delay after
+protocol drain; the existing SDK/network timer periods are unchanged.
 Walk callbacks copy at most eight descriptors and never format/allocate under
 the SDK heap lock. Maps expose stable/complete flags and never print contents.
 The normal lab now calls lwIP's public owner-thread cleanup after its last
@@ -344,6 +354,22 @@ heap; static RAM and IRAM remain separate. Task watermarks are measured bytes;
 the owner reservation now uses `ESP_TASK_MAIN_STACK`, including IDF's extra512 B
 in these builds, rather than only the configuration value. See the historical
 correction and measured limits in [Memory21](../../doc/oss/memory21-validation.md).
+
+Decode completed post-stop maps offline with the exact diagnostic ELF:
+
+```text
+python examples/esp32-runtime/tests/heap_audit_decode.py --events <private-uart-dir>/events.jsonl --elf <diagnostic-build>/matter_c_runtime.elf --addr2line <idf-toolchain>/riscv32-esp-elf-addr2line.exe --source-root <isolated-source-root> --sdk-root <esp-idf-root> --output build/heap-audit/decoded.json
+python examples/esp32-runtime/tests/heap_audit_decode_test.py
+```
+
+The decoder checks page counts, fingerprints, bounds, overlap and attribution
+overflow. It reports settled deltas and allocations separating free spans in
+each heap region. In the owner-attribution image it resolves recorded SDK callers
+against that ELF; the operator must still verify the flashed binary/ELF pair.
+Keep addresses/raw logs in ignored output. Do not infer that a separating SDK
+mutex can safely be deleted, or compare attribution-image free heap directly
+with normal-image measurements. [Memory36](../../doc/oss/memory36-validation.md)
+records the Memory34/35 fault-teardown comparison.
 
 For RX attribution, `tests/rx_trace.py` generates observer copies in an isolated
 laboratory tree; it refuses to overwrite its input. For example, from the repo root:
