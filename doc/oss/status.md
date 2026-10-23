@@ -1,5 +1,16 @@
 # Development status
 
+**Memory37: RMT-only startup reorder rejected after C6 comparison.**
+Four normal/long-probe fault runs preserve five fabrics, fifteen CASE sessions and
+subscriptions, OOM/reconnect/RX-loss recovery and ACK/drain. All finish with zero
+core live bytes and no SDK OOM. Normal cleaned largest blocks are both 167936 B;
+the long probe changes 249856 -> 221184 B despite similar total free. A 100-byte
+UART allocation replaces the moved 92-byte RMT object as the main separator.
+Six exact-ELF maps and 14 decoder tests pass. The original startup is retained;
+no new portable runtime change or host campaign is claimed for this stage.
+See [report](memory37-validation.md) and [results](memory37-results.json).
+Next: phase-owned OTA Requestor memory, then Read/Subscribe block occupancy.
+
 **Memory36: fault-teardown fragmentation attributed on C6.**
 Exact normal-image repeats finish with zero core live bytes: Memory34 free 390200 B,
 largest 233472 B; Memory35 free 390216 B, largest 221184 B. Those largest-block values

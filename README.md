@@ -88,6 +88,11 @@ large free spans after full ACK/drain. In the instrumented long probe, releasing
 Nine C6 fault runs and checked exact-ELF maps separate deferred SDK lifetime,
 persistent allocation placement and core leaks; normal firmware/fabric are restored.
 
+The [Memory37 RMT experiment](doc/oss/memory37-validation.md) rejects a standalone
+startup reorder: normal cleaned largest blocks are equal, while the 65-second
+probe falls 249856 -> 221184 B when a UART allocation replaces the RMT separator.
+Four C6 fault workloads pass; the original normal startup remains in place.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE
