@@ -61,6 +61,15 @@ writes/events. The C6 ACL context saves 4096 B; normal sampled whole-heap peak i
 13 fabric/filter/global encoding OOM retries, read-to-write aliasing and immutable
 multipart Read/Subscribe snapshots across ACL changes and both ACK orders.
 
+The [Memory34 Fabric encoding](doc/oss/memory34-validation.md) replaces its
+resident 4096-byte workspace with exact-size certificate output and separate
+126/211-byte VID scratch, securely erased before release. The C6 model context
+shrinks 4224 -> 136 B; normal sampled whole-heap peak is 333104 B, minimum free
+83400 B and minimum largest block 57344 B. Native tests cover output/signing OOM,
+secure wipe and certificate lifetime; C6 tests cover load, OOM recovery, reconnect
+and ACK/drain. Observed owner stack use is 3288/12800 B. The report records the
+one subscription rebuilt after fault injection and the validation limitations.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

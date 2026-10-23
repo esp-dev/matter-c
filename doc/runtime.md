@@ -150,6 +150,22 @@ without changing ACL/view/version. Existing generic IM error mappings still
 apply. Write staging, atomic backend store and event prepare/finish do not use
 this allocation. See [Memory33](oss/memory33-validation.md).
 
+Fabric NOCs/Fabrics/TrustedRootCertificates ARRAY reads measure and encode one
+stable backend view, with the existing 4096-byte budget and depth 3. Each read
+owns exactly its encoded size; scalar reads need no encoding allocation and
+securely release the previous borrow. The bytes survive backend publication,
+revision queries, rollback and VID signing until the next accepted Fabric read
+(including an allocation/encoding failure) or deletion. Unsupported attributes
+and busy/reentrant reads preserve the borrow. IM owns independent immutable
+Read/Subscribe snapshots and reliable ciphertext through ACK/drain.
+SignVIDVerificationRequest uses separate 126- or 211-byte request scratch, erased
+before release on both backend success and failure. Certificate/metadata fields
+are copied before the signing callback may invalidate the backend view; signing
+does not overwrite an outstanding read. Read/sign OOM returns ResourceExhausted,
+without invoking signing or changing the backend. All allocated Fabric output
+and signing bytes are erased through volatile stores before free; the model is
+also erased on deletion. See [Memory34](oss/memory34-validation.md).
+
 ## Subscription resource budget
 
 Set `identity.capabilities.subscriptions` before `matter_runtime_new()`. It is

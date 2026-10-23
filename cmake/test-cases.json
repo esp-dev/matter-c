@@ -255,6 +255,26 @@
     "replace": []
   },
   {
+    "name": "test_fabric_encoding",
+    "source": "tools/matter/tests/test_fabric_encoding.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_fabric_encoding_alloc",
+    "source": "tools/matter/tests/test_fabric_encoding.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_fabric.c"
+    ]
+  },
+  {
     "name": "test_groupkey",
     "source": "tools/matter/tests/test_groupkey.c",
     "mode": "normal",

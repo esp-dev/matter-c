@@ -80,6 +80,12 @@ static void fs_report(FabricSub* s,bool prime) {
             }
             if(e->type==MATTER_TLV_STRUCTURE || e->type==MATTER_TLV_ARRAY || e->type==MATTER_TLV_LIST) ++depth;
         }
+        /* Expire the provider borrow before transport delivery/confirmation.
+         * The report's own immutable snapshot must survive the secure wipe. */
+        Matter_Im_Value_T scalar;
+        OC_CHECK(out.size<=sizeof(s->fabric->wire)); memcpy(s->fabric->wire,out.data,out.size);
+        OC_CHECK(!matter_opcreds_read_fabric(s->fabric->o->core,2,s->index,true,&scalar));
+        OC_CHECK(!memcmp(s->fabric->wire,out.data,out.size));
         OC_CHECK(!depth && !matter_im_subscribe_sent_at(s->sub,s->now) && !matter_im_subscribe_confirm(s->sub,s->now));
         fs_rx(s,1,success,sizeof(success));
     } while(more);

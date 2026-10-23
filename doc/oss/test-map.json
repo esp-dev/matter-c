@@ -1165,6 +1165,17 @@
       "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
     },
     {
+      "path": "tools/matter/tests/test_fabric_encoding.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_fabric_encoding",
+        "test_fabric_encoding_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_fabric_encoding",
+      "referenced_by": [],
+      "allocation_variant": "native CTest"
+    },
+    {
       "path": "tools/matter/tests/test_fabric_fixture.h",
       "kind": "fixture-or-helper",
       "ctest": [],

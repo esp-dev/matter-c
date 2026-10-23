@@ -93,6 +93,11 @@ Matter_Im_Command_Result_T matter_fabric_execute(Matter_Fabric_T, Matter_Exchang
 Matter_Im_Command_Result_T matter_fabric_update(Matter_Fabric_T,Matter_Exchange_Session_T,
     uint8_t accessing,uint64_t candidate,const uint8_t*,size_t,uint8_t* status,uint8_t* index);
 Matter_Result_T matter_fabric_rollback(Matter_Fabric_T);
+/* Array data is model-owned until the next accepted read (including scalar,
+ * failed allocation/encoding) or delete. Unsupported attributes/busy calls and
+ * backend changes/VID signing preserve it. IM owns independent report snapshots.
+ * Allocation failure returns ResourceExhausted; the 4096-byte TLV limit remains.
+ * Encoding and signing allocations are securely erased before release. */
 uint8_t matter_fabric_read(Matter_Fabric_T,uint32_t attr,Matter_Exchange_Session_T,bool filtered,Matter_Im_Value_T*);
 /* Trusted caller only: accessing index from authenticated CASE identity/ACL. */
 uint8_t matter_fabric_read_index(Matter_Fabric_T,uint32_t,uint8_t,bool,Matter_Im_Value_T*);

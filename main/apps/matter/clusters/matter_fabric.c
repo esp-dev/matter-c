@@ -5,9 +5,13 @@
 struct Matter_Fabric {
     Matter_Fabric_Port_T port; bool busy;
     Matter_Tlv_Writer_T writer; Matter_Tlv_Element_T e;
-    uint8_t encoded[MATTER_IM_READ_MAX_VALUE];
+    uint8_t* encoded; size_t encoded_size;
 };
 static void erase(void* p,size_t n) { volatile uint8_t* b=p; while(n--) *b++=0; }
+static void erase_free(void* p,size_t n) { if(p) { erase(p,n); free(p); } }
+static void clear_encoded(Matter_Fabric_T m) {
+    erase_free(m->encoded,m->encoded_size); m->encoded=NULL; m->encoded_size=0;
+}
 Matter_Fabric_T matter_fabric_new(const Matter_Fabric_Port_T* p) {
     if(!p || !p->view || !p->root || !p->install || !p->rollback || !p->view(p->user)) return NULL;
     Matter_Fabric_T m=calloc(1,sizeof(*m)); if(m) m->port=*p; return m;
@@ -16,7 +20,7 @@ Matter_Result_T matter_fabric_delete(Matter_Fabric_T m) {
     if(!m) return MATTER_INVALID_ARGUMENT;
     if(m->busy) return MATTER_BUSY;
     /* Durable journal belongs to backend; owner must rollback or recover it. */
-    erase(m,sizeof(*m)); free(m); return MATTER_OK;
+    clear_encoded(m); erase_free(m,sizeof(*m)); return MATTER_OK;
 }
 uint32_t matter_fabric_revision(Matter_Fabric_T m) { return m->port.view(m->port.user)->revision; }
 bool matter_fabric_added(Matter_Fabric_T m) { return m->port.view(m->port.user)->added; }
@@ -107,22 +111,26 @@ uint8_t matter_fabric_vid(Matter_Fabric_T m,uint8_t accessing,uint32_t cmd,const
     if(!m || m->busy || (cmd!=12 && cmd!=13) || !challenge || !target || !signature) return MATTER_IM_FAILURE;
     Matter_Fabric_Vid_T a={0}; const uint8_t* nonce=NULL; *target=accessing;
     uint8_t status=vid_args(cmd,p,n,&a,cmd==13?target:NULL,&nonce); if(status) return status;
+    m->busy=true;
     const Matter_Fabric_View_T* v=m->port.view(m->port.user); const Matter_Fabric_Record_T* f=NULL;
     for(unsigned i=0;i<MATTER_FABRIC_CAPACITY;++i) if(*target && v->records[i].index==*target) f=&v->records[i];
-    if(!f) return MATTER_IM_CONSTRAINT_ERROR;
-    if(cmd==12 && a.vvsc_present && f->icac_size) return MATTER_IM_INVALID_COMMAND;
-    m->busy=true; Matter_Result_T r=MATTER_INVALID_STATE;
+    if(!f) { m->busy=false; return MATTER_IM_CONSTRAINT_ERROR; }
+    if(cmd==12 && a.vvsc_present && f->icac_size) { m->busy=false; return MATTER_IM_INVALID_COMMAND; }
+    Matter_Result_T r=MATTER_INVALID_STATE;
     if(cmd==12) { if(m->port.vid) r=m->port.vid(m->port.user,accessing,&a); }
     else if(m->port.sign && (!f->vvs_size || f->vvs_size==85)) {
         /* Core 6.4.10.1 / 11.18.6.16. Heap-owned scratch; both integers BE.
          * Read and sign are one owner phase: no stale metadata/key snapshot. */
-        uint8_t* b=m->encoded; b[0]=1; memcpy(b+1,nonce,32); memcpy(b+33,challenge,16);
+        size_t size=126+f->vvs_size;
+        uint8_t* b=calloc(1,size);
+        if(!b) { m->busy=false; erase(signature,64); return MATTER_IM_RESOURCE_EXHAUSTED; }
+        b[0]=1; memcpy(b+1,nonce,32); memcpy(b+33,challenge,16);
         b[49]=*target; b[50]=1; memcpy(b+51,f->root_public,65);
         for(unsigned i=0;i<8;++i) b[116+i]=(uint8_t)(f->fabric_id>>(56-8*i));
         b[124]=(uint8_t)(f->vendor>>8); b[125]=(uint8_t)f->vendor;
         memcpy(b+126,f->vvs,f->vvs_size);
-        r=m->port.sign(m->port.user,*target,b,126+f->vvs_size,signature);
-        erase(b,211);
+        r=m->port.sign(m->port.user,*target,b,size,signature);
+        erase_free(b,size);
     }
     m->busy=false; if(r!=MATTER_OK) { erase(signature,64); return MATTER_IM_FAILURE; } return 0;
 }
@@ -195,42 +203,62 @@ static bool put(Matter_Fabric_T m,Matter_Tlv_Type_T t,int tag,uint64_t val,const
 }
 #define P(t,tag,v) put(m,t,tag,v,NULL,0)
 #define B(tag,p,n) put(m,MATTER_TLV_BYTES,tag,0,p,n)
-uint8_t matter_fabric_read_index(Matter_Fabric_T m,uint32_t attr,uint8_t accessing,bool filtered,Matter_Im_Value_T* out) {
-    if(!m || !out || m->busy) return MATTER_IM_FAILURE;
-    if(attr>5) return MATTER_IM_UNSUPPORTED_ATTRIBUTE;
-    const Matter_Fabric_View_T* v=m->port.view(m->port.user);
-    *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED};
-    if(attr==2) { out->unsigned_value=MATTER_FABRIC_CAPACITY; return 0; }
-    if(attr==3) { out->unsigned_value=v->count; return 0; }
-    if(attr==5) { out->unsigned_value=accessing; return 0; }
+static bool encode(Matter_Fabric_T m,const Matter_Fabric_View_T* v,uint32_t attr,uint8_t accessing,bool filtered) {
     /* NOCs/Fabrics are fabric-scoped, not fabric-sensitive. Before AddNOC,
      * index 0 matches no entry when filtered, and unfiltered reads show all. */
-    if(matter_tlv_writer_init(&m->writer,m->encoded,sizeof(m->encoded),3)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
+    if(!P(MATTER_TLV_ARRAY,-1,0)) return false;
     bool root_seen=false;
     for(unsigned i=0;i<MATTER_FABRIC_CAPACITY;++i) {
         const Matter_Fabric_Record_T* f=&v->records[i]; if(!f->index) continue;
-        if(attr==4) { if(!B(-1,f->root,f->root_size)) return MATTER_IM_FAILURE;
+        if(attr==4) { if(!B(-1,f->root,f->root_size)) return false;
             if(f->root_size==v->root_size && !memcmp(f->root,v->root,v->root_size)) root_seen=true;
             continue;
         }
         if(filtered && f->index!=accessing) continue;
-        if(!P(MATTER_TLV_STRUCTURE,-1,0)) return MATTER_IM_FAILURE;
+        if(!P(MATTER_TLV_STRUCTURE,-1,0)) return false;
         if(!attr) {
-            if(!B(1,f->noc,f->noc_size) || (f->icac_size?!B(2,f->icac,f->icac_size):!P(MATTER_TLV_NULL,2,0))) return MATTER_IM_FAILURE;
-            if(f->vvsc_size && !B(3,f->vvsc,f->vvsc_size)) return MATTER_IM_FAILURE;
+            if(!B(1,f->noc,f->noc_size) || (f->icac_size?!B(2,f->icac,f->icac_size):!P(MATTER_TLV_NULL,2,0))) return false;
+            if(f->vvsc_size && !B(3,f->vvsc,f->vvsc_size)) return false;
         } else if(!B(1,f->root_public,65) || !P(MATTER_TLV_UNSIGNED,2,f->vendor) ||
             !P(MATTER_TLV_UNSIGNED,3,f->fabric_id) || !P(MATTER_TLV_UNSIGNED,4,f->node_id) ||
-            !put(m,MATTER_TLV_UTF8,5,0,f->label,f->label_size)) return MATTER_IM_FAILURE;
-        if(attr==1 && f->vvs_size && !B(6,f->vvs,f->vvs_size)) return MATTER_IM_FAILURE;
-        if(!P(MATTER_TLV_UNSIGNED,254,f->index) || !P(MATTER_TLV_END,-1,0)) return MATTER_IM_FAILURE;
+            !put(m,MATTER_TLV_UTF8,5,0,f->label,f->label_size)) return false;
+        if(attr==1 && f->vvs_size && !B(6,f->vvs,f->vvs_size)) return false;
+        if(!P(MATTER_TLV_UNSIGNED,254,f->index) || !P(MATTER_TLV_END,-1,0)) return false;
     }
-    if(attr==4 && v->root_ready && !root_seen && !B(-1,v->root,v->root_size)) return MATTER_IM_FAILURE;
-    if(!P(MATTER_TLV_END,-1,0) || matter_tlv_writer_finish(&m->writer,&out->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    out->type=MATTER_TLV_ARRAY; out->data=m->encoded; return 0;
+    if(attr==4 && v->root_ready && !root_seen && !B(-1,v->root,v->root_size)) return false;
+    return P(MATTER_TLV_END,-1,0);
+}
+uint8_t matter_fabric_read_index(Matter_Fabric_T m,uint32_t attr,uint8_t accessing,bool filtered,Matter_Im_Value_T* out) {
+    if(!m || !out || m->busy) return MATTER_IM_FAILURE;
+    if(attr>5) return MATTER_IM_UNSUPPORTED_ATTRIBUTE;
+    m->busy=true;
+    const Matter_Fabric_View_T* v=m->port.view(m->port.user);
+    clear_encoded(m); *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED};
+    uint8_t result=0; size_t written=0;
+    if(attr==2) out->unsigned_value=MATTER_FABRIC_CAPACITY;
+    else if(attr==3) out->unsigned_value=v->count;
+    else if(attr==5) out->unsigned_value=accessing;
+    else {
+        result=MATTER_IM_FAILURE;
+        /* One stable backend view, two pure passes with the original budget.
+         * Certificates are copied before the next port callback can change it. */
+        if(matter_tlv_measure_init(&m->writer,MATTER_IM_READ_MAX_VALUE,3)!=MATTER_TLV_OK ||
+            !encode(m,v,attr,accessing,filtered) || matter_tlv_writer_finish(&m->writer,&m->encoded_size)!=MATTER_TLV_OK) goto done;
+        m->encoded=calloc(1,m->encoded_size);
+        if(!m->encoded) { result=MATTER_IM_RESOURCE_EXHAUSTED; goto done; }
+        if(matter_tlv_writer_init(&m->writer,m->encoded,m->encoded_size,3)!=MATTER_TLV_OK ||
+            !encode(m,v,attr,accessing,filtered) || matter_tlv_writer_finish(&m->writer,&written)!=MATTER_TLV_OK ||
+            written!=m->encoded_size) goto done;
+        out->type=MATTER_TLV_ARRAY; out->data=m->encoded; out->size=written; result=0;
+    }
+done:
+    if(result) clear_encoded(m);
+    m->busy=false; return result;
 }
 
 uint8_t matter_fabric_read(Matter_Fabric_T m,uint32_t attr,Matter_Exchange_Session_T session,bool filtered,Matter_Im_Value_T* out) {
     if(!m || !out || m->busy) return MATTER_IM_FAILURE;
     if(attr>5) return MATTER_IM_UNSUPPORTED_ATTRIBUTE;
-    return matter_fabric_read_index(m,attr,matter_fabric_index(m,session),filtered,out);
+    m->busy=true; uint8_t index=matter_fabric_index(m,session); m->busy=false;
+    return matter_fabric_read_index(m,attr,index,filtered,out);
 }

@@ -1,5 +1,24 @@
 # Development status
 
+**Memory34: demand-sized Fabric encoding and VID scratch.**
+The Fabric model context shrinks 4224 -> 136 B on C6. Exact-size certificate
+output and separate 126/211-byte VID scratch are securely erased before release.
+Certificate/borrow lifetime, filtering/order, snapshots, original limits,
+publication/fail-safe and ACK/drain are preserved. Normal sampled whole heap
+peak is 333104 B (5840 B below Memory33), min free 83400 B, min largest 57344 B,
+SDK watermark 81328 B. Owner stack use is 3288/12800 B; reservation is unchanged.
+Normal/fault/observer C6 and final RGB pass, with zero-live drain and no SDK OOM.
+One subscription ends during global OOM injection and full 15 load is rebuilt;
+this differs from Memory33's single fault run and is recorded explicitly.
+Windows coverage is 109 cases including three explicit UDP retries, plus all six
+wire cases. Linux CTest passes 106/106 and the full pair 6/6 under Memcheck and
+separately ASan/UBSan/LSan. All six wire cases pass in both builds, without
+Memcheck or sanitizer diagnostics. Original fabric/normal image restored;
+COM23/AP are free, COM24 untouched, temporary Wi-Fi profile/XML removed and
+IPv6 enabled.
+See [report](memory34-validation.md) and [results](memory34-results.json).
+Next candidate: phase-dependent Operational Credentials tbs[1040]/csr[512].
+
 **Memory33: demand-sized ACL encoding.**
 ACL context 6384 -> 2288 B on C6, with one exact-size encoded borrow. Fabric
 filtering, foreign FabricIndex-only fields, authorization, atomic writes/events,
@@ -15,8 +34,7 @@ C6 normal/fault/observer/final RGB pass with zero-live drain and no SDK allocati
 failures. Original singleton fabric/normal image restored;
 COM23/AP free, own Wi-Fi profile removed, IPv6 enabled.
 See [report](memory33-validation.md) and [results](memory33-results.json).
-Next candidate: audit the remaining Fabric model 4096-byte encoding buffer and
-its certificate/cleanup lifetime.
+The Fabric model encoding follow-up is completed by Memory34.
 
 **Memory32: demand-sized Diagnostics encoding.**
 The resident 4096-byte output becomes one exact-size borrowed span. Original TLV
