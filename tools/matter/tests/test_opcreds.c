@@ -89,10 +89,10 @@ int main(int argc,char** argv) {
 #ifdef MATTER_TEST_ALLOC
     for(unsigned i=1;i<=2;++i) { size_t before=live; fail_at=calls+i; OC_CHECK(!matter_opcreds_new(&f->config.identity,&f->port) && live==before); fail_at=0; }
     fail_at=calls+1; OC_CHECK(!matter_opcreds_host_new(&f->config,&crypto,&cp)); fail_at=0;
-    /* Fail first allocation in CSR generation and outer signing; no candidate. */
+    /* Fail CSR scratch allocation before key generation, then outer signing. */
     oc_request(f,4,0,32,false); OC_CHECK(oc_start(f,4,true)==MATTER_PENDING);
     fail_at=calls+1; OC_CHECK(matter_opcreds_process(f->core)==MATTER_PENDING); fail_at=0;
-    oc_finish(f); OC_CHECK(f->result.status==MATTER_IM_FAILURE);
+    oc_finish(f); OC_CHECK(f->result.status==MATTER_IM_RESOURCE_EXHAUSTED);
     oc_request(f,4,0,32,false); OC_CHECK(oc_start(f,4,true)==MATTER_PENDING && matter_opcreds_process(f->core)==MATTER_PENDING);
     fail_at=calls+1; OC_CHECK(matter_opcreds_process(f->core)==MATTER_PENDING); fail_at=0;
     oc_finish(f); OC_CHECK(f->result.status==MATTER_IM_FAILURE && matter_opcreds_host_candidate(f->host,f->candidate)==MATTER_INVALID_STATE);

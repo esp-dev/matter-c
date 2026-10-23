@@ -454,6 +454,18 @@ revision/resumption checks and PASE ACK versus CASE sent completion gates remain
 unchanged. [Memory08](oss/memory08-validation.md) distinguishes owner savings,
 active peaks, full-buffer ceilings and whole-host profiling from ESP32 budgets.
 
+Operational Credentials keeps its nonce/session/key state between bounded owner
+phases. CSR DER scratch (capacity 512) exists only during PREPARE. A shared pure
+TLV encoder measures and writes one immutable CSR/timestamp snapshot under the
+original 900-byte elements limit, then appends 16 challenge bytes for signing.
+The exact-size elements allocation survives SIGN/PUBLISH until poll copies the
+response into the caller's writer. The challenge tail is erased after signing;
+the full allocation is erased before release. Fabric request copies (up to 1024
+bytes) release after synchronous execution. Cancel/error frees workspace even
+while key discard is pending; published candidate/session/challenge binding is
+unchanged. New workspace OOM returns ResourceExhausted. IM retains independent
+response/ciphertext ownership through ACK/drain. See [Memory35](oss/memory35-validation.md).
+
 Secure sessions allocate exact plaintext scratch only during synchronous receive
 and erase/free it after admission, including crypto/parser/admission errors and
 duplicates. No plaintext scratch remains on an idle session. Allocation failure

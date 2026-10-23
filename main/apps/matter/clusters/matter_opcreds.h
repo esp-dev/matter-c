@@ -48,6 +48,14 @@ Matter_Result_T matter_opcreds_delete(Matter_Opcreds_T);
 /* One bounded phase per owner call: prepare elements/CSR, sign, publish.
  * Serialize before IM processing. Re-check session challenge before each phase.
  * No task/time/thread/hardware in core. Heap workspace, single pending operation.
+ * CSR scratch (capacity 512) exists only during prepare and is erased after its
+ * DER is copied into exact-size elements plus the 16-byte signing challenge.
+ * Attestation/CSR elements survive sign/publish through poll; request copies for
+ * Fabric commands survive only through execution. Cancel/error frees workspace
+ * independently of retryable key discard; published candidate binding persists.
+ * All workspace is erased before free. Allocation OOM -> ResourceExhausted,
+ * without changing limits, responses or backend key ownership. Poll copies the
+ * response to the caller's writer before release; IM owns ACK/drain resources.
  * Root/application admission supplies armed state. Optional fabric commands run
  * one bounded validation/install phase; successful AddNOC/UpdateNOC blocks further
  * CSR, AddTrustedRoot and NOC changes until rollback or explicit commit. */

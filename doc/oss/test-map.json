@@ -1670,10 +1670,22 @@
       "allocation_variant": "not applicable"
     },
     {
+      "path": "tools/matter/tests/test_opcreds_memory.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_opcreds_memory",
+        "test_opcreds_memory_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_opcreds_memory",
+      "referenced_by": [],
+      "allocation_variant": "native CTest"
+    },
+    {
       "path": "tools/matter/tests/test_opcreds.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_opcreds"
+        "test_opcreds",
+        "test_opcreds_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_opcreds",
       "referenced_by": [

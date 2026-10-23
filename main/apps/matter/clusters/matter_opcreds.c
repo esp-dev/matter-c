@@ -1,5 +1,6 @@
 #include "matter_opcreds.h"
 #include "../model/matter_cluster_internal.h"
+#include "../codec/matter_tlv_internal.h"
 #include <stdlib.h>
 #include <string.h>
 const uint32_t matter_opcreds_attributes[MATTER_OPCREDS_ATTRIBUTES]={0xfff8,0xfff9,0xfffb,0xfffc,0xfffd};
@@ -17,16 +18,26 @@ struct Matter_Opcreds {
     Matter_Fabric_T fabrics;
     Matter_Exchange_Session_T session, candidate_session;
     uint64_t serial, token, staged, candidate;
-    size_t elements_size, csr_size;
+    size_t elements_size, tbs_capacity;
     uint32_t command;
     unsigned phase;
     bool busy, detached, update, candidate_update;
     uint8_t accessing;
     uint8_t candidate_challenge[16], noc_status, fabric_index;
     uint8_t status, cert_type, nonce[32], challenge[16], checked[16], signature[64];
-    uint8_t tbs[1024+16], csr[MATTER_CREDENTIALS_MAX_CSR], metadata[48];
+    uint8_t* tbs; uint8_t metadata[48];
 };
 static void erase(void* p,size_t n) { volatile uint8_t* b=p; while(n--) *b++=0; }
+static void erase_free(void* p,size_t n) { if(p) { erase(p,n); free(p); } }
+static void clear_tbs(Opcreds m) {
+    bool busy=m->busy; m->busy=true;
+    erase_free(m->tbs,m->tbs_capacity); m->tbs=NULL; m->tbs_capacity=0; m->elements_size=0;
+    m->busy=busy;
+}
+static bool allocate_tbs(Opcreds m,size_t size) {
+    m->tbs=calloc(1,size); if(!m->tbs) return false;
+    m->tbs_capacity=size; return true;
+}
 static bool span(Matter_Der_T d,size_t min,size_t max) { return d.size>=min && d.size<=max && (d.data || !d.size); }
 static size_t octets(size_t n) { return n+(n<=255?3:4); }
 Matter_Cluster_T matter_opcreds_new(const Matter_Opcreds_Config_T* c,const Matter_Opcreds_Port_T* p) {
@@ -83,9 +94,9 @@ uint8_t matter_opcreds_validate(Matter_Opcreds_T handle,uint32_t command,const u
     return MATTER_IM_INVALID_COMMAND;
 }
 static void clear_operation(Opcreds m) {
-    erase(m->tbs,sizeof(m->tbs)); erase(m->csr,sizeof(m->csr)); erase(m->nonce,32);
+    clear_tbs(m); erase(m->nonce,32);
     erase(m->challenge,16); erase(m->checked,16); erase(m->signature,64);
-    m->elements_size=m->csr_size=0; m->token=0; m->session=0; m->phase=IDLE; m->detached=false;
+    m->token=0; m->session=0; m->phase=IDLE; m->detached=false;
 }
 static bool current_session(Opcreds m) {
     Matter_Result_T r=m->port.challenge(m->port.user,m->session,m->checked);
@@ -115,9 +126,16 @@ static Matter_Result_T start(Matter_Opcreds_T handle,Matter_Exchange_Session_T s
     if(m->fabrics && (command==4 || command==6 || command==7 || command==11) && matter_fabric_added(m->fabrics)) { result->status=MATTER_IM_CONSTRAINT_ERROR; return MATTER_OK; }
     if(m->token || m->phase!=IDLE) { result->status=0x9c; return MATTER_OK; }
     if(command!=11 && command!=12 && (!w || w->size || w->capacity<(command==13?75u:(command==6 || command==7)?8u:command==2?606u:976u))) { result->status=MATTER_IM_RESOURCE_EXHAUSTED; return MATTER_OK; }
+    if((command==6 || command==7) && m->candidate && m->candidate_update!=(command==7)) {
+        result->status=MATTER_IM_CONSTRAINT_ERROR; clear_operation(m); return MATTER_OK;
+    }
     m->update=update; m->accessing=accessing;
-    if(command==6 || command==7 || command>=11) { memcpy(m->tbs,data,size); m->elements_size=size; }
-    else {
+    if(command==6 || command==7 || command>=11) {
+        m->busy=true; bool allocated=allocate_tbs(m,size);
+        if(allocated) { memcpy(m->tbs,data,size); m->elements_size=size; }
+        else { result->status=MATTER_IM_RESOURCE_EXHAUSTED; clear_operation(m); }
+        m->busy=false; if(!allocated) return MATTER_OK;
+    } else {
     matter_tlv_init(&m->reader,data,size,4); matter_tlv_next(&m->reader,&m->e);
     while(matter_tlv_next(&m->reader,&m->e)==MATTER_TLV_OK && m->e.type!=MATTER_TLV_END) {
         if(m->e.tag.control==1 && m->e.tag.number==0) {
@@ -126,9 +144,6 @@ static Matter_Result_T start(Matter_Opcreds_T handle,Matter_Exchange_Session_T s
         }
         if(m->e.type==MATTER_TLV_STRUCTURE || m->e.type==MATTER_TLV_ARRAY || m->e.type==MATTER_TLV_LIST) matter_tlv_skip_container(&m->reader);
     }
-    }
-    if((command==6 || command==7) && m->candidate && m->candidate_update!=(command==7)) {
-        result->status=MATTER_IM_CONSTRAINT_ERROR; clear_operation(m); return MATTER_OK;
     }
     if(command==2) {
         Matter_Der_T cert=m->cert_type==1?m->config.dac:m->config.pai;
@@ -144,18 +159,39 @@ Matter_Result_T matter_opcreds_start(Matter_Opcreds_T handle,Matter_Exchange_Ses
     const uint8_t* data,size_t size,Matter_Tlv_Writer_T* w,Matter_Im_Command_Result_T* result,uint64_t* token) {
     return start(handle,session,0,false,command,armed,data,size,w,result,token);
 }
-static bool elements(Opcreds m) {
-    uint32_t timestamp=0;
-    if(!m->command && m->port.timestamp(m->port.user,&timestamp)!=MATTER_OK) return false;
+static bool encode_elements(Opcreds m,uint32_t timestamp,const uint8_t* csr,size_t csr_size) {
     Matter_Tlv_Writer_T* w=&m->writer;
-    if(matter_tlv_writer_init(w,m->tbs,MATTER_OPCREDS_RESP_MAX,1)!=MATTER_TLV_OK || !PUT(MATTER_TLV_STRUCTURE,-1,0)) return false;
-    if(m->command==4) { if(!BYTES(1,m->csr,m->csr_size)) return false; }
+    if(!PUT(MATTER_TLV_STRUCTURE,-1,0)) return false;
+    if(m->command==4) { if(!BYTES(1,csr,csr_size)) return false; }
     else if(!BYTES(1,m->config.certification_declaration.data,m->config.certification_declaration.size)) return false;
     if(!BYTES(2,m->nonce,32)) return false;
     if(!m->command && (!PUT(MATTER_TLV_UNSIGNED,3,timestamp) ||
         (m->config.firmware_information.size && !BYTES(4,m->config.firmware_information.data,m->config.firmware_information.size)))) return false;
-    if(!PUT(MATTER_TLV_END,-1,0) || matter_tlv_writer_finish(w,&m->elements_size)!=MATTER_TLV_OK) return false;
-    memcpy(m->tbs+m->elements_size,m->challenge,16); return true;
+    return PUT(MATTER_TLV_END,-1,0);
+}
+static uint8_t elements(Opcreds m,const uint8_t* csr,size_t csr_size) {
+    uint32_t timestamp=0; size_t size=0;
+    if(!m->command && m->port.timestamp(m->port.user,&timestamp)!=MATTER_OK) return MATTER_IM_FAILURE;
+    /* One timestamp/CSR snapshot, two pure bounded passes; reserve the secure
+     * challenge tail separately from the unchanged 900-byte elements limit. */
+    if(matter_tlv_measure_init(&m->writer,MATTER_OPCREDS_RESP_MAX,1)!=MATTER_TLV_OK ||
+        !encode_elements(m,timestamp,csr,csr_size) || matter_tlv_writer_finish(&m->writer,&size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
+    if(!allocate_tbs(m,size+16)) return MATTER_IM_RESOURCE_EXHAUSTED;
+    if(matter_tlv_writer_init(&m->writer,m->tbs,size,1)!=MATTER_TLV_OK || !encode_elements(m,timestamp,csr,csr_size) ||
+        matter_tlv_writer_finish(&m->writer,&m->elements_size)!=MATTER_TLV_OK || m->elements_size!=size) return MATTER_IM_FAILURE;
+    memcpy(m->tbs+size,m->challenge,16); return 0;
+}
+static uint8_t prepare_elements(Opcreds m) {
+    uint8_t* csr=NULL; size_t size=0; uint8_t status=MATTER_IM_FAILURE;
+    if(m->command==4) {
+        csr=calloc(1,MATTER_CREDENTIALS_MAX_CSR); if(!csr) return MATTER_IM_RESOURCE_EXHAUSTED;
+        if(m->port.csr_prepare(m->port.user,&m->staged,csr,MATTER_CREDENTIALS_MAX_CSR,&size)!=MATTER_OK ||
+            !m->staged || !size || size>MATTER_CREDENTIALS_MAX_CSR) goto done;
+    }
+    status=elements(m,csr,size);
+done:
+    /* The backend retains the key handle, never the borrowed DER buffer. */
+    erase_free(csr,MATTER_CREDENTIALS_MAX_CSR); return status;
 }
 static Matter_Result_T discard_staged(Opcreds m) {
     if(m->staged) {
@@ -175,20 +211,17 @@ Matter_Result_T matter_opcreds_process(Matter_Opcreds_T handle) {
     else if(!current_session(m)) { m->status=MATTER_IM_UNSUPPORTED_ACCESS; m->phase=DISCARD; }
     else if(m->phase==PREPARE && (m->command==12 || m->command==13)) {
         m->status=matter_fabric_vid(m->fabrics,m->accessing,m->command,m->tbs,m->elements_size,m->challenge,&m->fabric_index,m->signature);
-        erase(m->tbs,sizeof(m->tbs)); m->phase=READY;
+        clear_tbs(m); m->phase=READY;
     } else if(m->phase==PREPARE && (m->command==6 || m->command==7 || m->command==11)) {
         uint8_t different=0; for(unsigned i=0;i<16;++i) different|=m->candidate_challenge[i]^m->challenge[i];
         uint64_t key=m->session==m->candidate_session && !different?m->candidate:0;
         Matter_Im_Command_Result_T result=m->command==7?
             matter_fabric_update(m->fabrics,m->session,m->accessing,key,m->tbs,m->elements_size,&m->noc_status,&m->fabric_index):matter_fabric_execute(m->fabrics,m->session,m->command,key,m->tbs,m->elements_size,&m->noc_status,&m->fabric_index);
-        m->status=result.status; erase(m->tbs,sizeof(m->tbs));
+        m->status=result.status; clear_tbs(m);
         if((m->command==6 || m->command==7) && !m->status && !m->noc_status) { m->candidate=0; m->candidate_session=0; erase(m->candidate_challenge,16); }
         m->phase=READY;
     } else if(m->phase==PREPARE) {
-        if(m->command==4) r=m->port.csr_prepare(m->port.user,&m->staged,m->csr,sizeof(m->csr),&m->csr_size);
-        if(r!=MATTER_OK || (m->command==4 && (!m->staged || !m->csr_size || m->csr_size>sizeof(m->csr))) || !elements(m)) {
-            m->status=MATTER_IM_FAILURE; m->phase=DISCARD;
-        } else m->phase=SIGN;
+        m->status=prepare_elements(m); m->phase=m->status?DISCARD:SIGN;
     } else if(m->phase==SIGN) {
         r=m->port.sign(m->port.user,m->tbs,m->elements_size+16,m->signature);
         erase(m->tbs+m->elements_size,16); /* Challenge is never included in the response. */
@@ -199,6 +232,7 @@ Matter_Result_T matter_opcreds_process(Matter_Opcreds_T handle) {
         if(r!=MATTER_OK) { m->status=MATTER_IM_FAILURE; m->phase=DISCARD; }
         else { m->candidate_update=m->update; m->candidate=m->staged; m->candidate_session=m->session; memcpy(m->candidate_challenge,m->challenge,16); m->staged=0; m->phase=READY; }
     }
+    if(m->phase==DISCARD) clear_tbs(m);
     m->busy=false;
     if(m->phase==DISCARD) return MATTER_PENDING; /* Error response waits for release. */
     return r==MATTER_PORT_ERROR?r:m->phase==READY || m->phase==IDLE?MATTER_OK:MATTER_PENDING;
@@ -209,9 +243,10 @@ Matter_Result_T matter_opcreds_poll(Matter_Opcreds_T handle,uint64_t token,Matte
     if(m->busy) return MATTER_BUSY;
     if(!token || token!=m->token || m->detached) return MATTER_INVALID_STATE;
     if(m->phase!=READY) return MATTER_PENDING;
+    m->busy=true;
     *result=(Matter_Im_Command_Result_T){.status=m->status};
     if(!result->status && m->command==13) {
-        m->busy=true; bool live=current_session(m); m->busy=false;
+        bool live=current_session(m);
         if(!live) result->status=MATTER_IM_UNSUPPORTED_ACCESS;
     }
     if(!result->status && (m->command==6 || m->command==7)) {
@@ -222,13 +257,14 @@ Matter_Result_T matter_opcreds_poll(Matter_Opcreds_T handle,uint64_t token,Matte
             !PUT(MATTER_TLV_UNSIGNED,1,1) || !BYTES(2,m->signature,64) || !PUT(MATTER_TLV_END,-1,0)) result->status=MATTER_IM_FAILURE;
     } else if(!result->status && m->command!=11 && m->command!=12 && (!w || !PUT(MATTER_TLV_STRUCTURE,-1,0) || !BYTES(0,m->tbs,m->elements_size) ||
         !BYTES(1,m->signature,64) || !PUT(MATTER_TLV_END,-1,0))) result->status=MATTER_IM_FAILURE;
-    clear_operation(m); return MATTER_OK;
+    clear_operation(m); m->busy=false; return MATTER_OK;
 }
 void matter_opcreds_cancel(Matter_Opcreds_T handle,uint64_t token) {
     Opcreds m=matter_cluster_context(handle,destroy);
     if(!m || m->busy || !token || m->token!=token) return;
-    m->detached=true;
+    m->busy=true; m->detached=true; clear_tbs(m);
     if(m->staged) m->phase=DISCARD; else clear_operation(m);
+    m->busy=false;
 }
 Matter_Result_T matter_opcreds_rollback(Matter_Opcreds_T handle) {
     Opcreds m=matter_cluster_context(handle,destroy);

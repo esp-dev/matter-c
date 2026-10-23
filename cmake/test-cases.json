@@ -393,6 +393,42 @@
     "replace": []
   },
   {
+    "name": "test_opcreds_memory",
+    "source": "tools/matter/tests/test_opcreds_memory.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_opcreds_memory_alloc",
+    "source": "tools/matter/tests/test_opcreds_memory.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_opcreds.c"
+    ]
+  },
+  {
+    "name": "test_opcreds_alloc",
+    "source": "tools/matter/tests/test_opcreds.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/clusters/matter_opcreds.c",
+      "main/apps/matter/clusters/matter_fabric.c",
+      "main/apps/matter/runtime/matter_opcreds_host.c",
+      "main/apps/matter/crypto/matter_attestation_cert.c",
+      "main/apps/matter/crypto/matter_crypto_mbedtls.c"
+    ]
+  },
+  {
     "name": "test_opcreds",
     "source": "tools/matter/tests/test_opcreds.c",
     "mode": "normal",

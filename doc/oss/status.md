@@ -1,5 +1,27 @@
 # Development status
 
+**Memory35: phase-owned Operational Credentials workspaces.**
+Opcreds context shrinks 2016 -> 464 B on C6 (1552 B resident saving). CSR512
+exists only during PREPARE; exact-size elements plus the challenge tail survive
+sign/publish until response copy. Fabric request copies release after execution.
+Secure erasure, limits, key/session/challenge ownership, fail-safe and ACK/drain
+are retained. Normal sampled whole-heap peak is 331396 B (1708 B below Memory34),
+minimum free 84920 B, minimum largest block 61440 B, SDK watermark 82780 B.
+Observed owner stack use remains 3288/12800 B. Normal/fault/observer C6 and final
+original-fabric RGB/drain pass; core live bytes finish at zero. Global OOM ends
+one subscription and full 15 load is rebuilt. Post-fault largest block is worse:
+151552 B versus 258048 B in Memory34, with nearly equal total free heap. Exact
+remaining SDK placement was not newly attributed; this needs a settled-heap
+follow-up. Windows covers 112 cases after three explicit UDP retries, plus six
+wire cases. Linux Memcheck passes 109 native tests, six full pair checks and all
+six wire cases. Separate ASan/UBSan/LSan also pass 109 native tests, six pair
+checks and all six wire cases, without compiler, Memcheck or sanitizer diagnostics.
+Normal image and original fabric restored; COM23/AP are free, COM24 untouched,
+temporary profile/XML removed and Windows IPv6 remains enabled.
+See [report](memory35-validation.md) and [results](memory35-results.json).
+Next: settled samples/paginated heap attribution after the fault workload,
+before another RAM optimization.
+
 **Memory34: demand-sized Fabric encoding and VID scratch.**
 The Fabric model context shrinks 4224 -> 136 B on C6. Exact-size certificate
 output and separate 126/211-byte VID scratch are securely erased before release.

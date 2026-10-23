@@ -70,6 +70,16 @@ secure wipe and certificate lifetime; C6 tests cover load, OOM recovery, reconne
 and ACK/drain. Observed owner stack use is 3288/12800 B. The report records the
 one subscription rebuilt after fault injection and the validation limitations.
 
+The [Memory35 Operational Credentials workspaces](doc/oss/memory35-validation.md)
+replace resident TBS/CSR arrays with phase-owned allocations, securely erased
+after their last use. The C6 context shrinks 2016 -> 464 B. The normal profile
+records sampled whole-heap peak 331396 B, minimum free 84920 B and minimum largest
+block 61440 B; observed owner stack use remains 3288/12800 B. The report covers
+key/challenge lifetime, bounded response copies, OOM, reentry and ACK/drain.
+It also retains the worse post-fault largest-free-block observation, despite
+zero remaining core allocations; its exact SDK allocation placement needs a
+separate settled-heap follow-up.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE
