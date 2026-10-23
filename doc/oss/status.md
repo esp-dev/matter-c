@@ -1,5 +1,17 @@
 # Development status
 
+**Memory28: ready RX before inbox.**
+A natural14/15 C6 incident has valid MRP ACK but missing IM StatusResponse at core
+admission. The dispatcher now consumes ready retained RX before a new inbox,
+without new storage or limits. A before/after native regression and both-peer
+C6 startup checks pass, followed by567.69s OOM/loss/reconnect/drain workload.
+Windows102 native tests and six wire cases pass; Linux99 native tests pass
+normally and with sanitizers. Full pair6/6 and six wire cases pass under Memcheck
+and separately sanitizers. A preliminary
+sanitizer coverage failure prompted deterministic held-completion test control;
+the complete final matrix passes. Historical Memory23 attribution remains open.
+See [validation](memory28-validation.md) and [results](memory28-results.json).
+
 **Memory27: reusable single-lost-ACK comparison.**
 Memory26 is committed as `b77dd1c`. The native test now requires14/15 with the
 original pinned peer and15/15 with the explicitly corrected peer, both loop

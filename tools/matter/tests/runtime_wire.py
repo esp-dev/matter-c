@@ -90,6 +90,8 @@ def run_case(args, name, root):
     if single and not (summary.get('single_ack', {}).get('case_reads') == 15 and
                        summary['diagnostic_peer']['mode'] == ('corrected' if 'corrected' in name else 'original')):
         raise RuntimeError(f"single-ACK coverage incomplete; see {out}")
+    if delay and summary.get('ack_held_completion_cycles') != 1:
+        raise RuntimeError(f"held reliable TX/ACK ordering was not exercised; see {out}")
     if args.memcheck:
         data = (out / 'memcheck.log').read_text(encoding='utf-8')
         if 'ERROR SUMMARY: 0 errors' not in data or 'in use at exit: 0 bytes in 0 blocks' not in data:

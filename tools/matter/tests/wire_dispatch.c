@@ -69,5 +69,7 @@ Matter_Result_T matter_dispatch_process(Matter_Dispatch_T d,uint64_t now) {
                 (unsigned long long)t->key.session,t->subscription_id);
         }
     }
-    active=d; Matter_Result_T result=wire_inner_process(d,now); active=NULL; return result;
+    active=d; Matter_Result_T result=wire_inner_process(d,now); active=NULL;
+    wire_stats.reliable_pending=d->request && d->sending_message?1:0;
+    return result;
 }

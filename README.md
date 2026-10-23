@@ -25,6 +25,10 @@ lost ACK with the original and explicitly corrected peer in both loop orders.
 It requires strict wrong-role rejection, survival of all15 CASE sessions and
 orderly TX drain; private dependencies remain unchanged.
 
+The [Memory28 RX fix](doc/oss/memory28-validation.md) consumes a ready retained
+packet before admitting a new inbox. It fixes an avoidable admission loss,
+adds a failing-before native regression and records C6 OOM/reconnect/drain tests.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

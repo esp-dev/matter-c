@@ -7,6 +7,7 @@ typedef struct {
     size_t calls,failures,live,bytes,peak;
     unsigned ack_dropped,unacknowledged,ack_before_completion,ack_after_completion;
     unsigned wrong_role_acks,target_outcome,target_attempts;
+    unsigned reliable_pending;
 } Wire_Stats;
 extern Wire_Stats wire_stats;
 extern bool wire_completion_pending;

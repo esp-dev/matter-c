@@ -1023,6 +1023,16 @@ bool matter_dispatch_removal_pending(Matter_Dispatch_T d) {
         if(d->connections[i].token && d->connections[i].removal_reply && !d->connections[i].retiring) return true;
     return false;
 }
+static void process_rx(Matter_Dispatch_T d,uint64_t now) {
+    d->ack_waiting=false; (void)matter_rx_process(d->rx,now);
+    if(d->delivered) {
+        if(!d->stopping) dispatch(d);
+        /* Handshake/server IM copied input; client/BDX consumed it (and any
+         * borrowed sink bytes) before return. End the RX view before TX reuse. */
+        d->decision.payload=NULL; d->decision.payload_size=0; d->delivered=false;
+        (void)matter_rx_delivery_release(d->rx);
+    }
+}
 static Matter_Result_T dispatch_process(Matter_Dispatch_T d,uint64_t now) {
     if(now<d->now) return MATTER_INVALID_ARGUMENT;
     d->now=now; Matter_Result_T result=take_completion(d); if(result!=MATTER_OK) return result;
@@ -1030,6 +1040,11 @@ static Matter_Result_T dispatch_process(Matter_Dispatch_T d,uint64_t now) {
     resolve_process(d);
     outgoing_process(d);
     if(d->queued) {
+        /* Completion can make the retained RX ready now. Consume it
+         * before admitting the next inbox packet, otherwise that packet (often
+         * an ACK/StatusResponse) is needlessly dropped on a full RX slot.
+         * Still bounded: one old RX plus this one inbox; no added storage. */
+        process_rx(d,now);
         Matter_Message_Header_T header; size_t consumed;
         if(matter_message_header_read(d->inbox,d->inbox_size,&header,&consumed)==MATTER_MESSAGE_OK) {
             Matter_Udp_Datagram_T packet={d->received_path,d->inbox,d->inbox_size};
@@ -1044,14 +1059,7 @@ static Matter_Result_T dispatch_process(Matter_Dispatch_T d,uint64_t now) {
         }
         d->queued=false;
     }
-    d->ack_waiting=false; (void)matter_rx_process(d->rx,now);
-    if(d->delivered) {
-        if(!d->stopping) dispatch(d);
-        /* Handshake/server IM copied input; client/BDX consumed it (and any
-         * borrowed sink bytes) before return. End the RX view before TX reuse. */
-        d->decision.payload=NULL; d->decision.payload_size=0; d->delivered=false;
-        (void)matter_rx_delivery_release(d->rx);
-    }
+    process_rx(d,now);
     for(Transaction *t=d->transactions,*next;t;t=next) { next=t->next; if(t->handle) process_transaction(t); }
     (void)matter_retransmission_sender_process(d->tx,now);
     for(unsigned i=0;i<CONNECTIONS;++i) { Connection* c=&d->connections[i]; if(c->retiring) {

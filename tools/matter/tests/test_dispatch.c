@@ -407,6 +407,44 @@ static void wire_deactivate(void* u,Matter_Operation_Id_T id) { (void)u;(void)id
 static Matter_Result_T wire_send(void* u,uint64_t id,const Matter_Udp_Datagram_T* p) { (void)id; ((Wire*)u)->borrowed=p; return MATTER_OK; }
 static void wire_cancel(void* u,uint64_t id) { (void)u;(void)id; }
 static void wire_detach(void* u) { (void)u; }
+static Matter_Result_T peer_keys(void* u,Matter_Pase_Keys_T* keys,Matter_Secure_Identity_T* identity) {
+    Matter_Result_T r=take_keys(u,keys,identity);
+    uint16_t id=keys->local_session_id; keys->local_session_id=keys->peer_session_id; keys->peer_session_id=id;
+    uint64_t node=identity->local_node_id; identity->local_node_id=identity->peer_node_id; identity->peer_node_id=node;
+    return r;
+}
+/* A ready old RX slot must be drained before the next encrypted inbox frame.
+ * Otherwise the new ACK is discarded despite enough capacity in this turn. */
+static void rx_before_inbox(Matter_T owner,Matter_Root_T root,const Matter_Udp_Address_T* bind) {
+    size_t before=live_bytes; bool fail_random=false; unsigned index=0; Wire wire={0};
+    Matter_Crypto_Mbedtls_T crypto=matter_crypto_mbedtls_new(NULL); CHECK(crypto);
+    Matter_Crypto_Port_T port; CHECK(!matter_crypto_mbedtls_port(crypto,&port));
+    Matter_Udp_Port_T wp={&wire,wire_activate,wire_deactivate,wire_send,wire_cancel,wire_detach};
+    Matter_Udp_T udp=matter_udp_new(owner,&wp,NULL); CHECK(udp && !matter_udp_start(udp));
+    Matter_Dispatch_Config_T cfg={.root=root,.crypto={.user=&fail_random,.random=entropy}};
+    Matter_Dispatch_T d=matter_dispatch_new(owner,udp,&cfg); CHECK(d);
+    Matter_Udp_Path_T path={.local=*bind,.peer=*bind}; path.local.port=5540; path.peer.port=9;
+    Connection* c=&d->connections[0]; c->token=100; c->operational=true; c->fabric_index=1;
+    c->secure=matter_secure_from_case(&port,&index,take_keys,0); CHECK(c->secure);
+    c->channel=matter_secure_channel_new(c->secure,c->token,&path); CHECK(c->channel);
+    Matter_Secure_T peer=matter_secure_from_case(&port,&index,peer_keys,0); CHECK(peer);
+    uint8_t plain[10],packet[64]; size_t size,encoded;
+    Matter_Protocol_Header_T h={.opcode=0x10,.exchange_id=77,.exchange_flags=MATTER_PROTOCOL_ACK};
+    CHECK(!matter_protocol_header_write(&h,plain,sizeof(plain),&size));
+    Matter_Rx_Input_T old={100,1,false,plain,size}; CHECK(!matter_rx_receive(d->rx,&old,0));
+    CHECK(!matter_secure_seal(peer,plain,size,1,packet,sizeof(packet),&encoded));
+    Matter_Udp_Datagram_T input={path,packet,encoded}; matter_dispatch_received(d,&input);
+    CHECK(d->queued && matter_dispatch_process(d,1)==MATTER_PENDING);
+    Matter_Secure_Info_T info; CHECK(!matter_secure_info(c->secure,&info));
+    CHECK(info.last_received_ms==1 && !d->queued && !d->delivered && !wire.borrowed);
+    CHECK(matter_dispatch_stop(d)==MATTER_PENDING);
+    for(unsigned i=0;i<16 && !d->stopped;++i) (void)matter_dispatch_process(d,2+i);
+    CHECK(!matter_dispatch_stop(d) && !matter_dispatch_delete(d) && live_bytes==before);
+    CHECK(matter_udp_stop(udp)==MATTER_PENDING); (void)matter_udp_process(udp);
+    CHECK(!matter_udp_process(udp) && !matter_udp_delete(udp));
+    CHECK(!matter_secure_close(peer) && !matter_secure_delete(peer) && !matter_crypto_mbedtls_delete(crypto));
+    puts("PASS queued RX before encrypted inbox: no avoidable ACK loss, authenticated admission, borrowed views and full drain");
+}
 /* A stale ACK on the invoking CASE session must not starve its final MRP
  * response. Other sessions of that fabric retire; the reply retains its real
  * UDP borrow through completion, including an early peer ACK and local OOM. */
@@ -1104,6 +1142,7 @@ int main(void) {
     Matter_Dispatch_T d=NULL; bool fail_random=false,reset=false;
     Matter_Udp_Address_T bind={0}; bind.address[15]=1;
     removal_ack_priority(owner,root,&bind);
+    rx_before_inbox(owner,root,&bind);
     Matter_Udp_Listener_T listener={&d,udp_received,udp_sent};
     Matter_Udp_Windows_T udp=matter_udp_windows_new(owner,&bind,0,&listener); CHECK(udp);
     CHECK(matter_udp_start(matter_udp_windows_module(udp))==MATTER_OK && matter_udp_windows_local(udp,&bind)==MATTER_OK);

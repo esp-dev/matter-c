@@ -67,6 +67,15 @@ delayed case additionally requires ACKs while that same packet's accepted TX
 completion is still deferred. This is checked against exchange and message counter,
 not inferred from the configured delay.
 
+Delayed cases also arm a one-shot hold for the next accepted reliable TX.
+Standalone ACK/control completions are not selected. Five concurrent Reads run
+while the fixture requires a new matching ACK-counter observation with that
+runtime completion still held; it then releases the completion and requires all
+Reads to succeed. This makes the ACK-before-completion check independent of
+scheduler jitter: the nominal25ms delay alone does not guarantee that ordering.
+It delays the adapter notification to runtime, as above; it does not alter MRP
+intervals, invent a send result, or replace the component tests of UDP borrows.
+
 ## Register with CTest
 
 The executable always builds with native tests. The six wire tests are registered

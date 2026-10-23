@@ -63,8 +63,23 @@ export async function hostScenarios(o) {
     await reads(); await assertLoad(15);
     const stats=await control('m');
     require(stats.ack_after_completion>0,'No ACK after local completion observed');
-    if(Number(process.env.MATTER_WIRE_COMPLETION_MS)>0)
-        require(stats.ack_before_completion>0,'No ACK before deferred local completion observed');
+    if(Number(process.env.MATTER_WIRE_COMPLETION_MS)>0) {
+        // A fixed25ms delay cannot guarantee a standalone ACK beats completion
+        // on every scheduler. Hold the next accepted reliable TX explicitly;
+        // release its actual completion only after observing its matching ACK.
+        const before=await control('b');
+        const pending=Promise.allSettled(contexts.map(c=>fullRead(c.clients[0])));
+        const end=performance.now()+10000; let held;
+        do {
+            held=await control('m');
+            if(held.held_completion && held.ack_before_completion>before.ack_before_completion) break;
+            await sleep(20);
+        } while(performance.now()<end);
+        await control('j'); const results=await pending;
+        require(held.held_completion===1 && held.ack_before_completion>before.ack_before_completion &&
+            results.every(r=>r.status==='fulfilled'),'No matching ACK during held reliable TX or follow-up Read failed');
+        summary.ack_held_completion_cycles=1; emit('WIRE_ACK_BEFORE_COMPLETION_PASS',held);
+    }
     await control('h');
     // Record the rejection immediately so stop/close cannot create an unhandled
     // promise. Runtime stop is allowed to cancel this Read, after TX drain.

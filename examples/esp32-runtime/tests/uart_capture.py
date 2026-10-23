@@ -38,7 +38,7 @@ def main():
             raw.write(line); raw.flush()
             text=line.decode('utf-8',errors='replace').strip()
             record=None
-            for prefix in ('SOAK ','MEMORY ','TASK_MEMORY ','HEAP_SAMPLE ','HEAP_STATE ','HEAP_BLOCK ','HEAP_MAP ','HEAP_OWNER '):
+            for prefix in ('SOAK ','MEMORY ','TASK_MEMORY ','HEAP_SAMPLE ','HEAP_STATE ','HEAP_BLOCK ','HEAP_MAP ','HEAP_OWNER ','RX_DROP ','RX_BLOCK '):
                 if text.startswith(prefix):
                     record=dict(kind=prefix.strip(),data=json.loads(text[len(prefix):]))
                     break

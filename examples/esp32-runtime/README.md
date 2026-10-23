@@ -344,3 +344,24 @@ heap; static RAM and IRAM remain separate. Task watermarks are measured bytes;
 the owner reservation now uses `ESP_TASK_MAIN_STACK`, including IDF's extra512 B
 in these builds, rather than only the configuration value. See the historical
 correction and measured limits in [Memory21](../../doc/oss/memory21-validation.md).
+
+For RX attribution, `tests/rx_trace.py` generates observer copies in an isolated
+laboratory tree; it refuses to overwrite its input. For example, from the repo root:
+
+```text
+python examples/esp32-runtime/tests/rx_trace.py --source components/matter_c_esp32/matter_idf_udp.c --output build/rx-observer/source/components/matter_c_esp32/matter_idf_udp.c
+python examples/esp32-runtime/tests/rx_trace.py --layer core --source main/apps/matter/transport/matter_rx.c --output build/rx-observer/source/main/apps/matter/transport/matter_rx.c
+```
+
+Copy the remaining project sources into that private tree before building it.
+The UDP observer stores 32 per-adapter records and reports overflow explicitly.
+The raw lwIP callback neither allocates nor prints; the owner copies one small
+record under the core lock and prints after unlocking. `RX_DROP` contains a
+microsecond timestamp, occupied/total slots, size, reason and an untrusted eight-byte
+wire prefix (session/counter), never decrypted payloads. Reasons1–7 mean inactive,
+non-IPv6, wrong interface, empty, oversize, extensions and no free slot. A prefix
+alone does not identify an ACK; correlate it with a matching peer/dispatcher trace.
+`--layer core` adds owner-only `RX_BLOCK` metadata for queued admission and ACK
+backpressure. The collector records both formats. These profiles change memory
+layout and timing; use a normal image for headline RAM measurements and retain
+raw logs only in ignored output. They change no queue ceiling or protocol timeout.

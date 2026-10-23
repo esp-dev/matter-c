@@ -14,7 +14,7 @@ typedef struct {
     uint64_t completion,due,rx_due;
     Matter_Operation_Result_T outcome;
     unsigned delay,tick,rx_held,rx_reordered;
-    bool hold,arm_rx,after,stopping;
+    bool hold,arm_rx,arm_ack,after,stopping;
     Held_Rx* rx;
 } Wire;
 static volatile sig_atomic_t interrupted;
@@ -39,6 +39,7 @@ static void wire_sent(void* u,uint64_t id,Matter_Operation_Result_T result) {
     Wire* w=u; CHECK(!w->completion);
     w->completion=id; w->outcome=result; w->due=matter_host_now()+w->delay;
     wire_completion_pending=true;
+    if(w->arm_ack && wire_stats.reliable_pending) { w->arm_ack=false; w->hold=true; }
 }
 static void completions(Wire* w) {
     if(w->completion && !w->hold && matter_host_now()>=w->due) {
@@ -69,7 +70,8 @@ static bool command(Wire* w,const char* request,FILE* replies,char stop_id[64]) 
     case 's': wire_ack_fault(2); break;
     case 'l': wire_ack_fault(false); break;
     case 'h': w->hold=true; break;
-    case 'j': w->hold=false; break;
+    case 'b': CHECK(!w->hold && !w->arm_ack); w->arm_ack=true; break;
+    case 'j': w->hold=false; w->arm_ack=false; break;
     case 'r':
         CHECK(!w->arm_rx && !w->rx_due);
         if(!w->rx) { w->rx=wire_calloc(1,sizeof(*w->rx)); CHECK(w->rx); }
@@ -129,7 +131,7 @@ int main(int argc,char** argv) {
         w.stopping=command(&w,request,replies,stop_id);
         turn(&w,rgb,now,&generation); matter_host_sleep(w.tick);
     }
-    wire_fail_after(0); wire_ack_fault(false); w.hold=false;
+    wire_fail_after(0); wire_ack_fault(false); w.hold=false; w.arm_ack=false;
     uint64_t deadline=matter_host_now()+30000;
     Matter_Result_T status=matter_runtime_stop(n->runtime,now);
     while(status==MATTER_PENDING) {
