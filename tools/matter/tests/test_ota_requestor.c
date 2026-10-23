@@ -1,31 +1,43 @@
 #include "clusters/matter_ota_requestor.h"
+#include "model/matter_im_subscribe.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #define CHECK(x) do { if(!(x)) { fprintf(stderr,"OTA line %d: %s\n",__LINE__,#x); exit(1); } } while(0)
 #ifdef MATTER_TEST_ALLOC
-static size_t live,calls,fail_at;
-void* matter_test_calloc(size_t n,size_t z) { if(++calls==fail_at) return NULL; void* p=calloc(n,z); if(p) ++live; return p; }
-void matter_test_free(void* p) { if(p) { CHECK(live); --live; } free(p); }
+#include "test_alloc_bytes.h"
 #endif
 typedef struct {
-    Matter_Ota_Provider_T defaults[5]; uint64_t generations[6],high; bool fail,accept,event_fail;
+    Matter_Ota_Provider_T defaults[5]; uint64_t generations[6],high; bool fail,accept,event_fail,reenter,load_fail;
     Matter_Ota_Offer_T last; unsigned selected,stored,deny_after; Matter_Cluster_T cluster;
     Matter_Tlv_Writer_T writer; Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T element;
+    Matter_Im_Read_T read; Matter_Im_Subscribe_T sub; uint64_t clock;
+    uint8_t expected[256],held[112]; size_t starts[5],sizes[5];
+    unsigned seen[2],replaces[2],adds[2],reads,releases; uint32_t report_version;
     uint8_t bytes[1024],metadata[513]; size_t size; Matter_Event_Record_T records[16];
 } Test;
-static Matter_Result_T load(void* u,Matter_Ota_Provider_T out[5]) { Test* t=u; memcpy(out,t->defaults,sizeof(t->defaults)); return MATTER_OK; }
+static void provider_reentry(Test* t) {
+    if(!t->reenter || !t->cluster) return;
+    Matter_Ota_Provider_T out; const Matter_Cluster_Request_T q={.is_case=true,.fabric=1}; Matter_Im_Value_T value;
+    CHECK(matter_ota_requestor_selected(t->cluster,&out)==MATTER_BUSY);
+    CHECK(matter_ota_requestor_state(t->cluster,true,4,1,0,1,0)==MATTER_BUSY);
+    CHECK(matter_ota_requestor_applied(t->cluster,1,1,0)==MATTER_BUSY);
+    CHECK(matter_ota_requestor_error(t->cluster,1,1,1,NULL,0)==MATTER_BUSY);
+    CHECK(matter_cluster_read(t->cluster,0,&q,&value)==MATTER_IM_FAILURE);
+    CHECK(matter_cluster_delete(t->cluster)==MATTER_BUSY);
+}
+static Matter_Result_T load(void* u,Matter_Ota_Provider_T out[5]) { Test* t=u; provider_reentry(t); if(t->load_fail) return MATTER_PORT_ERROR; memcpy(out,t->defaults,sizeof(t->defaults)); return MATTER_OK; }
 static Matter_Result_T store(void* u,uint8_t fabric,const Matter_Ota_Provider_T* p) {
-    Test* t=u; if(t->fail) return MATTER_PORT_ERROR; ++t->stored;
+    Test* t=u; provider_reentry(t); if(t->fail) return MATTER_PORT_ERROR; ++t->stored;
     t->defaults[fabric-1]=p?*p:(Matter_Ota_Provider_T){0}; return MATTER_OK;
 }
 static uint64_t generation(void* u,uint8_t fabric) { return fabric<6?((Test*)u)->generations[fabric]:0; }
 static bool select_provider(void* u,const Matter_Ota_Offer_T* offer) {
-    Test* t=u; ++t->selected; t->last=*offer; Matter_Ota_Provider_T p;
+    Test* t=u; provider_reentry(t); ++t->selected; t->last=*offer; Matter_Ota_Provider_T p;
     CHECK(matter_ota_requestor_selected(t->cluster,&p)==MATTER_BUSY); return t->accept;
 }
 static Matter_Result_T event_load(void* u,uint64_t* v) { *v=((Test*)u)->high; return MATTER_OK; }
-static Matter_Result_T event_store(void* u,uint64_t v) { Test* t=u; if(t->event_fail) return MATTER_PORT_ERROR; t->high=v; return MATTER_OK; }
+static Matter_Result_T event_store(void* u,uint64_t v) { Test* t=u; provider_reentry(t); if(t->event_fail) return MATTER_PORT_ERROR; t->high=v; return MATTER_OK; }
 static void put(Test* t,Matter_Tlv_Type_T type,int tag,uint64_t v,const void* data,size_t size) {
     t->element=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag<0?0:1,.number=tag<0?0:(unsigned)tag},.unsigned_value=v,.data=data,.size=size};
     CHECK(matter_tlv_write(&t->writer,&t->element,0)==MATTER_TLV_OK);
@@ -123,6 +135,171 @@ static void multi_tests(Test* t) {
     }
     puts("PASS OTA multi-IB Write: 12 scenarios, per-IB status/version/access, partial failure, all-shape/capacity preflight, bounds, suppression and chunk lifecycle");
 }
+static const uint8_t report_read[]={0x15,0x36,0,0x17,0x24,2,0,0x24,3,0x2a,0x24,4,0,0x18,0x18,0x28,3,0x24,255,13,0x18};
+static const uint8_t report_sub[]={0x15,0x29,0,0x24,1,2,0x24,2,5,0x36,3,0x17,0x24,2,0,0x24,3,0x2a,0x24,4,0,0x18,0x18,0x28,7,0x24,255,13,0x18};
+static const uint8_t report_ok[]={0x15,0x24,0,0,0x24,255,13,0x18};
+static Matter_Im_Status_T report_allow(void* u,Matter_Exchange_Session_T session,const Matter_Im_Path_T* path,Matter_Im_Privilege_T privilege) {
+    (void)u; CHECK(session==1 && !path->endpoint && path->cluster==0x2a && !path->attribute && privilege==MATTER_IM_VIEW); return 0;
+}
+static Matter_Im_Status_T report_describe(void* u,const Matter_Im_Path_T* path,Matter_Im_Attribute_T* access) {
+    (void)u; CHECK(!path->attribute); *access=(Matter_Im_Attribute_T){MATTER_IM_VIEW,false}; return 0;
+}
+static Matter_Im_Status_T report_read_value(void* u,const Matter_Im_Path_T* path,bool filtered,Matter_Im_Value_T* out) {
+    Test* t=u; CHECK(!filtered && !path->attribute); ++t->reads;
+    const Matter_Cluster_Request_T q={.is_case=true,.fabric=1,.filtered=false};
+    return matter_cluster_read(t->cluster,0,&q,out);
+}
+static uint8_t report_reserve(void* u,Matter_Exchange_Session_T session,bool keep,uint32_t* id) {
+    (void)u; CHECK(session==1 && keep); *id=42; return 0;
+}
+static void report_release(void* u,uint32_t id) { Test* t=u; CHECK(id==42 && !t->releases++); }
+static void report_receive(Test* t,unsigned which,uint8_t opcode,const uint8_t* data,size_t size) {
+    Matter_Rx_Decision_T rx={.action=MATTER_RX_EXISTING,.session=1,
+        .header={.protocol_id=1,.opcode=opcode,.exchange_id=(uint16_t)(12+which),.exchange_flags=1},.payload=data,.payload_size=size};
+    CHECK(!(which?matter_im_subscribe_receive(t->sub,&rx):matter_im_read_receive(t->read,&rx)));
+}
+static void report_process(Test* t,unsigned which) {
+    CHECK((which?matter_im_subscribe_process(t->sub,++t->clock):matter_im_read_process(t->read,++t->clock))==MATTER_PENDING);
+}
+static Matter_Im_Read_Message_T report_output(Test* t,unsigned which) {
+    Matter_Im_Read_Message_T out; report_process(t,which);
+    CHECK(!(which?matter_im_subscribe_output(t->sub,&out):matter_im_read_output(t->read,&out))); return out;
+}
+static void report_mutate(Test* t) {
+    for(unsigned i=0;i<5;++i) ++t->defaults[i].node;
+    CHECK(matter_cluster_process(t->cluster,t->clock)==MATTER_OK);
+    const Matter_Cluster_Request_T q={.is_case=true,.fabric=1}; Matter_Im_Value_T value;
+    CHECK(!matter_cluster_read(t->cluster,0,&q,&value));
+    CHECK(!matter_cluster_read(t->cluster,2,&q,&value)); /* Release provider encoding. */
+}
+static bool report_check(Test* t,unsigned which,Matter_Im_Read_Message_T out) {
+    CHECK(out.opcode==5 && out.size<=sizeof(t->held)); memcpy(t->held,out.data,out.size);
+    report_mutate(t); CHECK(!memcmp(t->held,out.data,out.size));
+    CHECK(!matter_tlv_init(&t->reader,out.data,out.size,8)); unsigned depth=0; bool more=false,append=false; Matter_Tlv_Result_T r;
+    while((r=matter_tlv_next(&t->reader,&t->element))==MATTER_TLV_OK) {
+        Matter_Tlv_Element_T* e=&t->element;
+        if(e->type==MATTER_TLV_END) { CHECK(depth); --depth; continue; }
+        if(depth==1 && e->tag.number==3) more=e->unsigned_value!=0;
+        if(depth==4 && e->tag.number==0) CHECK(e->type==MATTER_TLV_UNSIGNED && e->unsigned_value==t->report_version);
+        if(depth==4 && e->tag.number==1) append=false;
+        if(depth==5 && e->tag.number==5) { CHECK(e->type==MATTER_TLV_NULL); append=true; }
+        if(depth==4 && e->tag.number==2 && e->type==MATTER_TLV_ARRAY) CHECK(!append && !t->replaces[which]++);
+        if(e->type==MATTER_TLV_STRUCTURE && ((depth==5 && !e->tag.control) || (depth==4 && e->tag.control==1 && e->tag.number==2))) {
+            unsigned n=t->seen[which]++; CHECK(n<5 && t->replaces[which]==1); size_t start=e->offset,header=depth==4?2:1;
+            if(depth==4) { CHECK(append); ++t->adds[which]; }
+            CHECK(!matter_tlv_skip_container(&t->reader) && t->reader.offset-start==t->sizes[n]+header-1);
+            CHECK(!memcmp(out.data+start+header,t->expected+t->starts[n]+1,t->sizes[n]-1)); continue;
+        }
+        if(e->type==MATTER_TLV_STRUCTURE || e->type==MATTER_TLV_ARRAY || e->type==MATTER_TLV_LIST) ++depth;
+    }
+    CHECK(r==MATTER_TLV_DONE && !depth); return more;
+}
+static void report_ack(Test* t,unsigned which,bool more,bool im_first) {
+    CHECK(!(which?matter_im_subscribe_sent_at(t->sub,t->clock):matter_im_read_sent(t->read)));
+    if((which || more) && im_first) { report_receive(t,which,1,report_ok,sizeof(report_ok)); report_process(t,which); }
+    CHECK(!(which?matter_im_subscribe_confirm(t->sub,t->clock):matter_im_read_confirm(t->read,t->clock)));
+    if((which || more) && !im_first) report_receive(t,which,1,report_ok,sizeof(report_ok));
+}
+static void report_tests(unsigned order) {
+    Test* t=calloc(1,sizeof(*t)); CHECK(t); t->accept=true;
+    for(unsigned i=0;i<5;++i) { t->generations[i+1]=i+1; t->defaults[i]=(Matter_Ota_Provider_T){UINT64_C(0xffffff0000000000)+i,65534,(uint8_t)(i+1)}; }
+    Matter_Events_Port_T ep={t,event_load,event_store}; Matter_Events_T events=matter_events_new(&ep); CHECK(events);
+    Matter_Ota_Requestor_Port_T port={t,load,store,generation,select_provider}; t->cluster=matter_ota_requestor_new(&port,events,7,false); CHECK(t->cluster);
+    Matter_Cluster_Request_T q={.is_case=true,.fabric=1}; Matter_Im_Value_T value;
+    CHECK(!matter_cluster_read(t->cluster,0,&q,&value) && value.size<=sizeof(t->expected)); t->report_version=value.data_version;
+    memcpy(t->expected,value.data,value.size); CHECK(!matter_tlv_init(&t->reader,t->expected,value.size,4)); CHECK(!matter_tlv_next(&t->reader,&t->element));
+    for(unsigned i=0;i<5;++i) {
+        CHECK(!matter_tlv_next(&t->reader,&t->element) && t->element.type==MATTER_TLV_STRUCTURE); t->starts[i]=t->element.offset;
+        CHECK(!matter_tlv_skip_container(&t->reader)); t->sizes[i]=t->reader.offset-t->starts[i];
+    }
+    Matter_Im_Read_Port_T p={t,report_allow,report_describe,report_read_value,NULL,NULL}; Matter_Im_Read_Config_T cfg={{1,12,false},30000,sizeof(t->held),true};
+    t->read=matter_im_read_new(&p,&cfg,0); CHECK(t->read); cfg.exchange.exchange_id=13;
+    Matter_Im_Subscribe_Port_T sp={p,report_reserve,report_release}; t->sub=matter_im_subscribe_new(&sp,&cfg,0); CHECK(t->sub);
+    report_receive(t,0,2,report_read,sizeof(report_read)); report_receive(t,1,3,report_sub,sizeof(report_sub));
+    Matter_Im_Read_Message_T first=report_output(t,0),second=report_output(t,1); CHECK(t->reads==2);
+    for(unsigned which=0;which<2;++which) {
+        Matter_Im_Read_Message_T out=which?second:first; unsigned chunks=0; bool more;
+        do { more=report_check(t,which,out); report_ack(t,which,more,(++chunks+order)%2!=0); if(more) out=report_output(t,which); } while(more);
+        CHECK(chunks>1 && t->seen[which]==5 && t->replaces[which]==1 && t->adds[which] && t->reads==2);
+    }
+    CHECK(matter_im_read_state(t->read)==MATTER_IM_READ_COMPLETE); CHECK(report_output(t,1).opcode==4);
+    CHECK(!matter_im_subscribe_sent_at(t->sub,t->clock) && !matter_im_subscribe_confirm(t->sub,t->clock));
+    CHECK(matter_im_subscribe_state(t->sub)==MATTER_IM_SUB_IDLE);
+    CHECK(!matter_im_read_delete(t->read) && !matter_im_subscribe_delete(t->sub) && !matter_cluster_delete(t->cluster) && !matter_events_delete(events)); free(t);
+#ifdef MATTER_TEST_ALLOC
+    CHECK(!live && !live_bytes);
+#endif
+    puts("PASS OTA reports: concurrent multipart Read/Subscribe, five fabrics, provider mutation/free, immutable values/version and both ACK orders");
+}
+#ifdef MATTER_TEST_ALLOC
+static void memory_tests(void) {
+    Test* t=calloc(1,sizeof(*t)); CHECK(t); t->accept=true;
+    for(unsigned i=1;i<=5;++i) t->generations[i]=i;
+    Matter_Events_Port_T ep={t,event_load,event_store}; Matter_Events_T events=matter_events_new(&ep); CHECK(events);
+    Matter_Ota_Requestor_Port_T port={t,load,store,generation,select_provider};
+    t->cluster=matter_ota_requestor_new(&port,events,1,false); CHECK(t->cluster);
+    Matter_Cluster_Request_T q={.is_case=true,.fabric=1}; Matter_Im_Value_T v;
+    t->reenter=true; size_t idle=live_bytes,base_calls=calls; uint32_t dv;
+    for(unsigned i=0;i<20;++i) CHECK(matter_cluster_process(t->cluster,i)==MATTER_OK);
+    CHECK(calls==base_calls && live_bytes==idle);
+    for(unsigned i=1;i<=3;++i) {
+        fail_at=calls+i; CHECK(announce(t,&q,100,0,0)==MATTER_IM_RESOURCE_EXHAUSTED); fail_at=0;
+        CHECK(live_bytes==idle && matter_cluster_process(t->cluster,20)==MATTER_OK && !t->selected);
+    }
+    for(unsigned i=1;i<=2;++i) {
+        CHECK(matter_cluster_version(t->cluster,&dv)==MATTER_OK);
+        fail_at=calls+i; CHECK(write_list(t,&q,1,100)==MATTER_IM_RESOURCE_EXHAUSTED); fail_at=0;
+        uint32_t after; CHECK(matter_cluster_version(t->cluster,&after)==MATTER_OK && after==dv && !t->stored && live_bytes==idle);
+    }
+    CHECK(!write_list(t,&q,1,100));
+    fail_at=calls+1; CHECK(matter_cluster_process(t->cluster,21)==MATTER_OK); fail_at=0;
+    CHECK(!t->selected && live_bytes==idle);
+    CHECK(matter_cluster_process(t->cluster,22)==MATTER_OK && t->selected==1 && live_bytes==idle);
+    size_t before=calls; CHECK(matter_cluster_process(t->cluster,23)==MATTER_OK && calls==before);
+    const uint32_t arrays[]={0,0xfff8,0xfff9,0xfffb};
+    for(unsigned i=0;i<4;++i) {
+        fail_at=calls+1; CHECK(matter_cluster_read(t->cluster,arrays[i],&q,&v)==MATTER_IM_RESOURCE_EXHAUSTED); fail_at=0;
+        CHECK(live_bytes==idle && !matter_cluster_read(t->cluster,arrays[i],&q,&v) && v.size<=256);
+        CHECK(!matter_cluster_read(t->cluster,2,&q,&v) && live_bytes==idle);
+    }
+    /* Five independent pending offers, latest wins, immutable metadata copy. */
+    t->metadata[0]=0x17; t->metadata[1]=0x18;
+    for(unsigned i=1;i<=5;++i) { q.fabric=(uint8_t)i; CHECK(!announce(t,&q,200+i,2,2)); }
+    size_t queued=live_bytes; CHECK(queued==idle+5*sizeof(Matter_Ota_Offer_T));
+    unsigned before_selection=t->selected; t->load_fail=true;
+    CHECK(matter_cluster_process(t->cluster,24)==MATTER_PORT_ERROR && t->selected==before_selection && live_bytes==queued);
+    t->load_fail=false;
+    q.fabric=5; CHECK(!announce(t,&q,300,1,2) && live_bytes==queued);
+    memset(t->bytes,0,sizeof(t->bytes)); t->metadata[0]=0;
+    unsigned selected=t->selected; CHECK(matter_cluster_process(t->cluster,24)==MATTER_OK && t->selected==selected+5);
+    CHECK(t->last.provider.node==300 && t->last.metadata[0]==0x17 && live_bytes==idle);
+    CHECK(!announce(t,&q,400,0,0));
+    for(unsigned i=1;i<=2;++i) {
+        fail_at=calls+i; CHECK(announce(t,&q,401,0,0)==MATTER_IM_RESOURCE_EXHAUSTED); fail_at=0;
+        CHECK(live_bytes==idle+sizeof(Matter_Ota_Offer_T));
+    }
+    selected=t->selected; CHECK(matter_cluster_process(t->cluster,25)==MATTER_OK && t->selected==selected+1 && t->last.provider.node==400);
+    CHECK(!announce(t,&q,402,0,0)); t->generations[5]=0; selected=t->selected;
+    CHECK(matter_cluster_process(t->cluster,25)==MATTER_OK && t->selected==selected && live_bytes==idle);
+    /* Encoding and log-node failures must leave state/version/events untouched. */
+    for(unsigned i=1;i<=2;++i) {
+        CHECK(matter_cluster_version(t->cluster,&dv)==MATTER_OK); fail_at=calls+i;
+        CHECK(matter_ota_requestor_state(t->cluster,true,4,20,1,9,26)==MATTER_LIMIT_REACHED); fail_at=0;
+        uint32_t after; CHECK(matter_cluster_version(t->cluster,&after)==MATTER_OK && after==dv);
+        CHECK(!matter_cluster_read(t->cluster,2,&q,&v) && v.unsigned_value==1 && live_bytes==idle);
+        Matter_Event_Path_T path={0,MATTER_OTA_REQUESTOR_CLUSTER,0}; size_t n;
+        CHECK(matter_events_copy(events,&path,0,t->records,&n)==MATTER_OK && !n);
+        fail_at=calls+i; CHECK(matter_ota_requestor_applied(t->cluster,9,1,27)==MATTER_LIMIT_REACHED); fail_at=0;
+        int64_t code=-9; fail_at=calls+i;
+        CHECK(matter_ota_requestor_error(t->cluster,9,UINT64_MAX,-1,&code,28)==MATTER_LIMIT_REACHED); fail_at=0;
+        CHECK(live_bytes==idle);
+    }
+    CHECK(matter_ota_requestor_state(t->cluster,true,4,20,1,9,29)==MATTER_OK);
+    before=calls; CHECK(matter_ota_requestor_state(t->cluster,true,4,21,1,9,30)==MATTER_OK && calls==before);
+    CHECK(matter_cluster_delete(t->cluster)==MATTER_OK && matter_events_delete(events)==MATTER_OK && !live && !live_bytes);
+    printf("PASS OTA demand memory: idle=%zu queued5=%zu peak=%zu largest=%zu; parse/queue/read/event OOM, retry and atomicity\n",idle,queued,peak_bytes,max_request); free(t);
+}
+#endif
 int main(void) {
     Test* t=calloc(1,sizeof(*t)); CHECK(t); t->accept=true;
     for(unsigned i=1;i<6;++i) t->generations[i]=i;
@@ -209,6 +386,10 @@ int main(void) {
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live);
 #endif
+#ifdef MATTER_TEST_ALLOC
+    memory_tests();
+#endif
+    report_tests(0); report_tests(1);
     puts("PASS OTA Requestor: metadata, fabric-scoped defaults, atomic failure, deferred/copied selection, removal/reuse, instance isolation, state/event failure");
     return 0;
 }

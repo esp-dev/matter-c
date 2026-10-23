@@ -1,0 +1,976 @@
+{
+  "stage": "Memory38",
+  "baseline_core_commit": "38519e9",
+  "preceding_commit": "4a364c3",
+  "source_lf_sha256": {
+    "main/apps/matter/clusters/matter_ota_requestor.c": "82c099eb11bcbfb9acc0998fdde61b290b77851a63cac177a2fecff9f9b00c83",
+    "main/apps/matter/clusters/matter_ota_requestor.h": "46b89791f63d99524503d67d8ec8b4d699ad0ff95f669e52d2988ff5b0ddc595",
+    "tools/matter/tests/test_ota_requestor.c": "3778dbcae0122156e15997cb9282dae42e5f5d5a494ec012f12be4220e05fd2c"
+  },
+  "layout": {
+    "baseline": {
+      "elf_sha256": "f25225cb802ff49f3cd4a96ee5727530b1d6135cad5639e1654e4c37717d9ae4",
+      "sizes": {
+        "Matter_Ota_Offer_T": 544,
+        "Ota": 5704
+      }
+    },
+    "ota": {
+      "elf_sha256": "03f5bac04529749d76116d3ffa05831d5d21d7fa49390661cba3af62af4db2c0",
+      "sizes": {
+        "Matter_Ota_Offer_T": 544,
+        "Ota_Announcement": 32,
+        "Ota_Parse": 1872,
+        "Ota_Encode": 336,
+        "Ota": 344
+      }
+    },
+    "frames": {
+      "equal": 0,
+      "valid": 0,
+      "refresh": 32,
+      "version": 0,
+      "select_offer": 32,
+      "access": 16,
+      "clear_encoded": 16,
+      "destroy": 16,
+      "parse_end": 16,
+      "encoded_new": 16,
+      "parse_begin": 16,
+      "put": 16,
+      "begin": 16,
+      "finish": 16,
+      "event": 48,
+      "read": 48,
+      "process": 32,
+      "next": 16,
+      "input": 64,
+      "skip": 16,
+      "parse_provider": 16,
+      "parse_list": 32,
+      "write_list": 48,
+      "validate_list": 32,
+      "metadata": 64,
+      "parse_announcement": 32,
+      "start": 64,
+      "validate_command": 32,
+      "matter_ota_requestor_selected": 16,
+      "matter_ota_requestor_state": 48,
+      "matter_ota_requestor_applied": 32,
+      "matter_ota_requestor_error": 48,
+      "matter_ota_requestor_new": 160
+    }
+  },
+  "images": {
+    "baseline": {
+      "bin": "500ad0bcf857216170b0d02d7bec5871e4cdcdc83f1337d52d84b6abf0bf5791",
+      "elf": "f25225cb802ff49f3cd4a96ee5727530b1d6135cad5639e1654e4c37717d9ae4",
+      "map": "a91f1889208c118d054f7b65aaae7b2dbeac504288b5e56f284a31b580d5b004"
+    },
+    "ota": {
+      "bin": "cc44d0caa3f38d17bbd621bad144fbe270046aedf886892c8e833495598c79cb",
+      "elf": "03f5bac04529749d76116d3ffa05831d5d21d7fa49390661cba3af62af4db2c0",
+      "map": "fde6460565b763610049a1425f7c763ba23634b7cf208fc38ad7f569062f9057"
+    }
+  },
+  "c6": {
+    "base-profile01": {
+      "image": {
+        "stage": "38",
+        "kind": "profile",
+        "sha256": "500ad0bcf857216170b0d02d7bec5871e4cdcdc83f1337d52d84b6abf0bf5791"
+      },
+      "workload": {
+        "pass": true,
+        "elapsed_seconds": 298.24617449999994,
+        "full_reads": 51,
+        "subscription_snapshots": 15,
+        "healthy_operation_errors": 0,
+        "unexpected_subscription_closures": 0,
+        "oom_cycles": 0,
+        "reconnect_cycles": 0,
+        "loss_cycles": 0,
+        "delayed_completion_cycles": 1,
+        "oom_lost_subscriptions": 0,
+        "oom_rebuilt_load_cycles": 0,
+        "loss_lost_subscriptions": 0,
+        "loss_rebuilt_load_cycles": 0,
+        "loss_operations_rejected": 0,
+        "stop_wait_seconds": 3.5807075000000186,
+        "stop_read_outcome": {
+          "status": "rejected",
+          "name": "Error"
+        },
+        "memory_profile": {
+          "parallel_read_rounds": 3,
+          "publication_rounds": 3,
+          "live_removals": 4
+        }
+      },
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 335709,
+        "heap_free": 390200,
+        "heap_allocated": 31560,
+        "heap_min": 82728,
+        "largest_free": 262144,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9624,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 237416,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "sampled_whole_heap_peak": 331456,
+      "sampled_min_free": 84804,
+      "sampled_min_largest": 60416,
+      "sdk_min_free": 82728,
+      "observed_owner_stack_used": 3176,
+      "sdk_alloc_failures": 0,
+      "core_peak": 237416,
+      "sdk_task_min_free": {
+        "main": 9624,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 2360,
+        "wifi": 4816,
+        "esp_timer": 3596,
+        "Tmr?Svc": 1768
+      }
+    },
+    "ota-fault01": {
+      "image": {
+        "stage": "38",
+        "kind": "fault",
+        "sha256": "cc44d0caa3f38d17bbd621bad144fbe270046aedf886892c8e833495598c79cb"
+      },
+      "workload": {
+        "pass": true,
+        "elapsed_seconds": 463.7883956,
+        "full_reads": 76,
+        "subscription_snapshots": 45,
+        "healthy_operation_errors": 0,
+        "unexpected_subscription_closures": 0,
+        "oom_cycles": 1,
+        "reconnect_cycles": 1,
+        "loss_cycles": 1,
+        "delayed_completion_cycles": 1,
+        "oom_lost_subscriptions": 1,
+        "oom_rebuilt_load_cycles": 1,
+        "loss_lost_subscriptions": 0,
+        "loss_rebuilt_load_cycles": 0,
+        "loss_operations_rejected": 0,
+        "stop_wait_seconds": 3.6082633999999962,
+        "stop_read_outcome": {
+          "status": "rejected",
+          "name": "Error"
+        }
+      },
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 480019,
+        "heap_free": 390208,
+        "heap_allocated": 31556,
+        "heap_min": 104640,
+        "largest_free": 200704,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9608,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 216184,
+        "core_largest": 32768,
+        "core_failures": 14
+      },
+      "sampled_whole_heap_peak": 310792,
+      "sampled_min_free": 107208,
+      "sampled_min_largest": 79872,
+      "sdk_min_free": 104640,
+      "observed_owner_stack_used": 3192,
+      "sdk_alloc_failures": 0,
+      "core_peak": 216184,
+      "sdk_task_min_free": {
+        "main": 9608,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 2372,
+        "wifi": 4812,
+        "esp_timer": 3596,
+        "Tmr?Svc": 1768
+      }
+    },
+    "ota-profile01": {
+      "image": {
+        "stage": "38",
+        "kind": "profile",
+        "sha256": "cc44d0caa3f38d17bbd621bad144fbe270046aedf886892c8e833495598c79cb"
+      },
+      "workload": {
+        "pass": true,
+        "elapsed_seconds": 291.6245561,
+        "full_reads": 51,
+        "subscription_snapshots": 15,
+        "healthy_operation_errors": 0,
+        "unexpected_subscription_closures": 0,
+        "oom_cycles": 0,
+        "reconnect_cycles": 0,
+        "loss_cycles": 0,
+        "delayed_completion_cycles": 1,
+        "oom_lost_subscriptions": 0,
+        "oom_rebuilt_load_cycles": 0,
+        "loss_lost_subscriptions": 0,
+        "loss_rebuilt_load_cycles": 0,
+        "loss_operations_rejected": 0,
+        "stop_wait_seconds": 3.6137360000000043,
+        "stop_read_outcome": {
+          "status": "rejected",
+          "name": "Error"
+        },
+        "memory_profile": {
+          "parallel_read_rounds": 3,
+          "publication_rounds": 3,
+          "live_removals": 4
+        }
+      },
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 308829,
+        "heap_free": 390220,
+        "heap_allocated": 31544,
+        "heap_min": 88048,
+        "largest_free": 262144,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9640,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 232012,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "sampled_whole_heap_peak": 326256,
+      "sampled_min_free": 90172,
+      "sampled_min_largest": 63488,
+      "sdk_min_free": 88048,
+      "observed_owner_stack_used": 3160,
+      "sdk_alloc_failures": 0,
+      "core_peak": 232012,
+      "sdk_task_min_free": {
+        "main": 9640,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 2372,
+        "wifi": 4812,
+        "esp_timer": 3596,
+        "Tmr?Svc": 1768
+      }
+    }
+  },
+  "windows": {
+    "native_passed": 112,
+    "native_total": 112,
+    "final_log_sha256": "fac57ee13748107cbdd80744bf66a22e9c407cf41e4aea9831e9e8d44aa5b9cf"
+  },
+  "linux": {
+    "status": "PASS",
+    "executed": true,
+    "export_files": 843,
+    "export_hashes_verified": true,
+    "variants": [
+      {
+        "kind": "normal",
+        "native_passed": 109,
+        "native_total": 109,
+        "pair_checks": [
+          "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+          "independent-application-state",
+          "independent-Identify-and-UTC-anchors",
+          "B-meter-services-survive-active-A-Identify-teardown",
+          "B-subscription-and-phase-read-survive-A-deletion",
+          "both-last-fabric-responses"
+        ],
+        "pair_stderr_bytes": 0,
+        "pair_memcheck": {
+          "errors": 0,
+          "exit_bytes": 0,
+          "exit_blocks": 0
+        },
+        "pair_binary_sha256": "af32172619d5fbcab83a89d1c65c3bd32b9e7ef4133205a9df7dd0bd0a1f1374",
+        "wire": [
+          {
+            "case": "before",
+            "pass_": true,
+            "elapsed_seconds": 90.569659845,
+            "subscription_snapshots": 30,
+            "full_reads": 15,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 17417,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255949,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 0,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1107,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null,
+            "memcheck": {
+              "errors": 0,
+              "exit_bytes": 0,
+              "exit_blocks": 0
+            }
+          },
+          {
+            "case": "after",
+            "pass_": true,
+            "elapsed_seconds": 432.209013895,
+            "subscription_snapshots": 75,
+            "full_reads": 80,
+            "oom_cycles": 3,
+            "stats": {
+              "core_calls": 62546,
+              "core_failures": 3,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255158,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 12,
+              "ack_after_completion": 3438,
+              "wrong_role_acks": 3,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null,
+            "memcheck": {
+              "errors": 0,
+              "exit_bytes": 0,
+              "exit_blocks": 0
+            }
+          },
+          {
+            "case": "single-original-before",
+            "pass_": true,
+            "elapsed_seconds": 147.770506084,
+            "subscription_snapshots": 45,
+            "full_reads": 30,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 28112,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255938,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1726,
+              "wrong_role_acks": 4,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": false,
+              "load": {
+                "currentSubscriptions": 14,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1003,
+                "totalInteractionModelMessagesReceived": 1002
+              },
+              "stats": {
+                "core_calls": 16259,
+                "core_failures": 0,
+                "core_live": 355,
+                "core_bytes": 181656,
+                "core_peak": 253969,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 1,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1052,
+                "wrong_role_acks": 4,
+                "target_outcome": 2,
+                "target_attempts": 5
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "original",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": null
+            },
+            "memcheck": {
+              "errors": 0,
+              "exit_bytes": 0,
+              "exit_blocks": 0
+            }
+          },
+          {
+            "case": "single-original-after",
+            "pass_": true,
+            "elapsed_seconds": 279.47621420100006,
+            "subscription_snapshots": 45,
+            "full_reads": 35,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 35857,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254459,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 6,
+              "ack_after_completion": 1987,
+              "wrong_role_acks": 2,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": false,
+              "load": {
+                "currentSubscriptions": 14,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1087,
+                "totalInteractionModelMessagesReceived": 1087
+              },
+              "stats": {
+                "core_calls": 18940,
+                "core_failures": 0,
+                "core_live": 355,
+                "core_bytes": 181678,
+                "core_peak": 254198,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 1,
+                "ack_before_completion": 4,
+                "ack_after_completion": 1134,
+                "wrong_role_acks": 2,
+                "target_outcome": 2,
+                "target_attempts": 5
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "original",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": null
+            },
+            "memcheck": {
+              "errors": 0,
+              "exit_bytes": 0,
+              "exit_blocks": 0
+            }
+          },
+          {
+            "case": "single-corrected-before",
+            "pass_": true,
+            "elapsed_seconds": 157.555926267,
+            "subscription_snapshots": 45,
+            "full_reads": 30,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 28740,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254202,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 1,
+              "ack_after_completion": 1749,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": true,
+              "load": {
+                "currentSubscriptions": 15,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1006,
+                "totalInteractionModelMessagesReceived": 1006
+              },
+              "stats": {
+                "core_calls": 16354,
+                "core_failures": 0,
+                "core_live": 373,
+                "core_bytes": 186382,
+                "core_peak": 253971,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 0,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1057,
+                "wrong_role_acks": 0,
+                "target_outcome": 1,
+                "target_attempts": 2
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "corrected",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": "fromInitialMessage: inverse incoming Initiator bit"
+            },
+            "memcheck": {
+              "errors": 0,
+              "exit_bytes": 0,
+              "exit_blocks": 0
+            }
+          },
+          {
+            "case": "single-corrected-after",
+            "pass_": true,
+            "elapsed_seconds": 286.492028729,
+            "subscription_snapshots": 45,
+            "full_reads": 35,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 36318,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254878,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 5,
+              "ack_after_completion": 2004,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": true,
+              "load": {
+                "currentSubscriptions": 15,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1108,
+                "totalInteractionModelMessagesReceived": 1107
+              },
+              "stats": {
+                "core_calls": 19542,
+                "core_failures": 0,
+                "core_live": 372,
+                "core_bytes": 186361,
+                "core_peak": 254200,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 0,
+                "ack_before_completion": 2,
+                "ack_after_completion": 1157,
+                "wrong_role_acks": 0,
+                "target_outcome": 1,
+                "target_attempts": 2
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "corrected",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": "fromInitialMessage: inverse incoming Initiator bit"
+            },
+            "memcheck": {
+              "errors": 0,
+              "exit_bytes": 0,
+              "exit_blocks": 0
+            }
+          }
+        ],
+        "build_diagnostics": []
+      },
+      {
+        "kind": "sanitize",
+        "native_passed": 109,
+        "native_total": 109,
+        "pair_checks": [
+          "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+          "independent-application-state",
+          "independent-Identify-and-UTC-anchors",
+          "B-meter-services-survive-active-A-Identify-teardown",
+          "B-subscription-and-phase-read-survive-A-deletion",
+          "both-last-fabric-responses"
+        ],
+        "pair_stderr_bytes": 0,
+        "pair_memcheck": null,
+        "pair_binary_sha256": "5f2d6d8fd944800cd26ad83bacc04b64015dd95bcd99cdb73df904685e57a505",
+        "wire": [
+          {
+            "case": "before",
+            "pass_": true,
+            "elapsed_seconds": 74.91335929600001,
+            "subscription_snapshots": 30,
+            "full_reads": 15,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 17501,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254432,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 0,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1112,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null
+          },
+          {
+            "case": "after",
+            "pass_": true,
+            "elapsed_seconds": 330.916631407,
+            "subscription_snapshots": 75,
+            "full_reads": 79,
+            "oom_cycles": 3,
+            "stats": {
+              "core_calls": 59651,
+              "core_failures": 3,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255639,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 5,
+              "ack_after_completion": 3352,
+              "wrong_role_acks": 3,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null
+          },
+          {
+            "case": "single-original-before",
+            "pass_": true,
+            "elapsed_seconds": 119.014984631,
+            "subscription_snapshots": 45,
+            "full_reads": 30,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 27399,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254219,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1705,
+              "wrong_role_acks": 4,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": false,
+              "load": {
+                "currentSubscriptions": 14,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 989,
+                "totalInteractionModelMessagesReceived": 989
+              },
+              "stats": {
+                "core_calls": 15799,
+                "core_failures": 0,
+                "core_live": 354,
+                "core_bytes": 181641,
+                "core_peak": 254219,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 1,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1040,
+                "wrong_role_acks": 4,
+                "target_outcome": 2,
+                "target_attempts": 5
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "original",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": null
+            }
+          },
+          {
+            "case": "single-original-after",
+            "pass_": true,
+            "elapsed_seconds": 184.17378229899998,
+            "subscription_snapshots": 45,
+            "full_reads": 35,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 31892,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254923,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 3,
+              "ack_after_completion": 1866,
+              "wrong_role_acks": 2,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": false,
+              "load": {
+                "currentSubscriptions": 14,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1044,
+                "totalInteractionModelMessagesReceived": 1043
+              },
+              "stats": {
+                "core_calls": 17521,
+                "core_failures": 0,
+                "core_live": 355,
+                "core_bytes": 181682,
+                "core_peak": 252632,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 1,
+                "ack_before_completion": 1,
+                "ack_after_completion": 1094,
+                "wrong_role_acks": 2,
+                "target_outcome": 2,
+                "target_attempts": 5
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "original",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": null
+            }
+          },
+          {
+            "case": "single-corrected-before",
+            "pass_": true,
+            "elapsed_seconds": 109.066952957,
+            "subscription_snapshots": 45,
+            "full_reads": 30,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 27239,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255944,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 1,
+              "ack_after_completion": 1702,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": true,
+              "load": {
+                "currentSubscriptions": 15,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 984,
+                "totalInteractionModelMessagesReceived": 984
+              },
+              "stats": {
+                "core_calls": 15630,
+                "core_failures": 0,
+                "core_live": 373,
+                "core_bytes": 186386,
+                "core_peak": 255944,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 0,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1035,
+                "wrong_role_acks": 0,
+                "target_outcome": 1,
+                "target_attempts": 2
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "corrected",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": "fromInitialMessage: inverse incoming Initiator bit"
+            }
+          },
+          {
+            "case": "single-corrected-after",
+            "pass_": true,
+            "elapsed_seconds": 178.265662709,
+            "subscription_snapshots": 45,
+            "full_reads": 35,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 31730,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254882,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 4,
+              "ack_after_completion": 1860,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": true,
+              "load": {
+                "currentSubscriptions": 15,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1040,
+                "totalInteractionModelMessagesReceived": 1040
+              },
+              "stats": {
+                "core_calls": 17388,
+                "core_failures": 0,
+                "core_live": 373,
+                "core_bytes": 186408,
+                "core_peak": 254450,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 0,
+                "ack_before_completion": 2,
+                "ack_after_completion": 1090,
+                "wrong_role_acks": 0,
+                "target_outcome": 1,
+                "target_attempts": 2
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "corrected",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": "fromInitialMessage: inverse incoming Initiator bit"
+            }
+          }
+        ],
+        "build_diagnostics": []
+      }
+    ]
+  },
+  "ota_requested_payload_budget": {
+    "old_resident": 5704,
+    "new_resident": 344,
+    "resident_saved": 5360,
+    "parse": 1872,
+    "encoding": 336,
+    "offer": 544,
+    "pending_limit": 5,
+    "conservative_component_peak": 5272,
+    "excludes": "Cluster/framework/event/provider allocations and allocator overhead"
+  },
+  "retained_attempts": [
+    {
+      "variant": "superseded first prototype",
+      "test": "Memcheck wire after",
+      "outcome": "FAIL: 14/15 initial subscriptions, before deliberate faults",
+      "healthy_operation_errors": 0,
+      "unexpected_subscription_closures": 0,
+      "attribution": "Unestablished; no packet trace. Not claimed fixed by OTA changes."
+    },
+    {
+      "variant": "superseded second prototype",
+      "outcome": "Own worker stopped after final revision replaced it; partial tests not promoted to final validation."
+    }
+  ],
+  "limitations": [
+    "Finite fixed-profile and fault runs are not specification-wide RAM bounds.",
+    "Whole-heap sampled peak includes SDK/Wi-Fi and heap-backed task resources, excludes static data; SDK watermark is recorded separately.",
+    "Final full wire gates pass; the earlier untraced 14/15 observation remains recorded without causal attribution.",
+    "No new CSA, phone app pairing or ESP-Matter reference run.",
+    "Final normal image/original fabric and AP cleanup follow the separate Memory39 audit."
+  ]
+}

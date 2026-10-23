@@ -93,6 +93,12 @@ startup reorder: normal cleaned largest blocks are equal, while the 65-second
 probe falls 249856 -> 221184 B when a UART allocation replaces the RMT separator.
 Four C6 fault workloads pass; the original normal startup remains in place.
 
+The [Memory38 OTA workspaces](doc/oss/memory38-validation.md) shrink the C6 resident
+Requestor context 5704 -> 344 B. Input scratch, queued offers and encoding allocate
+by phase; default-delivery OOM retries while ACK/TX keeps draining. The matched
+normal profile records heap peak 326256 B and minimum free 90172 B. Native,
+Memcheck/separate sanitizers and C6 tests preserve atomicity and immutable snapshots.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

@@ -1,5 +1,18 @@
 # Development status
 
+**Memory38: phase-owned OTA Requestor input, encoding and offers.**
+C6 context shrinks 5704 -> 344 B (5360 B resident saving), retaining all limits,
+fabric generations, latest queued announcements, atomic storage/events and snapshots.
+OOM defers default delivery without stopping dispatcher ACK/TX drain. The matched
+normal heap peak changes 331456 -> 326256 B; minimum free 84804 -> 90172 B.
+Both normal fixed runs finish with largest block 262144 B and zero core live bytes.
+Three C6 runs cover fixed publication/Read load and OOM/loss/reconnect/drain. Windows
+112/112 and Linux 109/109 per build pass; complete pair and six wire cases pass under
+Memcheck and separately ASan/UBSan/LSan. An untraced 14/15 startup on an earlier
+prototype remains recorded, without causal attribution. No CSA/Home claim.
+See [report](memory38-validation.md) and [results](memory38-results.json).
+Next: Read/Subscribe block-occupancy audit; final lab restoration follows it.
+
 **Memory37: RMT-only startup reorder rejected after C6 comparison.**
 Four normal/long-probe fault runs preserve five fabrics, fifteen CASE sessions and
 subscriptions, OOM/reconnect/RX-loss recovery and ACK/drain. All finish with zero

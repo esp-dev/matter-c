@@ -23,11 +23,14 @@ typedef struct {
      * including 1..600 s jitter for UrgentUpdateAvailable before QueryImage. */
     bool (*select)(void*,const Matter_Ota_Offer_T*);
 } Matter_Ota_Requestor_Port_T;
-/* Core 1.6.1 11.20.7 rev1. Two heap allocations; no allocation per operation.
+/* Core 1.6.1 11.20.7 rev1. Demand-owned parser, encoding and pending offers; bounded allocation per operation.
  * One default and one pending announcement per fabric. Announcements never
  * overwrite defaults. Process before IM and after fabric mutations; defaults
  * refreshed from port, new/default changed offers delivered once. Latest queued
- * announcement per fabric wins. All calls serialized by application owner.
+ * announcement per fabric wins. OOM leaves an old pending offer/default intact;
+ * default-delivery OOM retries on process without blocking IM/ACK drain. Read encoding is borrowed until the
+ * next read/process/state-event call or deletion; IM snapshots copy synchronously.
+ * All calls serialized by application owner.
  * Root adapter enforces View/Administer ACL. Start/Write additionally require CASE.
  * Borrowed event log/user outlive cluster. Initial state Idle, progress null;
  * update_possible describes the actual backend capability (explicit signed host simulation: true).
