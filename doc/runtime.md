@@ -133,6 +133,23 @@ the current count while preserving the lifetime total. Counts are per runtime,
 with separate current totals for the accessing fabric, and saturate at their
 wire type limits. PASE subscriptions contribute only to the node total.
 
+ACL ARRAY reads likewise measure under the existing 4096-byte budget (depth 4
+for entries, depth 1 for global lists), then allocate exactly the measured size.
+Both passes use one stable, validated backend view under the model's busy guard;
+the owner still serializes backend mutations. Fabric filtering, foreign-entry
+redaction to FabricIndex only and authorization remain unchanged. Scalars need
+no encoding allocation and end the previous encoded borrow.
+The encoded span remains unchanged until the next accepted ACL provider read
+or deletion. Rejected reads, version/access/authorization queries, validation and
+writes do not release it, so a caller can safely validate/write the read span
+itself. A standalone caller retaining only an encoded read may retain that one
+bounded span until its next read/delete. IM copies bytes immediately into its
+independent Read/Subscribe snapshots; encoded-span cleanup does not wait for or
+release their ACK/TX drain resources. Direct encoding OOM returns ResourceExhausted
+without changing ACL/view/version. Existing generic IM error mappings still
+apply. Write staging, atomic backend store and event prepare/finish do not use
+this allocation. See [Memory33](oss/memory33-validation.md).
+
 ## Subscription resource budget
 
 Set `identity.capabilities.subscriptions` before `matter_runtime_new()`. It is

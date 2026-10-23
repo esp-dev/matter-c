@@ -1,5 +1,23 @@
 # Development status
 
+**Memory33: demand-sized ACL encoding.**
+ACL context 6384 -> 2288 B on C6, with one exact-size encoded borrow. Fabric
+filtering, foreign FabricIndex-only fields, authorization, atomic writes/events,
+snapshot versions and ACK/drain remain unchanged. Normal whole-heap sampled
+peak 338944 B (2064 B below Memory32), min free 77272 B, min largest 55296 B,
+SDK watermark 77200 B, owner stack use 3176/12800 B. Encoder call chains can add
+64 B of compiler frames; reservation is unchanged. All 13 encoding OOM retries,
+aliasing, staged-event store failure and real CASE multi-fabric Read/Subscribe
+tests pass. Windows native coverage is 107 cases including three explicit UDP
+retries, plus all six wire cases. Linux CTest 104/104 per build; full pair 6/6 and
+six wire cases pass under Memcheck and separately ASan/UBSan/LSan.
+C6 normal/fault/observer/final RGB pass with zero-live drain and no SDK allocation
+failures. Original singleton fabric/normal image restored;
+COM23/AP free, own Wi-Fi profile removed, IPv6 enabled.
+See [report](memory33-validation.md) and [results](memory33-results.json).
+Next candidate: audit the remaining Fabric model 4096-byte encoding buffer and
+its certificate/cleanup lifetime.
+
 **Memory32: demand-sized Diagnostics encoding.**
 The resident 4096-byte output becomes one exact-size borrowed span. Original TLV
 budget/depth, provider lifetime, snapshot versions and ACK/drain are preserved.

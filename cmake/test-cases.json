@@ -27,6 +27,28 @@
     "replace": []
   },
   {
+    "name": "test_acl_reports",
+    "source": "tools/matter/tests/test_acl_reports.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc"
+  },
+  {
+    "name": "test_acl_reports_alloc",
+    "source": "tools/matter/tests/test_acl_reports.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_acl.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_im_subscribe.c"
+    ]
+  },
+  {
     "name": "test_async",
     "source": "tools/matter/tests/test_async.c",
     "mode": "normal",

@@ -662,6 +662,19 @@
       "allocation_variant": "native"
     },
     {
+      "path": "tools/matter/tests/test_acl_reports.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_acl_reports",
+        "test_acl_reports_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_acl_reports",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "native CTest"
+    },
+    {
       "path": "tools/matter/tests/test_acl_network.h",
       "kind": "fixture-or-helper",
       "ctest": [],
@@ -2670,7 +2683,9 @@
         "tools/matter/tests/test_im_snapshots.c",
         "tools/matter/tests/test_im_request_memory.c",
         "tools/matter/tests/test_diagnostics.c",
-        "tools/matter/tests/test_diagnostics_reports.c"
+        "tools/matter/tests/test_diagnostics_reports.c",
+        "tools/matter/tests/test_acl.c",
+        "tools/matter/tests/test_acl_reports.c"
       ],
       "allocation_variant": "test-only byte accounting and allocation fault injection"
     },

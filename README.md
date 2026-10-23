@@ -54,6 +54,13 @@ largest block 52224 B. Dedicated tests cover all 11 encoding OOM/retry cases and
 interleaved Read/Subscribe snapshots across provider refresh/free and both ACK
 orders. The report records normal/fault C6 results, stack cost and host validation.
 
+The [Memory33 ACL encoding](doc/oss/memory33-validation.md) uses an exact-size
+borrowed span while retaining fabric filtering, foreign-field privacy and atomic
+writes/events. The C6 ACL context saves 4096 B; normal sampled whole-heap peak is
+338944 B, minimum free 77272 B and minimum largest block 55296 B. Tests cover all
+13 fabric/filter/global encoding OOM retries, read-to-write aliasing and immutable
+multipart Read/Subscribe snapshots across ACL changes and both ACK orders.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

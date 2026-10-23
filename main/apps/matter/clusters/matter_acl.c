@@ -1,5 +1,6 @@
 #include "matter_acl.h"
 #include "../codec/matter_tlv_validate.h"
+#include "../codec/matter_tlv_internal.h"
 #include "../model/matter_cluster_internal.h"
 #include <stdlib.h>
 #include <string.h>
@@ -16,8 +17,11 @@ struct Matter_Acl {
     Matter_Acl_Entry_T pending[MATTER_ACL_ENTRIES]; size_t count;
     Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T token;
     Matter_Tlv_Validation_Workspace_T validation; Matter_Tlv_Tag_T tags[64];
-    Matter_Tlv_Writer_T writer; uint8_t encoded[4096];
+    Matter_Tlv_Writer_T writer; uint8_t* encoded;
 };
+/* IM copies provider bytes synchronously. Keep the last borrow through
+ * validation/store (including read-then-write aliasing), until another read. */
+static void clear_encoded(Acl m) { free(m->encoded); m->encoded=NULL; }
 Matter_Result_T matter_acl_bind_events(Matter_Acl_T handle,const Matter_Acl_Events_Port_T* p) {
     Acl m=matter_cluster_context(handle,destroy);
     if(!m || !p || !p->log || !p->now) return MATTER_INVALID_ARGUMENT;
@@ -45,6 +49,7 @@ static Matter_Result_T destroy(void* ctx) {
     Acl m=ctx;
     if(!m) return MATTER_INVALID_ARGUMENT;
     if(m->busy) return MATTER_BUSY;
+    clear_encoded(m);
     memset(m,0,sizeof(*m)); free(m); return MATTER_OK;
 }
 uint32_t matter_acl_version(Matter_Acl_T handle) {
@@ -273,14 +278,13 @@ Matter_Result_T matter_acl_delete(Matter_Acl_T m) {
 static Matter_Result_T cluster_version(void* u,uint32_t* out) { Acl m=u; *out=m->port.view(m->port.user)->version; return MATTER_OK; }
 static uint8_t read_scalar(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
     (void)q; Acl m=u; if(m->busy) return MATTER_IM_FAILURE;
-    *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=*(const uint32_t*)ref,.data_version=m->port.view(m->port.user)->version}; return 0;
+    m->busy=true; clear_encoded(m);
+    *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=*(const uint32_t*)ref,.data_version=m->port.view(m->port.user)->version};
+    m->busy=false; return 0;
 }
-static uint8_t read_entries(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
-    (void)ref; Acl m=u; if(m->busy) return MATTER_IM_FAILURE;
-    const Matter_Acl_View_T* v=m->port.view(m->port.user);
-    if(!fabric(v,q->fabric)) return MATTER_IM_UNSUPPORTED_ACCESS;
-    *out=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=v->version};
-    if(matter_tlv_writer_init(&m->writer,m->encoded,sizeof(m->encoded),4)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
+static bool encode_entries(Acl m,const Matter_Acl_View_T* v,const void* ref,const Matter_Cluster_Request_T* q) {
+    (void)ref;
+    if(!P(MATTER_TLV_ARRAY,-1,0)) return false;
     for(unsigned i=0;i<MATTER_ACL_FABRICS;++i) {
         const Matter_Acl_Fabric_T* f=&v->fabrics[i]; if(!f->index || (q->filtered && f->index!=q->fabric)) continue;
         for(unsigned j=0;j<f->count;++j) {
@@ -288,19 +292,46 @@ static uint8_t read_entries(void* u,const void* ref,const Matter_Cluster_Request
              * Core 8.4.3.3 requires omission, not null/zero substitutes. */
             bool ok=f->index==q->fabric?encode_entry(m,&f->entries[j],f->index,-1):
                 P(MATTER_TLV_STRUCTURE,-1,0) && U(254,f->index) && END();
-            if(!ok) return MATTER_IM_FAILURE;
+            if(!ok) return false;
         }
     }
-    if(!END() || matter_tlv_writer_finish(&m->writer,&out->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    out->data=m->encoded; return 0;
+    return END();
+}
+static bool encode_ids(Acl m,const Matter_Acl_View_T* v,const void* ref,const Matter_Cluster_Request_T* q) {
+    (void)v; (void)q;
+    if(!P(MATTER_TLV_ARRAY,-1,0)) return false;
+    if(ref) for(unsigned i=0;i<MATTER_ACL_ATTRIBUTES;++i) if(!U(-1,matter_acl_attributes[i])) return false;
+    return END();
+}
+typedef bool (*Encode_Value)(Acl,const Matter_Acl_View_T*,const void*,const Matter_Cluster_Request_T*);
+static uint8_t read_encoded(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out,
+    bool scoped,uint8_t depth,Encode_Value encode) {
+    Acl m=u; if(m->busy) return MATTER_IM_FAILURE;
+    m->busy=true;
+    const Matter_Acl_View_T* v=m->port.view(m->port.user);
+    uint8_t result=MATTER_IM_UNSUPPORTED_ACCESS; size_t size=0,written=0;
+    if(scoped && !fabric(v,q->fabric)) goto done;
+    clear_encoded(m);
+    *out=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=v->version}; result=MATTER_IM_FAILURE;
+    /* The owner serializes the stable validated view. Both pure passes keep
+     * the original TLV budget/depth, without another view/store callback. */
+    if(matter_tlv_measure_init(&m->writer,4096,depth)!=MATTER_TLV_OK || !encode(m,v,ref,q) ||
+        matter_tlv_writer_finish(&m->writer,&size)!=MATTER_TLV_OK) goto failed;
+    m->encoded=calloc(1,size);
+    if(!m->encoded) { result=MATTER_IM_RESOURCE_EXHAUSTED; goto failed; }
+    if(matter_tlv_writer_init(&m->writer,m->encoded,size,depth)!=MATTER_TLV_OK || !encode(m,v,ref,q) ||
+        matter_tlv_writer_finish(&m->writer,&written)!=MATTER_TLV_OK || written!=size) goto failed;
+    out->data=m->encoded; out->size=size; result=0; goto done;
+failed:
+    clear_encoded(m);
+done:
+    m->busy=false; return result;
+}
+static uint8_t read_entries(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
+    return read_encoded(u,ref,q,out,true,4,encode_entries);
 }
 static uint8_t read_ids(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
-    (void)q; Acl m=u; if(m->busy) return MATTER_IM_FAILURE;
-    *out=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=m->port.view(m->port.user)->version};
-    if(matter_tlv_writer_init(&m->writer,m->encoded,sizeof(m->encoded),1)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
-    if(ref) for(unsigned i=0;i<MATTER_ACL_ATTRIBUTES;++i) if(!U(-1,matter_acl_attributes[i])) return MATTER_IM_FAILURE;
-    if(!END() || matter_tlv_writer_finish(&m->writer,&out->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    out->data=m->encoded; return 0;
+    return read_encoded(u,ref,q,out,false,1,encode_ids);
 }
 static uint8_t cluster_validate(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_List_Change_T c,const uint8_t* d,size_t n) {
     (void)ref; Acl m=u; return q->is_case?matter_acl_validate(m->interface,q->fabric,c,d,n):MATTER_IM_UNSUPPORTED_ACCESS;
