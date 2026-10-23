@@ -1,14 +1,15 @@
 # Development status
 
-**Memory30: compact plans; Linux validation pending.**
+**Memory30: compact plans; Windows/Linux/C6 validation complete.**
 Read/Subscribe share a bounded8-byte private plan, preserving full IDs, limits,
 ARRAY continuation and ACK/drain. C6 normal peak351084 B, min free65092 B, min
 largest39936 B; Read saves1200 B/active plan, Subscribe work72 B. Windows native
 coverage102 definitions (three loopback retries outside sandbox) and both wire
-cases pass, as do C6 fixed profile and OOM/loss/reconnect/drain. Automatic approval
-review rejected the new VM directory; required full Linux pair Memcheck and
-separate ASan/UBSan/LSan are not executed. See [report](memory30-validation.md)
-and [results](memory30-results.json). Next: selective Subscribe value blocks.
+cases pass, as do C6 fixed profile and OOM/loss/reconnect/drain. After explicit
+user approval of the transfers, Linux99/99 native tests, full pair6/6 and both
+wire cases pass under Memcheck and separately ASan/UBSan/LSan; zero Memcheck errors
+and exit allocations. See [report](memory30-validation.md) and
+[results](memory30-results.json). Next: selective Subscribe value blocks.
 
 **Memory29: normal C6 peak and allocation attribution.**
 The fixed 5-fabric/15-session/subscription profile passes 51 full Reads, 3 parallel

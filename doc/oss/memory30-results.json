@@ -75,9 +75,171 @@
     ]
   },
   "linux": {
-    "status": "pending_authorization",
-    "executed": false,
-    "reason": "Automatic approval review rejected transfer to the new memory30 directory; explicit approval requested for memory30 and memory31."
+    "status": "PASS",
+    "executed": true,
+    "authorization": "User explicitly approved VM transfers and tests in this session",
+    "export_files": 823,
+    "export_hashes_verified": true,
+    "variants": [
+      {
+        "kind": "normal",
+        "native_passed": 99,
+        "native_total": 99,
+        "pair_checks": [
+          "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+          "independent-application-state",
+          "independent-Identify-and-UTC-anchors",
+          "B-meter-services-survive-active-A-Identify-teardown",
+          "B-subscription-and-phase-read-survive-A-deletion",
+          "both-last-fabric-responses"
+        ],
+        "pair_stderr_bytes": 0,
+        "pair_memcheck": {
+          "errors": 0,
+          "exit_bytes": 0,
+          "exit_blocks": 0
+        },
+        "wire": [
+          {
+            "case": "before",
+            "pass_": true,
+            "elapsed_seconds": 102.68903467400001,
+            "subscription_snapshots": 30,
+            "full_reads": 15,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 16957,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 273726,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 0,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1127,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null,
+            "memcheck": {
+              "errors": 0,
+              "exit_bytes": 0,
+              "exit_blocks": 0
+            }
+          },
+          {
+            "case": "after",
+            "pass_": true,
+            "elapsed_seconds": 467.14211496800004,
+            "subscription_snapshots": 90,
+            "full_reads": 80,
+            "oom_cycles": 3,
+            "stats": {
+              "core_calls": 64683,
+              "core_failures": 3,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 274695,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 13,
+              "ack_after_completion": 3854,
+              "wrong_role_acks": 2,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null,
+            "memcheck": {
+              "errors": 0,
+              "exit_bytes": 0,
+              "exit_blocks": 0
+            }
+          }
+        ],
+        "build_diagnostics": []
+      },
+      {
+        "kind": "sanitize",
+        "native_passed": 99,
+        "native_total": 99,
+        "pair_checks": [
+          "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+          "independent-application-state",
+          "independent-Identify-and-UTC-anchors",
+          "B-meter-services-survive-active-A-Identify-teardown",
+          "B-subscription-and-phase-read-survive-A-deletion",
+          "both-last-fabric-responses"
+        ],
+        "pair_stderr_bytes": 0,
+        "pair_memcheck": null,
+        "wire": [
+          {
+            "case": "before",
+            "pass_": true,
+            "elapsed_seconds": 69.63210562,
+            "subscription_snapshots": 30,
+            "full_reads": 15,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 16094,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 274196,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 0,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1100,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null
+          },
+          {
+            "case": "after",
+            "pass_": true,
+            "elapsed_seconds": 368.057435846,
+            "subscription_snapshots": 90,
+            "full_reads": 79,
+            "oom_cycles": 3,
+            "stats": {
+              "core_calls": 61672,
+              "core_failures": 3,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 274096,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 6,
+              "ack_after_completion": 3764,
+              "wrong_role_acks": 2,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null
+          }
+        ],
+        "build_diagnostics": []
+      }
+    ]
   },
   "c6": {
     "normal": {
@@ -1273,8 +1435,8 @@
     "owner_stack_used": 3288
   },
   "limitations": [
-    "Linux full pair Memcheck and separate sanitizer validation is required and pending approval; this is not a fully validated stage.",
     "One normal before/after C6 profile is not a statistical worst-case bound.",
     "No new CSA or Apple/Google Home pairing."
-  ]
+  ],
+  "transfer_history": "Automatic approval review initially rejected the new directory. User subsequently explicitly approved both stage transfers and tests; all required Linux runs then completed."
 }

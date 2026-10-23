@@ -1,11 +1,11 @@
 # Memory30: compact shared Read/Subscribe report plans
 
-Memory29 is committed as `6a5332d`. This stage is implemented, compiled and
-physically tested. **Required Linux two-instance Memcheck and separate
-ASan/UBSan/LSan validation is pending authorization**, not a PASS. Automatic
-approval review rejected upload to the new memory30 directory. Explicit approval
-was requested for memory30 and memory31; no transfer or Linux execution occurred.
-The prepared public export excludes local/, build/, private keys and device state.
+Memory29 is committed as `6a5332d`; the implementation and local/C6 evidence
+are committed as `235bfa4`. This stage is compiled and tested on Windows, Linux
+and C6. Full Linux two-instance tests pass under Memcheck and separately
+ASan/UBSan/LSan. The initial automatic-review transfer rejection was resolved by
+the user's explicit authorization of both stage directories; the frozen public
+exports exclude local/, build/, private keys and device state.
 
 ## Change and invariants
 
@@ -86,9 +86,23 @@ the three-test network retry with -R; runtime_wire.py --case before/after;
 local IDF6.1 build of the isolated public source tree; the fixed C6
 MATTER_SOAK_MEMORY_PROFILE=1 run and ordinary run wildcard fault/reconnect
 controller; final RGB smoke; python tools/matter/check_test_map.py.
-Raw logs and private state remain ignored. The full Linux pair scenario under
-Memcheck and separate sanitizers has NOT run for this change. No official CSA,
-new Apple/Google Home pairing or exhaustive hardware OOM campaign is claimed.
+Linux validation uses the frozen Memory30 source export (823 files), with all
+hashes verified on the VM and the four affected production-file hashes matched
+to this report. Both normal and separate sanitizer builds pass99/99 native tests.
+The complete two-instance scenario passes6/6 checks under Memcheck and separately
+ASan/UBSan/LSan, including dynamic three-phase attributes/events and isolated
+runtimes. Both wire cases (before/after) also pass under each tool: OOM3, ACK loss,
+held completion, reconnect and actual-completion drain. All Memcheck processes
+end with0errors and0bytes/blocks; pair stderr is empty and sanitizer wire logs
+contain no diagnostic. Linux builds emit no compiler warning/error lines.
+
+Commands on Linux: cmake Debug with MATTER_SANITIZE=OFF, cmake --build -j3,
+ctest -E runtime_wire, runtime-pair-host under valgrind plus
+chip_tool_three_phase.py --source-registers --meter-services, runtime_wire.py
+--case before/after --memcheck; repeat with a distinct MATTER_SANITIZE=ON build
+and without Valgrind (ASAN detect_leaks/halt_on_error and UBSAN halt_on_error).
+Raw logs and private state remain ignored. No official CSA, new Apple/Google Home
+pairing or exhaustive hardware OOM campaign is claimed.
 
 ## Files and cleanup
 
@@ -96,7 +110,7 @@ new Apple/Google Home pairing or exhaustive hardware OOM campaign is claimed.
 * model/matter_im_read.c and matter_im_subscribe.c: use the common plan at every
   dynamic ordinal/offset assignment; constant prefix sentinel assignments remain.
 * cmake/sources.json: package the new private header without changing public API.
-* README/status and this report/results: actual evidence and pending Linux gate.
+* README/status and this report/results: actual Windows/Linux/C6 evidence.
 
 The original task-start NVS and normal Memory30 image were restored. RGB smoke
 passes with exactly one original fabric and zero-live drain. COM23 is released;

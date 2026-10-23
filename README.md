@@ -36,8 +36,9 @@ Reads, live Fabric publication/removal and TX drain, and ranks remaining RAM wor
 
 The [Memory30 compact report plan](doc/oss/memory30-validation.md) halves each
 C6 plan entry to8 B and records a normal-image sampled peak351084 B. Windows
-and physical tests pass as documented; required Linux Memcheck/sanitizer
-validation is pending authorization.
+and physical tests pass as documented. Linux99 native tests, the full6-check
+two-instance scenario and both wire cases pass under Memcheck and separately
+ASan/UBSan/LSan.
 
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
