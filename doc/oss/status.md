@@ -1,5 +1,17 @@
 # Development status
 
+**Memory29: normal C6 peak and allocation attribution.**
+The fixed 5-fabric/15-session/subscription profile passes 51 full Reads, 3 parallel
+publication rounds and 4 live removals. Normal SDK-timer peak 357652 B, sampled
+minimum free 58520 B, minimum largest block 33792 B; main task observed 3288/12800 B.
+Separate observer attribution passes with zero overflow after an invalid 1024-
+record attempt; result/value blocks dominate. Production C is unchanged; the
+current controller passes Linux baseline wire checks under Memcheck and separately
+sanitizers. Original fabric/normal image and RGB smoke are restored; COM23/AP
+are free, Windows IPv6 remains enabled. Next selected: compact shared chunk plans
+(estimated 4.8–6 kB), then sparse Subscribe value storage. See
+[validation/backlog](memory29-validation.md) and [results](memory29-results.json).
+
 **Memory28: ready RX before inbox.**
 A natural14/15 C6 incident has valid MRP ACK but missing IM StatusResponse at core
 admission. The dispatcher now consumes ready retained RX before a new inbox,

@@ -206,7 +206,8 @@ async function assertLoad(total,own=3) {
     const load=await attribute(contexts[0].clients[0],0x33,GeneralDiagnostics.Cluster.attributes.deviceLoadStatus);
     if(load.currentSubscriptions!==total || load.currentSubscriptionsForFabric!==own)
         throw Error(`Unexpected live subscription load: ${JSON.stringify(load)}`);
-    emit('LOAD_PASS',{fabrics:contexts.length,verified_sessions:contexts.reduce((n,c)=>n+c.clients.length,0),load});
+    const active=contexts.filter(c=>!c.removed);
+    emit('LOAD_PASS',{fabrics:active.length,verified_sessions:active.reduce((n,c)=>n+c.clients.length,0),load});
 }
 async function closeLoad() {
     for(const ctx of contexts) { ++ctx.generation; for(const sub of ctx.subscriptions) await sub.close(); ctx.subscriptions=[]; }
@@ -269,16 +270,18 @@ async function reconnectLoad() {
     await sleep(2000); await buildLoad(true); ++summary.reconnect_cycles;
     await checkpoint('reconnected-full-load');
 }
+async function removeFabric(ctx) {
+    if(!ctx.clients.length) ctx.clients=[await peerClient(ctx)];
+    const cluster=OperationalCredentials.Cluster;
+    const index=await attribute(ctx.clients[0],0x3e,cluster.attributes.currentFabricIndex);
+    const response=await ctx.clients[0].invoke({endpointId:0,clusterId:0x3e,command:cluster.commands.removeFabric,request:{fabricIndex:index}});
+    if(response.statusCode!==0) throw Error('Own test fabric removal failed');
+    emit('REMOVE_FABRIC_ACK_PASS',{environment:ctx.entry.environment,index});
+    topology=topology.filter(t=>t.environment!==ctx.entry.environment); await saveTopology();
+    ctx.removed=true;
+}
 async function cleanupFabrics() {
-    for(const ctx of contexts.slice(1).reverse()) {
-        if(!ctx.clients.length) ctx.clients=[await peerClient(ctx)];
-        const cluster=OperationalCredentials.Cluster;
-        const index=await attribute(ctx.clients[0],0x3e,cluster.attributes.currentFabricIndex);
-        const response=await ctx.clients[0].invoke({endpointId:0,clusterId:0x3e,command:cluster.commands.removeFabric,request:{fabricIndex:index}});
-        if(response.statusCode!==0) throw Error('Own test fabric removal failed');
-        emit('REMOVE_FABRIC_ACK_PASS',{environment:ctx.entry.environment,index});
-        topology=topology.filter(t=>t.environment!==ctx.entry.environment); await saveTopology();
-    }
+    for(const ctx of contexts.slice(1).reverse()) if(!ctx.removed) await removeFabric(ctx);
     const primary=contexts[0]; if(!primary.clients.length) primary.clients=[await peerClient(primary)];
     await fabricCount(primary,1);
     await primary.clients[0].setAttribute({attributeData:{endpointId:0,clusterId:0x28,
@@ -314,6 +317,11 @@ try {
             await hostScenarios({contexts,summary,control,emit,sleep,fullRead,assertLoad,closeLoad,buildLoad,
                 loadSessions,attribute,GeneralDiagnostics,recoverFaultLoad,write:async value=>primary.clients[0].setAttribute({attributeData:{endpointId:0,
                     clusterId:0x28,attribute:BasicInformation.Cluster.attributes.nodeLabel,value}})});
+        } else {
+        const profile=process.env.MATTER_SOAK_MEMORY_PROFILE==='1';
+        if(profile) {
+            const {memoryProfile}=await import('./memory_profile.mjs');
+            await memoryProfile({contexts,summary,fullRead,assertLoad,checkpoint,OperationalCredentials,removeFabric,emit});
         } else {
         const loadStarted=performance.now(); let faultAt=loadStarted+60000,reconnectAt=loadStarted+300000,lossAt=loadStarted+150000,writeAt=loadStarted+30000,fullAt=loadStarted+30000;
         emit('SOAK_STARTED',{seconds,read_workload:readWorkload});
@@ -368,9 +376,10 @@ try {
             emit('RECONNECT_REQUIRED_AFTER_TIMED_WINDOW'); await reconnectLoad();
         }
         summary.sustained_seconds=(performance.now()-loadStarted)/1000;
-        await assertLoad(15); await closeLoad(); await sleep(12000);
+        }
+        await assertLoad(profile?3:15); await closeLoad(); await sleep(12000);
         await checkpoint('all-subscriptions-and-sessions-drained-idle-trim');
-        for(const ctx of contexts) ctx.clients=[await peerClient(ctx)];
+        for(const ctx of contexts) if(!ctx.removed) ctx.clients=[await peerClient(ctx)];
     }
     }
     if(!hostMode) {

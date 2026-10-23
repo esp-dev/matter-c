@@ -365,3 +365,64 @@ alone does not identify an ACK; correlate it with a matching peer/dispatcher tra
 backpressure. The collector records both formats. These profiles change memory
 layout and timing; use a normal image for headline RAM measurements and retain
 raw logs only in ignored output. They change no queue ceiling or protocol timeout.
+
+## Fixed peak profile and allocation-site audit
+
+With the same physical soak setup, a collector running and a private controller
+state copied/backed up as above, set `MATTER_SOAK_MEMORY_PROFILE=1` and
+`MATTER_SOAK_ATTRIBUTES=171`, then invoke the `run wildcard` controller. In
+PowerShell, for an explicitly labelled diagnostic corrected-peer run:
+
+```powershell
+$env:MATTER_SOAK_MEMORY_PROFILE='1'
+$env:MATTER_SOAK_ATTRIBUTES='171'
+$env:MATTER_TEST_PEER_ROLE='corrected'
+node examples/esp32-runtime/tests/soak.mjs <node_modules> <scoped-C6-IPv6> <private-controller-state> <private-uart-dir> 180 Wi-Fi run wildcard
+Remove-Item Env:MATTER_SOAK_MEMORY_PROFILE, Env:MATTER_SOAK_ATTRIBUTES, Env:MATTER_TEST_PEER_ROLE
+```
+
+This is a fixed-operation profile; `180` does not define its duration. After
+five fabrics/15 sessions/subscriptions, it performs three five-way full-Read
+rounds, three disposable-fabric label publications concurrent with five Reads,
+and four own-fabric removals with live load plus survivor Reads. It validates
+remaining subscriptions after every step, then shares close/trim, original-
+fabric cleanup and held-completion drain with the soak. It changes temporary
+fabric labels and removes its four temporary fabrics; preserve the original
+controller/NVS backup. It does not inject OOM/reconnect; use the ordinary timed
+soak for that coverage. Without the profile variable, existing behavior remains.
+Enable `MATTER_C_RUNTIME_COMPARE_SAMPLER` for whole-heap100ms timer observations;
+retain owner samples, SDK watermark, free heap, largest block and stack watermark
+as different metrics. See [Memory29](../../doc/oss/memory29-validation.md).
+
+`tests/allocation_trace.py` generates an allocator observer in an isolated source
+copy, refusing to overwrite the input:
+
+```text
+python examples/esp32-runtime/tests/allocation_trace.py --source components/matter_c/matter_idf_memory.c --output build/alloc-observer/source/components/matter_c/matter_idf_memory.c
+```
+
+Copy the remaining sources/configuration into that private tree before building.
+In that copy declare `void matter_alloc_audit_dump(const char* phase);` and call
+it on the owner after runtime creation, at selected `m` checkpoints, and with
+`"complete"` after full drain. Do not call it from SDK/allocator callbacks. The
+observer keeps2048 live records and128 call sites with explicit overflow; blocks
+above65535bytes invalidate attribution while allocation semantics remain intact.
+It snapshots all site byte/count totals at each new core-byte peak. Metadata
+uses18956bytes on C6 and changes layout/timing, so measure headline heap on a
+separate normal image. No allocation or formatting occurs inside the hooks.
+
+Preserve the exact flashed ELF and its hash. The checked decoder fingerprints
+that supplied ELF, resolves RISC-V return addresses, validates every dump's sums
+and requires a zero-live `complete` dump. It rejects overflow, missing sites,
+unresolved symbols and incomplete cleanup. Example from an IDF-enabled shell:
+
+```text
+python examples/esp32-runtime/tests/allocation_decode.py --log <private-uart-dir>/uart.log --elf <observer-build>/matter_c_runtime.elf --addr2line <idf-toolchain>/riscv32-esp-elf-addr2line.exe --source-root <isolated-source-root> --output build/alloc-observer/decoded.json
+```
+
+The operator must match the ELF to the flashed image; symbol resolution alone
+cannot prove identity. The map reports simultaneous live allocations at the
+core-byte peak, not the sum of independent per-site maxima. Keep raw logs and
+state private. A passing protocol run with observer overflow is invalid for
+attribution. Restore normal firmware/original fabric state, verify RGB/drain,
+and release COM/AP after the diagnostic run.

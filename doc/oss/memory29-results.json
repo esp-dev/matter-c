@@ -1,0 +1,3100 @@
+{
+  "controller_snapshots_lf_sha256": {
+    "normal-profile01": {
+      "soak.mjs": "e3f5f3ed6c505da596a9114d2671e04789fb451146c4f5b890f75c3ca5081f9e",
+      "memory_profile.mjs": "d677df4a57ecddc1a354717355b0ed1dba48b593e6324dcb64f6a93872f1f026"
+    },
+    "allocation2-profile02": {
+      "soak.mjs": "6161cf1b807668b1e8438497934a2ef89b5bcbb9130cd1b77db93aa9f8be6bcb",
+      "memory_profile.mjs": "d677df4a57ecddc1a354717355b0ed1dba48b593e6324dcb64f6a93872f1f026"
+    }
+  },
+  "date_local": "2026-10-23",
+  "production_core_changes": false,
+  "normal": {
+    "mode": "run",
+    "read_workload": "wildcard",
+    "expected_attributes": 171,
+    "requested_seconds": 180,
+    "rounds": 0,
+    "full_reads": 51,
+    "read_attributes": 8721,
+    "concrete_reads": 0,
+    "concrete_read_attributes": 0,
+    "subscription_snapshots": 15,
+    "subscription_updates": 45,
+    "subscription_closed": 15,
+    "case_pairs": 10,
+    "case_resumed": 10,
+    "session_busy_probes": 1,
+    "oom_cycles": 0,
+    "fault_operations_rejected": 0,
+    "reconnect_cycles": 0,
+    "loss_cycles": 0,
+    "delayed_completion_cycles": 1,
+    "healthy_operation_errors": 0,
+    "checkpoints": [
+      {
+        "phase": "five-fabrics-before-subscriptions",
+        "command": "m",
+        "ms": 121130,
+        "fabrics": 5,
+        "samples": 448,
+        "heap_max_sampled": 207100,
+        "heap_min_sampled": 213164,
+        "largest_min_sampled": 184320,
+        "heap_free": 220236,
+        "heap_allocated": 200124,
+        "largest_free": 200704,
+        "free_blocks": 34,
+        "allocated_blocks": 448,
+        "core_bytes": 103912,
+        "core_peak": 125636,
+        "core_live": 103,
+        "core_calls": 2358,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 205632,
+        "dma_largest_free": 200704,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 121123,
+          "heap_free": 220236,
+          "heap_allocated": 200124,
+          "heap_min": 194592,
+          "largest_free": 200704,
+          "free_blocks": 34,
+          "allocated_blocks": 448,
+          "heap_max_sampled": 223880,
+          "heap_min_sampled": 196172,
+          "largest_min_sampled": 167936,
+          "samples": 1211,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "five-fabrics-fifteen-sessions-fifteen-subscriptions",
+        "command": "m",
+        "ms": 186471,
+        "fabrics": 5,
+        "samples": 1038,
+        "heap_max_sampled": 273532,
+        "heap_min_sampled": 145436,
+        "largest_min_sampled": 126976,
+        "heap_free": 151256,
+        "heap_allocated": 267952,
+        "largest_free": 126976,
+        "free_blocks": 52,
+        "allocated_blocks": 736,
+        "core_bytes": 171724,
+        "core_peak": 182504,
+        "core_live": 391,
+        "core_calls": 9246,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 136652,
+        "dma_largest_free": 126976,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 186464,
+          "heap_free": 151256,
+          "heap_allocated": 267952,
+          "heap_min": 140336,
+          "largest_free": 126976,
+          "free_blocks": 52,
+          "allocated_blocks": 736,
+          "heap_max_sampled": 273556,
+          "heap_min_sampled": 145408,
+          "largest_min_sampled": 126976,
+          "samples": 1865,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-loaded",
+        "command": "m",
+        "ms": 186831,
+        "fabrics": 5,
+        "samples": 1041,
+        "heap_max_sampled": 273532,
+        "heap_min_sampled": 145436,
+        "largest_min_sampled": 126976,
+        "heap_free": 151168,
+        "heap_allocated": 268036,
+        "largest_free": 126976,
+        "free_blocks": 53,
+        "allocated_blocks": 737,
+        "core_bytes": 171840,
+        "core_peak": 182504,
+        "core_live": 393,
+        "core_calls": 9298,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 136564,
+        "dma_largest_free": 126976,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 186824,
+          "heap_free": 151132,
+          "heap_allocated": 268068,
+          "heap_min": 140336,
+          "largest_free": 126976,
+          "free_blocks": 52,
+          "allocated_blocks": 738,
+          "heap_max_sampled": 273556,
+          "heap_min_sampled": 145408,
+          "largest_min_sampled": 126976,
+          "samples": 1868,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-parallel-full-read",
+        "command": "m",
+        "ms": 194911,
+        "fabrics": 5,
+        "samples": 1108,
+        "heap_max_sampled": 329672,
+        "heap_min_sampled": 88724,
+        "largest_min_sampled": 67584,
+        "heap_free": 145396,
+        "heap_allocated": 273780,
+        "largest_free": 79872,
+        "free_blocks": 63,
+        "allocated_blocks": 744,
+        "core_bytes": 177552,
+        "core_peak": 237080,
+        "core_live": 399,
+        "core_calls": 10841,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 130792,
+        "dma_largest_free": 79872,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 194904,
+          "heap_free": 145396,
+          "heap_allocated": 273780,
+          "heap_min": 85080,
+          "largest_free": 79872,
+          "free_blocks": 63,
+          "allocated_blocks": 744,
+          "heap_max_sampled": 330516,
+          "heap_min_sampled": 87984,
+          "largest_min_sampled": 64512,
+          "samples": 1949,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-parallel-full-read",
+        "command": "m",
+        "ms": 202960,
+        "fabrics": 5,
+        "samples": 1176,
+        "heap_max_sampled": 333600,
+        "heap_min_sampled": 84404,
+        "largest_min_sampled": 62464,
+        "heap_free": 146160,
+        "heap_allocated": 273036,
+        "largest_free": 86016,
+        "free_blocks": 60,
+        "allocated_blocks": 739,
+        "core_bytes": 176840,
+        "core_peak": 240708,
+        "core_live": 395,
+        "core_calls": 12438,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 131556,
+        "dma_largest_free": 86016,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 202954,
+          "heap_free": 146160,
+          "heap_allocated": 273036,
+          "heap_min": 81104,
+          "largest_free": 86016,
+          "free_blocks": 60,
+          "allocated_blocks": 739,
+          "heap_max_sampled": 334168,
+          "heap_min_sampled": 83880,
+          "largest_min_sampled": 60416,
+          "samples": 2030,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-parallel-full-read",
+        "command": "m",
+        "ms": 210981,
+        "fabrics": 5,
+        "samples": 1241,
+        "heap_max_sampled": 333600,
+        "heap_min_sampled": 84404,
+        "largest_min_sampled": 62464,
+        "heap_free": 145948,
+        "heap_allocated": 273232,
+        "largest_free": 77824,
+        "free_blocks": 59,
+        "allocated_blocks": 743,
+        "core_bytes": 177004,
+        "core_peak": 240708,
+        "core_live": 398,
+        "core_calls": 13921,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 131344,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 210974,
+          "heap_free": 145948,
+          "heap_allocated": 273232,
+          "heap_min": 81104,
+          "largest_free": 77824,
+          "free_blocks": 59,
+          "allocated_blocks": 743,
+          "heap_max_sampled": 335032,
+          "heap_min_sampled": 83088,
+          "largest_min_sampled": 59392,
+          "samples": 2110,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-fabric-with-parallel-full-read",
+        "command": "m",
+        "ms": 219441,
+        "fabrics": 5,
+        "samples": 1306,
+        "heap_max_sampled": 333600,
+        "heap_min_sampled": 84404,
+        "largest_min_sampled": 62464,
+        "heap_free": 145996,
+        "heap_allocated": 273188,
+        "largest_free": 77824,
+        "free_blocks": 63,
+        "allocated_blocks": 742,
+        "core_bytes": 176960,
+        "core_peak": 240896,
+        "core_live": 397,
+        "core_calls": 15510,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 131392,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 219434,
+          "heap_free": 145996,
+          "heap_allocated": 273188,
+          "heap_min": 80908,
+          "largest_free": 77824,
+          "free_blocks": 63,
+          "allocated_blocks": 742,
+          "heap_max_sampled": 335032,
+          "heap_min_sampled": 83088,
+          "largest_min_sampled": 59392,
+          "samples": 2194,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-fabric-with-parallel-full-read",
+        "command": "m",
+        "ms": 228221,
+        "fabrics": 5,
+        "samples": 1376,
+        "heap_max_sampled": 333760,
+        "heap_min_sampled": 84240,
+        "largest_min_sampled": 60416,
+        "heap_free": 146160,
+        "heap_allocated": 273036,
+        "largest_free": 77824,
+        "free_blocks": 64,
+        "allocated_blocks": 739,
+        "core_bytes": 176840,
+        "core_peak": 241248,
+        "core_live": 395,
+        "core_calls": 17156,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 131556,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 228214,
+          "heap_free": 146160,
+          "heap_allocated": 273036,
+          "heap_min": 80508,
+          "largest_free": 77824,
+          "free_blocks": 64,
+          "allocated_blocks": 739,
+          "heap_max_sampled": 335400,
+          "heap_min_sampled": 82684,
+          "largest_min_sampled": 58368,
+          "samples": 2282,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-fabric-with-parallel-full-read",
+        "command": "m",
+        "ms": 236830,
+        "fabrics": 5,
+        "samples": 1445,
+        "heap_max_sampled": 333760,
+        "heap_min_sampled": 84240,
+        "largest_min_sampled": 60416,
+        "heap_free": 146028,
+        "heap_allocated": 273160,
+        "largest_free": 77824,
+        "free_blocks": 63,
+        "allocated_blocks": 741,
+        "core_bytes": 176964,
+        "core_peak": 241248,
+        "core_live": 397,
+        "core_calls": 18728,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 131424,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 236824,
+          "heap_free": 146028,
+          "heap_allocated": 273160,
+          "heap_min": 80508,
+          "largest_free": 77824,
+          "free_blocks": 63,
+          "allocated_blocks": 741,
+          "heap_max_sampled": 335400,
+          "heap_min_sampled": 82684,
+          "largest_min_sampled": 58368,
+          "samples": 2368,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-live-fabric-removal",
+        "command": "m",
+        "ms": 256260,
+        "fabrics": 4,
+        "samples": 1604,
+        "heap_max_sampled": 354388,
+        "heap_min_sampled": 61776,
+        "largest_min_sampled": 37888,
+        "heap_free": 161684,
+        "heap_allocated": 257816,
+        "largest_free": 77824,
+        "free_blocks": 67,
+        "allocated_blocks": 663,
+        "core_bytes": 161836,
+        "core_peak": 262884,
+        "core_live": 329,
+        "core_calls": 22320,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 147080,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 256254,
+          "heap_free": 161684,
+          "heap_allocated": 257816,
+          "heap_min": 57288,
+          "largest_free": 77824,
+          "free_blocks": 67,
+          "allocated_blocks": 663,
+          "heap_max_sampled": 357652,
+          "heap_min_sampled": 58520,
+          "largest_min_sampled": 33792,
+          "samples": 2563,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-live-fabric-removal",
+        "command": "m",
+        "ms": 273490,
+        "fabrics": 3,
+        "samples": 1753,
+        "heap_max_sampled": 354388,
+        "heap_min_sampled": 61776,
+        "largest_min_sampled": 37888,
+        "heap_free": 177228,
+        "heap_allocated": 242584,
+        "largest_free": 77824,
+        "free_blocks": 60,
+        "allocated_blocks": 585,
+        "core_bytes": 146832,
+        "core_peak": 262884,
+        "core_live": 263,
+        "core_calls": 25318,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 162624,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 273484,
+          "heap_free": 177228,
+          "heap_allocated": 242584,
+          "heap_min": 57288,
+          "largest_free": 77824,
+          "free_blocks": 60,
+          "allocated_blocks": 585,
+          "heap_max_sampled": 357652,
+          "heap_min_sampled": 58520,
+          "largest_min_sampled": 33792,
+          "samples": 2735,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-live-fabric-removal",
+        "command": "m",
+        "ms": 284340,
+        "fabrics": 2,
+        "samples": 1842,
+        "heap_max_sampled": 354388,
+        "heap_min_sampled": 61776,
+        "largest_min_sampled": 37888,
+        "heap_free": 192692,
+        "heap_allocated": 227424,
+        "largest_free": 77824,
+        "free_blocks": 46,
+        "allocated_blocks": 509,
+        "core_bytes": 131840,
+        "core_peak": 262884,
+        "core_live": 197,
+        "core_calls": 27191,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 178088,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 284333,
+          "heap_free": 192692,
+          "heap_allocated": 227424,
+          "heap_min": 57288,
+          "largest_free": 77824,
+          "free_blocks": 46,
+          "allocated_blocks": 509,
+          "heap_max_sampled": 357652,
+          "heap_min_sampled": 58520,
+          "largest_min_sampled": 33792,
+          "samples": 2843,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-live-fabric-removal",
+        "command": "m",
+        "ms": 291670,
+        "fabrics": 1,
+        "samples": 1901,
+        "heap_max_sampled": 354388,
+        "heap_min_sampled": 61776,
+        "largest_min_sampled": 37888,
+        "heap_free": 208216,
+        "heap_allocated": 212208,
+        "largest_free": 77824,
+        "free_blocks": 36,
+        "allocated_blocks": 432,
+        "core_bytes": 116828,
+        "core_peak": 262884,
+        "core_live": 131,
+        "core_calls": 28069,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 193612,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 291663,
+          "heap_free": 208216,
+          "heap_allocated": 212208,
+          "heap_min": 57288,
+          "largest_free": 77824,
+          "free_blocks": 36,
+          "allocated_blocks": 432,
+          "heap_max_sampled": 357652,
+          "heap_min_sampled": 58520,
+          "largest_min_sampled": 33792,
+          "samples": 2917,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "all-subscriptions-and-sessions-drained-idle-trim",
+        "command": "m",
+        "ms": 306120,
+        "fabrics": 1,
+        "samples": 2038,
+        "heap_max_sampled": 354388,
+        "heap_min_sampled": 61776,
+        "largest_min_sampled": 37888,
+        "heap_free": 232244,
+        "heap_allocated": 188460,
+        "largest_free": 77824,
+        "free_blocks": 18,
+        "allocated_blocks": 362,
+        "core_bytes": 93116,
+        "core_peak": 262884,
+        "core_live": 62,
+        "core_calls": 28091,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 217640,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 306113,
+          "heap_free": 232244,
+          "heap_allocated": 188460,
+          "heap_min": 57288,
+          "largest_free": 77824,
+          "free_blocks": 18,
+          "allocated_blocks": 362,
+          "heap_max_sampled": 357652,
+          "heap_min_sampled": 58520,
+          "largest_min_sampled": 33792,
+          "samples": 3061,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "original-fabric-restored",
+        "command": "m",
+        "ms": 308660,
+        "fabrics": 1,
+        "samples": 2061,
+        "heap_max_sampled": 354388,
+        "heap_min_sampled": 61776,
+        "largest_min_sampled": 37888,
+        "heap_free": 229836,
+        "heap_allocated": 190840,
+        "largest_free": 77824,
+        "free_blocks": 18,
+        "allocated_blocks": 369,
+        "core_bytes": 95496,
+        "core_peak": 262884,
+        "core_live": 69,
+        "core_calls": 28148,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 215232,
+        "dma_largest_free": 77824,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 308653,
+          "heap_free": 229796,
+          "heap_allocated": 190876,
+          "heap_min": 57288,
+          "largest_free": 77824,
+          "free_blocks": 17,
+          "allocated_blocks": 370,
+          "heap_max_sampled": 357652,
+          "heap_min_sampled": 58520,
+          "largest_min_sampled": 33792,
+          "samples": 3087,
+          "task_min_free": 9512
+        }
+      }
+    ],
+    "phases": [],
+    "unexpected_subscription_closures": 0,
+    "oom_lost_subscriptions": 0,
+    "oom_rebuilt_load_cycles": 0,
+    "fault_operation_errors": [],
+    "loss_operations_rejected": 0,
+    "loss_rebuilt_load_cycles": 0,
+    "loss_lost_subscriptions": 0,
+    "loss_operation_errors": [],
+    "host_close_reconnect_cycles": 0,
+    "recovery_busy_retries": 0,
+    "recovery_busy_wait_ms": 0,
+    "diagnostic_peer": {
+      "mode": "corrected",
+      "package": "@matter/protocol",
+      "version": "0.17.9",
+      "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+      "override": "fromInitialMessage: inverse incoming Initiator bit"
+    },
+    "memory_profile": {
+      "parallel_read_rounds": 3,
+      "publication_rounds": 3,
+      "live_removals": 4
+    },
+    "stop_wait_seconds": 3.5912710999999837,
+    "stop_read_outcome": {
+      "status": "rejected",
+      "name": "Error"
+    },
+    "pass": true,
+    "elapsed_seconds": 296.30337419999995,
+    "successful_read_latency_ms": {
+      "full": {
+        "count": 51,
+        "min": 2473.9012999999977,
+        "median": 7598.984800000006,
+        "p95": 13957.873200000002,
+        "max": 14043.661599999992
+      },
+      "concrete": {
+        "count": 0
+      }
+    },
+    "firmware_sha256": "a3bac8704d38ec58008ac9875503d31498e10f152b33c1f21f0866dc3a7deb39",
+    "timer_final": {
+      "phase": "before-observer-stop",
+      "ms": 315034,
+      "heap_free": 390064,
+      "heap_allocated": 31688,
+      "heap_min": 57288,
+      "largest_free": 237568,
+      "free_blocks": 27,
+      "allocated_blocks": 100,
+      "heap_max_sampled": 357652,
+      "heap_min_sampled": 58520,
+      "largest_min_sampled": 33792,
+      "samples": 3150,
+      "task_min_free": 9512
+    },
+    "owner_final": {
+      "command": "m",
+      "ms": 311460,
+      "fabrics": 1,
+      "samples": 2086,
+      "heap_max_sampled": 354388,
+      "heap_min_sampled": 61776,
+      "largest_min_sampled": 37888,
+      "heap_free": 229876,
+      "heap_allocated": 190808,
+      "largest_free": 77824,
+      "free_blocks": 18,
+      "allocated_blocks": 367,
+      "core_bytes": 95464,
+      "core_peak": 262884,
+      "core_live": 67,
+      "core_calls": 28313,
+      "core_failures": 13,
+      "rx_dropped_by_lab": 0,
+      "delayed_completions": 1,
+      "held_completion": 1,
+      "faults_armed": 0,
+      "reconnects": 0,
+      "sdk_alloc_failures": 0,
+      "sdk_largest_failed_request": 0,
+      "dma_free": 215272,
+      "dma_largest_free": 77824
+    },
+    "cleaned": {
+      "phase": "owner-thread-cleaned",
+      "ms": 315049,
+      "heap_free": 390212,
+      "heap_allocated": 31552,
+      "heap_min": 57288,
+      "largest_free": 237568,
+      "owner_stack_reserved": 12800,
+      "owner_stack_min_free": 9512,
+      "core_live": 0,
+      "core_bytes": 0,
+      "core_peak": 262884,
+      "core_largest": 32768,
+      "core_failures": 13
+    }
+  },
+  "allocation_observer": {
+    "mode": "run",
+    "read_workload": "wildcard",
+    "expected_attributes": 171,
+    "requested_seconds": 180,
+    "rounds": 0,
+    "full_reads": 51,
+    "read_attributes": 8721,
+    "concrete_reads": 0,
+    "concrete_read_attributes": 0,
+    "subscription_snapshots": 15,
+    "subscription_updates": 45,
+    "subscription_closed": 15,
+    "case_pairs": 10,
+    "case_resumed": 10,
+    "session_busy_probes": 1,
+    "oom_cycles": 0,
+    "fault_operations_rejected": 0,
+    "reconnect_cycles": 0,
+    "loss_cycles": 0,
+    "delayed_completion_cycles": 1,
+    "healthy_operation_errors": 0,
+    "checkpoints": [
+      {
+        "phase": "five-fabrics-before-subscriptions",
+        "command": "m",
+        "ms": 118866,
+        "fabrics": 5,
+        "samples": 421,
+        "heap_max_sampled": 207636,
+        "heap_min_sampled": 193612,
+        "largest_min_sampled": 163840,
+        "heap_free": 201196,
+        "heap_allocated": 200204,
+        "largest_free": 180224,
+        "free_blocks": 28,
+        "allocated_blocks": 448,
+        "core_bytes": 103936,
+        "core_peak": 125656,
+        "core_live": 103,
+        "core_calls": 2322,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 186592,
+        "dma_largest_free": 180224,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 118859,
+          "heap_free": 201196,
+          "heap_allocated": 200204,
+          "heap_min": 175232,
+          "largest_free": 180224,
+          "free_blocks": 28,
+          "allocated_blocks": 448,
+          "heap_max_sampled": 225732,
+          "heap_min_sampled": 175272,
+          "largest_min_sampled": 147456,
+          "samples": 1189,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "five-fabrics-fifteen-sessions-fifteen-subscriptions",
+        "command": "m",
+        "ms": 183886,
+        "fabrics": 5,
+        "samples": 1004,
+        "heap_max_sampled": 273596,
+        "heap_min_sampled": 126416,
+        "largest_min_sampled": 108544,
+        "heap_free": 132128,
+        "heap_allocated": 268116,
+        "largest_free": 108544,
+        "free_blocks": 46,
+        "allocated_blocks": 737,
+        "core_bytes": 171872,
+        "core_peak": 181992,
+        "core_live": 393,
+        "core_calls": 9188,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 117524,
+        "dma_largest_free": 108544,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 183873,
+          "heap_free": 132128,
+          "heap_allocated": 268116,
+          "heap_min": 121860,
+          "largest_free": 108544,
+          "free_blocks": 46,
+          "allocated_blocks": 737,
+          "heap_max_sampled": 274816,
+          "heap_min_sampled": 125248,
+          "largest_min_sampled": 106496,
+          "samples": 1839,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-loaded",
+        "command": "m",
+        "ms": 184325,
+        "fabrics": 5,
+        "samples": 1007,
+        "heap_max_sampled": 273596,
+        "heap_min_sampled": 126416,
+        "largest_min_sampled": 108544,
+        "heap_free": 132080,
+        "heap_allocated": 268160,
+        "largest_free": 108544,
+        "free_blocks": 46,
+        "allocated_blocks": 738,
+        "core_bytes": 171916,
+        "core_peak": 181992,
+        "core_live": 394,
+        "core_calls": 9247,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 117476,
+        "dma_largest_free": 108544,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 184318,
+          "heap_free": 132080,
+          "heap_allocated": 268160,
+          "heap_min": 121860,
+          "largest_free": 108544,
+          "free_blocks": 46,
+          "allocated_blocks": 738,
+          "heap_max_sampled": 274816,
+          "heap_min_sampled": 125248,
+          "largest_min_sampled": 106496,
+          "samples": 1843,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-parallel-full-read",
+        "command": "m",
+        "ms": 193722,
+        "fabrics": 5,
+        "samples": 1086,
+        "heap_max_sampled": 329388,
+        "heap_min_sampled": 70084,
+        "largest_min_sampled": 49152,
+        "heap_free": 126372,
+        "heap_allocated": 273848,
+        "largest_free": 75776,
+        "free_blocks": 61,
+        "allocated_blocks": 743,
+        "core_bytes": 177604,
+        "core_peak": 236940,
+        "core_live": 399,
+        "core_calls": 10872,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 111768,
+        "dma_largest_free": 75776,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 193715,
+          "heap_free": 126372,
+          "heap_allocated": 273848,
+          "heap_min": 64548,
+          "largest_free": 75776,
+          "free_blocks": 61,
+          "allocated_blocks": 743,
+          "heap_max_sampled": 329876,
+          "heap_min_sampled": 69596,
+          "largest_min_sampled": 48128,
+          "samples": 1937,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-parallel-full-read",
+        "command": "m",
+        "ms": 201942,
+        "fabrics": 5,
+        "samples": 1154,
+        "heap_max_sampled": 333384,
+        "heap_min_sampled": 65708,
+        "largest_min_sampled": 44032,
+        "heap_free": 126988,
+        "heap_allocated": 273240,
+        "largest_free": 65536,
+        "free_blocks": 56,
+        "allocated_blocks": 741,
+        "core_bytes": 176996,
+        "core_peak": 240772,
+        "core_live": 397,
+        "core_calls": 12470,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 112384,
+        "dma_largest_free": 65536,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 201935,
+          "heap_free": 126988,
+          "heap_allocated": 273240,
+          "heap_min": 62032,
+          "largest_free": 65536,
+          "free_blocks": 56,
+          "allocated_blocks": 741,
+          "heap_max_sampled": 335132,
+          "heap_min_sampled": 64032,
+          "largest_min_sampled": 39936,
+          "samples": 2019,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-parallel-full-read",
+        "command": "m",
+        "ms": 210050,
+        "fabrics": 5,
+        "samples": 1221,
+        "heap_max_sampled": 333728,
+        "heap_min_sampled": 65312,
+        "largest_min_sampled": 41984,
+        "heap_free": 127116,
+        "heap_allocated": 273120,
+        "largest_free": 67584,
+        "free_blocks": 57,
+        "allocated_blocks": 739,
+        "core_bytes": 176876,
+        "core_peak": 241084,
+        "core_live": 395,
+        "core_calls": 13957,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 112512,
+        "dma_largest_free": 67584,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 210044,
+          "heap_free": 127116,
+          "heap_allocated": 273120,
+          "heap_min": 61672,
+          "largest_free": 67584,
+          "free_blocks": 57,
+          "allocated_blocks": 739,
+          "heap_max_sampled": 335632,
+          "heap_min_sampled": 63452,
+          "largest_min_sampled": 38912,
+          "samples": 2100,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-fabric-with-parallel-full-read",
+        "command": "m",
+        "ms": 218436,
+        "fabrics": 5,
+        "samples": 1290,
+        "heap_max_sampled": 333728,
+        "heap_min_sampled": 65312,
+        "largest_min_sampled": 41984,
+        "heap_free": 126996,
+        "heap_allocated": 273232,
+        "largest_free": 53248,
+        "free_blocks": 61,
+        "allocated_blocks": 741,
+        "core_bytes": 176988,
+        "core_peak": 241084,
+        "core_live": 397,
+        "core_calls": 15558,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 112392,
+        "dma_largest_free": 53248,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 218428,
+          "heap_free": 126996,
+          "heap_allocated": 273232,
+          "heap_min": 61672,
+          "largest_free": 53248,
+          "free_blocks": 61,
+          "allocated_blocks": 741,
+          "heap_max_sampled": 336252,
+          "heap_min_sampled": 62956,
+          "largest_min_sampled": 38912,
+          "samples": 2184,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-fabric-with-parallel-full-read",
+        "command": "m",
+        "ms": 226922,
+        "fabrics": 5,
+        "samples": 1359,
+        "heap_max_sampled": 333796,
+        "heap_min_sampled": 65244,
+        "largest_min_sampled": 41984,
+        "heap_free": 127108,
+        "heap_allocated": 273128,
+        "largest_free": 52224,
+        "free_blocks": 61,
+        "allocated_blocks": 739,
+        "core_bytes": 176872,
+        "core_peak": 241196,
+        "core_live": 395,
+        "core_calls": 17131,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 112504,
+        "dma_largest_free": 52224,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 226915,
+          "heap_free": 127108,
+          "heap_allocated": 273128,
+          "heap_min": 61568,
+          "largest_free": 52224,
+          "free_blocks": 61,
+          "allocated_blocks": 739,
+          "heap_max_sampled": 337436,
+          "heap_min_sampled": 61596,
+          "largest_min_sampled": 38912,
+          "samples": 2269,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-fabric-with-parallel-full-read",
+        "command": "m",
+        "ms": 235828,
+        "fabrics": 5,
+        "samples": 1429,
+        "heap_max_sampled": 333796,
+        "heap_min_sampled": 65244,
+        "largest_min_sampled": 41984,
+        "heap_free": 127108,
+        "heap_allocated": 273128,
+        "largest_free": 57344,
+        "free_blocks": 65,
+        "allocated_blocks": 739,
+        "core_bytes": 176872,
+        "core_peak": 241196,
+        "core_live": 395,
+        "core_calls": 18767,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 112504,
+        "dma_largest_free": 57344,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 235812,
+          "heap_free": 127108,
+          "heap_allocated": 273128,
+          "heap_min": 61568,
+          "largest_free": 57344,
+          "free_blocks": 65,
+          "allocated_blocks": 739,
+          "heap_max_sampled": 337436,
+          "heap_min_sampled": 61596,
+          "largest_min_sampled": 38912,
+          "samples": 2358,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-live-fabric-removal",
+        "command": "m",
+        "ms": 256072,
+        "fabrics": 4,
+        "samples": 1595,
+        "heap_max_sampled": 354860,
+        "heap_min_sampled": 42300,
+        "largest_min_sampled": 19968,
+        "heap_free": 142636,
+        "heap_allocated": 257904,
+        "largest_free": 49152,
+        "free_blocks": 59,
+        "allocated_blocks": 663,
+        "core_bytes": 161860,
+        "core_peak": 262332,
+        "core_live": 329,
+        "core_calls": 22342,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 128032,
+        "dma_largest_free": 49152,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 256064,
+          "heap_free": 142636,
+          "heap_allocated": 257904,
+          "heap_min": 38732,
+          "largest_free": 49152,
+          "free_blocks": 59,
+          "allocated_blocks": 663,
+          "heap_max_sampled": 355976,
+          "heap_min_sampled": 41244,
+          "largest_min_sampled": 18432,
+          "samples": 2561,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-live-fabric-removal",
+        "command": "m",
+        "ms": 271342,
+        "fabrics": 3,
+        "samples": 1718,
+        "heap_max_sampled": 354860,
+        "heap_min_sampled": 42300,
+        "largest_min_sampled": 19968,
+        "heap_free": 158064,
+        "heap_allocated": 242780,
+        "largest_free": 67584,
+        "free_blocks": 53,
+        "allocated_blocks": 587,
+        "core_bytes": 146972,
+        "core_peak": 262332,
+        "core_live": 265,
+        "core_calls": 25107,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 143460,
+        "dma_largest_free": 67584,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 271335,
+          "heap_free": 158064,
+          "heap_allocated": 242780,
+          "heap_min": 38732,
+          "largest_free": 67584,
+          "free_blocks": 53,
+          "allocated_blocks": 587,
+          "heap_max_sampled": 355976,
+          "heap_min_sampled": 41244,
+          "largest_min_sampled": 18432,
+          "samples": 2713,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-live-fabric-removal",
+        "command": "m",
+        "ms": 281923,
+        "fabrics": 2,
+        "samples": 1806,
+        "heap_max_sampled": 354860,
+        "heap_min_sampled": 42300,
+        "largest_min_sampled": 19968,
+        "heap_free": 172996,
+        "heap_allocated": 228148,
+        "largest_free": 73728,
+        "free_blocks": 41,
+        "allocated_blocks": 512,
+        "core_bytes": 132576,
+        "core_peak": 262332,
+        "core_live": 201,
+        "core_calls": 26918,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 158392,
+        "dma_largest_free": 73728,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 281915,
+          "heap_free": 172996,
+          "heap_allocated": 228148,
+          "heap_min": 38732,
+          "largest_free": 73728,
+          "free_blocks": 41,
+          "allocated_blocks": 512,
+          "heap_max_sampled": 355976,
+          "heap_min_sampled": 41244,
+          "largest_min_sampled": 18432,
+          "samples": 2819,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "profile-live-fabric-removal",
+        "command": "m",
+        "ms": 288822,
+        "fabrics": 1,
+        "samples": 1863,
+        "heap_max_sampled": 354860,
+        "heap_min_sampled": 42300,
+        "largest_min_sampled": 19968,
+        "heap_free": 188584,
+        "heap_allocated": 212868,
+        "largest_free": 108544,
+        "free_blocks": 32,
+        "allocated_blocks": 435,
+        "core_bytes": 117544,
+        "core_peak": 262332,
+        "core_live": 135,
+        "core_calls": 27799,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 173980,
+        "dma_largest_free": 108544,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 288815,
+          "heap_free": 188584,
+          "heap_allocated": 212868,
+          "heap_min": 38732,
+          "largest_free": 108544,
+          "free_blocks": 32,
+          "allocated_blocks": 435,
+          "heap_max_sampled": 355976,
+          "heap_min_sampled": 41244,
+          "largest_min_sampled": 18432,
+          "samples": 2888,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "all-subscriptions-and-sessions-drained-idle-trim",
+        "command": "m",
+        "ms": 303290,
+        "fabrics": 1,
+        "samples": 1998,
+        "heap_max_sampled": 354860,
+        "heap_min_sampled": 42300,
+        "largest_min_sampled": 19968,
+        "heap_free": 213304,
+        "heap_allocated": 188440,
+        "largest_free": 116736,
+        "free_blocks": 19,
+        "allocated_blocks": 362,
+        "core_bytes": 93116,
+        "core_peak": 262332,
+        "core_live": 62,
+        "core_calls": 27824,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 198700,
+        "dma_largest_free": 116736,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 303283,
+          "heap_free": 213304,
+          "heap_allocated": 188440,
+          "heap_min": 38732,
+          "largest_free": 116736,
+          "free_blocks": 19,
+          "allocated_blocks": 362,
+          "heap_max_sampled": 355976,
+          "heap_min_sampled": 41244,
+          "largest_min_sampled": 18432,
+          "samples": 3033,
+          "task_min_free": 9512
+        }
+      },
+      {
+        "phase": "original-fabric-restored",
+        "command": "m",
+        "ms": 305728,
+        "fabrics": 1,
+        "samples": 2020,
+        "heap_max_sampled": 354860,
+        "heap_min_sampled": 42300,
+        "largest_min_sampled": 19968,
+        "heap_free": 211024,
+        "heap_allocated": 190700,
+        "largest_free": 116736,
+        "free_blocks": 18,
+        "allocated_blocks": 367,
+        "core_bytes": 95376,
+        "core_peak": 262332,
+        "core_live": 67,
+        "core_calls": 27881,
+        "core_failures": 13,
+        "rx_dropped_by_lab": 0,
+        "delayed_completions": 0,
+        "held_completion": 0,
+        "faults_armed": 0,
+        "reconnects": 0,
+        "sdk_alloc_failures": 0,
+        "sdk_largest_failed_request": 0,
+        "dma_free": 196420,
+        "dma_largest_free": 116736,
+        "timer_sample": {
+          "phase": "checkpoint",
+          "ms": 305712,
+          "heap_free": 211024,
+          "heap_allocated": 190700,
+          "heap_min": 38732,
+          "largest_free": 116736,
+          "free_blocks": 18,
+          "allocated_blocks": 367,
+          "heap_max_sampled": 355976,
+          "heap_min_sampled": 41244,
+          "largest_min_sampled": 18432,
+          "samples": 3057,
+          "task_min_free": 9512
+        }
+      }
+    ],
+    "phases": [],
+    "unexpected_subscription_closures": 0,
+    "oom_lost_subscriptions": 0,
+    "oom_rebuilt_load_cycles": 0,
+    "fault_operation_errors": [],
+    "loss_operations_rejected": 0,
+    "loss_rebuilt_load_cycles": 0,
+    "loss_lost_subscriptions": 0,
+    "loss_operation_errors": [],
+    "host_close_reconnect_cycles": 0,
+    "recovery_busy_retries": 0,
+    "recovery_busy_wait_ms": 0,
+    "diagnostic_peer": {
+      "mode": "corrected",
+      "package": "@matter/protocol",
+      "version": "0.17.9",
+      "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+      "override": "fromInitialMessage: inverse incoming Initiator bit"
+    },
+    "memory_profile": {
+      "parallel_read_rounds": 3,
+      "publication_rounds": 3,
+      "live_removals": 4
+    },
+    "stop_wait_seconds": 3.666136900000012,
+    "stop_read_outcome": {
+      "status": "rejected",
+      "name": "Error"
+    },
+    "pass": true,
+    "elapsed_seconds": 294.9644815,
+    "successful_read_latency_ms": {
+      "full": {
+        "count": 51,
+        "min": 2318.7738000000245,
+        "median": 7730.646999999997,
+        "p95": 14251.269,
+        "max": 14569.064899999998
+      },
+      "concrete": {
+        "count": 0
+      }
+    },
+    "firmware_sha256": "3bffdef98d38b491ecb76d77c2edb667d13999b3675ffe2b2015b89c7427eccb",
+    "timer_final": {
+      "phase": "before-observer-stop",
+      "ms": 311984,
+      "heap_free": 371092,
+      "heap_allocated": 31700,
+      "heap_min": 38732,
+      "largest_free": 229376,
+      "free_blocks": 28,
+      "allocated_blocks": 100,
+      "heap_max_sampled": 355976,
+      "heap_min_sampled": 41244,
+      "largest_min_sampled": 18432,
+      "samples": 3120,
+      "task_min_free": 9512
+    },
+    "owner_final": {
+      "command": "m",
+      "ms": 308380,
+      "fabrics": 1,
+      "samples": 2044,
+      "heap_max_sampled": 354860,
+      "heap_min_sampled": 42300,
+      "largest_min_sampled": 19968,
+      "heap_free": 209796,
+      "heap_allocated": 191900,
+      "largest_free": 116736,
+      "free_blocks": 16,
+      "allocated_blocks": 374,
+      "core_bytes": 96576,
+      "core_peak": 262332,
+      "core_live": 74,
+      "core_calls": 28057,
+      "core_failures": 13,
+      "rx_dropped_by_lab": 0,
+      "delayed_completions": 1,
+      "held_completion": 1,
+      "faults_armed": 0,
+      "reconnects": 0,
+      "sdk_alloc_failures": 0,
+      "sdk_largest_failed_request": 0,
+      "dma_free": 195192,
+      "dma_largest_free": 116736
+    },
+    "cleaned": {
+      "phase": "owner-thread-cleaned",
+      "ms": 312039,
+      "heap_free": 371240,
+      "heap_allocated": 31564,
+      "heap_min": 38732,
+      "largest_free": 229376,
+      "owner_stack_reserved": 12800,
+      "owner_stack_min_free": 9512,
+      "core_live": 0,
+      "core_bytes": 0,
+      "core_peak": 262332,
+      "core_largest": 32768,
+      "core_failures": 13
+    }
+  },
+  "normal_identity": {
+    "bin_sha256": "a3bac8704d38ec58008ac9875503d31498e10f152b33c1f21f0866dc3a7deb39",
+    "elf_sha256": "8334088a34689163d68704da4296b0cd00bc502d0f4cf512ee071fc6546c3823",
+    "core_lf_sha256": "3434ab59b3fe8565d801d2762627d5e726bb0a2a0bd8398ad13f10e6a9bb0452"
+  },
+  "attribution": {
+    "elf_sha256": "b763375c3d2d3bf4229b2393ae5408b13c042cb6c67910f370bbeb36abae957f",
+    "metadata_bytes": 18956,
+    "live_records": 2048,
+    "site_records": 128,
+    "max_tracked_block_bytes": 65535,
+    "peak_bytes": 262332,
+    "peak_live": 1176,
+    "site_slots": 124,
+    "overflows": 0,
+    "peak_sites": [
+      {
+        "address": "4204761a",
+        "bytes": 74660,
+        "count": 288,
+        "function": "matter_im_blocks_reserve",
+        "source": "main/apps/matter/model/matter_im_blocks_internal.h:40"
+      },
+      {
+        "address": "4203ea0a",
+        "bytes": 25104,
+        "count": 52,
+        "function": "matter_im_blocks_reserve",
+        "source": "main/apps/matter/model/matter_im_blocks_internal.h:40"
+      },
+      {
+        "address": "4203cf6e",
+        "bytes": 15552,
+        "count": 1,
+        "function": "matter_fabric_host_image_new",
+        "source": "main/apps/matter/runtime/matter_fabric_host.c:52"
+      },
+      {
+        "address": "4201958a",
+        "bytes": 10488,
+        "count": 15,
+        "function": "matter_cluster_new",
+        "source": "main/apps/matter/model/matter_cluster.c:20"
+      },
+      {
+        "address": "4204081e",
+        "bytes": 9600,
+        "count": 4,
+        "function": "report_chunk",
+        "source": "main/apps/matter/model/matter_im_read.c:580"
+      },
+      {
+        "address": "42016a40",
+        "bytes": 8988,
+        "count": 7,
+        "function": "rx_capacity",
+        "source": "components/matter_c_esp32/matter_idf_udp.c:129"
+      },
+      {
+        "address": "42049394",
+        "bytes": 8600,
+        "count": 344,
+        "function": "matter_im_snapshot_copy",
+        "source": "main/apps/matter/model/matter_im_snapshot_internal.h:157"
+      },
+      {
+        "address": "42027e2e",
+        "bytes": 8488,
+        "count": 1,
+        "function": "matter_diagnostics_new",
+        "source": "main/apps/matter/clusters/matter_diagnostics.c:82"
+      },
+      {
+        "address": "42038074",
+        "bytes": 8124,
+        "count": 15,
+        "function": "prepare_packet",
+        "source": "main/apps/matter/runtime/matter_dispatch.c:126"
+      },
+      {
+        "address": "4203a22a",
+        "bytes": 7064,
+        "count": 1,
+        "function": "matter_dispatch_new",
+        "source": "main/apps/matter/runtime/matter_dispatch.c:1127"
+      },
+      {
+        "address": "4202533e",
+        "bytes": 6384,
+        "count": 1,
+        "function": "matter_acl_new",
+        "source": "main/apps/matter/clusters/matter_acl.c:41"
+      },
+      {
+        "address": "42031842",
+        "bytes": 5704,
+        "count": 1,
+        "function": "matter_ota_requestor_new",
+        "source": "main/apps/matter/clusters/matter_ota_requestor.c:240"
+      },
+      {
+        "address": "4204a22c",
+        "bytes": 4512,
+        "count": 12,
+        "function": "matter_im_subscribe_new",
+        "source": "main/apps/matter/model/matter_im_subscribe.c:109"
+      },
+      {
+        "address": "42036b78",
+        "bytes": 4488,
+        "count": 16,
+        "function": "new_transaction",
+        "source": "main/apps/matter/runtime/matter_dispatch.c:83"
+      },
+      {
+        "address": "4202362a",
+        "bytes": 4224,
+        "count": 1,
+        "function": "matter_fabric_new",
+        "source": "main/apps/matter/clusters/matter_fabric.c:13"
+      },
+      {
+        "address": "42035526",
+        "bytes": 3840,
+        "count": 12,
+        "function": "matter_secure_from_case",
+        "source": "main/apps/matter/session/matter_secure.c:169"
+      },
+      {
+        "address": "420524da",
+        "bytes": 3240,
+        "count": 1,
+        "function": "matter_rx_new",
+        "source": "main/apps/matter/transport/matter_rx.c:80"
+      },
+      {
+        "address": "420548aa",
+        "bytes": 3176,
+        "count": 1,
+        "function": "matter_retransmission_new",
+        "source": "main/apps/matter/transport/matter_retransmission.c:37"
+      },
+      {
+        "address": "42040aa4",
+        "bytes": 3000,
+        "count": 120,
+        "function": "matter_im_snapshot_copy",
+        "source": "main/apps/matter/model/matter_im_snapshot_internal.h:157"
+      },
+      {
+        "address": "42049364",
+        "bytes": 2928,
+        "count": 15,
+        "function": "matter_im_snapshot_copy",
+        "source": "main/apps/matter/model/matter_im_snapshot_internal.h:154"
+      },
+      {
+        "address": "4203d03c",
+        "bytes": 2600,
+        "count": 1,
+        "function": "matter_fabric_host_new",
+        "source": "main/apps/matter/runtime/matter_fabric_host.c:186"
+      },
+      {
+        "address": "4202ea30",
+        "bytes": 2352,
+        "count": 1,
+        "function": "matter_runtime_new",
+        "source": "main/apps/matter/runtime/matter_runtime.c:250"
+      },
+      {
+        "address": "420201cc",
+        "bytes": 2344,
+        "count": 1,
+        "function": "matter_wifi_new",
+        "source": "main/apps/matter/clusters/matter_wifi.c:56"
+      },
+      {
+        "address": "42021b50",
+        "bytes": 2016,
+        "count": 1,
+        "function": "matter_opcreds_new",
+        "source": "main/apps/matter/clusters/matter_opcreds.c:36"
+      },
+      {
+        "address": "420321fa",
+        "bytes": 2000,
+        "count": 1,
+        "function": "matter_ota_query_new",
+        "source": "main/apps/matter/clusters/matter_ota_query.c:26"
+      },
+      {
+        "address": "4204a616",
+        "bytes": 1920,
+        "count": 1,
+        "function": "matter_im_subscribe_receive",
+        "source": "main/apps/matter/model/matter_im_subscribe.c:170 (discriminator 2)"
+      },
+      {
+        "address": "4204a794",
+        "bytes": 1920,
+        "count": 1,
+        "function": "matter_im_subscribe_process",
+        "source": "main/apps/matter/model/matter_im_subscribe.c:677"
+      },
+      {
+        "address": "4204873a",
+        "bytes": 1920,
+        "count": 12,
+        "function": "decode",
+        "source": "main/apps/matter/model/matter_im_subscribe.c:277"
+      },
+      {
+        "address": "420538be",
+        "bytes": 1856,
+        "count": 1,
+        "function": "matter_ack_new",
+        "source": "main/apps/matter/transport/matter_ack.c:53"
+      },
+      {
+        "address": "4205328c",
+        "bytes": 1832,
+        "count": 1,
+        "function": "matter_exchange_new",
+        "source": "main/apps/matter/transport/matter_exchange.c:50"
+      },
+      {
+        "address": "420516ca",
+        "bytes": 1732,
+        "count": 12,
+        "function": "matter_secure_channel_new",
+        "source": "main/apps/matter/transport/matter_secure_channel.c:32"
+      },
+      {
+        "address": "4203e1f0",
+        "bytes": 1728,
+        "count": 1,
+        "function": "matter_diagnostics_host_new_port",
+        "source": "main/apps/matter/runtime/matter_diagnostics_host.c:12"
+      },
+      {
+        "address": "42030382",
+        "bytes": 1600,
+        "count": 1,
+        "function": "matter_admin_commissioning_new",
+        "source": "main/apps/matter/clusters/matter_admin_commissioning.c:180"
+      },
+      {
+        "address": "420495a2",
+        "bytes": 1360,
+        "count": 108,
+        "function": "matter_im_snapshot_copy",
+        "source": "main/apps/matter/model/matter_im_snapshot_internal.h:185"
+      },
+      {
+        "address": "42016bd6",
+        "bytes": 1284,
+        "count": 1,
+        "function": "activate",
+        "source": "components/matter_c_esp32/matter_idf_udp.c:47"
+      },
+      {
+        "address": "42041276",
+        "bytes": 1280,
+        "count": 4,
+        "function": "matter_im_read_new",
+        "source": "main/apps/matter/model/matter_im_read.c:84"
+      },
+      {
+        "address": "4201a6e0",
+        "bytes": 1264,
+        "count": 5,
+        "function": "matter_events_prepare",
+        "source": "main/apps/matter/model/matter_events.c:74"
+      },
+      {
+        "address": "42026130",
+        "bytes": 1176,
+        "count": 1,
+        "function": "matter_groupkey_new",
+        "source": "main/apps/matter/clusters/matter_groupkey.c:27"
+      },
+      {
+        "address": "4204759a",
+        "bytes": 1164,
+        "count": 12,
+        "function": "matter_im_event_filters_reserve",
+        "source": "main/apps/matter/model/matter_im_events_internal.h:49"
+      },
+      {
+        "address": "4201dc9c",
+        "bytes": 1144,
+        "count": 1,
+        "function": "matter_root_new",
+        "source": "main/apps/matter/clusters/matter_root.c:344"
+      },
+      {
+        "address": "4205427e",
+        "bytes": 1016,
+        "count": 1,
+        "function": "matter_retransmission_sender_new",
+        "source": "main/apps/matter/transport/matter_retransmission_sender.c:37"
+      },
+      {
+        "address": "4201a53a",
+        "bytes": 808,
+        "count": 1,
+        "function": "matter_events_new",
+        "source": "main/apps/matter/model/matter_events.c:41"
+      },
+      {
+        "address": "420176fe",
+        "bytes": 804,
+        "count": 5,
+        "function": "matter_new",
+        "source": "main/apps/matter/matter.c:27"
+      },
+      {
+        "address": "42017e42",
+        "bytes": 784,
+        "count": 4,
+        "function": "create",
+        "source": "main/apps/matter/matter_discovery.c:17"
+      },
+      {
+        "address": "4203f2e6",
+        "bytes": 576,
+        "count": 4,
+        "function": "decode_events",
+        "source": "main/apps/matter/model/matter_im_read.c:262"
+      },
+      {
+        "address": "420145fe",
+        "bytes": 496,
+        "count": 1,
+        "function": "lab_wifi_new",
+        "source": "examples/esp32-runtime/main/wifi_port.c:181"
+      },
+      {
+        "address": "42040cb2",
+        "bytes": 488,
+        "count": 36,
+        "function": "matter_im_snapshot_copy",
+        "source": "main/apps/matter/model/matter_im_snapshot_internal.h:185"
+      },
+      {
+        "address": "4203dc14",
+        "bytes": 480,
+        "count": 1,
+        "function": "matter_commissioning_host_new_port",
+        "source": "main/apps/matter/runtime/matter_commissioning_host.c:24"
+      },
+      {
+        "address": "4203abd4",
+        "bytes": 448,
+        "count": 4,
+        "function": "resume_save",
+        "source": "main/apps/matter/runtime/matter_fabric_resumption_internal.h:46"
+      },
+      {
+        "address": "4203db3a",
+        "bytes": 444,
+        "count": 1,
+        "function": "matter_commissioning_host_image_new",
+        "source": "main/apps/matter/runtime/matter_commissioning_host.c:11"
+      },
+      {
+        "address": "42017a50",
+        "bytes": 428,
+        "count": 4,
+        "function": "matter_mdns_new",
+        "source": "main/apps/matter/matter_mdns.c:19"
+      },
+      {
+        "address": "4203d834",
+        "bytes": 400,
+        "count": 1,
+        "function": "matter_opcreds_host_new",
+        "source": "main/apps/matter/runtime/matter_opcreds_host.c:21"
+      },
+      {
+        "address": "4205066c",
+        "bytes": 344,
+        "count": 1,
+        "function": "matter_unsecured_new",
+        "source": "main/apps/matter/transport/matter_unsecured.c:56"
+      },
+      {
+        "address": "4202a538",
+        "bytes": 340,
+        "count": 1,
+        "function": "matter_crypto_mbedtls_new",
+        "source": "main/apps/matter/crypto/matter_crypto_mbedtls.c:692"
+      },
+      {
+        "address": "420157c6",
+        "bytes": 280,
+        "count": 1,
+        "function": "matter_lab_rgb_new",
+        "source": "examples/esp32-runtime/main/rgb_light.c:158"
+      },
+      {
+        "address": "4201741e",
+        "bytes": 252,
+        "count": 4,
+        "function": "matter_idf_discovery_new",
+        "source": "components/matter_c_esp32/matter_idf_discovery.c:23"
+      },
+      {
+        "address": "4201d786",
+        "bytes": 188,
+        "count": 1,
+        "function": "matter_root_add_tagged_endpoint",
+        "source": "main/apps/matter/clusters/matter_root.c:134"
+      },
+      {
+        "address": "4202c284",
+        "bytes": 184,
+        "count": 1,
+        "function": "matter_store_host_new",
+        "source": "main/apps/matter/runtime/matter_store_host.c:66"
+      },
+      {
+        "address": "4204a5fa",
+        "bytes": 160,
+        "count": 12,
+        "function": "matter_im_subscribe_receive",
+        "source": "main/apps/matter/model/matter_im_subscribe.c:167 (discriminator 1)"
+      },
+      {
+        "address": "42050ef0",
+        "bytes": 124,
+        "count": 1,
+        "function": "matter_unsecured_tx_new",
+        "source": "main/apps/matter/transport/matter_unsecured_tx.c:44"
+      },
+      {
+        "address": "420181e0",
+        "bytes": 112,
+        "count": 1,
+        "function": "matter_udp_new",
+        "source": "main/apps/matter/matter_udp.c:18"
+      },
+      {
+        "address": "42016dfc",
+        "bytes": 104,
+        "count": 1,
+        "function": "matter_idf_udp_new",
+        "source": "components/matter_c_esp32/matter_idf_udp.c:106"
+      },
+      {
+        "address": "420415b4",
+        "bytes": 104,
+        "count": 4,
+        "function": "matter_im_read_receive",
+        "source": "main/apps/matter/model/matter_im_read.c:140 (discriminator 1)"
+      },
+      {
+        "address": "42050a8a",
+        "bytes": 88,
+        "count": 1,
+        "function": "matter_unsecured_rx_new",
+        "source": "main/apps/matter/transport/matter_unsecured_rx.c:29"
+      },
+      {
+        "address": "42052dae",
+        "bytes": 64,
+        "count": 1,
+        "function": "matter_rx_policy_new",
+        "source": "main/apps/matter/transport/matter_rx_policy.c:26"
+      },
+      {
+        "address": "42053de8",
+        "bytes": 64,
+        "count": 1,
+        "function": "matter_ack_sender_new",
+        "source": "main/apps/matter/transport/matter_ack_sender.c:16"
+      },
+      {
+        "address": "4201abae",
+        "bytes": 64,
+        "count": 4,
+        "function": "matter_events_snapshot_acquire",
+        "source": "main/apps/matter/model/matter_events.c:178 (discriminator 1)"
+      },
+      {
+        "address": "42015c78",
+        "bytes": 20,
+        "count": 1,
+        "function": "matter_lab_led_new",
+        "source": "examples/esp32-runtime/main/rgb_led.c:27"
+      },
+      {
+        "address": "42017256",
+        "bytes": 12,
+        "count": 1,
+        "function": "matter_idf_store_new",
+        "source": "components/matter_c_esp32/matter_idf_store.c:44"
+      }
+    ],
+    "all_dump_sums_checked": true,
+    "source_translation_units": {
+      "4204761a": "main/apps/matter/model/matter_im_subscribe.c",
+      "4203ea0a": "main/apps/matter/model/matter_im_read.c"
+    }
+  },
+  "discarded_attribution": {
+    "profile_protocol_pass": true,
+    "capacity": 1024,
+    "overflows": 434,
+    "valid": false
+  },
+  "frames_bytes": {
+    "process_rx": 16,
+    "process_transaction": 144,
+    "send_ack": 64,
+    "dispatch_process": 176,
+    "matter_dispatch_process": 16,
+    "receive": 32,
+    "matter_idf_udp_process": 32
+  },
+  "layouts": {
+    "Matter_Dispatch": {
+      "size": 7064,
+      "members": [
+        {
+          "name": "snapshots",
+          "size": 136,
+          "offset": 0
+        },
+        {
+          "name": "output",
+          "size": 1204,
+          "offset": 136
+        },
+        {
+          "name": "config",
+          "size": 224,
+          "offset": 1340
+        },
+        {
+          "name": "udp",
+          "size": 4,
+          "offset": 1564
+        },
+        {
+          "name": "rx",
+          "size": 4,
+          "offset": 1568
+        },
+        {
+          "name": "tx",
+          "size": 4,
+          "offset": 1572
+        },
+        {
+          "name": "unsecured",
+          "size": 4,
+          "offset": 1576
+        },
+        {
+          "name": "ingress",
+          "size": 4,
+          "offset": 1580
+        },
+        {
+          "name": "transport",
+          "size": 4,
+          "offset": 1584
+        },
+        {
+          "name": "counter",
+          "size": 12,
+          "offset": 1588
+        },
+        {
+          "name": "routes",
+          "size": 448,
+          "offset": 1600
+        },
+        {
+          "name": "connections",
+          "size": 2176,
+          "offset": 2048
+        },
+        {
+          "name": "transactions",
+          "size": 4,
+          "offset": 4224
+        },
+        {
+          "name": "last_transaction",
+          "size": 4,
+          "offset": 4228
+        },
+        {
+          "name": "transaction_count",
+          "size": 4,
+          "offset": 4232
+        },
+        {
+          "name": "transaction_limit",
+          "size": 4,
+          "offset": 4236
+        },
+        {
+          "name": "subscriptions_per_fabric",
+          "size": 2,
+          "offset": 4240
+        },
+        {
+          "name": "received_path",
+          "size": 40,
+          "offset": 4244
+        },
+        {
+          "name": "inbox",
+          "size": 1232,
+          "offset": 4284
+        },
+        {
+          "name": "ack",
+          "size": 26,
+          "offset": 5516
+        },
+        {
+          "name": "plain",
+          "size": 1232,
+          "offset": 5542
+        },
+        {
+          "name": "inbox_size",
+          "size": 4,
+          "offset": 6776
+        },
+        {
+          "name": "decision",
+          "size": 64,
+          "offset": 6784
+        },
+        {
+          "name": "queued",
+          "size": 1,
+          "offset": 6848
+        },
+        {
+          "name": "delivered",
+          "size": 1,
+          "offset": 6849
+        },
+        {
+          "name": "ack_waiting",
+          "size": 1,
+          "offset": 6850
+        },
+        {
+          "name": "stopping",
+          "size": 1,
+          "offset": 6851
+        },
+        {
+          "name": "stopped",
+          "size": 1,
+          "offset": 6852
+        },
+        {
+          "name": "started",
+          "size": 1,
+          "offset": 6853
+        },
+        {
+          "name": "processing",
+          "size": 1,
+          "offset": 6854
+        },
+        {
+          "name": "now",
+          "size": 8,
+          "offset": 6856
+        },
+        {
+          "name": "request",
+          "size": 8,
+          "offset": 6864
+        },
+        {
+          "name": "producer",
+          "size": 8,
+          "offset": 6872
+        },
+        {
+          "name": "next_token",
+          "size": 8,
+          "offset": 6880
+        },
+        {
+          "name": "next_subscription",
+          "size": 4,
+          "offset": 6888
+        },
+        {
+          "name": "next_id",
+          "size": 2,
+          "offset": 6892
+        },
+        {
+          "name": "sending",
+          "size": 4,
+          "offset": 6896
+        },
+        {
+          "name": "ack_token",
+          "size": 8,
+          "offset": 6904
+        },
+        {
+          "name": "completion",
+          "size": 1,
+          "offset": 6912
+        },
+        {
+          "name": "outcome",
+          "size": 4,
+          "offset": 6916
+        },
+        {
+          "name": "control",
+          "size": 1,
+          "offset": 6920
+        },
+        {
+          "name": "control_transaction",
+          "size": 4,
+          "offset": 6924
+        },
+        {
+          "name": "sending_message",
+          "size": 4,
+          "offset": 6928
+        },
+        {
+          "name": "im_sent",
+          "size": 4,
+          "offset": 6932
+        },
+        {
+          "name": "subscriptions_established",
+          "size": 4,
+          "offset": 6936
+        },
+        {
+          "name": "outgoing",
+          "size": 120,
+          "offset": 6944
+        }
+      ]
+    },
+    "Matter_Fabric_Host_Image": {
+      "size": 15552,
+      "members": [
+        {
+          "name": "data",
+          "size": 15536,
+          "offset": 0
+        },
+        {
+          "name": "attached",
+          "size": 1,
+          "offset": 15536
+        },
+        {
+          "name": "persist",
+          "size": 12,
+          "offset": 15540
+        }
+      ]
+    },
+    "Matter_Diagnostics": {
+      "size": 8488,
+      "members": [
+        {
+          "name": "interface",
+          "size": 4,
+          "offset": 0
+        },
+        {
+          "name": "wifi",
+          "size": 4,
+          "offset": 4
+        },
+        {
+          "name": "port",
+          "size": 12,
+          "offset": 8
+        },
+        {
+          "name": "current",
+          "size": 1656,
+          "offset": 24
+        },
+        {
+          "name": "pending",
+          "size": 1656,
+          "offset": 1680
+        },
+        {
+          "name": "test",
+          "size": 24,
+          "offset": 3336
+        },
+        {
+          "name": "request_key",
+          "size": 4,
+          "offset": 3360
+        },
+        {
+          "name": "request_event",
+          "size": 8,
+          "offset": 3368
+        },
+        {
+          "name": "busy",
+          "size": 1,
+          "offset": 3376
+        },
+        {
+          "name": "valid",
+          "size": 1,
+          "offset": 3377
+        },
+        {
+          "name": "initialized",
+          "size": 1,
+          "offset": 3378
+        },
+        {
+          "name": "boot_emitted",
+          "size": 1,
+          "offset": 3379
+        },
+        {
+          "name": "general_version",
+          "size": 4,
+          "offset": 3380
+        },
+        {
+          "name": "wifi_version",
+          "size": 4,
+          "offset": 3384
+        },
+        {
+          "name": "writer",
+          "size": 32,
+          "offset": 3388
+        },
+        {
+          "name": "reader",
+          "size": 36,
+          "offset": 3420
+        },
+        {
+          "name": "e",
+          "size": 48,
+          "offset": 3456
+        },
+        {
+          "name": "validation",
+          "size": 116,
+          "offset": 3504
+        },
+        {
+          "name": "tags",
+          "size": 768,
+          "offset": 3620
+        },
+        {
+          "name": "encoded",
+          "size": 4096,
+          "offset": 4388
+        }
+      ]
+    },
+    "Matter_Acl": {
+      "size": 6384,
+      "members": [
+        {
+          "name": "interface",
+          "size": 4,
+          "offset": 0
+        },
+        {
+          "name": "port",
+          "size": 12,
+          "offset": 4
+        },
+        {
+          "name": "busy",
+          "size": 1,
+          "offset": 16
+        },
+        {
+          "name": "added_prepared",
+          "size": 1,
+          "offset": 17
+        },
+        {
+          "name": "events",
+          "size": 12,
+          "offset": 20
+        },
+        {
+          "name": "changes",
+          "size": 928,
+          "offset": 32
+        },
+        {
+          "name": "pending",
+          "size": 320,
+          "offset": 960
+        },
+        {
+          "name": "count",
+          "size": 4,
+          "offset": 1280
+        },
+        {
+          "name": "reader",
+          "size": 36,
+          "offset": 1284
+        },
+        {
+          "name": "token",
+          "size": 48,
+          "offset": 1320
+        },
+        {
+          "name": "validation",
+          "size": 116,
+          "offset": 1368
+        },
+        {
+          "name": "tags",
+          "size": 768,
+          "offset": 1484
+        },
+        {
+          "name": "writer",
+          "size": 32,
+          "offset": 2252
+        },
+        {
+          "name": "encoded",
+          "size": 4096,
+          "offset": 2284
+        }
+      ]
+    },
+    "Matter_Fabric": {
+      "size": 4224,
+      "members": [
+        {
+          "name": "port",
+          "size": 40,
+          "offset": 0
+        },
+        {
+          "name": "busy",
+          "size": 1,
+          "offset": 40
+        },
+        {
+          "name": "writer",
+          "size": 32,
+          "offset": 44
+        },
+        {
+          "name": "e",
+          "size": 48,
+          "offset": 80
+        },
+        {
+          "name": "encoded",
+          "size": 4096,
+          "offset": 128
+        }
+      ]
+    },
+    "Matter_Wifi": {
+      "size": 2344,
+      "members": [
+        {
+          "name": "interface",
+          "size": 4,
+          "offset": 0
+        },
+        {
+          "name": "config",
+          "size": 16,
+          "offset": 8
+        },
+        {
+          "name": "port",
+          "size": 24,
+          "offset": 24
+        },
+        {
+          "name": "settings",
+          "size": 394,
+          "offset": 48
+        },
+        {
+          "name": "snapshot",
+          "size": 394,
+          "offset": 442
+        },
+        {
+          "name": "candidate",
+          "size": 394,
+          "offset": 836
+        },
+        {
+          "name": "connected",
+          "size": 33,
+          "offset": 1230
+        },
+        {
+          "name": "saved_connected",
+          "size": 33,
+          "offset": 1263
+        },
+        {
+          "name": "last_id",
+          "size": 33,
+          "offset": 1296
+        },
+        {
+          "name": "request",
+          "size": 98,
+          "offset": 1329
+        },
+        {
+          "name": "moving",
+          "size": 98,
+          "offset": 1427
+        },
+        {
+          "name": "completion",
+          "size": 380,
+          "offset": 1528
+        },
+        {
+          "name": "reader",
+          "size": 36,
+          "offset": 1908
+        },
+        {
+          "name": "e",
+          "size": 48,
+          "offset": 1944
+        },
+        {
+          "name": "writer",
+          "size": 32,
+          "offset": 1992
+        },
+        {
+          "name": "encoded",
+          "size": 256,
+          "offset": 2024
+        },
+        {
+          "name": "now",
+          "size": 8,
+          "offset": 2280
+        },
+        {
+          "name": "deadline",
+          "size": 8,
+          "offset": 2288
+        },
+        {
+          "name": "serial",
+          "size": 8,
+          "offset": 2296
+        },
+        {
+          "name": "token",
+          "size": 8,
+          "offset": 2304
+        },
+        {
+          "name": "crumb",
+          "size": 8,
+          "offset": 2312
+        },
+        {
+          "name": "command",
+          "size": 4,
+          "offset": 2320
+        },
+        {
+          "name": "last_status",
+          "size": 1,
+          "offset": 2324
+        },
+        {
+          "name": "index",
+          "size": 1,
+          "offset": 2325
+        },
+        {
+          "name": "last_error",
+          "size": 4,
+          "offset": 2328
+        },
+        {
+          "name": "busy",
+          "size": 1,
+          "offset": 2332
+        },
+        {
+          "name": "checkpoint",
+          "size": 1,
+          "offset": 2333
+        },
+        {
+          "name": "active",
+          "size": 1,
+          "offset": 2334
+        },
+        {
+          "name": "draining",
+          "size": 1,
+          "offset": 2335
+        },
+        {
+          "name": "ready",
+          "size": 1,
+          "offset": 2336
+        },
+        {
+          "name": "detached",
+          "size": 1,
+          "offset": 2337
+        },
+        {
+          "name": "crumb_present",
+          "size": 1,
+          "offset": 2338
+        },
+        {
+          "name": "status_present",
+          "size": 1,
+          "offset": 2339
+        },
+        {
+          "name": "error_present",
+          "size": 1,
+          "offset": 2340
+        },
+        {
+          "name": "breadcrumb_ready",
+          "size": 1,
+          "offset": 2341
+        }
+      ]
+    },
+    "Matter_Opcreds": {
+      "size": 2016,
+      "members": [
+        {
+          "name": "interface",
+          "size": 4,
+          "offset": 0
+        },
+        {
+          "name": "config",
+          "size": 36,
+          "offset": 4
+        },
+        {
+          "name": "port",
+          "size": 28,
+          "offset": 40
+        },
+        {
+          "name": "writer",
+          "size": 32,
+          "offset": 68
+        },
+        {
+          "name": "reader",
+          "size": 36,
+          "offset": 100
+        },
+        {
+          "name": "e",
+          "size": 48,
+          "offset": 136
+        },
+        {
+          "name": "fabrics",
+          "size": 4,
+          "offset": 184
+        },
+        {
+          "name": "session",
+          "size": 8,
+          "offset": 192
+        },
+        {
+          "name": "candidate_session",
+          "size": 8,
+          "offset": 200
+        },
+        {
+          "name": "serial",
+          "size": 8,
+          "offset": 208
+        },
+        {
+          "name": "token",
+          "size": 8,
+          "offset": 216
+        },
+        {
+          "name": "staged",
+          "size": 8,
+          "offset": 224
+        },
+        {
+          "name": "candidate",
+          "size": 8,
+          "offset": 232
+        },
+        {
+          "name": "elements_size",
+          "size": 4,
+          "offset": 240
+        },
+        {
+          "name": "csr_size",
+          "size": 4,
+          "offset": 244
+        },
+        {
+          "name": "command",
+          "size": 4,
+          "offset": 248
+        },
+        {
+          "name": "phase",
+          "size": 4,
+          "offset": 252
+        },
+        {
+          "name": "busy",
+          "size": 1,
+          "offset": 256
+        },
+        {
+          "name": "detached",
+          "size": 1,
+          "offset": 257
+        },
+        {
+          "name": "update",
+          "size": 1,
+          "offset": 258
+        },
+        {
+          "name": "candidate_update",
+          "size": 1,
+          "offset": 259
+        },
+        {
+          "name": "accessing",
+          "size": 1,
+          "offset": 260
+        },
+        {
+          "name": "candidate_challenge",
+          "size": 16,
+          "offset": 261
+        },
+        {
+          "name": "noc_status",
+          "size": 1,
+          "offset": 277
+        },
+        {
+          "name": "fabric_index",
+          "size": 1,
+          "offset": 278
+        },
+        {
+          "name": "status",
+          "size": 1,
+          "offset": 279
+        },
+        {
+          "name": "cert_type",
+          "size": 1,
+          "offset": 280
+        },
+        {
+          "name": "nonce",
+          "size": 32,
+          "offset": 281
+        },
+        {
+          "name": "challenge",
+          "size": 16,
+          "offset": 313
+        },
+        {
+          "name": "checked",
+          "size": 16,
+          "offset": 329
+        },
+        {
+          "name": "signature",
+          "size": 64,
+          "offset": 345
+        },
+        {
+          "name": "tbs",
+          "size": 1040,
+          "offset": 409
+        },
+        {
+          "name": "csr",
+          "size": 512,
+          "offset": 1449
+        },
+        {
+          "name": "metadata",
+          "size": 48,
+          "offset": 1961
+        }
+      ]
+    },
+    "Matter_Groupkey": {
+      "size": 1176,
+      "members": [
+        {
+          "name": "interface",
+          "size": 4,
+          "offset": 0
+        },
+        {
+          "name": "port",
+          "size": 16,
+          "offset": 4
+        },
+        {
+          "name": "busy",
+          "size": 1,
+          "offset": 20
+        },
+        {
+          "name": "pending",
+          "size": 32,
+          "offset": 24
+        },
+        {
+          "name": "keys",
+          "size": 48,
+          "offset": 56
+        },
+        {
+          "name": "reader",
+          "size": 36,
+          "offset": 104
+        },
+        {
+          "name": "e",
+          "size": 48,
+          "offset": 144
+        },
+        {
+          "name": "validation",
+          "size": 116,
+          "offset": 192
+        },
+        {
+          "name": "tags",
+          "size": 768,
+          "offset": 308
+        },
+        {
+          "name": "writer",
+          "size": 32,
+          "offset": 1076
+        },
+        {
+          "name": "encoded",
+          "size": 64,
+          "offset": 1108
+        }
+      ]
+    }
+  },
+  "final_restore": {
+    "pass": true,
+    "fabrics": 1,
+    "baud": 1000000,
+    "firmware_sha256": "a3bac8704d38ec58008ac9875503d31498e10f152b33c1f21f0866dc3a7deb39",
+    "cleaned": {
+      "phase": "owner-thread-cleaned",
+      "ms": 51899,
+      "heap_free": 390196,
+      "heap_allocated": 31568,
+      "heap_min": 207592,
+      "largest_free": 245760,
+      "owner_stack_reserved": 12800,
+      "owner_stack_min_free": 9652,
+      "core_live": 0,
+      "core_bytes": 0,
+      "core_peak": 113572,
+      "core_largest": 32768,
+      "core_failures": 13
+    }
+  },
+  "cleanup": {
+    "ipv6": true,
+    "collectors": [],
+    "adapter": "Disconnected",
+    "temporary_connection_was_active": true,
+    "temporary_profile_removed": true,
+    "temporary_xml_removed": true
+  },
+  "source_lf_sha256": {
+    "examples/esp32-runtime/tests/soak.mjs": "6161cf1b807668b1e8438497934a2ef89b5bcbb9130cd1b77db93aa9f8be6bcb",
+    "examples/esp32-runtime/tests/memory_profile.mjs": "d677df4a57ecddc1a354717355b0ed1dba48b593e6324dcb64f6a93872f1f026",
+    "examples/esp32-runtime/tests/allocation_trace.py": "344424e576c4f9fa630fbdcc90b82db93cb7d074dde8cb5ea20d6cdfe0766c16",
+    "examples/esp32-runtime/tests/allocation_decode.py": "da3aee5f4639e611c0f3696debb9706845cd3c8102c980f248a9bc1a1df450c4"
+  },
+  "limitations": [
+    "Sampled heap maxima are observations, not specification-wide bounds.",
+    "Observer static metadata changes heap layout/timing; do not compare its free heap to the normal image.",
+    "No new official CSA or Apple/Google Home pairing; no newly matched ESP-Matter comparison.",
+    "Normal profile does not inject OOM; Memory28 physical OOM/reconnect/drain and matched native checks cover this unchanged production core."
+  ],
+  "previous_commit": "9fd7ead",
+  "linux_current_controller": {
+    "normal": [
+      {
+        "case": "before",
+        "pass_": true,
+        "elapsed_seconds": 106.75673163100001,
+        "subscription_snapshots": 30,
+        "full_reads": 15,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 17013,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 293370,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 0,
+          "unacknowledged": 0,
+          "ack_before_completion": 0,
+          "ack_after_completion": 1125,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": null,
+        "diagnostic_peer": null
+      }
+    ],
+    "sanitize": [
+      {
+        "case": "before",
+        "pass_": true,
+        "elapsed_seconds": 75.046584699,
+        "subscription_snapshots": 30,
+        "full_reads": 15,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 16497,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292628,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 0,
+          "unacknowledged": 0,
+          "ack_before_completion": 0,
+          "ack_after_completion": 1112,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": null,
+        "diagnostic_peer": null
+      }
+    ],
+    "source_lf_sha256": {
+      "examples/esp32-runtime/tests/soak.mjs": "6161cf1b807668b1e8438497934a2ef89b5bcbb9130cd1b77db93aa9f8be6bcb",
+      "examples/esp32-runtime/tests/memory_profile.mjs": "d677df4a57ecddc1a354717355b0ed1dba48b593e6324dcb64f6a93872f1f026",
+      "examples/esp32-runtime/tests/allocation_trace.py": "344424e576c4f9fa630fbdcc90b82db93cb7d074dde8cb5ea20d6cdfe0766c16"
+    },
+    "initial_dependency_gate": "RuntimeError('Memory28 validation failed; do not mask it')"
+  },
+  "native_and_pair_basis": "memory28-results.json: identical production C and the same native/pair source/binaries"
+}
