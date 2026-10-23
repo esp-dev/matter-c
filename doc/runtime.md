@@ -187,20 +187,35 @@ scheduler. OOM/validation failure preserves earlier copies and byte accounting
 and follows the existing Read path-status / Subscribe error-response policy.
 
 Result tables and Subscribe's report value table use a shared private block
-store. Typed flexible arrays hold at most16 entries per block; a first small
-reservation retains the previous nine-entry initial result budget, and the last
-block is capped at the unchanged512-result limit. Appending never reallocates,
+store. Typed flexible arrays hold at most16 entries per block. Dense result
+reservations retain the previous nine-entry initial budget for small tables;
+their last block is capped at the unchanged512-result limit. Appending never reallocates,
 copies or moves an existing block. One cached block accelerates forward indexed
 scans; backwards lookups restart from the head, bounded by33 result blocks.
 Multi-block reservations stage all new blocks before linking any of them, so OOM
 preserves old addresses, capacity, links, cache and payload. Read still compacts
 omitted logical results in order; allocation-address stability during growth does
 not change that existing filtering behavior. No public result-table pointers are
-exposed. Cleanup allocates nothing. Subscribe reserves its full report value
-table before provider collection and releases it at the existing report boundary;
-persistent result blocks remain while idle. Metadata/slack and extra allocator
-calls are additional costs. [Memory11](oss/memory11-validation.md) records both
-reduced growth peaks/contiguous requests and the full-report heap regression.
+exposed. Cleanup allocates nothing. Subscribe instead allocates current-value
+groups only for successfully captured, included paths. Each group covers its
+original 16-slot ordinal range, clipped to the fixed capture count; omitted or
+status-only groups can be absent. Sorted links and gap-aware lookup retain
+stable addresses and report order without a maximum-sized pointer directory.
+Each insertion is atomic on OOM, and no successful ReportData is published until
+the entire capture succeeds. Dense and selective reservation modes are not mixed
+within one table. Persistent result blocks remain while idle; current-value
+groups release at the existing report boundary through the same ACK/drain gates.
+Complex bytes of version-omitted values still undergo the existing copy,
+validation and budget charging. Metadata/slack and allocator calls remain costs.
+[Memory11](oss/memory11-validation.md) records the original dense-block tradeoff;
+[Memory31](oss/memory31-validation.md) measures selective value groups and OOM.
+
+Read/Subscribe also share a private 8-byte chunk-plan entry with checked 16-bit
+result ordinals and validated value offsets. Full wire IDs and cursor arithmetic
+retain their original types; compile-time guards cover the unchanged 512-result
+and 4096-byte value limits. The plan keeps its existing lifetime, independently
+of immutable snapshots and reliable ciphertext. See
+[Memory30](oss/memory30-validation.md) for layouts and physical measurements.
 
 After final Read `sent`, the independent immutable MRP packet owns transport
 bytes. Read releases its result table, chunk plan, selectors/filters, input/output

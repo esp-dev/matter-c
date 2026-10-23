@@ -434,9 +434,8 @@ static void release_consumed(Matter_Im_Subscribe_T s) {
     /* cursor advances past whole attributes only; a partial ARRAY stays live. */
     while(s->released<s->cursor) {
         size_t i=s->released++;
-        if(s->values.head) {
-            matter_im_snapshot_release_value(&s->snapshots,sub_values_at(&s->values,i));
-        }
+        Matter_Im_Snapshot_Value* value=sub_values_at(&s->values,i);
+        if(value) matter_im_snapshot_release_value(&s->snapshots,value);
     }
     s->value.data=NULL; s->value.size=0;
     if(s->events) matter_events_snapshot_release_before(&s->events->records,s->events->cursor);
@@ -450,9 +449,6 @@ static void capture_begin(Matter_Im_Subscribe_T s,bool data) {
 }
 static uint8_t capture(Matter_Im_Subscribe_T s) {
     bool prime=s->phase==PRIME;
-    if(s->capture_data && s->count && !s->values.head) {
-        if(!sub_values_reserve(&s->values,s->count,MATTER_IM_READ_MAX_RESULTS)) return MATTER_IM_RESOURCE_EXHAUSTED;
-    }
     unsigned budget=s->expanding?MATTER_IM_READ_WORK_BATCH:MATTER_IM_READ_MAX_PATHS;
     while(budget-- && s->collected<s->count) {
         size_t i=s->collected++; bool omit=false;
@@ -466,7 +462,13 @@ static uint8_t capture(Matter_Im_Subscribe_T s) {
         if(!prime && !code && s->capture_data && s->value.report_on_version_change &&
             result->reported && result->reported_version==s->value.data_version) omit=true;
         result->status=code;
-        if(s->values.head) *sub_values_at(&s->values,i)=code || omit ? (Matter_Im_Snapshot_Value){0} : matter_im_snapshot_store(&s->value);
+        /* Only successful included values need stable records. Status/omitted
+         * paths keep their original ordinal in items, with no value group.
+         * Publish no report until the entire bounded capture has succeeded. */
+        if(s->capture_data && !code && !omit) {
+            if(!sub_values_reserve_at(&s->values,i,s->count)) return MATTER_IM_RESOURCE_EXHAUSTED;
+            *sub_values_at(&s->values,i)=matter_im_snapshot_store(&s->value);
+        }
         if(prime) result->active=code==0;
         else if(code) s->terminal_report=true;
         if(!code) ++s->valid;
@@ -532,8 +534,10 @@ static bool report_attributes(Matter_Im_Subscribe_T s,size_t stop,bool more) {
     for(size_t part=0;part<stop;++part) {
         size_t i=s->work->plan[part].item;
         SubItem* result=sub_items_at(&s->items,i); s->path=sub_item_path(result);
-        if(s->values.head) matter_im_snapshot_load(&s->value,sub_values_at(&s->values,i)); else memset(&s->value,0,sizeof(s->value));
         uint8_t code=result->status;
+        Matter_Im_Snapshot_Value* value=sub_values_at(&s->values,i);
+        if(!code && !value) return false;
+        if(value) matter_im_snapshot_load(&s->value,value); else memset(&s->value,0,sizeof(s->value));
         if(!put(s,MATTER_TLV_STRUCTURE,-1,0) || !put(s,MATTER_TLV_STRUCTURE,code ? 0 : 1,0) ||
             (!code && !put(s,MATTER_TLV_UNSIGNED,0,s->value.data_version)) || !put(s,MATTER_TLV_LIST,code ? 0 : 1,0) ||
             !put(s,MATTER_TLV_UNSIGNED,2,s->path.endpoint) || !put(s,MATTER_TLV_UNSIGNED,3,s->path.cluster) ||

@@ -166,6 +166,8 @@ static void shared_encoder_tests(void) {
 #define TEST_PATH_SUB
 #include "test_im_path_grammar.h"
 int main(int argc,char** argv) {
+    if(argc==2 && !strcmp(argv[1],"--memory-sparse")) { sparse_value_tests(); return 0; }
+    sparse_value_tests();
     shared_encoder_tests();
     if(argc==2 && (!strcmp(argv[1],"--memory-only") || !strcmp(argv[1],"--memory-profile") || !strcmp(argv[1],"--memory-shared") || !strcmp(argv[1],"--memory-short"))) {
         if(!strcmp(argv[1],"--memory-short")) memory_value_size=6;

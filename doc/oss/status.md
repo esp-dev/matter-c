@@ -1,5 +1,20 @@
 # Development status
 
+**Memory31: selective stable Subscribe value groups.**
+Current values allocate only selected ordinal groups; catalog/order/limits,
+snapshot stability, ARRAY continuation and IM/MRP/drain gates are preserved.
+C6 normal peak 344968 B, min free 71284 B, min largest 47104 B: additional 6116 B
+whole-heap saving versus Memory30, 12684 B across both stages. Owner stack use
+3288/12800 B. Host 512-path/3-selected oracle saves 11600 B; all 56 update OOM
+positions pass. Windows 102/102 native and 6 wire cases, Linux 99/99 per build,
+full pair 6/6 and 6 wire cases under Memcheck and separately ASan/UBSan/LSan pass.
+C6 normal/fault soak/observer/final RGB pass with zero core live bytes at drain.
+Post-teardown largest block remains smaller than Memory30 despite equal free
+bytes; no claim of eliminating SDK fragmentation. Normal image/original singleton
+fabric restored, COM23/AP free, IPv6 enabled. See [report](memory31-validation.md)
+and [results](memory31-results.json). Next candidate: audit Diagnostics encoded
+workspace lifetime before making it temporary; no estimated peak gain claimed.
+
 **Memory30: compact plans; Windows/Linux/C6 validation complete.**
 Read/Subscribe share a bounded8-byte private plan, preserving full IDs, limits,
 ARRAY continuation and ACK/drain. C6 normal peak351084 B, min free65092 B, min
@@ -9,7 +24,7 @@ cases pass, as do C6 fixed profile and OOM/loss/reconnect/drain. After explicit
 user approval of the transfers, Linux99/99 native tests, full pair6/6 and both
 wire cases pass under Memcheck and separately ASan/UBSan/LSan; zero Memcheck errors
 and exit allocations. See [report](memory30-validation.md) and
-[results](memory30-results.json). Next: selective Subscribe value blocks.
+[results](memory30-results.json). Selective value blocks follow in Memory31.
 
 **Memory29: normal C6 peak and allocation attribution.**
 The fixed 5-fabric/15-session/subscription profile passes 51 full Reads, 3 parallel

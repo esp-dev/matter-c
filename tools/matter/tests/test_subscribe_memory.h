@@ -197,3 +197,130 @@ static void subscription_memory_oom(void) {
     printf("PASS subscription capture OOM positions=%zu, continuation RX OOM=4, both ACK/status orders\n",count);
 }
 #endif
+/* Sparse updates preserve catalog ordinals, inline snapshot contents and both
+ * delivery gates, including values in distant blocks and the last result. */
+typedef struct {
+    SelectorSub selector;
+    uint32_t versions[MATTER_IM_READ_MAX_RESULTS];
+    bool wanted[MATTER_IM_READ_MAX_RESULTS];
+    unsigned bias,expected_bias,next,seen,span;
+    uint32_t expected_version;
+    bool array; unsigned array_seen,array_replaces,array_adds;
+} SparseSub;
+static Matter_Im_Status_T sparse_read(void* u,const Matter_Im_Path_T* p,bool filtered,Matter_Im_Value_T* v) {
+    SparseSub* f=u; SelectorSub* s=&f->selector; RichSub* r=&s->rich;
+    sub_guard(&r->model); CHECK(filtered && p->attribute>=1 && p->attribute<=s->count); ++r->model.reads;
+    memset(r->scratch,(int)(p->attribute+f->bias),f->span);
+    *v=(Matter_Im_Value_T){.type=MATTER_TLV_BYTES,.data=r->scratch,.size=f->span,
+        .data_version=f->versions[p->attribute-1],.report_on_version_change=true};
+    if(f->array && p->attribute==s->count) {
+        r->scratch[0]=0x16; r->scratch[385]=0x18;
+        for(unsigned i=0;i<12;++i) { r->scratch[1+32*i]=0x10; r->scratch[2+32*i]=30; memset(r->scratch+3+32*i,(int)(p->attribute+f->bias+i),30); }
+        v->type=MATTER_TLV_ARRAY; v->size=386;
+    }
+    return 0;
+}
+static SparseSub* sparse_new(unsigned count) {
+    SparseSub* f=calloc(1,sizeof(*f)); CHECK(f); SelectorSub* s=&f->selector; s->count=count;
+    RichSub* r=&s->rich; r->fabric=1; f->expected_version=7; f->span=6;
+    for(unsigned i=0;i<count;++i) { f->versions[i]=7; f->wanted[i]=true; }
+    Matter_Im_Subscribe_Port_T p=sub_port(&r->model);
+    p.attributes=(Matter_Im_Read_Port_T){f,selector_allow,selector_describe,sparse_read,selector_enumerate,NULL};
+    Matter_Im_Read_Fabric_Port_T fp={rich_fabric}; Matter_Im_Subscribe_Config_T c={{1,12,false},30000,128,false};
+    r->model.active=matter_im_subscribe_new_case(&p,&fp,&c,0); CHECK(r->model.active);
+    selector_request(s,1,false,0,false); return f;
+}
+static bool sparse_report(SparseSub* f,Matter_Im_Subscribe_Message_T out) {
+    RichSub* r=&f->selector.rich; CHECK(out.opcode==5 && !matter_tlv_init(&r->reader,out.data,out.size,8));
+    unsigned depth=0,attribute=0; uint32_t version=0; bool more=false,append=false; Matter_Tlv_Result_T result;
+    while((result=matter_tlv_next(&r->reader,&r->token))==MATTER_TLV_OK) {
+        Matter_Tlv_Element_T* e=&r->token;
+        if(e->type==MATTER_TLV_END) { CHECK(depth); --depth; continue; }
+        if(depth==1 && e->tag.number==3) more=e->unsigned_value!=0;
+        if(depth==4 && e->tag.number==0) version=(uint32_t)e->unsigned_value;
+        if(depth==4 && e->tag.number==1) append=false;
+        if(depth==5 && e->tag.number==5) { CHECK(e->type==MATTER_TLV_NULL); append=true; }
+        if(depth==5 && e->tag.number==4) attribute=(unsigned)e->unsigned_value;
+        bool array_value=f->array && attribute==f->selector.count;
+        if(array_value && depth==4 && e->tag.number==2 && e->type==MATTER_TLV_ARRAY) {
+            CHECK(!append && !f->array_replaces && version==f->expected_version); ++f->array_replaces;
+        }
+        if(array_value && e->type==MATTER_TLV_BYTES && ((depth==5 && !e->tag.control) || (depth==4 && e->tag.number==2))) {
+            CHECK(f->array_replaces==1 && f->array_seen<12 && e->size==30 && version==f->expected_version);
+            if(depth==4) { CHECK(append); ++f->array_adds; }
+            for(size_t i=0;i<e->size;++i) CHECK(e->data[i]==(uint8_t)(attribute+f->expected_bias+f->array_seen));
+            if(++f->array_seen==12) {
+                while(f->next<f->selector.count && !f->wanted[f->next]) ++f->next;
+                CHECK(attribute==f->next+1); ++f->next; ++f->seen;
+            }
+        }
+        if(!array_value && depth==4 && e->tag.number==2) {
+            while(f->next<f->selector.count && !f->wanted[f->next]) ++f->next;
+            CHECK(f->next<f->selector.count && attribute==f->next+1 && version==f->expected_version);
+            CHECK(e->type==MATTER_TLV_BYTES && e->size==f->span);
+            for(size_t i=0;i<f->span;++i) CHECK(e->data[i]==(uint8_t)(attribute+f->expected_bias));
+            ++f->next; ++f->seen;
+        }
+        if(e->type==MATTER_TLV_STRUCTURE || e->type==MATTER_TLV_ARRAY || e->type==MATTER_TLV_LIST) ++depth;
+    }
+    CHECK(result==MATTER_TLV_DONE && !depth); return more;
+}
+static void sparse_finish(SparseSub* f,Matter_Im_Subscribe_Message_T out,bool prime,unsigned order) {
+    RichSub* r=&f->selector.rich; unsigned chunks=0,reads=r->model.reads; bool more;
+    do {
+        more=sparse_report(f,out); CHECK(++chunks<=MATTER_IM_READ_MAX_RESULTS);
+        /* Later packets must keep the captured bytes despite provider changes. */
+        memset(r->scratch,0xff,sizeof(r->scratch)); ++f->bias;
+        rich_ack(r,prime,(chunks+order)%2!=0);
+        if(more) out=selector_output(&f->selector);
+    } while(more);
+    for(;f->next<f->selector.count;++f->next) CHECK(!f->wanted[f->next]);
+    CHECK(r->model.reads==reads);
+    if(prime) rich_prime_finish(r);
+    else CHECK(matter_im_subscribe_process(r->model.active,r->clock)==MATTER_PENDING && matter_im_subscribe_state(r->model.active)==MATTER_IM_SUB_IDLE);
+}
+static void sparse_prepare(SparseSub* f,const unsigned selected[3]) {
+    memset(f->wanted,0,sizeof(f->wanted)); f->next=f->seen=0; f->expected_bias=f->bias; f->expected_version=8;
+    for(unsigned i=0;i<3;++i) { CHECK(selected[i] && selected[i]<=f->selector.count); f->wanted[selected[i]-1]=true; ++f->versions[selected[i]-1]; }
+    CHECK(!matter_im_subscribe_changed(f->selector.rich.model.active)); rich_update(&f->selector.rich,2000);
+}
+static void sparse_value_tests(void) {
+    const unsigned selected[3]={17,255,512};
+    for(unsigned order=0;order<2;++order) {
+        SparseSub* f=sparse_new(MATTER_IM_READ_MAX_RESULTS); RichSub* r=&f->selector.rich;
+        sparse_finish(f,selector_output(&f->selector),true,order); CHECK(f->seen==MATTER_IM_READ_MAX_RESULTS);
+        sparse_prepare(f,selected);
+        Matter_Im_Subscribe_Message_T out=selector_output(&f->selector);
+#ifdef MATTER_TEST_ALLOC
+        size_t captured=live_bytes;
+        printf("MEMORY_SPARSE results=%u included=3 captured=%zu blocks=%zu\n",MATTER_IM_READ_MAX_RESULTS,captured,live);
+#endif
+        sparse_finish(f,out,false,order); CHECK(f->seen==3); rich_free(r);
+#ifdef MATTER_TEST_ALLOC
+        CHECK(!live && !live_bytes);
+#endif
+    }
+    SparseSub* list=sparse_new(MATTER_IM_READ_MAX_RESULTS);
+    sparse_finish(list,selector_output(&list->selector),true,0); list->array=true;
+    sparse_prepare(list,selected); sparse_finish(list,selector_output(&list->selector),false,1);
+    CHECK(list->seen==3 && list->array_seen==12 && list->array_replaces==1 && list->array_adds);
+    rich_free(&list->selector.rich);
+#ifdef MATTER_TEST_ALLOC
+    CHECK(!live && !live_bytes);
+    /* Every allocator ordinal in a sparse update, including provider-copy and
+     * selected block allocation after earlier paths were already captured. */
+    const unsigned small[3]={1,33,48};
+    SparseSub* f=sparse_new(48); sparse_finish(f,selector_output(&f->selector),true,0);
+    f->span=30; sparse_prepare(f,small); size_t start=calls;
+    CHECK(selector_output(&f->selector).opcode==5); size_t total=calls-start;
+    rich_free(&f->selector.rich); CHECK(!live && !live_bytes);
+    for(size_t site=1;site<=total;++site) {
+        f=sparse_new(48); sparse_finish(f,selector_output(&f->selector),true,0); f->span=30; sparse_prepare(f,small);
+        fail_at=calls+site; Matter_Im_Subscribe_Message_T error=selector_output(&f->selector); fail_at=0;
+        CHECK(error.opcode==1 && error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED);
+        rich_free(&f->selector.rich); CHECK(!live && !live_bytes);
+    }
+    printf("PASS sparse update OOM all%zu ordinals: no partial successful ReportData and zero-live cleanup\n",total);
+#endif
+    puts("PASS sparse Subscribe: 512 catalog paths, selected17/255/512, ordered immutable inline snapshots, ARRAY continuation across sparse gaps, both ACK/status orders and full drain");
+}

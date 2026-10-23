@@ -40,6 +40,13 @@ and physical tests pass as documented. Linux99 native tests, the full6-check
 two-instance scenario and both wire cases pass under Memcheck and separately
 ASan/UBSan/LSan.
 
+The [Memory31 selective Subscribe values](doc/oss/memory31-validation.md) keep
+stable ordinal blocks only for included values. The matched C6 normal profile
+records peak 344968 B, minimum free 71284 B and minimum largest block 47104 B;
+the two stages together reduce the observed whole-heap peak by 12684 B. Windows,
+Linux Memcheck/separate sanitizers and C6 OOM/reconnect/drain tests pass with
+unchanged limits, immutable snapshots and ACK/drain gates.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

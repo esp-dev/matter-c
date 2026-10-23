@@ -180,7 +180,10 @@ static void selector_tests(void) {
     for(unsigned allocation=1;allocation<=7;++allocation) {
         s=selector_new(24,true); selector_request(s,1,false,0,false);
         fail_at=calls+allocation; Matter_Im_Subscribe_Message_T error=selector_output(s); fail_at=0;
-        CHECK(error.opcode==1 && error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && !s->rich.model.reads);
+        CHECK(error.opcode==1 && error.data[3]==MATTER_IM_RESOURCE_EXHAUSTED);
+        /* Six preflight allocations precede providers; the first selected
+         * value block is now on demand after its successful provider read. */
+        CHECK(s->rich.model.reads==(allocation==7?1u:0u));
         rich_free(&s->rich); CHECK(!live); /* Selectors, yielded parsers and initial/growing results. */
     }
     s=selector_new(12,true); selector_request(s,1,false,83,false); size_t filter_base=live; fail_at=calls+2; /* Selectors, then filters. */

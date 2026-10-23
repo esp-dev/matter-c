@@ -49,10 +49,39 @@ static inline bool matter_im_blocks_reserve(Matter_Im_Blocks* blocks,size_t need
     blocks->tail=tail; blocks->capacity=capacity; return true;
 }
 static inline Matter_Im_Block* matter_im_blocks_find(Matter_Im_Blocks* blocks,size_t index) {
-    Matter_Im_Block* block=blocks->cache;
+    Matter_Im_Block* block=blocks->cache; Matter_Im_Block* previous=NULL;
     if(!block || index<block->start) block=blocks->head;
-    while(block && index-block->start>=block->count) block=block->next;
-    blocks->cache=block; return block;
+    while(block && index>=block->start && index-block->start>=block->count) { previous=block; block=block->next; }
+    if(block && index>=block->start) { blocks->cache=block; return block; }
+    /* Cache the preceding group for forward holes, so each skipped ordinal
+     * does not rescan the head when a later selected group exists. */
+    blocks->cache=previous?previous:block; return NULL;
+}
+/* Alternative to dense reserve: allocate only the indexed group needed now.
+ * Do not mix reservation modes in one table. limit is fixed for this capture;
+ * capacity counts allocated slots, including holes inside selected groups.
+ * Sorted links preserve stable addresses and linear forward lookup. In-order
+ * capture appends through tail without rescanning earlier groups. OOM changes
+ * no published link, capacity or cache. */
+static inline bool matter_im_blocks_reserve_at(Matter_Im_Blocks* blocks,size_t index,size_t limit,
+    size_t offset,size_t item_size) {
+    if(index>=limit || limit>UINT16_MAX || offset<sizeof(Matter_Im_Block) || !item_size) return false;
+    size_t start=index-index%MATTER_IM_BLOCK_ITEMS,count=limit-start;
+    if(count>MATTER_IM_BLOCK_ITEMS) count=MATTER_IM_BLOCK_ITEMS;
+    if(count>(SIZE_MAX-offset)/item_size) return false;
+    Matter_Im_Block** link=&blocks->head;
+    if(blocks->tail && start>=blocks->tail->start) {
+        if(start==blocks->tail->start) return index-start<blocks->tail->count;
+        link=&blocks->tail->next;
+    } else {
+        while(*link && (*link)->start<start) link=&(*link)->next;
+        if(*link && (*link)->start==start) return index-start<(*link)->count;
+    }
+    Matter_Im_Block* block=calloc(1,offset+count*item_size);
+    if(!block) return false;
+    *block=(Matter_Im_Block){*link,(uint16_t)start,(uint16_t)count};
+    *link=block; if(!block->next) blocks->tail=block;
+    blocks->cache=block; blocks->capacity+=count; return true;
 }
 /* Typed flexible arrays preserve each element's alignment and effective type.
  * The link is the initial member, so conversion back to its typed owner is C99. */
@@ -60,6 +89,9 @@ static inline Matter_Im_Block* matter_im_blocks_find(Matter_Im_Blocks* blocks,si
     typedef struct { Matter_Im_Block link; Type data[]; } Name##_Block; \
     static inline bool Name##_reserve(Matter_Im_Blocks* blocks,size_t needed,size_t limit) { \
         return matter_im_blocks_reserve(blocks,needed,limit,offsetof(Name##_Block,data),sizeof(Type)); \
+    } \
+    static inline bool Name##_reserve_at(Matter_Im_Blocks* blocks,size_t index,size_t limit) { \
+        return matter_im_blocks_reserve_at(blocks,index,limit,offsetof(Name##_Block,data),sizeof(Type)); \
     } \
     static inline Type* Name##_at(Matter_Im_Blocks* blocks,size_t index) { \
         Matter_Im_Block* block=matter_im_blocks_find(blocks,index); \
