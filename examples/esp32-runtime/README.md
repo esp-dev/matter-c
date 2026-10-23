@@ -452,3 +452,37 @@ core-byte peak, not the sum of independent per-site maxima. Keep raw logs and
 state private. A passing protocol run with observer overflow is invalid for
 attribution. Restore normal firmware/original fabric state, verify RGB/drain,
 and release COM/AP after the diagnostic run.
+
+
+### Read/Subscribe block inventory (Memory39)
+
+Use `tests/report_blocks.py` only to generate into an isolated copy of the current
+sources. The four modes reproduce the tested allocator/read/subscribe/app changes:
+
+```text
+python examples/esp32-runtime/tests/report_blocks.py --kind allocator --source components/matter_c/matter_idf_memory.c --output <copy>/components/matter_c/matter_idf_memory.c
+python examples/esp32-runtime/tests/report_blocks.py --kind read --source main/apps/matter/model/matter_im_read.c --output <copy>/main/apps/matter/model/matter_im_read.c
+python examples/esp32-runtime/tests/report_blocks.py --kind subscribe --source main/apps/matter/model/matter_im_subscribe.c --output <copy>/main/apps/matter/model/matter_im_subscribe.c
+python examples/esp32-runtime/tests/report_blocks.py --kind app --source examples/esp32-runtime/main/app_main.c --output <copy>/examples/esp32-runtime/main/app_main.c
+```
+
+Build the copy with the same RGB fixed-profile configuration and comparison
+sampler. Keep private lab config outside tracked sources. The allocator mode
+reuses `allocation_trace.py`, selecting 160 sites; the profile exceeds its standalone
+128-site default. The app mode samples on the owner, saves a joint maximum and
+dumps creation/checkpoint/complete state. Never call these helpers concurrently
+or from allocator/SDK callbacks. There is no new normal configuration/API option.
+
+```text
+python examples/esp32-runtime/tests/report_blocks_decode.py --log <private-uart-dir>/uart.log --output <private-output>/inventory.json
+python examples/esp32-runtime/tests/report_blocks_decode_test.py
+```
+
+Decode allocation sites separately with `allocation_decode.py` and the exact
+flashed ELF. Inventory decoding checks occupancy/byte conservation, terminal modes
+and empty registries; the run oracle separately checks protocol/ACK/drain coverage.
+Only `peak-joint` fields are coincident. Padding/retired metadata is not an immediate
+saving, and event-path blocks are outside the explicit attribute-table inventory.
+The tested diagnostic adds 20008 B BSS plus registry-pointer padding and changes
+layout/timing. Restore normal image/original NVS, verify RGB/drain and release the
+AP/COM as described in the [Memory39 report](../../doc/oss/memory39-validation.md).

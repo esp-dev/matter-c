@@ -99,6 +99,13 @@ by phase; default-delivery OOM retries while ACK/TX keeps draining. The matched
 normal profile records heap peak 326256 B and minimum free 90172 B. Native,
 Memcheck/separate sanitizers and C6 tests preserve atomicity and immutable snapshots.
 
+The [Memory39 block audit](doc/oss/memory39-validation.md) measures 89248 B of
+coincident Read/Subscribe attribute tables, including 14272 B empty slots.
+It separates real state, padding, headers and already-consumed records; independent
+maxima are not summed. Reproducible isolated generators/checked decoding leave
+normal storage unchanged. C6 and native tests pass; normal Memory38/original
+fabric are restored and COM/AP released. Next: consumed Read prefix blocks.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

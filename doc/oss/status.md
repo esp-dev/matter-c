@@ -1,5 +1,20 @@
 # Development status
 
+**Memory39: measured stable Read/Subscribe block occupancy.**
+The observed joint attribute-table footprint is 89248 B, with 14272 B empty slots
+and 2400 B headers. Idle fifteen-subscription metadata is 45840 B. Independent
+Read/Subscribe maxima are not summed; 13632 B of Read records behind the released
+cursor identify a next lifetime-audit target, not a proven saving. Whole core-peak
+helper buckets are separately attributed, including possible event metadata.
+Only isolated measurement generators/decoder and docs change; normal storage,
+limits and ACK/drain stay unchanged. Seven native and eleven offline tests pass;
+144 C6 records, exact source/ELF matching and zero-live/zero-overflow cleanup pass.
+The diagnostic's 20008 B BSS overhead is excluded from normal headline figures.
+Normal Memory38 and original fabric are restored; RGB/drain pass, COM23/AP free,
+COM24 untouched, temporary profile/XML removed and Windows IPv6 enabled.
+See [report](memory39-validation.md) and [results](memory39-results.json).
+Next: release completely consumed Read blocks after both IM and MRP drain.
+
 **Memory38: phase-owned OTA Requestor input, encoding and offers.**
 C6 context shrinks 5704 -> 344 B (5360 B resident saving), retaining all limits,
 fabric generations, latest queued announcements, atomic storage/events and snapshots.

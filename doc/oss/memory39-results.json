@@ -1,0 +1,417 @@
+{
+  "stage": "Memory39",
+  "preceding_commit": "f7c454b",
+  "scope": "Measurement generators/decoder and evidence only; normal core and startup unchanged.",
+  "inventory": {
+    "records": 144,
+    "final": {
+      "read": {
+        "peak-bytes": {
+          "kind": "read",
+          "phase": "complete",
+          "mode": "peak-bytes",
+          "samples": 2197,
+          "item_size": 32,
+          "value_size": 16,
+          "instances": 5,
+          "logical": 855,
+          "slots": 925,
+          "blocks": 60,
+          "headers": 480,
+          "padding": 2240,
+          "retired": 13632,
+          "value_slots": 0,
+          "value_selected": 0,
+          "value_headers": 0,
+          "value_padding": 0,
+          "value_retired": 0,
+          "requested_bytes": 30080
+        },
+        "peak-padding": {
+          "kind": "read",
+          "phase": "complete",
+          "mode": "peak-padding",
+          "samples": 2197,
+          "item_size": 32,
+          "value_size": 16,
+          "instances": 5,
+          "logical": 855,
+          "slots": 925,
+          "blocks": 60,
+          "headers": 480,
+          "padding": 2240,
+          "retired": 13632,
+          "value_slots": 0,
+          "value_selected": 0,
+          "value_headers": 0,
+          "value_padding": 0,
+          "value_retired": 0,
+          "requested_bytes": 30080
+        },
+        "peak-joint": {
+          "kind": "read",
+          "phase": "complete",
+          "mode": "peak-joint",
+          "samples": 2197,
+          "item_size": 32,
+          "value_size": 16,
+          "instances": 4,
+          "logical": 684,
+          "slots": 740,
+          "blocks": 48,
+          "headers": 384,
+          "padding": 1792,
+          "retired": 0,
+          "value_slots": 0,
+          "value_selected": 0,
+          "value_headers": 0,
+          "value_padding": 0,
+          "value_retired": 0,
+          "requested_bytes": 24064
+        },
+        "current": {
+          "kind": "read",
+          "phase": "complete",
+          "mode": "current",
+          "samples": 2197,
+          "item_size": 32,
+          "value_size": 16,
+          "instances": 0,
+          "logical": 0,
+          "slots": 0,
+          "blocks": 0,
+          "headers": 0,
+          "padding": 0,
+          "retired": 0,
+          "value_slots": 0,
+          "value_selected": 0,
+          "value_headers": 0,
+          "value_padding": 0,
+          "value_retired": 0,
+          "requested_bytes": 0
+        }
+      },
+      "subscribe": {
+        "peak-bytes": {
+          "kind": "subscribe",
+          "phase": "complete",
+          "mode": "peak-bytes",
+          "samples": 2108,
+          "item_size": 16,
+          "value_size": 16,
+          "instances": 12,
+          "logical": 2052,
+          "slots": 2220,
+          "blocks": 144,
+          "headers": 1152,
+          "padding": 2688,
+          "retired": 4368,
+          "value_slots": 1728,
+          "value_selected": 1116,
+          "value_headers": 864,
+          "value_padding": 9792,
+          "value_retired": 1008,
+          "requested_bytes": 65184
+        },
+        "peak-padding": {
+          "kind": "subscribe",
+          "phase": "complete",
+          "mode": "peak-padding",
+          "samples": 2108,
+          "item_size": 16,
+          "value_size": 16,
+          "instances": 12,
+          "logical": 2052,
+          "slots": 2220,
+          "blocks": 144,
+          "headers": 1152,
+          "padding": 2688,
+          "retired": 4368,
+          "value_slots": 1728,
+          "value_selected": 1116,
+          "value_headers": 864,
+          "value_padding": 9792,
+          "value_retired": 1008,
+          "requested_bytes": 65184
+        },
+        "peak-joint": {
+          "kind": "subscribe",
+          "phase": "complete",
+          "mode": "peak-joint",
+          "samples": 2108,
+          "item_size": 16,
+          "value_size": 16,
+          "instances": 12,
+          "logical": 2052,
+          "slots": 2220,
+          "blocks": 144,
+          "headers": 1152,
+          "padding": 2688,
+          "retired": 4368,
+          "value_slots": 1728,
+          "value_selected": 1116,
+          "value_headers": 864,
+          "value_padding": 9792,
+          "value_retired": 1008,
+          "requested_bytes": 65184
+        },
+        "current": {
+          "kind": "subscribe",
+          "phase": "complete",
+          "mode": "current",
+          "samples": 2108,
+          "item_size": 16,
+          "value_size": 16,
+          "instances": 0,
+          "logical": 0,
+          "slots": 0,
+          "blocks": 0,
+          "headers": 0,
+          "padding": 0,
+          "retired": 0,
+          "value_slots": 0,
+          "value_selected": 0,
+          "value_headers": 0,
+          "value_padding": 0,
+          "value_retired": 0,
+          "requested_bytes": 0
+        }
+      }
+    },
+    "joint_peak": {
+      "requested_bytes": 89248,
+      "headers": 1536,
+      "padding": 4480,
+      "value_headers": 864,
+      "value_padding": 9792,
+      "retired": 4368,
+      "value_retired": 1008
+    },
+    "limitations": [
+      "Owner samples and pre-delete samples are lower bounds, not a specification-wide maximum.",
+      "Only peak-joint records were captured at the same owner boundary; do not sum independent per-kind maxima.",
+      "Padding, headers and retired records are inventory, not an immediately reclaimable RAM promise.",
+      "Instrumented layout/timing and allocator metadata differ from a normal firmware image."
+    ]
+  },
+  "core_allocator_peak": {
+    "bytes": 232164,
+    "tracked_live_peak": 1150,
+    "site_slots": 131,
+    "metadata_bytes": 19596,
+    "overflows": 0,
+    "complete_live_bytes": 0,
+    "block_helper_bytes": 93444,
+    "block_sites": [
+      {
+        "kind": "dense-subscribe-tu",
+        "compilation_unit": "main/apps/matter/model/matter_im_subscribe.c",
+        "function": "matter_im_blocks_reserve",
+        "actual_heap_bytes": 39808,
+        "allocations": 156
+      },
+      {
+        "kind": "subscribe-values",
+        "compilation_unit": "main/apps/matter/model/matter_im_subscribe.c",
+        "function": "matter_im_blocks_reserve_at",
+        "actual_heap_bytes": 28532,
+        "allocations": 108
+      },
+      {
+        "kind": "dense-read-tu",
+        "compilation_unit": "main/apps/matter/model/matter_im_read.c",
+        "function": "matter_im_blocks_reserve",
+        "actual_heap_bytes": 25104,
+        "allocations": 52
+      }
+    ]
+  },
+  "instrumented_images": {
+    "bin": "0cfab291c470892f83d36cacdaa670c99180dd700f978295fa7a7f3fae3b7e64",
+    "elf": "6859cd7646a6ad0e5c1e2e005051fc59fa20def85f38e873be56b9902d345099",
+    "map": "7448bf8112d6c742441f059cf5fbc4c702a51c3c966e3e24710f4486290231b5"
+  },
+  "generated_sources": {
+    "main/apps/matter/model/matter_im_read.c": {
+      "normal_lf_sha256": "16c8a2b37caf09d237f6451b078c93f439a6856772438cc7a54bfef87a172932",
+      "instrumented_lf_sha256": "bbebeeae6a3178f433672be29bfc2106b789fa9aa6d81bd8cef6740ad5d90d40"
+    },
+    "main/apps/matter/model/matter_im_subscribe.c": {
+      "normal_lf_sha256": "8a9ad2e68caf89a8340d272a64592cd4ea2e6d65865354b1561ed12853672845",
+      "instrumented_lf_sha256": "e90b7617f16fc1b6981dfbdf1f1a5f47225dcf99d7680c1f38e9ae1067e306a9"
+    },
+    "examples/esp32-runtime/main/app_main.c": {
+      "normal_lf_sha256": "7e5a91e1f2be5e4665adfb6995fdfbd7d8cc8b28521fd8d8be51e03791eb64cb",
+      "instrumented_lf_sha256": "7999aacad1ef1dbe7775710088c76e1121f4aaca7d765a1480027844d129580b"
+    },
+    "components/matter_c/matter_idf_memory.c": {
+      "normal_lf_sha256": "b9c76a23bee1f1fe04e3addced97f1156b381fd140e40234068393664cade182",
+      "instrumented_lf_sha256": "6c80856386ab99fa60bb2e261505170b77b34046f03bae2f8157a7858e3459c6"
+    }
+  },
+  "tool_source_lf_sha256": {
+    "examples/esp32-runtime/tests/report_blocks.py": "7c6fd0c707b52267155ce4afaa8267f4942fd730bb4bae1e925bfd68b7e25e17",
+    "examples/esp32-runtime/tests/report_blocks_decode.py": "f54eece97ac0128f51e7dc7c8f91cc5dda524f3af13fd4e6dcfc3ed46722af44",
+    "examples/esp32-runtime/tests/report_blocks_decode_test.py": "fa4dda99c8650b310d78aa7b2f861044616db367c433a3991851b496bedeeed1"
+  },
+  "sections_frames": {
+    "normal": {
+      "elf_sha256": "03f5bac04529749d76116d3ffa05831d5d21d7fa49390661cba3af62af4db2c0",
+      "sections": {
+        ".dram0.data": 16235,
+        ".dram0.bss": 25192,
+        ".iram0.data": 4,
+        ".flash.text": 1075362,
+        ".flash.rodata": 155588
+      }
+    },
+    "observer": {
+      "elf_sha256": "6859cd7646a6ad0e5c1e2e005051fc59fa20def85f38e873be56b9902d345099",
+      "sections": {
+        ".dram0.data": 16235,
+        ".dram0.bss": 45200,
+        ".iram0.data": 4,
+        ".flash.text": 1078222,
+        ".flash.rodata": 156516
+      }
+    },
+    "instrumentation_frames": {
+      "matter_im_read.c:matter_im_blocks_find": 0,
+      "matter_im_read.c:audit_remove": 0,
+      "matter_im_read.c:audit_print": 128,
+      "matter_im_read.c:matter_im_blocks_reserve": 48,
+      "matter_im_read.c:matter_im_blocks_clear": 16,
+      "matter_im_read.c:matter_im_read_blocks_sample": 64,
+      "matter_im_read.c:matter_im_read_blocks_bytes": 16,
+      "matter_im_read.c:matter_im_read_blocks_joint": 0,
+      "matter_im_read.c:matter_im_read_blocks_dump": 16,
+      "matter_im_subscribe.c:matter_im_blocks_find": 0,
+      "matter_im_subscribe.c:audit_remove": 0,
+      "matter_im_subscribe.c:audit_print": 128,
+      "matter_im_subscribe.c:matter_im_blocks_reserve_at": 32,
+      "matter_im_subscribe.c:matter_im_blocks_reserve": 48,
+      "matter_im_subscribe.c:matter_im_blocks_clear": 16,
+      "matter_im_subscribe.c:matter_im_subscribe_blocks_sample": 96,
+      "matter_im_subscribe.c:matter_im_subscribe_blocks_bytes": 16,
+      "matter_im_subscribe.c:matter_im_subscribe_blocks_joint": 0,
+      "matter_im_subscribe.c:matter_im_subscribe_blocks_dump": 16,
+      "app_main.c:block_sample": 16,
+      "app_main.c:pump": 32,
+      "app_main.c:block_dump": 16
+    },
+    "bss_delta": 20008
+  },
+  "c6": {
+    "image": {
+      "stage": "39",
+      "kind": "profile",
+      "sha256": "0cfab291c470892f83d36cacdaa670c99180dd700f978295fa7a7f3fae3b7e64"
+    },
+    "workload": {
+      "pass": true,
+      "elapsed_seconds": 302.0484691,
+      "full_reads": 51,
+      "subscription_snapshots": 15,
+      "healthy_operation_errors": 0,
+      "unexpected_subscription_closures": 0,
+      "oom_cycles": 0,
+      "reconnect_cycles": 0,
+      "loss_cycles": 0,
+      "delayed_completion_cycles": 1,
+      "oom_lost_subscriptions": 0,
+      "oom_rebuilt_load_cycles": 0,
+      "loss_lost_subscriptions": 0,
+      "loss_rebuilt_load_cycles": 0,
+      "loss_operations_rejected": 0,
+      "stop_wait_seconds": 3.562801600000006,
+      "stop_read_outcome": {
+        "status": "rejected",
+        "name": "Error"
+      },
+      "memory_profile": {
+        "parallel_read_rounds": 3,
+        "publication_rounds": 3,
+        "live_removals": 4
+      }
+    },
+    "cleaned": {
+      "phase": "owner-thread-cleaned",
+      "ms": 319205,
+      "heap_free": 370208,
+      "heap_allocated": 31556,
+      "heap_min": 67980,
+      "largest_free": 241664,
+      "owner_stack_reserved": 12800,
+      "owner_stack_min_free": 9592,
+      "core_live": 0,
+      "core_bytes": 0,
+      "core_peak": 232164,
+      "core_largest": 32768,
+      "core_failures": 13
+    },
+    "sampled_whole_heap_peak": 326416,
+    "sampled_min_free": 69828,
+    "sampled_min_largest": 48128,
+    "sdk_min_free": 67980,
+    "observed_owner_stack_used": 3208,
+    "sdk_alloc_failures": 0,
+    "core_peak": 232164,
+    "sdk_task_min_free": {
+      "main": 9592,
+      "IDLE": 1240,
+      "tcpip": 2580,
+      "sys_evt": 3728,
+      "mdns": 2360,
+      "wifi": 4816,
+      "esp_timer": 3596,
+      "Tmr?Svc": 1768
+    }
+  },
+  "native_instrumented_tests": {
+    "passed": 7,
+    "total": 7,
+    "log_sha256": "5157966e2dd5f50c3e23924b2d8e2cd90833380610660fd28bd5df9dffc2d67e",
+    "real_logs_decoded": 2
+  },
+  "offline_decoder_tests": 11,
+  "final_restore": {
+    "pass": true,
+    "fabrics": 1,
+    "baud": 1000000,
+    "firmware_sha256": "cc44d0caa3f38d17bbd621bad144fbe270046aedf886892c8e833495598c79cb",
+    "cleaned": {
+      "phase": "owner-thread-cleaned",
+      "ms": 51439,
+      "heap_free": 390204,
+      "heap_allocated": 31556,
+      "heap_min": 226280,
+      "largest_free": 262144,
+      "owner_stack_reserved": 12800,
+      "owner_stack_min_free": 9652,
+      "core_live": 0,
+      "core_bytes": 0,
+      "core_peak": 94892,
+      "core_largest": 32768,
+      "core_failures": 13
+    }
+  },
+  "cleanup": {
+    "ipv6": true,
+    "collectors": [],
+    "adapter": "Disconnected",
+    "temporary_connection_was_active": true,
+    "temporary_profile_removed": true,
+    "temporary_xml_removed": true
+  },
+  "next_task": "Audit and release completely consumed Read item blocks only after both IM and MRP drain; measure real peak gains before any shared-path redesign.",
+  "limitations": [
+    "Owner samples and pre-delete samples are lower bounds, not a specification-wide maximum.",
+    "Only peak-joint records were captured at the same owner boundary; do not sum independent per-kind maxima.",
+    "Padding, headers and retired records are inventory, not an immediately reclaimable RAM promise.",
+    "Instrumented layout/timing and allocator metadata differ from a normal firmware image.",
+    "Dense helper buckets may also contain event-path blocks; they are not exclusive attribute-table attribution.",
+    "Retired Subscribe metadata is still required for future reports; do not treat it as reclaimable.",
+    "Read retired bytes are a lifetime-audit candidate, not an implemented saving or a coincident global-peak estimate.",
+    "Production host validation is inherited from Memory38; no new CSA/Home/reference campaign."
+  ]
+}
