@@ -7,6 +7,7 @@
 #include "matter_im_buffer_internal.h"
 #include "matter_im_output_internal.h"
 #include "matter_im_blocks_internal.h"
+#include "matter_im_chunk_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -58,7 +59,7 @@ struct Matter_Im_Read {
     Matter_Events_Snapshot event_tail; /* Only references survive final sent, not path/parser metadata. */
 	size_t list_offset;
 	/* Each planned IB either carries a whole attribute, a list prefix, or one ADD. */
-	struct { size_t item, start, end; bool prefix; } *plan;
+	Matter_Im_Chunk_Plan* plan;
 	size_t plan_capacity;
 	Matter_Im_Selector_T* requests;
 	size_t request_count, request_cursor, collected, filter_count;
@@ -584,10 +585,10 @@ static bool report_chunk(Matter_Im_Read_T s) {
 	 * during packing. No dependence on private writer fields or rollback. */
 	size_t n=0, item=s->cursor, offset=s->list_offset;
 	while (item<s->count && n<s->plan_capacity) {
-		s->plan[n].item=item; s->plan[n].start=offset; s->plan[n].prefix=false;
+		if(!matter_im_chunk_begin(&s->plan[n],item,offset)) return status(s,MATTER_IM_FAILURE);
 		size_t stop=offset ? list_next(s,item,offset) : 0;
 		if (offset && !stop) return status(s,MATTER_IM_FAILURE);
-		s->plan[n].end=stop;
+		if(!matter_im_chunk_end(&s->plan[n],stop)) return status(s,MATTER_IM_FAILURE);
 		bool last=!offset || stop==matter_im_snapshot_size(&read_items_at(&s->items,item)->value)-1;
 		if (report_data(s,n+1,!last || item+1<s->count || events)) {
 			++n; offset=last ? 0 : stop; if (last) ++item; continue;
@@ -603,11 +604,12 @@ static bool report_chunk(Matter_Im_Read_T s) {
 		while (stop<matter_im_snapshot_size(&read_items_at(&s->items,item)->value)-1) {
 			size_t candidate=list_next(s,item,stop);
 			if (!candidate) return status(s,MATTER_IM_FAILURE);
-			s->plan[n].end=candidate;
+			if(!matter_im_chunk_end(&s->plan[n],candidate)) return status(s,MATTER_IM_FAILURE);
 			if (!report_data(s,1,true)) break;
 			stop=candidate;
 		}
-		s->plan[n].end=stop; offset=stop; ++n;
+		if(!matter_im_chunk_end(&s->plan[n],stop)) return status(s,MATTER_IM_FAILURE);
+		offset=stop; ++n;
 		/* The complete array was already tried, so this prefix must be partial. */
 		break;
 	}

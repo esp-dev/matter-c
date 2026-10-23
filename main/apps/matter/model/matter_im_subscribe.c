@@ -7,6 +7,7 @@
 #include "matter_im_buffer_internal.h"
 #include "matter_im_output_internal.h"
 #include "matter_im_blocks_internal.h"
+#include "matter_im_chunk_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,7 +24,7 @@ typedef struct {
     Matter_Events_Snapshot records;
 } SubEvents;
 typedef struct {
-    struct { size_t item,start,end; bool prefix; } plan[MATTER_IM_READ_MAX_PATHS];
+    Matter_Im_Chunk_Plan plan[MATTER_IM_READ_MAX_PATHS];
     Matter_Tlv_Reader_T value_reader; Matter_Tlv_Element_T element;
     Matter_Tlv_Reader_T reader;
     Matter_Tlv_Writer_T writer;
@@ -630,10 +631,10 @@ static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
     size_t n=0,item=s->cursor,offset=s->list_offset;
     while(item<s->count && n<MATTER_IM_READ_MAX_PATHS) {
         if(!sub_items_at(&s->items,item)->included) { ++item; continue; }
-        s->work->plan[n].item=item; s->work->plan[n].start=offset; s->work->plan[n].prefix=false;
+        if(!matter_im_chunk_begin(&s->work->plan[n],item,offset)) return false;
         size_t stop=offset?list_next(s,item,offset):0;
         if(offset && !stop) return false;
-        s->work->plan[n].end=stop;
+        if(!matter_im_chunk_end(&s->work->plan[n],stop)) return false;
         bool last=!offset || stop==matter_im_snapshot_size(sub_values_at(&s->values,item))-1;
         size_t next_item=item+1;
         while(next_item<s->count && !sub_items_at(&s->items,next_item)->included) ++next_item;
@@ -648,11 +649,12 @@ static bool chunk(Matter_Im_Subscribe_T s,bool recheck) {
         while(stop<matter_im_snapshot_size(sub_values_at(&s->values,item))-1) {
             size_t candidate=list_next(s,item,stop);
             if(!candidate) return false;
-            s->work->plan[n].end=candidate;
+            if(!matter_im_chunk_end(&s->work->plan[n],candidate)) return false;
             if(!report_attributes(s,1,true)) break;
             stop=candidate;
         }
-        s->work->plan[n].end=stop; offset=stop; ++n; break;
+        if(!matter_im_chunk_end(&s->work->plan[n],stop)) return false;
+        offset=stop; ++n; break;
     }
     s->more=item<s->count || events;
     if(!report_attributes(s,n,s->more)) return false;

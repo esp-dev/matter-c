@@ -34,6 +34,11 @@ whole-system heap separately from allocation attribution: sampled peak 357652 B,
 minimum free 58520 B and minimum largest block 33792 B. It covers parallel full
 Reads, live Fabric publication/removal and TX drain, and ranks remaining RAM work.
 
+The [Memory30 compact report plan](doc/oss/memory30-validation.md) halves each
+C6 plan entry to8 B and records a normal-image sampled peak351084 B. Windows
+and physical tests pass as documented; required Linux Memcheck/sanitizer
+validation is pending authorization.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

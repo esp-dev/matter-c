@@ -226,7 +226,8 @@
     "model/matter_im_snapshot_internal.h",
     "model/matter_im_snapshot_pool_internal.h",
     "model/matter_im_buffer_internal.h",
-    "model/matter_im_output_internal.h"
+    "model/matter_im_output_internal.h",
+    "model/matter_im_chunk_internal.h"
   ],
   "runtime": [
     "runtime/matter_dispatch",
