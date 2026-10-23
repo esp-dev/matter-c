@@ -1,5 +1,22 @@
 # Development status
 
+**Memory32: demand-sized Diagnostics encoding.**
+The resident 4096-byte output becomes one exact-size borrowed span. Original TLV
+budget/depth, provider lifetime, snapshot versions and ACK/drain are preserved.
+C6 context 8488 -> 4392 B; normal whole-heap sampled peak 341008 B (3960 B lower),
+min free 75216 B, min largest 52224 B, SDK watermark 73580 B. Observed owner stack
+use 3192/12800 B; the new helper path can add 80 B of compiler frames, so task
+reservation is unchanged. All 11 encoding OOM/retry cases and interleaved
+Read/Subscribe snapshot tests pass. Windows 105/105 native and 6 wire cases pass;
+Linux 102/102 native per build; full pair 6/6 and 6 wire cases pass under Memcheck
+and separately ASan/UBSan/LSan. The initial Linux OS IPv6-address failure is retained
+in the report alongside successful matched Memory31/Memory32 repeats.
+C6 normal/fault/observer/final RGB pass with zero-live drain and 0 SDK allocation
+failures. Normal image/original singleton
+fabric restored; COM23/AP free, IPv6 enabled. See [report](memory32-validation.md)
+and [results](memory32-results.json). Next candidate: audit ACL encoded workspace
+lifetime, preserving fabric filtering, authorization and staged-write atomicity.
+
 **Memory31: selective stable Subscribe value groups.**
 Current values allocate only selected ordinal groups; catalog/order/limits,
 snapshot stability, ARRAY continuation and IM/MRP/drain gates are preserved.

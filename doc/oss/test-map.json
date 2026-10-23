@@ -943,13 +943,27 @@
       "path": "tools/matter/tests/test_diagnostics.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_diagnostics"
+        "test_diagnostics",
+        "test_diagnostics_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_diagnostics",
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native CTest and retained legacy runners"
+    },
+    {
+      "path": "tools/matter/tests/test_diagnostics_reports.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_diagnostics_reports",
+        "test_diagnostics_reports_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_diagnostics_reports",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "native CTest"
     },
     {
       "path": "tools/matter/tests/test_diagnostics_fixture.h",
@@ -2654,7 +2668,9 @@
         "tools/matter/tests/test_im_subscribe.c",
         "tools/matter/tests/test_events.c",
         "tools/matter/tests/test_im_snapshots.c",
-        "tools/matter/tests/test_im_request_memory.c"
+        "tools/matter/tests/test_im_request_memory.c",
+        "tools/matter/tests/test_diagnostics.c",
+        "tools/matter/tests/test_diagnostics_reports.c"
       ],
       "allocation_variant": "test-only byte accounting and allocation fault injection"
     },

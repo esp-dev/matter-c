@@ -47,6 +47,13 @@ the two stages together reduce the observed whole-heap peak by 12684 B. Windows,
 Linux Memcheck/separate sanitizers and C6 OOM/reconnect/drain tests pass with
 unchanged limits, immutable snapshots and ACK/drain gates.
 
+The [Memory32 Diagnostics encoding](doc/oss/memory32-validation.md) replaces its
+resident 4096-byte output with an exact-size borrowed span. The C6 context saves
+4096 B; normal sampled whole-heap peak is 341008 B, minimum free 75216 B and minimum
+largest block 52224 B. Dedicated tests cover all 11 encoding OOM/retry cases and
+interleaved Read/Subscribe snapshots across provider refresh/free and both ACK
+orders. The report records normal/fault C6 results, stack cost and host validation.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

@@ -93,6 +93,24 @@ outlive runtime deletion. Omission retains the existing iface/radio-derived
 snapshot. Zero-initialize omitted optional fields and rebuild consumers for the
 extended configuration structure.
 
+Diagnostics keeps its coherent backend snapshot separately from encoded provider
+values. ARRAY/STRUCTURE reads measure TLV with the existing private writer, under
+the same 4096-byte and depth limits, then allocate exactly that size and encode
+the same owned snapshot without callbacks/yields. General/Wi-Fi share the model's
+single borrowed span; scalar values and BSSID require no encoding allocation.
+The span remains unchanged until the next accepted provider read, owner refresh
+or deletion. Version/access-description queries and rejected reentrant calls do
+not free it. Runtime already refreshes before IM processing, reclaiming the last
+span at the next owner boundary. Standalone callers must consume/copy returned
+bytes before the next such call; freeing at read callback return would be too
+early. Read/Subscribe copy values immediately into their own immutable snapshots,
+so provider cleanup is independent of their existing IM/MRP ACK and TX drain gates.
+Direct encoding-allocation OOM returns ResourceExhausted without changing backend
+data or versions. The generic IM provider-error policy is unchanged: Read maps
+this to a path Failure; a sole failed initial Subscribe path leaves no active
+path (InvalidAction). See [Memory32](oss/memory32-validation.md) for lifetime,
+exact-size/OOM and interleaved Read/Subscribe regression evidence.
+
 The host wires this port to its selected transport NIC, separately from the
 simulated Wi-Fi commissioning backend. It reports the real padded MAC and
 startup address snapshot, including link-local IPv6, with live operational mDNS

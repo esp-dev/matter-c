@@ -132,6 +132,44 @@
     "replace": []
   },
   {
+    "name": "test_diagnostics_alloc",
+    "source": "tools/matter/tests/test_diagnostics.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_diagnostics.c",
+      "main/apps/matter/runtime/matter_diagnostics_host.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/clusters/matter_wifi.c",
+      "tools/matter/host/matter_wifi_sim.c",
+      "main/apps/matter/model/matter_events.c"
+    ]
+  },
+  {
+    "name": "test_diagnostics_reports",
+    "source": "tools/matter/tests/test_diagnostics_reports.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc"
+  },
+  {
+    "name": "test_diagnostics_reports_alloc",
+    "source": "tools/matter/tests/test_diagnostics_reports.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_diagnostics.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_im_subscribe.c"
+    ]
+  },
+  {
     "name": "test_discovery",
     "source": "tools/matter/tests/test_discovery.c",
     "mode": "normal",

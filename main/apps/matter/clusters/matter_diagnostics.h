@@ -57,7 +57,15 @@ Matter_Result_T matter_diagnostics_set_test_trigger(Matter_Diagnostics_T,const M
  * Deleting the General handle releases both; a pinned/busy sibling prevents it.
  * Both clusters attached together: General rev3/FeatureMap0, Wi-Fi rev1/features3.
  * Test triggers disabled by default. BootReason registered; owner emits once per boot.
- * No task/OS/clock/global state. Port.user outlives the model. */
+ * Encoded read values allocate their exact measured size on demand, up to the
+ * unchanged 4096-byte TLV budget. Scalars/BSSID need no encoding allocation.
+ * The returned encoded span remains owned/unchanged until the next accepted
+ * provider read, owner refresh or deletion; IM copies it synchronously before
+ * returning/yielding. Version/access-description queries and rejected reentrant
+ * calls do not free a live encoded span.
+ * Allocation failure returns RESOURCE_EXHAUSTED to direct reads; the existing
+ * IM adapter provider-failure policy still applies. No task/OS/clock/global
+ * state. Port.user outlives the model. */
 Matter_Cluster_T matter_diagnostics_new(const Matter_Diagnostics_Port_T*,uint32_t general_version,uint32_t wifi_version);
 /* Emit BootReason from the current valid backend snapshot once per boot.
  * Call after Root StartUp; repeated success is a no-op, errors may be retried. */
