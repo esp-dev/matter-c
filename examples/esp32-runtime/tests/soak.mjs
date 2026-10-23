@@ -42,6 +42,11 @@ summary.loss_lost_subscriptions=0; summary.loss_operation_errors=[];
 summary.host_close_reconnect_cycles=0; summary.recovery_busy_retries=0; summary.recovery_busy_wait_ms=0;
 const readTimings={full:[],concrete:[]};
 const emit=(kind,data={})=>console.log(JSON.stringify({kind,elapsed_seconds:(performance.now()-started)/1000,...data}));
+if(process.env.MATTER_TEST_PEER_ROLE) {
+    const {peerRole}=await import('../../../tools/matter/tests/peer_role.mjs');
+    summary.diagnostic_peer=await peerRole(modules,process.env.MATTER_TEST_PEER_ROLE);
+    emit('DIAGNOSTIC_PEER',summary.diagnostic_peer);
+}
 function errorInfo(e,depth=0) {
     if(!e || depth>3) return undefined;
     return {type:e.constructor?.name,name:e.name,message:e.message,code:e.code,

@@ -2785,6 +2785,15 @@
       "referenced_by": [
         "tools/matter/tests/runtime_wire.py"
       ]
+    },
+    {
+      "path": "tools/matter/tests/peer_role.mjs",
+      "kind": "controller",
+      "entrypoint": "Explicit diagnostic peer override in soak.mjs",
+      "ctest": [],
+      "referenced_by": [
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
     }
   ],
   "local_only_files": []

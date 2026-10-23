@@ -48,8 +48,10 @@ for its mDNS service startup. Actual runtime traffic uses `::1` and a chosen
 ephemeral UDP port. No interface configuration is changed. A port collision or
 bind failure fails the run.
 
-`--case after` selects the allocation/ACK-fault case. `--case all` (the runner's
-default) runs both. Each case has a bounded controller timeout and requires an
+`--case after` selects the allocation/ACK-fault case. `--case single` runs four
+single-lost-ACK comparisons, with the original and explicitly corrected peer
+in both loop orders. `--case all` (the runner's default) runs all six cases.
+Each case has a bounded controller timeout and requires an
 orderly fixture stop. Forced process termination is a failure, not a passed drain.
 The runner's540-second watchdog bounds a full fault case; it does not change
 any Matter timeout. The fixture has a separate600-second lifetime guard.
@@ -58,6 +60,7 @@ any Matter timeout. The fixture has a separate600-second lifetime guard.
 |---|---|---|---|
 | `before` | Poll UDP before runtime,1ms sleep | No extra delay | Full load, concurrent Reads, Write, RX reordering, explicit close/reconnect and held-TX stop |
 | `after` | Poll UDP after runtime,10ms sleep |25ms extra delay | Same coverage plus three one-shot OOM positions and one missing-ACK negative control/recovery |
+| `single-{original,corrected}-{before,after}` | Corresponding loop order above | Corresponding delay above | Exactly one lost ACK, terminal MRP attempts/outcome, wrong-role rejection, 15 existing CASE Reads, reconnect and drain |
 
 Both cases require ACKs after their matching packet's local completion. The
 delayed case additionally requires ACKs while that same packet's accepted TX
@@ -66,7 +69,7 @@ not inferred from the configured delay.
 
 ## Register with CTest
 
-The executable always builds with native tests. The two wire tests are registered
+The executable always builds with native tests. The six wire tests are registered
 only when the operator supplies the dependency directory. Use absolute paths:
 
 ```text
@@ -96,7 +99,7 @@ recovery. Scheduling can determine which concurrent operation consumes that
 allocation; these are reproducible ordinal faults, not fixed allocation-site
 identities. Exhaustive component allocation tests remain separate CTest cases.
 
-The ACK negative control targets one SubscribeResponse on the second fabric by
+The ACK negative control targets one SubscribeResponse on the first non-primary fabric by
 session, exchange and packet counter after authentication. Its ACK processing is
 suppressed until the existing MRP failure closes that subscription. All15 full
 initial snapshots must still finish, then the diagnostic count must become14
@@ -104,6 +107,19 @@ initial snapshots must still finish, then the diagnostic count must become14
 not a healthy15/15 pass. After disabling the fault, Reads must still succeed on
 the existing CASE sessions, including the one whose subscription ended. The lost load is explicitly rebuilt
 and15/15 is required again. It does not attribute the original C6 Memory23 finding.
+
+The single-ACK cases suppress only the first authenticated matching ACK. With
+the original pinned peer, fallback ACKs carry the wrong exchange role: the
+oracle requires an observed wrong-role ACK, five attempts, TIMEOUT and14/15.
+The corrected peer requires ACKNOWLEDGED on attempt2 and15/15. Both require
+exactly one suppression and successful Reads on all15 existing CASE sessions
+before any reconnect. A core accepting the wrong role fails the negative oracle.
+The test-only `peer_role.mjs` override uses the original factory with an explicit
+`isInitiator` option inverse to the incoming role, checks the UTF-8/LF source SHA256,
+and records its provenance in the result. It never edits installed dependencies.
+`MATTER_TEST_PEER_ROLE=corrected` explicitly enables the same diagnostic override
+for the C6 soak; absent that variable the peer is unchanged. Such a run must be
+reported as a corrected diagnostic peer, never as unmodified Matter.js acceptance.
 
 Finally, the peer closes/reopens the full load. The fixture holds an actual accepted
 TX completion, receives stop, releases that completion after200ms and drains before

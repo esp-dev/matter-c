@@ -27,12 +27,20 @@ def wait_ready(host, log, timeout):
 def run_case(args, name, root):
     out = root / name
     out.mkdir()
-    tick, delay, order, faults = (1, 0, 'before', False) if name == 'before' else (10, 25, 'after', True)
+    single = name.startswith('single-')
+    before = name.endswith('before')
+    tick, delay, order = (1, 0, 'before') if before else (10, 25, 'after')
+    faults = name == 'after'
     with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as probe:
         probe.bind(('::1', 0))
         port = probe.getsockname()[1]
     env = dict(os.environ, MATTER_SOAK_ATTRIBUTES='171', MATTER_WIRE_PORT=str(port),
                MATTER_WIRE_COMPLETION_MS=str(delay), MATTER_WIRE_FAULTS='1' if faults else '0')
+    if single:
+        env.update(MATTER_WIRE_SINGLE_ACK='1', MATTER_TEST_PEER_ROLE='corrected' if 'corrected' in name else 'original')
+    else:
+        for key in ('MATTER_WIRE_SINGLE_ACK', 'MATTER_TEST_PEER_ROLE'):
+            env.pop(key, None)
     env.setdefault('ASAN_OPTIONS', 'detect_leaks=1:halt_on_error=1')
     env.setdefault('UBSAN_OPTIONS', 'halt_on_error=1:print_stacktrace=1')
     host_args = [str(args.host), str(out), str(port), str(tick), str(delay), order]
@@ -79,13 +87,17 @@ def run_case(args, name, root):
     if faults and not (summary['oom_cycles'] == 3 and summary.get('ack_negative_controls') == 1 and summary.get('ack_session_survived') is True and
                        stats.get('ack_before_completion', 0) > 0 and stats.get('unacknowledged', 0) > 0):
         raise RuntimeError(f"fault was not exercised; see {out}")
+    if single and not (summary.get('single_ack', {}).get('case_reads') == 15 and
+                       summary['diagnostic_peer']['mode'] == ('corrected' if 'corrected' in name else 'original')):
+        raise RuntimeError(f"single-ACK coverage incomplete; see {out}")
     if args.memcheck:
         data = (out / 'memcheck.log').read_text(encoding='utf-8')
         if 'ERROR SUMMARY: 0 errors' not in data or 'in use at exit: 0 bytes in 0 blocks' not in data:
             raise RuntimeError(f"Memcheck not clean; see {out}")
     return dict(case=name, pass_=True, elapsed_seconds=summary['elapsed_seconds'],
                 subscription_snapshots=summary['subscription_snapshots'], full_reads=summary['full_reads'],
-                oom_cycles=summary['oom_cycles'], stats=stats)
+                oom_cycles=summary['oom_cycles'], stats=stats, single_ack=summary.get('single_ack'),
+                diagnostic_peer=summary.get('diagnostic_peer'))
 
 
 def main():
@@ -95,7 +107,8 @@ def main():
     parser.add_argument('--modules', required=True, type=Path)
     parser.add_argument('--interface', default='')
     parser.add_argument('--output', required=True, type=Path)
-    parser.add_argument('--case', choices=['all', 'before', 'after'], default='all')
+    singles = ['single-' + peer + '-' + order for peer in ('original', 'corrected') for order in ('before', 'after')]
+    parser.add_argument('--case', choices=['all', 'single', 'before', 'after', *singles], default='all')
     parser.add_argument('--memcheck', action='store_true')
     args = parser.parse_args()
     args.host = args.host.resolve()
@@ -109,7 +122,8 @@ def main():
     root.mkdir(parents=True)
     results = []
     try:
-        for name in (['before', 'after'] if args.case == 'all' else [args.case]):
+        cases = ['before', 'after', *singles] if args.case == 'all' else singles if args.case == 'single' else [args.case]
+        for name in cases:
             results.append(run_case(args, name, root))
             print(json.dumps(results[-1]), flush=True)
     finally:

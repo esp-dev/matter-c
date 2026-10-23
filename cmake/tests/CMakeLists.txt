@@ -26,7 +26,7 @@ set(MATTER_WIRE_NODE_MODULES "" CACHE PATH "Optional pinned Matter.js0.17.9 node
 set(MATTER_WIRE_INTERFACE "" CACHE STRING "Optional controller mDNS interface; traffic uses loopback")
 if(MATTER_WIRE_NODE_MODULES)
   find_program(MATTER_WIRE_NODE node REQUIRED)
-  foreach(wire_case before after)
+  foreach(wire_case before after single-original-before single-original-after single-corrected-before single-corrected-after)
     add_test(NAME runtime_wire_${wire_case} COMMAND "${Python3_EXECUTABLE}"
       "${PROJECT_SOURCE_DIR}/tools/matter/tests/runtime_wire.py"
       --host $<TARGET_FILE:runtime-wire-host> --node "${MATTER_WIRE_NODE}"

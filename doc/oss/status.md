@@ -1,5 +1,16 @@
 # Development status
 
+**Memory27: reusable single-lost-ACK comparison.**
+Memory26 is committed as `b77dd1c`. The native test now requires14/15 with the
+original pinned peer and15/15 with the explicitly corrected peer, both loop
+orders, exactly one suppression, terminal MRP attempts,15 existing CASE Reads
+and zero-live TX drain. Windows102 native tests plus four new wire cases pass;
+Linux99 native tests and all six wire cases pass under Memcheck and separately
+sanitizers. Full two-instance Memcheck passes6/6; the sanitizer repeat passes6/6
+after an initial B-subscription check failure, retained with unproven attribution.
+Production core and limits are unchanged. See [validation](memory27-validation.md)
+and [results](memory27-results.json).
+
 **Memory26: C6 UART 1M and startup ACK attribution.**
 Memory25 is committed as `ac187cc`. Three healthy C6 startup captures pass 15/15.
 On identical C6 firmware/state, exactly one suppressed ACK produces 14/15 with

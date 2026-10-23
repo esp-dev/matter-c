@@ -8,6 +8,29 @@ export async function hostScenarios(o) {
     const before=await control('r'); await reads(); const reordered=await control('m');
     require(reordered.rx_held===before.rx_held+1 && reordered.rx_reordered>before.rx_reordered,'RX reorder was not exercised');
     await assertLoad(15); emit('WIRE_REORDER_PASS',reordered);
+    if(process.env.MATTER_WIRE_SINGLE_ACK==='1') {
+        await closeLoad(); const before=await control('s'); contexts[1].expectedLoss=true;
+        for(const ctx of contexts) await loadSessions(ctx,true);
+        const corrected=summary.diagnostic_peer?.mode==='corrected';
+        const end=performance.now()+15000; let load,stats;
+        do {
+            load=await attribute(contexts[0].clients[0],0x33,GeneralDiagnostics.Cluster.attributes.deviceLoadStatus);
+            stats=await control('m'); if(stats.target_outcome) break;
+            await sleep(100);
+        } while(performance.now()<end);
+        require(stats.ack_dropped===before.ack_dropped+1,'Single ACK fault not consumed exactly once');
+        require(stats.target_outcome===(corrected?1:2) && stats.target_attempts===(corrected?2:5),
+            `Unexpected target MRP result: ${JSON.stringify(stats)}`);
+        require(load.currentSubscriptions===(corrected?15:14) && load.currentSubscriptionsForFabric===3,
+            `Unexpected single-ACK load: ${JSON.stringify(load)}`);
+        require(corrected || stats.wrong_role_acks>before.wrong_role_acks,'Original peer did not exercise wrong-role ACK rejection');
+        summary.single_ack={corrected,load,stats}; emit('WIRE_SINGLE_ACK_PASS',summary.single_ack);
+        // Read every surviving CASE connection, including the exact session
+        // whose SubscribeResponse exhausted MRP. No reconnect/rebuild first.
+        for(const ctx of contexts) for(const client of ctx.clients) await fullRead(client);
+        summary.single_ack.case_reads=15; await control('l');
+        for(const ctx of contexts) ctx.expectedLoss=false;
+    }
     if(process.env.MATTER_WIRE_FAULTS==='1') {
         for(const position of [1,3,7]) {
             for(const ctx of contexts) ctx.expectedLoss=true;

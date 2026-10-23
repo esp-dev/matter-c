@@ -49,10 +49,12 @@ static void snapshot(FILE* out,const char* id,const Wire* w) {
     fprintf(out,"{\"id\":\"%s\",\"record\":{\"data\":{\"core_calls\":%zu,\"core_failures\":%zu,"
         "\"core_live\":%zu,\"core_bytes\":%zu,\"core_peak\":%zu,\"held_completion\":%u,"
         "\"rx_held\":%u,\"rx_reordered\":%u,\"ack_dropped\":%u,\"unacknowledged\":%u,"
-        "\"ack_before_completion\":%u,\"ack_after_completion\":%u}}}\n",
+        "\"ack_before_completion\":%u,\"ack_after_completion\":%u,\"wrong_role_acks\":%u,"
+        "\"target_outcome\":%u,\"target_attempts\":%u}}}\n",
         id,wire_stats.calls,wire_stats.failures,wire_stats.live,wire_stats.bytes,wire_stats.peak,
         w->hold && w->completion?1:0,w->rx_held,w->rx_reordered,wire_stats.ack_dropped,wire_stats.unacknowledged,
-        wire_stats.ack_before_completion,wire_stats.ack_after_completion);
+        wire_stats.ack_before_completion,wire_stats.ack_after_completion,wire_stats.wrong_role_acks,
+        wire_stats.target_outcome,wire_stats.target_attempts);
     CHECK(!ferror(out) && fflush(out)==0);
 }
 static bool command(Wire* w,const char* request,FILE* replies,char stop_id[64]) {
@@ -64,6 +66,7 @@ static bool command(Wire* w,const char* request,FILE* replies,char stop_id[64]) 
     case 'm': break;
     case 'a': wire_fail_after(0); break;
     case 'k': wire_ack_fault(true); break;
+    case 's': wire_ack_fault(2); break;
     case 'l': wire_ack_fault(false); break;
     case 'h': w->hold=true; break;
     case 'j': w->hold=false; break;
