@@ -207,6 +207,9 @@
     "clusters/matter_time_sync.h"
   ],
   "private_headers": [
+    "crypto/matter_mbedtls_internal.h",
+    "model/matter_events_internal.h",
+    "model/matter_im_blocks_internal.h",
     "clusters/matter_root_internal.h",
     "codec/matter_tlv_internal.h",
     "crypto/matter_spake2p_points.h",
@@ -215,9 +218,16 @@
     "model/matter_im_paths_internal.h",
     "session/matter_case_resumption.h",
     "session/matter_secure_internal.h",
+    "session/matter_handshake_buffer_internal.h",
     "runtime/matter_store_internal.h",
+    "storage/matter_store_source_internal.h",
     "runtime/matter_fabric_resumption_internal.h",
-    "clusters/matter_utility_internal.h"
+    "clusters/matter_utility_internal.h",
+    "model/matter_im_snapshot_internal.h",
+    "model/matter_im_snapshot_pool_internal.h",
+    "model/matter_im_buffer_internal.h",
+    "model/matter_im_output_internal.h",
+    "model/matter_im_chunk_internal.h"
   ],
   "runtime": [
     "runtime/matter_dispatch",

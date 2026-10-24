@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mbedtls/asn1write.h"
-#include "mbedtls/ecp.h"
-#include "mbedtls/sha1.h"
+#include "matter_mbedtls_internal.h"
 #include "mbedtls/platform_util.h"
 
 /* Only schema reconstruction lives here; DER lengths/tags and cryptography use
@@ -28,6 +27,9 @@ typedef struct {
     uint8_t der[MATTER_OPERATIONAL_MAX_DER];
     size_t der_size;
 } Certificate;
+#if MBEDTLS_VERSION_MAJOR >= 4
+typedef char Matter_Key_Hash_Alignment[(offsetof(Certificate,der)%4)==0?1:-1];
+#endif
 static const uint8_t extension_ids[] = {0,19,15,37,14,35};
 static const uint8_t extension_oids[][3] = {{0},{0x55,0x1d,19},{0x55,0x1d,15},
     {0x55,0x1d,37},{0x55,0x1d,14},{0x55,0x1d,35}};
@@ -174,7 +176,14 @@ static bool profile(Certificate* c, Matter_Operational_Type_T type) {
         }
     }
     uint8_t hash[20]; /* SHA-1 is only the mandated key identifier, never a signature. */
-    if(mbedtls_sha1(c->public_key.data,c->public_key.size,hash) || memcmp(hash,c->skid.data,20)) return false;
+    const uint8_t* key=c->public_key.data;
+#if MBEDTLS_VERSION_MAJOR >= 4
+    /* IDF's SHA-1 driver reads words directly. TLV keys may be unaligned in
+     * flash. DER output has not been built yet: reuse its aligned heap storage
+     * for the 65-byte public key without another allocation or stack buffer. */
+    memcpy(c->der,key,c->public_key.size); key=c->der;
+#endif
+    if(matter_mbedtls_sha1(key,c->public_key.size,hash) || memcmp(hash,c->skid.data,20)) return false;
     return !c->after || c->after>=c->before;
 }
 static bool parse(Certificate* c, Matter_Cert_Tlv_T in, Matter_Operational_Type_T type) {

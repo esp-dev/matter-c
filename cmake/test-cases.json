@@ -27,6 +27,28 @@
     "replace": []
   },
   {
+    "name": "test_acl_reports",
+    "source": "tools/matter/tests/test_acl_reports.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc"
+  },
+  {
+    "name": "test_acl_reports_alloc",
+    "source": "tools/matter/tests/test_acl_reports.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_acl.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_im_subscribe.c"
+    ]
+  },
+  {
     "name": "test_async",
     "source": "tools/matter/tests/test_async.c",
     "mode": "normal",
@@ -52,6 +74,21 @@
     "privileged": false,
     "variant": "libc",
     "replace": []
+  },
+  {
+    "name": "test_case_alloc",
+    "source": "tools/matter/tests/test_case.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/session/matter_case.c",
+      "main/apps/matter/session/matter_secure.c",
+      "main/apps/matter/crypto/matter_crypto_mbedtls.c",
+      "main/apps/matter/runtime/matter_fabric_host.c"
+    ],
+    "malloc": false
   },
   {
     "name": "test_case",
@@ -117,6 +154,44 @@
     "replace": []
   },
   {
+    "name": "test_diagnostics_alloc",
+    "source": "tools/matter/tests/test_diagnostics.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_diagnostics.c",
+      "main/apps/matter/runtime/matter_diagnostics_host.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/clusters/matter_wifi.c",
+      "tools/matter/host/matter_wifi_sim.c",
+      "main/apps/matter/model/matter_events.c"
+    ]
+  },
+  {
+    "name": "test_diagnostics_reports",
+    "source": "tools/matter/tests/test_diagnostics_reports.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc"
+  },
+  {
+    "name": "test_diagnostics_reports_alloc",
+    "source": "tools/matter/tests/test_diagnostics_reports.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_diagnostics.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_im_subscribe.c"
+    ]
+  },
+  {
     "name": "test_discovery",
     "source": "tools/matter/tests/test_discovery.c",
     "mode": "normal",
@@ -137,6 +212,15 @@
   {
     "name": "test_energy_sim",
     "source": "tools/matter/tests/test_energy_sim.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_events",
+    "source": "tools/matter/tests/test_events.c",
     "mode": "normal",
     "platform": "all",
     "privileged": false,
@@ -171,6 +255,26 @@
     "replace": []
   },
   {
+    "name": "test_fabric_encoding",
+    "source": "tools/matter/tests/test_fabric_encoding.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_fabric_encoding_alloc",
+    "source": "tools/matter/tests/test_fabric_encoding.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_fabric.c"
+    ]
+  },
+  {
     "name": "test_groupkey",
     "source": "tools/matter/tests/test_groupkey.c",
     "mode": "normal",
@@ -178,6 +282,34 @@
     "privileged": false,
     "variant": "libc",
     "replace": []
+  },
+  {
+    "name": "test_im_node_memory",
+    "source": "tools/matter/tests/test_im_node_memory.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_im_subscribe.c",
+      "main/apps/matter/model/matter_events.c"
+    ],
+    "malloc": false
+  },
+  {
+    "name": "test_im_request_memory",
+    "source": "tools/matter/tests/test_im_request_memory.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_im_invoke.c",
+      "main/apps/matter/model/matter_im_write.c",
+      "main/apps/matter/model/matter_im_client.c"
+    ],
+    "malloc": false
   },
   {
     "name": "test_im_invoke",
@@ -191,6 +323,15 @@
   {
     "name": "test_im_read",
     "source": "tools/matter/tests/test_im_read.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_im_snapshots",
+    "source": "tools/matter/tests/test_im_snapshots.c",
     "mode": "normal",
     "platform": "all",
     "privileged": false,
@@ -250,6 +391,42 @@
     "privileged": false,
     "variant": "libc",
     "replace": []
+  },
+  {
+    "name": "test_opcreds_memory",
+    "source": "tools/matter/tests/test_opcreds_memory.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_opcreds_memory_alloc",
+    "source": "tools/matter/tests/test_opcreds_memory.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_opcreds.c"
+    ]
+  },
+  {
+    "name": "test_opcreds_alloc",
+    "source": "tools/matter/tests/test_opcreds.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/clusters/matter_opcreds.c",
+      "main/apps/matter/clusters/matter_fabric.c",
+      "main/apps/matter/runtime/matter_opcreds_host.c",
+      "main/apps/matter/crypto/matter_attestation_cert.c",
+      "main/apps/matter/crypto/matter_crypto_mbedtls.c"
+    ]
   },
   {
     "name": "test_opcreds",
@@ -315,6 +492,77 @@
     "replace": []
   },
   {
+    "name": "test_pase_alloc",
+    "source": "tools/matter/tests/test_pase.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/matter.c",
+      "main/apps/matter/matter_mdns.c",
+      "main/apps/matter/matter_discovery.c",
+      "main/apps/matter/matter_udp.c",
+      "main/apps/matter/codec/matter_tlv.c",
+      "main/apps/matter/codec/matter_tlv_writer.c",
+      "main/apps/matter/codec/matter_tlv_validate.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_events.c",
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/clusters/matter_root.c",
+      "main/apps/matter/clusters/matter_power_topology.c",
+      "main/apps/matter/clusters/matter_epm.c",
+      "main/apps/matter/clusters/matter_eem.c",
+      "main/apps/matter/clusters/matter_wifi.c",
+      "main/apps/matter/clusters/matter_opcreds.c",
+      "main/apps/matter/clusters/matter_fabric.c",
+      "main/apps/matter/clusters/matter_acl.c",
+      "main/apps/matter/clusters/matter_groupkey.c",
+      "main/apps/matter/clusters/matter_diagnostics.c",
+      "main/apps/matter/clusters/matter_root_case.c",
+      "main/apps/matter/clusters/matter_admin_commissioning.c",
+      "main/apps/matter/clusters/matter_ota_requestor.c",
+      "main/apps/matter/clusters/matter_ota_query.c",
+      "main/apps/matter/clusters/matter_ota_apply.c",
+      "main/apps/matter/clusters/matter_ota_update.c",
+      "main/apps/matter/model/matter_im_client.c",
+      "main/apps/matter/transport/matter_bdx.c",
+      "main/apps/matter/codec/matter_message_header.c",
+      "main/apps/matter/codec/matter_protocol_header.c",
+      "main/apps/matter/model/matter_im_invoke.c",
+      "main/apps/matter/model/matter_im_write.c",
+      "main/apps/matter/model/matter_im_subscribe.c",
+      "main/apps/matter/crypto/matter_crypto_mbedtls.c",
+      "main/apps/matter/crypto/matter_spake2p.c",
+      "main/apps/matter/crypto/matter_operational_cert.c",
+      "main/apps/matter/crypto/matter_attestation_cert.c",
+      "main/apps/matter/session/matter_pase.c",
+      "main/apps/matter/session/matter_case.c",
+      "main/apps/matter/session/matter_secure.c",
+      "main/apps/matter/storage/matter_store_tlv.c",
+      "main/apps/matter/transport/matter_unsecured.c",
+      "main/apps/matter/transport/matter_unsecured_rx.c",
+      "main/apps/matter/transport/matter_unsecured_tx.c",
+      "main/apps/matter/transport/matter_unsecured_prepare.c",
+      "main/apps/matter/transport/matter_secure_channel.c",
+      "main/apps/matter/transport/matter_rx.c",
+      "main/apps/matter/transport/matter_rx_policy.c",
+      "main/apps/matter/transport/matter_exchange.c",
+      "main/apps/matter/transport/matter_ack.c",
+      "main/apps/matter/transport/matter_ack_sender.c",
+      "main/apps/matter/transport/matter_retransmission.c",
+      "main/apps/matter/transport/matter_retransmission_sender.c",
+      "main/apps/matter/transport/matter_counter.c",
+      "main/apps/matter/transport/matter_reception.c",
+      "main/apps/matter/clusters/matter_meter_source.c",
+      "main/apps/matter/clusters/matter_identify.c",
+      "main/apps/matter/clusters/matter_meter_identification.c",
+      "main/apps/matter/clusters/matter_time_sync.c",
+      "main/apps/matter/crypto/matter_crypto_mbedtls.c"
+    ],
+    "malloc": false
+  },
+  {
     "name": "test_protocol_header",
     "source": "tools/matter/tests/test_protocol_header.c",
     "mode": "normal",
@@ -369,6 +617,24 @@
     "replace": []
   },
   {
+    "name": "test_rx_alloc",
+    "source": "tools/matter/tests/test_rx.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/matter.c",
+      "main/apps/matter/matter_udp.c",
+      "main/apps/matter/transport/matter_exchange.c",
+      "main/apps/matter/transport/matter_rx_policy.c",
+      "main/apps/matter/transport/matter_ack.c",
+      "main/apps/matter/transport/matter_ack_sender.c",
+      "main/apps/matter/transport/matter_rx.c"
+    ],
+    "malloc": false
+  },
+  {
     "name": "test_rx_policy",
     "source": "tools/matter/tests/test_rx_policy.c",
     "mode": "normal",
@@ -385,6 +651,18 @@
     "privileged": false,
     "variant": "libc",
     "replace": []
+  },
+  {
+    "name": "test_secure_alloc",
+    "source": "tools/matter/tests/test_secure.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/crypto/matter_crypto_mbedtls.c"
+    ],
+    "malloc": false
   },
   {
     "name": "test_server_time",
@@ -421,6 +699,21 @@
     "privileged": false,
     "variant": "libc",
     "replace": []
+  },
+  {
+    "name": "test_store_alloc",
+    "source": "tools/matter/tests/test_store.c",
+    "mode": "store",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/crypto/matter_operational_cert.c",
+      "main/apps/matter/storage/matter_store_tlv.c",
+      "main/apps/matter/runtime/matter_store_host.c",
+      "main/apps/matter/runtime/matter_fabric_host.c"
+    ],
+    "malloc": false
   },
   {
     "name": "test_store_file_posix",
@@ -618,7 +911,8 @@
     "privileged": false,
     "variant": "alloc",
     "replace": [
-      "main/apps/matter/model/matter_im_read.c"
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_events.c"
     ],
     "malloc": false
   },
@@ -630,7 +924,9 @@
     "privileged": false,
     "variant": "alloc",
     "replace": [
-      "main/apps/matter/model/matter_im_subscribe.c"
+      "main/apps/matter/model/matter_im_subscribe.c",
+      "main/apps/matter/model/matter_im_read.c",
+      "main/apps/matter/model/matter_events.c"
     ],
     "malloc": false
   },
@@ -773,6 +1069,7 @@
       "main/apps/matter/runtime/matter_fabric_host.c",
       "main/apps/matter/runtime/matter_opcreds_host.c",
       "main/apps/matter/runtime/matter_store_host.c",
+      "main/apps/matter/storage/matter_store_tlv.c",
       "main/apps/matter/runtime/matter_commissioning_host.c",
       "main/apps/matter/runtime/matter_diagnostics_host.c",
       "main/apps/matter/runtime/matter_runtime.c",
@@ -873,6 +1170,33 @@
   {
     "name": "test_gui_pairing",
     "source": "tools/matter/tests/test_gui_pairing.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_im_blocks",
+    "source": "tools/matter/tests/test_im_blocks.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_rgb_light",
+    "source": "tools/matter/tests/test_rgb_light.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": ["main/apps/matter/model/matter_cluster.c"]
+  },
+  {
+    "name": "test_im_event_metadata",
+    "source": "tools/matter/tests/test_im_event_metadata.c",
     "mode": "normal",
     "platform": "all",
     "privileged": false,

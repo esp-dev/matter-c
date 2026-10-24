@@ -1,18 +1,22 @@
 #include "matter_im_client.h"
 #include "../codec/matter_tlv_validate.h"
+#include "matter_im_buffer_internal.h"
 #include <stdlib.h>
 #include <string.h>
+typedef struct {
+    Matter_Tlv_Validation_Workspace_T validation; Matter_Tlv_Tag_T tags[64];
+} Matter_Im_Client_Work;
 struct Matter_Im_Client {
+    Matter_Im_Client_Work* work;
     Matter_Im_Command_Path_T path; uint32_t response_command;
     const uint8_t* source; size_t source_size;
     uint8_t opcode,status; bool waiting,done;
-    uint8_t output[1024],body[1024]; size_t output_size,body_size;
-    Matter_Tlv_Validation_Workspace_T validation; Matter_Tlv_Tag_T tags[64];
+    uint8_t *output,*body; size_t output_size,body_size,output_capacity,body_capacity;
 };
 static bool container(Matter_Tlv_Type_T t) { return t==MATTER_TLV_STRUCTURE || t==MATTER_TLV_LIST || t==MATTER_TLV_ARRAY; }
 static bool valid(Matter_Im_Client_T c,const uint8_t* d,size_t n) {
     const Matter_Tlv_Validation_Options_T o={1024,256,4096,8,false,0,0}; Matter_Tlv_Validation_Report_T report;
-    return matter_tlv_validate(d,n,&o,&c->validation,c->tags,64,&report)==MATTER_TLV_OK;
+    return matter_tlv_validate(d,n,&o,&c->work->validation,c->work->tags,64,&report)==MATTER_TLV_OK;
 }
 /* A returned container borrows its complete encoding, including opening tag. */
 static bool field(Matter_Im_Client_T c,const uint8_t* d,size_t n,int tag,Matter_Tlv_Element_T* out) {
@@ -54,15 +58,20 @@ static bool copy(Matter_Im_Client_T c,Matter_Tlv_Writer_T* w,const uint8_t* d,si
 Matter_Im_Client_T matter_im_client_new(const Matter_Im_Command_Path_T* p,uint32_t response,const uint8_t* d,size_t n) {
     if(!p || p->endpoint==65535 || !d || !n || d[0]!=0x15) return NULL;
     Matter_Im_Client_T c=calloc(1,sizeof(*c)); if(!c) return NULL;
+    c->work=calloc(1,sizeof(*c->work)); if(!c->work) { free(c); return NULL; }
     c->source=d; c->source_size=n; c->path=*p; c->response_command=response; Matter_Tlv_Writer_T w;
-    if(!valid(c,d,n) || matter_tlv_writer_init(&w,c->output,sizeof(c->output),8)!=MATTER_TLV_OK ||
+    /* Normalization never grows fields except the root context tag. The full
+     * request envelope is at most 48 bytes; retain the 1024-byte wire ceiling. */
+    size_t capacity=n>1024-48 ? 1024 : n+48;
+    if(!valid(c,d,n) || !matter_im_buffer_reserve(&c->output,&c->output_capacity,capacity) ||
+        matter_tlv_writer_init(&w,c->output,c->output_capacity,8)!=MATTER_TLV_OK ||
         !put(&w,MATTER_TLV_STRUCTURE,-1,0) || !put(&w,MATTER_TLV_BOOL,0,0) || !put(&w,MATTER_TLV_BOOL,1,0) ||
         !put(&w,MATTER_TLV_ARRAY,2,0) || !put(&w,MATTER_TLV_STRUCTURE,-1,0) || !put(&w,MATTER_TLV_LIST,0,0) ||
         !put(&w,MATTER_TLV_UNSIGNED,0,p->endpoint) || !put(&w,MATTER_TLV_UNSIGNED,1,p->cluster) ||
         !put(&w,MATTER_TLV_UNSIGNED,2,p->command) || !put(&w,MATTER_TLV_END,-1,0) || !copy(c,&w,d,n,1) ||
         !put(&w,MATTER_TLV_END,-1,0) || !put(&w,MATTER_TLV_END,-1,0) || !put(&w,MATTER_TLV_UNSIGNED,255,MATTER_IM_REVISION) ||
-        !put(&w,MATTER_TLV_END,-1,0) || matter_tlv_writer_finish(&w,&c->output_size)!=MATTER_TLV_OK) { free(c); return NULL; }
-    c->opcode=8; return c;
+        !put(&w,MATTER_TLV_END,-1,0) || matter_tlv_writer_finish(&w,&c->output_size)!=MATTER_TLV_OK) { matter_im_client_delete(c); return NULL; }
+    matter_im_workspace_delete(c->work,sizeof(*c->work)); c->work=NULL; c->opcode=8; return c;
 }
 Matter_Result_T matter_im_client_output(Matter_Im_Client_T c,Matter_Im_Read_Message_T* out) {
     if(!c || !out) return MATTER_INVALID_ARGUMENT;
@@ -72,51 +81,70 @@ Matter_Result_T matter_im_client_output(Matter_Im_Client_T c,Matter_Im_Read_Mess
 Matter_Result_T matter_im_client_sent(Matter_Im_Client_T c) {
     if(!c || !c->opcode) return MATTER_INVALID_STATE;
     if(c->opcode==8) c->waiting=true; else c->done=true;
+    matter_im_buffer_clear(&c->output,&c->output_capacity);
     c->opcode=0; return MATTER_OK;
 }
 Matter_Result_T matter_im_client_receive(Matter_Im_Client_T c,uint8_t opcode,const uint8_t* d,size_t n) {
     if(!c || !c->waiting || !d || !n) return MATTER_INVALID_STATE;
+    c->work=calloc(1,sizeof(*c->work)); if(!c->work) return MATTER_LIMIT_REACHED;
+    Matter_Result_T r;
     c->source=d; c->source_size=n;
     Matter_Tlv_Element_T revision;
     if(d[0]!=0x15 || !valid(c,d,n) || !field(c,d,n,255,&revision) || revision.type!=MATTER_TLV_UNSIGNED ||
-        !revision.unsigned_value || revision.unsigned_value>255) return MATTER_INVALID_ARGUMENT;
+        !revision.unsigned_value || revision.unsigned_value>255) { r=MATTER_INVALID_ARGUMENT; goto finished; }
     Matter_Tlv_Element_T a,b,cmd,path,e; bool suppress=true; uint8_t status=0;
     if(opcode==1) {
-        if(!field(c,d,n,0,&e) || e.type!=MATTER_TLV_UNSIGNED || !e.unsigned_value || e.unsigned_value>255) return MATTER_INVALID_ARGUMENT;
+        if(!field(c,d,n,0,&e) || e.type!=MATTER_TLV_UNSIGNED || !e.unsigned_value || e.unsigned_value>255) { r=MATTER_INVALID_ARGUMENT; goto finished; }
         status=(uint8_t)e.unsigned_value;
     } else if(opcode==9) {
-        if(!field(c,d,n,0,&e) || e.type!=MATTER_TLV_BOOL) return MATTER_INVALID_ARGUMENT;
+        if(!field(c,d,n,0,&e) || e.type!=MATTER_TLV_BOOL) { r=MATTER_INVALID_ARGUMENT; goto finished; }
         suppress=e.unsigned_value!=0;
-        if(field(c,d,n,2,&e) && (e.type!=MATTER_TLV_BOOL || e.unsigned_value)) return MATTER_INVALID_ARGUMENT;
-        if(!field(c,d,n,1,&a) || a.type!=MATTER_TLV_ARRAY || !field(c,a.data,a.size,-1,&b) || b.type!=MATTER_TLV_STRUCTURE) return MATTER_INVALID_ARGUMENT;
+        if(field(c,d,n,2,&e) && (e.type!=MATTER_TLV_BOOL || e.unsigned_value)) { r=MATTER_INVALID_ARGUMENT; goto finished; }
+        if(!field(c,d,n,1,&a) || a.type!=MATTER_TLV_ARRAY || !field(c,a.data,a.size,-1,&b) || b.type!=MATTER_TLV_STRUCTURE) { r=MATTER_INVALID_ARGUMENT; goto finished; }
         bool data=field(c,b.data,b.size,0,&cmd), code=field(c,b.data,b.size,1,&e);
-        if(data==code) return MATTER_INVALID_ARGUMENT;
-        if(data && c->response_command==MATTER_IM_CLIENT_STATUS_ONLY) return MATTER_INVALID_ARGUMENT;
+        if(data==code) { r=MATTER_INVALID_ARGUMENT; goto finished; }
+        if(data && c->response_command==MATTER_IM_CLIENT_STATUS_ONLY) { r=MATTER_INVALID_ARGUMENT; goto finished; }
         if(code) cmd=e;
         if(cmd.type!=MATTER_TLV_STRUCTURE || !field(c,cmd.data,cmd.size,0,&path) || path.type!=MATTER_TLV_LIST ||
             !number(c,path.data,path.size,0,c->path.endpoint) || !number(c,path.data,path.size,1,c->path.cluster) ||
             !number(c,path.data,path.size,2,data?c->response_command:c->path.command) ||
-            !field(c,cmd.data,cmd.size,1,&e) || e.type!=MATTER_TLV_STRUCTURE) return MATTER_INVALID_ARGUMENT;
+            !field(c,cmd.data,cmd.size,1,&e) || e.type!=MATTER_TLV_STRUCTURE) { r=MATTER_INVALID_ARGUMENT; goto finished; }
         if(code) {
             if(!field(c,e.data,e.size,0,&a) || a.type!=MATTER_TLV_UNSIGNED ||
-                (!a.unsigned_value && c->response_command!=MATTER_IM_CLIENT_STATUS_ONLY) || a.unsigned_value>255) return MATTER_INVALID_ARGUMENT;
+                (!a.unsigned_value && c->response_command!=MATTER_IM_CLIENT_STATUS_ONLY) || a.unsigned_value>255) { r=MATTER_INVALID_ARGUMENT; goto finished; }
             status=(uint8_t)a.unsigned_value;
         } else {
             Matter_Tlv_Writer_T w;
-            if(matter_tlv_writer_init(&w,c->body,sizeof(c->body),8)!=MATTER_TLV_OK || !copy(c,&w,e.data,e.size,-1) ||
-                matter_tlv_writer_finish(&w,&c->body_size)!=MATTER_TLV_OK) return MATTER_INVALID_ARGUMENT;
+            if(!matter_im_buffer_reserve(&c->body,&c->body_capacity,e.size)) { r=MATTER_LIMIT_REACHED; goto finished; }
+            size_t size;
+            if(matter_tlv_writer_init(&w,c->body,c->body_capacity,8)!=MATTER_TLV_OK || !copy(c,&w,e.data,e.size,-1) ||
+                matter_tlv_writer_finish(&w,&size)!=MATTER_TLV_OK) {
+                matter_im_buffer_clear(&c->body,&c->body_capacity); r=MATTER_INVALID_ARGUMENT; goto finished;
+            }
+            c->body_size=size;
         }
-    } else return MATTER_INVALID_ARGUMENT;
-    c->status=status; c->waiting=false; c->done=suppress;
+    } else { r=MATTER_INVALID_ARGUMENT; goto finished; }
     if(!suppress) {
         static const uint8_t ok[]={0x15,0x24,0,0,0x24,255,MATTER_IM_REVISION,0x18};
+        if(!matter_im_buffer_reserve(&c->output,&c->output_capacity,sizeof(ok))) {
+            matter_im_buffer_clear(&c->body,&c->body_capacity); c->body_size=0; r=MATTER_LIMIT_REACHED; goto finished;
+        }
         memcpy(c->output,ok,sizeof(ok)); c->output_size=sizeof(ok); c->opcode=1;
     }
-    return MATTER_OK;
+    c->status=status; c->waiting=false; c->done=suppress;
+    r=MATTER_OK;
+finished:
+    matter_im_workspace_delete(c->work,sizeof(*c->work)); c->work=NULL; return r;
 }
+
 Matter_Result_T matter_im_client_result(Matter_Im_Client_T c,uint8_t* code,const uint8_t** d,size_t* n) {
     if(!c || !code || !d || !n) return MATTER_INVALID_ARGUMENT;
     if(!c->done) return MATTER_PENDING;
     *code=c->status; *d=c->body; *n=c->body_size; return MATTER_OK;
 }
-void matter_im_client_delete(Matter_Im_Client_T c) { if(c) { memset(c,0,sizeof(*c)); free(c); } }
+void matter_im_client_delete(Matter_Im_Client_T c) {
+    if(c) {
+        matter_im_buffer_clear(&c->output,&c->output_capacity); matter_im_buffer_clear(&c->body,&c->body_capacity);
+        matter_im_workspace_delete(c->work,sizeof(*c->work)); memset(c,0,sizeof(*c)); free(c);
+    }
+}

@@ -82,7 +82,9 @@ Matter_Result_T matter_secure_seal(Matter_Secure_T session, const uint8_t* plain
  * CASE wire IDs must match the session identity. Group/privacy/control
  * frames are outside this profile. Bad input/MIC never calls admit or alters RX
  * state. Successful admission commits counter; failed admission permits retry.
- * Work bounded by MAX_PACKET, scratch private per instance and cleared each call.
+ * Work bounded by MAX_PACKET; exact plaintext scratch is allocated per receive
+ * and erased/freed after synchronous admission. OOM returns LIMIT_REACHED before
+ * crypto/admission/replay/timestamp changes; the same packet may be retried.
  */
 Matter_Result_T matter_secure_receive(Matter_Secure_T session, const uint8_t* packet, size_t size,
 	uint64_t now_ms, Matter_Secure_Admit_T admit, void* user);

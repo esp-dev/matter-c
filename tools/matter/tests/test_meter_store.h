@@ -78,7 +78,7 @@ static void meter_store_seed(StoreTest* t) {
     OC_CHECK(matter_store_host_event_store(t->store,UINT64_C(0x20000000000020))==MATTER_OK);
     meter_store_restored(t);
     t->data.eem.raw_mwh[0]=MATTER_EEM_LIMIT; t->data.eem.total_mwh[1]=MATTER_EEM_LIMIT; t->data.event_high=UINT64_MAX;
-    size_t size=0; OC_CHECK(matter_store_tlv_encode(&t->data,t->copy,sizeof(t->copy),&size)==MATTER_OK);
+    size_t size=0; OC_CHECK(encode_checked(&t->data,t->copy,sizeof(t->copy),&size)==MATTER_OK);
     OC_CHECK(matter_store_tlv_decode(t->copy,size,&t->previous)==MATTER_OK && t->previous.eem.raw_mwh[0]==MATTER_EEM_LIMIT &&
         t->previous.eem.total_mwh[1]==MATTER_EEM_LIMIT && t->previous.event_high==UINT64_MAX);
     t->data.eem.raw_mwh[0]=-1; OC_CHECK(!matter_store_data_valid(&t->data));

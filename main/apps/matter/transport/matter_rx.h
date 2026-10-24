@@ -36,6 +36,7 @@ typedef struct {
 	 */
 	Matter_Result_T (*exchange_drained)(void* user, const Matter_Exchange_Info_T* key);
 	/* Borrowed descriptor/payload only during call, after MRP ACK admission.
+	 * delivery_hold may extend payload lifetime; descriptor is still call-only.
 	 * Generic dispatch hook; application binds protocol handlers to the handle.
 	 * No delivery on duplicates, standalone ACK, closing or unsupported protocol.
 	 */
@@ -51,7 +52,8 @@ typedef struct {
 /* Owns policy, exchange table, ACK ledger/sender and one heap RX packet. Five
  * bounded allocations, none per message. Borrows owner and copies port; user
  * lifetimes extend through delete (sender detach). All callbacks synchronous,
- * nonblocking, on owner thread; no inline mutations of executor/owner. Executor
+ * nonblocking, on owner thread; no inline mutations of executor/owner except
+ * the optional delivery_hold handoff. Executor
  * reentry -> BUSY. No worker, OS types, security, deduplication or retransmission
  * implementation. Only already authenticated UDP unicast plaintext is accepted.
  * initial_id has exchange_new's random-seed contract. Failed new has no callbacks.
@@ -94,6 +96,18 @@ Matter_Result_T matter_rx_retire_session(Matter_Rx_T rx, Matter_Exchange_Session
  * control RX open until drain finishes, but never delivers application data.
  */
 Matter_Result_T matter_rx_receive(Matter_Rx_T rx, const Matter_Rx_Input_T* input, uint64_t received_ms);
+/* Optional zero-copy handoff, called exactly once inside this executor's deliver
+ * callback. Extends PAYLOAD lifetime until delivery_release; copy the descriptor.
+ * Transfers the queue's existing session pin, with no allocation/retain callback.
+ * Other inline executor mutations remain BUSY. Holding twice/outside deliver ->
+ * INVALID_STATE. Until release, receive -> WOULD_BLOCK without effects; close,
+ * retire and stop/drain preserve bytes, pin and exchange. Process may advance ACK
+ * obligations but never redelivers or overwrites held bytes. Owner-thread only.
+ * Release after process returns and last payload use, before waiting for stop;
+ * inline release -> BUSY; repeated release is OK. Existing callers need not opt in.
+ */
+Matter_Result_T matter_rx_delivery_hold(Matter_Rx_T rx);
+Matter_Result_T matter_rx_delivery_release(Matter_Rx_T rx);
 /* Lifetime count of accepted standard IM messages, excluding duplicates and
  * failed admission. Saturates at UINT32_MAX. Query on the owner thread; NULL=0. */
 uint32_t matter_rx_im_received(Matter_Rx_T rx);

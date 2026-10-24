@@ -1,0 +1,500 @@
+{
+  "date": "2026-10-22",
+  "baseline_commit": "13ffe87",
+  "candidate": "pending Memory23 working tree",
+  "healthy_pairs": 4,
+  "negative_control_pairs": 1,
+  "normal_wire_oom_injection": false,
+  "ctest": {
+    "passed": 102,
+    "total": 102,
+    "log_sha256": "ecbec95a5163b9a2a28079875dc87a060d0daed12be6ed09a9383dddadc9971f"
+  },
+  "hardware_used": false,
+  "c6_original_finding_resolved": false,
+  "runs": [
+    {
+      "name": "host22-tick10",
+      "version": "22",
+      "expected_failure": false,
+      "controller_pass": true,
+      "fixture_drained": true,
+      "elapsed_seconds": 33.3098188,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 0,
+      "read_attributes": 0,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 0,
+      "remove_fabric_replies": 0,
+      "load_samples": [
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 15,
+          "totalInteractionModelMessagesSent": 478,
+          "totalInteractionModelMessagesReceived": 478
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 15,
+          "totalInteractionModelMessagesSent": 481,
+          "totalInteractionModelMessagesReceived": 481
+        }
+      ],
+      "mrp_failure_events": [],
+      "error": null,
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "0",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171"
+      },
+      "environment_source": "experiment command; no per-run environment file",
+      "summary_sha256": "f731d7f9cc3e9d7536d4d8cde33e93b41b28f6a30b52924899753d6d4ed2e76a",
+      "trace_sha256": "d78114391133350930b6bb5b9ab51bbcc4fba679fcd04141bc0f63c5aced23cf"
+    },
+    {
+      "name": "host23-tick10",
+      "version": "23",
+      "expected_failure": false,
+      "controller_pass": true,
+      "fixture_drained": true,
+      "elapsed_seconds": 33.3239954,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 0,
+      "read_attributes": 0,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 0,
+      "remove_fabric_replies": 0,
+      "load_samples": [
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 15,
+          "totalInteractionModelMessagesSent": 478,
+          "totalInteractionModelMessagesReceived": 478
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 15,
+          "totalInteractionModelMessagesSent": 481,
+          "totalInteractionModelMessagesReceived": 481
+        }
+      ],
+      "mrp_failure_events": [],
+      "error": null,
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "0",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171"
+      },
+      "environment_source": "experiment command; no per-run environment file",
+      "summary_sha256": "3b1b6ea2681e448d10cd4cdc6320e2da5a9625c7d9e31b669771d4d9d7cce9f0",
+      "trace_sha256": "65331e7eab74ab8bab077582032d08a5af9831e4bc0165dff734a794ed7057aa"
+    },
+    {
+      "name": "host22-complete25",
+      "version": "22",
+      "expected_failure": false,
+      "controller_pass": true,
+      "fixture_drained": true,
+      "elapsed_seconds": 65.53319950000001,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 0,
+      "read_attributes": 0,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 0,
+      "remove_fabric_replies": 0,
+      "load_samples": [
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 15,
+          "totalInteractionModelMessagesSent": 514,
+          "totalInteractionModelMessagesReceived": 514
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 15,
+          "totalInteractionModelMessagesSent": 519,
+          "totalInteractionModelMessagesReceived": 519
+        }
+      ],
+      "mrp_failure_events": [],
+      "error": null,
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "25",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171"
+      },
+      "environment_source": "recorded file",
+      "summary_sha256": "17c1b5152a116e6a14386cad961f325af77587879c72465cc0a70bd47d1cc0f9",
+      "trace_sha256": "890b5311018d0705809742589df35c6e3237c793a1ce306a2f78ee1ef8a73fe0"
+    },
+    {
+      "name": "host23-complete25",
+      "version": "23",
+      "expected_failure": false,
+      "controller_pass": true,
+      "fixture_drained": true,
+      "elapsed_seconds": 65.2975891,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 0,
+      "read_attributes": 0,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 0,
+      "remove_fabric_replies": 0,
+      "load_samples": [
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 15,
+          "totalInteractionModelMessagesSent": 514,
+          "totalInteractionModelMessagesReceived": 514
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 15,
+          "totalInteractionModelMessagesSent": 519,
+          "totalInteractionModelMessagesReceived": 519
+        }
+      ],
+      "mrp_failure_events": [],
+      "error": null,
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "25",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171"
+      },
+      "environment_source": "recorded file",
+      "summary_sha256": "641b1d10ad7fe282fe55b86462d2857e0e297938158ebf7c916735cd1baa6d45",
+      "trace_sha256": "01a6e9fee2b2ad715b04a8b1c9d676e9308c5de1cc1f6466f0b3735a565c5cf9"
+    },
+    {
+      "name": "host22-warm-pollafter",
+      "version": "22",
+      "expected_failure": false,
+      "controller_pass": true,
+      "fixture_drained": true,
+      "elapsed_seconds": 54.42458760000001,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 0,
+      "read_attributes": 0,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 0,
+      "remove_fabric_replies": 0,
+      "load_samples": [
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 501,
+          "totalInteractionModelMessagesReceived": 501
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 505,
+          "totalInteractionModelMessagesReceived": 505
+        }
+      ],
+      "mrp_failure_events": [],
+      "error": null,
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "25",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171",
+        "MATTER_POLL_AFTER": "1",
+        "MATTER_WARMUP": "1"
+      },
+      "environment_source": "recorded file",
+      "summary_sha256": "e14b3cdce4f9e507f5d999e4cbef525f199bf8a9404c2f76d565601f51593506",
+      "trace_sha256": "148e8ac9cef5387b1f9e0ea0b48ad043acd4c31fa43c5f698b76003f9be63e2c",
+      "fixture_binary_sha256": "e77b938319e96e39c2ce6c8a2e2c26a199241d33b3aba2f1572c2f4cb7a82bf2"
+    },
+    {
+      "name": "host23-warm-pollafter",
+      "version": "23",
+      "expected_failure": false,
+      "controller_pass": true,
+      "fixture_drained": true,
+      "elapsed_seconds": 54.6470483,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 0,
+      "read_attributes": 0,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 0,
+      "remove_fabric_replies": 0,
+      "load_samples": [
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 502,
+          "totalInteractionModelMessagesReceived": 502
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 505,
+          "totalInteractionModelMessagesReceived": 505
+        }
+      ],
+      "mrp_failure_events": [],
+      "error": null,
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "25",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171",
+        "MATTER_POLL_AFTER": "1",
+        "MATTER_WARMUP": "1"
+      },
+      "environment_source": "recorded file",
+      "summary_sha256": "de9a94007220f1de949c6ae0e990614dc718421d7484cd9490561870fa5ed3c3",
+      "trace_sha256": "3a3fb5c0fbbc6414e0b2f5bb3e85c7b7da538ae5932654e5aa64b6ba335cf0ba",
+      "fixture_binary_sha256": "f42b9c2835068f7c74adda74767f114711bc68b7ad2783fe78f315e9fb4aac51"
+    },
+    {
+      "name": "host22-active",
+      "version": "22",
+      "expected_failure": false,
+      "controller_pass": true,
+      "fixture_drained": true,
+      "elapsed_seconds": 81.34064219999999,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 25,
+      "read_attributes": 4275,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 1,
+      "remove_fabric_replies": 4,
+      "load_samples": [
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 501,
+          "totalInteractionModelMessagesReceived": 501
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 505,
+          "totalInteractionModelMessagesReceived": 505
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 696,
+          "totalInteractionModelMessagesReceived": 696
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 819,
+          "totalInteractionModelMessagesReceived": 819
+        },
+        {
+          "currentSubscriptions": 3,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 829,
+          "totalInteractionModelMessagesReceived": 829
+        }
+      ],
+      "mrp_failure_events": [],
+      "error": null,
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "25",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171",
+        "MATTER_POLL_AFTER": "1",
+        "MATTER_WARMUP": "1",
+        "MATTER_ACTIVE_MS": "20000"
+      },
+      "environment_source": "recorded file",
+      "summary_sha256": "beb7013bcc9958b3a9e15cfd99e6230b338d1f170655dc1e1da975e0e5ec9116",
+      "trace_sha256": "cc17d683c212caca0d4b1b3663db5b9bf62e4a4932c483b1eaebc5adf1430c9e",
+      "fixture_binary_sha256": "e77b938319e96e39c2ce6c8a2e2c26a199241d33b3aba2f1572c2f4cb7a82bf2"
+    },
+    {
+      "name": "host23-active",
+      "version": "23",
+      "expected_failure": false,
+      "controller_pass": true,
+      "fixture_drained": true,
+      "elapsed_seconds": 126.46811,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 25,
+      "read_attributes": 4275,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 1,
+      "remove_fabric_replies": 4,
+      "load_samples": [
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 501,
+          "totalInteractionModelMessagesReceived": 501
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 505,
+          "totalInteractionModelMessagesReceived": 505
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 694,
+          "totalInteractionModelMessagesReceived": 694
+        },
+        {
+          "currentSubscriptions": 15,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 819,
+          "totalInteractionModelMessagesReceived": 819
+        },
+        {
+          "currentSubscriptions": 3,
+          "currentSubscriptionsForFabric": 3,
+          "totalSubscriptionsEstablished": 16,
+          "totalInteractionModelMessagesSent": 829,
+          "totalInteractionModelMessagesReceived": 829
+        }
+      ],
+      "mrp_failure_events": [],
+      "error": null,
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "25",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171",
+        "MATTER_POLL_AFTER": "1",
+        "MATTER_WARMUP": "1",
+        "MATTER_ACTIVE_MS": "20000"
+      },
+      "environment_source": "recorded file",
+      "summary_sha256": "dcc211267469d746af2f329006f8dc8e8b9bea9978a2f49451f9cd4d496b6957",
+      "trace_sha256": "3bc9580d1e8939b25eb1b0a51619f31a16714cbafe61f841cbb48c8e755bd049",
+      "fixture_binary_sha256": "f42b9c2835068f7c74adda74767f114711bc68b7ad2783fe78f315e9fb4aac51"
+    },
+    {
+      "name": "host22-missing-ack",
+      "version": "22",
+      "expected_failure": true,
+      "controller_pass": false,
+      "fixture_drained": true,
+      "elapsed_seconds": 53.239923000000005,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 0,
+      "read_attributes": 0,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 0,
+      "remove_fabric_replies": 0,
+      "load_samples": [],
+      "mrp_failure_events": [
+        "TRACE24 MRP_FAIL ms=30922 token=4294967300 sub=5 ex=36322 outcome=2",
+        "TRACE24 MRP_FAIL ms=54203 token=4294967313 sub=12 ex=34620 outcome=4"
+      ],
+      "error": "Unexpected live subscription load: {\"currentSubscriptions\":14,\"currentSubscriptionsForFabric\":3,\"totalSubscriptionsEstablished\":16,\"totalInteractionModelMessagesSent\":495,\"totalInteractionModelMessagesReceived\":495}",
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "25",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171",
+        "MATTER_POLL_AFTER": "1",
+        "MATTER_WARMUP": "1",
+        "MATTER_ACTIVE_MS": null
+      },
+      "environment_source": "recorded file",
+      "summary_sha256": "d3b3c6688b9a5476fbd07b69832801d2846c2578825980b7e913b68880e98d5f",
+      "trace_sha256": "03577095275cc6f1de49a98c8dc635a6f9272b06ef80a9a024ab500e363ccc5c",
+      "fixture_binary_sha256": "3dd34c76dd54eeffbda54b7661b7544209135b0ff831e157226e69ddd9012bae"
+    },
+    {
+      "name": "host23-missing-ack",
+      "version": "23",
+      "expected_failure": true,
+      "controller_pass": false,
+      "fixture_drained": true,
+      "elapsed_seconds": 53.284220999999995,
+      "subscription_snapshots": 15,
+      "unexpected_subscription_closures": 0,
+      "full_reads": 0,
+      "read_attributes": 0,
+      "case_pairs": 10,
+      "case_resumed": 10,
+      "session_busy_probes": 0,
+      "remove_fabric_replies": 0,
+      "load_samples": [],
+      "mrp_failure_events": [
+        "TRACE24 MRP_FAIL ms=30750 token=4294967300 sub=5 ex=17970 outcome=2",
+        "TRACE24 MRP_FAIL ms=54281 token=4294967313 sub=12 ex=16840 outcome=4"
+      ],
+      "error": "Unexpected live subscription load: {\"currentSubscriptions\":14,\"currentSubscriptionsForFabric\":3,\"totalSubscriptionsEstablished\":16,\"totalInteractionModelMessagesSent\":495,\"totalInteractionModelMessagesReceived\":495}",
+      "environment": {
+        "MATTER_TICK_MS": "10",
+        "MATTER_COMPLETION_MS": "25",
+        "MATTER_PACE_MS": "0",
+        "MATTER_SOAK_ATTRIBUTES": "171",
+        "MATTER_POLL_AFTER": "1",
+        "MATTER_WARMUP": "1",
+        "MATTER_ACTIVE_MS": null
+      },
+      "environment_source": "recorded file",
+      "summary_sha256": "6d6552a0c9253ddbc1da8992b557d2d4a4c37a835ca8428eea7971bdbf7bed14",
+      "trace_sha256": "bb6538f80187dd2a03907e7749d30bdbb0dd3e7efe37d627914d50a767941558",
+      "fixture_binary_sha256": "9da4f4ca9788b8d40ea965e43e34490f5ce75a81abd8ef338625759107464d84"
+    }
+  ],
+  "common_sources": {
+    "main/apps/matter/runtime/matter_dispatch.c": "d06d3da554dcc38c0f8214d8f16b39de63062d0eb3e2f30720ebc6e592625061",
+    "main/apps/matter/model/matter_im_subscribe.c": "e312969d0aa4b5b8ef98a1f0ebfaa667a41522fed0af1b57ef57ee1ee50e872d"
+  },
+  "private_fixture_sources": {
+    "host_probe.c": "00db24688abe37bce5ec6e5f4f8a83a0bd967dfead2938f89d62e0e627190437",
+    "dispatch-trace.c": "73b0f4c23ad9ecb45cd747247666ff3fc61bca5e085aeebac4b5de6befb597b3",
+    "dispatch-nack.c": "433d3b872386f72eb5ecbc02593ed827086af51b6a498f722c70e7bc40abce39",
+    "initial-host.mjs": "489c1e62dca43c869462e3500c58a0aeee46f19a0510123c56c4ce5e4e64cb28",
+    "build_host.py": "229afa33919080fdb3c7853870fe284275523e217efdb7b5d03c810177b26909",
+    "build_nack.py": "25b3fe86c056d056212c2a1946383b29bb0ece8d39d88bd19c88a1b06ee2acd3",
+    "run_host.py": "22d09be37bcb82dcbdd92c8c5d63edbe9c5f64b74f153bda14d0421a1ae54cd6"
+  }
+}

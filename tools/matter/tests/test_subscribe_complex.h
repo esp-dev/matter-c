@@ -39,9 +39,12 @@ static Matter_Im_Status_T rich_event_describe(void* u,const Matter_Event_Path_T*
 static void rich_bind(RichSub* r,Matter_Events_T log) {
     r->log=log; Matter_Im_Read_Events_Port_T p={r,log,rich_event_describe};
 #ifdef MATTER_TEST_ALLOC
-    size_t base=live; fail_at=calls+1; CHECK(matter_im_subscribe_bind_events(r->model.active,&p)==MATTER_LIMIT_REACHED); fail_at=0; CHECK(live==base);
-#endif
+    size_t base=live,allocations_before=calls; fail_at=calls+1;
+    CHECK(matter_im_subscribe_bind_events(r->model.active,&p)==MATTER_OK); fail_at=0;
+    CHECK(live==base && calls==allocations_before);
+#else
     CHECK(matter_im_subscribe_bind_events(r->model.active,&p)==MATTER_OK);
+#endif
     CHECK(matter_im_subscribe_bind_events(r->model.active,&p)==MATTER_INVALID_STATE);
 }
 static RichSub* rich_new(bool events,size_t cap) {
@@ -132,6 +135,36 @@ static void rich_update(RichSub* r,uint64_t now) {
     Matter_Exchange_Info_T e={1,13,true}; CHECK(matter_im_subscribe_bind_report(r->model.active,&e,now)==MATTER_OK);
 }
 static void complex_tests(void) {
+#ifdef MATTER_TEST_ALLOC
+    for(unsigned order=0;order<2;++order) {
+        RichSub* gated=rich_new(false,64); rich_request(gated,2,false,false,0);
+        receive(&gated->model,gated->model.input,gated->size,3,12,true);
+        CHECK(rich_report(gated,output(&gated->model,0))); size_t held=live;
+        CHECK(matter_im_subscribe_sent_at(gated->model.active,0)==MATTER_OK);
+        if(order) CHECK(matter_im_subscribe_confirm(gated->model.active,0)==MATTER_OK);
+        receive(&gated->model,sub_success,sizeof(sub_success),1,12,true);
+        if(!order) {
+            CHECK(matter_im_subscribe_process(gated->model.active,0)==MATTER_PENDING && live==held);
+            CHECK(matter_im_subscribe_confirm(gated->model.active,0)==MATTER_OK);
+        }
+        CHECK(live==held+(order?1u:0u)); /* Queued status parser only until processed; both values remain owned. */
+        size_t first_bytes=live_bytes;
+        CHECK(!rich_report(gated,output(&gated->model,0)) && live==held); /* Tiny inline values have no individually freed node. */
+        CHECK(order?first_bytes>live_bytes:first_bytes==live_bytes); /* Only the queued parser can disappear here. */
+        rich_ack(gated,true,false); CHECK(live==held);
+        size_t bytes=live_bytes;
+        literal(output(&gated->model,0),4,sub_response,sizeof(sub_response));
+        CHECK(live==held-1 && bytes>live_bytes); /* Captured-value table frees only after both gates. */
+        rich_prime_finish(gated);
+        CHECK(matter_im_subscribe_changed(gated->model.active)==MATTER_OK); rich_update(gated,2000);
+        CHECK(rich_report(gated,output(&gated->model,2000)) && live==held);
+        CHECK(matter_im_subscribe_sent_at(gated->model.active,2000)==MATTER_OK);
+        if(!order) CHECK(matter_im_subscribe_cancel(gated->model.active)==MATTER_OK);
+        else CHECK(matter_im_subscribe_process(gated->model.active,32000)==MATTER_PORT_ERROR);
+        CHECK(live==held); /* Cancellation/timeout still leaves cleanup to drain/delete. */
+        rich_free(gated); CHECK(!live && !live_bytes);
+    }
+#endif
     /* Sensitive history and subsequent updates never leak another fabric,
      * even if FabricFiltered=false. Cursor advances over foreign records. */
     for(unsigned filtered=0;filtered<2;++filtered) {
@@ -204,7 +237,7 @@ static void complex_tests(void) {
 #ifdef MATTER_TEST_ALLOC
     r=rich_new(false,128); rich_request(r,2,false,false,0); receive(&r->model,r->model.input,r->size,3,12,true);
     size_t base=live; fail_at=calls+1; Matter_Im_Subscribe_Message_T out=output(&r->model,0); fail_at=0;
-    CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==base); rich_free(r); CHECK(!live);
+    CHECK(out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live+1==base); rich_free(r); CHECK(!live); /* RX parser released after selector OOM. */
 #endif
     puts("PASS structured/event Subscribe: shared scratch snapshots, mixed chunks, ACK/status ordering, changes during TX, per-subscriber cursor, one-time EventMin, nonurgent/max, revocation and OOM");
 }

@@ -38,6 +38,35 @@ and persistent images should not be placed on an embedded task stack.
    External clusters/events remain caller-owned. Recreate a fresh instance to
    restart; it reloads only its own persisted blob.
 
+The runtime rejects recursive `process`, and `stop`/`delete` from an active
+`process` callback, with `MATTER_BUSY` before changing clocks or models. The
+dispatcher also rejects recursive processing/control and outgoing start/take
+during processing. This is an owner-thread guard, not synchronization for
+concurrent threads or permission for arbitrary callback reentry. Completion
+callbacks can still enqueue received datagrams and send completion metadata in
+their separate storage; another independently owned runtime can be processed.
+
+The dispatcher opts into `matter_rx_delivery_hold` during RX delivery, copies
+the descriptor and consumes the queue's payload without another byte copy.
+Handshake/server IM handlers copy input; client parsing and BDX sink writes
+consume it synchronously. After dispatch returns, it clears its borrowed view
+and calls `matter_rx_delivery_release`. TX composition retains separate storage
+so a queued RX awaiting ACK/admission cannot block ordinary TX work.
+
+Holding transfers the queue's existing session pin without allocation. Receive
+returns WOULD_BLOCK without effects until release; close/retire/stop keep the
+bytes, pin and exchange alive. Process may advance ACKs but cannot redeliver or
+overwrite held bytes. The release is explicit, idempotent and forbidden inline
+while the executor is busy. This optional API leaves existing deliver callbacks'
+call-only borrowing contract unchanged. Dispatch remains outside the callback
+so ordinary exchange operations do not hit RX's reentry guard.
+
+Inbox, deferred RX bytes, standalone ACK and immutable transaction ciphertext
+remain independent. Peer ACK cannot release a packet still borrowed by UDP;
+normal completion/retry/drain gates and crypto disjoint input/output are intact.
+See [Memory19](oss/memory19-validation.md) and the earlier
+[Memory18 phase audit](oss/memory18-validation.md).
+
 Strict operational certificate validation reads the supplied UTC callback at
 verification, not a cached construction time. The explicit CHIP validity
 profile still waives only validity dates, preserving signatures/root/identity.
@@ -64,6 +93,24 @@ outlive runtime deletion. Omission retains the existing iface/radio-derived
 snapshot. Zero-initialize omitted optional fields and rebuild consumers for the
 extended configuration structure.
 
+Diagnostics keeps its coherent backend snapshot separately from encoded provider
+values. ARRAY/STRUCTURE reads measure TLV with the existing private writer, under
+the same 4096-byte and depth limits, then allocate exactly that size and encode
+the same owned snapshot without callbacks/yields. General/Wi-Fi share the model's
+single borrowed span; scalar values and BSSID require no encoding allocation.
+The span remains unchanged until the next accepted provider read, owner refresh
+or deletion. Version/access-description queries and rejected reentrant calls do
+not free it. Runtime already refreshes before IM processing, reclaiming the last
+span at the next owner boundary. Standalone callers must consume/copy returned
+bytes before the next such call; freeing at read callback return would be too
+early. Read/Subscribe copy values immediately into their own immutable snapshots,
+so provider cleanup is independent of their existing IM/MRP ACK and TX drain gates.
+Direct encoding-allocation OOM returns ResourceExhausted without changing backend
+data or versions. The generic IM provider-error policy is unchanged: Read maps
+this to a path Failure; a sole failed initial Subscribe path leaves no active
+path (InvalidAction). See [Memory32](oss/memory32-validation.md) for lifetime,
+exact-size/OOM and interleaved Read/Subscribe regression evidence.
+
 The host wires this port to its selected transport NIC, separately from the
 simulated Wi-Fi commissioning backend. It reports the real padded MAC and
 startup address snapshot, including link-local IPv6, with live operational mDNS
@@ -86,6 +133,39 @@ the current count while preserving the lifetime total. Counts are per runtime,
 with separate current totals for the accessing fabric, and saturate at their
 wire type limits. PASE subscriptions contribute only to the node total.
 
+ACL ARRAY reads likewise measure under the existing 4096-byte budget (depth 4
+for entries, depth 1 for global lists), then allocate exactly the measured size.
+Both passes use one stable, validated backend view under the model's busy guard;
+the owner still serializes backend mutations. Fabric filtering, foreign-entry
+redaction to FabricIndex only and authorization remain unchanged. Scalars need
+no encoding allocation and end the previous encoded borrow.
+The encoded span remains unchanged until the next accepted ACL provider read
+or deletion. Rejected reads, version/access/authorization queries, validation and
+writes do not release it, so a caller can safely validate/write the read span
+itself. A standalone caller retaining only an encoded read may retain that one
+bounded span until its next read/delete. IM copies bytes immediately into its
+independent Read/Subscribe snapshots; encoded-span cleanup does not wait for or
+release their ACK/TX drain resources. Direct encoding OOM returns ResourceExhausted
+without changing ACL/view/version. Existing generic IM error mappings still
+apply. Write staging, atomic backend store and event prepare/finish do not use
+this allocation. See [Memory33](oss/memory33-validation.md).
+
+Fabric NOCs/Fabrics/TrustedRootCertificates ARRAY reads measure and encode one
+stable backend view, with the existing 4096-byte budget and depth 3. Each read
+owns exactly its encoded size; scalar reads need no encoding allocation and
+securely release the previous borrow. The bytes survive backend publication,
+revision queries, rollback and VID signing until the next accepted Fabric read
+(including an allocation/encoding failure) or deletion. Unsupported attributes
+and busy/reentrant reads preserve the borrow. IM owns independent immutable
+Read/Subscribe snapshots and reliable ciphertext through ACK/drain.
+SignVIDVerificationRequest uses separate 126- or 211-byte request scratch, erased
+before release on both backend success and failure. Certificate/metadata fields
+are copied before the signing callback may invalidate the backend view; signing
+does not overwrite an outstanding read. Read/sign OOM returns ResourceExhausted,
+without invoking signing or changing the backend. All allocated Fabric output
+and signing bytes are erased through volatile stores before free; the model is
+also erased on deletion. See [Memory34](oss/memory34-validation.md).
+
 ## Subscription resource budget
 
 Set `identity.capabilities.subscriptions` before `matter_runtime_new()`. It is
@@ -98,18 +178,27 @@ rejects an impossible configuration before calling platform initialization.
 Direct dispatcher construction reads the immutable budget from Root through
 `matter_root_capabilities()` and applies the same guard.
 
-The dispatcher allocates one transaction table sized for the selected budget,
-including every fabric/PASE bucket and protected Read, replacement, response
-drain, Invoke/Write, handshake and rejection capacity. With five fabrics it needs
-`6 * subscriptions + 34` slots: three needs 52, eight needs 82. The table remains
-at stable addresses until successful drain/delete; it is not reallocated during
-protocol callbacks. IM Subscribe handlers and their request data still allocate
-on demand. This is a bounded allocation at construction, not an unbounded or
-automatically growing pool. Table allocation failure releases the dispatcher
-context; failed subscription admission leaves existing subscriptions intact.
+The dispatcher preserves every fabric/PASE bucket and protected Read,
+replacement, response drain, Invoke/Write, handshake and rejection capacity.
+With five fabrics the ceiling is `6 * subscriptions + 34` live transactions:
+three needs 52, eight needs 82. It allocates individual list nodes on admission;
+each node stays at a stable address through handler, exchange and I/O drain.
+There is no idle transaction table or search for a vacant slot. IM Subscribe
+handlers and their request data also allocate on demand. Node OOM closes incoming
+work while RX retains its ACK/drain obligations; optional outbound work fails
+without acquiring an exchange or session/route reservation. Failed subscription
+admission leaves existing subscriptions intact.
 `KeepSubscriptions=false` retains its verified fabric/node replacement scope.
 
-Each instance owns its own budget/table. Change the budget by stopping/draining
+TX packets allocate exactly the encoded plaintext plus the existing secure or
+unsecured envelope, within the unchanged 1232-byte limit. Preparation allocates
+before taking a message counter; OOM closes the affected work without consuming
+a nonce. The immutable bytes survive retries, ACK/cancellation and any accepted
+UDP operation until actual completion. A persistent subscription releases its
+packet after MRP/UDP drain, retaining its live handler/node. R=0 BUSY uses the
+same preparation/ownership helpers and retains bytes through UDP completion.
+
+Each instance owns its own budget/list. Change the budget by stopping/draining
 and constructing a new instance; it is not a live mutable attribute. The shared
 transport ceiling remains a build option (`MATTER_TRANSPORT_CAPACITY`, 8..128);
 this change does not migrate the lower transport tables to dynamic storage.
@@ -124,6 +213,146 @@ Other CLI options, credentials and state paths remain unchanged.
 
 ## Request storage
 
+Read/Subscribe share a private immutable value-snapshot implementation. Each
+captured complex value owns one allocation sized to its encoded bytes plus a
+link; earlier values never move as collection grows. Anonymous UTF8/BYTES still
+use the existing TLV writer, and all four complex types use the same validation
+budgets as before. Encoded value <=4096 B, aggregate encoded payload <=16384 B
+and the separate result ceiling remain unchanged. Node metadata/allocator
+overhead are additional to that payload budget. Scalars and filtered values
+allocate no snapshot bytes; empty strings still need their two encoded bytes.
+
+Read/Subscribe store private compact scalar-or-span results without changing the
+public provider DTO. Subscribe keeps paths/versions while idle and allocates its
+compact value table only for a captured data report; heartbeat-only work needs no
+value table. A complete attribute's copy releases after its chunk's IM Success
+AND MRP confirmation. A partially transmitted list retains its complete immutable
+copy until its last item drains. The original encoded-byte budget stays cumulative
+until the whole report ends, even when earlier copies have been freed. Final
+Read confirmation frees remaining value copies; Subscribe frees its value table
+before response/idle. Skipped updates without TX also release copies. Failed or
+cancelled interactions retain remaining value storage until owner transport
+drain and deletion. Collection and output planning never realloc/move
+snapshot bytes; per-instance stores are independent, with no global pool or new
+scheduler. OOM/validation failure preserves earlier copies and byte accounting
+and follows the existing Read path-status / Subscribe error-response policy.
+
+Result tables and Subscribe's report value table use a shared private block
+store. Typed flexible arrays hold at most16 entries per block. Dense result
+reservations retain the previous nine-entry initial budget for small tables;
+their last block is capped at the unchanged512-result limit. Appending never reallocates,
+copies or moves an existing block. One cached block accelerates forward indexed
+scans; backwards lookups restart from the head, bounded by33 result blocks.
+Multi-block reservations stage all new blocks before linking any of them, so OOM
+preserves old addresses, capacity, links, cache and payload. Read still compacts
+omitted logical results in order; allocation-address stability during growth does
+not change that existing filtering behavior. No public result-table pointers are
+exposed. Cleanup allocates nothing. Subscribe instead allocates current-value
+groups only for successfully captured, included paths. Each group covers its
+original 16-slot ordinal range, clipped to the fixed capture count; omitted or
+status-only groups can be absent. Sorted links and gap-aware lookup retain
+stable addresses and report order without a maximum-sized pointer directory.
+Each insertion is atomic on OOM, and no successful ReportData is published until
+the entire capture succeeds. Dense and selective reservation modes are not mixed
+within one table. Persistent result blocks remain while idle; current-value
+groups release at the existing report boundary through the same ACK/drain gates.
+Complex bytes of version-omitted values still undergo the existing copy,
+validation and budget charging. Metadata/slack and allocator calls remain costs.
+[Memory11](oss/memory11-validation.md) records the original dense-block tradeoff;
+[Memory31](oss/memory31-validation.md) measures selective value groups and OOM.
+
+Read/Subscribe also share a private 8-byte chunk-plan entry with checked 16-bit
+result ordinals and validated value offsets. Full wire IDs and cursor arithmetic
+retain their original types; compile-time guards cover the unchanged 512-result
+and 4096-byte value limits. The plan keeps its existing lifetime, independently
+of immutable snapshots and reliable ciphertext. See
+[Memory30](oss/memory30-validation.md) for layouts and physical measurements.
+
+After final Read `sent`, the independent immutable MRP packet owns transport
+bytes. Read releases its result table, chunk plan, selectors/filters, input/output
+and event path metadata. Only the small owner and remaining immutable value/event
+references survive until final confirmation, or cancellation/timeout followed by
+owner transport drain and deletion. Intermediate chunks retain the metadata
+needed for continuation. The output borrow still expires at `sent`.
+
+The node event log allocates one stable node per retained record, up to the
+unchanged `MATTER_EVENTS_CAPACITY` (16..1024; package default 128). Atomic
+`matter_events_prepare()` owns new nodes only for its input batch; it marks
+planned victims without altering the published list. Validation, allocation and
+durable number reservation all precede successful prepare. OOM returns
+`MATTER_LIMIT_REACHED`, freeing staging and preserving retained records and the
+next event number. `finish(true)` cannot allocate/fail: it removes marked victims
+and links the prepared records in number order. Abort frees staging and removes
+marks; a durable reservation may remain advanced, preserving the boot-skip rule.
+The oldest lowest-priority victim and rejection of eviction within the same
+batch are unchanged. Fabric removal unlinks matching nodes immediately; their
+allocation releases when the last private snapshot reference also disappears. Calls
+remain serialized by the application; the log is busy throughout a prepared
+model mutation, including commit/abort, and outlives producers/handlers.
+
+Event-log binding in Read/Subscribe copies only the borrowed port and optional
+enumerator; it allocates nothing. Event selector state is allocated when an
+actual event path is decoded. A shared private helper counts authorized matches
+and allocates exactly that many immutable record pointers on the serialized owner
+turn, without intervening callbacks. Reference overflow and allocation failure
+leave the previous snapshot and every reference count unchanged. Empty snapshots
+allocate nothing. Public event copy APIs still return caller-owned record DTOs.
+The configured event/path/UDP limits and numbering, priority and fabric rules are
+unchanged. Captured membership, payload and addresses survive later log eviction
+or fabric removal; permission/fabric checks still gate every remaining output.
+Confirmed consumed event prefixes release only after both MRP confirmation and
+continuation IM Success. Final Read confirmation releases its tail references;
+Subscribe releases the report after whole-report success. Cancellation/failure
+uses existing owner cleanup/drain. No release allocates. Deferred OOM produces the
+existing ResourceExhausted status. Attribute-only interactions allocate no event
+selector/reference-vector state.
+
+Event path metadata also allocates on demand. Decoded raw selectors own small
+linked nodes only until bounded wildcard expansion finishes. Concrete paths are
+inserted during decoding so their explicit status semantics retain precedence
+over overlapping wildcards. Deduplicated paths use stable typed blocks through
+the same private indexed store as attribute results; block growth never moves
+old paths. The120-candidate cap is still counted before deduplication/access, with
+at most8 enumeration callbacks per process call. Read/Subscribe share selector
+admission, path lookup, filter reservation and metadata cleanup.
+
+The contiguous filter scratch allocates for the actual expanded path count,
+including denied paths as a conservative capacity. Read releases it immediately
+after snapshot capture. Subscribe retains this exact scratch with persistent path
+metadata, so urgent-event wakeup checks and idle polling allocate nothing. Raw
+selectors release before filter allocation. Read releases path blocks at final
+sent after the independent packet copy; final value/event references keep their
+existing confirmation/cancel/drain lifetime. Subscribe retains path metadata
+through reports and idle, and deletes it with its owner. OOM follows the existing
+ResourceExhausted path, without successful partial reports or log/model mutation.
+The record snapshot representation, numbering, priority, watermarks and wire
+ordering remain unchanged. [Memory12](oss/memory12-validation.md) records per-path
+costs, configured-cap arithmetic, OOM coverage and separate host/target limits.
+
+Sharing saves record copies when reports overlap, but different generations can
+pin different evicted nodes. A published-log capacity is not a global snapshot
+heap cap. [Memory10](oss/memory10-validation.md) separates measured component
+demand from conservative reporting/event/dispatcher/TX subtotals derived with
+`tools/matter/report_memory_budget.py`; neither is a total ESP32 RAM guarantee.
+
+Storage encoding uses a small operation-owned codec. Publication staging copies
+only Wi-Fi/root/meter/provider metadata and borrows the guarded Fabric candidate
+during synchronous encoding. The same TLV writer first measures within the
+32,768-byte ceiling, then encodes into an exactly sized allocation. The encoder
+retains no candidate reference after return. The output and staging, and the fabric
+adapter's full rollback image, are erased/freed after their synchronous operation.
+Atomic decoding retains a separate complete staging image until the entire blob
+has been validated.
+Allocation failure precedes model publication; persistence failure restores the
+old fabric image and leaves the durable blob unchanged. Schema versions 1..7 and
+existing callback signatures remain compatible. The 32,768-byte blob ceiling is
+retained for restore: the current blob-read callback requires the caller to supply
+capacity before reading. The public contiguous DTO encoder/decoder APIs and wire
+schema remain unchanged; exact publication buffers do not reduce a storage limit.
+All publication allocations complete before blob.replace; its atomic contract
+and the callback busy guards still apply. No scheduler, ACK/drain or fail-safe
+boundary moves. [Memory07](oss/memory07-validation.md) records peak and stack costs.
+
 Read and Subscribe allocate DataVersionFilters for the exact validated entry
 count in each request. Empty/absent lists allocate nothing; Read owns the table
 until deletion, while Subscribe frees it after priming or on error/cancel/delete.
@@ -133,19 +362,116 @@ packet ceiling minus the 8-byte message header, 16-byte MIC and minimum 6-byte
 protocol header (Core 4.4.4). Actual optional headers reduce the wire budget and
 are checked by framing/transport. Each accepted receive allocates its actual
 length before freeing the old copy; failure returns LIMIT_REACHED without queue
-mutation. Its owner can retry. Output is allocated at construction according to
-output_capacity, now up to 1198 bytes: reserve four additional bytes for an MRP
-ACK. The host dispatcher selects this output budget for Read/Subscribe. Both
-buffers are released with the handler. The defensive filter entry bound derives
+mutation. Its owner can retry. Standalone output is allocated at construction
+according to output_capacity, now up to 1198 bytes: reserve four additional
+bytes for an MRP ACK. The dispatcher selects this unchanged output budget and
+binds Read/Subscribe to one private per-instance encoder instead. Standalone
+buffer ownership and public APIs remain compatible. The defensive filter entry bound derives
 from the minimum 14-byte concrete DataVersionFilterIB encoding.
 Both decoders allow enough TLV tokens for any request within that byte budget.
 Filter allocation failure produces ResourceExhausted without reserving a subscription
 or reading values. See [regression results](oss/im-version-filters-validation.md).
 
+The optional encoder lease covers one process call and, if it produces output,
+the output borrow. Contention yields before parser allocation/provider effects;
+clocks and expiry still advance. Yielded snapshot collection relinquishes the
+lease. Snapshot/result blocks never move into this encoder. After framing,
+encryption and successful MRP retention, Read's existing sent transition releases
+the lease. Subscribe has a separate private copied-output handoff: it releases
+the encoder while preserving OUTPUT until the first actual accepted UDP send.
+Output polling blocks after that handoff, so pending TX cannot reread recycled
+plaintext. Activation and interval anchors still use actual sent_at. Immutable
+ciphertext remains separately owned through ACK and actual UDP completion/drain.
+Cancel, timeout and deletion release any lease. The existing runtime/dispatcher
+reentry guard remains required; this pool is neither global nor a thread mutex.
+See [Memory20 evidence](oss/memory20-validation.md). Construction still briefly
+allocates the standalone output before binding; the pool adds a fixed idle cost.
+
 The UDP ceiling remains 1280 bytes including IPv6/UDP headers. Enlarging heap
 buffers does not authorize larger UDP packets. Invoke, Write, the outbound IM
-client and other result/transport tables retain their separate budgets; migrating
-those is subsequent work, with interoperability tests after each subsystem.
+client and other result/transport tables retain their separate budgets.
+
+Invoke/Write copy accepted RX into per-request heap storage (still at most 1024
+bytes). OOM returns LIMIT_REACHED without queueing or advancing RX time. Invoke
+normalization scratch is bounded by RX length, its response body by the provider's
+declared capacity, and its reply by that capacity plus a bounded envelope, capped
+by the existing configured output limit. All reservations precede start/invoke;
+async polling, response encoding and retry never allocate after effects. Provider
+arguments remain borrowed only during callbacks; async providers still copy their
+own input. Consumed RX/arguments and encoded command-body scratch are erased/freed.
+
+Write counts at most four IBs, then allocates exactly that many descriptors and
+results. Before the first write in a message it reserves one shared normalization
+buffer and the largest possible reply for all IBs. No handler allocation can
+interrupt later writes after an earlier success. Existing provider atomicity is
+unchanged: each IB owns its commit/rollback, and earlier successful IBs remain
+when a later IB fails. Input/scratch/results are released after encoding. Reply
+bytes remain through sent until confirm (MRP ACK AND transport drain). A queued
+next chunk or timed continuation has independent RX storage; cancel/timeout keeps
+reply storage until deletion after owner drain.
+
+The outgoing IM client allocates a bounded request at construction, consumes its
+copy on sent, and allocates response fields and an optional 8-byte StatusResponse
+when a validated reply arrives. OOM publishes no result and leaves it waiting.
+The dispatcher copies each output to an immutable MRP packet BEFORE sent; that
+packet survives ACK/drain independently. Result body references remain stable
+until client deletion. All three handlers share private checked buffer growth
+and erase/free operations; ceilings, public signatures and encodings are unchanged.
+See [measurements and regression evidence](oss/memory05-validation.md).
+
+Read/Subscribe/Invoke/Write/client parser, field and tag arrays now live in
+per-handler demand workspaces. Accepted RX reserves its workspace atomically;
+Read/Subscribe erase/free it after process and reacquire it for yielded work or
+a drained continuation. Idle polling, sent and confirm do not allocate. Exact
+attribute-selector tables survive expansion and then release. Subscribe's chunk
+plan is temporary; output, result tables and immutable snapshots are independent
+and keep their original status/ACK/drain gates. Invoke retains its workspace
+through async start/poll, so no new handler allocation occurs after effects;
+Write retains queued parser state until it may process. Client validation state
+is temporary while result bodies retain their public lifetime. Missing parser
+memory rejects RX atomically or produces ResourceExhausted before yielded work.
+
+Fabric host allocates CASE resumption nodes only after authenticated save,
+retaining the three-peer/fabric MRU policy. Hits do not refresh recency, new-node
+OOM preserves old entries, and updates/full-cache eviction reuse nodes. Secret
+nodes clear on the same identity/IPK/removal/reset/delete boundaries; installing
+another fabric cannot clear an existing cache. Dense Fabric image and rollback
+DTO remain, while Memory07 removes the second Fabric copy from storage staging
+and sizes publication output. The prior larger-allocation inventory is in
+[Memory06](oss/memory06-validation.md).
+
+PASE/CASE now keep only attempt state between messages. Accepted RX owns exactly
+the payload length; allocation failure accepts nothing. Parser/tag workspaces
+exist during process only, and idle/output polling allocates nothing. PASE keeps
+exact PBKDF request/response bytes until the SPAKE context hash is derived. CASE
+keeps exact Sigma1 while resumption is possible, reserves its unchanged3600-byte
+transcript before full-Sigma scratch, and frees both after deriving keys. Resumed
+CASE uses a16-byte MIC instead of full-Sigma buffers. TX capacity remains1024/1200
+and releases at sent, after independent MRP storage is retained. Eight-byte
+statuses live in each attempt, so terminal failure does not allocate a reply.
+Failure/cancel/delete erase and release temporary storage. Key-transfer, fabric
+revision/resumption checks and PASE ACK versus CASE sent completion gates remain
+unchanged. [Memory08](oss/memory08-validation.md) distinguishes owner savings,
+active peaks, full-buffer ceilings and whole-host profiling from ESP32 budgets.
+
+Operational Credentials keeps its nonce/session/key state between bounded owner
+phases. CSR DER scratch (capacity 512) exists only during PREPARE. A shared pure
+TLV encoder measures and writes one immutable CSR/timestamp snapshot under the
+original 900-byte elements limit, then appends 16 challenge bytes for signing.
+The exact-size elements allocation survives SIGN/PUBLISH until poll copies the
+response into the caller's writer. The challenge tail is erased after signing;
+the full allocation is erased before release. Fabric request copies (up to 1024
+bytes) release after synchronous execution. Cancel/error frees workspace even
+while key discard is pending; published candidate/session/challenge binding is
+unchanged. New workspace OOM returns ResourceExhausted. IM retains independent
+response/ciphertext ownership through ACK/drain. See [Memory35](oss/memory35-validation.md).
+
+Secure sessions allocate exact plaintext scratch only during synchronous receive
+and erase/free it after admission, including crypto/parser/admission errors and
+duplicates. No plaintext scratch remains on an idle session. Allocation failure
+returns LIMIT_REACHED before crypto, replay commit or receive timestamp changes;
+the same packet may be retried. The admitted RX queue and immutable MRP TX still
+own independent copies through their existing reference and ACK/drain gates.
 
 Read/Subscribe expanded attribute results now grow on the heap per interaction,
 starting at nine entries and doubling up to the 512-entry application ceiling.

@@ -4,6 +4,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "matter_tlv_writer.h"
+
+/* Internal sizing pass: identical token validation, widths, depth and capacity
+ * accounting to write, with no output access. Only this private initializer
+ * creates a nonzero-capacity writer without a buffer; public init still rejects
+ * that combination. Use ordinary write/finish on this measuring context. */
+static inline Matter_Tlv_Result_T matter_tlv_measure_init(Matter_Tlv_Writer_T* writer,size_t capacity,uint8_t depth) {
+	Matter_Tlv_Result_T result=matter_tlv_writer_init(writer,NULL,0,depth);
+	if(result==MATTER_TLV_OK) writer->capacity=capacity;
+	return result;
+}
 
 /* Shared by the reader and writer; no public UTF-8 utility API. */
 static inline bool valid_utf8(const uint8_t* data, size_t size) {

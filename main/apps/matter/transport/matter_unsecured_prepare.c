@@ -3,7 +3,7 @@
 #include <string.h>
 
 /* Fixed profile: session id/type zero and exactly one 64-bit ephemeral ID. */
-enum { ENVELOPE_SIZE = 16, PROTOCOL_MAX = 12, TRANSMIT_FLAGS = 0x17 };
+enum { ENVELOPE_SIZE = MATTER_UNSECURED_OVERHEAD, PROTOCOL_MAX = 12, TRANSMIT_FLAGS = 0x17 };
 
 static Matter_Result_T prepare(Matter_Unsecured_T sessions, Matter_Exchange_Session_T session,
 	Matter_Counter_T* counter, const uint8_t* prefix, size_t prefix_size,

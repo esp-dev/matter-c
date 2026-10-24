@@ -2,16 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <mbedtls/ctr_drbg.h>
-#include <mbedtls/ccm.h>
-#include <mbedtls/entropy.h>
-#include <mbedtls/sha256.h>
+#include "matter_mbedtls_internal.h"
 #include <mbedtls/md.h>
-#include <mbedtls/hkdf.h>
-#include <mbedtls/pkcs5.h>
-#include <mbedtls/ecp.h>
-#include <mbedtls/ecdh.h>
-#include <mbedtls/ecdsa.h>
 #include <mbedtls/x509_crt.h>
 #include <mbedtls/x509_csr.h>
 #include <mbedtls/asn1write.h>
@@ -25,7 +17,9 @@
 #endif
 
 struct Matter_Crypto_Mbedtls {
+#if MBEDTLS_VERSION_MAJOR < 4
 	mbedtls_entropy_context entropy;
+#endif
 	mbedtls_ctr_drbg_context drbg;
 	Matter_Crypto_Entropy_Port_T source;
 	bool busy, ready;
@@ -49,6 +43,9 @@ static int entropy(void* user, unsigned char* out, size_t size) {
 	if (crypto->source.fill) {
 		if (crypto->source.fill(crypto->source.user, out, size) != MATTER_OK) result = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
 	} else {
+#if MBEDTLS_VERSION_MAJOR >= 4
+		result = psa_generate_random(out, size);
+#else
 		/* entropy_func permits at most one hash block per call. */
 		for (size_t offset = 0; offset < size && !result;) {
 			size_t n = size - offset;
@@ -61,6 +58,7 @@ static int entropy(void* user, unsigned char* out, size_t size) {
 			mbedtls_entropy_free(&crypto->entropy);
 			mbedtls_entropy_init(&crypto->entropy);
 		}
+#endif
 	}
 	if (result) clear(out, size);
 	return result;
@@ -110,8 +108,27 @@ static Matter_Result_T hkdf_sha256(void* user, const uint8_t* key, size_t key_si
 		info_size > MATTER_CRYPTO_MAX_INPUT || size > MATTER_CRYPTO_MAX_HKDF) return MATTER_LIMIT_REACHED;
 	if (!size) return MATTER_OK;
 	crypto->busy = true;
+#if MBEDTLS_VERSION_MAJOR >= 4
+	psa_key_derivation_operation_t* op = calloc(1, sizeof(*op));
+	int error = PSA_ERROR_INSUFFICIENT_MEMORY;
+	if (op) {
+		/* The by-value initializer creates a large return temporary on the
+		 * task stack with the target compiler. Copy an immutable flash template
+		 * directly into the owned heap operation instead. */
+		static const psa_key_derivation_operation_t initial = PSA_KEY_DERIVATION_OPERATION_INIT;
+		memcpy(op, &initial, sizeof(*op));
+		error = psa_key_derivation_setup(op, PSA_ALG_HKDF(PSA_ALG_SHA_256));
+		if (!error) error = psa_key_derivation_input_bytes(op, PSA_KEY_DERIVATION_INPUT_SALT, input(salt), salt_size);
+		if (!error) error = psa_key_derivation_input_bytes(op, PSA_KEY_DERIVATION_INPUT_SECRET, input(key), key_size);
+		if (!error) error = psa_key_derivation_input_bytes(op, PSA_KEY_DERIVATION_INPUT_INFO, input(info), info_size);
+		if (!error) error = psa_key_derivation_output_bytes(op, out, size);
+		psa_key_derivation_abort(op); clear((uint8_t*)op, sizeof(*op)); free(op);
+	}
+	return finish(crypto, error, out, size);
+#else
 	return finish(crypto, mbedtls_hkdf(mbedtls_md_info_from_type(MBEDTLS_MD_SHA256),
 		salt, salt_size, input(key), key_size, input(info), info_size, out, size), out, size);
+#endif
 }
 static Matter_Result_T pbkdf2_sha256(void* user, const uint8_t* password, size_t password_size,
 	const uint8_t* salt, size_t salt_size, uint32_t iterations, uint8_t* out, size_t size) {
@@ -400,7 +417,12 @@ static Matter_Result_T ecdh(void* user, const uint8_t* key, const uint8_t* peer,
 	if (!e && peer[0] != 4) e = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
 	if (!e) e = mbedtls_ecp_point_read_binary(&w->group, &w->point, peer, 65);
 	if (!e) e = mbedtls_ecp_check_pubkey(&w->group, &w->point);
+#if MBEDTLS_VERSION_MAJOR >= 4
+	if (!e) e = mbedtls_ecp_mul(&w->group, &w->point, &w->scalar, &w->point, p256_random, c);
+	if (!e) e = mbedtls_mpi_copy(&w->wide, &w->point.MBEDTLS_PRIVATE(X));
+#else
 	if (!e) e = mbedtls_ecdh_compute_shared(&w->group, &w->wide, &w->point, &w->scalar, p256_random, c);
+#endif
 	if (!e) e = mbedtls_mpi_write_binary(&w->wide, out, 32);
 	p256_free(w); return finish(c, e, out, 32);
 }
@@ -412,17 +434,36 @@ static bool der_single(Matter_Der_T der) {
 		n == (size_t)(der.data + der.size - p);
 }
 static bool p256_public(mbedtls_pk_context* pk) {
+#if MBEDTLS_VERSION_MAJOR >= 4
+	psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+	int error = mbedtls_pk_get_psa_attributes(pk, PSA_KEY_USAGE_VERIFY_HASH, &attributes);
+	psa_key_type_t type = psa_get_key_type(&attributes);
+	bool valid = !error && PSA_KEY_TYPE_IS_ECC(type) &&
+		PSA_KEY_TYPE_ECC_GET_FAMILY(type) == PSA_ECC_FAMILY_SECP_R1 && psa_get_key_bits(&attributes) == 256;
+	psa_reset_key_attributes(&attributes); return valid;
+#else
 	mbedtls_ecp_keypair* ec = mbedtls_pk_ec(*pk);
 	return ec && mbedtls_ecp_keypair_get_group_id(ec) == MBEDTLS_ECP_DP_SECP256R1 &&
 		!mbedtls_ecp_check_pubkey(&ec->MBEDTLS_PRIVATE(grp), &ec->MBEDTLS_PRIVATE(Q));
+#endif
 }
 static int export_public(mbedtls_pk_context* pk, uint8_t* out) {
 	size_t n = 0;
+#if MBEDTLS_VERSION_MAJOR >= 4
+	int e = mbedtls_pk_write_pubkey_psa(pk, out, 65, &n);
+#else
 	int e = mbedtls_ecp_point_write_binary(&mbedtls_pk_ec(*pk)->MBEDTLS_PRIVATE(grp),
 		&mbedtls_pk_ec(*pk)->MBEDTLS_PRIVATE(Q), MBEDTLS_ECP_PF_UNCOMPRESSED, &n, out, 65);
+#endif
 	return e ? e : n == 65 ? 0 : MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
 }
-typedef struct { mbedtls_pk_context key; mbedtls_x509write_csr writer; } Csr_Write_Work_T;
+typedef struct {
+	mbedtls_pk_context key; mbedtls_x509write_csr writer;
+#if MBEDTLS_VERSION_MAJOR >= 4
+	mbedtls_svc_key_id_t psa_key;
+	uint8_t rng_check;
+#endif
+} Csr_Write_Work_T;
 static Matter_Result_T csr_create(void* user, const uint8_t* key, uint8_t* out, size_t capacity, size_t* size) {
 	Matter_Crypto_Mbedtls_T c = user;
 	Matter_Result_T r = check(c); if (r != MATTER_OK) return r;
@@ -432,6 +473,21 @@ static Matter_Result_T csr_create(void* user, const uint8_t* key, uint8_t* out, 
 	c->busy = true; *size = 0;
 	Csr_Write_Work_T* w = calloc(1, sizeof(*w));
 	if (w) { mbedtls_pk_init(&w->key); mbedtls_x509write_csr_init(&w->writer); }
+#if MBEDTLS_VERSION_MAJOR >= 4
+	int e = PSA_ERROR_INSUFFICIENT_MEMORY;
+	if (w) {
+		psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+		psa_set_key_type(&attributes, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
+		psa_set_key_bits(&attributes, 256); psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_HASH);
+		psa_set_key_algorithm(&attributes, MBEDTLS_PK_ALG_ECDSA(PSA_ALG_SHA_256));
+		/* PSA's writer owns its signing RNG. Retain this instance's explicit
+		 * RNG health/reseed gate before importing or using the temporary key. */
+		e = p256_random(c, &w->rng_check, sizeof(w->rng_check));
+		if (!e) e = psa_import_key(&attributes, key, 32, &w->psa_key);
+		psa_reset_key_attributes(&attributes);
+		if (!e) e = mbedtls_pk_wrap_psa(&w->key, w->psa_key);
+	}
+#else
 	int e = w ? mbedtls_pk_setup(&w->key, mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY)) : MBEDTLS_ERR_MPI_ALLOC_FAILED;
 	if (!e) e = mbedtls_ecp_read_key(MBEDTLS_ECP_DP_SECP256R1, mbedtls_pk_ec(w->key), key, 32);
 	if (!e) {
@@ -439,6 +495,7 @@ static Matter_Result_T csr_create(void* user, const uint8_t* key, uint8_t* out, 
 		e = mbedtls_ecp_mul(&ec->MBEDTLS_PRIVATE(grp), &ec->MBEDTLS_PRIVATE(Q), &ec->MBEDTLS_PRIVATE(d),
 			&ec->MBEDTLS_PRIVATE(grp).G, p256_random, c);
 	}
+#endif
 	if (!e) {
 		/* Pinned x509_string_to_names dereferences an unchecked OID allocation.
 		 * Fixed subject needs no string parser; this ASN.1 helper checks all OOM. */
@@ -450,13 +507,23 @@ static Matter_Result_T csr_create(void* user, const uint8_t* key, uint8_t* out, 
 	if (!e) {
 		mbedtls_x509write_csr_set_md_alg(&w->writer, MBEDTLS_MD_SHA256);
 		mbedtls_x509write_csr_set_key(&w->writer, &w->key);
+#if MBEDTLS_VERSION_MAJOR >= 4
+		e = mbedtls_x509write_csr_der(&w->writer, out, capacity);
+#else
 		e = mbedtls_x509write_csr_der(&w->writer, out, capacity, p256_random, c);
+#endif
 		if (e > 0 && (size_t)e <= capacity) {
 			*size = (size_t)e; memmove(out, out + capacity - *size, *size);
 			clear(out + *size, capacity - *size); e = 0;
 		} else if (!e) e = MBEDTLS_ERR_X509_BAD_INPUT_DATA;
 	}
-	if (w) { mbedtls_x509write_csr_free(&w->writer); mbedtls_pk_free(&w->key); clear((uint8_t*)w, sizeof(*w)); free(w); }
+	if (w) {
+		mbedtls_x509write_csr_free(&w->writer); mbedtls_pk_free(&w->key);
+#if MBEDTLS_VERSION_MAJOR >= 4
+		if (!mbedtls_svc_key_id_is_null(w->psa_key)) psa_destroy_key(w->psa_key);
+#endif
+		clear((uint8_t*)w, sizeof(*w)); free(w);
+	}
 	return finish(c, e, out, capacity);
 }
 typedef struct { mbedtls_x509_csr csr; uint8_t hash[32]; } Csr_Read_Work_T;
@@ -471,7 +538,7 @@ static Matter_Result_T csr_verify(void* user, Matter_Der_T der, uint8_t* out) {
 	int e = !w ? MBEDTLS_ERR_MPI_ALLOC_FAILED : !der_single(der) ? MBEDTLS_ERR_X509_BAD_INPUT_DATA :
 		mbedtls_x509_csr_parse_der(&w->csr, der.data, der.size);
 	if (!e && (w->csr.version != 1 || w->csr.MBEDTLS_PRIVATE(sig_md) != MBEDTLS_MD_SHA256 ||
-		w->csr.MBEDTLS_PRIVATE(sig_pk) != MBEDTLS_PK_ECDSA || !p256_public(&w->csr.pk))) e = MBEDTLS_ERR_X509_BAD_INPUT_DATA;
+		w->csr.MBEDTLS_PRIVATE(sig_pk) != MATTER_MBEDTLS_ECDSA_SIGNATURE || !p256_public(&w->csr.pk))) e = MBEDTLS_ERR_X509_BAD_INPUT_DATA;
 	if (!e) e = mbedtls_sha256(w->csr.cri.p, w->csr.cri.len, w->hash, 0);
 	if (!e) e = mbedtls_pk_verify(&w->csr.pk, MBEDTLS_MD_SHA256, w->hash, 32,
 		w->csr.MBEDTLS_PRIVATE(sig).p, w->csr.MBEDTLS_PRIVATE(sig).len);
@@ -540,9 +607,9 @@ static bool operational_view(unsigned char* data,size_t size) {
         /* Keep a valid, minimally encoded OID with an unsupported first arc.
          * Assert it is unknown in the linked mbedTLS version, not just today. */
         mbedtls_x509_buf id={MBEDTLS_ASN1_OID,oid_size,oid}; int type;
-        if(mbedtls_oid_get_x509_ext_type(&id,&type)!=0) continue;
+        if(matter_mbedtls_extension_type(&id,&type)!=0) continue;
         oid[0]=0x7f;
-        if(mbedtls_oid_get_x509_ext_type(&id,&type)==0) return false;
+        if(matter_mbedtls_extension_type(&id,&type)==0) return false;
     }
     return p==end;
 }
@@ -564,7 +631,7 @@ static int parse_cert(mbedtls_x509_crt* chain, Matter_Der_T der, bool operationa
         memcpy(last->raw.p,der.data,der.size);
     }
 	if (last->version != 3 || last->MBEDTLS_PRIVATE(sig_md) != MBEDTLS_MD_SHA256 ||
-		last->MBEDTLS_PRIVATE(sig_pk) != MBEDTLS_PK_ECDSA || !p256_public(&last->pk)) return MBEDTLS_ERR_X509_BAD_INPUT_DATA;
+		last->MBEDTLS_PRIVATE(sig_pk) != MATTER_MBEDTLS_ECDSA_SIGNATURE || !p256_public(&last->pk)) return MBEDTLS_ERR_X509_BAD_INPUT_DATA;
 	return 0;
 }
 static Matter_Result_T verify_chain(void* user, Matter_Der_T leaf, Matter_Der_T intermediate,
@@ -589,9 +656,16 @@ static Matter_Result_T verify_chain(void* user, Matter_Der_T leaf, Matter_Der_T 
 	if (!e) {
 		w->now = policy->mode == MATTER_CERT_TIME_LEAF_NOT_BEFORE ? cert_time(&w->chain.valid_from) : now;
 		w->ignore_validity = policy->mode == MATTER_CERT_TIME_IGNORE_VALIDITY;
+#if MBEDTLS_VERSION_MAJOR >= 4
+		mbedtls_x509_crt_profile profile = mbedtls_x509_crt_profile_suiteb;
+		profile.allowed_mds = MBEDTLS_X509_ID_FLAG(MBEDTLS_MD_SHA256);
+		profile.allowed_curves = MBEDTLS_X509_ID_FLAG(MBEDTLS_ECP_DP_SECP256R1);
+		profile.rsa_min_bitlen = 0;
+#else
 		const mbedtls_x509_crt_profile profile = {MBEDTLS_X509_ID_FLAG(MBEDTLS_MD_SHA256),
 			MBEDTLS_X509_ID_FLAG(MBEDTLS_PK_ECKEY) | MBEDTLS_X509_ID_FLAG(MBEDTLS_PK_ECDSA),
 			MBEDTLS_X509_ID_FLAG(MBEDTLS_ECP_DP_SECP256R1), 0};
+#endif
 		uint32_t flags = 0;
 		e = mbedtls_x509_crt_verify_with_profile(&w->chain, &w->root, NULL, &profile, NULL, &flags, check_cert_time, w);
 		if (!e && (flags || w->seen != (intermediate.size ? 7u : 5u))) e = MBEDTLS_ERR_X509_CERT_VERIFY_FAILED;
@@ -618,7 +692,9 @@ Matter_Crypto_Mbedtls_T matter_crypto_mbedtls_new(const Matter_Crypto_Entropy_Po
 	Matter_Crypto_Mbedtls_T crypto = calloc(1, sizeof(*crypto));
 	if (!crypto) return NULL;
 	if (source) crypto->source = *source;
+#if MBEDTLS_VERSION_MAJOR < 4
 	mbedtls_entropy_init(&crypto->entropy);
+#endif
 	mbedtls_ctr_drbg_init(&crypto->drbg);
 	/* Single 384-bit entropy request includes the nonce (SP800-90A 8.6.7).
 	 * Avoid a separate nonce callback: 3.6.0 returns early on its failure without
@@ -656,7 +732,9 @@ Matter_Result_T matter_crypto_mbedtls_delete(Matter_Crypto_Mbedtls_T crypto) {
 	if (!crypto) return MATTER_OK;
 	if (crypto->busy) return MATTER_BUSY;
 	mbedtls_ctr_drbg_free(&crypto->drbg);
+#if MBEDTLS_VERSION_MAJOR < 4
 	mbedtls_entropy_free(&crypto->entropy);
+#endif
 	mbedtls_platform_zeroize(crypto, sizeof(*crypto));
 	free(crypto);
 	return MATTER_OK;

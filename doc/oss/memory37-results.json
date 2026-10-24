@@ -1,0 +1,407 @@
+{
+  "stage": "Memory37",
+  "decision": "Reject the RMT-only startup reorder; original normal startup retained.",
+  "baseline_core_commit": "38519e9",
+  "diagnostic_commit": "110ae6e",
+  "runs": {
+    "base-long": {
+      "image": {
+        "stage": "base",
+        "kind": "long",
+        "sha256": "c856d237ab9bde11cadd69e94a21cb7b351ec6709e72bb03e789d53ce1bc7ab5"
+      },
+      "workload": {
+        "pass": true,
+        "elapsed_seconds": 557.3194301,
+        "full_reads": 71,
+        "subscription_snapshots": 45,
+        "healthy_operation_errors": 0,
+        "unexpected_subscription_closures": 0,
+        "oom_cycles": 1,
+        "reconnect_cycles": 1,
+        "loss_cycles": 1,
+        "delayed_completion_cycles": 1,
+        "oom_lost_subscriptions": 1,
+        "oom_rebuilt_load_cycles": 1,
+        "loss_lost_subscriptions": 0,
+        "loss_rebuilt_load_cycles": 0,
+        "loss_operations_rejected": 0,
+        "stop_wait_seconds": 69.62912920000002,
+        "stop_read_outcome": {
+          "status": "rejected",
+          "name": "Error"
+        }
+      },
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 613987,
+        "heap_free": 377860,
+        "heap_allocated": 31556,
+        "heap_min": 87548,
+        "largest_free": 249856,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9608,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 221820,
+        "core_largest": 32768,
+        "core_failures": 14
+      },
+      "sampled_whole_heap_peak": 317508,
+      "sampled_min_free": 88132,
+      "sampled_min_largest": 63488,
+      "sdk_min_free": 87548,
+      "observed_owner_stack_used": 3192,
+      "sdk_alloc_failures": 0,
+      "core_peak": 221820,
+      "sdk_task_min_free": {
+        "main": 9608,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 1964,
+        "wifi": 4804,
+        "esp_timer": 3580,
+        "Tmr?Svc": 1768
+      },
+      "settle": {
+        "elapsed_ms": 65007,
+        "free_delta": 16,
+        "largest_delta": 40960,
+        "core_live": 0,
+        "core_bytes": 0
+      },
+      "maps": [
+        {
+          "phase": "complete-5s",
+          "stable": true,
+          "complete": true,
+          "largest_walked_free": 250280,
+          "left_free": 36472,
+          "right_free": 250280,
+          "separator": [
+            {
+              "size": 92,
+              "owner": {
+                "function": "rmt_acquire_group_handle",
+                "source": "esp-idf/components/esp_driver_rmt/src/rmt_common.c:30"
+              },
+              "region_offset": 136212
+            }
+          ]
+        },
+        {
+          "phase": "complete-65s",
+          "stable": true,
+          "complete": true,
+          "largest_walked_free": 250280,
+          "left_free": 36472,
+          "right_free": 250280,
+          "separator": [
+            {
+              "size": 92,
+              "owner": {
+                "function": "rmt_acquire_group_handle",
+                "source": "esp-idf/components/esp_driver_rmt/src/rmt_common.c:30"
+              },
+              "region_offset": 136212
+            }
+          ]
+        },
+        {
+          "phase": "owner-thread-cleaned",
+          "stable": true,
+          "complete": true,
+          "largest_walked_free": 250280,
+          "left_free": 36472,
+          "right_free": 250280,
+          "separator": [
+            {
+              "size": 92,
+              "owner": {
+                "function": "rmt_acquire_group_handle",
+                "source": "esp-idf/components/esp_driver_rmt/src/rmt_common.c:30"
+              },
+              "region_offset": 136212
+            }
+          ]
+        }
+      ]
+    },
+    "base-normal": {
+      "image": {
+        "stage": "base",
+        "kind": "normal",
+        "sha256": "500ad0bcf857216170b0d02d7bec5871e4cdcdc83f1337d52d84b6abf0bf5791"
+      },
+      "workload": {
+        "pass": true,
+        "elapsed_seconds": 455.45413190000005,
+        "full_reads": 76,
+        "subscription_snapshots": 45,
+        "healthy_operation_errors": 0,
+        "unexpected_subscription_closures": 0,
+        "oom_cycles": 1,
+        "reconnect_cycles": 1,
+        "loss_cycles": 1,
+        "delayed_completion_cycles": 1,
+        "oom_lost_subscriptions": 1,
+        "oom_rebuilt_load_cycles": 1,
+        "loss_lost_subscriptions": 0,
+        "loss_rebuilt_load_cycles": 0,
+        "loss_operations_rejected": 0,
+        "stop_wait_seconds": 3.7068041000000083,
+        "stop_read_outcome": {
+          "status": "rejected",
+          "name": "Error"
+        }
+      },
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 472589,
+        "heap_free": 390200,
+        "heap_allocated": 31560,
+        "heap_min": 99568,
+        "largest_free": 167936,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9608,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 221764,
+        "core_largest": 32768,
+        "core_failures": 14
+      },
+      "sampled_whole_heap_peak": 316244,
+      "sampled_min_free": 101748,
+      "sampled_min_largest": 77824,
+      "sdk_min_free": 99568,
+      "observed_owner_stack_used": 3192,
+      "sdk_alloc_failures": 0,
+      "core_peak": 221764,
+      "sdk_task_min_free": {
+        "main": 9608,
+        "IDLE": 1240,
+        "tcpip": 2516,
+        "sys_evt": 3728,
+        "mdns": 2124,
+        "wifi": 4812,
+        "esp_timer": 3596,
+        "Tmr?Svc": 1768
+      }
+    },
+    "early-long": {
+      "image": {
+        "stage": "early",
+        "kind": "long",
+        "sha256": "9ab0780ae135e873b5f6c6977fc25e3e20c8200275ec14f384a6968cda7b3cbc"
+      },
+      "workload": {
+        "pass": true,
+        "elapsed_seconds": 551.0599866,
+        "full_reads": 71,
+        "subscription_snapshots": 45,
+        "healthy_operation_errors": 0,
+        "unexpected_subscription_closures": 0,
+        "oom_cycles": 1,
+        "reconnect_cycles": 1,
+        "loss_cycles": 1,
+        "delayed_completion_cycles": 1,
+        "oom_lost_subscriptions": 1,
+        "oom_rebuilt_load_cycles": 1,
+        "loss_lost_subscriptions": 0,
+        "loss_rebuilt_load_cycles": 0,
+        "loss_operations_rejected": 0,
+        "stop_wait_seconds": 69.57679539999994,
+        "stop_read_outcome": {
+          "status": "rejected",
+          "name": "Error"
+        }
+      },
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 607131,
+        "heap_free": 377892,
+        "heap_allocated": 31524,
+        "heap_min": 88052,
+        "largest_free": 221184,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9576,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 221416,
+        "core_largest": 32768,
+        "core_failures": 14
+      },
+      "sampled_whole_heap_peak": 316984,
+      "sampled_min_free": 88748,
+      "sampled_min_largest": 65536,
+      "sdk_min_free": 88052,
+      "observed_owner_stack_used": 3224,
+      "sdk_alloc_failures": 0,
+      "core_peak": 221416,
+      "sdk_task_min_free": {
+        "main": 9576,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 2284,
+        "wifi": 4804,
+        "esp_timer": 3580,
+        "Tmr?Svc": 1768
+      },
+      "settle": {
+        "elapsed_ms": 65007,
+        "free_delta": 20,
+        "largest_delta": 24576,
+        "core_live": 0,
+        "core_bytes": 0
+      },
+      "maps": [
+        {
+          "phase": "complete-5s",
+          "stable": true,
+          "complete": true,
+          "largest_walked_free": 224464,
+          "left_free": 66556,
+          "right_free": 224464,
+          "separator": [
+            {
+              "size": 100,
+              "owner": {
+                "function": "uart_vfs_dev_use_nonblocking",
+                "source": "esp-idf/components/esp_driver_uart/src/uart_vfs.c:1145"
+              },
+              "region_offset": 162020
+            }
+          ]
+        },
+        {
+          "phase": "complete-65s",
+          "stable": true,
+          "complete": true,
+          "largest_walked_free": 224464,
+          "left_free": 66556,
+          "right_free": 224464,
+          "separator": [
+            {
+              "size": 100,
+              "owner": {
+                "function": "uart_vfs_dev_use_nonblocking",
+                "source": "esp-idf/components/esp_driver_uart/src/uart_vfs.c:1145"
+              },
+              "region_offset": 162020
+            }
+          ]
+        },
+        {
+          "phase": "owner-thread-cleaned",
+          "stable": true,
+          "complete": true,
+          "largest_walked_free": 224464,
+          "left_free": 66556,
+          "right_free": 224464,
+          "separator": [
+            {
+              "size": 100,
+              "owner": {
+                "function": "uart_vfs_dev_use_nonblocking",
+                "source": "esp-idf/components/esp_driver_uart/src/uart_vfs.c:1145"
+              },
+              "region_offset": 162020
+            }
+          ]
+        }
+      ]
+    },
+    "early-normal": {
+      "image": {
+        "stage": "early",
+        "kind": "normal",
+        "sha256": "d01f39c081fcbcd60b023f332c360fc061e72477a542d66fd0076c702067935b"
+      },
+      "workload": {
+        "pass": true,
+        "elapsed_seconds": 478.2858213,
+        "full_reads": 76,
+        "subscription_snapshots": 45,
+        "healthy_operation_errors": 0,
+        "unexpected_subscription_closures": 0,
+        "oom_cycles": 1,
+        "reconnect_cycles": 1,
+        "loss_cycles": 1,
+        "delayed_completion_cycles": 1,
+        "oom_lost_subscriptions": 1,
+        "oom_rebuilt_load_cycles": 1,
+        "loss_lost_subscriptions": 0,
+        "loss_rebuilt_load_cycles": 0,
+        "loss_operations_rejected": 0,
+        "stop_wait_seconds": 3.6976820000000297,
+        "stop_read_outcome": {
+          "status": "rejected",
+          "name": "Error"
+        }
+      },
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 495399,
+        "heap_free": 390188,
+        "heap_allocated": 31572,
+        "heap_min": 100128,
+        "largest_free": 167936,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9624,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 221560,
+        "core_largest": 32768,
+        "core_failures": 14
+      },
+      "sampled_whole_heap_peak": 316372,
+      "sampled_min_free": 101828,
+      "sampled_min_largest": 79872,
+      "sdk_min_free": 100128,
+      "observed_owner_stack_used": 3176,
+      "sdk_alloc_failures": 0,
+      "core_peak": 221560,
+      "sdk_task_min_free": {
+        "main": 9624,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 1956,
+        "wifi": 4812,
+        "esp_timer": 3596,
+        "Tmr?Svc": 1768
+      }
+    }
+  },
+  "images": {
+    "base-long": {
+      "bin": "c856d237ab9bde11cadd69e94a21cb7b351ec6709e72bb03e789d53ce1bc7ab5",
+      "elf": "174a9c09a5a86a95cd63d389efb39290c85f74c489bd395474f20268b11c4d24",
+      "map": "a017b066623991dcf37fd1192f35e3867a75ef88e62a9675abf7625544e86a85"
+    },
+    "base-normal": {
+      "bin": "500ad0bcf857216170b0d02d7bec5871e4cdcdc83f1337d52d84b6abf0bf5791",
+      "elf": "f25225cb802ff49f3cd4a96ee5727530b1d6135cad5639e1654e4c37717d9ae4",
+      "map": "a91f1889208c118d054f7b65aaae7b2dbeac504288b5e56f284a31b580d5b004"
+    },
+    "early-long": {
+      "bin": "9ab0780ae135e873b5f6c6977fc25e3e20c8200275ec14f384a6968cda7b3cbc",
+      "elf": "40aa924cd37b3647ee2e5ddaf9484b26b63a64501515703acc7ed9d790d9cceb",
+      "map": "daccff2e61aa4c68602b0467b2027dc3b0dff881b0974168cdf2ff94e1f64a11"
+    },
+    "early-normal": {
+      "bin": "d01f39c081fcbcd60b023f332c360fc061e72477a542d66fd0076c702067935b",
+      "elf": "40ef9c171cd01e83454dbf275df1beb3d772ca751ad36459f9c00ee6e2e8f541",
+      "map": "8e97d8c2a8d514511f634262faab1eadc4c54cd437c65e7aecbeb714313ca580"
+    }
+  },
+  "limitations": [
+    "Four finite C6 fault runs, not a statistical allocation-layout bound.",
+    "Normal and instrumented metrics are kept separate.",
+    "No SDK timer/global resource was manually freed; all tests preserve the existing ACK/drain path.",
+    "A script path preflight failed before flashing and was corrected; not a firmware failure.",
+    "The board proceeds to Memory38; final normal-image/fabric/network restoration is recorded by Memory39."
+  ]
+}

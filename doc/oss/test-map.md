@@ -1,8 +1,131 @@
 # Test inventory
 
-test-map.json enumerates 242 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 257 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+Memory21 adds external C6 reference/controller tools under
+`examples/esp-matter-memory/`, outside this native inventory's scope roots.
+The matched physical workload and failed exploratory cases are recorded in
+[Memory21](memory21-validation.md); the existing native chip-tool pair scenario
+also passes six assertion groups in17.50s. No native definition, PICS value or
+official CSA result changes. See the [regression strategy](memory-regression-strategy.md).
+
+Memory19 registers the existing allocation-fault RX fixture as `test_rx_alloc`.
+It covers all five constructor OOM positions and 1000 allocation-free packet/ACK
+cycles. New held-delivery scenarios also fail the next allocation while testing
+full input, source overwrite, a deferred incoming ACK processed once, blocked
+second input, explicit/double release and close/retire/stop barriers. All ordinary
+inline mutations, including release, remain BUSY; hold succeeds only once inside
+the deliver callback. Dispatcher fixtures now use the real RX queue/loan and keep
+the prior crypto reentry, scratch poison and ACK-before-UDP completion assertions.
+
+Memory18 extends `test_dispatch` with full-size delivery ownership, premature TX
+rejection, reentry from real PASE construction and secure sealing, a queued RX
+event during sealing, and ciphertext overwrite/ACK-before-UDP/drain checks.
+Recursive process/control/outgoing operations leave the instance and outputs
+unchanged and allocate nothing. `test_runtime` and its allocation variant reject
+recursive process/stop/delete before a future clock can be published, while
+allowing a nested independent peer. The optional C6 SOAK image also probes runtime
+reentry from its actual diagnostics callback; this is separate physical coverage.
+
+Memory17 adds `test_im_short_reports` (`test_im_subscribe_alloc --memory-short`):
+15 subscriptions x512 short values plus five concurrent large-list Reads.
+Snapshot tests verify the 8/9-byte boundary, no short-value allocations, scratch
+overwrite, relocated records, cumulative budgets and malformed input. Read and
+Subscribe reconstruct inline ARRAY values even with REPLACE/ADD chunking. The
+dispatcher test keeps an unsecured ACK pending while RX/TX scratch changes and
+checks that another ACK cannot overwrite its bytes or consume a counter.
+
+Memory16 adds portable `test_rgb_light` and the shared-report CTest
+`test_im_shared_reports` (`test_im_subscribe_alloc --memory-shared`). Snapshot
+tests cover both allocation failures, reference overflow, a real hash collision,
+bounded-index fallback and reserved large values. Existing wire/ACL/chunk/ACK
+fixtures cover compact private results. The optional C6 RGB/171-attribute
+network envelope is separate physical coverage; see [Memory16](memory16-validation.md).
+
+Memory12 registers `test_im_event_metadata`: stable addresses through120 expanded
+paths, exact filter capacity and OOM, raw-selector/first-block OOM atomicity,
+phase cleanup, concrete-over-wildcard precedence, urgency OR and candidate/work
+limits. Shared Read/Subscribe wildcard fixtures fault every allocation through
+one-path and120-path capture:4 and40 fault positions per engine, including yielded
+parser reacquisition, with no successful partial ReportData or leaked bytes.
+Existing mixed-event/order/ACL/urgency/EventMin/snapshot/watermark/ACK/drain tests
+remain registered. Independent chip-tool wildcard Read/Subscribe scenarios run
+against disposable full hosts under Memcheck and separately under sanitizers.
+
+Memory11 registers `test_im_blocks`: 512 aligned/zeroed stable entries across
+growth, forward/backward indexing, unchanged old capacity/links/cache/payload at
+each of64 staged allocation failures, overflow/limit rejection and allocation-
+free double cleanup. `test_im_node_memory` adds a separate pre-provider512-result
+Read growth peak, with the identical public-API harness compiled against baseline
+and final core. Existing Read/Subscribe tests retain result overflow, filtering,
+ordered chunks/lists, all14 initial-capture OOM positions, four continuation RX
+faults and ACK/drain. The Subscribe idle-filter allocation assertion now expects
+two stable blocks rather than one geometrically grown array.
+
+Memory10 registers `test_im_node_memory`: 24 subscription/replacement engines,
+six active 512-result Reads, fourteen final Read delivery tails and 52 independent
+maximum-packet allocation/borrow proxies, with a shared then fully evicted event
+generation. It checks original data, both ACK/status orders, publication OOM,
+final cancellation/timeout retention and cleanup. It is a component envelope,
+not a network/crypto emulator or dispatcher reachability proof. `test_dispatch`
+retains the real quota/closing/MRP/async UDP lease tests. Read/Subscribe allocation
+variants also instrument event nodes. `test_events` adds shared pointer identity,
+OOM/refcount-overflow/BUSY atomicity, eviction/fabric-removal lifetime and
+allocation-free prefix/whole-snapshot release. `test_im_complex.h` distinguishes
+metadata release at final sent from value release at confirmation. The focused
+event/Read/Subscribe/node targets also run with capacities 16 and 1024.
+
+Memory09 registers `test_secure_alloc` for checked plaintext/backend allocation,
+erasure, atomic replay admission and retry. `test_im_subscribe_alloc` instruments
+both Subscribe and Read; `--memory-only` holds fifteen 512-result/16-KiB reports
+and five nine-path large-list Reads, poisons provider scratch and checks both
+ACK/status orders. It also faults every initial-capture allocation and both
+continuation-RX allocations. `test_im_snapshots` checks compact scalar/span
+round trips and that releasing consumed values cannot replenish the report cap.
+
+Memory08 registers `test_pase_alloc`, retaining the full existing PASE/MRP/admin
+suite with matching core/crypto allocation instrumentation. Both PASE and CASE
+allocation variants add phase-by-phase byte accounting, atomic RX OOM, every
+process allocation fault, stable output/idle polls and key-transfer gates.
+`chip_tool_memory_capacity.py` drives one disposable host through five fabrics,
+fifteen CASE sessions and fifteen three-path subscriptions, with nine-path Reads
+and Writes at capacity. It is an external workload for profiling, not CSA proof
+or a universal RAM upper bound.
+
+Memory06 registers `test_case_alloc` for the existing CASE/cache suite. Cache
+OOM preserves old entries; same-peer saves and full per-fabric eviction allocate
+nothing. Existing IM byte/fault checks now include both RX allocations, all seven
+yielded Subscribe expansion allocations, parser reacquisition OOM and 64 idle
+polls with the next allocation forced to fail. Snapshot/ACK oracles are retained;
+allocation-position expectations account for parser/selector lifetimes.
+
+Memory05 registers `test_im_request_memory`: requested-byte ownership, all six
+Invoke and Write allocation failures, all four client allocation failures,
+allocation-free effects/async polling, four-IB Write admission before mutations,
+queued RX before ACK/drain, status submission and retained client results.
+
+Memory04 registers `test_im_snapshots`: exact encoded byte accounting, unchanged
+4096/16384-byte limits, 512 stable references, per-value OOM/retry and malformed
+value cleanup. Existing Read/Subscribe tests add live-byte/count checks through
+whole-report ACK/StatusResponse, new reports, cancellation/timeout and deletion.
+
+Memory03 registers `test_events`: requested-byte accounting, constructor/node
+OOM, allocation-free finish/abort, durable reservation faults/restart, full-log
+and full-batch admission, priority and number boundaries, and 4000 differential
+operations against the previous array policy. Read/Subscribe retain their
+independent full-capacity snapshot/eviction and deferred allocation checks.
+
+The memory01 stage registers `test_store_alloc` in native CTest. Shared
+`test_alloc_bytes.h` measures requested live/peak bytes and injects allocation
+failures for storage and Read/Subscribe. Storage checks every temporary save
+allocation, unchanged durable data/RAM after OOM, rollback-image admission and
+existing schema migrations/file faults. IM checks allocation-free event binding,
+exact snapshot growth for one/eight records, every deferred event allocation,
+attribute-only memory bounds, and all configured retained events surviving log
+eviction during multi-chunk delivery. Existing IM/MRP ordering and fabric/ACL
+regressions remain enabled. These are local tests, not official CSA results.
 
 `test_pase_exchange_chip.py` records unmodified chip-tool's actual PASE UDP
 datagrams across two full commissions, with the first fabric's CASE active when

@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "model/matter_im_subscribe.h"
+#include "model/matter_im_snapshot_pool_internal.h"
+#include "model/matter_im_output_internal.h"
 #define CHECK(c) do { if(!(c)) { fprintf(stderr,"Subscribe:%d: %s\n",__LINE__,#c); abort(); } } while(0)
 #ifdef MATTER_TEST_ALLOC
-static size_t live,calls,fail_at;
-void* matter_test_calloc(size_t n,size_t z) { if(++calls==fail_at) return NULL; void* p=calloc(n,z); if(p) ++live; return p; }
-void matter_test_free(void* p) { if(p) { CHECK(live); --live; } free(p); }
+#include "test_alloc_bytes.h"
 #endif
 #include "test_subscribe_model.h"
 static SubModel* create(size_t cap) {
@@ -81,12 +81,105 @@ static void case_tests(void) {
 #include "test_subscribe_complex.h"
 #include "test_subscribe_lists.h"
 #include "test_subscribe_selectors.h"
+#include "test_subscribe_memory.h"
+static void shared_encoder_tests(void) {
+    Matter_Im_Output_Pool* pool=calloc(1,sizeof(*pool)); CHECK(pool);
+    for(unsigned mode=0;mode<4;++mode) {
+        SubModel* a=create(128); SubModel* b=create(128);
+        CHECK(matter_im_subscribe_bind_output_pool(a->active,pool)==MATTER_OK);
+        CHECK(matter_im_subscribe_bind_output_pool(b->active,pool)==MATTER_OK);
+        CHECK(matter_im_subscribe_bind_output_pool(a->active,pool)==MATTER_INVALID_STATE);
+        receive(a,sub_request,sizeof(sub_request),3,12,true);
+        receive(b,sub_request,sizeof(sub_request),3,12,true);
+        Matter_Im_Subscribe_Message_T out=output(a,0); literal(out,5,sub_report,sizeof(sub_report));
+        CHECK(pool->owner==a->active && out.data==pool->bytes);
+#ifdef MATTER_TEST_ALLOC
+        size_t before=calls;
+#endif
+        CHECK(matter_im_subscribe_process(b->active,0)==MATTER_PENDING && !b->auths && !b->reserves);
+        literal(out,5,sub_report,sizeof(sub_report));
+#ifdef MATTER_TEST_ALLOC
+        CHECK(calls==before);
+#endif
+        if(mode==0) {
+            /* Immutable TX owns its copy while another engine reuses encoder.
+             * Pending UDP must neither start maxInterval nor activate RESPONSE. */
+            uint8_t* packet=malloc(out.size); CHECK(packet); memcpy(packet,out.data,out.size);
+            CHECK(matter_im_subscribe_output_copied(a->active)==MATTER_OK && !pool->owner);
+            CHECK(matter_im_subscribe_output_copied(a->active)==MATTER_INVALID_STATE);
+            CHECK(matter_im_subscribe_process(a->active,100)==MATTER_PENDING && !pool->owner);
+            CHECK(matter_im_subscribe_output(a->active,&out)==MATTER_WOULD_BLOCK);
+            b->value=11; (void)output(b,100); CHECK(pool->owner==b->active);
+            CHECK(!memcmp(packet,sub_report,sizeof(sub_report))); free(packet);
+            CHECK(matter_im_subscribe_sent_at(b->active,101)==MATTER_OK && !pool->owner);
+            memory_encoder=pool; MemoryRead* read=memory_read_new();
+            memory_read_drain(read); memory_encoder=NULL; CHECK(!pool->owner);
+            CHECK(matter_im_subscribe_sent_at(a->active,200)==MATTER_OK);
+            CHECK(matter_im_subscribe_confirm(a->active,201)==MATTER_OK);
+            receive(a,sub_success,sizeof(sub_success),1,12,true);
+            literal(output(a,202),4,sub_response,sizeof(sub_response));
+            CHECK(matter_im_subscribe_output_copied(a->active)==MATTER_OK && !pool->owner);
+            memset(pool->bytes,0xcc,sizeof(pool->bytes));
+            CHECK(matter_im_subscribe_process(a->active,299)==MATTER_PENDING && !pool->owner);
+            CHECK(matter_im_subscribe_confirm(a->active,299)==MATTER_INVALID_STATE);
+            CHECK(matter_im_subscribe_sent_at(a->active,300)==MATTER_OK);
+            CHECK(matter_im_subscribe_confirm(a->active,301)==MATTER_OK);
+            uint64_t due=0; CHECK(matter_im_subscribe_deadline(a->active,&due)==MATTER_OK && due==5200);
+            CHECK(matter_im_subscribe_process(a->active,5199)==MATTER_PENDING && matter_im_subscribe_state(a->active)==MATTER_IM_SUB_IDLE);
+            CHECK(matter_im_subscribe_process(a->active,5200)==MATTER_PENDING && matter_im_subscribe_state(a->active)==MATTER_IM_SUB_NEED_EXCHANGE);
+        } else {
+            if(mode==1) CHECK(matter_im_subscribe_cancel(a->active)==MATTER_OK);
+            if(mode==2) { release(a); a=NULL; }
+            if(mode==3) CHECK(matter_im_subscribe_process(a->active,10000)==MATTER_PORT_ERROR);
+            CHECK(!pool->owner); (void)output(b,1); CHECK(pool->owner==b->active);
+        }
+        release(b); if(a) release(a); CHECK(!pool->owner);
+    }
+    /* Full 512-value snapshots remain stable across many encoder owners and
+     * both ACK/status orders; only copied first packets survive as TX would. */
+    memory_encoder=pool;
+    SelectorSub** subs=calloc(15,sizeof(*subs)); CHECK(subs);
+    for(unsigned i=0;i<15;++i) {
+        subs[i]=memory_new(MATTER_IM_READ_MAX_RESULTS,1+i/3);
+        CHECK(memory_report(subs[i],selector_output(subs[i])));
+        memset(subs[i]->rich.scratch,0xff,sizeof(subs[i]->rich.scratch));
+        CHECK(matter_im_subscribe_output_copied(subs[i]->rich.model.active)==MATTER_OK && !pool->owner);
+    }
+    for(unsigned i=0;i<15;++i) {
+        SelectorSub* s=subs[i]; RichSub* r=&s->rich;
+        rich_ack(r,true,i%2!=0);
+        bool more;
+        do { more=memory_report(s,selector_output(s)); rich_ack(r,true,i%2==0); } while(more);
+        rich_prime_finish(r); CHECK(s->seen==MATTER_IM_READ_MAX_RESULTS);
+        rich_free(r); CHECK(!pool->owner);
+    }
+    free(subs);
+#ifdef MATTER_TEST_ALLOC
+    subscription_memory_oom(); CHECK(!live && !live_bytes);
+#endif
+    memory_encoder=NULL; free(pool);
+    puts("PASS shared encoder: contention without work/allocation, copied-before-send clocks, Read array snapshots, 15x512 Subscribe snapshots, both ACK orders, cancel/delete/timeout and OOM");
+}
 #define TEST_MULTI_SUB
 #include "test_im_multi_events.h"
 #include "test_im_event_wildcards.h"
 #define TEST_PATH_SUB
 #include "test_im_path_grammar.h"
-int main(void) {
+int main(int argc,char** argv) {
+    if(argc==2 && !strcmp(argv[1],"--memory-sparse")) { sparse_value_tests(); return 0; }
+    sparse_value_tests();
+    shared_encoder_tests();
+    if(argc==2 && (!strcmp(argv[1],"--memory-only") || !strcmp(argv[1],"--memory-profile") || !strcmp(argv[1],"--memory-shared") || !strcmp(argv[1],"--memory-short"))) {
+        if(!strcmp(argv[1],"--memory-short")) memory_value_size=6;
+        subscription_memory_profile(!strcmp(argv[1],"--memory-shared") || !strcmp(argv[1],"--memory-short"));
+#ifdef MATTER_TEST_ALLOC
+        if(!strcmp(argv[1],"--memory-only")) subscription_memory_oom();
+#endif
+        return 0;
+    }
+#ifdef MATTER_TEST_ALLOC
+    subscription_memory_oom();
+#endif
     path_grammar_tests();
     /* MP04 countdown quality: unrelated dirty notifications and heartbeat must
      * not report a new IdentifyTime until an explicitly reportable version. */
@@ -248,8 +341,10 @@ int main(void) {
         fail_at=calls+allocation; CHECK(!matter_im_subscribe_new(&p,&c,0)); fail_at=0; CHECK(live==base);
     }
     Matter_Rx_Decision_T d=decision(sub_request,sizeof(sub_request),3,12,true);
-    fail_at=calls+1; CHECK(matter_im_subscribe_receive(m->active,&d)==MATTER_LIMIT_REACHED); fail_at=0;
-    CHECK(live==base && matter_im_subscribe_state(m->active)==MATTER_IM_SUB_WAITING);
+    for(size_t site=1;site<=2;++site) {
+        fail_at=calls+site; CHECK(matter_im_subscribe_receive(m->active,&d)==MATTER_LIMIT_REACHED); fail_at=0;
+        CHECK(live==base && matter_im_subscribe_state(m->active)==MATTER_IM_SUB_WAITING);
+    }
     prime(m,false); release(m); CHECK(!live);
 #endif
     puts("PASS Subscribe: literal prime/status/response, IM and MRP ordering, min/max, dirty during TX, new exchanges, heartbeat, access/schema, timeout/cancel and OOM");

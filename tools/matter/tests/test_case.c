@@ -4,9 +4,7 @@
 #include "crypto/matter_crypto_mbedtls.h"
 #include "test_case_fixture.h"
 #ifdef MATTER_TEST_ALLOC
-static size_t live,calls,fail_at;
-void* matter_test_calloc(size_t n,size_t z) { if(++calls==fail_at) return NULL; void* p=calloc(n,z); if(p) ++live; return p; }
-void matter_test_free(void* p) { if(p) { OC_CHECK(live); --live; } free(p); }
+#include "test_alloc_bytes.h"
 #endif
 static Matter_Result_T admit(void* u,const Matter_Secure_Received_T* m) {
     CaseFixture* f=u; ++f->admitted; OC_CHECK(m->protocol.protocol_id==1);
@@ -145,9 +143,79 @@ static void export_resume(CaseFixture* f,const Matter_Credentials_Port_T* cp,con
     OC_CHECK(matter_secure_seal(f->secure[0],plain,sizeof(plain),6,f->packet,sizeof(f->packet),&f->size)==MATTER_OK);
     save(dir,"resume-secure.bin",f->packet,f->size);
 }
+#ifdef MATTER_TEST_ALLOC
+static CaseFixture* memory_case(const Matter_Crypto_Port_T* p,const Matter_Credentials_Port_T* cp,bool resumed) {
+    CaseFixture* f=case_fixture(p,cp);
+    if(resumed) { case_establish(f); resume_take(f); resume_new(f,cp); }
+    return f;
+}
+static void memory_case_advance(CaseFixture* f,unsigned phases) {
+    for(unsigned i=0;i<phases;++i) {
+        OC_CHECK(matter_case_process(f->session[i%2],i)==MATTER_PENDING);
+        Matter_Pase_Message_T m; OC_CHECK(matter_case_output(f->session[i%2],&m)==MATTER_OK);
+        OC_CHECK(matter_case_receive(f->session[1-i%2],m.opcode,m.data,m.size)==MATTER_OK && matter_case_sent(f->session[i%2])==MATTER_OK);
+    }
+}
+static void case_memory(const Matter_Crypto_Port_T* p,const Matter_Credentials_Port_T* cp,bool faults) {
+    size_t base=live_bytes,total=0;
+    for(unsigned resumed=0;resumed<2;++resumed) {
+        size_t counts[5]={0}; unsigned last=resumed?3:4;
+        CaseFixture* f=memory_case(p,cp,resumed!=0); size_t idle=live_bytes;
+        peak_bytes=idle;
+        printf("MEMORY CASE resumed=%u owners=%zu idle_pair_tracked=%zu\n",resumed,matter_test_allocation_size(f->session[0]),idle);
+        for(unsigned phase=0;phase<=last;++phase) {
+            size_t start=calls;
+            OC_CHECK(matter_case_process(f->session[phase%2],phase)==(phase==last?MATTER_OK:MATTER_PENDING));
+            counts[phase]=calls-start;
+            printf("MEMORY CASE resumed=%u phase=%u live=%zu peak=%zu process_allocations=%zu\n",resumed,phase,live_bytes,peak_bytes,counts[phase]);
+            if(phase<last) {
+                Matter_Pase_Message_T m,again; OC_CHECK(matter_case_output(f->session[phase%2],&m)==MATTER_OK);
+                start=calls; fail_at=calls+1;
+                OC_CHECK(matter_case_process(f->session[phase%2],phase)==MATTER_PENDING);
+                OC_CHECK(matter_case_output(f->session[phase%2],&again)==MATTER_OK && again.data==m.data && again.size==m.size && calls==start);
+                if(faults) {
+                    size_t before=live_bytes;
+                    OC_CHECK(matter_case_receive(f->session[1-phase%2],m.opcode,m.data,m.size)==MATTER_LIMIT_REACHED && live_bytes==before); ++total;
+                }
+                fail_at=0; size_t before=live_bytes;
+                OC_CHECK(matter_case_receive(f->session[1-phase%2],m.opcode,m.data,m.size)==MATTER_OK);
+                if(faults) OC_CHECK(live_bytes-before==m.size);
+                OC_CHECK(matter_case_sent(f->session[phase%2])==MATTER_OK);
+            }
+        }
+        if(faults) OC_CHECK(live_bytes==idle);
+        printf("MEMORY CASE resumed=%u completed_live=%zu peak=%zu\n",resumed,live_bytes,peak_bytes);
+        resume_take(f); case_free(f); OC_CHECK(live_bytes==base);
+        if(faults) for(unsigned phase=0;phase<=last;++phase) for(size_t point=1;point<=counts[phase];++point) {
+            f=memory_case(p,cp,resumed!=0); memory_case_advance(f,phase);
+            fail_at=calls+point; Matter_Result_T r=matter_case_process(f->session[phase%2],phase); fail_at=0;
+            /* A failed resume MIC intentionally falls back to full CASE. */
+            OC_CHECK(r==MATTER_PORT_ERROR || (resumed && phase==1 && r==MATTER_PENDING));
+            OC_CHECK(matter_case_take_keys(f->session[phase%2],&f->keys[phase%2])==MATTER_INVALID_STATE);
+            if(r==MATTER_PORT_ERROR) {
+                OC_CHECK(matter_case_state(f->session[phase%2])==MATTER_CASE_FAILED);
+                size_t start=calls; fail_at=calls+1;
+                OC_CHECK(matter_case_process(f->session[phase%2],phase)==MATTER_PORT_ERROR && calls==start); fail_at=0;
+                if(phase && phase!=last) {
+                    Matter_Pase_Message_T m; OC_CHECK(matter_case_output(f->session[phase%2],&m)==MATTER_OK && m.opcode==0x40 && m.size==8);
+                }
+            }
+            case_free(f); OC_CHECK(live_bytes==base); ++total;
+        }
+    }
+    if(faults) printf("PASS CASE phase memory: %zu full/resumed RX/process OOM positions, stable output/idle polls, scratch release and transfer gates\n",total);
+}
+#endif
 int main(int argc,char** argv) {
     Matter_Crypto_Mbedtls_T backend=matter_crypto_mbedtls_new(NULL); OC_CHECK(backend); Matter_Crypto_Port_T crypto; Matter_Credentials_Port_T cp;
     OC_CHECK(matter_crypto_mbedtls_port(backend,&crypto)==MATTER_OK && matter_crypto_mbedtls_credentials(backend,&cp)==MATTER_OK);
+#ifdef MATTER_TEST_ALLOC
+    if(argc==2 && (!strcmp(argv[1],"--memory-profile") || !strcmp(argv[1],"--memory-only"))) {
+        case_memory(&crypto,&cp,!strcmp(argv[1],"--memory-only"));
+        OC_CHECK(matter_crypto_mbedtls_delete(backend)==MATTER_OK && !live); return 0;
+    }
+    case_memory(&crypto,&cp,true);
+#endif
     OcFixture* legacy=oc_new(&crypto,&cp); oc_free(legacy);
     /* Normative 1.6.1 4.17.2 vector; output distinct from input epoch key. */
     uint8_t epoch[16],compressed[8],expected[32],actual[32],root[65],random[32];

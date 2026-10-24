@@ -1,0 +1,910 @@
+{
+  "date_local": "2026-10-23",
+  "previous_commit": "b77dd1c",
+  "production_core_changes": false,
+  "windows": {
+    "native_passed": 102,
+    "native_total": 102,
+    "single_ack_wire": [
+      {
+        "case": "single-original-before",
+        "pass_": true,
+        "elapsed_seconds": 124.5733395,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 26768,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292234,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 1,
+          "ack_before_completion": 1,
+          "ack_after_completion": 1739,
+          "wrong_role_acks": 4,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": false,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1017,
+            "totalInteractionModelMessagesReceived": 1017
+          },
+          "stats": {
+            "core_calls": 15773,
+            "core_failures": 0,
+            "core_live": 355,
+            "core_bytes": 201252,
+            "core_peak": 291988,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1067,
+            "wrong_role_acks": 4,
+            "target_outcome": 2,
+            "target_attempts": 5
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "original",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": null
+        }
+      },
+      {
+        "case": "single-original-after",
+        "pass_": true,
+        "elapsed_seconds": 163.06149420000003,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 27965,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292478,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 1,
+          "ack_before_completion": 60,
+          "ack_after_completion": 1720,
+          "wrong_role_acks": 3,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": false,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1034,
+            "totalInteractionModelMessagesReceived": 1034
+          },
+          "stats": {
+            "core_calls": 16264,
+            "core_failures": 0,
+            "core_live": 354,
+            "core_bytes": 201207,
+            "core_peak": 292478,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 36,
+            "ack_after_completion": 1048,
+            "wrong_role_acks": 3,
+            "target_outcome": 2,
+            "target_attempts": 5
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "original",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": null
+        }
+      },
+      {
+        "case": "single-corrected-before",
+        "pass_": true,
+        "elapsed_seconds": 138.89144679999998,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 27584,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292236,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 0,
+          "ack_before_completion": 0,
+          "ack_after_completion": 1764,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": true,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1029,
+            "totalInteractionModelMessagesReceived": 1026
+          },
+          "stats": {
+            "core_calls": 16112,
+            "core_failures": 0,
+            "core_live": 373,
+            "core_bytes": 205978,
+            "core_peak": 291990,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1079,
+            "wrong_role_acks": 0,
+            "target_outcome": 1,
+            "target_attempts": 2
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "corrected",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": "fromInitialMessage: inverse incoming Initiator bit"
+        }
+      },
+      {
+        "case": "single-corrected-after",
+        "pass_": true,
+        "elapsed_seconds": 163.1574418,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 28245,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292234,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 0,
+          "ack_before_completion": 78,
+          "ack_after_completion": 1711,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": true,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1038,
+            "totalInteractionModelMessagesReceived": 1038
+          },
+          "stats": {
+            "core_calls": 16354,
+            "core_failures": 0,
+            "core_live": 372,
+            "core_bytes": 205933,
+            "core_peak": 291988,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 49,
+            "ack_after_completion": 1040,
+            "wrong_role_acks": 0,
+            "target_outcome": 1,
+            "target_attempts": 2
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "corrected",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": "fromInitialMessage: inverse incoming Initiator bit"
+        }
+      }
+    ]
+  },
+  "linux": {
+    "normal_native": {
+      "passed": 99,
+      "total": 99,
+      "log_sha256": "55d4197c13c0e47c771e45f5284c43246268b65348d21e2a05ddc2cc86a74767"
+    },
+    "sanitize_native": {
+      "passed": 99,
+      "total": 99,
+      "log_sha256": "10545de1d5e3a3e18387c0571bb4f93e7cee93b9340fd758005089c310fdcc57"
+    },
+    "normal_pair": {
+      "checks": [
+        "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+        "independent-application-state",
+        "independent-Identify-and-UTC-anchors",
+        "B-meter-services-survive-active-A-Identify-teardown",
+        "B-subscription-and-phase-read-survive-A-deletion",
+        "both-last-fabric-responses"
+      ],
+      "stderr_empty": true,
+      "memcheck_errors": 0,
+      "live_bytes_at_exit": 0,
+      "live_blocks_at_exit": 0
+    },
+    "sanitize_pair": {
+      "checks": [
+        "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+        "independent-application-state",
+        "independent-Identify-and-UTC-anchors",
+        "B-meter-services-survive-active-A-Identify-teardown",
+        "B-subscription-and-phase-read-survive-A-deletion",
+        "both-last-fabric-responses"
+      ],
+      "stderr_empty": true
+    },
+    "normal_wire": [
+      {
+        "case": "before",
+        "pass_": true,
+        "elapsed_seconds": 110.505753725,
+        "subscription_snapshots": 30,
+        "full_reads": 15,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 18052,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 291401,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 0,
+          "unacknowledged": 0,
+          "ack_before_completion": 1,
+          "ack_after_completion": 1159,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": null,
+        "diagnostic_peer": null
+      },
+      {
+        "case": "after",
+        "pass_": true,
+        "elapsed_seconds": 365.615798006,
+        "subscription_snapshots": 60,
+        "full_reads": 74,
+        "oom_cycles": 3,
+        "stats": {
+          "core_calls": 51461,
+          "core_failures": 3,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292868,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 1,
+          "ack_before_completion": 9,
+          "ack_after_completion": 2936,
+          "wrong_role_acks": 3,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": null,
+        "diagnostic_peer": null
+      },
+      {
+        "case": "single-original-before",
+        "pass_": true,
+        "elapsed_seconds": 154.82158062699997,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 27393,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 291433,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 1,
+          "ack_before_completion": 1,
+          "ack_after_completion": 1757,
+          "wrong_role_acks": 3,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": false,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1016,
+            "totalInteractionModelMessagesReceived": 1016
+          },
+          "stats": {
+            "core_calls": 15775,
+            "core_failures": 0,
+            "core_live": 354,
+            "core_bytes": 200885,
+            "core_peak": 291433,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1067,
+            "wrong_role_acks": 3,
+            "target_outcome": 2,
+            "target_attempts": 5
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "original",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": null
+        }
+      },
+      {
+        "case": "single-original-after",
+        "pass_": true,
+        "elapsed_seconds": 203.133700737,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 28772,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 291662,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 1,
+          "ack_before_completion": 12,
+          "ack_after_completion": 1790,
+          "wrong_role_acks": 3,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": false,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1039,
+            "totalInteractionModelMessagesReceived": 1038
+          },
+          "stats": {
+            "core_calls": 16517,
+            "core_failures": 0,
+            "core_live": 355,
+            "core_bytes": 200926,
+            "core_peak": 291431,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 6,
+            "ack_after_completion": 1084,
+            "wrong_role_acks": 3,
+            "target_outcome": 2,
+            "target_attempts": 5
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "original",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": null
+        }
+      },
+      {
+        "case": "single-corrected-before",
+        "pass_": true,
+        "elapsed_seconds": 155.726602101,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 27559,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 291435,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 0,
+          "ack_before_completion": 0,
+          "ack_after_completion": 1766,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": true,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1023,
+            "totalInteractionModelMessagesReceived": 1023
+          },
+          "stats": {
+            "core_calls": 15972,
+            "core_failures": 0,
+            "core_live": 372,
+            "core_bytes": 205611,
+            "core_peak": 290007,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1074,
+            "wrong_role_acks": 0,
+            "target_outcome": 1,
+            "target_attempts": 2
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "corrected",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": "fromInitialMessage: inverse incoming Initiator bit"
+        }
+      },
+      {
+        "case": "single-corrected-after",
+        "pass_": true,
+        "elapsed_seconds": 203.784521137,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 29183,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 291664,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 0,
+          "ack_before_completion": 5,
+          "ack_after_completion": 1813,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": true,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1049,
+            "totalInteractionModelMessagesReceived": 1049
+          },
+          "stats": {
+            "core_calls": 16753,
+            "core_failures": 0,
+            "core_live": 372,
+            "core_bytes": 205609,
+            "core_peak": 291664,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 4,
+            "ack_after_completion": 1096,
+            "wrong_role_acks": 0,
+            "target_outcome": 1,
+            "target_attempts": 2
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "corrected",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": "fromInitialMessage: inverse incoming Initiator bit"
+        }
+      }
+    ],
+    "sanitize_wire": [
+      {
+        "case": "before",
+        "pass_": true,
+        "elapsed_seconds": 75.080737338,
+        "subscription_snapshots": 30,
+        "full_reads": 15,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 17065,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292909,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 0,
+          "unacknowledged": 0,
+          "ack_before_completion": 1,
+          "ack_after_completion": 1127,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": null,
+        "diagnostic_peer": null
+      },
+      {
+        "case": "after",
+        "pass_": true,
+        "elapsed_seconds": 317.303992832,
+        "subscription_snapshots": 75,
+        "full_reads": 75,
+        "oom_cycles": 3,
+        "stats": {
+          "core_calls": 53782,
+          "core_failures": 3,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 293153,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 1,
+          "ack_before_completion": 5,
+          "ack_after_completion": 3261,
+          "wrong_role_acks": 2,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": null,
+        "diagnostic_peer": null
+      },
+      {
+        "case": "single-original-before",
+        "pass_": true,
+        "elapsed_seconds": 121.477232401,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 26628,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 291926,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 1,
+          "ack_before_completion": 0,
+          "ack_after_completion": 1734,
+          "wrong_role_acks": 3,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": false,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1011,
+            "totalInteractionModelMessagesReceived": 1011
+          },
+          "stats": {
+            "core_calls": 15580,
+            "core_failures": 0,
+            "core_live": 354,
+            "core_bytes": 200901,
+            "core_peak": 291926,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1061,
+            "wrong_role_acks": 3,
+            "target_outcome": 2,
+            "target_attempts": 5
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "original",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": null
+        }
+      },
+      {
+        "case": "single-original-after",
+        "pass_": true,
+        "elapsed_seconds": 162.63850182599998,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 27992,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292170,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 1,
+          "ack_before_completion": 3,
+          "ack_after_completion": 1775,
+          "wrong_role_acks": 4,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": false,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1033,
+            "totalInteractionModelMessagesReceived": 1032
+          },
+          "stats": {
+            "core_calls": 16246,
+            "core_failures": 0,
+            "core_live": 354,
+            "core_bytes": 200899,
+            "core_peak": 292170,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 2,
+            "ack_after_completion": 1080,
+            "wrong_role_acks": 4,
+            "target_outcome": 2,
+            "target_attempts": 5
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "original",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": null
+        }
+      },
+      {
+        "case": "single-corrected-before",
+        "pass_": true,
+        "elapsed_seconds": 125.276376279,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 27008,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 291928,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 0,
+          "ack_before_completion": 0,
+          "ack_after_completion": 1748,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": true,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1012,
+            "totalInteractionModelMessagesReceived": 1012
+          },
+          "stats": {
+            "core_calls": 15602,
+            "core_failures": 0,
+            "core_live": 372,
+            "core_bytes": 205627,
+            "core_peak": 291928,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1063,
+            "wrong_role_acks": 0,
+            "target_outcome": 1,
+            "target_attempts": 2
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "corrected",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": "fromInitialMessage: inverse incoming Initiator bit"
+        }
+      },
+      {
+        "case": "single-corrected-after",
+        "pass_": true,
+        "elapsed_seconds": 162.97629826500003,
+        "subscription_snapshots": 45,
+        "full_reads": 30,
+        "oom_cycles": 0,
+        "stats": {
+          "core_calls": 28248,
+          "core_failures": 0,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 292172,
+          "held_completion": 0,
+          "rx_held": 1,
+          "rx_reordered": 1,
+          "ack_dropped": 1,
+          "unacknowledged": 0,
+          "ack_before_completion": 2,
+          "ack_after_completion": 1788,
+          "wrong_role_acks": 0,
+          "target_outcome": 0,
+          "target_attempts": 0
+        },
+        "single_ack": {
+          "corrected": true,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 30,
+            "totalInteractionModelMessagesSent": 1033,
+            "totalInteractionModelMessagesReceived": 1033
+          },
+          "stats": {
+            "core_calls": 16206,
+            "core_failures": 0,
+            "core_live": 372,
+            "core_bytes": 205625,
+            "core_peak": 291926,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 2,
+            "ack_after_completion": 1082,
+            "wrong_role_acks": 0,
+            "target_outcome": 1,
+            "target_attempts": 2
+          },
+          "case_reads": 15
+        },
+        "diagnostic_peer": {
+          "mode": "corrected",
+          "package": "@matter/protocol",
+          "version": "0.17.9",
+          "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+          "override": "fromInitialMessage: inverse incoming Initiator bit"
+        }
+      }
+    ],
+    "initial_sanitize_pair_failure": {
+      "completed_checks": [
+        "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+        "independent-application-state",
+        "independent-Identify-and-UTC-anchors"
+      ],
+      "failure": "B subscription lost during A teardown",
+      "sanitizer_stderr_empty": true,
+      "unchanged_retry": true,
+      "attribution": "unproven"
+    },
+    "source_lf_sha256": {
+      "tools/matter/tests/runtime_wire.py": "0ddd7bc6b5882c7c2b1206b8af74db2b800590f3b47b34731c50dfe79cdffff2",
+      "tools/matter/tests/runtime_wire_host.c": "f009c8daef34270d59eb3a6e6a0590e60137219ad3e6cb035e9e0451b94cfcad",
+      "tools/matter/tests/wire_dispatch.c": "1e6e63940f596d8017286b2592060e4dc4a225df2f0ff732612a0cb5a616423e",
+      "tools/matter/tests/wire_faults.h": "661f3218b24474661160bd26b6380ef494919f37468a47c0565bff4a53f88330",
+      "tools/matter/tests/wire_scenarios.mjs": "bf2b8bbafdd301e7c3fa93d0adf7f1755580b2874fcabd461987e44aa84be86d",
+      "tools/matter/tests/peer_role.mjs": "7aa617d72b80e692db46f27a9c032cdcae51928e8803e1e2a3c78d7d6e811cb2",
+      "examples/esp32-runtime/tests/soak.mjs": "faf50412e75e98cf976f0b91220f0104faec6993dceee34c65601c4c0d4afda7",
+      "cmake/tests/CMakeLists.txt": "b59e614df79adc0e1ed55cd9ec74647cddc9f3eeda65a7a489b5151f17be8668",
+      "doc/oss/test-map.json": "31511122f36eb915e685769a40cc52738c0e9814a5b898b62f935d0c5f023123",
+      "main/apps/matter/runtime/matter_dispatch.c": "c35d5bf74b0e72202bd9be18a68eff1e613e8c01a312bde0f0ca3d410660ca21",
+      "tools/matter/tests/test_dispatch.c": "13bc2421b171013d853d68e504d7e2b9e6a86503c98318e829c3a7e516ac7211"
+    }
+  },
+  "peer_source_utf8_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+  "limitations": [
+    "Not CSA/certification or an ESP32 RAM bound.",
+    "One initial sanitizer pair failed the B subscription check; unchanged retry passed. Exact cause remains unproven; retained for RX investigation.",
+    "No board/AP use by the host fixture."
+  ]
+}

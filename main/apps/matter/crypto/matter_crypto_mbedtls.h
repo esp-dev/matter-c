@@ -18,6 +18,12 @@ typedef struct Matter_Crypto_Mbedtls* Matter_Crypto_Mbedtls_T;
  * Construction/reseed may call the OS entropy provider synchronously. This is
  * not an ISR API and gives no hard real-time latency guarantee. MCU integration
  * must measure stack/latency and provide a suitable entropy backend at M16.
+ * With Mbed TLS4, the application initializes PSA before constructing this
+ * backend and retains that service through deletion. NULL entropy then uses
+ * PSA random; each instance still owns its separate AES-256 CTR-DRBG.
+ * Its CSR writer uses the application's PSA signing RNG after checking the
+ * instance's RNG health. Software ECP is required for the private blinding
+ * callback contract; the IDF component rejects hardware ECP overrides.
  */
 Matter_Crypto_Mbedtls_T matter_crypto_mbedtls_new(const Matter_Crypto_Entropy_Port_T* entropy);
 Matter_Result_T matter_crypto_mbedtls_port(Matter_Crypto_Mbedtls_T crypto, Matter_Crypto_Port_T* port);

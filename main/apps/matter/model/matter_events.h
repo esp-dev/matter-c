@@ -33,7 +33,9 @@ typedef struct Matter_Events* Matter_Events_T;
  * before use; monotonically consecutive within a boot, skips on restart.
  * Priority DEBUG=0/INFO=1/CRITICAL=2. Evict oldest lowest-priority record;
  * if all records have higher priority, return LIMIT_REACHED without consuming
- * a number. Caller handles backpressure. No allocation after construction.
+ * a number. Caller handles backpressure. Stable retained nodes allocate on demand;
+ * prepare owns one new node per input record, without copying the retained log.
+ * OOM returns LIMIT_REACHED with published records and next number unchanged.
  * Single owner, log/user outlive all producers and Read handlers. */
 Matter_Events_T matter_events_new(const Matter_Events_Port_T*);
 Matter_Result_T matter_events_append(Matter_Events_T,const Matter_Event_Path_T*,uint8_t priority,
@@ -42,12 +44,14 @@ Matter_Result_T matter_events_append(Matter_Events_T,const Matter_Event_Path_T*,
  * records and reserves durable numbers BEFORE changing the model. number is
  * assigned by the log. On success log is locked until finish(commit); failed
  * model store calls finish(false). No records/numbers become visible on abort.
- * Single owner; no retained input pointers. Finish cannot fail after prepare. */
+ * Single owner; no retained input pointers. Finish cannot fail or allocate after
+ * prepare. Abort frees staged nodes; commit releases planned victims and links
+ * the prepared nodes atomically. Durable reservation may advance on abort. */
 Matter_Result_T matter_events_prepare(Matter_Events_T,const Matter_Event_Record_T*,size_t);
 void matter_events_finish(Matter_Events_T,bool commit);
 /* Owner calls after successful fabric removal/rollback, before index reuse. */
 Matter_Result_T matter_events_forget_fabric(Matter_Events_T,uint8_t);
-/* Trusted model boundary; IM performs ACL before calling. Copy at most 16
+/* Trusted model boundary; IM performs ACL before calling. Copy at most CAPACITY
  * retained matching records in increasing number order, number >= minimum.
  * out must have MATTER_EVENTS_CAPACITY entries (allocate on heap). */
 Matter_Result_T matter_events_copy(Matter_Events_T,const Matter_Event_Path_T*,uint64_t minimum,
@@ -60,7 +64,9 @@ typedef struct { Matter_Event_Path_T path; bool scoped; } Matter_Event_Filter_T;
 /* Union of up to EVENT_PATH_CAPACITY authorized concrete paths, one copy per event in
  * increasing number order. Same fabric rules as copy_fabric. Caller checks ACL
  * before constructing filters. out=NULL counts matches without copying payload
- * (e.g. urgent subscription wakeup); otherwise out has CAPACITY heap entries.
+ * (e.g. urgent subscription wakeup); otherwise out has CAPACITY heap entries,
+ * or the exact count obtained immediately beforehand on the same owner turn,
+ * with no intervening log mutation or application callback.
  * No allocation, retained pointers or duplicate records for overlapping filters. */
 Matter_Result_T matter_events_copy_selected(Matter_Events_T,const Matter_Event_Filter_T*,size_t paths,
     uint64_t minimum,uint8_t fabric,Matter_Event_Record_T* out,size_t* count);

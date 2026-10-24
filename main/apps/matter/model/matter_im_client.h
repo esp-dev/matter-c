@@ -3,8 +3,14 @@
 #include "matter_im_invoke.h"
 /* One untimed, unicast Invoke on an authenticated CASE exchange. Owner supplies
  * routing, deadline, MRP/deduplication and cancellation. No callbacks or OS.
- * One heap allocation, bounded 1024-byte messages. No chunked/multiple response
- * commands. Fields are copied; response body is borrowed until delete. */
+ * Heap-owned state, bounded 1024-byte messages. No chunked/multiple response
+ * commands. Fields are copied; response body is borrowed until delete.
+ * Request, result body and optional 8-byte StatusResponse allocate on demand.
+ * Validation/tag scratch exists only during construction or receive; OOM
+ * unwinds construction or leaves receive waiting without publishing a result.
+ * Output borrows until sent/delete: COPY to MRP-owned bytes before sent. MRP
+ * retains its copy through ACK and transport drain. Receive OOM returns
+ * LIMIT_REACHED, keeps the client waiting and does not publish a result. */
 typedef struct Matter_Im_Client* Matter_Im_Client_T;
 /* Select commands whose successful reply is CommandStatusIB, e.g. OTA Notify.
  * Ordinary response commands still require response data for success. */

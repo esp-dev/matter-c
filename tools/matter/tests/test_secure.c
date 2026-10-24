@@ -78,7 +78,9 @@ static Matter_Result_T admit(void* u, const Matter_Secure_Received_T* m) {
     return MATTER_OK;
 }
 static void check_erased(Fixture* f) {
-    REQUIRE(zero(f->b->plain,sizeof(f->b->plain)) && zero(&f->b->received,sizeof(f->b->received)));
+    /* Allocation tracker verifies plaintext erasure before every free. No
+     * plaintext storage remains attached to an idle secure session. */
+    REQUIRE(zero(&f->b->received,sizeof(f->b->received)));
 }
 static void seal_packet(Fixture* f, unsigned slot, uint64_t now) {
     static const uint8_t payload[]={5,1,0x34,0x12,4,0,0xa1,0xb2,0xc3};
@@ -105,7 +107,7 @@ static void primitive(Fixture* f) {
 #ifdef MATTER_TEST_ALLOC
     size_t before=calls;
     REQUIRE(p->ccm_encrypt(p->user,f->key,f->iv,aad,8,plain,9,f->cipher)==MATTER_OK);
-    size_t count=calls-before, baseline=live; REQUIRE(count>=2);
+    size_t count=calls-before, baseline=live; REQUIRE(count>=1);
     for (unsigned decrypt=0;decrypt<2;++decrypt) for (size_t i=1;i<=count;++i) {
         memcpy(f->cipher,expected,25); memset(f->result,0xa5,25); fail_at=calls+i;
         Matter_Result_T r=decrypt ? p->ccm_decrypt(p->user,f->key,f->iv,aad,8,f->cipher,9,f->result) :
@@ -140,6 +142,15 @@ static void sessions(Fixture* f) {
     static const uint8_t prefix[]={0,0xc8,1,0,4,3,2,1,0xce,0x91,0x4a,0x0f,0xa9,0xa4,0x70,0xa7,8};
     REQUIRE(f->size[0]==33 && !memcmp(f->packet[0],prefix,sizeof(prefix)));
     Matter_Reception_T before=f->b->rx;
+#ifdef MATTER_TEST_ALLOC
+    size_t rx_live=live; unsigned admitted=f->admitted;
+    fail_at=calls+1;
+    REQUIRE(matter_secure_receive(f->b,f->packet[0],f->size[0],2,admit,f)==MATTER_LIMIT_REACHED);
+    fail_at=0;
+    REQUIRE(live==rx_live && f->admitted==admitted && !memcmp(&before,&f->b->rx,sizeof(before)));
+    REQUIRE(matter_secure_info(f->b,&f->info)==MATTER_OK && f->info.last_received_ms==0);
+    check_erased(f);
+#endif
     for (size_t n=0;n<f->size[0];++n) {
         REQUIRE(matter_secure_receive(f->b,f->packet[0],n,2,admit,f)!=MATTER_OK);
         REQUIRE(!memcmp(&before,&f->b->rx,sizeof(before)) && !f->admitted);
@@ -190,7 +201,7 @@ static void sessions(Fixture* f) {
     fail_at=calls+1;
     REQUIRE(matter_secure_seal(f->a,payload,9,4,f->packet[1],1232,&n)==MATTER_PORT_ERROR);
     fail_at=0; REQUIRE(f->a->tx.next==next+1 && n==99 && zero(f->packet[1],33));
-    before=f->b->rx; fail_at=calls+1;
+    before=f->b->rx; fail_at=calls+2; /* Plaintext succeeds; crypto workspace fails. */
     REQUIRE(matter_secure_receive(f->b,f->packet[0],f->size[0],4,admit,f)==MATTER_PORT_ERROR);
     fail_at=0; REQUIRE(!memcmp(&before,&f->b->rx,sizeof(before))); check_erased(f);
 #endif

@@ -1,5 +1,723 @@
 # Development status
 
+**Memory39: measured stable Read/Subscribe block occupancy.**
+The observed joint attribute-table footprint is 89248 B, with 14272 B empty slots
+and 2400 B headers. Idle fifteen-subscription metadata is 45840 B. Independent
+Read/Subscribe maxima are not summed; 13632 B of Read records behind the released
+cursor identify a next lifetime-audit target, not a proven saving. Whole core-peak
+helper buckets are separately attributed, including possible event metadata.
+Only isolated measurement generators/decoder and docs change; normal storage,
+limits and ACK/drain stay unchanged. Seven native and eleven offline tests pass;
+144 C6 records, exact source/ELF matching and zero-live/zero-overflow cleanup pass.
+The diagnostic's 20008 B BSS overhead is excluded from normal headline figures.
+Normal Memory38 and original fabric are restored; RGB/drain pass, COM23/AP free,
+COM24 untouched, temporary profile/XML removed and Windows IPv6 enabled.
+See [report](memory39-validation.md) and [results](memory39-results.json).
+Next: release completely consumed Read blocks after both IM and MRP drain.
+
+**Memory38: phase-owned OTA Requestor input, encoding and offers.**
+C6 context shrinks 5704 -> 344 B (5360 B resident saving), retaining all limits,
+fabric generations, latest queued announcements, atomic storage/events and snapshots.
+OOM defers default delivery without stopping dispatcher ACK/TX drain. The matched
+normal heap peak changes 331456 -> 326256 B; minimum free 84804 -> 90172 B.
+Both normal fixed runs finish with largest block 262144 B and zero core live bytes.
+Three C6 runs cover fixed publication/Read load and OOM/loss/reconnect/drain. Windows
+112/112 and Linux 109/109 per build pass; complete pair and six wire cases pass under
+Memcheck and separately ASan/UBSan/LSan. An untraced 14/15 startup on an earlier
+prototype remains recorded, without causal attribution. No CSA/Home claim.
+See [report](memory38-validation.md) and [results](memory38-results.json).
+Next: Read/Subscribe block-occupancy audit; final lab restoration follows it.
+
+**Memory37: RMT-only startup reorder rejected after C6 comparison.**
+Four normal/long-probe fault runs preserve five fabrics, fifteen CASE sessions and
+subscriptions, OOM/reconnect/RX-loss recovery and ACK/drain. All finish with zero
+core live bytes and no SDK OOM. Normal cleaned largest blocks are both 167936 B;
+the long probe changes 249856 -> 221184 B despite similar total free. A 100-byte
+UART allocation replaces the moved 92-byte RMT object as the main separator.
+Six exact-ELF maps and 14 decoder tests pass. The original startup is retained;
+no new portable runtime change or host campaign is claimed for this stage.
+See [report](memory37-validation.md) and [results](memory37-results.json).
+Next: phase-owned OTA Requestor memory, then Read/Subscribe block occupancy.
+
+**Memory36: fault-teardown fragmentation attributed on C6.**
+Exact normal-image repeats finish with zero core live bytes: Memory34 free 390200 B,
+largest 233472 B; Memory35 free 390216 B, largest 221184 B. Those largest-block values
+differ from their historical snapshots despite unchanged images and nearly equal
+total free. Five-second maps expose a persistent 16-byte separator. A longer
+Memory35 probe directly identifies it as lwIP `MEMP_SYS_TIMEOUT` from
+`sys_timeout_abs`: free spans 138184/148884 B are separated at 5 s. Between 5 and 15 s
+the node is released, free rises only 20 B and largest grows 147456 -> 286720 B,
+stable through 65 s. Three other SDK timeout nodes remain; RMT 92/MPI 92 mutexes and
+an IRQ descriptor 24 form additional islands. The historical 151552 B snapshot has
+no map and is not retroactively assigned a particular address.
+Optional default-off queue/TLS/small/pool attribution and 65-second observations
+preserve Matter limits and ACK/drain. Attribution costs 1544/12296 B BSS and is
+excluded from normal-image headline metrics. Nine full C6 fault runs pass, with
+all core allocations drained, no healthy errors and no SDK OOM. Fourteen offline
+decoder tests, 15 checked maps and all conditional builds pass. SDK tracked source
+stays clean; no new full host/CSA/Home/reference campaign is claimed. Normal
+Memory35 and original fabric restored; COM23/AP free, COM24 untouched, temporary
+profile/XML removed and Windows IPv6 enabled.
+See [report](memory36-validation.md) and [results](memory36-results.json).
+Next: evaluate supported early RMT initialization before large Matter allocations,
+then compare serving peaks and long-settled largest blocks without deleting SDK globals.
+
+**Memory35: phase-owned Operational Credentials workspaces.**
+Opcreds context shrinks 2016 -> 464 B on C6 (1552 B resident saving). CSR512
+exists only during PREPARE; exact-size elements plus the challenge tail survive
+sign/publish until response copy. Fabric request copies release after execution.
+Secure erasure, limits, key/session/challenge ownership, fail-safe and ACK/drain
+are retained. Normal sampled whole-heap peak is 331396 B (1708 B below Memory34),
+minimum free 84920 B, minimum largest block 61440 B, SDK watermark 82780 B.
+Observed owner stack use remains 3288/12800 B. Normal/fault/observer C6 and final
+original-fabric RGB/drain pass; core live bytes finish at zero. Global OOM ends
+one subscription and full 15 load is rebuilt. Post-fault largest block is worse:
+151552 B versus 258048 B in Memory34, with nearly equal total free heap. Exact
+remaining SDK placement was not newly attributed; this needs a settled-heap
+follow-up. Windows covers 112 cases after three explicit UDP retries, plus six
+wire cases. Linux Memcheck passes 109 native tests, six full pair checks and all
+six wire cases. Separate ASan/UBSan/LSan also pass 109 native tests, six pair
+checks and all six wire cases, without compiler, Memcheck or sanitizer diagnostics.
+Normal image and original fabric restored; COM23/AP are free, COM24 untouched,
+temporary profile/XML removed and Windows IPv6 remains enabled.
+See [report](memory35-validation.md) and [results](memory35-results.json).
+Next: settled samples/paginated heap attribution after the fault workload,
+before another RAM optimization.
+
+**Memory34: demand-sized Fabric encoding and VID scratch.**
+The Fabric model context shrinks 4224 -> 136 B on C6. Exact-size certificate
+output and separate 126/211-byte VID scratch are securely erased before release.
+Certificate/borrow lifetime, filtering/order, snapshots, original limits,
+publication/fail-safe and ACK/drain are preserved. Normal sampled whole heap
+peak is 333104 B (5840 B below Memory33), min free 83400 B, min largest 57344 B,
+SDK watermark 81328 B. Owner stack use is 3288/12800 B; reservation is unchanged.
+Normal/fault/observer C6 and final RGB pass, with zero-live drain and no SDK OOM.
+One subscription ends during global OOM injection and full 15 load is rebuilt;
+this differs from Memory33's single fault run and is recorded explicitly.
+Windows coverage is 109 cases including three explicit UDP retries, plus all six
+wire cases. Linux CTest passes 106/106 and the full pair 6/6 under Memcheck and
+separately ASan/UBSan/LSan. All six wire cases pass in both builds, without
+Memcheck or sanitizer diagnostics. Original fabric/normal image restored;
+COM23/AP are free, COM24 untouched, temporary Wi-Fi profile/XML removed and
+IPv6 enabled.
+See [report](memory34-validation.md) and [results](memory34-results.json).
+Next candidate: phase-dependent Operational Credentials tbs[1040]/csr[512].
+
+**Memory33: demand-sized ACL encoding.**
+ACL context 6384 -> 2288 B on C6, with one exact-size encoded borrow. Fabric
+filtering, foreign FabricIndex-only fields, authorization, atomic writes/events,
+snapshot versions and ACK/drain remain unchanged. Normal whole-heap sampled
+peak 338944 B (2064 B below Memory32), min free 77272 B, min largest 55296 B,
+SDK watermark 77200 B, owner stack use 3176/12800 B. Encoder call chains can add
+64 B of compiler frames; reservation is unchanged. All 13 encoding OOM retries,
+aliasing, staged-event store failure and real CASE multi-fabric Read/Subscribe
+tests pass. Windows native coverage is 107 cases including three explicit UDP
+retries, plus all six wire cases. Linux CTest 104/104 per build; full pair 6/6 and
+six wire cases pass under Memcheck and separately ASan/UBSan/LSan.
+C6 normal/fault/observer/final RGB pass with zero-live drain and no SDK allocation
+failures. Original singleton fabric/normal image restored;
+COM23/AP free, own Wi-Fi profile removed, IPv6 enabled.
+See [report](memory33-validation.md) and [results](memory33-results.json).
+The Fabric model encoding follow-up is completed by Memory34.
+
+**Memory32: demand-sized Diagnostics encoding.**
+The resident 4096-byte output becomes one exact-size borrowed span. Original TLV
+budget/depth, provider lifetime, snapshot versions and ACK/drain are preserved.
+C6 context 8488 -> 4392 B; normal whole-heap sampled peak 341008 B (3960 B lower),
+min free 75216 B, min largest 52224 B, SDK watermark 73580 B. Observed owner stack
+use 3192/12800 B; the new helper path can add 80 B of compiler frames, so task
+reservation is unchanged. All 11 encoding OOM/retry cases and interleaved
+Read/Subscribe snapshot tests pass. Windows 105/105 native and 6 wire cases pass;
+Linux 102/102 native per build; full pair 6/6 and 6 wire cases pass under Memcheck
+and separately ASan/UBSan/LSan. The initial Linux OS IPv6-address failure is retained
+in the report alongside successful matched Memory31/Memory32 repeats.
+C6 normal/fault/observer/final RGB pass with zero-live drain and 0 SDK allocation
+failures. Normal image/original singleton
+fabric restored; COM23/AP free, IPv6 enabled. See [report](memory32-validation.md)
+and [results](memory32-results.json). Next candidate: audit ACL encoded workspace
+lifetime, preserving fabric filtering, authorization and staged-write atomicity.
+
+**Memory31: selective stable Subscribe value groups.**
+Current values allocate only selected ordinal groups; catalog/order/limits,
+snapshot stability, ARRAY continuation and IM/MRP/drain gates are preserved.
+C6 normal peak 344968 B, min free 71284 B, min largest 47104 B: additional 6116 B
+whole-heap saving versus Memory30, 12684 B across both stages. Owner stack use
+3288/12800 B. Host 512-path/3-selected oracle saves 11600 B; all 56 update OOM
+positions pass. Windows 102/102 native and 6 wire cases, Linux 99/99 per build,
+full pair 6/6 and 6 wire cases under Memcheck and separately ASan/UBSan/LSan pass.
+C6 normal/fault soak/observer/final RGB pass with zero core live bytes at drain.
+Post-teardown largest block remains smaller than Memory30 despite equal free
+bytes; no claim of eliminating SDK fragmentation. Normal image/original singleton
+fabric restored, COM23/AP free, IPv6 enabled. See [report](memory31-validation.md)
+and [results](memory31-results.json). Next candidate: audit Diagnostics encoded
+workspace lifetime before making it temporary; no estimated peak gain claimed.
+
+**Memory30: compact plans; Windows/Linux/C6 validation complete.**
+Read/Subscribe share a bounded8-byte private plan, preserving full IDs, limits,
+ARRAY continuation and ACK/drain. C6 normal peak351084 B, min free65092 B, min
+largest39936 B; Read saves1200 B/active plan, Subscribe work72 B. Windows native
+coverage102 definitions (three loopback retries outside sandbox) and both wire
+cases pass, as do C6 fixed profile and OOM/loss/reconnect/drain. After explicit
+user approval of the transfers, Linux99/99 native tests, full pair6/6 and both
+wire cases pass under Memcheck and separately ASan/UBSan/LSan; zero Memcheck errors
+and exit allocations. See [report](memory30-validation.md) and
+[results](memory30-results.json). Selective value blocks follow in Memory31.
+
+**Memory29: normal C6 peak and allocation attribution.**
+The fixed 5-fabric/15-session/subscription profile passes 51 full Reads, 3 parallel
+publication rounds and 4 live removals. Normal SDK-timer peak 357652 B, sampled
+minimum free 58520 B, minimum largest block 33792 B; main task observed 3288/12800 B.
+Separate observer attribution passes with zero overflow after an invalid 1024-
+record attempt; result/value blocks dominate. Production C is unchanged; the
+current controller passes Linux baseline wire checks under Memcheck and separately
+sanitizers. Original fabric/normal image and RGB smoke are restored; COM23/AP
+are free, Windows IPv6 remains enabled. Next selected: compact shared chunk plans
+(estimated 4.8–6 kB), then sparse Subscribe value storage. See
+[validation/backlog](memory29-validation.md) and [results](memory29-results.json).
+
+**Memory28: ready RX before inbox.**
+A natural14/15 C6 incident has valid MRP ACK but missing IM StatusResponse at core
+admission. The dispatcher now consumes ready retained RX before a new inbox,
+without new storage or limits. A before/after native regression and both-peer
+C6 startup checks pass, followed by567.69s OOM/loss/reconnect/drain workload.
+Windows102 native tests and six wire cases pass; Linux99 native tests pass
+normally and with sanitizers. Full pair6/6 and six wire cases pass under Memcheck
+and separately sanitizers. A preliminary
+sanitizer coverage failure prompted deterministic held-completion test control;
+the complete final matrix passes. Historical Memory23 attribution remains open.
+See [validation](memory28-validation.md) and [results](memory28-results.json).
+
+**Memory27: reusable single-lost-ACK comparison.**
+Memory26 is committed as `b77dd1c`. The native test now requires14/15 with the
+original pinned peer and15/15 with the explicitly corrected peer, both loop
+orders, exactly one suppression, terminal MRP attempts,15 existing CASE Reads
+and zero-live TX drain. Windows102 native tests plus four new wire cases pass;
+Linux99 native tests and all six wire cases pass under Memcheck and separately
+sanitizers. Full two-instance Memcheck passes6/6; the sanitizer repeat passes6/6
+after an initial B-subscription check failure, retained with unproven attribution.
+Production core and limits are unchanged. See [validation](memory27-validation.md)
+and [results](memory27-results.json).
+
+**Memory26: C6 UART 1M and startup ACK attribution.**
+Memory25 is committed as `ac187cc`. Three healthy C6 startup captures pass 15/15.
+On identical C6 firmware/state, exactly one suppressed ACK produces 14/15 with
+Matter.js 0.17.9: fallback ACKs have the opposite exchange role, MRP expires after
+five attempts, and the subscription closes while CASE remains usable. Correcting
+only that role in a private controller copy preserves 15/15 with ACK on attempt 2.
+Production core, limits and ACK/drain checks are unchanged. The original incident's
+first loss/delay remains unproven because it lacks a packet trace. Focused host
+CTest passes 7/7; C6 captures and the final normal RGB image drain to zero tracked
+live allocations/bytes. Normal firmware at 1000000 baud and the original single
+fabric are restored; COM23/AP are released and Windows IPv6 remains enabled.
+See [validation](memory26-validation.md) and [results](memory26-results.json).
+
+**Memory25: reusable host wire regression.**
+Memory23 and Memory24 are committed as `26ee0fd` and `43fbd7c`. The new optional
+native fixture shares the C6 controller, uses fresh loopback state, and checks
+five fabrics/15 CASE sessions/subscriptions, ACK/completion ordering, RX reorder,
+three one-shot OOM positions, a missing-ACK negative control, CASE survival and
+held-TX drain. Production core, limits and protocol timeouts are unchanged.
+Windows CTest passes104/104; Linux99/99 native tests pass normally and separately
+with sanitizers. Both new wire cases and the full six-group two-instance scenario
+pass under Memcheck and separately ASan/UBSan/LSan. Memcheck reports zero errors
+and zero bytes/blocks at exit. The short Windows case takes about86s; the extended
+case about348s. These are scoped lab runs, not timing guarantees or CSA results.
+The original physical C6 finding remains open. See the
+[runner guide](../runtime-wire-tests.md), [validation](memory25-validation.md)
+and [results](memory25-results.json).
+
+**Memory24: host-first startup investigation; physical cause remains open.**
+Eight healthy native UDP/IPv6 comparisons of Memory22 and pending Memory23
+pass15/15 full subscriptions. They cover delayed local TX completion, the C6
+loop ordering, prior RGB subscription/disconnect, parallel full Reads and all
+four own-fabric removal replies. Two diagnostic missing-ACK controls end at14/15
+on both versions after the existing MRP timeout. That reproduces the count
+signature, not the cause of the original C6 event. Native CTest passes102/102,
+including allocation-fault regressions. No production core/limit changes or new
+hardware/memory/CSA measurements are claimed. The collector accepts `--baud`
+for the next C6 check;1Mbaud has not yet been physically verified.
+See [Memory24 investigation](memory24-validation.md) and [results](memory24-results.json).
+
+**Memory23: smaller Fabric publication scratch; one open startup stress finding.**
+Memory22 is committed as `13ffe87`. Changed-range undo replaces the15536 B
+rollback image with576–5168 B on C6; committed TLV projection removes the second
+Fabric candidate entirely. The stable live image and one exact-size contiguous
+TLV blob remain. Public APIs/limits, storage schemas, atomic publication,
+fail-safe and ACK/drain are unchanged.
+
+The common fully live/local-close workloads receive all own-fabric responses.
+Their final system-heap sampled peaks change256348→244480 /256156→244228 B;
+minimum sampled free becomes175504/175748 B. Static D/IRAM remains unchanged.
+The strict full-wildcard retry passes OOM/loss/reconnect/held-TX drain, with
+334644 B peak and83408 B minimum sampled free: whole-model snapshots still
+dominate the broad workload. Native Windows102 tests (three socket tests rerun
+with network access), Linux99/99 normal and99/99 sanitizer tests,17 focused
+Memcheck executions and the full six-group pair separately under Memcheck and
+sanitizers pass. These are lab results, not new CSA results.
+
+The first wildcard startup nevertheless observed14 live subscriptions after15
+initial snapshots. The unchanged full retry and an initial-load-only Memory22
+replay reach15/15; the cause remains unresolved and is not dismissed as network
+noise. This is the next investigation before calling stress acceptance clean.
+The RGB profile still lacks complete required lighting behavior; current Apple
+Home/Google Home pairing has not been physically retested in those apps.
+See [Memory23 validation](memory23-validation.md) and [results](memory23-results.json).
+
+**Previous Memory22 measurements.**
+**Memory22: own-fabric reply progress with multiple live CASE sessions.**
+Memory21 is committed as `5a577e4`. A rejected ACK from another exchange of
+the reply-only connection incorrectly held priority over MRP and starved the
+RemoveFabric response. Eligibility now precedes ACK priority; accepted UDP
+borrows, ciphertext lifetime, limits, fail-safe and retirement remain intact.
+The deterministic regression fails before the fix and covers ACK ordering,
+held old-ACK completion, transport failure, packet OOM and other-fabric isolation.
+The physical live/local-close variants receive all four removal responses;
+the final live oracle also checks fresh updates on surviving subscriptions.
+
+The measured Memory21 heap difference113120 B is offset by69305 B more static
+D/IRAM in the reference: total sampled-peak accounting differs43815 B, and
+loaded free heap37772 B. Both Wi-Fi IRAM settings match. C6 allocation attribution
+identifies persistent cluster workspaces and image/rollback/TLV publication
+overlap, rather than attributing the full difference to Wi-Fi.
+See [Memory22 validation](memory22-validation.md) and [results](memory22-results.json).
+No official CSA rerun is claimed.
+
+**Previous Memory21 measurements.**
+**Memory21: settled SDK heap attribution and physical external-stack reference.**
+Memory20 is committed as `230e815`. New optional lab maps identify persistent
+92-byte SDK RMT/MPI singleton mutexes that split large holes after core teardown.
+Waiting5s leaves largest blocks unchanged; tracked core allocations/bytes are
+zero. Explicit final owner-thread lwIP cleanup recovers112 B, without increasing
+the largest block. No SDK global is manually freed, and core limits/lifetimes,
+fail-safe and ACK/drain are unchanged.
+
+The matched five-fabric/15-session/15-subscription workload passes on COM23 C RGB
+and COM24 ESP-Matter1.6.1/IDF6.0.2. Static D/IRAM is110493 /179798 B; common
+SDK-timer heap peak256136 /143016 B; sampled minimum free163804 /206396 B;
+loaded free198856 /236628 B. These are complete lab profiles with different
+SDKs/models, not identical feature sets. The old C owner-loop sampler sees only
+227600 B peak here. Static memory and free heap must accompany comparisons.
+The owner-stack reporting correction adds IDF's512 B: actual main reservation
+12800 B, observed matched C use3288 B. See the report's historical erratum.
+
+Windows102/102, native quick chip-tool six groups in17.50s, final IDF builds,
+normal RGB/drain and the506s C-only OOM/loss/reconnect/held-TX regression pass.
+Reference path exhaustion and the initial C loaded own-fabric response timeout
+remain recorded. Final common cleanup uses explicit close/drain/fresh CASE;
+fully live three-session self-removal remains an unresolved edge-case finding.
+No official CSA rerun or matched reference fault campaign is claimed.
+See [Memory21 evidence](memory21-validation.md), [results](memory21-results.json)
+and [fast versus full regression strategy](memory-regression-strategy.md).
+
+**Previous Memory20 measurements (with the stack correction described above).**
+**Memory20: shared Read/Subscribe encoder, independent ciphertext and free heap.**
+Memory19 is committed as `95bbb14`. One private per-dispatcher encoder replaces
+retained engine outputs. Snapshot blocks and limits remain unchanged. The lease
+ends after independent immutable ciphertext/MRP retention; Subscribe activation
+and interval clocks still wait for actual UDP acceptance. Standalone APIs retain
+their existing ownership. C6 dispatcher grows1200 B and each engine8 B, yielding
+16650 B net for15 subscriptions, or22600 B with five active Read outputs, before
+allocator overhead. The fixed idle and temporary constructor costs are explicit.
+
+Windows102/102, Linux99/99 normally and separately ASan/UBSan/LSan, nine focused
+Memcheck cases, full two-instance6/6 in both modes and both IDF profiles pass.
+The C6 load/recovery windows are 351.8/
+272.6s with five fabrics/15 sessions/subscriptions,
+OOM, RX loss, reconnect, reentry rejection and held-TX drain. Sampled heap peak is
+357148 ->334036 B, tracked peak
+264428 ->241456 B; minimum sampled free heap
+60792 ->83944 B and SDK aggregate free watermark
+57144 ->80308 B. Minimum sampled largest block
+is 36864 ->59392 B; observed owner stack
+2760 ->2636 /12288 B.
+SDK allocation failures and final tracked allocations/bytes are zero.
+Immediate complete-phase largest block drops303104 ->188416 B despite similar
+390k free and zero core allocations; SDK placement versus deferred reclamation
+was unresolved at Memory20; Memory21 attributes persistent SDK mutex placement.
+No blanket fragmentation improvement is claimed.
+
+An unchanged Memory19 baseline initially failed on a late subscription expiry
+inside deliberate RX-loss recovery. Its logs are retained and cleanup restored
+the fixture. The oracle now permits one logged late-count rebuild within that
+fault window, followed by strict load verification; both compared runs use it.
+Original fabric/label are restored, COM/AP released and temporary Wi-Fi profile/
+XML removed; IPv6 remains enabled. See [report](memory20-validation.md) and
+[results](memory20-results.json), including free heap before runtime, full load,
+recovery, drain and complete release. These are scoped observations, not Matter
+worst-case memory bounds. Next: settled post-stop heap samples and SDK allocation
+trace to explain the final largest-block decrease, before secure-decrypt/RX work.
+
+**Memory19: held RX delivery without the queue-to-dispatch payload copy.**
+Memory18 is committed as `64b9f49`. An optional hold/release transfers the queue's
+existing session pin through synchronous dispatch. Receive cannot overwrite held
+bytes; close/retire/stop preserve the loan and drain barrier. ACK admission and
+deadlines remain unchanged. Existing callback-only users retain their behavior.
+TX plaintext stays independent of pending RX; no new allocation or quota change.
+One payload copy per delivery is removed, with no further fixed RAM saving:
+C6 dispatcher/RX remain 5864/3240 B and the new state byte fits padding.
+
+Windows 102/102 and Linux 99/99 per normal/sanitizer build pass, as do seven
+focused Memcheck cases and complete two-instance 6/6 under Memcheck/separate
+sanitizers. RX constructor OOM and 1000 allocation-free cycles are now native
+CTest coverage. Both IDF profiles compile. Final C6 passes a 283 s load/recovery
+window with five fabrics,15 protected sessions/subscriptions,76 full Reads,
+OOM, RX loss, reconnect and held-TX drain. Observed sampled/tracked peaks are
+356592/264100 B; owner stack 2760/12288 B, with zero SDK allocation failures and
+zero final tracked allocations. The Memory18 comparison is 356980/264412 B and
+2696 B stack; these timing-sensitive differences do not prove another RAM saving.
+
+An initial RGB Busy failure is retained. Unchanged Memory18 reproduces resource
+Busy with overlapping full/concrete Reads; the RGB controller now logs/bounds
+retry for only that status without widening the one-Read budget. Final RGB uses
+zero retries. Original fabric/label are restored, COM23/AP released, temporary
+Wi-Fi profile/XML removed and IPv6 kept enabled. See [report](memory19-validation.md)
+and [results](memory19-results.json) for intermediate attempts and limits.
+Next: audit secure-decrypt scratch to RX admission for reserve/authenticate/commit
+without an extra temporary allocation/copy, preserving replay and ACK atomicity.
+
+**Memory18: delivery/plain phase sharing with reentry guards.**
+Memory17 is committed as `b122565`. One per-instance work area reduces the C6
+dispatcher 7096 ->5864 B without a new allocation or changing limits. Delivery
+ends before TX composition; inbox, ACK and retained ciphertext stay independent.
+Dispatcher and enclosing runtime reject recursive processing/control before
+changing bytes, clocks or models. Normal fail-safe retirement and event queues
+remain usable; this owner-thread guard does not provide thread synchronization.
+
+Consecutive short C6 RGB runs pass with five fabrics,15 protected CASE sessions/
+subscriptions,71 full Reads each, OOM, RX loss, reconnect and held-TX drain.
+Sampled heap peak is357584 ->356980 B, tracked peak265272 ->264412 B; minimum
+sampled largest block remains35840 B. Observed owner stack is2728 ->2696 B of
+12288 B reserved; SDK allocation failures and final tracked live bytes are zero.
+The fixed1232 B owner saving is distinct from variable whole-device peaks.
+Windows101/101, Linux98/98 per normal/sanitizer build, five focused Memcheck
+cases and full two-instance6/6 under Memcheck/separate sanitizers pass. Both C6
+profiles compile and actual diagnostics-callback reentry is rejected on C6.
+See [report](memory18-validation.md) and [results](memory18-results.json).
+Next: audit/remove the RX-service-to-delivery copy with deferred ACK/drain intact.
+
+**Memory17: inline short snapshots and packet-buffer lifetime audit.**
+Memory16 is committed as `16fe40d`. Validated values through eight encoded bytes
+now live in the existing 16 B C6 capture record; common accessors preserve Read
+compaction and tiny-list REPLACE/ADD continuation. Limits, report budgets and
+MRP/IM/actual UDP drain remain intact. The standalone unsecured ACK envelope
+falls 1232 ->26 B, reducing the C6 dispatcher 8296 ->7096 B. Other packet buffers
+retain separate ownership; guarded delivery/plain phase reuse is the next task.
+
+The all-short host component peak falls 526729 ->403857 B (23.33%), removing 7680
+payload allocations across 15 x512 results; long shared values cost 8 B extra
+transient scratch. Actual C6 RGB heap peak is 362408 ->358332 B (1.12%), tracked
+peak 269832 ->266120 B; minimum sampled largest free block 31232 ->35840 B.
+Observed owner stack is 2616/12288 B in both. Two short load/recovery runs pass
+with five fabrics/15 protected sessions/subscriptions, 71 full Reads each, OOM,
+loss, reconnect and held-TX drain. SDK allocation failures are zero; tracked
+allocations/bytes return to zero and SDK heap integrity passes. Different fault
+recovery timing yields 351/278 s windows, not a new hour or exhaustive RAM bound.
+
+Final Linux CTest 98/98 per build, four focused Memcheck cases and full two-instance
+6/6 under Memcheck/separate sanitizers pass. Windows full 101/101 passes, followed
+by 2/2 after a fixture-only CASE identity correction. IDF 6.1 RGB/default builds
+pass. An existing random-ID fixture collision is deterministically reproduced
+and fixed without CASE product changes; intermediate failures remain recorded.
+Original fabric/label are restored, COM23/AP released, temporary Wi-Fi profile
+removed and IPv6 kept enabled. See [report](memory17-validation.md) and
+[results](memory17-results.json) for scope, measured costs and commands. The RGB
+model remains incomplete.
+
+**Memory16: lower report peak and optional C6 RGB laboratory.**
+Per-runtime immutable snapshot sharing retains independent authorization,
+provider reads, versions/budgets and ACK/drain. Its bounded index falls back to
+private copies instead of changing admission. Private Read/Subscribe results
+fall 48 ->32 B and 24 ->16 B on C6, preserving full path IDs and stable blocks.
+The opt-in RGB model adds EP1/38 attributes (171 total), standard selected
+OnOff/Level/Color commands, application-owned transitions and GPIO8/RMT output.
+It remains an incomplete development light profile, with volatile settings and
+no complete Extended Color Light conformance/certification claim.
+
+The same RGB workload fails with baseline core and with sharing alone (25 SDK
+allocation attempts fail in each). Final code passes a 437 s load/fault/recovery
+window: five fabrics/15 protected sessions/subscriptions, 121 full Reads, 60 initial/
+rebuilt snapshots, two tracked OOM injections, RX loss, real reconnect and held-TX
+stop/drain. Healthy errors/unexpected closures/SDK allocation failures are zero;
+fault-induced subscription losses and rebuilds are counted. Observed sampled
+heap falls 403016 ->362480 B; tracked peak 310120 ->269696 B. Successful owner
+stack use is 2616/12288 B (2696 B across both attempts of the final image).
+Final tracked live allocations/bytes are zero; SDK heap integrity passes. The
+four fixture fabrics are removed with ACK, original fabric/label restored,
+Windows Wi-Fi disconnected/profile removed and IPv6 kept enabled. C6 is stopped,
+COM23 released and AP unchanged. This is not a new one-hour endurance result or
+an exhaustive RAM bound. Earlier failures/oracle repairs remain recorded.
+
+The heavy host component peak falls 835673 ->637577 B (272 B fixture index extra).
+Final Linux CTest 97/97 per build, three focused Memcheck cases and two-instance
+6/6 under Memcheck/separate sanitizers pass. Windows final focused 17/17 and socket
+retry 3/3 pass; final RGB and default non-RGB IDF builds compile. See the
+[report](memory16-validation.md) and [results](memory16-results.json).
+Next: measure inlining short complex values in existing captured storage before
+accepting that representation.
+
+**Memory15: sustained C6 concurrency and recovery.**
+The physical root-node laboratory completes 3606 s with five fabrics, 15
+protected CASE sessions/full subscriptions, 1392 full Reads, 27 tracked OOM
+cycles, 14 ingress-loss cycles and nine radio reconnects. Healthy traffic has
+zero operation errors/unexpected subscription closures; deliberate faults can
+end subscriptions and their rebuilds are counted. Four fixture fabrics are
+removed with acknowledged responses, the original fabric/label are restored,
+and deferred-TX stop waits for drain: zero tracked live allocations and SDK heap
+integrity pass. Fixes cover TX starving ACK ingress, demand-grown/trimmed stable
+RX FIFO, and a stable interface scope key across lwIP radio re-addition.
+An optional Wi-Fi flash-code profile recovers 33332 B DIRAM without reducing
+driver pools or Matter limits; SDK defaults fail the earlier saturated workload
+with allocation failures. Default project configuration remains unchanged.
+Successful-hour maxima are 368184 B sampled internal heap, 276648 B tracked
+allocation-event peak and 2584 B observed owner-stack use of 12288 B reserved.
+Comparable full-load heap checkpoints stay 291780–292104 B; this is a scoped
+root-node observation with sampling gaps, not a complete specification bound.
+Earlier failures, including a 27-minute CASE BUSY attempt, remain documented.
+Linux CTest95/95 per build and two-instance6/6 under Memcheck and separately
+sanitizers pass; Windows focused2/2, target profiles and physical fixtures pass.
+See the [report](memory15-validation.md) and [results](memory15-results.json).
+No official CSA/strict attestation/routed IPv6 result is claimed. Next: run the
+three-phase product model on C6 through the same maximum-load memory envelope.
+
+**Memory14: physical C6 network runtime and durable recovery.**
+Application-owned IDF 6.1 UDP/IPv6, mDNS, Wi-Fi and two-slot atomic NVS ports
+now serve PASE/CASE, resumption, remote Read/Write and full 133-attribute
+Subscribe snapshots. ECM/second-fabric commissioning and acknowledged removal
+pass; a persisted fail-safe fixture forces real radio stop/start before
+admission, then CASE confirms the original fabric, label and higher event
+numbers. Physical validation fixed stale lwIP interface-index binding and core
+cleanup that ran before deferred radio restoration. Existing limits remain.
+NVS grows to 256 KiB to budget the 32 KiB blob ceiling beside a live checkpoint.
+Final drain has zero tracked live allocations and passes SDK heap integrity.
+Observed maxima: 191992 B sampled system heap, 133612 B tracked allocation-event
+peak and 2600 B owner-stack use from a 12288 B reservation. These are separate
+measurements of a scoped workload, not a complete specification memory bound.
+Windows CTest97/98 plus corrected-PATH packaging retry1/1, focused runtime2/2;
+Linux CTest95/95 per build and two-instance6/6 under Memcheck and separately
+sanitizers pass. The target also passes constructor/adapter/model OOM and
+maximum-blob/rejected-publication/reopen tests. See the
+[report](memory14-validation.md) and [results](memory14-results.json).
+The controller accepts a public TEST CD attestation finding under its development
+policy; no strict attestation/CSA result or electrical power-cut test is claimed.
+TL-MR3020 required no firmware/configuration change. Next: sustained C6
+concurrency, fragmentation and reconnect/OOM envelope before another memory
+representation change.
+
+**Memory13: ESP-IDF component and physical C6 memory laboratory.**
+The VM now has isolated IDF 6.0.2 tools and a successful ESP-Matter 1.6.1 light
+build for C6. The C library has an optional IDF 6.1 component, a private Mbed TLS 4
+compatibility boundary and an application-owned lab with heap/task telemetry.
+The attached C6 on COM23 passes eight reused crypto/certificate/IM test units,
+seven injected allocation failures, local two-party PASE and WPA2/DHCP against
+the lab AP. Library allocations drain to zero; SDK heap integrity passes.
+The separate profile observes 110128 B maximum sampled internal heap allocation
+with Wi-Fi and 128 retained events, including SDK resources and reserved task
+stacks. Its library-only peak is 32892 B, and owner stack observed use is 1184 B
+from a 12288 B reservation (2584 B with the larger self-test fixtures).
+These are scoped workload observations, not a complete-node/specification bound.
+Compiler review reduces the new PSA HKDF frame 592 -> 48 B without mutable static
+workspace. Windows CTest 98/98 and final focused 5/5 pass; Linux CTest 95/95 per
+build and two-instance 6/6 under Memcheck and separately sanitizers pass, with
+zero Memcheck errors/live allocations. See the [report](memory13-validation.md)
+and [results](memory13-results.json). Software ECC is currently required;
+private SDK headers need review on upgrades. ESP-Matter is compiled only and its
+different configuration does not support an efficiency comparison.
+Next: actual target UDP/IPv6/discovery and atomic persistence, then controller
+commissioning/CASE/resumption and live subscriptions. No full target runtime,
+long-duration fragmentation result, matching vendor workload or CSA rerun yet.
+
+**Memory12: demand-allocated event path metadata for Read/Subscribe.**
+Raw event selectors use short-lived nodes, deduplicated paths use stable blocks,
+and filters allocate for the expanded path count. Selectors release before
+filters; Read releases filters after snapshot capture, while Subscribe retains
+small scratch for allocation-free urgent wakeups/idle polls.120 candidates,
+9 combined requested paths when events are requested, ordering, concrete
+precedence, snapshots, watermarks and ACK/drain remain unchanged. Event owners
+on ESP32 fall5576 ->144 B
+and5584 ->160 B; one-path metadata totals404/436 B plus record references/nodes.
+The heavy node component peak falls620266 ->461558 B (25.6%); attribute-only
+saturated reports stay835673 B. Full-path allocator/header costs and loose
+configured-cap arithmetic are distinguished in the
+[report](memory12-validation.md) and [results](memory12-results.json).
+Windows CTest95/98 plus3/3 socket retries and4/4 focused tests; Linux CTest95/95
+per build, two-instance6/6 per memory variant and independent wildcard full-host
+22/22 checks under Memcheck and separately sanitizers pass. New fault coverage
+checks every one/120-path capture allocation (4/40 per engine), stable addresses,
+phase cleanup and unchanged old state on admission/filter OOM. All27 ESP32 probes
+have no diagnostics; process frames stay144/192 B, but Subscribe urgency and
+Read reserve frames grow16 B, with new64-byte path admission/32-byte accessors.
+Both ordinary host capacity runs pass50/50; Massif observes390233 B heap,6744 B
+maximum sampled used stack and402000 B maximum combined, a small increase over
+Memory11. This workload is separate from the event-heavy component measurement.
+Next: target application/ESP32 allocator/crypto/task-stack measurement harness
+before changing Fabric image/rollback representation. No linked/physical ESP32
+or official CSA rerun.
+
+**Memory11: stable demand-allocated Read/Subscribe result blocks.**
+Read results, Subscribe persistent results and report-only values share typed
+blocks of at most16 entries. Growth stages new blocks atomically and never copies
+or reallocates old storage. Indexed lookup uses an owner-local cache;512-result
+limits, filtering/report order, independent immutable packets and ACK/drain
+remain unchanged. ESP32 largest Read result requests fall24576 ->776 B, Subscribe
+12288 ->392 B, captured-value table8192 ->264 B. Read growth table payload falls
+38400 ->24840 B; full steady tables and owners grow slightly. The x86_64
+pre-provider512-result Read peak falls54142 ->38558 B (28.8%), node component
+625602 ->620266 B, while fifteen full subscription reports plus Reads increase
+819313 ->835673 B (2.0%). The largest report request in that workload falls
+12288 ->4800 B. These tradeoffs and scoped compiler-derived envelopes are in the
+[report](memory11-validation.md) and [results](memory11-results.json).
+Windows CTest94/97 plus3/3 local socket retries and7/7 focused checks; Linux
+CTest94/94 per build, two-instance6/6 per memory variant, separate saturated
+sanitizers and dedicated Memcheck pass. The new block test faults all64 staged
+OOM positions and checks old addresses/data/cache/links/capacity and cleanup.
+All27 ESP32 probes have no diagnostics. Process frames stay144/192 B; Read's
+encoder/compaction and Subscribe's reserve specialization grow16 B each, with
+additional nested32-byte accessors. No target stack high-water claim.
+Both full-host capacity runs pass50/50; Massif observes389010 B heap,6688 B maximum
+sampled used stack and401048 B maximum combined, a small increase over Memory10.
+Next: demand-sized event path/selector metadata, now the largest allocation in
+the node component. No linked/physical ESP32 or official CSA rerun.
+
+**Memory10: shared event records, compact final Read tails and node reporting budget.**
+Private snapshots retain immutable event-node references, preserving bytes and
+membership through eviction/removal. OOM/reference overflow preserve old captures;
+confirmed prefixes release only after the existing MRP+IM gate. Final Read sent
+releases result/selector/plan/RX/TX metadata after the independent packet copy;
+remaining snapshots wait for confirmation or owner cancellation/drain. Public
+APIs, formats, limits, fail-safe and admission remain unchanged. The heavy
+24-subscription/replacement, six-active-Read, fourteen-Read-tail component plus52
+explicit packet leases falls2444160 ->625602 B peak (74.4%); full128-record logs
+pay1024 B more for references. ESP32 snapshot vectors fall29696 ->512 B, but
+different generations retain different nodes. A compiler-derived conservative
+reporting/event/dispatcher/TX subtotal is2307996 B with a shared evicted generation,
+3672988 B for44 distinct generations, excluding other node/platform resources;
+these are additive envelopes, not measured peaks or total/normative RAM bounds.
+Linux CTest93/93 per build, two-instance6/6 per memory variant, dedicated Memcheck,
+separate component sanitizers and16/1024-capacity4/4 checks pass. Windows93/96 plus
+3/3 socket retries and5/5 final focused checks. Both whole-host drivers pass50/50;
+Massif observes388288 B heap,6680 B maximum sampled stack and399720 B combined,
+essentially unchanged from Memory09 in this ordinary workload. See
+[report](memory10-validation.md) and [results](memory10-results.json).
+Next: stable demand-allocated expanded-result blocks to reduce contiguous result
+allocations/growth overlap. No linked/physical ESP32 or official CSA rerun.
+
+**Memory09: compact report values, consumed-chunk cleanup and transient secure RX.**
+Read results use a private scalar/span representation. Subscribe separates
+persistent paths/versions from its report-only value table. Complete attributes
+release only after their chunk's IM Success and MRP confirmation; partial lists
+stay immutable and the16384-byte cumulative report cap is unchanged. Secure
+receive allocates exact temporary plaintext, erases/frees it after admission and
+preserves replay/time on OOM. Public APIs, admission/default limits and ACK/drain
+remain unchanged. ESP32 Read items fall72 ->48 B, Subscribe persistent items
+72 ->24 B plus16 B per captured value, secure owners1552 ->320 B.
+The saturated fifteen-report/five-Read component peak falls1127553 ->819193 B;
+idle subscriptions fall701370 ->210090 B. This excludes other host/platform
+allocations and remains larger than a small target RAM budget. Linux CTest92/92
+per build, two-instance checks6/6 per memory variant, focused Memcheck and separate
+saturated sanitizers pass. Windows92/95 plus3/3 local socket retries and9/9 final
+focused checks. [Report](memory09-validation.md) and [results](memory09-results.json)
+separate configured-cap arithmetic, component demand and whole-host samples.
+Native capacity checks pass50/50 at3 seconds and Massif checks50/50 at30 seconds;
+the whole-host sample is388317 B heap,6752 B maximum sampled stack and399176 B
+maximum heap+metadata+used-stack combined (different stack-maximum snapshot).
+Next: application-specific whole-node event/reporting and delivery-tail budgets
+before ESP32 RAM sizing; no physical ESP32 or official CSA rerun.
+
+**Memory08: PASE/CASE buffers follow handshake phases.**
+Exact RX, process-only parsers, exact PASE parameter transcripts and temporary
+CASE Sigma work replace embedded buffers. TX releases at sent after the owner's
+MRP copy; terminal statuses allocate nothing. Limits, fail-safe notifications,
+resumption, one-shot transfer and PASE ACK/CASE sent gates are unchanged. ESP32
+owners fall6384 ->744 B and14112 ->2440 B; the all-buffer ceilings add32/56 B plus
+allocator overhead, while measured phase lifetimes reduce actual peaks.
+Linux CTest91/91 per build and two-instance checks6/6 per memory variant pass;
+phase/OOM Memcheck is clean. Windows91/94 plus3/3 socket retries. A native
+five-fabric/fifteen-session/fifteen-subscription workload passes50 checks at a
+3-second report interval. [Report and memory-budget limitations](memory08-validation.md)
+and [results](memory08-results.json) separate sampled whole-host heap/stack from
+ESP32 layouts and normative resource guarantees: one-node Massif with30-second
+reports observes413884 B heap,6744 B sampled stack,424368 B combined peak including
+allocator overhead;50 checks pass. Host discovery/resolver groups alone account
+for94920 B at the heap sample. No physical ESP32 or CSA rerun.
+Next: bound whole-node reporting/snapshot demand and persistent secure RX storage.
+
+**Memory07: Fabric publication stages metadata and sizes TLV output exactly.**
+The guarded Fabric candidate is borrowed during synchronous encoding; the live
+image, complete rollback, schemas1..7, five-fabric/storage limits, fail-safe and
+ACK/drain ordering remain unchanged. The same writer measures and encodes, and
+shared field/validation operations avoid a second schema implementation.
+Tracked host publication peak falls 64,632 -> 32,313 B; ESP32 staging falls
+16,160 -> 648 B. For the measured blob, the image/rollback/staging/output subtotal
+falls 80,016 -> 47,681 B. Dense image/rollback and populated-blob restore remain.
+Linux CTest is 90/90 and two-instance checks 6/6 per memory variant; focused
+committed/pending seed/load Memcheck cases are clean. Windows is 90/93 in the
+sandbox plus 3/3 socket retries. ESP32 probes have no compiler diagnostics.
+[Report](memory07-validation.md) and [results](memory07-results.json) distinguish
+heap measurements, layout subtotals, stack growth and remaining limits.
+Next: phase-sized PASE/CASE buffers with handoff, fail-safe and ACK/drain preserved.
+No physical ESP32 or official CSA rerun.
+
+**Memory06: IM parser/tag/selector workspaces and CASE cache allocate on demand.**
+Read/Subscribe erase temporary parser state after work; Subscribe also releases
+its temporary chunk plan, and exact attribute selectors release after expansion.
+Invoke retains parser/writer state through async effects. Limits and independent
+snapshot/result/output ACK/drain ownership remain unchanged. ESP32 owner sizes:
+Read 280 B, Subscribe 328 B, Invoke 224 B, Write 232 B, client 56 B; the five owners
+save 8024 B. Empty Fabric host saves 1552 B with bounded live MRU nodes.
+Linux CTest 90/90 and two-instance checks 6/6 per memory variant; full request,
+Read, Subscribe and CASE/cache allocation suites are clean under Memcheck.
+Windows 90/93 in sandbox plus 3/3 socket retries; no parser frame grows.
+[Report and larger-allocation audit](memory06-validation.md) records active
+costs, stack frames and evidence. Fabric image still uses 15552 B; publication
+coexists with backup/staging/TLV storage for an 80016-byte payload subtotal.
+PASE/CASE attempts are already per-handshake and disappear after handoff/drain.
+Next: reduce Fabric publication's peak and adapter work, then phase-sized
+PASE/CASE buffers. No device or official CSA rerun.
+
+**Memory05: Invoke/Write/client requests, replies and results allocate on demand.**
+Accepted RX, normalization scratch, declared command bodies, bounded replies and
+validated Write IB descriptors/results replace embedded buffers/tables. Handler
+allocations precede all model effects; per-IB atomicity, limits and ACK/drain
+ownership remain unchanged. ESP32 owners: Invoke 5600 -> 1536 B, Write 4288 ->
+1800 B, client 2968 -> 936 B, with operation buffers counted separately. Linux
+CTest 89/89 and two-instance checks 6/6 per memory variant; all 16 allocation OOM
+sites and lifetime tests pass, Memcheck reports no leaks/errors. Windows 89/92
+in sandbox plus 3/3 socket retries with network access. Client receive's compiler
+frame grows 32 B; allocator/peak tradeoffs are recorded in the
+[report](memory05-validation.md). No device or official CSA rerun.
+Next: inspect fixed parser/tag/path/result workspaces and their lifetime.
+
+**Memory04: Read/Subscribe share demand-sized immutable value storage.**
+Each encoded value owns a stable allocation; the 4096/16384-byte payload budgets
+and result ceilings are unchanged. Subscribe frees after the whole report's
+IM/MRP gates, Read on delete; cancellation/timeout retain values through owner
+drain. ESP32 owner sizes remain unchanged; an 8-byte string requests 14 B instead
+of a 16384-byte arena, while 512 saturated values add 2048 B of link metadata.
+Linux CTest 88/88 and two-instance checks 6/6 per memory variant, snapshot OOM
+Memcheck and 16/1024-capacity tests are clean. [Report](memory04-validation.md).
+No device or official CSA rerun. Next: inspect Invoke/Write/client allocations.
+
+**Memory03: event-log retention and batch staging allocate on demand.**
+Stable event nodes replace both fixed arrays, preserving number reservations,
+oldest lowest-priority eviction, same-batch protection and atomic prepare/finish.
+Read/Subscribe retain independent immutable snapshots. ESP32 compiler layouts:
+empty log 60,184 -> 808 B; full 128-record retention 31,528 B; full-log/full-batch
+peak 62,248 B before allocator overhead. Linux CTest 87/87 and two-instance
+scenario 6/6 per memory variant; event OOM Memcheck and sanitizer tests at
+capacities 16/1024 are clean. [Report and limits](memory03-validation.md).
+No physical ESP32 or official CSA rerun. Next: bounded shared value snapshots
+for Read/Subscribe, preserving references and report/ACK ownership.
+
+**Memory02: transactions and TX packets allocate on demand in the isolated memory checkout.**
+Memory01 is committed as `5355e02`. Stable live nodes and exact encoded TX sizes
+preserve the existing admission ceilings, ACK/retry and UDP drain lifetimes.
+ESP32 compiler layouts show 78,200 B less idle reservation; full 52 x 1232 B TX
+costs 424 B more before allocator overhead. Linux CTest 86/86 per memory variant,
+two-instance scenario 6/6 per variant, and focused OOM/drain Memcheck are clean.
+Transport 128 dispatcher regression also passes under sanitizers.
+[Report and limitations](memory02-validation.md). No device or official CSA rerun.
+Next: demand-sized event retention/staging with atomic publication preserved.
+
 The continuing campaign uses an [execution plan](csa-campaign-plan.md) and
 [generated current queue](csa-campaign-status.md). Execute all possible applicable
 tests first, retain explicit external blockers, then repair attributed native

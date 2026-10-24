@@ -4,9 +4,23 @@
 #define DIAG_CHECK(x) do { if(!(x)) { fprintf(stderr,"diagnostics:%d: %s\n",__LINE__,#x); exit(1); } } while(0)
 #include "test_diagnostics_fixture.h"
 #ifdef MATTER_TEST_ALLOC
-static size_t live,calls,fail_at;
-void* matter_test_calloc(size_t n,size_t z) { if(++calls==fail_at) return NULL; void* p=calloc(n,z); if(p) ++live; return p; }
-void matter_test_free(void* p) { if(p) { DIAG_CHECK(live); --live; } free(p); }
+static void encoded_reentry(void*,size_t);
+#define MATTER_TEST_ALLOC_AFTER_ALLOC encoded_reentry
+#include "test_alloc_bytes.h"
+#undef MATTER_TEST_ALLOC_AFTER_ALLOC
+static Matter_Diagnostics_T reentry_model;
+static unsigned reentry_calls;
+static void encoded_reentry(void* data,size_t size) {
+    (void)data; (void)size;
+    if(!reentry_model) return;
+    ++reentry_calls; Matter_Im_Value_T v; uint32_t version=99;
+    DIAG_CHECK(matter_diagnostics_read(reentry_model,0x33,1,1,&v)==MATTER_IM_FAILURE);
+    DIAG_CHECK(matter_diagnostics_read(reentry_model,0x36,0xfffb,1,&v)==MATTER_IM_FAILURE);
+    DIAG_CHECK(matter_diagnostics_refresh(reentry_model)==MATTER_BUSY);
+    DIAG_CHECK(matter_diagnostics_version(reentry_model,0x33,&version)==MATTER_BUSY && version==99);
+    DIAG_CHECK(matter_diagnostics_set_test_trigger(reentry_model,NULL)==MATTER_BUSY);
+    DIAG_CHECK(matter_diagnostics_delete(reentry_model)==MATTER_BUSY);
+}
 #endif
 static const uint8_t empty[]={0x15,0x18};
 static Matter_Result_T fake_snapshot(void* u,Matter_Diagnostics_Snapshot_T* s) { *s=*(Matter_Diagnostics_Snapshot_T*)u; return MATTER_OK; }
@@ -18,6 +32,50 @@ static uint8_t fake_trigger(void* u,uint64_t event) {
     DIAG_CHECK(matter_diagnostics_delete(t->model)==MATTER_BUSY);
     return event==1?MATTER_IM_SUCCESS:MATTER_IM_INVALID_COMMAND;
 }
+#ifdef MATTER_TEST_ALLOC
+static void encoding_storage(void) {
+    DiagFixture* f=diag_fixture(); DiagFixture* other=diag_fixture();
+    size_t baseline=live_bytes,blocks=live,started=calls;
+    for(unsigned i=0;i<20;++i) {
+        (void)diag_read(f,0x33,1,0); (void)diag_read(f,0x36,0,0);
+        (void)diag_read(f,0x33,0xfffd,0); diag_tick(f,i);
+        DIAG_CHECK(calls==started && live==blocks && live_bytes==baseline);
+    }
+    const uint32_t encoded[]={0,5,6,7,10,0xfff8,0xfff9,0xfffb};
+    for(unsigned c=0;c<2;++c) for(unsigned i=c?5:0;i<8;++i) {
+        uint32_t cluster=c?0x36:0x33; Matter_Im_Value_T v;
+        size_t before=calls; reentry_model=f->model; unsigned probes=reentry_calls;
+        DIAG_CHECK(!matter_diagnostics_read(f->model,cluster,encoded[i],1,&v)); reentry_model=NULL;
+        DIAG_CHECK(reentry_calls==probes+1 && calls==before+1 && live==blocks+1);
+        DIAG_CHECK(v.size && v.size<=4096 && matter_test_allocation_size(v.data)==v.size && live_bytes==baseline+v.size);
+        memcpy(f->response,v.data,v.size); uint32_t version=0; Matter_Im_Attribute_T access;
+        DIAG_CHECK(!matter_diagnostics_version(f->model,cluster,&version) && version==v.data_version);
+        DIAG_CHECK(!matter_cluster_describe(c?matter_diagnostics_wifi(f->model):f->model,encoded[i],&access));
+        (void)diag_read(other,0x33,1,0); DIAG_CHECK(!memcmp(v.data,f->response,v.size));
+        /* Every encoding operation's one allocation can fail. Versions and
+         * backend state stay coherent; retry uses the same literal bytes. */
+        size_t size=v.size; fail_at=calls+1;
+        DIAG_CHECK(matter_diagnostics_read(f->model,cluster,encoded[i],1,&v)==MATTER_IM_RESOURCE_EXHAUSTED); fail_at=0;
+        DIAG_CHECK(live==blocks && live_bytes==baseline);
+        DIAG_CHECK(!matter_diagnostics_version(f->model,cluster,&version));
+        DIAG_CHECK(!matter_diagnostics_read(f->model,cluster,encoded[i],1,&v) && v.size==size && v.data_version==version && !memcmp(v.data,f->response,size));
+        if(i%2) (void)diag_read(f,0x36,4,0); else diag_tick(f,20);
+        DIAG_CHECK(live==blocks && live_bytes==baseline);
+    }
+    Matter_Im_Value_T held=diag_read(f,0x33,0,0);
+    DIAG_CHECK(live==blocks+1 && matter_test_allocation_size(held.data)==held.size);
+    matter_diagnostics_host_control(f->host,true,false);
+    DIAG_CHECK(matter_diagnostics_refresh(f->model)==MATTER_PORT_ERROR && live==blocks && live_bytes==baseline);
+    /* Static global metadata remains available while the backend is invalid. */
+    held=diag_read(f,0x33,0xfffb,0); DIAG_CHECK(live==blocks+1);
+    DIAG_CHECK(matter_diagnostics_read(f->model,0x33,1,0,&held)==MATTER_IM_FAILURE && live==blocks+1);
+    matter_diagnostics_host_control(f->host,false,false); diag_tick(f,20);
+    DIAG_CHECK(live==blocks && live_bytes==baseline);
+    held=diag_read(f,0x33,0,0); DIAG_CHECK(live==blocks+1); diag_release(f); diag_release(other);
+    DIAG_CHECK(!live && !live_bytes);
+    puts("PASS Diagnostics encoding: scalar/idle no allocations, exact-size spans, all11 encoding OOM/retry cases, sibling/instance isolation, reentry, refresh/failure and delete cleanup");
+}
+#endif
 static void bounded_snapshot(void) {
     Matter_Diagnostics_Snapshot_T* s=calloc(1,sizeof(*s)); DIAG_CHECK(s);
     s->general.interface_count=8;
@@ -146,7 +204,7 @@ int main(void) {
     DIAG_CHECK(diag_read(f,0x36,12,0).unsigned_value==0 && !f->image.runtime.total_subscriptions && !f->image.runtime.im_sent && f->image.hours==UINT32_MAX);
     diag_release(f); diag_release(other); bounded_snapshot();
 #ifdef MATTER_TEST_ALLOC
-    DIAG_CHECK(!live);
+    DIAG_CHECK(!live && !live_bytes); encoding_storage();
 #endif
     puts("PASS diagnostics: literal TLV, snapshots/bounds, load/fabric counters, uptime/restart, Wi-Fi commissioning online/null, reset/failure, isolation and OOM"); return 0;
 }

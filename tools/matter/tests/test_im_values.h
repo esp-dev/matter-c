@@ -9,7 +9,7 @@ typedef struct {
     size_t size;
     Matter_Tlv_Type_T type;
     unsigned reads, received, replacements, appends, scalars, entries;
-    bool deny, null_data;
+    bool deny, null_data, short_list;
 } ImValues;
 static const uint8_t values_name[]={'w','h','a','t','w','a','t','t',' ',0xc5,0xbc};
 static void values_put(ImValues* m,Matter_Tlv_Type_T type,int tag,uint64_t n) {
@@ -52,6 +52,10 @@ static Matter_Im_Read_Port_T values_port(ImValues* m) {
 }
 static void values_next(ImValues* m) { VALUES_CHECK(matter_tlv_next(&m->reader,&m->token)==MATTER_TLV_OK); }
 static void values_item(ImValues* m) {
+    if(m->short_list) {
+        VALUES_CHECK(m->token.type==MATTER_TLV_UNSIGNED && m->token.unsigned_value==m->received+1);
+        ++m->received; return;
+    }
     VALUES_CHECK(m->token.type==MATTER_TLV_STRUCTURE);
     values_next(m); VALUES_CHECK(m->token.type==MATTER_TLV_UNSIGNED && m->token.tag.number==0 && m->token.unsigned_value==m->received);
     values_next(m); VALUES_CHECK(m->token.type==MATTER_TLV_UTF8 && m->token.tag.number==1 && m->token.size==sizeof(values_name));

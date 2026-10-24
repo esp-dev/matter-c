@@ -1,4 +1,5 @@
 #include "matter_store_tlv.h"
+#include "matter_store_source_internal.h"
 #include "../codec/matter_tlv_internal.h"
 #include <stdlib.h>
 #include <string.h>
@@ -31,41 +32,81 @@ static const Field root[]={F(Matter_Root_Settings_T,node_label_size,SIZE),H(Matt
 static const Field eem[]={F(Matter_Eem_Checkpoint_T,generation,U64),A(Matter_Eem_Checkpoint_T,raw_mwh,I64,2),A(Matter_Eem_Checkpoint_T,total_mwh,I64,2),F(Matter_Eem_Checkpoint_T,initialized,BOOL),F(Matter_Eem_Checkpoint_T,registers,BOOL),F(Matter_Eem_Checkpoint_T,register_mask,U8),LAST};
 static const Field ota[]={F(Matter_Ota_Provider_T,node,U64),F(Matter_Ota_Provider_T,endpoint,U16),F(Matter_Ota_Provider_T,fabric,U8),LAST};
 static const Field schema[]={F(Matter_Store_Data_T,schema,U32),O(Matter_Store_Data_T,fabrics,fabrics),O(Matter_Store_Data_T,wifi,wifi),O(Matter_Store_Data_T,root,root),F(Matter_Store_Data_T,hours,U32),F(Matter_Store_Data_T,reboots,U16),O(Matter_Store_Data_T,eem,eem),F(Matter_Store_Data_T,event_high,U64),OA(Matter_Store_Data_T,ota,ota,5),LAST};
-typedef struct { Matter_Store_Data_T data; Matter_Tlv_Reader_T reader; Matter_Tlv_Writer_T writer; Matter_Tlv_Element_T e; } Codec;
+typedef struct { uint32_t schema; bool commit_fabrics; Matter_Tlv_Reader_T reader; Matter_Tlv_Writer_T writer; Matter_Tlv_Element_T e; } Codec;
+typedef struct { Codec codec; Matter_Store_Data_T data; } Decoder;
+/* One schema gate for both directions; field ordinals and legacy layouts stay fixed. */
+static bool field_present(const Field* fields,unsigned t,uint32_t version) {
+    return !((fields==eem && t==4 && version<7) || (fields==schema && t==6 && version<5) ||
+        (fields==schema && t==8 && version<6) || (fields==record && t==15 && version==1) ||
+        (fields==record && t==17 && version<4) || (fields==fabrics && t==8 && version<3));
+}
 static void wipe(void* p,size_t n) { volatile unsigned char* b=p; while(n--) *b++=0; }
 static bool put(Codec* c,Matter_Tlv_Type_T type,int tag,uint64_t v,const void* data,size_t n) {
     c->e=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag<0?0:1,.number=tag<0?0:(unsigned)tag},.unsigned_value=v,.data=data,.size=n};
     return matter_tlv_write(&c->writer,&c->e,0)==MATTER_TLV_OK;
 }
-static bool encode_object(Codec*,const Field*,const void*,int);
-static bool encode_value(Codec* c,const Field* f,const unsigned char* p,int tag) {
-    if(f->kind==OBJECT) return encode_object(c,f->children,p,tag);
+static bool encode_object(Codec*,const Field*,const void*,int,bool);
+static bool encode_value(Codec* c,const Field* f,const unsigned char* p,int tag,bool zero) {
+    if(f->kind==OBJECT) return encode_object(c,f->children,p,tag,zero);
     if(f->kind==I64) {
-        c->e=(Matter_Tlv_Element_T){.type=MATTER_TLV_SIGNED,.tag={.control=tag<0?0:1,.number=tag<0?0:(unsigned)tag},.signed_value=*(const int64_t*)p};
+        c->e=(Matter_Tlv_Element_T){.type=MATTER_TLV_SIGNED,.tag={.control=tag<0?0:1,.number=tag<0?0:(unsigned)tag},.signed_value=zero?0:*(const int64_t*)p};
         return matter_tlv_write(&c->writer,&c->e,0)==MATTER_TLV_OK;
     }
-    if(f->kind==BYTES) return put(c,MATTER_TLV_BYTES,tag,0,p,f->count);
-    uint64_t v=f->kind==U8?*(const uint8_t*)p:f->kind==U16?*(const uint16_t*)p:f->kind==U32?*(const uint32_t*)p:
+    if(f->kind==BYTES) {
+        /* Largest projected field is one certificate. Read-only flash bytes,
+         * never a second RAM image or a certificate-sized task-stack buffer. */
+        static const uint8_t zeros[MATTER_FABRIC_CERT_MAX]={0};
+        if(zero && f->count>sizeof(zeros)) return false;
+        return put(c,MATTER_TLV_BYTES,tag,0,zero?zeros:p,f->count);
+    }
+    uint64_t v=zero?0:f->kind==U8?*(const uint8_t*)p:f->kind==U16?*(const uint16_t*)p:f->kind==U32?*(const uint32_t*)p:
         f->kind==U64?*(const uint64_t*)p:f->kind==BOOL?*(const bool*)p:*(const size_t*)p;
     return put(c,f->kind==BOOL?MATTER_TLV_BOOL:MATTER_TLV_UNSIGNED,tag,v,NULL,0);
 }
-static bool encode_object(Codec* c,const Field* fields,const void* object,int tag) {
+static bool encode_field(Codec* c,const Field* f,const unsigned char* p,int tag,bool zero) {
+    if(f->count>1 && f->kind!=BYTES) {
+        if(!put(c,MATTER_TLV_ARRAY,tag,0,NULL,0)) return false;
+        for(size_t i=0;i<f->count;++i) if(!encode_value(c,f,p+i*f->stride,-1,zero)) return false;
+        return put(c,MATTER_TLV_END,-1,0,NULL,0);
+    }
+    return encode_value(c,f,p,tag,zero);
+}
+static bool encode_object(Codec* c,const Field* fields,const void* object,int tag,bool zero) {
     if(!put(c,MATTER_TLV_STRUCTURE,tag,0,NULL,0)) return false;
     for(unsigned t=0;fields[t].name;++t) {
-        if(fields==eem && t==4 && c->data.schema<7) break;
-        if(fields==schema && t==6 && c->data.schema<5) break;
-        if(fields==schema && t==8 && c->data.schema<6) break;
-        if(fields==record && t==15 && c->data.schema==1) break;
-        if(fields==record && t==17 && c->data.schema<4) break;
-        if(fields==fabrics && t==8 && c->data.schema<3) break;
+        if(!field_present(fields,t,c->schema)) break;
         const Field* f=&fields[t]; const unsigned char* p=(const unsigned char*)object+f->offset;
-        if(f->count>1 && f->kind!=BYTES) {
-            if(!put(c,MATTER_TLV_ARRAY,(int)t,0,NULL,0)) return false;
-            for(size_t i=0;i<f->count;++i) if(!encode_value(c,f,p+i*f->stride,-1)) return false;
-            if(!put(c,MATTER_TLV_END,-1,0,NULL,0)) return false;
-        } else if(!encode_value(c,f,p,(int)t)) return false;
+        /* Same ordinals and byte extents as clearing a committed candidate.
+         * Only journal/root/previous credentials disappear; saved_next stays. */
+        bool cleared=zero || (c->commit_fabrics && ((fields==view && t>=2 && t<=6) || (fields==fabrics && t>=7 && t<=9)));
+        if(!encode_field(c,f,p,(int)t,cleared)) return false;
     }
     return put(c,MATTER_TLV_END,-1,0,NULL,0);
+}
+static bool encode_source(Codec* c,const Matter_Store_Source_T* d) {
+    const void* values[]={&d->schema,d->fabrics,d->wifi,d->root,&d->hours,&d->reboots,d->eem,&d->event_high,d->ota};
+    if(!put(c,MATTER_TLV_STRUCTURE,-1,0,NULL,0)) return false;
+    for(unsigned t=0;schema[t].name && field_present(schema,t,c->schema);++t)
+        if(!encode_field(c,&schema[t],values[t],(int)t,false)) return false;
+    return put(c,MATTER_TLV_END,-1,0,NULL,0);
+}
+Matter_Result_T matter_store_source_encode(const Matter_Store_Source_T* d,uint8_t** bytes,size_t* size) {
+    if(!bytes || !size) return MATTER_INVALID_ARGUMENT;
+    *bytes=NULL; *size=0;
+    if(!matter_store_source_valid(d)) return MATTER_INVALID_ARGUMENT;
+    Codec* c=calloc(1,sizeof(*c)); if(!c) return MATTER_LIMIT_REACHED;
+    c->schema=d->schema; c->commit_fabrics=d->commit_fabrics;
+    size_t n=0,encoded=0; uint8_t* output=NULL;
+    bool ok=matter_tlv_measure_init(&c->writer,MATTER_STORE_BLOB_MAX,16)==MATTER_TLV_OK &&
+        encode_source(c,d) && matter_tlv_writer_finish(&c->writer,&n)==MATTER_TLV_OK;
+    if(ok) { output=calloc(1,n); ok=output!=NULL; }
+    if(ok) {
+        ok=matter_tlv_writer_init(&c->writer,output,n,16)==MATTER_TLV_OK && encode_source(c,d) &&
+            matter_tlv_writer_finish(&c->writer,&encoded)==MATTER_TLV_OK && encoded==n;
+    }
+    if(ok) { *bytes=output; *size=n; }
+    else if(output) { wipe(output,n); free(output); }
+    wipe(c,sizeof(*c)); free(c); return ok?MATTER_OK:MATTER_LIMIT_REACHED;
 }
 static bool next(Codec* c) { return matter_tlv_next(&c->reader,&c->e)==MATTER_TLV_OK; }
 static bool end(Codec* c) { return next(c) && c->e.type==MATTER_TLV_END && !c->e.tag.control; }
@@ -90,12 +131,7 @@ static bool decode_value(Codec* c,const Field* f,unsigned char* p) {
 static bool decode_object(Codec* c,const Field* fields,void* object) {
     if(c->e.type!=MATTER_TLV_STRUCTURE) return false;
     for(unsigned t=0;fields[t].name;++t) {
-        if(fields==eem && t==4 && c->data.schema<7) break;
-        if(fields==schema && t==6 && c->data.schema<5) break;
-        if(fields==schema && t==8 && c->data.schema<6) break;
-        if(fields==record && t==15 && c->data.schema==1) break;
-        if(fields==record && t==17 && c->data.schema<4) break;
-        if(fields==fabrics && t==8 && c->data.schema<3) break;
+        if(!field_present(fields,t,c->schema)) break;
         const Field* f=&fields[t]; unsigned char* p=(unsigned char*)object+f->offset;
         if(!next(c) || c->e.tag.control!=1 || c->e.tag.number!=t) return false;
         if(f->count>1 && f->kind!=BYTES) {
@@ -103,24 +139,26 @@ static bool decode_object(Codec* c,const Field* fields,void* object) {
             for(size_t i=0;i<f->count;++i) if(!next(c) || c->e.tag.control || !decode_value(c,f,p+i*f->stride)) return false;
             if(!end(c)) return false;
         } else if(!decode_value(c,f,p)) return false;
+        if(fields==schema && t==0) c->schema=*(const uint32_t*)p;
     }
     return end(c);
 }
 Matter_Result_T matter_store_tlv_encode(const Matter_Store_Data_T* d,uint8_t* out,size_t cap,size_t* n) {
     if(!d || !out || !n || !cap || cap>MATTER_STORE_BLOB_MAX || !matter_store_data_valid(d)) return MATTER_INVALID_ARGUMENT;
     *n=0; Codec* c=calloc(1,sizeof(*c)); if(!c) return MATTER_LIMIT_REACHED;
-    c->data.schema=d->schema;
-    bool ok=matter_tlv_writer_init(&c->writer,out,cap,16)==MATTER_TLV_OK && encode_object(c,schema,d,-1) && matter_tlv_writer_finish(&c->writer,n)==MATTER_TLV_OK;
+    c->schema=d->schema;
+    bool ok=matter_tlv_writer_init(&c->writer,out,cap,16)==MATTER_TLV_OK && encode_object(c,schema,d,-1,false) && matter_tlv_writer_finish(&c->writer,n)==MATTER_TLV_OK;
     if(!ok) wipe(out,cap);
     wipe(c,sizeof(*c)); free(c); return ok?MATTER_OK:MATTER_LIMIT_REACHED;
 }
 Matter_Result_T matter_store_tlv_decode(const uint8_t* data,size_t n,Matter_Store_Data_T* out) {
     if(!out || !data || !n || n>MATTER_STORE_BLOB_MAX) return MATTER_INVALID_ARGUMENT;
-    Codec* c=calloc(1,sizeof(*c)); if(!c) return MATTER_LIMIT_REACHED;
-    bool ok=matter_tlv_init(&c->reader,data,n,16)==MATTER_TLV_OK && next(c) && !c->e.tag.control && decode_object(c,schema,&c->data) &&
-        matter_tlv_next(&c->reader,&c->e)==MATTER_TLV_DONE && matter_store_data_valid(&c->data);
-    if(ok) { c->data.schema=7; *out=c->data; }
-    wipe(c,sizeof(*c)); free(c); return ok?MATTER_OK:MATTER_INVALID_ARGUMENT;
+    Decoder* d=calloc(1,sizeof(*d)); if(!d) return MATTER_LIMIT_REACHED;
+    Codec* c=&d->codec;
+    bool ok=matter_tlv_init(&c->reader,data,n,16)==MATTER_TLV_OK && next(c) && !c->e.tag.control && decode_object(c,schema,&d->data) &&
+        matter_tlv_next(&c->reader,&c->e)==MATTER_TLV_DONE && matter_store_data_valid(&d->data);
+    if(ok) { d->data.schema=7; *out=d->data; }
+    wipe(d,sizeof(*d)); free(d); return ok?MATTER_OK:MATTER_INVALID_ARGUMENT;
 }
 static bool acl_subject(uint64_t v,unsigned mode) {
     return mode==3?(v && v<=65535):((v && v<=UINT64_C(0xffffffefffffffff)) ||
@@ -131,15 +169,21 @@ static bool vid_valid(const Matter_Fabric_Record_T* r,uint32_t schema) {
         !(r->icac_size && r->vvsc_size) && (schema>=4 || (!r->vvs_size && !r->vvsc_size));
 }
 bool matter_store_data_valid(const Matter_Store_Data_T* d) {
-    if(!d || (d->schema!=1 && d->schema!=2 && d->schema!=3 && d->schema!=4 && d->schema!=5 && d->schema!=6 && d->schema!=7) || d->root.node_label_size>32 || !valid_utf8(d->root.node_label,d->root.node_label_size) ||
-        d->root.location[0]<'A' || d->root.location[0]>'Z' || d->root.location[1]<'A' || d->root.location[1]>'Z') return false;
-    const Matter_Eem_Checkpoint_T* e=&d->eem;
+    if(!d) return false;
+    Matter_Store_Source_T source=matter_store_source(d); return matter_store_source_valid(&source);
+}
+bool matter_store_source_valid(const Matter_Store_Source_T* d) {
+    if(!d || !d->fabrics || !d->wifi || !d->root || !d->eem || !d->ota ||
+        (d->schema!=1 && d->schema!=2 && d->schema!=3 && d->schema!=4 && d->schema!=5 && d->schema!=6 && d->schema!=7) ||
+        d->root->node_label_size>32 || !valid_utf8(d->root->node_label,d->root->node_label_size) ||
+        d->root->location[0]<'A' || d->root->location[0]>'Z' || d->root->location[1]<'A' || d->root->location[1]>'Z') return false;
+    const Matter_Eem_Checkpoint_T* e=d->eem;
     if((d->schema<7 && (e->registers || e->register_mask)) || e->register_mask>3 ||
         (e->registers ? (e->initialized!=!!e->register_mask) : e->register_mask!=0) ||
         (d->schema<5 && (e->initialized || d->event_high)) ||
         (!e->initialized && (e->registers || e->generation || e->raw_mwh[0] || e->raw_mwh[1] || e->total_mwh[0] || e->total_mwh[1]))) return false;
     for(unsigned i=0;i<2;++i) if(e->raw_mwh[i]<0 || e->raw_mwh[i]>MATTER_EEM_LIMIT || e->total_mwh[i]<0 || e->total_mwh[i]>MATTER_EEM_LIMIT || (e->registers && e->total_mwh[i]!=e->raw_mwh[i])) return false;
-    const Matter_Store_Wifi_T* w=&d->wifi;
+    const Matter_Store_Wifi_T* w=d->wifi;
     if(w->settings.count>4 || w->connected.size>32) return false;
     for(unsigned i=0;i<w->settings.count;++i) {
         const Matter_Wifi_Network_T* n=&w->settings.networks[i]; unsigned z=n->credential_size;
@@ -147,7 +191,7 @@ bool matter_store_data_valid(const Matter_Store_Data_T* d) {
         if(z==64) for(unsigned k=0;k<z;++k) if(!((n->credentials[k]>='0' && n->credentials[k]<='9') || (n->credentials[k]>='a' && n->credentials[k]<='f') || (n->credentials[k]>='A' && n->credentials[k]<='F'))) return false;
         for(unsigned j=0;j<i;++j) if(n->id.size==w->settings.networks[j].id.size && !memcmp(n->id.bytes,w->settings.networks[j].id.bytes,n->id.size)) return false;
     }
-    const Matter_Store_Fabrics_T* f=&d->fabrics; const Matter_Fabric_View_T* v=&f->view;
+    const Matter_Store_Fabrics_T* f=d->fabrics; const Matter_Fabric_View_T* v=&f->view;
     for(unsigned i=0;i<5;++i) {
         const Matter_Ota_Provider_T* p=&d->ota[i];
         if(!p->fabric) { if(p->node || p->endpoint) return false; continue; }

@@ -1,0 +1,1134 @@
+{
+  "date_local": "2026-10-23",
+  "memory25_commit": "ac187cc",
+  "target": "ESP32-C6-DevKitM-1",
+  "port": "COM23",
+  "application_uart_baud": 1000000,
+  "access_point": "TL-MR3020",
+  "production_core_changes": false,
+  "historical_14_of_15_cause_proven": false,
+  "cases": {
+    "trace04": {
+      "oracle_pass": true,
+      "elapsed_seconds": 146.47894349999999,
+      "subscription_snapshots": 15,
+      "load_reads": [
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 140.01632080000002,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 552,
+            "totalInteractionModelMessagesReceived": 549
+          }
+        },
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 146.1770597,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 570,
+            "totalInteractionModelMessagesReceived": 569
+          }
+        }
+      ],
+      "trace_events": {
+        "RX": 614,
+        "QUEUED": 606,
+        "TX": 627,
+        "TIMER": 627,
+        "TX_DONE": 627,
+        "ACK_DONE": 645,
+        "ACK_RX": 618,
+        "MRP_END": 606,
+        "SESSION": 20,
+        "UDP_RX": 758,
+        "DISPOSE": 129,
+        "CLOSE": 113,
+        "ESTABLISHED": 16,
+        "RETIRE": 20
+      },
+      "malformed_trace_lines": [],
+      "new_subscription_closures_before_stop": [],
+      "mrp_failures": [
+        {
+          "event": "MRP_END",
+          "uart_line": 810,
+          "ms": 62453,
+          "token": 4294967296,
+          "fabric": 1,
+          "sub": 1,
+          "ex": 30210,
+          "init": 1,
+          "line": 403,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 234910478,
+          "b": 327682
+        },
+        {
+          "event": "MRP_END",
+          "uart_line": 6313,
+          "ms": 200972,
+          "token": 4294967308,
+          "fabric": 64,
+          "sub": 6,
+          "ex": 30309,
+          "init": 1,
+          "line": 403,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 185150846,
+          "b": 65540
+        },
+        {
+          "event": "MRP_END",
+          "uart_line": 6314,
+          "ms": 200972,
+          "token": 4294967305,
+          "fabric": 67,
+          "sub": 14,
+          "ex": 30310,
+          "init": 1,
+          "line": 403,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 33824809,
+          "b": 65540
+        }
+      ],
+      "sampled_heap_peak_bytes": 273496,
+      "sampled_heap_min_free_bytes": 145512,
+      "sampled_largest_min_bytes": 126976,
+      "sdk_min_free_bytes": 141676,
+      "sdk_allocation_failures": 0,
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 201780,
+        "heap_free": 390232,
+        "heap_allocated": 31560,
+        "heap_min": 141676,
+        "largest_free": 221184,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9640,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 181128,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "core_peak_bytes": 181128,
+      "owner_stack_max_observed_used_bytes": 3160,
+      "constructor_oom_sweep_executed": false,
+      "source_lf_sha256": "4f8f9ca4b939f45a6616764b6acab5d801f90092226c72191f6e65d3afd595c9",
+      "raw_uart_sha256": "afab65cd35878a85e3dd3eac0c240694b07c41de042c73edbf481f460ab51816",
+      "last_network": {
+        "rx": 827,
+        "tx": 1269,
+        "dropped": 2,
+        "oversize": 0,
+        "extensions": 0,
+        "rx_buffers": 4,
+        "rx_peak": 4
+      },
+      "firmware_sha256": "b82aacf696bffef05b3543efb950411b8b1336b607cdc90a0b31c7704d9d5893"
+    },
+    "trace05": {
+      "oracle_pass": true,
+      "elapsed_seconds": 145.98160290000004,
+      "subscription_snapshots": 15,
+      "load_reads": [
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 139.5962345,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 551,
+            "totalInteractionModelMessagesReceived": 549
+          }
+        },
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 145.7875088,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 569,
+            "totalInteractionModelMessagesReceived": 568
+          }
+        }
+      ],
+      "trace_events": {
+        "RX": 613,
+        "QUEUED": 604,
+        "TX": 632,
+        "TIMER": 632,
+        "TX_DONE": 632,
+        "ACK_RX": 623,
+        "MRP_END": 604,
+        "ACK_DONE": 645,
+        "SESSION": 20,
+        "DISPOSE": 129,
+        "UDP_RX": 768,
+        "CLOSE": 113,
+        "ESTABLISHED": 16,
+        "RETIRE": 20,
+        "ACK_ORPHAN": 1
+      },
+      "malformed_trace_lines": [],
+      "new_subscription_closures_before_stop": [],
+      "mrp_failures": [
+        {
+          "event": "MRP_END",
+          "uart_line": 808,
+          "ms": 59513,
+          "token": 4294967296,
+          "fabric": 1,
+          "sub": 1,
+          "ex": 3129,
+          "init": 1,
+          "line": 403,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 92249936,
+          "b": 327682
+        },
+        {
+          "event": "MRP_END",
+          "uart_line": 6340,
+          "ms": 197663,
+          "token": 4294967305,
+          "fabric": 67,
+          "sub": 14,
+          "ex": 3228,
+          "init": 1,
+          "line": 403,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 6372052,
+          "b": 65540
+        }
+      ],
+      "sampled_heap_peak_bytes": 273580,
+      "sampled_heap_min_free_bytes": 145420,
+      "sampled_largest_min_bytes": 126976,
+      "sdk_min_free_bytes": 141684,
+      "sdk_allocation_failures": 0,
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 198470,
+        "heap_free": 390224,
+        "heap_allocated": 31568,
+        "heap_min": 141684,
+        "largest_free": 303104,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9512,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 181056,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "core_peak_bytes": 181056,
+      "owner_stack_max_observed_used_bytes": 3288,
+      "constructor_oom_sweep_executed": false,
+      "source_lf_sha256": "4f8f9ca4b939f45a6616764b6acab5d801f90092226c72191f6e65d3afd595c9",
+      "raw_uart_sha256": "cdde795b5e93e3a3ea7283a240b1fccb3f442b83876bc05f9ff631f167cc2eb5",
+      "last_network": {
+        "rx": 827,
+        "tx": 1258,
+        "dropped": 2,
+        "oversize": 0,
+        "extensions": 0,
+        "rx_buffers": 4,
+        "rx_peak": 4
+      },
+      "firmware_sha256": "b82aacf696bffef05b3543efb950411b8b1336b607cdc90a0b31c7704d9d5893"
+    },
+    "quiet01": {
+      "oracle_pass": true,
+      "elapsed_seconds": 142.2655678,
+      "subscription_snapshots": 15,
+      "load_reads": [
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 135.5440284,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 547,
+            "totalInteractionModelMessagesReceived": 543
+          }
+        },
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 141.82455310000003,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 565,
+            "totalInteractionModelMessagesReceived": 564
+          }
+        }
+      ],
+      "trace_events": {
+        "SESSION": 20,
+        "MRP_END": 2,
+        "CLOSE": 16,
+        "RETIRE": 20
+      },
+      "malformed_trace_lines": [],
+      "new_subscription_closures_before_stop": [],
+      "mrp_failures": [
+        {
+          "event": "MRP_END",
+          "uart_line": 212,
+          "ms": 60084,
+          "token": 4294967296,
+          "fabric": 1,
+          "sub": 1,
+          "ex": 8484,
+          "init": 1,
+          "line": 408,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 9804035,
+          "b": 327682
+        },
+        {
+          "event": "MRP_END",
+          "uart_line": 346,
+          "ms": 194334,
+          "token": 4294967305,
+          "fabric": 67,
+          "sub": 14,
+          "ex": 8580,
+          "init": 1,
+          "line": 408,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 125638441,
+          "b": 65540
+        }
+      ],
+      "sampled_heap_peak_bytes": 273488,
+      "sampled_heap_min_free_bytes": 145520,
+      "sampled_largest_min_bytes": 126976,
+      "sdk_min_free_bytes": 141724,
+      "sdk_allocation_failures": 0,
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 195110,
+        "heap_free": 390212,
+        "heap_allocated": 31580,
+        "heap_min": 141724,
+        "largest_free": 245760,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9624,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 181088,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "core_peak_bytes": 181088,
+      "owner_stack_max_observed_used_bytes": 3176,
+      "constructor_oom_sweep_executed": false,
+      "source_lf_sha256": "ba46097ab48d5c77ee5cb3af8631a7784634e98c13a3d5f152acd6c1852860e4",
+      "raw_uart_sha256": "16a7b6884b6a07a7a2479620c8adc66fc07c858622d438b4be5f0163c80b9349",
+      "last_network": {
+        "rx": 843,
+        "tx": 1272,
+        "dropped": 2,
+        "oversize": 0,
+        "extensions": 0,
+        "rx_buffers": 4,
+        "rx_peak": 4
+      },
+      "firmware_sha256": "21bb251918b94c5d0815bdf474ca8881e2a47786daff18b5d9aafd38bbc7ddb7"
+    },
+    "negative01": {
+      "oracle_pass": false,
+      "elapsed_seconds": 137.7877305,
+      "subscription_snapshots": 15,
+      "load_reads": [],
+      "trace_events": {
+        "RX": 598,
+        "QUEUED": 589,
+        "TX": 612,
+        "TIMER": 612,
+        "TX_DONE": 612,
+        "ACK_DONE": 629,
+        "ACK_RX": 608,
+        "MRP_END": 589,
+        "SESSION": 20,
+        "UDP_RX": 750,
+        "DISPOSE": 128,
+        "CLOSE": 112,
+        "ESTABLISHED": 16,
+        "RETIRE": 20
+      },
+      "malformed_trace_lines": [],
+      "new_subscription_closures_before_stop": [],
+      "mrp_failures": [
+        {
+          "event": "MRP_END",
+          "uart_line": 821,
+          "ms": 62452,
+          "token": 4294967296,
+          "fabric": 1,
+          "sub": 1,
+          "ex": 43499,
+          "init": 1,
+          "line": 415,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 174889116,
+          "b": 327682
+        },
+        {
+          "event": "MRP_END",
+          "uart_line": 6178,
+          "ms": 192074,
+          "token": 4294967305,
+          "fabric": 67,
+          "sub": 14,
+          "ex": 43583,
+          "init": 1,
+          "line": 415,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 64293858,
+          "b": 65540
+        }
+      ],
+      "sampled_heap_peak_bytes": 278704,
+      "sampled_heap_min_free_bytes": 140256,
+      "sampled_largest_min_bytes": 120832,
+      "sdk_min_free_bytes": 136456,
+      "sdk_allocation_failures": 0,
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 192860,
+        "heap_free": 390192,
+        "heap_allocated": 31572,
+        "heap_min": 136456,
+        "largest_free": 245760,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9512,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 186260,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "core_peak_bytes": 186260,
+      "owner_stack_max_observed_used_bytes": 3288,
+      "constructor_oom_sweep_executed": false,
+      "source_lf_sha256": "874efe0a1c4d9588c348800026a9aca597fc622c05d62f30cd48cbc56d0d7980",
+      "raw_uart_sha256": "2b0203cc677811bfde1f2f6d9faeff0430fd66acac73705605f7232694a2cf07",
+      "last_network": {
+        "rx": 795,
+        "tx": 1200,
+        "dropped": 3,
+        "oversize": 0,
+        "extensions": 0,
+        "rx_buffers": 8,
+        "rx_peak": 8
+      },
+      "firmware_sha256": "c2792453ed60f75c40d90376a80202093c996d545d2bf02379054b2e8aef7ba1"
+    },
+    "negative02": {
+      "oracle_pass": true,
+      "elapsed_seconds": 149.20867199999998,
+      "subscription_snapshots": 15,
+      "load_reads": [
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 139.6149091,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 543,
+            "totalInteractionModelMessagesReceived": 541
+          }
+        },
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 145.9750026,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 558,
+            "totalInteractionModelMessagesReceived": 557
+          }
+        }
+      ],
+      "trace_events": {
+        "RX": 614,
+        "QUEUED": 605,
+        "TX": 634,
+        "TIMER": 634,
+        "TX_DONE": 634,
+        "ACK_DONE": 645,
+        "ACK_RX": 619,
+        "MRP_END": 605,
+        "SESSION": 20,
+        "UDP_RX": 778,
+        "DISPOSE": 134,
+        "CLOSE": 118,
+        "ESTABLISHED": 16,
+        "RETIRE": 20,
+        "ACK_TARGET": 1,
+        "ACK_SUPPRESSED": 1,
+        "ACK_ORPHAN": 3
+      },
+      "malformed_trace_lines": [],
+      "new_subscription_closures_before_stop": [
+        {
+          "event": "CLOSE",
+          "uart_line": 2960,
+          "ms": 145954,
+          "token": 4294967299,
+          "fabric": 64,
+          "sub": 5,
+          "ex": 28824,
+          "init": 0,
+          "line": 786,
+          "state": 2,
+          "pending": 0,
+          "notified": 0,
+          "ack": 0,
+          "a": 0,
+          "b": 0
+        }
+      ],
+      "mrp_failures": [
+        {
+          "event": "MRP_END",
+          "uart_line": 675,
+          "ms": 58754,
+          "token": 4294967296,
+          "fabric": 1,
+          "sub": 1,
+          "ex": 65347,
+          "init": 1,
+          "line": 416,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 218178778,
+          "b": 327682
+        },
+        {
+          "event": "MRP_END",
+          "uart_line": 2956,
+          "ms": 145893,
+          "token": 4294967299,
+          "fabric": 64,
+          "sub": 5,
+          "ex": 28824,
+          "init": 0,
+          "line": 416,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 72168179,
+          "b": 327682
+        },
+        {
+          "event": "MRP_END",
+          "uart_line": 6375,
+          "ms": 204076,
+          "token": 4294967309,
+          "fabric": 64,
+          "sub": 7,
+          "ex": 65442,
+          "init": 1,
+          "line": 416,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 267078133,
+          "b": 65540
+        }
+      ],
+      "sampled_heap_peak_bytes": 271296,
+      "sampled_heap_min_free_bytes": 147912,
+      "sampled_largest_min_bytes": 129024,
+      "sdk_min_free_bytes": 143496,
+      "sdk_allocation_failures": 0,
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 204850,
+        "heap_free": 390208,
+        "heap_allocated": 31556,
+        "heap_min": 143496,
+        "largest_free": 245760,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9640,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 179460,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "core_peak_bytes": 179460,
+      "owner_stack_max_observed_used_bytes": 3160,
+      "constructor_oom_sweep_executed": false,
+      "source_lf_sha256": "6bb0f7d67a1918348ced33839afedf6e959e7bc83bc5ceefd086d9a120f334ae",
+      "raw_uart_sha256": "f72280856f21c75cb4258ce436eb7e2463db40b7dda6ecbb76df241eb0b6edc7",
+      "last_network": {
+        "rx": 847,
+        "tx": 1278,
+        "dropped": 3,
+        "oversize": 0,
+        "extensions": 0,
+        "rx_buffers": 8,
+        "rx_peak": 8
+      },
+      "ack_control": {
+        "target": {
+          "event": "ACK_TARGET",
+          "ms": 141993,
+          "token": 4294967299,
+          "fabric": 64,
+          "sub": 5,
+          "ex": 28824,
+          "init": 0,
+          "line": 311,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 72168179,
+          "b": 0
+        },
+        "suppressed": 1,
+        "attempts": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terminal": [
+          {
+            "event": "MRP_END",
+            "ms": 145893,
+            "token": 4294967299,
+            "fabric": 64,
+            "sub": 5,
+            "ex": 28824,
+            "init": 0,
+            "line": 416,
+            "state": 2,
+            "pending": 1,
+            "notified": 0,
+            "ack": 1,
+            "a": 72168179,
+            "b": 327682
+          }
+        ],
+        "orphan_acks": [
+          {
+            "event": "ACK_ORPHAN",
+            "ms": 142373,
+            "token": 4294967299,
+            "ex": 28824,
+            "init": 1,
+            "counter": 72168179,
+            "result": 0
+          },
+          {
+            "event": "ACK_ORPHAN",
+            "ms": 142703,
+            "token": 4294967299,
+            "ex": 28824,
+            "init": 1,
+            "counter": 72168179,
+            "result": 0
+          },
+          {
+            "event": "ACK_ORPHAN",
+            "ms": 143403,
+            "token": 4294967299,
+            "ex": 28824,
+            "init": 1,
+            "counter": 72168179,
+            "result": 0
+          }
+        ]
+      },
+      "negative_control_case_survived": true,
+      "concrete_reads": 5,
+      "firmware_sha256": "dadc2b61a8c3a3fd5bc9510256a72507a9987b2f37b96544da2346acd7588335"
+    },
+    "single-old": {
+      "oracle_pass": true,
+      "elapsed_seconds": 92.0709484,
+      "subscription_snapshots": 15,
+      "load_reads": [
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 84.91732800000001,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 472,
+            "totalInteractionModelMessagesReceived": 471
+          }
+        },
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 91.1381104,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 14,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 488,
+            "totalInteractionModelMessagesReceived": 487
+          }
+        }
+      ],
+      "trace_events": {
+        "RX": 526,
+        "QUEUED": 516,
+        "TX": 529,
+        "TIMER": 529,
+        "TX_DONE": 529,
+        "ACK_DONE": 531,
+        "ACK_RX": 523,
+        "MRP_END": 516,
+        "SESSION": 16,
+        "UDP_RX": 577,
+        "DISPOSE": 62,
+        "CLOSE": 46,
+        "ESTABLISHED": 16,
+        "RETIRE": 16,
+        "ACK_TARGET": 1,
+        "ACK_SUPPRESSED": 1,
+        "ACK_ORPHAN": 3
+      },
+      "malformed_trace_lines": [],
+      "new_subscription_closures_before_stop": [
+        {
+          "event": "CLOSE",
+          "uart_line": 1828,
+          "ms": 79983,
+          "token": 4294967300,
+          "fabric": 64,
+          "sub": 5,
+          "ex": 38624,
+          "init": 0,
+          "line": 786,
+          "state": 2,
+          "pending": 0,
+          "notified": 0,
+          "ack": 0,
+          "a": 0,
+          "b": 0
+        }
+      ],
+      "mrp_failures": [
+        {
+          "event": "MRP_END",
+          "uart_line": 723,
+          "ms": 57913,
+          "token": 4294967296,
+          "fabric": 1,
+          "sub": 1,
+          "ex": 44778,
+          "init": 1,
+          "line": 416,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 255335527,
+          "b": 327682
+        },
+        {
+          "event": "MRP_END",
+          "uart_line": 1824,
+          "ms": 79934,
+          "token": 4294967300,
+          "fabric": 64,
+          "sub": 5,
+          "ex": 38624,
+          "init": 0,
+          "line": 416,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 63646730,
+          "b": 327682
+        }
+      ],
+      "sampled_heap_peak_bytes": 273360,
+      "sampled_heap_min_free_bytes": 145688,
+      "sampled_largest_min_bytes": 129024,
+      "sdk_min_free_bytes": 141668,
+      "sdk_allocation_failures": 0,
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 147070,
+        "heap_free": 390164,
+        "heap_allocated": 31596,
+        "heap_min": 141668,
+        "largest_free": 245760,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9608,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 180980,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "core_peak_bytes": 180980,
+      "owner_stack_max_observed_used_bytes": 3192,
+      "constructor_oom_sweep_executed": false,
+      "source_lf_sha256": "c0f8dae3058392d7ef7506b1718a27c9cc3c79ff7368026457f6752cd7c775ca",
+      "raw_uart_sha256": "23b9f2c18ccb4628085d5d223d4ae42686fcb6bd7b838b8f5c62a0c6fbd51b50",
+      "last_network": {
+        "rx": 597,
+        "tx": 1041,
+        "dropped": 5,
+        "oversize": 0,
+        "extensions": 0,
+        "rx_buffers": 8,
+        "rx_peak": 8
+      },
+      "ack_control": {
+        "target": {
+          "event": "ACK_TARGET",
+          "ms": 76083,
+          "token": 4294967300,
+          "fabric": 64,
+          "sub": 5,
+          "ex": 38624,
+          "init": 0,
+          "line": 311,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 63646730,
+          "b": 0
+        },
+        "suppressed": 1,
+        "attempts": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terminal": [
+          {
+            "event": "MRP_END",
+            "ms": 79934,
+            "token": 4294967300,
+            "fabric": 64,
+            "sub": 5,
+            "ex": 38624,
+            "init": 0,
+            "line": 416,
+            "state": 2,
+            "pending": 1,
+            "notified": 0,
+            "ack": 1,
+            "a": 63646730,
+            "b": 327682
+          }
+        ],
+        "orphan_acks": [
+          {
+            "event": "ACK_ORPHAN",
+            "ms": 76443,
+            "token": 4294967300,
+            "ex": 38624,
+            "init": 1,
+            "counter": 63646730,
+            "result": 0
+          },
+          {
+            "event": "ACK_ORPHAN",
+            "ms": 76833,
+            "token": 4294967300,
+            "ex": 38624,
+            "init": 1,
+            "counter": 63646730,
+            "result": 0
+          },
+          {
+            "event": "ACK_ORPHAN",
+            "ms": 77453,
+            "token": 4294967300,
+            "ex": 38624,
+            "init": 1,
+            "counter": 63646730,
+            "result": 0
+          }
+        ]
+      },
+      "negative_control_case_survived": true,
+      "concrete_reads": 5,
+      "firmware_sha256": "a7c3f72ef4f99c8c6a81374bc994f1d69b8a929ec05e0616fd11dc124b2c222e"
+    },
+    "single-fixed": {
+      "oracle_pass": true,
+      "elapsed_seconds": 92.3444477,
+      "subscription_snapshots": 15,
+      "load_reads": [
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 84.9911114,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 481,
+            "totalInteractionModelMessagesReceived": 479
+          }
+        },
+        {
+          "kind": "LOAD_PASS",
+          "elapsed_seconds": 91.307035,
+          "fabrics": 5,
+          "verified_sessions": 15,
+          "load": {
+            "currentSubscriptions": 15,
+            "currentSubscriptionsForFabric": 3,
+            "totalSubscriptionsEstablished": 16,
+            "totalInteractionModelMessagesSent": 496,
+            "totalInteractionModelMessagesReceived": 494
+          }
+        }
+      ],
+      "trace_events": {
+        "RX": 533,
+        "QUEUED": 524,
+        "TX": 535,
+        "TIMER": 535,
+        "TX_DONE": 535,
+        "ACK_DONE": 537,
+        "ACK_RX": 531,
+        "MRP_END": 524,
+        "SESSION": 16,
+        "UDP_RX": 582,
+        "DISPOSE": 62,
+        "CLOSE": 46,
+        "ESTABLISHED": 16,
+        "RETIRE": 16,
+        "ACK_TARGET": 1,
+        "ACK_SUPPRESSED": 1
+      },
+      "malformed_trace_lines": [],
+      "new_subscription_closures_before_stop": [],
+      "mrp_failures": [
+        {
+          "event": "MRP_END",
+          "uart_line": 748,
+          "ms": 86424,
+          "token": 4294967296,
+          "fabric": 1,
+          "sub": 1,
+          "ex": 59491,
+          "init": 1,
+          "line": 416,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 97331191,
+          "b": 327682
+        }
+      ],
+      "sampled_heap_peak_bytes": 272396,
+      "sampled_heap_min_free_bytes": 146596,
+      "sampled_largest_min_bytes": 129024,
+      "sdk_min_free_bytes": 140504,
+      "sdk_allocation_failures": 0,
+      "cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 175900,
+        "heap_free": 390216,
+        "heap_allocated": 31548,
+        "heap_min": 140504,
+        "largest_free": 245760,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9592,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 182568,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "core_peak_bytes": 182568,
+      "owner_stack_max_observed_used_bytes": 3208,
+      "constructor_oom_sweep_executed": false,
+      "source_lf_sha256": "c0f8dae3058392d7ef7506b1718a27c9cc3c79ff7368026457f6752cd7c775ca",
+      "raw_uart_sha256": "45d2ffbed9e14febaea8a347d2d321450a19033a7e2ee0cc6f180c4cc8db3d3f",
+      "last_network": {
+        "rx": 604,
+        "tx": 1053,
+        "dropped": 2,
+        "oversize": 0,
+        "extensions": 0,
+        "rx_buffers": 4,
+        "rx_peak": 4
+      },
+      "ack_control": {
+        "target": {
+          "event": "ACK_TARGET",
+          "ms": 104583,
+          "token": 4294967300,
+          "fabric": 64,
+          "sub": 5,
+          "ex": 3362,
+          "init": 0,
+          "line": 311,
+          "state": 2,
+          "pending": 1,
+          "notified": 0,
+          "ack": 1,
+          "a": 67252606,
+          "b": 0
+        },
+        "suppressed": 1,
+        "attempts": [
+          1,
+          2
+        ],
+        "terminal": [
+          {
+            "event": "MRP_END",
+            "ms": 105013,
+            "token": 4294967300,
+            "fabric": 64,
+            "sub": 5,
+            "ex": 3362,
+            "init": 0,
+            "line": 416,
+            "state": 2,
+            "pending": 1,
+            "notified": 0,
+            "ack": 1,
+            "a": 67252606,
+            "b": 131073
+          }
+        ],
+        "orphan_acks": []
+      },
+      "negative_control_case_survived": true,
+      "concrete_reads": 5,
+      "firmware_sha256": "a7c3f72ef4f99c8c6a81374bc994f1d69b8a929ec05e0616fd11dc124b2c222e"
+    }
+  },
+  "final_restore": {
+    "pass": true,
+    "fabrics": 1,
+    "baud": 1000000,
+    "firmware_sha256": "59c80e14a7c70b35f296186d1457454a6ca5c921d11e5952a82950bcbfcf22d9",
+    "cleaned": {
+      "phase": "owner-thread-cleaned",
+      "ms": 52210,
+      "heap_free": 390220,
+      "heap_allocated": 31572,
+      "heap_min": 205556,
+      "largest_free": 221184,
+      "owner_stack_reserved": 12800,
+      "owner_stack_min_free": 9608,
+      "core_live": 0,
+      "core_bytes": 0,
+      "core_peak": 114856,
+      "core_largest": 32768,
+      "core_failures": 13
+    }
+  },
+  "cleanup": {
+    "ipv6": true,
+    "collectors": [],
+    "adapter": "Disconnected",
+    "temporary_connection_was_active": true,
+    "temporary_profile_removed": true,
+    "temporary_xml_removed": true
+  },
+  "host_focused_ctest_passed": 7,
+  "peer_patch": {
+    "package": "@matter/protocol",
+    "version": "0.17.9",
+    "file": "dist/esm/protocol/MessageExchange.js",
+    "before_lf_sha256": "4dc80e494265c78de816e4016d0ff004e04e277a0a9894100ff9ff991217c27e",
+    "after_lf_sha256": "907a1ab5fbe5b1ab2c84ffc1ccf6a77f54bcf6bc518e5174bc59186866fac22b",
+    "replacement": "isInitiator: !initialMessage.payloadHeader.isInitiatorMessage"
+  },
+  "original_peer_modules_unchanged": true,
+  "ack_role_failure_mechanism_proven": true,
+  "peer_patch_recovery_proven": true,
+  "unchanged_dispatch_lf_sha256": "c35d5bf74b0e72202bd9be18a68eff1e613e8c01a312bde0f0ca3d410660ca21",
+  "firmware": {
+    "full-trace-artifacts": "b82aacf696bffef05b3543efb950411b8b1336b607cdc90a0b31c7704d9d5893",
+    "negative-artifacts": "c2792453ed60f75c40d90376a80202093c996d545d2bf02379054b2e8aef7ba1",
+    "normal-artifacts": "59c80e14a7c70b35f296186d1457454a6ca5c921d11e5952a82950bcbfcf22d9",
+    "quiet-artifacts": "21bb251918b94c5d0815bdf474ca8881e2a47786daff18b5d9aafd38bbc7ddb7",
+    "single-artifacts": "a7c3f72ef4f99c8c6a81374bc994f1d69b8a929ec05e0616fd11dc124b2c222e"
+  }
+}

@@ -17,31 +17,34 @@
  * All packet storage and module contexts live on the heap, in one owner thread.
  */
 #ifdef MATTER_TEST_ALLOC
-static size_t live, calls, fail_at;
 #ifdef MATTER_TEST_PASE
 static void* last_alloc;
 static size_t last_alloc_size, pase_wiped;
 static struct { void* p; size_t size; } pase_allocations[2];
-#endif
+static void pase_before_free(void* p,size_t size) {
+    for(unsigned i=0;i<2;++i) if(pase_allocations[i].p==p) {
+        for(size_t j=0;j<size;++j) if(((uint8_t*)p)[j]) abort();
+        pase_allocations[i].p=NULL; ++pase_wiped;
+    }
+}
+#define MATTER_TEST_ALLOC_AFTER_ALLOC(p,n) do { last_alloc=(p); last_alloc_size=(n); } while(0)
+#define MATTER_TEST_ALLOC_BEFORE_FREE(p,n) pase_before_free(p,n)
+#include "test_alloc_bytes.h"
+#undef MATTER_TEST_ALLOC_AFTER_ALLOC
+#undef MATTER_TEST_ALLOC_BEFORE_FREE
+#else
+static size_t live, calls, fail_at;
 void* matter_test_calloc(size_t n, size_t size) {
     ++calls;
     if (calls == fail_at) return NULL;
     void* p = calloc(n, size);
     if (p) ++live;
-#ifdef MATTER_TEST_PASE
-    last_alloc = p; last_alloc_size = n * size;
-#endif
     return p;
 }
 void matter_test_free(void* p) {
-#ifdef MATTER_TEST_PASE
-    if (p) for (unsigned i=0;i<2;++i) if (pase_allocations[i].p == p) {
-        for (size_t j=0;j<pase_allocations[i].size;++j) if (((uint8_t*)p)[j]) abort();
-        pase_allocations[i].p = NULL; ++pase_wiped;
-    }
-#endif
     if (p) { if (!live) abort(); --live; } free(p);
 }
+#endif
 #endif
 #define REQUIRE(c) do { if (!(c)) { fprintf(stderr, "fixture:%d: %s\n", __LINE__, #c); abort(); } } while (0)
 #define CHECK(c) do { if (!(c)) { fprintf(stderr, "%s:%d: %s\n", __func__, __LINE__, #c); goto done; } } while (0)

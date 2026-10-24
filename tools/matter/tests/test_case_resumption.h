@@ -152,20 +152,41 @@ static void resume_cache_tests(const Matter_Crypto_Port_T* crypto,const Matter_C
     Matter_Case_Resumption_T* saved=calloc(2,sizeof(*saved)); OC_CHECK(saved);
     Matter_Case_Port_T* p=&f->ports[1]; FabFixture* fab=f->fabrics[1];
     OC_CHECK(p->resume_find(p->user,1,101,NULL,saved)==MATTER_OK);
+#ifdef MATTER_TEST_ALLOC
+    saved[1]=saved[0]; saved[1].identity.peer_node_id=999; saved[1].id[0]^=0x80;
+    size_t cache_live=live; fail_at=calls+1;
+    OC_CHECK(p->resume_save(p->user,&saved[1])==MATTER_LIMIT_REACHED); fail_at=0;
+    OC_CHECK(live==cache_live && p->resume_find(p->user,1,999,NULL,&saved[1])==MATTER_INVALID_STATE);
+    OC_CHECK(p->resume_find(p->user,1,101,NULL,&saved[1])==MATTER_OK && !memcmp(saved,&saved[1],sizeof(*saved)));
+    /* Same-peer update reuses its node, even with the next allocation failing. */
+    size_t cache_calls=calls; fail_at=calls+1;
+    OC_CHECK(p->resume_save(p->user,saved)==MATTER_OK && calls==cache_calls); fail_at=0;
+#endif
     Matter_Case_Fabric_T* snapshot=calloc(1,sizeof(*snapshot)); OC_CHECK(snapshot);
     OC_CHECK(matter_fabric_host_commit(fab->host)==MATTER_OK);
     fab_csr(fab,11); fab_request(fab,11,FAB_CERT(fab_root),(Matter_Cert_Tlv_T){0},0); fab_call(fab,1,11,true,0,0);
     fab_request(fab,6,FAB_CERT(fab_noc1),(Matter_Cert_Tlv_T){0},55); fab_call(fab,1,6,true,0,0);
     OC_CHECK(matter_fabric_host_commit(fab->host)==MATTER_OK && p->load(p->user,1,snapshot)==MATTER_OK);
+    OC_CHECK(p->resume_find(p->user,1,101,NULL,&saved[1])==MATTER_OK && !memcmp(saved,&saved[1],sizeof(*saved)));
     saved[1]=saved[0]; saved[1].identity.fabric_index=snapshot->index;
     saved[1].identity.fabric_id=snapshot->fabric_id; saved[1].identity.local_node_id=snapshot->node_id;
-    saved[1].revision=snapshot->revision; saved[1].id[0]=0xfe;
+    /* Keep this fabric distinct for every random original ID, including while
+     * the eviction fixture below varies byte zero through 0..4. */
+    saved[1].revision=snapshot->revision; saved[1].id[15]^=0x80;
     OC_CHECK(p->resume_save(p->user,&saved[1])==MATTER_OK);
     memset(snapshot,0,sizeof(*snapshot)); free(snapshot);
     /* Three peers per fabric, authenticated write order, oldest eviction. */
     for(unsigned i=0;i<4;++i) { saved->identity.peer_node_id=101+i; saved->id[0]=(uint8_t)i; OC_CHECK(p->resume_save(p->user,saved)==MATTER_OK); }
     OC_CHECK(p->resume_find(p->user,1,101,NULL,&saved[1])==MATTER_INVALID_STATE);
     for(unsigned i=1;i<4;++i) OC_CHECK(p->resume_find(p->user,1,101+i,NULL,&saved[1])==MATTER_OK);
+#ifdef MATTER_TEST_ALLOC
+    /* Full per-fabric replacement reuses the oldest node without allocation. */
+    saved->identity.peer_node_id=105; saved->id[0]=4;
+    cache_calls=calls; fail_at=calls+1;
+    OC_CHECK(p->resume_save(p->user,saved)==MATTER_OK && calls==cache_calls); fail_at=0;
+    OC_CHECK(p->resume_find(p->user,1,102,NULL,&saved[1])==MATTER_INVALID_STATE);
+    OC_CHECK(p->resume_find(p->user,1,104,NULL,&saved[1])==MATTER_OK); *saved=saved[1];
+#endif
     /* Colliding IDs for different peers rejected without changing existing key. */
     saved->identity.peer_node_id=999;
     OC_CHECK(p->resume_save(p->user,saved)==MATTER_INVALID_STATE);

@@ -16,6 +16,165 @@ with `python tools/matter/csa_review_packet.py`; this never submits or runs test
 The application owns scheduling, networking, storage and hardware callbacks.
 Multiple runtimes can run in one process/thread. The core does not require
 ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).
+The optional [native wire regression](doc/runtime-wire-tests.md) reuses the C6
+oracle for fast loopback RGB/Read/Subscribe tests, controlled ACK/RX/TX faults,
+allocation failures and orderly stop, without a board or access point.
+The [Memory26 C6 investigation](doc/oss/memory26-validation.md) reproduces startup
+14/15 after one lost ACK and identifies a problem in the pinned test controller's
+exchange-role fallback. It includes a matched controller comparison, physically
+verified 1Mbaud UART and the remaining limit on historical attribution.
+
+The [Memory27 host regression](doc/oss/memory27-validation.md) checks exactly one
+lost ACK with the original and explicitly corrected peer in both loop orders.
+It requires strict wrong-role rejection, survival of all15 CASE sessions and
+orderly TX drain; private dependencies remain unchanged.
+
+The [Memory28 RX fix](doc/oss/memory28-validation.md) consumes a ready retained
+packet before admitting a new inbox. It fixes an avoidable admission loss,
+adds a failing-before native regression and records C6 OOM/reconnect/drain tests.
+
+The [Memory29 fixed C6 profile](doc/oss/memory29-validation.md) measures normal
+whole-system heap separately from allocation attribution: sampled peak 357652 B,
+minimum free 58520 B and minimum largest block 33792 B. It covers parallel full
+Reads, live Fabric publication/removal and TX drain, and ranks remaining RAM work.
+
+The [Memory30 compact report plan](doc/oss/memory30-validation.md) halves each
+C6 plan entry to8 B and records a normal-image sampled peak351084 B. Windows
+and physical tests pass as documented. Linux99 native tests, the full6-check
+two-instance scenario and both wire cases pass under Memcheck and separately
+ASan/UBSan/LSan.
+
+The [Memory31 selective Subscribe values](doc/oss/memory31-validation.md) keep
+stable ordinal blocks only for included values. The matched C6 normal profile
+records peak 344968 B, minimum free 71284 B and minimum largest block 47104 B;
+the two stages together reduce the observed whole-heap peak by 12684 B. Windows,
+Linux Memcheck/separate sanitizers and C6 OOM/reconnect/drain tests pass with
+unchanged limits, immutable snapshots and ACK/drain gates.
+
+The [Memory32 Diagnostics encoding](doc/oss/memory32-validation.md) replaces its
+resident 4096-byte output with an exact-size borrowed span. The C6 context saves
+4096 B; normal sampled whole-heap peak is 341008 B, minimum free 75216 B and minimum
+largest block 52224 B. Dedicated tests cover all 11 encoding OOM/retry cases and
+interleaved Read/Subscribe snapshots across provider refresh/free and both ACK
+orders. The report records normal/fault C6 results, stack cost and host validation.
+
+The [Memory33 ACL encoding](doc/oss/memory33-validation.md) uses an exact-size
+borrowed span while retaining fabric filtering, foreign-field privacy and atomic
+writes/events. The C6 ACL context saves 4096 B; normal sampled whole-heap peak is
+338944 B, minimum free 77272 B and minimum largest block 55296 B. Tests cover all
+13 fabric/filter/global encoding OOM retries, read-to-write aliasing and immutable
+multipart Read/Subscribe snapshots across ACL changes and both ACK orders.
+
+The [Memory34 Fabric encoding](doc/oss/memory34-validation.md) replaces its
+resident 4096-byte workspace with exact-size certificate output and separate
+126/211-byte VID scratch, securely erased before release. The C6 model context
+shrinks 4224 -> 136 B; normal sampled whole-heap peak is 333104 B, minimum free
+83400 B and minimum largest block 57344 B. Native tests cover output/signing OOM,
+secure wipe and certificate lifetime; C6 tests cover load, OOM recovery, reconnect
+and ACK/drain. Observed owner stack use is 3288/12800 B. The report records the
+one subscription rebuilt after fault injection and the validation limitations.
+
+The [Memory35 Operational Credentials workspaces](doc/oss/memory35-validation.md)
+replace resident TBS/CSR arrays with phase-owned allocations, securely erased
+after their last use. The C6 context shrinks 2016 -> 464 B. The normal profile
+records sampled whole-heap peak 331396 B, minimum free 84920 B and minimum largest
+block 61440 B; observed owner stack use remains 3288/12800 B. The report covers
+key/challenge lifetime, bounded response copies, OOM, reentry and ACK/drain.
+It also retains the worse post-fault largest-free-block observation, despite
+zero remaining core allocations; its exact SDK allocation placement needs a
+separate settled-heap follow-up, completed in Memory36 below.
+
+The [Memory36 settled-heap investigation](doc/oss/memory36-validation.md) compares
+the exact Memory34/35 images and identifies a 16-byte lwIP timeout node splitting
+large free spans after full ACK/drain. In the instrumented long probe, releasing
+20 B of accounting after the 5 s sample grows the largest block from 147456 B to
+286720 B by 15 s, stable through 65 s. RMT/MPI mutexes form other SDK islands.
+Nine C6 fault runs and checked exact-ELF maps separate deferred SDK lifetime,
+persistent allocation placement and core leaks; normal firmware/fabric are restored.
+
+The [Memory37 RMT experiment](doc/oss/memory37-validation.md) rejects a standalone
+startup reorder: normal cleaned largest blocks are equal, while the 65-second
+probe falls 249856 -> 221184 B when a UART allocation replaces the RMT separator.
+Four C6 fault workloads pass; the original normal startup remains in place.
+
+The [Memory38 OTA workspaces](doc/oss/memory38-validation.md) shrink the C6 resident
+Requestor context 5704 -> 344 B. Input scratch, queued offers and encoding allocate
+by phase; default-delivery OOM retries while ACK/TX keeps draining. The matched
+normal profile records heap peak 326256 B and minimum free 90172 B. Native,
+Memcheck/separate sanitizers and C6 tests preserve atomicity and immutable snapshots.
+
+The [Memory39 block audit](doc/oss/memory39-validation.md) measures 89248 B of
+coincident Read/Subscribe attribute tables, including 14272 B empty slots.
+It separates real state, padding, headers and already-consumed records; independent
+maxima are not summed. Reproducible isolated generators/checked decoding leave
+normal storage unchanged. C6 and native tests pass; normal Memory38/original
+fabric are restored and COM/AP released. Next: consumed Read prefix blocks.
+
+The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
+integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
+Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE
+resumption, Read/Write/Subscribe, a second fabric and durable recovery.
+See the [Memory14 evidence and limits](doc/oss/memory14-validation.md).
+The optional [Memory16 RGB profile](doc/oss/memory16-validation.md) adds a
+development EP1 light on the C6's addressable LED. Shared immutable value bytes
+and compact Read/Subscribe results lower its observed heap peak from 403016 B
+(baseline traffic failure) to 362480 B. A 437 s load/recovery window passes with
+five fabrics/15 protected sessions/subscriptions, OOM/loss/reconnect and held-TX
+drain, with no SDK allocation failures. This is an incomplete light profile,
+not a complete or certified Extended Color Light implementation.
+The [Memory17 report](doc/oss/memory17-validation.md) covers inline short
+snapshots and the packet-buffer lifetime audit. Encoded values through eight
+bytes need no separate payload allocation; the C6 snapshot record stays 16 B.
+The standalone unsecured ACK envelope falls 1232 ->26 B without changing UDP
+limits or asynchronous completion/ACK ownership.
+The [Memory18 report](doc/oss/memory18-validation.md) covers guarded phase sharing
+of delivery/TX plaintext: the C6 dispatcher falls 7096 ->5864 B while inbox, ACK
+and retained ciphertext remain independent. Recursive processing/control is
+rejected before work bytes or clocks can change.
+The [Memory19 report](doc/oss/memory19-validation.md) covers an optional held RX
+delivery view. The dispatcher consumes queue bytes directly, removing one
+payload copy without new allocations or changing resident buffer sizes. The
+queue keeps its session pin and drain barrier until explicit release; default
+callback borrowing and all ACK/TX ownership remain compatible.
+The [Memory20 report](doc/oss/memory20-validation.md) covers one private encoder
+for Read/Subscribe per dispatcher. Snapshot blocks remain stable and immutable
+ciphertext retains its ACK/drain lifetime; Subscribe activation/intervals still
+start at actual UDP send. The C6 sampled heap peak changes
+357148 ->334036 B, minimum sampled free heap
+60792 ->83944 B. The report also gives SDK free
+watermarks, largest blocks, lifecycle free-heap checkpoints and stack evidence.
+The [Memory21 report](doc/oss/memory21-validation.md) attributes persistent
+post-stop holes to SDK MPI/RMT mutex placement, adds settled heap observations
+and explicit owner-thread lwIP cleanup, and compares two physical C6 boards
+with ESP-Matter1.6.1/IDF6.0.2. A common SDK-timer sampler captures crypto peaks
+missed by owner-loop sampling. The C fixture leaves37772 B less free heap in
+the matched small-path loaded scenario despite69305 B less static D/IRAM;
+limits and model/configuration differences are explicit. It also corrects the
+previous main-stack reservation by IDF's additional512 B. No new CSA PASS.
+The [Memory22 report](doc/oss/memory22-validation.md) fixes MRP starvation of
+  own-fabric RemoveFabric replies by rejected stale ACKs, adds live-session
+  removal regressions, and attributes C6 allocation peaks to actual call sites.
+  It separates the reference's lower heap figure from its larger static D/IRAM
+  footprint and identifies retained cluster workspaces/publication overlap.
+The [Memory23 report](doc/oss/memory23-validation.md) replaces whole-image Fabric
+rollback copies with bounded changed-range undo and emits committed TLV without a
+second Fabric candidate. The common C6 publication workload saves about12kB of
+sampled heap; the full wildcard peak remains about335kB. Format, fail-safe and
+ACK/drain checks pass in the reported runs; an intermittent14/15 full-subscription
+startup result remains open despite a successful unchanged retry and baseline.
+The [Memory24 host investigation](doc/oss/memory24-validation.md) passes eight
+healthy old/new comparisons, including15 full subscriptions and parallel Reads.
+Two missing-ACK controls produce14/15 on both versions; the original C6 cause
+remains unproven. Native CTest passes102/102; the UART collector accepts a selected
+baud rate for the next hardware check.
+The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
+with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
+deferred-TX drain. It fixes RX starvation/burst loss and transient interface
+identity; an optional Wi-Fi code-placement profile recovers 33332 B DIRAM.
+The successful hour observes 368184 B sampled internal heap and 2584 B owner
+stack use. These scoped root-node results are not specification-wide bounds.
+The earlier [component memory laboratory](examples/esp32-memory/README.md)
+retains its separate crypto/IM/PASE profiling fixtures.
 
 ## Build
 

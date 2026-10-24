@@ -1,0 +1,3533 @@
+{
+  "schema": 1,
+  "date": "2026-10-22",
+  "base_commit": "13ffe87",
+  "scope": "Laboratory validation; no official CSA rerun or Apple/Google phone-app validation",
+  "c6_common": {
+    "common-live": {
+      "phase": "COMMON_PASS",
+      "seconds": 168.26319640000003,
+      "kind": "c",
+      "mode": "reuse",
+      "cleanup": "live",
+      "inventory": 171,
+      "reads": 135,
+      "reports": 945,
+      "writes": 6,
+      "invokes": 22,
+      "casePairs": 10,
+      "resumed": 10,
+      "subscriptions": 15,
+      "updates": 120,
+      "busyRetries": 0,
+      "colorSettlePolls": 0,
+      "unexpectedClosures": 0,
+      "removals": [
+        {
+          "index": 67,
+          "milliseconds": 455.6394000000146
+        },
+        {
+          "index": 66,
+          "milliseconds": 471.5228000000061
+        },
+        {
+          "index": 65,
+          "milliseconds": 414.0299000000232
+        },
+        {
+          "index": 64,
+          "milliseconds": 621.7081999999937
+        }
+      ],
+      "checkpoints": [
+        {
+          "label": "before-controller",
+          "command": "m",
+          "ms": 32054,
+          "fabrics": 1,
+          "samples": 73,
+          "heap_max_sampled": 189408,
+          "heap_min_sampled": 231232,
+          "largest_min_sampled": 212992,
+          "heap_free": 232372,
+          "heap_allocated": 188332,
+          "largest_free": 212992,
+          "free_blocks": 8,
+          "allocated_blocks": 362,
+          "core_bytes": 92980,
+          "core_peak": 109200,
+          "core_live": 61,
+          "core_calls": 133,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 217768,
+          "dma_largest_free": 212992,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 31998,
+            "heap_free": 232372,
+            "heap_allocated": 188332,
+            "heap_min": 216160,
+            "largest_free": 212992,
+            "free_blocks": 8,
+            "allocated_blocks": 362,
+            "heap_max_sampled": 204272,
+            "heap_min_sampled": 216484,
+            "largest_min_sampled": 200704,
+            "samples": 320,
+            "task_min_free": 9688
+          }
+        },
+        {
+          "label": "one-fabric-idle",
+          "command": "m",
+          "ms": 42574,
+          "fabrics": 1,
+          "samples": 142,
+          "heap_max_sampled": 202828,
+          "heap_min_sampled": 217584,
+          "largest_min_sampled": 200704,
+          "heap_free": 230496,
+          "heap_allocated": 190192,
+          "largest_free": 208896,
+          "free_blocks": 9,
+          "allocated_blocks": 366,
+          "core_bytes": 94840,
+          "core_peak": 114060,
+          "core_live": 65,
+          "core_calls": 375,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 215892,
+          "dma_largest_free": 208896,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 42518,
+            "heap_free": 230496,
+            "heap_allocated": 190192,
+            "heap_min": 207156,
+            "largest_free": 208896,
+            "free_blocks": 9,
+            "allocated_blocks": 366,
+            "heap_max_sampled": 211868,
+            "heap_min_sampled": 208620,
+            "largest_min_sampled": 192512,
+            "samples": 425,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "one-fabric-three-sessions-subscriptions",
+          "command": "m",
+          "ms": 44768,
+          "fabrics": 1,
+          "samples": 161,
+          "heap_max_sampled": 202828,
+          "heap_min_sampled": 217584,
+          "largest_min_sampled": 200704,
+          "heap_free": 226980,
+          "heap_allocated": 193640,
+          "largest_free": 208896,
+          "free_blocks": 11,
+          "allocated_blocks": 383,
+          "core_bytes": 98288,
+          "core_peak": 114060,
+          "core_live": 82,
+          "core_calls": 516,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212376,
+          "dma_largest_free": 208896,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 44708,
+            "heap_free": 226944,
+            "heap_allocated": 193672,
+            "heap_min": 207156,
+            "largest_free": 208896,
+            "free_blocks": 10,
+            "allocated_blocks": 384,
+            "heap_max_sampled": 211868,
+            "heap_min_sampled": 208620,
+            "largest_min_sampled": 192512,
+            "samples": 447,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "five-fabrics-fifteen-sessions-subscriptions",
+          "command": "m",
+          "ms": 124768,
+          "fabrics": 5,
+          "samples": 462,
+          "heap_max_sampled": 227096,
+          "heap_min_sampled": 192844,
+          "largest_min_sampled": 163840,
+          "heap_free": 198124,
+          "heap_allocated": 221904,
+          "largest_free": 180224,
+          "free_blocks": 30,
+          "allocated_blocks": 531,
+          "core_bytes": 125636,
+          "core_peak": 144068,
+          "core_live": 186,
+          "core_calls": 3765,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 183520,
+          "dma_largest_free": 180224,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 124708,
+            "heap_free": 198088,
+            "heap_allocated": 221936,
+            "heap_min": 173724,
+            "largest_free": 180224,
+            "free_blocks": 29,
+            "allocated_blocks": 532,
+            "heap_max_sampled": 244480,
+            "heap_min_sampled": 175504,
+            "largest_min_sampled": 147456,
+            "samples": 1247,
+            "task_min_free": 9624
+          }
+        },
+        {
+          "label": "loaded-after-thirty-seconds",
+          "command": "m",
+          "ms": 185854,
+          "fabrics": 5,
+          "samples": 1006,
+          "heap_max_sampled": 227096,
+          "heap_min_sampled": 192844,
+          "largest_min_sampled": 163840,
+          "heap_free": 198804,
+          "heap_allocated": 221240,
+          "largest_free": 180224,
+          "free_blocks": 30,
+          "allocated_blocks": 527,
+          "core_bytes": 124996,
+          "core_peak": 144124,
+          "core_live": 183,
+          "core_calls": 7972,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 184200,
+          "dma_largest_free": 180224,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 185798,
+            "heap_free": 198804,
+            "heap_allocated": 221240,
+            "heap_min": 173724,
+            "largest_free": 180224,
+            "free_blocks": 30,
+            "allocated_blocks": 527,
+            "heap_max_sampled": 244480,
+            "heap_min_sampled": 175504,
+            "largest_min_sampled": 147456,
+            "samples": 1858,
+            "task_min_free": 9624
+          }
+        },
+        {
+          "label": "one-fabric-after-cleanup",
+          "command": "m",
+          "ms": 200054,
+          "fabrics": 1,
+          "samples": 1120,
+          "heap_max_sampled": 227096,
+          "heap_min_sampled": 192844,
+          "largest_min_sampled": 163840,
+          "heap_free": 221848,
+          "heap_allocated": 198804,
+          "largest_free": 188416,
+          "free_blocks": 25,
+          "allocated_blocks": 375,
+          "core_bytes": 103472,
+          "core_peak": 147604,
+          "core_live": 75,
+          "core_calls": 9099,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 207244,
+          "dma_largest_free": 188416,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 199998,
+            "heap_free": 221848,
+            "heap_allocated": 198804,
+            "heap_min": 173724,
+            "largest_free": 188416,
+            "free_blocks": 25,
+            "allocated_blocks": 375,
+            "heap_max_sampled": 244480,
+            "heap_min_sampled": 175504,
+            "largest_min_sampled": 147456,
+            "samples": 2000,
+            "task_min_free": 9624
+          }
+        }
+      ],
+      "readPaths": [
+        {
+          "endpointId": 0,
+          "clusterId": 40,
+          "attributeId": 5
+        },
+        {
+          "endpointId": 0,
+          "clusterId": 62,
+          "attributeId": 3
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 6,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 8,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 1
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 8
+        }
+      ],
+      "subscriptionPaths": [
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        }
+      ],
+      "memory": {
+        "selected_owner_samples": [
+          {
+            "phase": "boot",
+            "ms": 50,
+            "heap_free": 397604,
+            "heap_allocated": 24344,
+            "heap_min": 397604,
+            "largest_free": 368640,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 12036,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 0,
+            "core_largest": 0,
+            "core_failures": 0
+          },
+          {
+            "phase": "wifi-ipv6-ready",
+            "ms": 3819,
+            "heap_free": 332052,
+            "heap_allocated": 89132,
+            "heap_min": 319048,
+            "largest_free": 311296,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 11380,
+            "core_live": 1,
+            "core_bytes": 496,
+            "core_peak": 496,
+            "core_largest": 496,
+            "core_failures": 0
+          },
+          {
+            "phase": "runtime-created",
+            "ms": 20474,
+            "heap_free": 267204,
+            "heap_allocated": 153740,
+            "heap_min": 238852,
+            "largest_free": 249856,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9688,
+            "core_live": 29,
+            "core_bytes": 59540,
+            "core_peak": 88028,
+            "core_largest": 32768,
+            "core_failures": 9
+          },
+          {
+            "phase": "runtime-started",
+            "ms": 21247,
+            "heap_free": 233364,
+            "heap_allocated": 187408,
+            "heap_min": 216160,
+            "largest_free": 212992,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9688,
+            "core_live": 57,
+            "core_bytes": 92464,
+            "core_peak": 109200,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 30698,
+            "heap_free": 232444,
+            "heap_allocated": 188260,
+            "heap_min": 216160,
+            "largest_free": 212992,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9688,
+            "core_live": 61,
+            "core_bytes": 92980,
+            "core_peak": 109200,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 120718,
+            "heap_free": 198180,
+            "heap_allocated": 221824,
+            "heap_min": 173724,
+            "largest_free": 180224,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9624,
+            "core_live": 174,
+            "core_bytes": 125236,
+            "core_peak": 144068,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 136068,
+            "heap_free": 198032,
+            "heap_allocated": 221988,
+            "heap_min": 173724,
+            "largest_free": 180224,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9624,
+            "core_live": 187,
+            "core_bytes": 125696,
+            "core_peak": 144116,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 156828,
+            "heap_free": 197984,
+            "heap_allocated": 222036,
+            "heap_min": 173724,
+            "largest_free": 180224,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9624,
+            "core_live": 187,
+            "core_bytes": 125628,
+            "core_peak": 144124,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "complete",
+            "ms": 243648,
+            "heap_free": 390092,
+            "heap_allocated": 31660,
+            "heap_min": 173724,
+            "largest_free": 245760,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9624,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 147604,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "owner-thread-cleaned",
+            "ms": 243687,
+            "heap_free": 390204,
+            "heap_allocated": 31556,
+            "heap_min": 173724,
+            "largest_free": 245760,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9624,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 147604,
+            "core_largest": 32768,
+            "core_failures": 13
+          }
+        ],
+        "sdk_timer_final": {
+          "phase": "before-observer-stop",
+          "ms": 243619,
+          "heap_free": 390056,
+          "heap_allocated": 31692,
+          "heap_min": 173724,
+          "largest_free": 245760,
+          "free_blocks": 25,
+          "allocated_blocks": 101,
+          "heap_max_sampled": 244480,
+          "heap_min_sampled": 175504,
+          "largest_min_sampled": 147456,
+          "samples": 2436,
+          "task_min_free": 9624
+        },
+        "observed_main_stack_use": 3176,
+        "sdk_minimum_free": 173724,
+        "soak_records": 45,
+        "task_minimum_free_bytes": {
+          "main": 9624,
+          "IDLE": 1240,
+          "tcpip": 2580,
+          "sys_evt": 3728,
+          "mdns": 2372,
+          "wifi": 4812,
+          "esp_timer": 3628,
+          "Tmr?Svc": 1768
+        },
+        "summary": {
+          "owner_sampled_peak": 227096,
+          "owner_sampled_min_free": 192844,
+          "owner_sampled_min_largest": 163840,
+          "core_peak": 147604,
+          "sdk_alloc_failures": 0
+        },
+        "selected_soak_samples": [
+          {
+            "command": "m",
+            "ms": 32054,
+            "fabrics": 1,
+            "samples": 73,
+            "heap_max_sampled": 189408,
+            "heap_min_sampled": 231232,
+            "largest_min_sampled": 212992,
+            "heap_free": 232372,
+            "heap_allocated": 188332,
+            "largest_free": 212992,
+            "free_blocks": 8,
+            "allocated_blocks": 362,
+            "core_bytes": 92980,
+            "core_peak": 109200,
+            "core_live": 61,
+            "core_calls": 133,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 217768,
+            "dma_largest_free": 212992
+          },
+          {
+            "command": "m",
+            "ms": 108568,
+            "fabrics": 4,
+            "samples": 397,
+            "heap_max_sampled": 220876,
+            "heap_min_sampled": 199208,
+            "largest_min_sampled": 163840,
+            "heap_free": 201252,
+            "heap_allocated": 218804,
+            "largest_free": 163840,
+            "free_blocks": 21,
+            "allocated_blocks": 524,
+            "core_bytes": 122436,
+            "core_peak": 140596,
+            "core_live": 171,
+            "core_calls": 3028,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 186464,
+            "dma_largest_free": 163840
+          },
+          {
+            "command": "m",
+            "ms": 156868,
+            "fabrics": 5,
+            "samples": 747,
+            "heap_max_sampled": 227096,
+            "heap_min_sampled": 192844,
+            "largest_min_sampled": 163840,
+            "heap_free": 197984,
+            "heap_allocated": 222036,
+            "largest_free": 180224,
+            "free_blocks": 26,
+            "allocated_blocks": 533,
+            "core_bytes": 125628,
+            "core_peak": 144124,
+            "core_live": 187,
+            "core_calls": 5925,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 183380,
+            "dma_largest_free": 180224
+          },
+          {
+            "command": "m",
+            "ms": 187908,
+            "fabrics": 4,
+            "samples": 1022,
+            "heap_max_sampled": 227096,
+            "heap_min_sampled": 192844,
+            "largest_min_sampled": 163840,
+            "heap_free": 202416,
+            "heap_allocated": 217740,
+            "largest_free": 180224,
+            "free_blocks": 29,
+            "allocated_blocks": 499,
+            "core_bytes": 121712,
+            "core_peak": 147604,
+            "core_live": 165,
+            "core_calls": 8216,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 187812,
+            "dma_largest_free": 180224
+          },
+          {
+            "command": "m",
+            "ms": 239258,
+            "fabrics": 1,
+            "samples": 1484,
+            "heap_max_sampled": 227096,
+            "heap_min_sampled": 192844,
+            "largest_min_sampled": 163840,
+            "heap_free": 230856,
+            "heap_allocated": 189824,
+            "largest_free": 188416,
+            "free_blocks": 22,
+            "allocated_blocks": 368,
+            "core_bytes": 94484,
+            "core_peak": 147604,
+            "core_live": 68,
+            "core_calls": 9099,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 216252,
+            "dma_largest_free": 188416
+          }
+        ]
+      },
+      "controller_sha256": "458b898f9c6df01e8531589493ff8562b5f15a940406fcfd28c6e7913d945e53"
+    },
+    "common-local-close": {
+      "phase": "COMMON_PASS",
+      "seconds": 167.0475675,
+      "kind": "c",
+      "mode": "reuse",
+      "cleanup": "local-close",
+      "inventory": 171,
+      "reads": 135,
+      "reports": 945,
+      "writes": 6,
+      "invokes": 18,
+      "casePairs": 10,
+      "resumed": 10,
+      "subscriptions": 15,
+      "updates": 90,
+      "busyRetries": 0,
+      "colorSettlePolls": 0,
+      "unexpectedClosures": 0,
+      "removals": [
+        {
+          "index": 67,
+          "milliseconds": 450.28270000001066
+        },
+        {
+          "index": 66,
+          "milliseconds": 499.5213999999978
+        },
+        {
+          "index": 65,
+          "milliseconds": 427.1146000000008
+        },
+        {
+          "index": 64,
+          "milliseconds": 458.75050000002375
+        }
+      ],
+      "checkpoints": [
+        {
+          "label": "before-controller",
+          "command": "m",
+          "ms": 32394,
+          "fabrics": 1,
+          "samples": 73,
+          "heap_max_sampled": 189460,
+          "heap_min_sampled": 231180,
+          "largest_min_sampled": 212992,
+          "heap_free": 232320,
+          "heap_allocated": 188384,
+          "largest_free": 212992,
+          "free_blocks": 8,
+          "allocated_blocks": 362,
+          "core_bytes": 92980,
+          "core_peak": 109200,
+          "core_live": 61,
+          "core_calls": 133,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 217716,
+          "dma_largest_free": 212992,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 32338,
+            "heap_free": 232320,
+            "heap_allocated": 188384,
+            "heap_min": 214600,
+            "largest_free": 212992,
+            "free_blocks": 8,
+            "allocated_blocks": 362,
+            "heap_max_sampled": 204600,
+            "heap_min_sampled": 216148,
+            "largest_min_sampled": 200704,
+            "samples": 323,
+            "task_min_free": 9732
+          }
+        },
+        {
+          "label": "one-fabric-idle",
+          "command": "m",
+          "ms": 44164,
+          "fabrics": 1,
+          "samples": 149,
+          "heap_max_sampled": 202908,
+          "heap_min_sampled": 217504,
+          "largest_min_sampled": 196608,
+          "heap_free": 230444,
+          "heap_allocated": 190244,
+          "largest_free": 208896,
+          "free_blocks": 9,
+          "allocated_blocks": 366,
+          "core_bytes": 94840,
+          "core_peak": 114848,
+          "core_live": 65,
+          "core_calls": 375,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 215840,
+          "dma_largest_free": 208896,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 44108,
+            "heap_free": 230444,
+            "heap_allocated": 190244,
+            "heap_min": 205816,
+            "largest_free": 208896,
+            "free_blocks": 9,
+            "allocated_blocks": 366,
+            "heap_max_sampled": 212728,
+            "heap_min_sampled": 207760,
+            "largest_min_sampled": 188416,
+            "samples": 441,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "one-fabric-three-sessions-subscriptions",
+          "command": "m",
+          "ms": 46038,
+          "fabrics": 1,
+          "samples": 166,
+          "heap_max_sampled": 202908,
+          "heap_min_sampled": 217504,
+          "largest_min_sampled": 196608,
+          "heap_free": 226916,
+          "heap_allocated": 193704,
+          "largest_free": 208896,
+          "free_blocks": 12,
+          "allocated_blocks": 383,
+          "core_bytes": 98300,
+          "core_peak": 114848,
+          "core_live": 82,
+          "core_calls": 516,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212312,
+          "dma_largest_free": 208896,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 45978,
+            "heap_free": 226880,
+            "heap_allocated": 193736,
+            "heap_min": 205816,
+            "largest_free": 208896,
+            "free_blocks": 11,
+            "allocated_blocks": 384,
+            "heap_max_sampled": 212728,
+            "heap_min_sampled": 207760,
+            "largest_min_sampled": 188416,
+            "samples": 460,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "five-fabrics-fifteen-sessions-subscriptions",
+          "command": "m",
+          "ms": 125498,
+          "fabrics": 5,
+          "samples": 463,
+          "heap_max_sampled": 225920,
+          "heap_min_sampled": 194024,
+          "largest_min_sampled": 163840,
+          "heap_free": 198104,
+          "heap_allocated": 221924,
+          "largest_free": 180224,
+          "free_blocks": 31,
+          "allocated_blocks": 531,
+          "core_bytes": 125608,
+          "core_peak": 144000,
+          "core_live": 186,
+          "core_calls": 3628,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 183500,
+          "dma_largest_free": 180224,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 125438,
+            "heap_free": 198104,
+            "heap_allocated": 221924,
+            "heap_min": 175352,
+            "largest_free": 180224,
+            "free_blocks": 31,
+            "allocated_blocks": 531,
+            "heap_max_sampled": 242920,
+            "heap_min_sampled": 176800,
+            "largest_min_sampled": 147456,
+            "samples": 1254,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "loaded-after-thirty-seconds",
+          "command": "m",
+          "ms": 184578,
+          "fabrics": 5,
+          "samples": 960,
+          "heap_max_sampled": 227440,
+          "heap_min_sampled": 192456,
+          "largest_min_sampled": 163840,
+          "heap_free": 198824,
+          "heap_allocated": 221220,
+          "largest_free": 180224,
+          "free_blocks": 30,
+          "allocated_blocks": 527,
+          "core_bytes": 124924,
+          "core_peak": 144084,
+          "core_live": 183,
+          "core_calls": 7927,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 184220,
+          "dma_largest_free": 180224,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 184518,
+            "heap_free": 198784,
+            "heap_allocated": 221256,
+            "heap_min": 175352,
+            "largest_free": 180224,
+            "free_blocks": 29,
+            "allocated_blocks": 528,
+            "heap_max_sampled": 242920,
+            "heap_min_sampled": 176800,
+            "largest_min_sampled": 147456,
+            "samples": 1845,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "one-fabric-after-cleanup",
+          "command": "m",
+          "ms": 199164,
+          "fabrics": 1,
+          "samples": 1072,
+          "heap_max_sampled": 227440,
+          "heap_min_sampled": 192456,
+          "largest_min_sampled": 163840,
+          "heap_free": 221800,
+          "heap_allocated": 198852,
+          "largest_free": 196608,
+          "free_blocks": 21,
+          "allocated_blocks": 375,
+          "core_bytes": 103472,
+          "core_peak": 147524,
+          "core_live": 75,
+          "core_calls": 8712,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 207196,
+          "dma_largest_free": 196608,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 199108,
+            "heap_free": 221800,
+            "heap_allocated": 198852,
+            "heap_min": 175352,
+            "largest_free": 196608,
+            "free_blocks": 21,
+            "allocated_blocks": 375,
+            "heap_max_sampled": 244228,
+            "heap_min_sampled": 175748,
+            "largest_min_sampled": 147456,
+            "samples": 1991,
+            "task_min_free": 9640
+          }
+        }
+      ],
+      "readPaths": [
+        {
+          "endpointId": 0,
+          "clusterId": 40,
+          "attributeId": 5
+        },
+        {
+          "endpointId": 0,
+          "clusterId": 62,
+          "attributeId": 3
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 6,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 8,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 1
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 8
+        }
+      ],
+      "subscriptionPaths": [
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        }
+      ],
+      "memory": {
+        "selected_owner_samples": [
+          {
+            "phase": "boot",
+            "ms": 50,
+            "heap_free": 397604,
+            "heap_allocated": 24344,
+            "heap_min": 397604,
+            "largest_free": 368640,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 12036,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 0,
+            "core_largest": 0,
+            "core_failures": 0
+          },
+          {
+            "phase": "wifi-ipv6-ready",
+            "ms": 3809,
+            "heap_free": 332052,
+            "heap_allocated": 89132,
+            "heap_min": 319048,
+            "largest_free": 311296,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 11380,
+            "core_live": 1,
+            "core_bytes": 496,
+            "core_peak": 496,
+            "core_largest": 496,
+            "core_failures": 0
+          },
+          {
+            "phase": "runtime-created",
+            "ms": 20296,
+            "heap_free": 267144,
+            "heap_allocated": 153800,
+            "heap_min": 238804,
+            "largest_free": 249856,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9732,
+            "core_live": 29,
+            "core_bytes": 59540,
+            "core_peak": 88028,
+            "core_largest": 32768,
+            "core_failures": 9
+          },
+          {
+            "phase": "runtime-started",
+            "ms": 21057,
+            "heap_free": 233304,
+            "heap_allocated": 187468,
+            "heap_min": 214600,
+            "largest_free": 212992,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9732,
+            "core_live": 57,
+            "core_bytes": 92464,
+            "core_peak": 109200,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 31048,
+            "heap_free": 232428,
+            "heap_allocated": 188280,
+            "heap_min": 214600,
+            "largest_free": 212992,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9732,
+            "core_live": 61,
+            "core_bytes": 92980,
+            "core_peak": 109200,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 41248,
+            "heap_free": 217968,
+            "heap_allocated": 202496,
+            "heap_min": 205816,
+            "largest_free": 196608,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 120,
+            "core_bytes": 107060,
+            "core_peak": 114848,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 177978,
+            "heap_free": 192928,
+            "heap_allocated": 226984,
+            "heap_min": 175352,
+            "largest_free": 176128,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 215,
+            "core_bytes": 130652,
+            "core_peak": 144084,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "complete",
+            "ms": 200168,
+            "heap_free": 390068,
+            "heap_allocated": 31684,
+            "heap_min": 175352,
+            "largest_free": 245760,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 147524,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "owner-thread-cleaned",
+            "ms": 200219,
+            "heap_free": 390180,
+            "heap_allocated": 31580,
+            "heap_min": 175352,
+            "largest_free": 245760,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 147524,
+            "core_largest": 32768,
+            "core_failures": 13
+          }
+        ],
+        "sdk_timer_final": {
+          "phase": "before-observer-stop",
+          "ms": 200149,
+          "heap_free": 390032,
+          "heap_allocated": 31716,
+          "heap_min": 175352,
+          "largest_free": 245760,
+          "free_blocks": 27,
+          "allocated_blocks": 101,
+          "heap_max_sampled": 244228,
+          "heap_min_sampled": 175748,
+          "largest_min_sampled": 147456,
+          "samples": 2001,
+          "task_min_free": 9640
+        },
+        "observed_main_stack_use": 3160,
+        "sdk_minimum_free": 175352,
+        "soak_records": 38,
+        "task_minimum_free_bytes": {
+          "main": 9640,
+          "IDLE": 1240,
+          "tcpip": 2580,
+          "sys_evt": 3728,
+          "mdns": 2372,
+          "wifi": 4812,
+          "esp_timer": 3596,
+          "Tmr?Svc": 1768
+        },
+        "summary": {
+          "owner_sampled_peak": 227440,
+          "owner_sampled_min_free": 192456,
+          "owner_sampled_min_largest": 163840,
+          "core_peak": 147524,
+          "sdk_alloc_failures": 0
+        },
+        "selected_soak_samples": [
+          {
+            "command": "m",
+            "ms": 32394,
+            "fabrics": 1,
+            "samples": 73,
+            "heap_max_sampled": 189460,
+            "heap_min_sampled": 231180,
+            "largest_min_sampled": 212992,
+            "heap_free": 232320,
+            "heap_allocated": 188384,
+            "largest_free": 212992,
+            "free_blocks": 8,
+            "allocated_blocks": 362,
+            "core_bytes": 92980,
+            "core_peak": 109200,
+            "core_live": 61,
+            "core_calls": 133,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 217716,
+            "dma_largest_free": 212992
+          },
+          {
+            "command": "m",
+            "ms": 110158,
+            "fabrics": 4,
+            "samples": 406,
+            "heap_max_sampled": 220920,
+            "heap_min_sampled": 199164,
+            "largest_min_sampled": 163840,
+            "heap_free": 201196,
+            "heap_allocated": 218860,
+            "largest_free": 163840,
+            "free_blocks": 22,
+            "allocated_blocks": 524,
+            "core_bytes": 122448,
+            "core_peak": 140604,
+            "core_live": 172,
+            "core_calls": 2986,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 186592,
+            "dma_largest_free": 163840
+          },
+          {
+            "command": "m",
+            "ms": 178018,
+            "fabrics": 5,
+            "samples": 903,
+            "heap_max_sampled": 227440,
+            "heap_min_sampled": 192456,
+            "largest_min_sampled": 163840,
+            "heap_free": 192928,
+            "heap_allocated": 226984,
+            "largest_free": 176128,
+            "free_blocks": 20,
+            "allocated_blocks": 560,
+            "core_bytes": 130652,
+            "core_peak": 144084,
+            "core_live": 215,
+            "core_calls": 7557,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 178324,
+            "dma_largest_free": 176128
+          },
+          {
+            "command": "m",
+            "ms": 188238,
+            "fabrics": 4,
+            "samples": 988,
+            "heap_max_sampled": 227440,
+            "heap_min_sampled": 192456,
+            "largest_min_sampled": 163840,
+            "heap_free": 210524,
+            "heap_allocated": 209780,
+            "largest_free": 180224,
+            "free_blocks": 45,
+            "allocated_blocks": 462,
+            "core_bytes": 113680,
+            "core_peak": 147524,
+            "core_live": 128,
+            "core_calls": 8099,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 195920,
+            "dma_largest_free": 180224
+          },
+          {
+            "command": "m",
+            "ms": 199164,
+            "fabrics": 1,
+            "samples": 1072,
+            "heap_max_sampled": 227440,
+            "heap_min_sampled": 192456,
+            "largest_min_sampled": 163840,
+            "heap_free": 221800,
+            "heap_allocated": 198852,
+            "largest_free": 196608,
+            "free_blocks": 21,
+            "allocated_blocks": 375,
+            "core_bytes": 103472,
+            "core_peak": 147524,
+            "core_live": 75,
+            "core_calls": 8712,
+            "core_failures": 13,
+            "rx_dropped_by_lab": 0,
+            "delayed_completions": 0,
+            "held_completion": 0,
+            "faults_armed": 0,
+            "reconnects": 0,
+            "sdk_alloc_failures": 0,
+            "sdk_largest_failed_request": 0,
+            "dma_free": 207196,
+            "dma_largest_free": 196608
+          }
+        ]
+      },
+      "controller_sha256": "458b898f9c6df01e8531589493ff8562b5f15a940406fcfd28c6e7913d945e53"
+    }
+  },
+  "matched_deltas": {
+    "common-live": {
+      "sampled_heap_peak_before": 256348,
+      "sampled_heap_peak_after": 244480,
+      "sampled_heap_peak_saved": 11868,
+      "minimum_sampled_free_before": 163636,
+      "minimum_sampled_free_after": 175504,
+      "core_peak_before": 159904,
+      "core_peak_after": 147604,
+      "main_stack_use_before": 3288,
+      "main_stack_use_after": 3176
+    },
+    "common-local-close": {
+      "sampled_heap_peak_before": 256156,
+      "sampled_heap_peak_after": 244228,
+      "sampled_heap_peak_saved": 11928,
+      "minimum_sampled_free_before": 163784,
+      "minimum_sampled_free_after": 175748,
+      "core_peak_before": 159336,
+      "core_peak_after": 147524,
+      "main_stack_use_before": 3160,
+      "main_stack_use_after": 3160
+    }
+  },
+  "memory22_baseline_sha256": "d80671b405bb8dbef23b5e00738ffa60ae81f467f2c11121b2e229e8ffa9b62e",
+  "c6_normal_soak": {
+    "workload": {
+      "mode": "run",
+      "read_workload": "wildcard",
+      "expected_attributes": 171,
+      "requested_seconds": 180,
+      "rounds": 16,
+      "full_reads": 106,
+      "read_attributes": 18126,
+      "concrete_reads": 0,
+      "concrete_read_attributes": 0,
+      "subscription_snapshots": 30,
+      "subscription_updates": 30,
+      "subscription_closed": 30,
+      "case_pairs": 20,
+      "case_resumed": 20,
+      "session_busy_probes": 1,
+      "oom_cycles": 1,
+      "fault_operations_rejected": 0,
+      "reconnect_cycles": 1,
+      "loss_cycles": 1,
+      "delayed_completion_cycles": 1,
+      "healthy_operation_errors": 0,
+      "checkpoints": [
+        {
+          "phase": "five-fabrics-before-subscriptions",
+          "command": "m",
+          "ms": 122128,
+          "fabrics": 5,
+          "samples": 435,
+          "heap_max_sampled": 207388,
+          "heap_min_sampled": 212872,
+          "largest_min_sampled": 192512,
+          "heap_free": 220360,
+          "heap_allocated": 200036,
+          "largest_free": 200704,
+          "free_blocks": 29,
+          "allocated_blocks": 447,
+          "core_bytes": 103912,
+          "core_peak": 125644,
+          "core_live": 103,
+          "core_calls": 2336,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 205756,
+          "dma_largest_free": 200704
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-fifteen-subscriptions",
+          "command": "m",
+          "ms": 190228,
+          "fabrics": 5,
+          "samples": 1035,
+          "heap_max_sampled": 273444,
+          "heap_min_sampled": 145564,
+          "largest_min_sampled": 126976,
+          "heap_free": 151348,
+          "heap_allocated": 267892,
+          "largest_free": 126976,
+          "free_blocks": 49,
+          "allocated_blocks": 736,
+          "core_bytes": 171760,
+          "core_peak": 181128,
+          "core_live": 392,
+          "core_calls": 9437,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 136744,
+          "dma_largest_free": 126976
+        },
+        {
+          "phase": "steady-load",
+          "command": "m",
+          "ms": 298738,
+          "fabrics": 5,
+          "samples": 1927,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 61440,
+          "heap_free": 146080,
+          "heap_allocated": 273136,
+          "largest_free": 77824,
+          "free_blocks": 57,
+          "allocated_blocks": 742,
+          "core_bytes": 177004,
+          "core_peak": 242172,
+          "core_live": 398,
+          "core_calls": 28692,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 131476,
+          "dma_largest_free": 77824
+        },
+        {
+          "phase": "full-load-before-radio-reconnect",
+          "command": "m",
+          "ms": 374518,
+          "fabrics": 5,
+          "samples": 2555,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 60416,
+          "heap_free": 146752,
+          "heap_allocated": 272484,
+          "largest_free": 102400,
+          "free_blocks": 57,
+          "allocated_blocks": 737,
+          "core_bytes": 176256,
+          "core_peak": 242172,
+          "core_live": 393,
+          "core_calls": 41831,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 35,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 132148,
+          "dma_largest_free": 102400
+        },
+        {
+          "phase": "reconnected-full-load",
+          "command": "m",
+          "ms": 459658,
+          "fabrics": 5,
+          "samples": 3298,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 60416,
+          "heap_free": 145968,
+          "heap_allocated": 273248,
+          "largest_free": 120832,
+          "free_blocks": 49,
+          "allocated_blocks": 742,
+          "core_bytes": 176956,
+          "core_peak": 242172,
+          "core_live": 396,
+          "core_calls": 50754,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 35,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 131364,
+          "dma_largest_free": 120832
+        },
+        {
+          "phase": "all-subscriptions-and-sessions-drained-idle-trim",
+          "command": "m",
+          "ms": 474088,
+          "fabrics": 5,
+          "samples": 3426,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 60416,
+          "heap_free": 227524,
+          "heap_allocated": 192936,
+          "largest_free": 129024,
+          "free_blocks": 44,
+          "allocated_blocks": 431,
+          "core_bytes": 96676,
+          "core_peak": 242172,
+          "core_live": 86,
+          "core_calls": 50860,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 35,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212920,
+          "dma_largest_free": 129024
+        },
+        {
+          "phase": "original-fabric-restored",
+          "command": "m",
+          "ms": 481508,
+          "fabrics": 1,
+          "samples": 3475,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 60416,
+          "heap_free": 230044,
+          "heap_allocated": 190672,
+          "largest_free": 129024,
+          "free_blocks": 34,
+          "allocated_blocks": 367,
+          "core_bytes": 95364,
+          "core_peak": 242172,
+          "core_live": 67,
+          "core_calls": 51111,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 35,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 215440,
+          "dma_largest_free": 129024
+        }
+      ],
+      "phases": [],
+      "unexpected_subscription_closures": 0,
+      "oom_lost_subscriptions": 0,
+      "oom_rebuilt_load_cycles": 0,
+      "fault_operation_errors": [],
+      "loss_operations_rejected": 0,
+      "loss_rebuilt_load_cycles": 0,
+      "loss_lost_subscriptions": 0,
+      "loss_operation_errors": [],
+      "recovery_busy_retries": 0,
+      "recovery_busy_wait_ms": 0,
+      "sustained_seconds": 269.36731810000003,
+      "stop_wait_seconds": 3.6140191999999804,
+      "stop_read_outcome": {
+        "status": "rejected",
+        "name": "Error"
+      },
+      "pass": true,
+      "elapsed_seconds": 470.1688565,
+      "successful_read_latency_ms": {
+        "full": {
+          "count": 106,
+          "min": 2821.199100000027,
+          "median": 7822.088400000008,
+          "p95": 10050.443800000008,
+          "max": 11789.79130000004
+        },
+        "concrete": {
+          "count": 0
+        }
+      }
+    },
+    "memory": {
+      "selected_owner_samples": [
+        {
+          "phase": "boot",
+          "ms": 50,
+          "heap_free": 397672,
+          "heap_allocated": 24312,
+          "heap_min": 397672,
+          "largest_free": 368640,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 12036,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 0,
+          "core_largest": 0,
+          "core_failures": 0
+        },
+        {
+          "phase": "wifi-ipv6-ready",
+          "ms": 3839,
+          "heap_free": 332140,
+          "heap_allocated": 89080,
+          "heap_min": 319080,
+          "largest_free": 311296,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 11380,
+          "core_live": 1,
+          "core_bytes": 496,
+          "core_peak": 496,
+          "core_largest": 496,
+          "core_failures": 0
+        },
+        {
+          "phase": "runtime-created",
+          "ms": 20401,
+          "heap_free": 267264,
+          "heap_allocated": 153716,
+          "heap_min": 238912,
+          "largest_free": 249856,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9592,
+          "core_live": 29,
+          "core_bytes": 59540,
+          "core_peak": 88028,
+          "core_largest": 32768,
+          "core_failures": 9
+        },
+        {
+          "phase": "runtime-started",
+          "ms": 21167,
+          "heap_free": 233440,
+          "heap_allocated": 187368,
+          "heap_min": 216236,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9592,
+          "core_live": 57,
+          "core_bytes": 92476,
+          "core_peak": 109212,
+          "core_largest": 32768,
+          "core_failures": 12
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 31098,
+          "heap_free": 232556,
+          "heap_allocated": 188188,
+          "heap_min": 216236,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9592,
+          "core_live": 61,
+          "core_bytes": 92992,
+          "core_peak": 109212,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 41258,
+          "heap_free": 218996,
+          "heap_allocated": 201576,
+          "heap_min": 206024,
+          "largest_free": 200704,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9512,
+          "core_live": 102,
+          "core_bytes": 106244,
+          "core_peak": 114860,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 319679,
+          "heap_free": 84104,
+          "heap_allocated": 333884,
+          "heap_min": 78272,
+          "largest_free": 65536,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9512,
+          "core_live": 705,
+          "core_bytes": 237752,
+          "core_peak": 242172,
+          "core_largest": 32768,
+          "core_failures": 14
+        },
+        {
+          "phase": "complete",
+          "ms": 488399,
+          "heap_free": 390120,
+          "heap_allocated": 31664,
+          "heap_min": 78272,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9512,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 242172,
+          "core_largest": 32768,
+          "core_failures": 14
+        },
+        {
+          "phase": "owner-thread-cleaned",
+          "ms": 488448,
+          "heap_free": 390232,
+          "heap_allocated": 31560,
+          "heap_min": 78272,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9512,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 242172,
+          "core_largest": 32768,
+          "core_failures": 14
+        }
+      ],
+      "sdk_timer_final": null,
+      "observed_main_stack_use": 3288,
+      "sdk_minimum_free": 78272,
+      "soak_records": 102,
+      "task_minimum_free_bytes": {
+        "main": 9512,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 2360,
+        "wifi": 4816,
+        "esp_timer": 3596,
+        "Tmr?Svc": 1768
+      },
+      "summary": {
+        "owner_sampled_peak": 334644,
+        "owner_sampled_min_free": 83408,
+        "owner_sampled_min_largest": 60416,
+        "core_peak": 242172,
+        "sdk_alloc_failures": 0
+      },
+      "selected_soak_samples": [
+        {
+          "command": "m",
+          "ms": 36208,
+          "fabrics": 1,
+          "samples": 97,
+          "heap_max_sampled": 196456,
+          "heap_min_sampled": 224244,
+          "largest_min_sampled": 204800,
+          "heap_free": 224828,
+          "heap_allocated": 195896,
+          "largest_free": 204800,
+          "free_blocks": 9,
+          "allocated_blocks": 365,
+          "core_bytes": 100596,
+          "core_peak": 109212,
+          "core_live": 65,
+          "core_calls": 148,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 210224,
+          "dma_largest_free": 204800
+        },
+        {
+          "command": "m",
+          "ms": 232792,
+          "fabrics": 5,
+          "samples": 1383,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 61440,
+          "heap_free": 107572,
+          "heap_allocated": 311320,
+          "largest_free": 62464,
+          "free_blocks": 81,
+          "allocated_blocks": 823,
+          "core_bytes": 215188,
+          "core_peak": 242172,
+          "core_live": 479,
+          "core_calls": 17262,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 92968,
+          "dma_largest_free": 62464
+        },
+        {
+          "command": "1",
+          "ms": 251058,
+          "fabrics": 5,
+          "samples": 1534,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 61440,
+          "heap_free": 146896,
+          "heap_allocated": 272344,
+          "largest_free": 77824,
+          "free_blocks": 68,
+          "allocated_blocks": 736,
+          "core_bytes": 176244,
+          "core_peak": 242172,
+          "core_live": 393,
+          "core_calls": 20458,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 132292,
+          "dma_largest_free": 77824
+        },
+        {
+          "command": "a",
+          "ms": 260658,
+          "fabrics": 5,
+          "samples": 1614,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 61440,
+          "heap_free": 146152,
+          "heap_allocated": 273072,
+          "largest_free": 86016,
+          "free_blocks": 65,
+          "allocated_blocks": 740,
+          "core_bytes": 176972,
+          "core_peak": 242172,
+          "core_live": 397,
+          "core_calls": 22116,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 131548,
+          "dma_largest_free": 86016
+        },
+        {
+          "command": "m",
+          "ms": 319693,
+          "fabrics": 5,
+          "samples": 2100,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 61440,
+          "heap_free": 84140,
+          "heap_allocated": 333852,
+          "largest_free": 65536,
+          "free_blocks": 11,
+          "allocated_blocks": 1048,
+          "core_bytes": 237752,
+          "core_peak": 242172,
+          "core_live": 705,
+          "core_calls": 32835,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 69536,
+          "dma_largest_free": 65536
+        },
+        {
+          "command": "d",
+          "ms": 341938,
+          "fabrics": 5,
+          "samples": 2282,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 60416,
+          "heap_free": 146092,
+          "heap_allocated": 273128,
+          "largest_free": 77824,
+          "free_blocks": 59,
+          "allocated_blocks": 741,
+          "core_bytes": 176996,
+          "core_peak": 242172,
+          "core_live": 397,
+          "core_calls": 36583,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 131488,
+          "dma_largest_free": 77824
+        },
+        {
+          "command": "w",
+          "ms": 374698,
+          "fabrics": 5,
+          "samples": 2557,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 60416,
+          "heap_free": 146752,
+          "heap_allocated": 272484,
+          "largest_free": 102400,
+          "free_blocks": 57,
+          "allocated_blocks": 737,
+          "core_bytes": 176256,
+          "core_peak": 242172,
+          "core_live": 393,
+          "core_calls": 41839,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 35,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 132148,
+          "dma_largest_free": 102400
+        },
+        {
+          "command": "h",
+          "ms": 484498,
+          "fabrics": 1,
+          "samples": 3500,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 60416,
+          "heap_free": 229836,
+          "heap_allocated": 190872,
+          "largest_free": 129024,
+          "free_blocks": 31,
+          "allocated_blocks": 369,
+          "core_bytes": 95564,
+          "core_peak": 242172,
+          "core_live": 69,
+          "core_calls": 51274,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 35,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 215232,
+          "dma_largest_free": 129024
+        },
+        {
+          "command": "m",
+          "ms": 484788,
+          "fabrics": 1,
+          "samples": 3503,
+          "heap_max_sampled": 334644,
+          "heap_min_sampled": 83408,
+          "largest_min_sampled": 60416,
+          "heap_free": 228292,
+          "heap_allocated": 192392,
+          "largest_free": 129024,
+          "free_blocks": 29,
+          "allocated_blocks": 375,
+          "core_bytes": 97084,
+          "core_peak": 242172,
+          "core_live": 75,
+          "core_calls": 51288,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 35,
+          "delayed_completions": 1,
+          "held_completion": 1,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 213688,
+          "dma_largest_free": 129024
+        }
+      ]
+    }
+  },
+  "native": {
+    "windows_passed": 102,
+    "windows_first_run_passed": 99,
+    "windows_network_retry_passed": 3,
+    "linux": {
+      "normal": {
+        "ctest_passed": 99,
+        "pair_checks": [
+          "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+          "independent-application-state",
+          "independent-Identify-and-UTC-anchors",
+          "B-meter-services-survive-active-A-Identify-teardown",
+          "B-subscription-and-phase-read-survive-A-deletion",
+          "both-last-fabric-responses"
+        ],
+        "stderr_bytes": 0
+      },
+      "sanitize": {
+        "ctest_passed": 99,
+        "pair_checks": [
+          "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+          "independent-application-state",
+          "independent-Identify-and-UTC-anchors",
+          "B-meter-services-survive-active-A-Identify-teardown",
+          "B-subscription-and-phase-read-survive-A-deletion",
+          "both-last-fabric-responses"
+        ],
+        "stderr_bytes": 0
+      }
+    },
+    "focused_memcheck": {
+      "memory23-valgrind-test_dispatch.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "22166b87a055e7df924af79ec9ecd998950ef850b0bf32cf3be32e4a5e46fbfe"
+      },
+      "memory23-valgrind-test_im_read_alloc.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "36da09dfada32ec8940da868903f6d406596720b2b3aa2e88abd77697c8bd706"
+      },
+      "memory23-valgrind-test_im_snapshots.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "31e647689e720075916a4f233d04c7e946513952e86db51f15f8bb0cf26878cd"
+      },
+      "memory23-valgrind-test_im_subscribe_alloc.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "d6b2692d21ded0b87555711b6c6c1e00d826acce16b3c336bc4bdcc8f66da2cd"
+      },
+      "memory23-valgrind-test_im_subscribe_alloc_full.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "2e8fb6a2f0c3222386fcc482bf239849adb58998a5b4191e5dfe317da76367ab"
+      },
+      "memory23-valgrind-test_runtime.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "551eb9e738973fcb25cef2d7b3fc29da40a37bccd7905c4beb9922295256c8d8"
+      },
+      "memory23-valgrind-test_runtime_alloc.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "d667428560350954d6110a1fdcf8d2f0e6f37c3c80d4729be7af205164c3fb50"
+      },
+      "memory23-valgrind-test_rx.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "7fbb2758587a97b2277151cde953d262851a56da7681388621044fd60492aff4"
+      },
+      "memory23-valgrind-test_rx_alloc.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "7ff7620b828523d2a581882d0a8dfdc52eb0046de4252a672742b5dc2e767d65"
+      },
+      "memory23-valgrind-test_store-committed-load.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "2fc64cc6989bb4006750ff69e5a9afcfda34fb539cde1e6b262af482ce702485"
+      },
+      "memory23-valgrind-test_store-committed-seed.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "bc6e1839a3ff172039a0040770ea4f6d3ac7feba492d1631db8bfcf5a1aec3ab"
+      },
+      "memory23-valgrind-test_store-pending-load.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "c70a10d9778c4d60e92461296000bbd730374b5613da2dd473205355540fc8a7"
+      },
+      "memory23-valgrind-test_store-pending-seed.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "a341c9872aed6d2f06465829bbd95f542e8d35975d9715ede7ec7039b7b952aa"
+      },
+      "memory23-valgrind-test_store_alloc-committed-load.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "d1e7aa1c390f780965b931c72952d04e119261b7adfa0ab325b15bcd82340b97"
+      },
+      "memory23-valgrind-test_store_alloc-committed-seed.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "b67f20b08a8beba614d2ba5f541fb1d16cdcfe2f6701ee9fbf1f8fa353df2456"
+      },
+      "memory23-valgrind-test_store_alloc-pending-load.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "7510ba716955a436da8616b57d4b7d047b35385664f785cf6dd299fa1908f0dc"
+      },
+      "memory23-valgrind-test_store_alloc-pending-seed.log": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "0e94dc0609d7ab67542539db24d5e4c5d2a2ca79b4ae0881578c713c9072ef4d"
+      }
+    },
+    "pair_memcheck": {
+      "errors": 0,
+      "live_bytes_at_exit": 0
+    }
+  },
+  "layout": {
+    "types": {
+      "Matter_Fabric_Record_T": {
+        "size": 1936,
+        "members": {
+          "discovery_instance": {
+            "size": 34,
+            "offset": 0
+          },
+          "index": {
+            "size": 1,
+            "offset": 34
+          },
+          "root_public": {
+            "size": 65,
+            "offset": 35
+          },
+          "operational_public": {
+            "size": 65,
+            "offset": 100
+          },
+          "compressed_id": {
+            "size": 8,
+            "offset": 165
+          },
+          "vendor": {
+            "size": 2,
+            "offset": 174
+          },
+          "noc_size": {
+            "size": 2,
+            "offset": 176
+          },
+          "icac_size": {
+            "size": 2,
+            "offset": 178
+          },
+          "root_size": {
+            "size": 2,
+            "offset": 180
+          },
+          "fabric_id": {
+            "size": 8,
+            "offset": 184
+          },
+          "node_id": {
+            "size": 8,
+            "offset": 192
+          },
+          "admin_subject": {
+            "size": 8,
+            "offset": 200
+          },
+          "noc": {
+            "size": 400,
+            "offset": 208
+          },
+          "icac": {
+            "size": 400,
+            "offset": 608
+          },
+          "root": {
+            "size": 400,
+            "offset": 1008
+          },
+          "label_size": {
+            "size": 1,
+            "offset": 1408
+          },
+          "label": {
+            "size": 32,
+            "offset": 1409
+          },
+          "vvs_size": {
+            "size": 1,
+            "offset": 1441
+          },
+          "vvs": {
+            "size": 85,
+            "offset": 1442
+          },
+          "vvsc_size": {
+            "size": 2,
+            "offset": 1528
+          },
+          "vvsc": {
+            "size": 400,
+            "offset": 1530
+          }
+        }
+      },
+      "Matter_Fabric_View_T": {
+        "size": 10104,
+        "members": {
+          "revision": {
+            "size": 4,
+            "offset": 0
+          },
+          "count": {
+            "size": 1,
+            "offset": 4
+          },
+          "pending_index": {
+            "size": 1,
+            "offset": 5
+          },
+          "pase_index": {
+            "size": 1,
+            "offset": 6
+          },
+          "root_ready": {
+            "size": 1,
+            "offset": 7
+          },
+          "added": {
+            "size": 1,
+            "offset": 8
+          },
+          "root_size": {
+            "size": 2,
+            "offset": 10
+          },
+          "root": {
+            "size": 400,
+            "offset": 12
+          },
+          "pase_session": {
+            "size": 8,
+            "offset": 416
+          },
+          "records": {
+            "size": 9680,
+            "offset": 424
+          }
+        }
+      },
+      "Matter_Acl_View_T": {
+        "size": 1648,
+        "members": {
+          "fabrics": {
+            "size": 1640,
+            "offset": 0
+          },
+          "version": {
+            "size": 4,
+            "offset": 1640
+          }
+        }
+      },
+      "Matter_Groupkey_View_T": {
+        "size": 688,
+        "members": {
+          "fabrics": {
+            "size": 680,
+            "offset": 0
+          },
+          "version": {
+            "size": 4,
+            "offset": 680
+          }
+        }
+      },
+      "Matter_Store_Fabrics_T": {
+        "size": 15536,
+        "members": {
+          "view": {
+            "size": 10104,
+            "offset": 0
+          },
+          "acl": {
+            "size": 1648,
+            "offset": 10104
+          },
+          "groupkey": {
+            "size": 688,
+            "offset": 11752
+          },
+          "groupkeys": {
+            "size": 960,
+            "offset": 12440
+          },
+          "keys": {
+            "size": 160,
+            "offset": 13400
+          },
+          "next_index": {
+            "size": 1,
+            "offset": 13560
+          },
+          "saved_next": {
+            "size": 1,
+            "offset": 13561
+          },
+          "journal": {
+            "size": 1,
+            "offset": 13562
+          },
+          "previous": {
+            "size": 1936,
+            "offset": 13568
+          },
+          "previous_key": {
+            "size": 32,
+            "offset": 15504
+          }
+        }
+      },
+      "Codec": {
+        "size": 128,
+        "members": {
+          "schema": {
+            "size": 4,
+            "offset": 0
+          },
+          "commit_fabrics": {
+            "size": 1,
+            "offset": 4
+          },
+          "reader": {
+            "size": 36,
+            "offset": 8
+          },
+          "writer": {
+            "size": 32,
+            "offset": 44
+          },
+          "e": {
+            "size": 48,
+            "offset": 80
+          }
+        }
+      },
+      "Store_Work": {
+        "size": 648,
+        "members": {
+          "source": {
+            "size": 48,
+            "offset": 0
+          },
+          "wifi": {
+            "size": 428,
+            "offset": 48
+          },
+          "root": {
+            "size": 40,
+            "offset": 476
+          },
+          "eem": {
+            "size": 48,
+            "offset": 520
+          },
+          "ota": {
+            "size": 80,
+            "offset": 568
+          }
+        }
+      },
+      "Fabric_Undo": {
+        "size": 128,
+        "members": {
+          "size": {
+            "size": 4,
+            "offset": 0
+          },
+          "count": {
+            "size": 4,
+            "offset": 4
+          },
+          "ranges": {
+            "size": 120,
+            "offset": 8
+          },
+          "data": {
+            "size": null,
+            "offset": 128
+          }
+        }
+      }
+    },
+    "sections": {
+      ".rtc_reserved": {
+        "size": 24,
+        "address": 1342193640
+      },
+      ".iram0.text": {
+        "size": 69066,
+        "address": 1082130432
+      },
+      ".iram0.text_end": {
+        "size": 2,
+        "address": 1082199498
+      },
+      ".iram0.data": {
+        "size": 4,
+        "address": 1082199500
+      },
+      ".dram0.data": {
+        "size": 16235,
+        "address": 1082199504
+      },
+      ".noinit": {
+        "size": 1,
+        "address": 1082215739
+      },
+      ".dram0.bss": {
+        "size": 25168,
+        "address": 1082215744
+      },
+      ".flash.text": {
+        "size": 1072580,
+        "address": 1107296288
+      },
+      ".flash_rodata_dummy": {
+        "size": 1114112,
+        "address": 1107296288
+      },
+      ".flash.appdesc": {
+        "size": 256,
+        "address": 1108410400
+      },
+      ".flash.rodata": {
+        "size": 154932,
+        "address": 1108410656
+      },
+      ".flash.init_array": {
+        "size": 264,
+        "address": 1108565588
+      },
+      ".flash.tdata": {
+        "size": 16,
+        "address": 1108565852
+      },
+      ".flash.rodata_noload": {
+        "size": 17901,
+        "address": 1108565868
+      }
+    },
+    "zero_symbols": [
+      {
+        "name": "zeros.0",
+        "size": 400,
+        "section": ".flash.rodata"
+      }
+    ],
+    "undo_bytes": {
+      "root": 576,
+      "label_vid": 2512,
+      "install_or_committed_remove": 3200,
+      "pending_remove_or_rollback": 5168,
+      "update": 4512,
+      "commit": 0
+    }
+  },
+  "static_diram": {
+    "normal": 110469,
+    "common": 110493
+  },
+  "stack_frames": {
+    "runtime/matter_fabric_host.c": {
+      "erase": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "undo_range": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "previous": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "view": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "slot": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "acl_view": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "case_valid": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "resume_live": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "resume_find": {
+        "bytes": 48,
+        "kind": "static"
+      },
+      "groupkey_view": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "resume_save": {
+        "bytes": 48,
+        "kind": "static"
+      },
+      "clear_resumptions": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "clear_backup": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "collision": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "before": {
+        "bytes": 160,
+        "kind": "static"
+      },
+      "restore_backup": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "removed": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "after": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "rollback": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "vid": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "store_update": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "label": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "groupkey_remove": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "groupkey_store": {
+        "bytes": 64,
+        "kind": "static"
+      },
+      "remove_fabric": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "update": {
+        "bytes": 96,
+        "kind": "static"
+      },
+      "install": {
+        "bytes": 128,
+        "kind": "static"
+      },
+      "store": {
+        "bytes": 64,
+        "kind": "static"
+      },
+      "acl_store": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "case_load": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "root": {
+        "bytes": 48,
+        "kind": "static"
+      },
+      "matter_fabric_host_bind_events": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_fabric_host_image_new": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_fabric_host_image_delete": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_fabric_host_new": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "matter_fabric_host_port": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_fabric_host_reset_requested": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_fabric_host_commit_ready": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_fabric_host_apply_commit": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_fabric_host_publish_commit": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_fabric_host_commit": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_fabric_host_delete": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_fabric_host_credential_revision": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_fabric_host_sign": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "vid_sign": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "case_sign": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_fabric_host_acl_port": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_fabric_host_case_authorize": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "matter_fabric_host_control": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_fabric_host_case_port": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_fabric_host_groupkey_port": {
+        "bytes": 0,
+        "kind": "static"
+      }
+    },
+    "runtime/matter_store_host.c": {
+      "wipe": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "capture": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "clear_work": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "save": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "reset": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "publish": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_store_host_new": {
+        "bytes": 128,
+        "kind": "static"
+      },
+      "matter_store_host_delete": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_store_host_root": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_store_host_save": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_store_host_eem_load": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_store_host_eem_store": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_store_host_event_load": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_store_host_event_store": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_store_host_ota_load": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "matter_store_host_ota_store": {
+        "bytes": 32,
+        "kind": "static"
+      }
+    },
+    "storage/matter_store_tlv.c": {
+      "valid_utf8": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "field_present": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "wipe": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "acl_subject": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "vid_valid": {
+        "bytes": 0,
+        "kind": "static"
+      },
+      "matter_tlv_measure_init": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "put": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "encode_value": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "encode_field": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "encode_object": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "encode_source": {
+        "bytes": 64,
+        "kind": "static"
+      },
+      "next": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "end": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "decode_value": {
+        "bytes": 16,
+        "kind": "static"
+      },
+      "decode_object": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "matter_store_source_valid": {
+        "bytes": 80,
+        "kind": "static"
+      },
+      "matter_store_source_encode": {
+        "bytes": 48,
+        "kind": "static"
+      },
+      "matter_store_data_valid": {
+        "bytes": 64,
+        "kind": "static"
+      },
+      "matter_store_tlv_encode": {
+        "bytes": 32,
+        "kind": "static"
+      },
+      "matter_store_tlv_decode": {
+        "bytes": 32,
+        "kind": "static"
+      }
+    }
+  },
+  "host_payload_measurements": {
+    "label_publication_peak": 19425,
+    "committed_publication_peak": 16785,
+    "publication_tlv": 15945,
+    "mutation_fault_sites": 4,
+    "commit_fault_sites": 3,
+    "saturated_tlv": 17580,
+    "saturated_codec_peak": 17740
+  },
+  "firmware_sha256": {
+    "normal": "b41bab2dfc002283a6109e74cd1a21baa565a04cb61a9d00a3ecddc3786b9bde",
+    "common": "7b9674d311915122bdc3ff20ead9d1eac0afd3995ccbd0c41eb07c3659da5931"
+  },
+  "source_sha256": {
+    "main/apps/matter/runtime/matter_commissioning_host.c": "6cd87e38239b4e14e60b32a3ff0db0e2c17d2530ea5001f5ee0a3df3ac935fc0",
+    "main/apps/matter/runtime/matter_fabric_host.c": "5b1734e328ebfcddd7b400200ead51e7bddfcc64384e7873a8d73e8cd763c51f",
+    "main/apps/matter/runtime/matter_store_host.c": "b86e8c330e0d18214764b3a5ef52f638c5d279085a0334a61da813f439db56ac",
+    "main/apps/matter/runtime/matter_store_internal.h": "9c1d5c7a111324b5d2320aba4bd15d0fc2d7e1f5f82788772f058ea2bef4eab2",
+    "main/apps/matter/storage/matter_store_source_internal.h": "2cc9bbdbe587d821f062b17d21314c1a6be8279570d211ced19b103408585177",
+    "main/apps/matter/storage/matter_store_tlv.c": "2db67a34356e0494827bef455c18f5429cdced4192bbc06f07e31ce13758f45e",
+    "tools/matter/tests/test_store.c": "b7babd1ec0ffd6ac90afd40d72922a9152e1912831994ff58151a41f11e53e01"
+  },
+  "linux_tested_source_sha256": {
+    "main/apps/matter/runtime/matter_commissioning_host.c": "6cd87e38239b4e14e60b32a3ff0db0e2c17d2530ea5001f5ee0a3df3ac935fc0",
+    "main/apps/matter/runtime/matter_fabric_host.c": "5b1734e328ebfcddd7b400200ead51e7bddfcc64384e7873a8d73e8cd763c51f",
+    "main/apps/matter/runtime/matter_store_host.c": "b86e8c330e0d18214764b3a5ef52f638c5d279085a0334a61da813f439db56ac",
+    "main/apps/matter/runtime/matter_store_internal.h": "9c1d5c7a111324b5d2320aba4bd15d0fc2d7e1f5f82788772f058ea2bef4eab2",
+    "main/apps/matter/storage/matter_store_source_internal.h": "2cc9bbdbe587d821f062b17d21314c1a6be8279570d211ced19b103408585177",
+    "main/apps/matter/storage/matter_store_tlv.c": "2db67a34356e0494827bef455c18f5429cdced4192bbc06f07e31ce13758f45e",
+    "tools/matter/tests/test_store.c": "b7babd1ec0ffd6ac90afd40d72922a9152e1912831994ff58151a41f11e53e01"
+  },
+  "final_restore": {
+    "pass": true,
+    "cleanup_free_gain": 112,
+    "phases": {
+      "boot": {
+        "phase": "boot",
+        "ms": 50,
+        "heap_free": 397672,
+        "heap_allocated": 24312,
+        "heap_min": 397672,
+        "largest_free": 368640,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 12036,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 0,
+        "core_largest": 0,
+        "core_failures": 0
+      },
+      "wifi-ipv6-ready": {
+        "phase": "wifi-ipv6-ready",
+        "ms": 3819,
+        "heap_free": 332120,
+        "heap_allocated": 89100,
+        "heap_min": 319080,
+        "largest_free": 311296,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 11380,
+        "core_live": 1,
+        "core_bytes": 496,
+        "core_peak": 496,
+        "core_largest": 496,
+        "core_failures": 0
+      },
+      "runtime-created": {
+        "phase": "runtime-created",
+        "ms": 20382,
+        "heap_free": 267212,
+        "heap_allocated": 153768,
+        "heap_min": 238872,
+        "largest_free": 249856,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9704,
+        "core_live": 29,
+        "core_bytes": 59540,
+        "core_peak": 88028,
+        "core_largest": 32768,
+        "core_failures": 9
+      },
+      "runtime-started": {
+        "phase": "runtime-started",
+        "ms": 21170,
+        "heap_free": 233372,
+        "heap_allocated": 187436,
+        "heap_min": 216156,
+        "largest_free": 212992,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9704,
+        "core_live": 57,
+        "core_bytes": 92464,
+        "core_peak": 109200,
+        "core_largest": 32768,
+        "core_failures": 12
+      },
+      "runtime-serving": {
+        "phase": "runtime-serving",
+        "ms": 46368,
+        "heap_free": 229672,
+        "heap_allocated": 191036,
+        "heap_min": 207400,
+        "largest_free": 208896,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9652,
+        "core_live": 69,
+        "core_bytes": 95660,
+        "core_peak": 113560,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "complete": {
+        "phase": "complete",
+        "ms": 51789,
+        "heap_free": 390116,
+        "heap_allocated": 31672,
+        "heap_min": 207400,
+        "largest_free": 221184,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9652,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 113560,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "owner-thread-cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 51838,
+        "heap_free": 390228,
+        "heap_allocated": 31568,
+        "heap_min": 207400,
+        "largest_free": 221184,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9652,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 113560,
+        "core_largest": 32768,
+        "core_failures": 13
+      }
+    }
+  },
+  "cleanup": {
+    "ipv6": true,
+    "collectors": [],
+    "adapter": "Disconnected",
+    "temporary_connection_was_active": true,
+    "temporary_profile_removed": true,
+    "temporary_xml_removed": true
+  },
+  "documentation_sha256": {
+    "README.md": "8c8c83c83ee8ef3b1f6e65685e5c3ab139a3b039ad5d5405e7653f25ceb8a46b",
+    "doc/oss/status.md": "43f26b1dbad6a9aa0b2318802b9062b15ff9992078fab65782178879be3cf444",
+    "doc/oss/memory23-validation.md": "804c08e05f69094c266b452ef547241e19d29ec68470aa960fe72dad122776f2"
+  },
+  "initial_load_investigation": {
+    "memory23_first_attempt": {
+      "passed": false,
+      "subscription_snapshots": 15,
+      "error": "Unexpected live subscription load: {\"currentSubscriptions\":14,\"currentSubscriptionsForFabric\":3,\"totalSubscriptionsEstablished\":16,\"totalInteractionModelMessagesSent\":548,\"totalInteractionModelMessagesReceived\":544}",
+      "rounds": 0
+    },
+    "memory22_baseline_initial_load": [
+      {
+        "attempt": 1,
+        "initial_load_pass": true,
+        "controller_exit": 0,
+        "error": null,
+        "subscription_snapshots": 15
+      }
+    ],
+    "memory23_full_retry_pass": true
+  },
+  "c6_durable_reboot": {
+    "pass": true,
+    "changed_label_restored": true,
+    "event_watermark_monotonic": true,
+    "reconnect": {
+      "selected_owner_samples": [
+        {
+          "phase": "boot",
+          "ms": 50,
+          "heap_free": 397672,
+          "heap_allocated": 24312,
+          "heap_min": 397672,
+          "largest_free": 368640,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 12036,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 0,
+          "core_largest": 0,
+          "core_failures": 0
+        },
+        {
+          "phase": "wifi-ipv6-ready",
+          "ms": 3829,
+          "heap_free": 332140,
+          "heap_allocated": 89080,
+          "heap_min": 319080,
+          "largest_free": 311296,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 11380,
+          "core_live": 1,
+          "core_bytes": 496,
+          "core_peak": 496,
+          "core_largest": 496,
+          "core_failures": 0
+        },
+        {
+          "phase": "runtime-created",
+          "ms": 20400,
+          "heap_free": 267264,
+          "heap_allocated": 153716,
+          "heap_min": 238912,
+          "largest_free": 249856,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9720,
+          "core_live": 29,
+          "core_bytes": 59540,
+          "core_peak": 88028,
+          "core_largest": 32768,
+          "core_failures": 9
+        },
+        {
+          "phase": "runtime-started",
+          "ms": 21147,
+          "heap_free": 233432,
+          "heap_allocated": 187376,
+          "heap_min": 216228,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9720,
+          "core_live": 57,
+          "core_bytes": 92476,
+          "core_peak": 109212,
+          "core_largest": 32768,
+          "core_failures": 12
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 31118,
+          "heap_free": 232564,
+          "heap_allocated": 188180,
+          "heap_min": 216228,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9720,
+          "core_live": 61,
+          "core_bytes": 92992,
+          "core_peak": 109212,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 41338,
+          "heap_free": 221056,
+          "heap_allocated": 199388,
+          "heap_min": 205552,
+          "largest_free": 200704,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9652,
+          "core_live": 133,
+          "core_bytes": 103936,
+          "core_peak": 114856,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "complete",
+          "ms": 47679,
+          "heap_free": 390112,
+          "heap_allocated": 31672,
+          "heap_min": 205552,
+          "largest_free": 245760,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9652,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 114856,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "owner-thread-cleaned",
+          "ms": 47728,
+          "heap_free": 390244,
+          "heap_allocated": 31552,
+          "heap_min": 205552,
+          "largest_free": 245760,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9652,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 114856,
+          "core_largest": 32768,
+          "core_failures": 13
+        }
+      ],
+      "sdk_timer_final": null,
+      "observed_main_stack_use": 3148,
+      "sdk_minimum_free": 205552,
+      "soak_records": 3,
+      "task_minimum_free_bytes": {
+        "main": 9652,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 2360,
+        "wifi": 4816,
+        "esp_timer": 3596,
+        "Tmr?Svc": 1768
+      },
+      "summary": {
+        "owner_sampled_peak": 199720,
+        "owner_sampled_min_free": 220680,
+        "owner_sampled_min_largest": 200704,
+        "core_peak": 114856,
+        "sdk_alloc_failures": 0
+      },
+      "selected_soak_samples": [
+        {
+          "command": "m",
+          "ms": 36238,
+          "fabrics": 1,
+          "samples": 99,
+          "heap_max_sampled": 196436,
+          "heap_min_sampled": 224264,
+          "largest_min_sampled": 204800,
+          "heap_free": 224836,
+          "heap_allocated": 195888,
+          "largest_free": 204800,
+          "free_blocks": 8,
+          "allocated_blocks": 365,
+          "core_bytes": 100596,
+          "core_peak": 109212,
+          "core_live": 65,
+          "core_calls": 148,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 210232,
+          "dma_largest_free": 204800
+        },
+        {
+          "command": "m",
+          "ms": 41354,
+          "fabrics": 1,
+          "samples": 126,
+          "heap_max_sampled": 199720,
+          "heap_min_sampled": 220680,
+          "largest_min_sampled": 200704,
+          "heap_free": 221056,
+          "heap_allocated": 199388,
+          "largest_free": 200704,
+          "free_blocks": 10,
+          "allocated_blocks": 435,
+          "core_bytes": 103936,
+          "core_peak": 114856,
+          "core_live": 133,
+          "core_calls": 397,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 206452,
+          "dma_largest_free": 200704
+        },
+        {
+          "command": "m",
+          "ms": 46438,
+          "fabrics": 1,
+          "samples": 172,
+          "heap_max_sampled": 199720,
+          "heap_min_sampled": 220680,
+          "largest_min_sampled": 200704,
+          "heap_free": 226124,
+          "heap_allocated": 194524,
+          "largest_free": 200704,
+          "free_blocks": 14,
+          "allocated_blocks": 384,
+          "core_bytes": 99104,
+          "core_peak": 114856,
+          "core_live": 83,
+          "core_calls": 525,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 211520,
+          "dma_largest_free": 200704
+        }
+      ]
+    },
+    "recovered": {
+      "selected_owner_samples": [
+        {
+          "phase": "boot",
+          "ms": 50,
+          "heap_free": 397672,
+          "heap_allocated": 24312,
+          "heap_min": 397672,
+          "largest_free": 368640,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 12036,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 0,
+          "core_largest": 0,
+          "core_failures": 0
+        },
+        {
+          "phase": "wifi-ipv6-ready",
+          "ms": 3753,
+          "heap_free": 332272,
+          "heap_allocated": 88952,
+          "heap_min": 319476,
+          "largest_free": 311296,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 11336,
+          "core_live": 1,
+          "core_bytes": 496,
+          "core_peak": 496,
+          "core_largest": 496,
+          "core_failures": 0
+        },
+        {
+          "phase": "runtime-created",
+          "ms": 20304,
+          "heap_free": 267292,
+          "heap_allocated": 153688,
+          "heap_min": 239080,
+          "largest_free": 249856,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9704,
+          "core_live": 29,
+          "core_bytes": 59540,
+          "core_peak": 88028,
+          "core_largest": 32768,
+          "core_failures": 9
+        },
+        {
+          "phase": "runtime-started",
+          "ms": 21115,
+          "heap_free": 233468,
+          "heap_allocated": 187340,
+          "heap_min": 216264,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9704,
+          "core_live": 57,
+          "core_bytes": 92476,
+          "core_peak": 109212,
+          "core_largest": 32768,
+          "core_failures": 12
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 31148,
+          "heap_free": 232584,
+          "heap_allocated": 188160,
+          "heap_min": 216264,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9704,
+          "core_live": 61,
+          "core_bytes": 92992,
+          "core_peak": 109212,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 41318,
+          "heap_free": 221412,
+          "heap_allocated": 199060,
+          "heap_min": 206464,
+          "largest_free": 204800,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9652,
+          "core_live": 127,
+          "core_bytes": 103752,
+          "core_peak": 114856,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "complete",
+          "ms": 47849,
+          "heap_free": 390144,
+          "heap_allocated": 31644,
+          "heap_min": 206464,
+          "largest_free": 245760,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9652,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 114856,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "owner-thread-cleaned",
+          "ms": 47898,
+          "heap_free": 390256,
+          "heap_allocated": 31540,
+          "heap_min": 206464,
+          "largest_free": 245760,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9652,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 114856,
+          "core_largest": 32768,
+          "core_failures": 13
+        }
+      ],
+      "sdk_timer_final": null,
+      "observed_main_stack_use": 3148,
+      "sdk_minimum_free": 206464,
+      "soak_records": 3,
+      "task_minimum_free_bytes": {
+        "main": 9652,
+        "IDLE": 1240,
+        "tcpip": 2580,
+        "sys_evt": 3728,
+        "mdns": 2364,
+        "wifi": 4808,
+        "esp_timer": 3660,
+        "Tmr?Svc": 1768
+      },
+      "summary": {
+        "owner_sampled_peak": 199556,
+        "owner_sampled_min_free": 220848,
+        "owner_sampled_min_largest": 204800,
+        "core_peak": 114856,
+        "sdk_alloc_failures": 0
+      },
+      "selected_soak_samples": [
+        {
+          "command": "m",
+          "ms": 36248,
+          "fabrics": 1,
+          "samples": 99,
+          "heap_max_sampled": 196428,
+          "heap_min_sampled": 224272,
+          "largest_min_sampled": 204800,
+          "heap_free": 224856,
+          "heap_allocated": 195868,
+          "largest_free": 204800,
+          "free_blocks": 9,
+          "allocated_blocks": 365,
+          "core_bytes": 100596,
+          "core_peak": 109212,
+          "core_live": 65,
+          "core_calls": 148,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 210252,
+          "dma_largest_free": 204800
+        },
+        {
+          "command": "m",
+          "ms": 41336,
+          "fabrics": 1,
+          "samples": 128,
+          "heap_max_sampled": 199556,
+          "heap_min_sampled": 220848,
+          "largest_min_sampled": 204800,
+          "heap_free": 221412,
+          "heap_allocated": 199060,
+          "largest_free": 204800,
+          "free_blocks": 10,
+          "allocated_blocks": 428,
+          "core_bytes": 103752,
+          "core_peak": 114856,
+          "core_live": 127,
+          "core_calls": 418,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 206808,
+          "dma_largest_free": 204800
+        },
+        {
+          "command": "m",
+          "ms": 46428,
+          "fabrics": 1,
+          "samples": 174,
+          "heap_max_sampled": 199556,
+          "heap_min_sampled": 220848,
+          "largest_min_sampled": 204800,
+          "heap_free": 226288,
+          "heap_allocated": 194364,
+          "largest_free": 208896,
+          "free_blocks": 13,
+          "allocated_blocks": 383,
+          "core_bytes": 99092,
+          "core_peak": 114856,
+          "core_live": 83,
+          "core_calls": 522,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 211684,
+          "dma_largest_free": 208896
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "100ms and owner samples are observations, not exhaustive peak bounds.",
+    "Stable resident fabric image and one contiguous TLV blob remain.",
+    "SDK/Wi-Fi dynamic allocations included in system heap; static DIRAM separate.",
+    "Different SDK/reference feature profiles not rebenchmarked on COM24.",
+    "Apple/Google pre-optimization pairing is user-reported; current phone apps not tested."
+  ]
+}

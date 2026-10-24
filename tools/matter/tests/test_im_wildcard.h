@@ -88,7 +88,16 @@ static void test_im_wildcard(void) {
     size_t request_size=model_request(m,0,(Matter_Im_Path_T){0},1);
     wild_receive(m,request_size); size_t base=live; fail_at=calls+1; model_process(m,0); fail_at=0;
     Matter_Im_Read_Message_T rejected; CHECK(!matter_im_read_output(m->active,&rejected));
-    CHECK(rejected.opcode==1 && rejected.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live==base && !m->reads);
+    CHECK(rejected.opcode==1 && rejected.data[3]==MATTER_IM_RESOURCE_EXHAUSTED && live+1==base && !m->reads); /* RX parser released. */
+    wild_delete(m); CHECK(!live);
+    /* A yielded expansion has no parser allocation. Reacquisition OOM emits
+     * ResourceExhausted without touching owned results or reading the model. */
+    m=wild_new(128,true); wild_receive(m,model_request(m,0,(Matter_Im_Path_T){0},0));
+    CHECK(matter_im_read_process(m->active,0)==MATTER_PENDING && matter_im_read_state(m->active)==MATTER_IM_READ_EXPANDING);
+    base=live; size_t owned_bytes=live_bytes; fail_at=calls+1;
+    CHECK(matter_im_read_process(m->active,1)==MATTER_PENDING); fail_at=0;
+    CHECK(matter_im_read_output(m->active,&rejected)==MATTER_OK && rejected.opcode==1 && rejected.data[3]==MATTER_IM_RESOURCE_EXHAUSTED);
+    CHECK(live==base && live_bytes==owned_bytes && !m->reads && matter_im_read_process(m->active,0)==MATTER_INVALID_ARGUMENT);
     wild_delete(m); CHECK(!live);
 #endif
     /* Literal normative shapes: anonymous AttributePath LIST; concrete filter

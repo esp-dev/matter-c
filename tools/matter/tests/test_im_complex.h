@@ -17,6 +17,16 @@ static void values_continue(ImValues* m) {
     CHECK(matter_im_read_receive(m->active,&d)==MATTER_OK && matter_im_read_process(m->active,1)==MATTER_PENDING);
 }
 static void test_im_complex(void) {
+#ifdef MATTER_TEST_ALLOC
+    ImValues* small=values_new(1024,MATTER_TLV_BYTES,0); small->size=1; small->data[0]='a';
+    size_t owner_bytes=live_bytes-1024;
+    max_request=0; values_start(small); CHECK(max_request<MATTER_IM_READ_SNAPSHOT_BYTES);
+    CHECK(matter_im_read_sent(small->active)==MATTER_OK);
+    CHECK(live==1 && live_bytes==owner_bytes); /* Inline value left with metadata; independent MRP bytes await ACK. */
+    CHECK(matter_im_read_confirm(small->active,1)==MATTER_OK);
+    CHECK(matter_im_read_state(small->active)==MATTER_IM_READ_COMPLETE && live==1 && live_bytes==owner_bytes);
+    values_delete(small); CHECK(!live && !live_bytes);
+#endif
     const Matter_Tlv_Type_T types[]={MATTER_TLV_UTF8,MATTER_TLV_BYTES,MATTER_TLV_STRUCTURE,MATTER_TLV_ARRAY};
     for(unsigned type=0;type<4;++type) for(unsigned small=0;small<2;++small) {
         ImValues* m=values_new(small ? 96 : 1024,types[type],40); values_start(m);
@@ -36,6 +46,21 @@ static void test_im_complex(void) {
     ImValues* m=values_new(34,MATTER_TLV_ARRAY,0); values_start(m);
     Matter_Im_Read_Message_T out; CHECK(matter_im_read_output(m->active,&out)==MATTER_OK && out.opcode==5);
     CHECK(!values_report(m,out.data,out.size) && m->replacements==1 && !m->received); values_delete(m);
+    /* Even an inline ARRAY can require REPLACE-prefix/ADD chunking. */
+    unsigned short_appends=0;
+    for(size_t capacity=36;capacity<=44;++capacity) {
+        m=values_new(capacity,MATTER_TLV_ARRAY,0); m->short_list=true;
+        static const uint8_t tiny[]={0x16,0x04,1,0x04,2,0x04,3,0x18};
+        memcpy(m->data,tiny,sizeof(tiny)); m->size=sizeof(tiny); values_start(m);
+        memset(m->data,0xff,sizeof(tiny));
+        for(unsigned chunk=0;;++chunk) {
+            CHECK(chunk<8 && !matter_im_read_output(m->active,&out) && out.opcode==5);
+            if(!values_report(m,out.data,out.size)) break;
+            values_continue(m);
+        }
+        CHECK(m->received==3 && m->reads==1); short_appends+=m->appends; values_delete(m);
+    }
+    CHECK(short_appends);
     for(unsigned mode=0;mode<4;++mode) {
         m=values_new(1024,mode&1 ? MATTER_TLV_BYTES : MATTER_TLV_UTF8,0);
         m->null_data=true; m->size=mode<2 ? 0 : 1; values_start(m);
@@ -118,14 +143,14 @@ static void test_im_complex(void) {
         CHECK(m->reads==1); values_delete(m);
     }
 #ifdef MATTER_TEST_ALLOC
-    for(unsigned allocation=2;allocation<=3;++allocation) {
+    for(unsigned allocation=3;allocation<=4;++allocation) {
         m=values_new(96,MATTER_TLV_ARRAY,40);
         Matter_Rx_Decision_T initial=decision(im_request,sizeof(im_request));
         CHECK(matter_im_read_receive(m->active,&initial)==MATTER_OK);
-        /* Owned results, then composite snapshot, then chunk plan. */
+        /* Exact selectors, owned results, composite snapshot, then chunk plan. */
         fail_at=calls+allocation; CHECK(matter_im_read_process(m->active,0)==MATTER_PENDING); fail_at=0;
         CHECK(matter_im_read_output(m->active,&out)==MATTER_OK);
-        CHECK(allocation==2?(out.opcode==5 && out.data[22]==MATTER_IM_RESOURCE_EXHAUSTED):
+        CHECK(allocation==3?(out.opcode==5 && out.data[22]==MATTER_IM_RESOURCE_EXHAUSTED):
             (out.opcode==1 && out.data[3]==MATTER_IM_RESOURCE_EXHAUSTED));
         values_delete(m); CHECK(!live);
     }

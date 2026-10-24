@@ -7,7 +7,9 @@
  * no calls from RX callbacks, ISR or a firmware task with a latency budget. */
 typedef struct {
     void* user;
-    Matter_Result_T (*publish)(void*,const Matter_Store_Fabrics_T*,const Matter_Store_Wifi_T*);
+    /* commit_fabrics projects cleared fail-safe fields into TLV; the borrowed
+     * live image stays pending and immutable throughout the synchronous call. */
+    Matter_Result_T (*publish)(void*,const Matter_Store_Fabrics_T*,const Matter_Store_Wifi_T*,bool commit_fabrics);
     Matter_Result_T (*reset)(void*,const Matter_Store_Fabrics_T*); /* Last fabric: atomic commissioned-data reset. */
 } Matter_Store_Persist_T;
 struct Matter_Fabric_Host_Image { Matter_Store_Fabrics_T data; bool attached; Matter_Store_Persist_T persist; };

@@ -307,8 +307,17 @@
         "tools/matter/tests/test_last_fabric_discovery_chip.py",
         "tools/matter/tests/test_subscription_fabrics_chip.py",
         "tools/matter/tests/test_im_event_fabric_chip.py",
-        "tools/matter/tests/test_groupkey_lifecycle_chip.py"
+        "tools/matter/tests/test_groupkey_lifecycle_chip.py",
+        "tools/matter/tests/chip_tool_memory_capacity.py"
       ],
+      "allocation_variant": "not applicable"
+    },
+    {
+      "path": "tools/matter/tests/chip_tool_memory_capacity.py",
+      "kind": "external-chip-tool",
+      "ctest": [],
+      "entrypoint": "python tools/matter/tests/chip_tool_memory_capacity.py --chip-tool <tool> --paa <paa> --output <dir> --discriminator <value>",
+      "referenced_by": [],
       "allocation_variant": "not applicable"
     },
     {
@@ -653,6 +662,19 @@
       "allocation_variant": "native"
     },
     {
+      "path": "tools/matter/tests/test_acl_reports.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_acl_reports",
+        "test_acl_reports_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_acl_reports",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "native CTest"
+    },
+    {
       "path": "tools/matter/tests/test_acl_network.h",
       "kind": "fixture-or-helper",
       "ctest": [],
@@ -765,13 +787,14 @@
       "path": "tools/matter/tests/test_case.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_case"
+        "test_case",
+        "test_case_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_case",
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native alloc variant: CASE/crypto/secure ownership and demand resumption cache OOM/reuse"
     },
     {
       "path": "tools/matter/tests/test_case_fixture.h",
@@ -933,13 +956,27 @@
       "path": "tools/matter/tests/test_diagnostics.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_diagnostics"
+        "test_diagnostics",
+        "test_diagnostics_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_diagnostics",
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native CTest and retained legacy runners"
+    },
+    {
+      "path": "tools/matter/tests/test_diagnostics_reports.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_diagnostics_reports",
+        "test_diagnostics_reports_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_diagnostics_reports",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "native CTest"
     },
     {
       "path": "tools/matter/tests/test_diagnostics_fixture.h",
@@ -1080,6 +1117,18 @@
       "allocation_variant": "not applicable"
     },
     {
+      "path": "tools/matter/tests/test_events.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_events"
+      ],
+      "entrypoint": "ctest --test-dir build/cmake -R ^test_events$ --output-on-failure",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "Built-in requested-byte accounting and OOM injection for event log nodes"
+    },
+    {
       "path": "tools/matter/tests/test_exchange.c",
       "kind": "ctest-native",
       "ctest": [
@@ -1114,6 +1163,17 @@
         "tools/matter/run_tests.ps1"
       ],
       "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+    },
+    {
+      "path": "tools/matter/tests/test_fabric_encoding.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_fabric_encoding",
+        "test_fabric_encoding_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_fabric_encoding",
+      "referenced_by": [],
+      "allocation_variant": "native CTest"
     },
     {
       "path": "tools/matter/tests/test_fabric_fixture.h",
@@ -1324,7 +1384,29 @@
         "tools/matter/run_tests.ps1",
         "tools/matter/tests/test_im_chunks.h"
       ],
-      "allocation_variant": "native"
+      "allocation_variant": "native; standalone and shared encoder: contention, configured cap, sent/cancel/delete/timeout and every concrete capture allocation failure"
+    },
+    {
+      "path": "tools/matter/tests/test_im_request_memory.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_request_memory"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_request_memory",
+      "referenced_by": [],
+      "allocation_variant": "byte accounting and every request/reply/result allocation OOM; no effects, async ownership and queued RX/ACK/drain"
+    },
+    {
+      "path": "tools/matter/tests/test_im_snapshots.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_snapshots"
+      ],
+      "entrypoint": "ctest --test-dir build/cmake -R ^test_im_snapshots$ --output-on-failure",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "Built-in byte accounting and per-value OOM injection"
     },
     {
       "path": "tools/matter/tests/test_im_subscribe.c",
@@ -1337,7 +1419,7 @@
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native; shared Read/Subscribe encoder, 15x512 stable snapshots, copied-before-actual-send timing, both ACK/status orders, release and capture/continuation OOM"
     },
     {
       "path": "tools/matter/tests/test_im_values.h",
@@ -1420,7 +1502,8 @@
       "entrypoint": "Compiled through consuming tests; not a standalone test.",
       "referenced_by": [
         "tools/matter/tests/test_im_invoke.c",
-        "tools/matter/tests/test_invoke_network.h"
+        "tools/matter/tests/test_invoke_network.h",
+        "tools/matter/tests/test_im_request_memory.c"
       ],
       "allocation_variant": "not applicable"
     },
@@ -1587,10 +1670,22 @@
       "allocation_variant": "not applicable"
     },
     {
+      "path": "tools/matter/tests/test_opcreds_memory.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_opcreds_memory",
+        "test_opcreds_memory_alloc"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_opcreds_memory",
+      "referenced_by": [],
+      "allocation_variant": "native CTest"
+    },
+    {
       "path": "tools/matter/tests/test_opcreds.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_opcreds"
+        "test_opcreds",
+        "test_opcreds_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_opcreds",
       "referenced_by": [
@@ -1756,7 +1851,10 @@
       "kind": "external-network-fixture",
       "ctest": [],
       "entrypoint": "Linux shared-library fixture: gcc -shared -fPIC -Wall -Wextra -Werror -O0 -o <fault.so> tools/matter/tests/test_ota_network_fault.c -ldl. Explicit query-network-recovery mode selects send ENETUNREACH or receive ENETDOWN; optional API probe additionally injects one partial-reopen EMFILE. Requestor/test process only; not a library/host build input.",
-      "referenced_by": ["tools/matter/tests/test_ota_chip_provider.py", "tools/matter/tests/test_resolver_receive.c"],
+      "referenced_by": [
+        "tools/matter/tests/test_ota_chip_provider.py",
+        "tools/matter/tests/test_resolver_receive.c"
+      ],
       "allocation_variant": "normal host under Memcheck, separately ASan/UBSan/LSan with explicit libasan preload"
     },
     {
@@ -1764,7 +1862,9 @@
       "kind": "external-network-fixture",
       "ctest": [],
       "entrypoint": "Optional Linux public-API probe, linked against matter_host/runtime/core/mbedTLS archives from the matching build. Run with interface index, receive-fault preload and optional --fail-reopen; see doc/ota-host.md. Not a default CTest because it requires an explicit interface and fault fixture.",
-      "referenced_by": ["tools/matter/tests/test_ota_network_fault.c"],
+      "referenced_by": [
+        "tools/matter/tests/test_ota_network_fault.c"
+      ],
       "allocation_variant": "normal native probe under Memcheck, separately ASan/UBSan/LSan"
     },
     {
@@ -1779,14 +1879,15 @@
       "path": "tools/matter/tests/test_pase.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_pase"
+        "test_pase",
+        "test_pase_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_pase",
       "referenced_by": [
         "tools/matter/run_tests.ps1",
         "tools/matter/tests/test_secure.c"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native allocation variant: phase buffers, receive/process OOM, wipe and handoff/drain"
     },
     {
       "path": "tools/matter/tests/test_pase_secure.h",
@@ -1935,13 +2036,14 @@
       "path": "tools/matter/tests/test_rx.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_rx"
+        "test_rx",
+        "test_rx_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_rx",
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native CTest test_rx_alloc; five constructor OOM positions and allocation-free traffic/handoff"
     },
     {
       "path": "tools/matter/tests/test_rx_policy.c",
@@ -1969,13 +2071,14 @@
       "path": "tools/matter/tests/test_secure.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_secure"
+        "test_secure",
+        "test_secure_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_secure",
       "referenced_by": [
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "test_secure_alloc; plaintext and backend OOM, erasure and replay atomicity"
     },
     {
       "path": "tools/matter/tests/test_server_time.c",
@@ -2016,7 +2119,8 @@
       "path": "tools/matter/tests/test_store.c",
       "kind": "ctest-native",
       "ctest": [
-        "test_store"
+        "test_store",
+        "test_store_alloc"
       ],
       "entrypoint": "ctest --test-dir <build> -R test_store",
       "referenced_by": [
@@ -2024,7 +2128,7 @@
         "tools/matter/build_host_linux.py",
         "tools/matter/run_tests.ps1"
       ],
-      "allocation_variant": "retained in existing runners/manual recipe; not native CTest"
+      "allocation_variant": "native CTest plus existing runners"
     },
     {
       "path": "tools/matter/tests/test_store_file_posix.c",
@@ -2376,7 +2480,8 @@
       "entrypoint": "Compiled through consuming tests; not a standalone test.",
       "referenced_by": [
         "tools/matter/tests/test_im_write.c",
-        "tools/matter/tests/test_write_network.h"
+        "tools/matter/tests/test_write_network.h",
+        "tools/matter/tests/test_im_request_memory.c"
       ],
       "allocation_variant": "not applicable"
     },
@@ -2575,7 +2680,9 @@
       "kind": "external-chip-tool",
       "ctest": [],
       "entrypoint": "python tools/matter/tests/test_im_event_fabric_chip.py --help; disposable Linux node with development PAA/credentials and unmodified chip-tool; actual events, chunk timing and two-fabric raw privacy. Original manual TH outcome remains separate.",
-      "referenced_by": [],
+      "referenced_by": [
+        "tools/matter/tests/chip_tool_memory_capacity.py"
+      ],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
     },
     {
@@ -2585,6 +2692,162 @@
       "entrypoint": "python tools/matter/tests/test_groupkey_lifecycle_chip.py --help; actual keyset capacity, overwrite, overflow, restart/reset, zero-group map and optional Leave statuses with unmodified chip-tool. Original TH verdict remains separate.",
       "referenced_by": [],
       "allocation_variant": "host under Memcheck, separate ASan/UBSan/LSan"
+    },
+    {
+      "path": "tools/matter/tests/test_alloc_bytes.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_store.c",
+        "tools/matter/tests/test_im_read.c",
+        "tools/matter/tests/test_im_subscribe.c",
+        "tools/matter/tests/test_events.c",
+        "tools/matter/tests/test_im_snapshots.c",
+        "tools/matter/tests/test_im_request_memory.c",
+        "tools/matter/tests/test_diagnostics.c",
+        "tools/matter/tests/test_diagnostics_reports.c",
+        "tools/matter/tests/test_acl.c",
+        "tools/matter/tests/test_acl_reports.c"
+      ],
+      "allocation_variant": "test-only byte accounting and allocation fault injection"
+    },
+    {
+      "path": "tools/matter/tests/test_subscribe_memory.h",
+      "kind": "native-test-helper",
+      "ctest": [],
+      "entrypoint": "Included by test_im_subscribe.c; test_im_subscribe_alloc --memory-only or --memory-profile.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_subscribe.c"
+      ],
+      "allocation_variant": "test_im_subscribe_alloc; optional encoder binding also covers large Read array continuation and pooled capture/continuation OOM"
+    },
+    {
+      "path": "tools/matter/tests/test_im_node_memory.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_node_memory"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_node_memory",
+      "referenced_by": [],
+      "allocation_variant": "Read/Subscribe/event-log byte accounting; role envelope with held TX leases and delivery tails"
+    },
+    {
+      "path": "tools/matter/tests/test_im_blocks.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_blocks"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_blocks",
+      "referenced_by": [],
+      "allocation_variant": "Private stable block storage: every staged allocation OOM, unchanged old addresses/capacity/cache, limit/overflow and cleanup"
+    },
+    {
+      "path": "tools/matter/tests/test_rgb_light.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_rgb_light"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_rgb_light",
+      "referenced_by": [],
+      "allocation_variant": "Experimental RGB model constructor/command OOM, atomic validation, transitions, pixel conversion and pinned lifetime"
+    },
+    {
+      "path": "tools/matter/tests/test_im_event_metadata.c",
+      "kind": "ctest-native",
+      "ctest": [
+        "test_im_event_metadata"
+      ],
+      "entrypoint": "ctest --test-dir <build> -R test_im_event_metadata",
+      "referenced_by": [],
+      "allocation_variant": "Checked stable event path blocks, exact filters, phase selector cleanup, OOM, concrete precedence and urgency"
+    },
+    {
+      "path": "tools/matter/tests/runtime_wire.py",
+      "kind": "controller",
+      "entrypoint": "python tools/matter/tests/runtime_wire.py",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/runtime_wire_host.c",
+      "kind": "fixture",
+      "entrypoint": "runtime-wire-host",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire_alloc.c",
+      "kind": "fixture",
+      "entrypoint": "runtime-wire-host",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire_dispatch.c",
+      "kind": "fixture",
+      "entrypoint": "runtime-wire-host",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire_faults.h",
+      "kind": "fixture",
+      "entrypoint": "runtime-wire-host",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire_scenarios.mjs",
+      "kind": "controller",
+      "entrypoint": "soak.mjs host mode",
+      "ctest": [],
+      "referenced_by": [
+        "cmake/tests/CMakeLists.txt",
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire-controller/package.json",
+      "kind": "external-controller-dependency",
+      "entrypoint": "npm ci --ignore-scripts",
+      "ctest": [],
+      "referenced_by": [
+        "tools/matter/tests/runtime_wire.py"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/wire-controller/package-lock.json",
+      "kind": "external-controller-dependency",
+      "entrypoint": "npm ci --ignore-scripts",
+      "ctest": [],
+      "referenced_by": [
+        "tools/matter/tests/runtime_wire.py"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/peer_role.mjs",
+      "kind": "controller",
+      "entrypoint": "Explicit diagnostic peer override in soak.mjs",
+      "ctest": [],
+      "referenced_by": [
+        "examples/esp32-runtime/tests/soak.mjs"
+      ]
     }
   ],
   "local_only_files": []

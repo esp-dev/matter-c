@@ -17,8 +17,15 @@ struct Matter_Diagnostics {
     bool busy,valid,initialized,boot_emitted; uint32_t general_version,wifi_version;
     Matter_Tlv_Writer_T writer; Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T e;
     Matter_Tlv_Validation_Workspace_T validation; Matter_Tlv_Tag_T tags[64];
-    uint8_t encoded[4096];
+    uint8_t* encoded;
 };
+/* A read borrows this span until the next provider read/owner refresh. IM
+ * copies it synchronously; its snapshots and reliable TX never borrow it. */
+static void clear_encoded(Diagnostics m) { free(m->encoded); m->encoded=NULL; }
+static bool read_begin(Diagnostics m) {
+    if(m->busy || !m->valid) return false;
+    clear_encoded(m); return true;
+}
 Matter_Result_T matter_diagnostics_set_test_trigger(Matter_Diagnostics_T h,const Matter_Diagnostics_Test_Trigger_T* config) {
     Diagnostics m=matter_cluster_context(h,destroy); if(!m) return MATTER_INVALID_ARGUMENT;
     if(m->busy || matter_cluster_in_use(h)) return MATTER_BUSY;
@@ -66,6 +73,7 @@ Matter_Result_T matter_diagnostics_refresh(Matter_Diagnostics_T handle) {
     Diagnostics m=matter_cluster_context(handle,destroy);
     if(!m) return MATTER_INVALID_ARGUMENT;
     if(m->busy) return MATTER_BUSY;
+    clear_encoded(m);
     m->busy=true; memset(&m->pending,0,sizeof(m->pending));
     Matter_Result_T r=m->port.snapshot(m->port.user,&m->pending);
     if(r==MATTER_OK && !valid(&m->pending)) r=MATTER_PORT_ERROR;
@@ -93,6 +101,7 @@ static Matter_Result_T destroy(void* ctx) {
     if(m->busy) return MATTER_BUSY;
     if(matter_cluster_in_use(m->wifi) || matter_cluster_pins(m->wifi)!=1) return MATTER_BUSY;
     (void)matter_cluster_release(m->wifi); (void)matter_cluster_delete(m->wifi);
+    clear_encoded(m);
     memset(m,0,sizeof(*m)); free(m); return MATTER_OK;
 }
 Matter_Result_T matter_diagnostics_version(Matter_Diagnostics_T handle,uint32_t c,uint32_t* v) {
@@ -197,190 +206,206 @@ Matter_Cluster_T matter_diagnostics_wifi(Matter_Diagnostics_T handle) {
 static Matter_Result_T general_version(void* u,uint32_t* v) { Diagnostics m=u; return matter_diagnostics_version(m->interface,MATTER_DIAGNOSTICS_GENERAL,v); }
 static Matter_Result_T wifi_version(void* u,uint32_t* v) { Diagnostics m=u; return matter_diagnostics_version(m->interface,MATTER_DIAGNOSTICS_WIFI,v); }
 typedef struct { const uint32_t* ids; size_t count; uint32_t value; bool wifi; } Metadata;
+typedef bool (*Encode_Value)(Diagnostics,const void*,const Matter_Cluster_Request_T*,Matter_Tlv_Writer_T*);
+static uint8_t encoded_value(Diagnostics m,const void* ref,const Matter_Cluster_Request_T* q,
+    Matter_Im_Value_T* v,Matter_Tlv_Type_T type,uint8_t depth,Encode_Value encode) {
+    /* Both passes use the same owned snapshot, without callbacks/yields. The
+     * existing writer validates identical widths/depth/4096-byte capacity in
+     * the sizing pass. No grow/realloc or task-stack output buffer. */
+    Matter_Tlv_Writer_T* w=&m->writer; size_t size=0,written=0; uint8_t result=MATTER_IM_FAILURE;
+    m->busy=true;
+    if(matter_tlv_measure_init(w,4096,depth)!=MATTER_TLV_OK || !encode(m,ref,q,w) ||
+        matter_tlv_writer_finish(w,&size)!=MATTER_TLV_OK) goto done;
+    m->encoded=calloc(1,size);
+    if(!m->encoded) { result=MATTER_IM_RESOURCE_EXHAUSTED; goto done; }
+    if(matter_tlv_writer_init(w,m->encoded,size,depth)!=MATTER_TLV_OK || !encode(m,ref,q,w) ||
+        matter_tlv_writer_finish(w,&written)!=MATTER_TLV_OK || written!=size) goto done;
+    v->type=type; v->data=m->encoded; v->size=size; result=0;
+done:
+    if(result) clear_encoded(m);
+    m->busy=false; return result;
+}
+static bool encode_ids(Diagnostics m,const void* ref,const Matter_Cluster_Request_T* q,Matter_Tlv_Writer_T* w) {
+    (void)q; const Metadata* d=ref;
+    if(!P(MATTER_TLV_ARRAY,-1,0)) return false;
+    for(size_t i=0;i<d->count;++i) if(!U(-1,d->ids[i])) return false;
+    return END();
+}
+static bool encode_interfaces(Diagnostics m,const void* ref,const Matter_Cluster_Request_T* q,Matter_Tlv_Writer_T* w) {
+    (void)ref; (void)q; return P(MATTER_TLV_ARRAY,-1,0) && interfaces(m,w) && END();
+}
+static bool encode_faults(Diagnostics m,const void* ref,const Matter_Cluster_Request_T* q,Matter_Tlv_Writer_T* w) {
+    (void)q; unsigned bits=*(const unsigned*)ref;
+    if(!P(MATTER_TLV_ARRAY,-1,0)) return false;
+    for(unsigned i=0;i<11;++i) if((bits&(1u<<i)) && !U(-1,i)) return false;
+    return END();
+}
+static bool encode_load(Diagnostics m,const void* ref,const Matter_Cluster_Request_T* q,Matter_Tlv_Writer_T* w) {
+    (void)ref; const Matter_Diagnostics_General_T* g=&m->current.general;
+    uint32_t all=g->unfabric_subscriptions,own=0;
+    for(unsigned i=0;i<5;++i) { all+=g->subscriptions[i].current; if(q->fabric && g->subscriptions[i].index==q->fabric) own=g->subscriptions[i].current; }
+    return P(MATTER_TLV_STRUCTURE,-1,0) && U(0,all>65535?65535:all) && U(1,own) &&
+        U(2,g->total_subscriptions) && U(3,g->im_sent) && U(4,g->im_received) && END();
+}
 static uint8_t read_metadata(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
     (void)q; Diagnostics m=u; const Metadata* d=ref; if(m->busy) return MATTER_IM_FAILURE;
+    clear_encoded(m);
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=d->value,.data_version=d->wifi?m->wifi_version:m->general_version};
     return 0;
 }
 static uint8_t read_ids(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
     uint8_t r=read_metadata(u,ref,q,v); if(r) return r;
-    Diagnostics m=u; const Metadata* d=ref; Matter_Tlv_Writer_T* w=&m->writer;
-    if(matter_tlv_writer_init(w,m->encoded,sizeof(m->encoded),1)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
-    for(size_t i=0;i<d->count;++i) if(!U(-1,d->ids[i])) return MATTER_IM_FAILURE;
-    if(!END() || matter_tlv_writer_finish(w,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    v->type=MATTER_TLV_ARRAY; v->data=m->encoded; return 0;
+    return encoded_value(u,ref,q,v,MATTER_TLV_ARRAY,1,encode_ids);
 }
 static uint8_t general_0(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
-    Matter_Tlv_Writer_T* w=&m->writer;
-    if(matter_tlv_writer_init(w,m->encoded,sizeof(m->encoded),4)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
-    if(!interfaces(m,w)) return MATTER_IM_FAILURE;
-    if(!END() || matter_tlv_writer_finish(w,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    v->type=MATTER_TLV_ARRAY; v->data=m->encoded; return 0;
+    return encoded_value(m,ref,q,v,MATTER_TLV_ARRAY,4,encode_interfaces);
 }
 static uint8_t general_1(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
     v->unsigned_value=g->reboots; return 0;
 }
 static uint8_t general_2(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
     v->unsigned_value=g->system_ms/1000; return 0;
 }
 static uint8_t general_3(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
     v->unsigned_value=g->operational_hours; return 0;
 }
 static uint8_t general_4(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
     v->unsigned_value=g->boot_reason; return 0;
 }
 static uint8_t general_5(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
-    Matter_Tlv_Writer_T* w=&m->writer;
-    if(matter_tlv_writer_init(w,m->encoded,sizeof(m->encoded),4)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
     unsigned bits=g->hardware_faults;
-    for(unsigned i=0;i<11;++i) if((bits&(1u<<i)) && !U(-1,i)) return MATTER_IM_FAILURE;
-    if(!END() || matter_tlv_writer_finish(w,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    v->type=MATTER_TLV_ARRAY; v->data=m->encoded; return 0;
+    return encoded_value(m,&bits,q,v,MATTER_TLV_ARRAY,4,encode_faults);
 }
 static uint8_t general_6(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
-    Matter_Tlv_Writer_T* w=&m->writer;
-    if(matter_tlv_writer_init(w,m->encoded,sizeof(m->encoded),4)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
     unsigned bits=g->radio_faults;
-    for(unsigned i=0;i<11;++i) if((bits&(1u<<i)) && !U(-1,i)) return MATTER_IM_FAILURE;
-    if(!END() || matter_tlv_writer_finish(w,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    v->type=MATTER_TLV_ARRAY; v->data=m->encoded; return 0;
+    return encoded_value(m,&bits,q,v,MATTER_TLV_ARRAY,4,encode_faults);
 }
 static uint8_t general_7(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
-    Matter_Tlv_Writer_T* w=&m->writer;
-    if(matter_tlv_writer_init(w,m->encoded,sizeof(m->encoded),4)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
     unsigned bits=g->network_faults;
-    for(unsigned i=0;i<11;++i) if((bits&(1u<<i)) && !U(-1,i)) return MATTER_IM_FAILURE;
-    if(!END() || matter_tlv_writer_finish(w,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    v->type=MATTER_TLV_ARRAY; v->data=m->encoded; return 0;
+    return encoded_value(m,&bits,q,v,MATTER_TLV_ARRAY,4,encode_faults);
 }
 static uint8_t general_8(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
     (void)g; v->type=MATTER_TLV_BOOL; v->unsigned_value=m->test.trigger!=NULL; return 0;
 }
 static uint8_t general_10(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_General_T* g=&m->current.general; (void)g;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->general_version};
-    Matter_Tlv_Writer_T* w=&m->writer;
-    if(matter_tlv_writer_init(w,m->encoded,sizeof(m->encoded),4)!=MATTER_TLV_OK || !P(MATTER_TLV_STRUCTURE,-1,0)) return MATTER_IM_FAILURE;
-    uint32_t all=g->unfabric_subscriptions,own=0;
-    for(unsigned i=0;i<5;++i) { all+=g->subscriptions[i].current; if(q->fabric && g->subscriptions[i].index==q->fabric) own=g->subscriptions[i].current; }
-    if(!U(0,all>65535?65535:all) || !U(1,own) || !U(2,g->total_subscriptions) || !U(3,g->im_sent) || !U(4,g->im_received)) return MATTER_IM_FAILURE;
-    if(!END() || matter_tlv_writer_finish(w,&v->size)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
-    v->type=MATTER_TLV_STRUCTURE; v->data=m->encoded; return 0;
+    return encoded_value(m,ref,q,v,MATTER_TLV_STRUCTURE,4,encode_load);
 }
 static uint8_t wifi_0(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->type=MATTER_TLV_BYTES; v->data=w->bssid; v->size=6; return 0;
 }
 static uint8_t wifi_1(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->security; return 0;
 }
 static uint8_t wifi_2(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->version; return 0;
 }
 static uint8_t wifi_3(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->channel; return 0;
 }
 static uint8_t wifi_4(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->type=MATTER_TLV_SIGNED; v->signed_value=w->rssi; return 0;
 }
 static uint8_t wifi_5(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->counts[0]; return 0;
 }
 static uint8_t wifi_6(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->counts[1]; return 0;
 }
 static uint8_t wifi_7(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->counts[2]; return 0;
 }
 static uint8_t wifi_8(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->counts[3]; return 0;
 }
 static uint8_t wifi_9(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->counts[4]; return 0;
 }
 static uint8_t wifi_10(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->counts[5]; return 0;
 }
 static uint8_t wifi_11(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }
     v->unsigned_value=w->max_rate; return 0;
 }
 static uint8_t wifi_12(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* v) {
-    (void)ref; (void)q; Diagnostics m=u; if(m->busy || !m->valid) return MATTER_IM_FAILURE;
+    (void)ref; (void)q; Diagnostics m=u; if(!read_begin(m)) return MATTER_IM_FAILURE;
     const Matter_Diagnostics_Wifi_T* w=&m->current.wifi;
     *v=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=m->wifi_version};
     if(!w->online) { v->type=MATTER_TLV_NULL; return 0; }

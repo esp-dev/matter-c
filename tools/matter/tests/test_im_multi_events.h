@@ -1,5 +1,6 @@
 /* Shared public-API contract tests for Read and Subscribe, heap-owned fixtures. */
 #include "codec/matter_tlv_writer.h"
+#include <stddef.h>
 #ifdef TEST_MULTI_SUB
 #define MultiEngine Matter_Im_Subscribe_T
 #else
@@ -15,8 +16,9 @@ typedef struct {
     Matter_Event_Filter_T filters[MATTER_IM_READ_MAX_PATHS];
     Matter_Tlv_Writer_T writer; uint8_t request[1024]; size_t size;
     const uint8_t* out; size_t out_size; uint8_t opcode;
-    unsigned attributes,events,statuses; uint64_t numbers[32]; uint32_t ids[32],clusters[32]; uint16_t endpoints[32];
-    uint8_t codes[32]; bool more; uint64_t now;
+    unsigned attributes,events,statuses; uint64_t numbers[MATTER_EVENTS_CAPACITY];
+    uint32_t ids[MATTER_EVENTS_CAPACITY],clusters[MATTER_EVENTS_CAPACITY]; uint16_t endpoints[MATTER_EVENTS_CAPACITY];
+    uint8_t codes[MATTER_EVENT_PATH_CAPACITY]; bool more; uint64_t now;
 } MultiEvents;
 static Matter_Result_T multi_load(void* u,uint64_t* n) { *n=((MultiEvents*)u)->high; return MATTER_OK; }
 static Matter_Result_T multi_store(void* u,uint64_t n) { ((MultiEvents*)u)->high=n; return MATTER_OK; }
@@ -60,11 +62,20 @@ static MultiEvents* multi_new(void) {
     Matter_Im_Subscribe_Port_T sp={p,multi_reserve,multi_release};
     Matter_Im_Subscribe_Config_T c={{1,12,false},10000,128,false};
     m->engine=matter_im_subscribe_new_case(&sp,&f,&c,0); CHECK(m->engine);
+    #ifdef MATTER_TEST_ALLOC
+    size_t before=calls;
+    #endif
     CHECK(matter_im_subscribe_bind_events(m->engine,&ep)==MATTER_OK);
 #else
     Matter_Im_Read_Config_T c={{1,12,false},10000,128,false};
     m->engine=matter_im_read_new_case(&p,&f,&c,0); CHECK(m->engine);
+    #ifdef MATTER_TEST_ALLOC
+    size_t before=calls;
+    #endif
     CHECK(matter_im_read_bind_events(m->engine,&ep)==MATTER_OK);
+#endif
+#ifdef MATTER_TEST_ALLOC
+    CHECK(calls==before);
 #endif
     return m;
 }
@@ -169,7 +180,7 @@ static void multi_report(MultiEvents* m) {
         if(depth==3 && e.type==MATTER_TLV_STRUCTURE) {
             data=e.tag.number==1;
             if(array==1) ++m->attributes;
-            if(array==2) { if(data) { CHECK(m->events<32); ++m->events; } else { CHECK(m->statuses<32); ++m->statuses; } }
+            if(array==2) { if(data) { CHECK(m->events<MATTER_EVENTS_CAPACITY); ++m->events; } else { CHECK(m->statuses<MATTER_EVENT_PATH_CAPACITY); ++m->statuses; } }
         }
         if(array==2 && data && depth==4 && e.type==MATTER_TLV_UNSIGNED && e.tag.number==1) m->numbers[m->events-1]=e.unsigned_value;
         if(array==2 && data && depth==5 && e.type==MATTER_TLV_UNSIGNED && e.tag.number==1) m->endpoints[m->events-1]=(uint16_t)e.unsigned_value;
@@ -183,7 +194,7 @@ static void multi_report(MultiEvents* m) {
 static void multi_drain(MultiEvents* m) {
     unsigned chunks=0;
     do {
-        CHECK(++chunks<32); multi_report(m); multi_confirm(m);
+        CHECK(++chunks<=MATTER_EVENTS_CAPACITY+MATTER_EVENT_PATH_CAPACITY); multi_report(m); multi_confirm(m);
         if(m->more) { multi_receive(m,false); multi_process(m); }
     } while(m->more);
 #ifdef TEST_MULTI_SUB
@@ -197,8 +208,59 @@ static void multi_drain(MultiEvents* m) {
     CHECK(matter_im_read_state(m->engine)==MATTER_IM_READ_COMPLETE);
 #endif
 }
+#ifdef MATTER_TEST_ALLOC
+static void multi_memory_tests(void) {
+    static const uint32_t id=1;
+    size_t footprints[2],sites=0; ptrdiff_t idle_footprints[2];
+    for(unsigned test=0;test<2;++test) {
+        unsigned records=test?8:1;
+        MultiEvents* m=multi_new();
+        for(unsigned i=0;i<records;++i) multi_append(m,id,0);
+        size_t base=live_bytes; /* Measure the IM snapshot separately from its log. */
+        multi_request(m,0,&id,1,1,0); multi_receive(m,true);
+        size_t start=calls; multi_process(m); sites=calls-start;
+        CHECK(m->opcode==5); footprints[test]=live_bytes-base;
+        CHECK(footprints[test]<16384);
+        multi_drain(m); idle_footprints[test]=(ptrdiff_t)live_bytes-(ptrdiff_t)base;
+        multi_free(m); CHECK(!live && !live_bytes);
+    }
+    CHECK(footprints[1]-footprints[0]==7*sizeof(void*));
+    CHECK(idle_footprints[0]==idle_footprints[1]); /* Every confirmed snapshot is released. */
+    MultiEvents* empty=multi_new(); multi_request(empty,0,&id,1,1,0); multi_receive(empty,true);
+    size_t start=calls; multi_process(empty); CHECK(empty->opcode==5 && calls-start+1==sites);
+    multi_drain(empty); multi_free(empty); CHECK(!live);
+    /* Exercise every deferred allocation with an otherwise valid event request. */
+    for(size_t i=1;i<=sites;++i) {
+        MultiEvents* m=multi_new(); multi_append(m,id,0); multi_request(m,0,&id,1,1,0);
+        multi_receive(m,true); fail_at=calls+i; multi_process(m); fail_at=0;
+        CHECK(m->opcode==1);
+        Matter_Tlv_Reader_T r; Matter_Tlv_Element_T e;
+        CHECK(matter_tlv_init(&r,m->out,m->out_size,4)==MATTER_TLV_OK);
+        CHECK(matter_tlv_next(&r,&e)==MATTER_TLV_OK && matter_tlv_next(&r,&e)==MATTER_TLV_OK);
+        CHECK(e.tag.control==1 && e.tag.number==0 && e.unsigned_value==MATTER_IM_RESOURCE_EXHAUSTED);
+        multi_free(m); CHECK(!live && !live_bytes);
+    }
+    MultiEvents* m=multi_new(); size_t base=live_bytes; peak_bytes=base;
+    multi_request(m,1,NULL,0,0,0); multi_start(m);
+    CHECK(peak_bytes-base<24576); multi_drain(m); multi_free(m); CHECK(!live);
+    printf("MEMORY events: one=%zu eight=%zu delta=%zu bytes; deferred_fault_sites=%zu; attribute-only peak <24576\n",
+        footprints[0],footprints[1],footprints[1]-footprints[0],sites);
+}
+#endif
 static void multi_tests(void) {
+#ifdef MATTER_TEST_ALLOC
+    multi_memory_tests();
+#endif
     static const uint32_t ids[]={2,1,3,1,4,5,6,7,8,9};
+    /* Retain the full configured ceiling and snapshot every original record,
+     * even if later log writes evict all of them while chunks are in flight. */
+    MultiEvents* full=multi_new();
+    for(unsigned i=0;i<MATTER_EVENTS_CAPACITY;++i) multi_append(full,1,0);
+    multi_request(full,0,&ids[1],1,1,0); multi_start(full);
+    for(unsigned i=0;i<MATTER_EVENTS_CAPACITY;++i) multi_append(full,1,0);
+    multi_drain(full);
+    CHECK(full->events==MATTER_EVENTS_CAPACITY && full->numbers[0]==0 && full->numbers[MATTER_EVENTS_CAPACITY-1]==MATTER_EVENTS_CAPACITY-1);
+    multi_free(full);
     MultiEvents* m=multi_new();
     multi_append(m,1,0); multi_append(m,2,2); multi_append(m,3,0); multi_append(m,2,1); multi_append(m,1,0);
     /* Union ordering and per-path fabric scope; overlapping filters do not duplicate. */

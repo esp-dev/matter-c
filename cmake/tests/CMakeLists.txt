@@ -1,4 +1,40 @@
 find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+# Instrumented copies, never linked into production libraries. The wire peer
+# is optional and supplied by the operator; configuration downloads nothing.
+set(wire_sources ${core_sources} ${runtime_sources})
+list(REMOVE_ITEM wire_sources "${core_dir}/runtime/matter_dispatch.c")
+if(WIN32)
+  list(APPEND wire_sources "${host_dir}/matter_udp_windows.c")
+else()
+  list(APPEND wire_sources "${host_dir}/matter_udp_linux.c")
+endif()
+add_library(matter_wire_objects OBJECT ${wire_sources}
+  "${PROJECT_SOURCE_DIR}/tools/matter/tests/wire_dispatch.c"
+  "${PROJECT_SOURCE_DIR}/tools/matter/tests/runtime_wire_host.c"
+  "${PROJECT_SOURCE_DIR}/examples/esp32-runtime/main/rgb_light.c")
+matter_compile(matter_wire_objects)
+target_link_libraries(matter_wire_objects PRIVATE matter_host)
+target_include_directories(matter_wire_objects PRIVATE "${MATTER_MBEDTLS_DIR}/include")
+target_compile_definitions(matter_wire_objects PRIVATE MBEDTLS_CONFIG_FILE="matter_mbedtls_config.h"
+  calloc=wire_calloc malloc=wire_malloc free=wire_free)
+add_executable(runtime-wire-host "${PROJECT_SOURCE_DIR}/tools/matter/tests/wire_alloc.c"
+  $<TARGET_OBJECTS:matter_wire_objects>)
+matter_compile(runtime-wire-host)
+target_link_libraries(runtime-wire-host PRIVATE matter_mbedtls)
+target_link_options(runtime-wire-host PRIVATE -Wl,--gc-sections)
+set(MATTER_WIRE_NODE_MODULES "" CACHE PATH "Optional pinned Matter.js0.17.9 node_modules for native wire CTest")
+set(MATTER_WIRE_INTERFACE "" CACHE STRING "Optional controller mDNS interface; traffic uses loopback")
+if(MATTER_WIRE_NODE_MODULES)
+  find_program(MATTER_WIRE_NODE node REQUIRED)
+  foreach(wire_case before after single-original-before single-original-after single-corrected-before single-corrected-after)
+    add_test(NAME runtime_wire_${wire_case} COMMAND "${Python3_EXECUTABLE}"
+      "${PROJECT_SOURCE_DIR}/tools/matter/tests/runtime_wire.py"
+      --host $<TARGET_FILE:runtime-wire-host> --node "${MATTER_WIRE_NODE}"
+      --modules "${MATTER_WIRE_NODE_MODULES}" --interface "${MATTER_WIRE_INTERFACE}"
+      --case ${wire_case} --output "${PROJECT_BINARY_DIR}/wire-results")
+    set_tests_properties(runtime_wire_${wire_case} PROPERTIES LABELS "native;wire;alloc;network" TIMEOUT 600 RUN_SERIAL TRUE)
+  endforeach()
+endif()
 add_executable(runtime-pair-host "${PROJECT_SOURCE_DIR}/tools/matter/tests/runtime_pair_host.c")
 matter_compile(runtime-pair-host)
 target_link_libraries(runtime-pair-host PRIVATE matter_host)
@@ -96,6 +132,10 @@ set_tests_properties(installed_consumer PROPERTIES LABELS packaging TIMEOUT 240 
 if(MATTER_SANITIZE)
   set_tests_properties(installed_consumer PROPERTIES ENVIRONMENT "ASAN_OPTIONS=detect_leaks=${leaks}:halt_on_error=1;UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1")
 endif()
+add_test(NAME test_im_shared_reports COMMAND test_im_subscribe_alloc --memory-shared)
+set_tests_properties(test_im_shared_reports PROPERTIES LABELS "native;alloc" TIMEOUT 120)
+add_test(NAME test_im_short_reports COMMAND test_im_subscribe_alloc --memory-short)
+set_tests_properties(test_im_short_reports PROPERTIES LABELS "native;alloc" TIMEOUT 120)
 if(MATTER_ENABLE_LEGACY_TESTS)
   if(NOT WIN32)
     message(FATAL_ERROR "Legacy complete PowerShell runners require MinGW Windows; native CTest works on Linux")

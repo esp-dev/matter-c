@@ -5,6 +5,7 @@
 #include "crypto/matter_crypto_mbedtls.h"
 #include "codec/matter_message_header.h"
 #include "codec/matter_protocol_header.h"
+#include "storage/matter_store_tlv.h"
 #include "test_opcreds_vectors.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,8 +26,9 @@ typedef struct {
     unsigned stores,pumps,clocks,logs; uint64_t event_high,epoch;
     bool accept_packets; uint64_t pending_packet;
     bool ack_pase_failures,pending_failure_ack; uint32_t failure_counter; uint16_t failure_exchange;
-    bool fail_store,fail_clock,fail_initialize,fail_snapshot;
+    bool fail_store,fail_clock,fail_initialize,fail_snapshot,hold_radio,fail_radio;
     bool fail_network,oversized_network,invalid_network,network_online;
+    bool reenter; unsigned reentries; Matter_Runtime_T other;
     uint64_t wifi_token; bool cancelling,hold_cancel;
     Matter_Cluster_T time_sync; Matter_Time_Sync_Sample_T time_sample;
 } Node;
@@ -62,8 +64,18 @@ static Matter_Result_T initialize(void* u,const Matter_Wifi_Settings_T* s,const 
 }
 static Matter_Result_T pump(void* u,Matter_Wifi_T w,uint64_t now) {
     Node* n=u; ++n->pumps;
+    if(n->reenter) {
+        n->reenter=false; /* A missing guard fails finitely, rather than recursing. */
+        unsigned pumps=n->pumps;
+        CHECK(matter_runtime_process(n->runtime,now+1000)==MATTER_BUSY);
+        CHECK(matter_runtime_stop(n->runtime,now+1000)==MATTER_BUSY);
+        CHECK(matter_runtime_delete(n->runtime)==MATTER_BUSY && n->pumps==pumps);
+        Matter_Result_T peer=matter_runtime_process(n->other,now);
+        CHECK(peer==MATTER_OK || peer==MATTER_PENDING); ++n->reentries;
+    }
     if(n->cancelling) n->hold_cancel=false; /* Simulated deferred hardware drain. */
-    return matter_wifi_process(w,now);
+    Matter_Result_T r=matter_wifi_process(w,now);
+    return n->fail_radio?MATTER_PORT_ERROR:n->hold_radio?MATTER_PENDING:r;
 }
 static Matter_Result_T observe(void* u,Matter_Wifi_Ap_T* ap,bool* online) {
     (void)u; memset(ap,0,sizeof(*ap)); *online=false; return MATTER_OK;
@@ -268,6 +280,34 @@ static void commissioning_failures(void) {
     close_runtime(a,now); close_runtime(b,now); free_node(a); free_node(b);
     puts("PASS initial commissioning window: 20 failed PASE attempts, duplicate filtering, closed admission and independent runtime");
 }
+static void pending_recovery(void) {
+    for(unsigned stopping=0;stopping<2;++stopping) {
+        Node* n=node_new(0); start_node(n); close_runtime(n,0);
+        Matter_Store_Data_T* image=calloc(1,sizeof(*image)); uint8_t* bytes=calloc(1,MATTER_STORE_BLOB_MAX);
+        CHECK(image && bytes && matter_store_tlv_decode(n->blob,n->blob_size,image)==MATTER_OK);
+        image->wifi.pending=true; size_t size=0;
+        CHECK(matter_store_tlv_encode(image,bytes,MATTER_STORE_BLOB_MAX,&size)==MATTER_OK);
+        CHECK(blob_replace(n,bytes,size)==MATTER_OK); free(bytes);
+        n->hold_radio=true; start_node(n); unsigned stores=n->stores,pumps=n->pumps;
+        CHECK(!matter_runtime_commissionable(n->runtime) && !matter_runtime_commissioning_mode(n->runtime,NULL));
+        for(unsigned tick=1;tick<=3;++tick) {
+            CHECK(matter_runtime_process(n->runtime,tick)==MATTER_PENDING);
+            CHECK(n->pumps==pumps+tick && n->stores==stores);
+            CHECK(!matter_runtime_commissionable(n->runtime));
+        }
+        n->fail_radio=true; CHECK(matter_runtime_process(n->runtime,4)==MATTER_PORT_ERROR); n->fail_radio=false;
+        CHECK(n->stores==stores && matter_store_tlv_decode(n->blob,n->blob_size,image)==MATTER_OK && image->wifi.pending);
+        if(stopping) {
+            CHECK(matter_runtime_stop(n->runtime,5)==MATTER_PENDING && matter_runtime_delete(n->runtime)==MATTER_BUSY);
+            CHECK(matter_runtime_process(n->runtime,6)==MATTER_PENDING && n->stores==stores);
+        }
+        n->hold_radio=false; run(n,7);
+        CHECK(matter_store_tlv_decode(n->blob,n->blob_size,image)==MATTER_OK && !image->wifi.pending);
+        CHECK(matter_runtime_commissionable(n->runtime)==!stopping);
+        close_runtime(n,8); free(image); free_node(n);
+    }
+    puts("PASS boot recovery: deferred radio is pumped, error preserves durable marker, admission stays closed, stop remains terminal");
+}
 int main(void) {
     Node* a=node_new(0); Node* b=node_new(1);
     CHECK(matter_runtime_ota_request_query(NULL)==MATTER_INVALID_ARGUMENT);
@@ -305,8 +345,10 @@ int main(void) {
     CHECK(matter_runtime_fabrics(a->runtime)!=matter_runtime_fabrics(b->runtime));
     CHECK(matter_runtime_set_certificate_validity(a->runtime,true)==MATTER_INVALID_STATE);
     CHECK(matter_runtime_commissionable(a->runtime) && matter_runtime_commissionable(b->runtime));
+    a->other=b->runtime; a->reenter=true;
     for(uint64_t now=1;now<20;++now) { run(a,now); run(b,now*2); }
-    CHECK(a->pumps==19 && b->pumps==19);
+    CHECK(a->reentries==1 && a->pumps==19 && b->pumps==20);
+    puts("PASS runtime process reentry: future-clock process/stop/delete BUSY without effects; independent nested peer allowed");
     diagnostic_time(a,b);
     diagnostic_network(a,b);
     Matter_Store_Host_T sa=matter_runtime_store(a->runtime),sb=matter_runtime_store(b->runtime);
@@ -327,13 +369,13 @@ int main(void) {
     CHECK(matter_runtime_stop(a->runtime,20)==MATTER_PENDING);
     CHECK(matter_runtime_delete(a->runtime)==MATTER_BUSY);
     close_runtime(a,20); free(response); run(b,50);
-    CHECK(b->pumps==20 && matter_runtime_commissionable(b->runtime));
+    CHECK(b->pumps==21 && matter_runtime_commissionable(b->runtime));
     /* Recreate A from its own blob while B retains live dispatcher/events. */
     start_node(a); run(a,1); run(b,60);
     CHECK(matter_store_host_event_load(matter_runtime_store(a->runtime),&a->event_high)==MATTER_OK && a->event_high>ha+100);
     CHECK(matter_store_host_event_load(sb,&b->event_high)==MATTER_OK && b->event_high==hb+300);
     close_runtime(a,2); close_runtime(b,61); free_node(a); free_node(b);
-    commissioning_failures();
+    commissioning_failures(); pending_recovery();
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live);
 #endif

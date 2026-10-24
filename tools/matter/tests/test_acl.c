@@ -5,9 +5,26 @@
 #include "test_acl_wire.h"
 #define A(c) do { if(!(c)) { fprintf(stderr,"ACL:%d: %s\n",__LINE__,#c); abort(); } } while(0)
 #ifdef MATTER_TEST_ALLOC
-static size_t live,calls,fail_at;
-void* matter_test_calloc(size_t n,size_t z) { if(++calls==fail_at) return NULL; void* p=calloc(n,z); if(p) ++live; return p; }
-void matter_test_free(void* p) { if(p) { A(live); --live; } free(p); }
+static void encoded_reentry(void*,size_t);
+#define MATTER_TEST_ALLOC_AFTER_ALLOC encoded_reentry
+#include "test_alloc_bytes.h"
+#undef MATTER_TEST_ALLOC_AFTER_ALLOC
+static Matter_Acl_T reentry_model;
+static unsigned reentry_calls;
+static void encoded_reentry(void* data,size_t size) {
+    (void)data; (void)size; if(!reentry_model) return;
+    ++reentry_calls; Matter_Im_Value_T v; static const uint8_t empty[]={0x16,0x18};
+    Matter_Cluster_Request_T q={.fabric=1,.is_case=true,.peer_node=101}; Matter_Acl_Entry_T entry={0};
+    A(matter_acl_read(reentry_model,0,1,true,&v)==MATTER_IM_FAILURE);
+    A(matter_acl_read(reentry_model,2,1,true,&v)==MATTER_IM_FAILURE);
+    A(matter_acl_read(reentry_model,0xfffb,1,true,&v)==MATTER_IM_FAILURE);
+    A(matter_acl_validate(reentry_model,1,MATTER_IM_LIST_REPLACE,empty,sizeof(empty))==MATTER_IM_FAILURE);
+    A(matter_acl_write(reentry_model,1,MATTER_IM_LIST_REPLACE,empty,sizeof(empty))==MATTER_IM_FAILURE);
+    A(!matter_acl_authorize(reentry_model,1,101,NULL,0,NULL,MATTER_IM_ADMINISTER,NULL));
+    A(matter_acl_prepare_added(reentry_model,&q,&entry)==MATTER_BUSY);
+    A(matter_acl_delete(reentry_model)==MATTER_BUSY);
+    A(matter_acl_version(reentry_model)); /* Existing nonmutating direct query. */
+}
 #endif
 typedef struct {
     Matter_Acl_View_T view; Matter_Acl_T acl; AclWire wire; bool fail; unsigned stores; uint8_t index;
@@ -91,6 +108,61 @@ static void write_identity(Fixture* f) {
 static Matter_Result_T event_load(void* u,uint64_t* n) { *n=((Fixture*)u)->high; return MATTER_OK; }
 static Matter_Result_T event_store(void* u,uint64_t n) { Fixture* f=u; if(f->fail_reserve) return MATTER_PORT_ERROR; f->high=n; return MATTER_OK; }
 static uint64_t event_now(void* u) { (void)u; return 123; }
+#ifdef MATTER_TEST_ALLOC
+static void encoding_storage(void) {
+    Fixture* f=calloc(1,sizeof(*f)); Fixture* other=calloc(1,sizeof(*other)); A(f && other);
+    Matter_Acl_View_T* saved=calloc(1,sizeof(*saved)); A(saved);
+    for(unsigned i=0;i<5;++i) f->view.fabrics[i].index=(uint8_t)(i+1);
+    f->view.version=17; other->view=f->view;
+    Matter_Acl_Port_T p={f,view,store},op={other,view,store};
+    f->acl=matter_acl_new(&p); other->acl=matter_acl_new(&op); A(f->acl && other->acl);
+    for(unsigned i=1;i<=5;++i) {
+        AclWire* w=&f->wire; w->size=0; aw_open(w,0x16,-1);
+        for(unsigned j=0;j<4;++j) aw_entry_ex(w,UINT64_C(0xffffffef00000001)+j*4,5,2,4,3,1);
+        aw_byte(w,0x18); A(!matter_acl_write(f->acl,(uint8_t)i,MATTER_IM_LIST_REPLACE,w->data,w->size));
+    }
+    size_t baseline=live_bytes,blocks=live,started=calls; Matter_Im_Value_T v;
+    for(unsigned n=0;n<20;++n) {
+        for(unsigned i=2;i<=4;++i) A(!matter_acl_read(f->acl,i,0,true,&v));
+        A(!matter_acl_read(f->acl,0xfffc,0,true,&v) && !matter_acl_read(f->acl,0xfffd,0,true,&v));
+        (void)matter_acl_version(f->acl);
+    }
+    A(calls==started && live==blocks && live_bytes==baseline);
+    /* Each fabric/filter combination, plus all three encoded global lists. */
+    for(unsigned n=0;n<13;++n) {
+        uint32_t attr=n<10?0:n==10?0xfff8:n==11?0xfff9:0xfffb;
+        uint8_t index=(uint8_t)(n<10?n/2+1:0); bool filtered=(n%2)==0;
+        size_t before=calls; unsigned probes=reentry_calls; reentry_model=f->acl;
+        A(!matter_acl_read(f->acl,attr,index,filtered,&v)); reentry_model=NULL;
+        A(calls==before+1 && reentry_calls==probes+1 && live==blocks+1);
+        A(v.size && v.size<=sizeof(f->wire.request) && matter_test_allocation_size(v.data)==v.size && live_bytes==baseline+v.size);
+        memcpy(f->wire.request,v.data,v.size); const uint8_t* held=v.data; size_t size=v.size; uint32_t version=v.data_version;
+        Matter_Im_Attribute_T access; A(!matter_cluster_describe(f->acl,attr,&access));
+        A(matter_acl_version(f->acl)==version && !matter_acl_read(other->acl,2,0,true,&v));
+        A(matter_acl_read(f->acl,0,255,true,&v)==MATTER_IM_UNSUPPORTED_ACCESS);
+        A(live==blocks+1 && live_bytes==baseline+size && !memcmp(held,f->wire.request,size));
+        *saved=f->view; unsigned stores=f->stores;
+        fail_at=calls+1; A(matter_acl_read(f->acl,attr,index,filtered,&v)==MATTER_IM_RESOURCE_EXHAUSTED); fail_at=0;
+        A(live==blocks && live_bytes==baseline && f->stores==stores && !memcmp(saved,&f->view,sizeof(*saved)));
+        A(!matter_acl_read(f->acl,attr,index,filtered,&v) && v.size==size && v.data_version==version && !memcmp(v.data,f->wire.request,size));
+        A(!matter_acl_read(f->acl,2,0,true,&v) && live==blocks && live_bytes==baseline);
+    }
+    /* Validation/write can consume the borrowed read itself, without another
+     * encoding allocation. Both successful and failed store retain that span. */
+    A(!matter_acl_read(f->acl,0,1,true,&v)); size_t size=v.size; const uint8_t* data=v.data;
+    memcpy(f->wire.request,data,size); *saved=f->view; size_t before=calls;
+    fail_at=calls+1;
+    A(!matter_acl_validate(f->acl,1,MATTER_IM_LIST_REPLACE,data,size));
+    f->fail=true; A(matter_acl_write(f->acl,1,MATTER_IM_LIST_REPLACE,data,size)==MATTER_IM_FAILURE); f->fail=false;
+    A(!memcmp(saved,&f->view,sizeof(*saved)) && !memcmp(data,f->wire.request,size));
+    A(!matter_acl_write(f->acl,2,MATTER_IM_LIST_REPLACE,data,size)); fail_at=0;
+    A(calls==before && live==blocks+1 && !memcmp(data,f->wire.request,size));
+    A(f->view.version==saved->version+1 && !memcmp(&f->view.fabrics[0],&saved->fabrics[0],sizeof(saved->fabrics[0])));
+    A(!matter_acl_delete(f->acl) && !matter_acl_delete(other->acl)); free(saved); free(other); free(f);
+    A(!live && !live_bytes);
+    puts("PASS ACL encoding: scalar/query no allocations, exact-size spans, all13 fabric/filter/global OOM retries, immutable view, reentry, read-to-write alias/store failure and zero-live cleanup");
+}
+#endif
 static Matter_Im_Write_Result_T event_write(void* u,const Matter_Im_Path_T* p,Matter_Im_List_Change_T c,const uint8_t* d,size_t n) {
     Fixture* f=u; A(p->endpoint==0 && p->cluster==0x1f && p->attribute==0);
     Matter_Cluster_Request_T q={.fabric=f->index,.is_case=true,.peer_node=101};
@@ -237,7 +309,17 @@ static void acl_events(void) {
     static const uint8_t added[]={0x15,0x24,1,100,0x34,2,0x24,3,1,0x35,4,0x24,1,5,0x24,2,2,0x36,3,4,101,0x18,0x34,4,0x24,254,1,0x18,0x24,254,1,0x18};
     A(f->records[0].size==sizeof(added) && !memcmp(f->records[0].data,added,sizeof(added)) && f->records[0].timestamp_ms==123);
     A(matter_events_copy_fabric(f->log,&path,0,2,true,f->records,&count)==MATTER_OK && !count);
+    /* Event encoding shares the writer, not the provider's retained bytes.
+     * A failed staged publication must preserve both ACL/version and borrow. */
+    Matter_Im_Value_T held; A(!matter_acl_read(f->acl,0,1,true,&held));
+    memcpy(w->request,held.data,held.size); uint32_t held_version=matter_acl_version(f->acl);
+    f->fail=true;
+    A(matter_cluster_write_list(f->acl,0,&q,MATTER_IM_LIST_REPLACE,w->data,w->size).status==MATTER_IM_FAILURE);
+    f->fail=false;
+    A(matter_acl_version(f->acl)==held_version && !memcmp(held.data,w->request,held.size));
+    A(!matter_events_position(f->log,&next) && next==1);
     A(!matter_cluster_write_list(f->acl,0,&q,MATTER_IM_LIST_REPLACE,w->data,w->size).status);
+    A(!memcmp(held.data,w->request,held.size));
     A(matter_events_position(f->log,&next)==MATTER_OK && next==2); /* Equal REPLACE still rewrites the entry. */
     aw_list(w,true); A(!matter_cluster_write_list(f->acl,0,&q,MATTER_IM_LIST_REPLACE,w->data,w->size).status);
     w->size=0; aw_open(w,0x16,-1); aw_entry(w,101,3,0); aw_byte(w,0x18);
@@ -344,7 +426,7 @@ int main(void) {
     A(matter_acl_delete(f->acl)==MATTER_OK); free(f);
     acl_events(); target_ids(); legacy_acl(); invalid_entries(); invalid_group_write();
 #ifdef MATTER_TEST_ALLOC
-    A(!live);
+    A(!live && !live_bytes); encoding_storage();
 #endif
     puts("PASS ACL: literal TLV, fabric isolation, Node/CAT/targets/privileges, minima, schema/errors, atomic store, self-revocation and OOM"); return 0;
 }

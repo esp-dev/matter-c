@@ -23,7 +23,14 @@ typedef struct {
 typedef struct { void* user; bool (*contains)(void*,uint16_t endpoint,uint32_t device_type); } Matter_Acl_Device_Port_T;
 typedef Matter_Cluster_T Matter_Acl_T; /* Compatibility name; state is private. */
 /* Private heap workspace plus common registry; no task/time/OS.
- * Borrow port.user through delete; Root attachment pins the common handle. */
+ * Borrow port.user through delete; Root attachment pins the common handle.
+ * Encoded reads allocate their exact measured size, within the original
+ * 4096-byte TLV budget. Scalars allocate no encoding bytes. The returned span
+ * is owned/unchanged until the next accepted read or deletion; rejected reads,
+ * version/access/authorization queries, validation and writes do not free it.
+ * Read/Subscribe copy it synchronously into their independent snapshots.
+ * Encoding OOM returns RESOURCE_EXHAUSTED to direct reads; existing IM provider
+ * error mappings still apply. The owner serializes the stable backend view. */
 Matter_Cluster_T matter_acl_new(const Matter_Acl_Port_T*);
 typedef struct { Matter_Events_T log; void* user; uint64_t (*now)(void*); } Matter_Acl_Events_Port_T;
 /* Bind before serving IM. Borrowed log/clock, once per instance. Internal

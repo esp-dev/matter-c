@@ -1,0 +1,4 @@
+# Optional RAM/throughput tradeoff; driver pool sizes stay at SDK defaults.
+# CONFIG_ESP_WIFI_IRAM_OPT is not set
+# CONFIG_ESP_WIFI_RX_IRAM_OPT is not set
+# CONFIG_ESP_WIFI_EXTRA_IRAM_OPT is not set

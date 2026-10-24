@@ -1,0 +1,1377 @@
+{
+  "baseline": "6977da4f97fbd3b17dcfa173bda912d31d6d6808",
+  "date": "2026-10-20",
+  "method": "Compile-only sizeof and function frames; no linking or live heap measurement",
+  "layout_configurations": {
+    "esp32": {
+      "compiler": "xtensa-esp-elf-gcc.exe (crosstool-NG esp-13.2.0_20230928) 13.2.0",
+      "transport_capacity": 56,
+      "event_capacity": 128,
+      "sizes": {
+        "connection": 136,
+        "connections": 2176,
+        "default_transactions": 78208,
+        "dispatch": 8152,
+        "dispatch_packet_buffers": 4928,
+        "transaction": 1504,
+        "transaction_packet": 1232,
+        "event_log": 60184,
+        "event_log_pending": 29696,
+        "event_log_records": 29696,
+        "event_record": 232,
+        "read": 2120,
+        "read_event_records": 29696,
+        "read_events": 35256,
+        "read_item": 72,
+        "snapshot_budget": 16384,
+        "subscribe": 2720,
+        "subscribe_event_records": 29696,
+        "subscribe_events": 35272,
+        "subscribe_item": 72,
+        "fabric_image": 15552,
+        "store_blob": 32768,
+        "store_host": 49104,
+        "store_work": 16160,
+        "fabric_backup": 15536,
+        "fabric_host": 19688,
+        "resumptions": 1560,
+        "store_codec": 16280,
+        "store_codec_data": 16160,
+        "runtime": 2352,
+        "exchange_table": 1832,
+        "rx": 3240,
+        "ack_table": 1856,
+        "retransmission": 3176,
+        "retransmission_sender": 1016,
+        "unsecured": 344,
+        "secure": 1552,
+        "case": 14112,
+        "pase": 6384,
+        "invoke": 5600,
+        "write": 4288,
+        "im_client": 2968,
+        "epm": 5448,
+        "eem": 632,
+        "meter_source": 22512,
+        "diagnostics": 8488,
+        "acl": 6384,
+        "lifecycle": 160,
+        "pointer": 4
+      },
+      "largest_frames": [
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:438:13:apply_done",
+          "bytes": 576,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:579:17:matter_runtime_start",
+          "bytes": 432,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_client.c:77:17:matter_im_client_receive",
+          "bytes": 352,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_dispatch.c:971:17:matter_dispatch_process",
+          "bytes": 288,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:238:18:matter_runtime_new",
+          "bytes": 288,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_subscribe.c:619:17:matter_im_subscribe_process",
+          "bytes": 192,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:548:13:notify_process",
+          "bytes": 176,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/session/matter_case.c:28:17:matter_case_destination",
+          "bytes": 176,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_dispatch.c:567:13:create_handler",
+          "bytes": 160,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_dispatch.c:1040:19:matter_dispatch_new",
+          "bytes": 160,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_read.c:611:17:matter_im_read_process",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_fabric_host.c:164:24:install",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:80:24:diagnostics_snapshot",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_client.c:43:13:copy",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_epm.c:90:25:create",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_meter_source.c:99:18:matter_meter_source_new",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:452:13:query_available",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/transport/matter_retransmission_sender.c:135:17:matter_retransmission_sender_process",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/session/matter_secure.c:95:17:matter_secure_seal",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_write.c:262:17:matter_im_write_process",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_client.c:18:13:field.isra",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_eem.c:68:25:create",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_diagnostics.c:137:9:matter_diagnostics_validate",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_events.c:28:17:matter_events_prepare",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_subscribe.c:315:16:snapshot",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:123:16:authorize",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/session/matter_secure.c:116:17:matter_secure_receive",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/session/matter_case.c:144:13:verify",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_eem.c:146:17:matter_eem_refresh",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_diagnostics.c:400:25:interface_new",
+          "bytes": 112,
+          "kind": "static"
+        }
+      ],
+      "diagnostics": {},
+      "source_sha256": {
+        "main/apps/matter/runtime/matter_dispatch.c": "413ca6221375f9bf7fd05ad2d1ac2434b7fc84c72ba5de37542c2f1dd909a068",
+        "main/apps/matter/model/matter_events.c": "6310e92677081eaca8d8499eab8a1046b690f84c37e81bd2f10d51d7f7fe8a7e",
+        "main/apps/matter/model/matter_im_read.c": "1ea17c74d21bc9f4f716c4395089b90abd36e18f7bf586694817a70c12f0c93a",
+        "main/apps/matter/model/matter_im_subscribe.c": "5956d81ffdd7ea985edeee0b5d057a315966e8899ab464531c8ba27f57340111",
+        "main/apps/matter/runtime/matter_store_host.c": "5bfca3263c861b56d6c267cda15eb8ebcc98bb17ee7ee6d4b4519ddc2ba563fd",
+        "main/apps/matter/runtime/matter_fabric_host.c": "6b542c6579c24fe4c75fd6b74f7b431d7ed5ebe581cf119cc98bee376a62c2ae",
+        "main/apps/matter/storage/matter_store_tlv.c": "c6dde47a37ce5684e288bc0818e2a5e044e6e1dbd4c5f47b6239e2369f086b1d",
+        "main/apps/matter/runtime/matter_runtime.c": "7413f9d84a54f3d6902515c17c8263d1c9e55d7eb9fcf4bed40abb2d826942e9",
+        "main/apps/matter/transport/matter_exchange.c": "55093e07ab9214559d7e459577b5c25fbad81cfd43ecb53dec4353e60f657f4f",
+        "main/apps/matter/transport/matter_rx.c": "abb85d9124a5d049a4f08ba42979393b3da038d05b1f927f82c816065527c68e",
+        "main/apps/matter/transport/matter_ack.c": "2c43c58698bf21814cdb2aae346b58e5b6a0d7616472dffa76863fdc98808928",
+        "main/apps/matter/transport/matter_retransmission.c": "9636043c71d5c9691e511a808fa0e633a7e093f9643f531a5edf8d5e7a4b1bf1",
+        "main/apps/matter/transport/matter_retransmission_sender.c": "dbcd6e1cd9d2e3c479271f182461e8795af7970d857289d6297484fa63c0048a",
+        "main/apps/matter/transport/matter_unsecured.c": "89bc09167f2980243c0d6839f2eb913ceb59f3715bf132bccabf8167eddf9ad6",
+        "main/apps/matter/session/matter_secure.c": "532ec410bdff6333c78cca7f81ae7c3de8d7c184eaf5d9cb820d1b1237acf93b",
+        "main/apps/matter/session/matter_case.c": "3b8735115e36ab973722c24a6bda39f79d5909fc2ca33b06dd7fd195d077151e",
+        "main/apps/matter/session/matter_pase.c": "847a5b3997514f8be2b387aeb992de1ca6b1059134ff0bc7948faf0419cd1c42",
+        "main/apps/matter/model/matter_im_invoke.c": "0ae98a31ad2c293d14c22ecc1f254e5d411ddcf302c2bdbdb8629afcd99a567f",
+        "main/apps/matter/model/matter_im_write.c": "cc3a7c3e70d8f8f90167b44a8cd17f2d8165b65b755374109f5275fc5774030d",
+        "main/apps/matter/model/matter_im_client.c": "f12cb53b8f7d788b916e9a803b2f7f81e701bc47c463228d4f18dba603317e9f",
+        "main/apps/matter/clusters/matter_epm.c": "b1747286f77dcf03f08fc0546bbde13774bd70f8da30f58b1ca47abbacea29aa",
+        "main/apps/matter/clusters/matter_eem.c": "f6674e7ac1c472ad871fafb15461720f3546ab900a3920b2022b033139eacae7",
+        "main/apps/matter/clusters/matter_meter_source.c": "7a2bbe83dfcb3918a6fe079191d4175e454c8538114a3b47e66f89554b5dcafe",
+        "main/apps/matter/clusters/matter_diagnostics.c": "4b6a0de09c7315dfea2bab13533c50a8262278aa0b77ddfb9b6057d0ff931d96",
+        "main/apps/matter/clusters/matter_acl.c": "1af0f214aebb890db4d8155e37fbf22b2bba98fe7dc0a029ab2d19404c086d4c",
+        "main/apps/matter/matter.c": "e078fa5d029f8ef85e8c004b4b90585e644fe500d7a879dad8c3826d72c7ff1e"
+      }
+    },
+    "esp32-events16": {
+      "compiler": "xtensa-esp-elf-gcc.exe (crosstool-NG esp-13.2.0_20230928) 13.2.0",
+      "transport_capacity": 56,
+      "event_capacity": 16,
+      "sizes": {
+        "connection": 136,
+        "connections": 2176,
+        "default_transactions": 78208,
+        "dispatch": 8152,
+        "dispatch_packet_buffers": 4928,
+        "transaction": 1504,
+        "transaction_packet": 1232,
+        "event_log": 8216,
+        "event_log_pending": 3712,
+        "event_log_records": 3712,
+        "event_record": 232,
+        "read": 2120,
+        "read_event_records": 3712,
+        "read_events": 9272,
+        "read_item": 72,
+        "snapshot_budget": 16384,
+        "subscribe": 2720,
+        "subscribe_event_records": 3712,
+        "subscribe_events": 9288,
+        "subscribe_item": 72,
+        "fabric_image": 15552,
+        "store_blob": 32768,
+        "store_host": 49104,
+        "store_work": 16160,
+        "fabric_backup": 15536,
+        "fabric_host": 19688,
+        "resumptions": 1560,
+        "store_codec": 16280,
+        "store_codec_data": 16160,
+        "runtime": 2352,
+        "exchange_table": 1832,
+        "rx": 3240,
+        "ack_table": 1856,
+        "retransmission": 3176,
+        "retransmission_sender": 1016,
+        "unsecured": 344,
+        "secure": 1552,
+        "case": 14112,
+        "pase": 6384,
+        "invoke": 5600,
+        "write": 4288,
+        "im_client": 2968,
+        "epm": 5448,
+        "eem": 632,
+        "meter_source": 22512,
+        "diagnostics": 8488,
+        "acl": 6384,
+        "lifecycle": 160,
+        "pointer": 4
+      },
+      "largest_frames": [
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:438:13:apply_done",
+          "bytes": 576,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:579:17:matter_runtime_start",
+          "bytes": 432,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_client.c:77:17:matter_im_client_receive",
+          "bytes": 352,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_dispatch.c:971:17:matter_dispatch_process",
+          "bytes": 288,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:238:18:matter_runtime_new",
+          "bytes": 288,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_subscribe.c:619:17:matter_im_subscribe_process",
+          "bytes": 192,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:548:13:notify_process",
+          "bytes": 176,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/session/matter_case.c:28:17:matter_case_destination",
+          "bytes": 176,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_dispatch.c:567:13:create_handler",
+          "bytes": 160,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_dispatch.c:1040:19:matter_dispatch_new",
+          "bytes": 160,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_read.c:611:17:matter_im_read_process",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_fabric_host.c:164:24:install",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:80:24:diagnostics_snapshot",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_client.c:43:13:copy",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_epm.c:90:25:create",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_meter_source.c:99:18:matter_meter_source_new",
+          "bytes": 144,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:452:13:query_available",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/transport/matter_retransmission_sender.c:135:17:matter_retransmission_sender_process",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/session/matter_secure.c:95:17:matter_secure_seal",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_write.c:262:17:matter_im_write_process",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_client.c:18:13:field.isra",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_eem.c:68:25:create",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_diagnostics.c:137:9:matter_diagnostics_validate",
+          "bytes": 128,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_events.c:28:17:matter_events_prepare",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/model/matter_im_subscribe.c:315:16:snapshot",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/runtime/matter_runtime.c:123:16:authorize",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/session/matter_secure.c:116:17:matter_secure_receive",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/session/matter_case.c:144:13:verify",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_eem.c:146:17:matter_eem_refresh",
+          "bytes": 112,
+          "kind": "static"
+        },
+        {
+          "function": "main/apps/matter/clusters/matter_diagnostics.c:400:25:interface_new",
+          "bytes": 112,
+          "kind": "static"
+        }
+      ],
+      "diagnostics": {},
+      "source_sha256": {
+        "main/apps/matter/runtime/matter_dispatch.c": "413ca6221375f9bf7fd05ad2d1ac2434b7fc84c72ba5de37542c2f1dd909a068",
+        "main/apps/matter/model/matter_events.c": "6310e92677081eaca8d8499eab8a1046b690f84c37e81bd2f10d51d7f7fe8a7e",
+        "main/apps/matter/model/matter_im_read.c": "1ea17c74d21bc9f4f716c4395089b90abd36e18f7bf586694817a70c12f0c93a",
+        "main/apps/matter/model/matter_im_subscribe.c": "5956d81ffdd7ea985edeee0b5d057a315966e8899ab464531c8ba27f57340111",
+        "main/apps/matter/runtime/matter_store_host.c": "5bfca3263c861b56d6c267cda15eb8ebcc98bb17ee7ee6d4b4519ddc2ba563fd",
+        "main/apps/matter/runtime/matter_fabric_host.c": "6b542c6579c24fe4c75fd6b74f7b431d7ed5ebe581cf119cc98bee376a62c2ae",
+        "main/apps/matter/storage/matter_store_tlv.c": "c6dde47a37ce5684e288bc0818e2a5e044e6e1dbd4c5f47b6239e2369f086b1d",
+        "main/apps/matter/runtime/matter_runtime.c": "7413f9d84a54f3d6902515c17c8263d1c9e55d7eb9fcf4bed40abb2d826942e9",
+        "main/apps/matter/transport/matter_exchange.c": "55093e07ab9214559d7e459577b5c25fbad81cfd43ecb53dec4353e60f657f4f",
+        "main/apps/matter/transport/matter_rx.c": "abb85d9124a5d049a4f08ba42979393b3da038d05b1f927f82c816065527c68e",
+        "main/apps/matter/transport/matter_ack.c": "2c43c58698bf21814cdb2aae346b58e5b6a0d7616472dffa76863fdc98808928",
+        "main/apps/matter/transport/matter_retransmission.c": "9636043c71d5c9691e511a808fa0e633a7e093f9643f531a5edf8d5e7a4b1bf1",
+        "main/apps/matter/transport/matter_retransmission_sender.c": "dbcd6e1cd9d2e3c479271f182461e8795af7970d857289d6297484fa63c0048a",
+        "main/apps/matter/transport/matter_unsecured.c": "89bc09167f2980243c0d6839f2eb913ceb59f3715bf132bccabf8167eddf9ad6",
+        "main/apps/matter/session/matter_secure.c": "532ec410bdff6333c78cca7f81ae7c3de8d7c184eaf5d9cb820d1b1237acf93b",
+        "main/apps/matter/session/matter_case.c": "3b8735115e36ab973722c24a6bda39f79d5909fc2ca33b06dd7fd195d077151e",
+        "main/apps/matter/session/matter_pase.c": "847a5b3997514f8be2b387aeb992de1ca6b1059134ff0bc7948faf0419cd1c42",
+        "main/apps/matter/model/matter_im_invoke.c": "0ae98a31ad2c293d14c22ecc1f254e5d411ddcf302c2bdbdb8629afcd99a567f",
+        "main/apps/matter/model/matter_im_write.c": "cc3a7c3e70d8f8f90167b44a8cd17f2d8165b65b755374109f5275fc5774030d",
+        "main/apps/matter/model/matter_im_client.c": "f12cb53b8f7d788b916e9a803b2f7f81e701bc47c463228d4f18dba603317e9f",
+        "main/apps/matter/clusters/matter_epm.c": "b1747286f77dcf03f08fc0546bbde13774bd70f8da30f58b1ca47abbacea29aa",
+        "main/apps/matter/clusters/matter_eem.c": "f6674e7ac1c472ad871fafb15461720f3546ab900a3920b2022b033139eacae7",
+        "main/apps/matter/clusters/matter_meter_source.c": "7a2bbe83dfcb3918a6fe079191d4175e454c8538114a3b47e66f89554b5dcafe",
+        "main/apps/matter/clusters/matter_diagnostics.c": "4b6a0de09c7315dfea2bab13533c50a8262278aa0b77ddfb9b6057d0ff931d96",
+        "main/apps/matter/clusters/matter_acl.c": "1af0f214aebb890db4d8155e37fbf22b2bba98fe7dc0a029ab2d19404c086d4c",
+        "main/apps/matter/matter.c": "e078fa5d029f8ef85e8c004b4b90585e644fe500d7a879dad8c3826d72c7ff1e"
+      }
+    }
+  },
+  "duplication": {
+    "duplicates": {
+      "tool": "jscpd 4.0.5",
+      "mode": "default",
+      "min_lines": 8,
+      "min_tokens": 60,
+      "scope": "main/apps/matter C implementation files",
+      "statistics": {
+        "lines": 13383,
+        "tokens": 259195,
+        "sources": 64,
+        "clones": 8,
+        "duplicatedLines": 75,
+        "duplicatedTokens": 1398,
+        "percentage": 0.56,
+        "percentageTokens": 0.54,
+        "newDuplicatedLines": 0,
+        "newClones": 0
+      },
+      "pairs": [
+        {
+          "firstFile": {
+            "name": "main/apps/matter/storage/matter_store_tlv.c",
+            "start": 91,
+            "end": 99
+          },
+          "secondFile": {
+            "name": "main/apps/matter/storage/matter_store_tlv.c",
+            "start": 53,
+            "end": 61
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 141,
+            "end": 154
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 73,
+            "end": 88
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 366,
+            "end": 375
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 291,
+            "end": 300
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 459,
+            "end": 467
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 303,
+            "end": 311
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 513,
+            "end": 524
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 371,
+            "end": 382
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 66,
+            "end": 75
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 50,
+            "end": 59
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 81,
+            "end": 89
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 65,
+            "end": 73
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 95,
+            "end": 104
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 79,
+            "end": 88
+          }
+        }
+      ]
+    },
+    "duplicates-sensitive": {
+      "tool": "jscpd 4.0.5",
+      "mode": "weak",
+      "min_lines": 5,
+      "min_tokens": 40,
+      "scope": "main/apps/matter C implementation files",
+      "statistics": {
+        "lines": 13370,
+        "tokens": 259178,
+        "sources": 64,
+        "clones": 63,
+        "duplicatedLines": 380,
+        "duplicatedTokens": 7606,
+        "percentage": 2.84,
+        "percentageTokens": 2.93,
+        "newDuplicatedLines": 0,
+        "newClones": 0
+      },
+      "pairs": [
+        {
+          "firstFile": {
+            "name": "main/apps/matter/transport/matter_unsecured.c",
+            "start": 158,
+            "end": 165
+          },
+          "secondFile": {
+            "name": "main/apps/matter/transport/matter_unsecured.c",
+            "start": 149,
+            "end": 156
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/transport/matter_retransmission_sender.c",
+            "start": 199,
+            "end": 206
+          },
+          "secondFile": {
+            "name": "main/apps/matter/transport/matter_retransmission_sender.c",
+            "start": 176,
+            "end": 183
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/transport/matter_retransmission.c",
+            "start": 16,
+            "end": 23
+          },
+          "secondFile": {
+            "name": "main/apps/matter/transport/matter_rx.c",
+            "start": 27,
+            "end": 34
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/transport/matter_ack.c",
+            "start": 16,
+            "end": 23
+          },
+          "secondFile": {
+            "name": "main/apps/matter/transport/matter_retransmission.c",
+            "start": 16,
+            "end": 34
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/storage/matter_store_tlv.c",
+            "start": 91,
+            "end": 99
+          },
+          "secondFile": {
+            "name": "main/apps/matter/storage/matter_store_tlv.c",
+            "start": 53,
+            "end": 61
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/session/matter_secure.c",
+            "start": 168,
+            "end": 173
+          },
+          "secondFile": {
+            "name": "main/apps/matter/session/matter_secure.c",
+            "start": 52,
+            "end": 57
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/session/matter_case.c",
+            "start": 251,
+            "end": 256
+          },
+          "secondFile": {
+            "name": "main/apps/matter/session/matter_pase.c",
+            "start": 262,
+            "end": 267
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/runtime/matter_commissioning_host.c",
+            "start": 13,
+            "end": 18
+          },
+          "secondFile": {
+            "name": "main/apps/matter/runtime/matter_fabric_host.c",
+            "start": 32,
+            "end": 37
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 136,
+            "end": 141
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 60,
+            "end": 65
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 141,
+            "end": 154
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 73,
+            "end": 88
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 110,
+            "end": 117
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 125,
+            "end": 132
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 201,
+            "end": 206
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 159,
+            "end": 152
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 206,
+            "end": 212
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 164,
+            "end": 170
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 223,
+            "end": 228
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 179,
+            "end": 184
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 241,
+            "end": 247
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 164,
+            "end": 212
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 265,
+            "end": 272
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 194,
+            "end": 200
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 319,
+            "end": 326
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 463,
+            "end": 470
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 366,
+            "end": 375
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 291,
+            "end": 300
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 440,
+            "end": 445
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 526,
+            "end": 530
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 459,
+            "end": 467
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 303,
+            "end": 311
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 501,
+            "end": 508
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 364,
+            "end": 371
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 513,
+            "end": 524
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 371,
+            "end": 382
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 524,
+            "end": 529
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 382,
+            "end": 387
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_read.c",
+            "start": 532,
+            "end": 538
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_subscribe.c",
+            "start": 391,
+            "end": 398
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 66,
+            "end": 75
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 50,
+            "end": 59
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 76,
+            "end": 81
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 60,
+            "end": 65
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 81,
+            "end": 89
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 65,
+            "end": 73
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 90,
+            "end": 95
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 74,
+            "end": 79
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 95,
+            "end": 104
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 79,
+            "end": 88
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 167,
+            "end": 174
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 194,
+            "end": 201
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/model/matter_im_invoke.c",
+            "start": 294,
+            "end": 300
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_write.c",
+            "start": 308,
+            "end": 314
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/crypto/matter_crypto_mbedtls.c",
+            "start": 90,
+            "end": 95
+          },
+          "secondFile": {
+            "name": "main/apps/matter/crypto/matter_crypto_mbedtls.c",
+            "start": 81,
+            "end": 85
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/codec/matter_message_header.c",
+            "start": 39,
+            "end": 47
+          },
+          "secondFile": {
+            "name": "main/apps/matter/codec/matter_protocol_header.c",
+            "start": 22,
+            "end": 29
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 402,
+            "end": 407
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 344,
+            "end": 394
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 411,
+            "end": 416
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 344,
+            "end": 394
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 420,
+            "end": 425
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 344,
+            "end": 394
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 429,
+            "end": 434
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 344,
+            "end": 394
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 434,
+            "end": 439
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 416,
+            "end": 402
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_ota_query.c",
+            "start": 16,
+            "end": 22
+          },
+          "secondFile": {
+            "name": "main/apps/matter/model/matter_im_client.c",
+            "start": 37,
+            "end": 43
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_opcreds.c",
+            "start": 67,
+            "end": 72
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 113,
+            "end": 119
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_opcreds.c",
+            "start": 73,
+            "end": 78
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_wifi.c",
+            "start": 124,
+            "end": 129
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_groupkey.c",
+            "start": 27,
+            "end": 32
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_opcreds.c",
+            "start": 36,
+            "end": 65
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_fabric.c",
+            "start": 83,
+            "end": 88
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_fabric.c",
+            "start": 34,
+            "end": 39
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_eem.c",
+            "start": 29,
+            "end": 35
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_meter_source.c",
+            "start": 33,
+            "end": 42
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 247,
+            "end": 253
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 219
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 258,
+            "end": 264
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 253
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 264,
+            "end": 269
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 253,
+            "end": 213
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 269,
+            "end": 275
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 253
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 275,
+            "end": 280
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 253,
+            "end": 213
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 286,
+            "end": 291
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 218
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 305,
+            "end": 310
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 303
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 312,
+            "end": 317
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 310
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 319,
+            "end": 324
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 310
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 326,
+            "end": 331
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 303
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 333,
+            "end": 338
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 310
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 340,
+            "end": 345
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 338
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 347,
+            "end": 352
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 338
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 354,
+            "end": 359
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 338
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 361,
+            "end": 366
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 338
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 368,
+            "end": 373
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 338
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 375,
+            "end": 380
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 310
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 382,
+            "end": 387
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_diagnostics.c",
+            "start": 213,
+            "end": 310
+          }
+        },
+        {
+          "firstFile": {
+            "name": "main/apps/matter/clusters/matter_acl.c",
+            "start": 323,
+            "end": 328
+          },
+          "secondFile": {
+            "name": "main/apps/matter/clusters/matter_opcreds.c",
+            "start": 395,
+            "end": 482
+          }
+        }
+      ]
+    }
+  }
+}

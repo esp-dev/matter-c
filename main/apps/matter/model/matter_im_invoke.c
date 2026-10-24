@@ -1,9 +1,18 @@
 #include "matter_im_invoke.h"
 #include "../codec/matter_tlv_validate.h"
+#include "matter_im_buffer_internal.h"
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct {
+	Matter_Tlv_Reader_T reader;
+	Matter_Tlv_Writer_T writer, body_writer;
+	Matter_Tlv_Element_T token, root[3], fields[3], path_fields[3], revision;
+	Matter_Tlv_Validation_Workspace_T validation;
+	Matter_Tlv_Tag_T tags[48];
+} Matter_Im_Invoke_Work;
 struct Matter_Im_Invoke {
+    Matter_Im_Invoke_Work* work;
 	Matter_Im_Invoke_Port_T port;
 	Matter_Im_Invoke_Async_Port_T async;
     Matter_Im_Read_Fabric_Port_T fabric; uint8_t fabric_index; bool fabric_resolved, case_session;
@@ -18,12 +27,8 @@ struct Matter_Im_Invoke {
 	Matter_Im_Command_Path_T path;
 	Matter_Im_Command_T command;
 	Matter_Im_Command_Result_T result;
-	Matter_Tlv_Reader_T reader;
-	Matter_Tlv_Writer_T writer, body_writer;
-	Matter_Tlv_Element_T token, root[3], fields[3], path_fields[3], revision;
-	Matter_Tlv_Validation_Workspace_T validation;
-	Matter_Tlv_Tag_T tags[48];
-	uint8_t input[1024], args[1024], body[1024], output[1024];
+	uint8_t *input, *args, *body, *output;
+	size_t input_capacity, args_capacity, body_capacity, output_capacity;
 };
 static Matter_Result_T check(Matter_Im_Invoke_T s) { return !s ? MATTER_INVALID_ARGUMENT : s->busy ? MATTER_BUSY : MATTER_OK; }
 Matter_Im_Invoke_T matter_im_invoke_new(const Matter_Im_Invoke_Port_T* p,const Matter_Im_Invoke_Config_T* c,uint64_t now) {
@@ -66,22 +71,26 @@ Matter_Result_T matter_im_invoke_receive_at(Matter_Im_Invoke_T s,const Matter_Rx
 		(d->header.opcode!=8 && d->header.opcode!=10 && !(continuation && d->header.opcode==6)) ||
 		!(d->header.exchange_flags & MATTER_PROTOCOL_INITIATOR) || d->standalone_ack ||
 		(d->action!=MATTER_RX_NEW_RESPONDER && d->action!=MATTER_RX_EXISTING)) return MATTER_INVALID_ARGUMENT;
-	if (d->payload_size>sizeof(s->input)) return MATTER_LIMIT_REACHED;
+	if (d->payload_size>1024) return MATTER_LIMIT_REACHED;
+	Matter_Im_Invoke_Work* work=s->work ? s->work : calloc(1,sizeof(*work));
+    if(!work) return MATTER_LIMIT_REACHED;
+    if (!matter_im_buffer_reserve(&s->input,&s->input_capacity,d->payload_size)) { if(!s->work) free(work); return MATTER_LIMIT_REACHED; }
+    s->work=work;
 	if (d->payload_size) memcpy(s->input,d->payload,d->payload_size);
 	s->input_size=d->payload_size; s->request_opcode=d->header.opcode;
 	s->now=s->received_at=now; s->queued=true; return MATTER_OK;
 }
 static bool container(Matter_Tlv_Type_T t) { return t==MATTER_TLV_STRUCTURE || t==MATTER_TLV_ARRAY || t==MATTER_TLV_LIST; }
-static bool next(Matter_Im_Invoke_T s) { return matter_tlv_next(&s->reader,&s->token)==MATTER_TLV_OK; }
+static bool next(Matter_Im_Invoke_T s) { return matter_tlv_next(&s->work->reader,&s->work->token)==MATTER_TLV_OK; }
 static bool enter(Matter_Im_Invoke_T s,const Matter_Tlv_Element_T* e) {
-	if (matter_tlv_init(&s->reader,s->input,s->input_size,8)!=MATTER_TLV_OK) return false;
-	do { if (!next(s)) return false; } while (s->token.offset<e->offset);
-	return s->token.offset==e->offset;
+	if (matter_tlv_init(&s->work->reader,s->input,s->input_size,8)!=MATTER_TLV_OK) return false;
+	do { if (!next(s)) return false; } while (s->work->token.offset<e->offset);
+	return s->work->token.offset==e->offset;
 }
 static uint8_t validate_tlv(Matter_Im_Invoke_T s,const uint8_t* data,size_t size,uint8_t depth) {
 	const Matter_Tlv_Validation_Options_T opt={1024,256,2048,depth,false,0,0};
 	Matter_Tlv_Validation_Report_T report;
-	Matter_Tlv_Result_T r=matter_tlv_validate(data,size,&opt,&s->validation,s->tags,48,&report);
+	Matter_Tlv_Result_T r=matter_tlv_validate(data,size,&opt,&s->work->validation,s->work->tags,48,&report);
 	return r==MATTER_TLV_OK ? 0 : r==MATTER_TLV_LIMIT_REACHED || r==MATTER_TLV_DEPTH_LIMIT ? MATTER_IM_RESOURCE_EXHAUSTED : MATTER_IM_INVALID_ACTION;
 }
 /* Current token is container open; duplicate known LIST fields need an explicit
@@ -89,12 +98,12 @@ static uint8_t validate_tlv(Matter_Im_Invoke_T s,const uint8_t* data,size_t size
 static bool collect(Matter_Im_Invoke_T s,Matter_Tlv_Element_T* out) {
 	memset(out,0,3*sizeof(*out));
 	while (next(s)) {
-		if (s->token.type==MATTER_TLV_END) return true;
-		if (s->token.tag.control!=1) return false;
-		uint32_t tag=s->token.tag.number;
-		if (tag<3) { if (out[tag].tag.control) return false; out[tag]=s->token; }
-		if (out==s->root && tag==255) s->revision=s->token;
-		if (container(s->token.type) && matter_tlv_skip_container(&s->reader)!=MATTER_TLV_OK) return false;
+		if (s->work->token.type==MATTER_TLV_END) return true;
+		if (s->work->token.tag.control!=1) return false;
+		uint32_t tag=s->work->token.tag.number;
+		if (tag<3) { if (out[tag].tag.control) return false; out[tag]=s->work->token; }
+		if (out==s->work->root && tag==255) s->work->revision=s->work->token;
+		if (container(s->work->token.type) && matter_tlv_skip_container(&s->work->reader)!=MATTER_TLV_OK) return false;
 	}
 	return false;
 }
@@ -102,43 +111,45 @@ static bool number(const Matter_Tlv_Element_T* e,uint64_t max) {
 	return e->tag.control==1 && e->type==MATTER_TLV_UNSIGNED && e->unsigned_value<=max;
 }
 static uint8_t decode(Matter_Im_Invoke_T s) {
-	memset(&s->revision,0,sizeof(s->revision)); /* Two documents share this workspace. */
+	memset(&s->work->revision,0,sizeof(s->work->revision)); /* Two documents share this workspace. */
 	uint8_t code=validate_tlv(s,s->input,s->input_size,8); if (code) return code;
-	if (matter_tlv_init(&s->reader,s->input,s->input_size,8)!=MATTER_TLV_OK || !next(s) ||
-		s->token.type!=MATTER_TLV_STRUCTURE || s->token.tag.control || !collect(s,s->root) ||
-		!number(&s->revision,UINT8_MAX) || !s->revision.unsigned_value) return MATTER_IM_INVALID_ACTION;
+	if (matter_tlv_init(&s->work->reader,s->input,s->input_size,8)!=MATTER_TLV_OK || !next(s) ||
+		s->work->token.type!=MATTER_TLV_STRUCTURE || s->work->token.tag.control || !collect(s,s->work->root) ||
+		!number(&s->work->revision,UINT8_MAX) || !s->work->revision.unsigned_value) return MATTER_IM_INVALID_ACTION;
 	if (s->request_opcode==10) {
-		if (s->timed || !number(&s->root[0],UINT16_MAX)) return MATTER_IM_INVALID_ACTION;
-		s->timed_timeout=(uint16_t)s->root[0].unsigned_value; return 0;
+		if (s->timed || !number(&s->work->root[0],UINT16_MAX)) return MATTER_IM_INVALID_ACTION;
+		s->timed_timeout=(uint16_t)s->work->root[0].unsigned_value; return 0;
 	}
 	if (s->request_opcode!=8) return MATTER_IM_INVALID_ACTION;
 	if (s->timed && s->received_at>=s->timed_deadline) return MATTER_IM_TIMEOUT;
-	if (!s->root[0].tag.control || s->root[0].type!=MATTER_TLV_BOOL ||
-		!s->root[1].tag.control || s->root[1].type!=MATTER_TLV_BOOL ||
-		!s->root[2].tag.control || s->root[2].type!=MATTER_TLV_ARRAY) return MATTER_IM_INVALID_ACTION;
-	s->suppress=s->root[0].unsigned_value!=0;
-	if ((s->root[1].unsigned_value!=0)!=s->timed) return MATTER_IM_TIMED_REQUEST_MISMATCH;
-	if (!enter(s,&s->root[2]) || !next(s) || s->token.type!=MATTER_TLV_STRUCTURE || s->token.tag.control ||
-		!collect(s,s->fields) || !next(s) || s->token.type!=MATTER_TLV_END) return MATTER_IM_INVALID_ACTION;
-	if (!s->fields[0].tag.control || s->fields[0].type!=MATTER_TLV_LIST || !enter(s,&s->fields[0]) ||
-		!collect(s,s->path_fields) || !number(&s->path_fields[0],UINT16_MAX) ||
-		!number(&s->path_fields[1],UINT32_MAX) || !number(&s->path_fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
-	s->path=(Matter_Im_Command_Path_T){(uint16_t)s->path_fields[0].unsigned_value,
-		(uint32_t)s->path_fields[1].unsigned_value,(uint32_t)s->path_fields[2].unsigned_value};
-	s->has_ref=s->fields[2].tag.control!=0;
-	if (s->has_ref && !number(&s->fields[2],UINT16_MAX)) return MATTER_IM_INVALID_ACTION;
-	s->ref=(uint16_t)s->fields[2].unsigned_value; return 0;
+	if (!s->work->root[0].tag.control || s->work->root[0].type!=MATTER_TLV_BOOL ||
+		!s->work->root[1].tag.control || s->work->root[1].type!=MATTER_TLV_BOOL ||
+		!s->work->root[2].tag.control || s->work->root[2].type!=MATTER_TLV_ARRAY) return MATTER_IM_INVALID_ACTION;
+	s->suppress=s->work->root[0].unsigned_value!=0;
+	if ((s->work->root[1].unsigned_value!=0)!=s->timed) return MATTER_IM_TIMED_REQUEST_MISMATCH;
+	if (!enter(s,&s->work->root[2]) || !next(s) || s->work->token.type!=MATTER_TLV_STRUCTURE || s->work->token.tag.control ||
+		!collect(s,s->work->fields) || !next(s) || s->work->token.type!=MATTER_TLV_END) return MATTER_IM_INVALID_ACTION;
+	if (!s->work->fields[0].tag.control || s->work->fields[0].type!=MATTER_TLV_LIST || !enter(s,&s->work->fields[0]) ||
+		!collect(s,s->work->path_fields) || !number(&s->work->path_fields[0],UINT16_MAX) ||
+		!number(&s->work->path_fields[1],UINT32_MAX) || !number(&s->work->path_fields[2],UINT32_MAX)) return MATTER_IM_INVALID_ACTION;
+	s->path=(Matter_Im_Command_Path_T){(uint16_t)s->work->path_fields[0].unsigned_value,
+		(uint32_t)s->work->path_fields[1].unsigned_value,(uint32_t)s->work->path_fields[2].unsigned_value};
+	s->has_ref=s->work->fields[2].tag.control!=0;
+	if (s->has_ref && !number(&s->work->fields[2],UINT16_MAX)) return MATTER_IM_INVALID_ACTION;
+	s->ref=(uint16_t)s->work->fields[2].unsigned_value; return 0;
 }
 static bool put(Matter_Im_Invoke_T s,Matter_Tlv_Type_T type,int tag,uint64_t value) {
-	s->token=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag<0 ? 0 : 1,.number=tag<0 ? 0 : (uint32_t)tag},.unsigned_value=value};
-	return matter_tlv_write(&s->writer,&s->token,0)==MATTER_TLV_OK;
+	s->work->token=(Matter_Tlv_Element_T){.type=type,.tag={.control=tag<0 ? 0 : 1,.number=tag<0 ? 0 : (uint32_t)tag},.unsigned_value=value};
+	return matter_tlv_write(&s->work->writer,&s->work->token,0)==MATTER_TLV_OK;
 }
 static bool end(Matter_Im_Invoke_T s) { return put(s,MATTER_TLV_END,-1,0); }
 static bool begin(Matter_Im_Invoke_T s) {
-	return matter_tlv_writer_init(&s->writer,s->output,sizeof(s->output),8)==MATTER_TLV_OK && put(s,MATTER_TLV_STRUCTURE,-1,0);
+	size_t capacity=s->config.output_capacity<64 ? s->config.output_capacity : 64;
+	return matter_im_buffer_reserve(&s->output,&s->output_capacity,capacity) &&
+		matter_tlv_writer_init(&s->work->writer,s->output,s->output_capacity,8)==MATTER_TLV_OK && put(s,MATTER_TLV_STRUCTURE,-1,0);
 }
 static bool finish(Matter_Im_Invoke_T s) {
-	return put(s,MATTER_TLV_UNSIGNED,255,MATTER_IM_REVISION) && end(s) && matter_tlv_writer_finish(&s->writer,&s->output_size)==MATTER_TLV_OK;
+	return put(s,MATTER_TLV_UNSIGNED,255,MATTER_IM_REVISION) && end(s) && matter_tlv_writer_finish(&s->work->writer,&s->output_size)==MATTER_TLV_OK;
 }
 static bool status(Matter_Im_Invoke_T s,uint8_t code) { s->opcode=1; return begin(s) && put(s,MATTER_TLV_UNSIGNED,0,code) && finish(s); }
 static bool response(Matter_Im_Invoke_T s,bool command) {
@@ -149,11 +160,11 @@ static bool response(Matter_Im_Invoke_T s,bool command) {
 		!put(s,MATTER_TLV_UNSIGNED,1,s->path.cluster) ||
 		!put(s,MATTER_TLV_UNSIGNED,2,command ? s->command.response_command : s->path.command) || !end(s)) return false;
 	if (command) {
-		if (matter_tlv_init(&s->reader,s->body,s->body_size,4)!=MATTER_TLV_OK) return false;
+		if (matter_tlv_init(&s->work->reader,s->body,s->body_size,4)!=MATTER_TLV_OK) return false;
 		Matter_Tlv_Result_T r;
-		while ((r=matter_tlv_next(&s->reader,&s->token))==MATTER_TLV_OK) {
-			if (!s->token.offset) s->token.tag=(Matter_Tlv_Tag_T){.control=1,.number=1};
-			if (matter_tlv_write(&s->writer,&s->token,0)!=MATTER_TLV_OK) return false;
+		while ((r=matter_tlv_next(&s->work->reader,&s->work->token))==MATTER_TLV_OK) {
+			if (!s->work->token.offset) s->work->token.tag=(Matter_Tlv_Tag_T){.control=1,.number=1};
+			if (matter_tlv_write(&s->work->writer,&s->work->token,0)!=MATTER_TLV_OK) return false;
 		}
 		if (r!=MATTER_TLV_DONE) return false;
 	} else if (!put(s,MATTER_TLV_STRUCTURE,1,0) || !put(s,MATTER_TLV_UNSIGNED,0,s->result.status) ||
@@ -161,20 +172,21 @@ static bool response(Matter_Im_Invoke_T s,bool command) {
 	return (!s->has_ref || put(s,MATTER_TLV_UNSIGNED,2,s->ref)) && end(s) && end(s) && end(s) && finish(s);
 }
 static uint8_t arguments(Matter_Im_Invoke_T s) {
+	if (!matter_im_buffer_reserve(&s->args,&s->args_capacity,s->input_size<2 ? 2 : s->input_size)) return MATTER_IM_RESOURCE_EXHAUSTED;
 	s->args[0]=0x15; s->args[1]=0x18; s->args_size=2;
-	if (!s->fields[1].tag.control) return 0;
-	if (s->fields[1].type!=MATTER_TLV_STRUCTURE || !enter(s,&s->fields[1])) return MATTER_IM_INVALID_COMMAND;
-	if (matter_tlv_writer_init(&s->writer,s->args,sizeof(s->args),4)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
+	if (!s->work->fields[1].tag.control) return 0;
+	if (s->work->fields[1].type!=MATTER_TLV_STRUCTURE || !enter(s,&s->work->fields[1])) return MATTER_IM_INVALID_COMMAND;
+	if (matter_tlv_writer_init(&s->work->writer,s->args,s->args_capacity,4)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
 	unsigned depth=0;
 	do {
-		if (!depth) s->token.tag=(Matter_Tlv_Tag_T){0};
-		if (container(s->token.type)) ++depth;
-		if (s->token.type==MATTER_TLV_END) --depth;
-		Matter_Tlv_Result_T r=matter_tlv_write(&s->writer,&s->token,0);
+		if (!depth) s->work->token.tag=(Matter_Tlv_Tag_T){0};
+		if (container(s->work->token.type)) ++depth;
+		if (s->work->token.type==MATTER_TLV_END) --depth;
+		Matter_Tlv_Result_T r=matter_tlv_write(&s->work->writer,&s->work->token,0);
 		if (r!=MATTER_TLV_OK) return r==MATTER_TLV_DEPTH_LIMIT || r==MATTER_TLV_NO_SPACE ? MATTER_IM_RESOURCE_EXHAUSTED : MATTER_IM_INVALID_COMMAND;
 		if (!depth) break;
 	} while (next(s));
-	return matter_tlv_writer_finish(&s->writer,&s->args_size)==MATTER_TLV_OK ? 0 : MATTER_IM_INVALID_COMMAND;
+	return matter_tlv_writer_finish(&s->work->writer,&s->args_size)==MATTER_TLV_OK ? 0 : MATTER_IM_INVALID_COMMAND;
 }
 static uint8_t authorize(Matter_Im_Invoke_T s,Matter_Im_Privilege_T p) {
 	if(s->fabric.index) {
@@ -202,43 +214,50 @@ static uint8_t execute(Matter_Im_Invoke_T s) {
 	 * There are no allocations or provider reads while sending/retrying. */
 	s->result=(Matter_Im_Command_Result_T){UINT8_MAX,true,UINT8_MAX};
 	if (!s->suppress && (!response(s,false) || s->output_size>s->config.output_capacity)) return MATTER_IM_RESOURCE_EXHAUSTED;
-	s->body[0]=0x15; s->body[1]=0x18; s->body_size=2;
 	if (s->command.response) {
-		if (s->command.response_capacity<2 || s->command.response_capacity>sizeof(s->body)) return MATTER_IM_RESOURCE_EXHAUSTED;
+		if (s->command.response_capacity<2 || s->command.response_capacity>1024) return MATTER_IM_RESOURCE_EXHAUSTED;
+		if (!matter_im_buffer_reserve(&s->body,&s->body_capacity,s->command.response_capacity)) return MATTER_IM_RESOURCE_EXHAUSTED;
+		s->body[0]=0x15; s->body[1]=0x18; s->body_size=2;
 		if (!response(s,true) || s->output_size-2>s->config.output_capacity ||
 			s->command.response_capacity>s->config.output_capacity-(s->output_size-2)) return MATTER_IM_RESOURCE_EXHAUSTED;
-		if (matter_tlv_writer_init(&s->body_writer,s->body,s->command.response_capacity,4)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
+		/* At most 64 envelope bytes (full-width path/ref/status included).
+		 * Reserve the declared provider maximum before invoking it. */
+		size_t capacity=s->command.response_capacity+64;
+		if (capacity>s->config.output_capacity) capacity=s->config.output_capacity;
+		if (!matter_im_buffer_reserve(&s->output,&s->output_capacity,capacity)) return MATTER_IM_RESOURCE_EXHAUSTED;
+		if (matter_tlv_writer_init(&s->work->body_writer,s->body,s->command.response_capacity,4)!=MATTER_TLV_OK) return MATTER_IM_FAILURE;
 	}
 	if (s->async.start) {
         Matter_Result_T r=s->async.start(s->port.user,&s->path,s->args,s->args_size,
-            s->command.response ? &s->body_writer : NULL,&s->result,&s->pending_token);
+            s->command.response ? &s->work->body_writer : NULL,&s->result,&s->pending_token);
         if (r==MATTER_PENDING && s->pending_token) { s->state=MATTER_IM_INVOKE_PENDING; return 0; }
         if (s->pending_token) { cancel_pending(s); s->busy=true; return MATTER_IM_FAILURE; }
         if (r!=MATTER_OK) return MATTER_IM_FAILURE;
-    } else s->result=s->port.invoke(s->port.user,&s->path,s->args,s->args_size,s->command.response ? &s->body_writer : NULL);
+    } else s->result=s->port.invoke(s->port.user,&s->path,s->args,s->args_size,s->command.response ? &s->work->body_writer : NULL);
     return 0;
 }
 static uint8_t validate_body(Matter_Im_Invoke_T s) {
     if (s->result.status || !s->command.response) return 0;
-    if (s->result.has_cluster_status || matter_tlv_writer_finish(&s->body_writer,&s->body_size)!=MATTER_TLV_OK ||
-        validate_tlv(s,s->body,s->body_size,4) || matter_tlv_init(&s->reader,s->body,s->body_size,4)!=MATTER_TLV_OK ||
-        !next(s) || s->token.type!=MATTER_TLV_STRUCTURE || s->token.tag.control) return MATTER_IM_FAILURE;
+    if (s->result.has_cluster_status || matter_tlv_writer_finish(&s->work->body_writer,&s->body_size)!=MATTER_TLV_OK ||
+        validate_tlv(s,s->body,s->body_size,4) || matter_tlv_init(&s->work->reader,s->body,s->body_size,4)!=MATTER_TLV_OK ||
+        !next(s) || s->work->token.type!=MATTER_TLV_STRUCTURE || s->work->token.tag.control) return MATTER_IM_FAILURE;
     return 0;
 }
 static Matter_Result_T finish_response(Matter_Im_Invoke_T s,uint8_t code) {
     if (!code) code=validate_body(s);
     if (code) s->result=(Matter_Im_Command_Result_T){.status=code};
     bool command=!s->result.status && s->command.response;
-    if (s->suppress && !command) { s->output_size=0; s->state=MATTER_IM_INVOKE_COMPLETE; s->busy=false; return MATTER_OK; }
+    if (s->suppress && !command) { matter_im_buffer_clear(&s->body,&s->body_capacity); s->output_size=0; s->state=MATTER_IM_INVOKE_COMPLETE; s->busy=false; return MATTER_OK; }
     bool encoded=response(s,command);
     if (!encoded || s->output_size>s->config.output_capacity) encoded=status(s,MATTER_IM_RESOURCE_EXHAUSTED);
+    matter_im_buffer_clear(&s->body,&s->body_capacity);
     s->state=encoded ? MATTER_IM_INVOKE_OUTPUT : MATTER_IM_INVOKE_FAILED;
     s->busy=false; return encoded ? MATTER_PENDING : MATTER_PORT_ERROR;
 }
 static Matter_Result_T clock_check(Matter_Im_Invoke_T s,uint64_t now) {
 	if (now<s->now) return MATTER_INVALID_ARGUMENT;
 	s->now=now;
-	if (now>=s->deadline) { cancel_pending(s); erase(s->input,sizeof(s->input)); erase(s->args,sizeof(s->args)); s->state=MATTER_IM_INVOKE_FAILED; s->queued=false; s->output_size=0; return MATTER_PORT_ERROR; }
+	if (now>=s->deadline) { cancel_pending(s); matter_im_buffer_clear(&s->input,&s->input_capacity); matter_im_buffer_clear(&s->args,&s->args_capacity); s->state=MATTER_IM_INVOKE_FAILED; s->queued=false; s->output_size=0; return MATTER_PORT_ERROR; }
 	return MATTER_OK;
 }
 Matter_Result_T matter_im_invoke_process(Matter_Im_Invoke_T s,uint64_t now) {
@@ -248,32 +267,39 @@ Matter_Result_T matter_im_invoke_process(Matter_Im_Invoke_T s,uint64_t now) {
 	if (s->state==MATTER_IM_INVOKE_COMPLETE) return MATTER_OK;
 	if (s->state==MATTER_IM_INVOKE_FAILED) return MATTER_INVALID_STATE;
 	r=clock_check(s,now); if (r!=MATTER_OK) return r;
+	/* receive reserves the workspace; pending execution retains it so polling
+	 * and final encoding never allocate after the command's effects. */
 	if (s->state==MATTER_IM_INVOKE_PENDING) {
         s->busy=true;
         uint8_t code=authorize(s,s->command.privilege);
-        if (code) { cancel_pending(s); s->busy=true; return finish_response(s,code); }
-        if (s->command.response) matter_tlv_writer_init(&s->body_writer,s->body,s->command.response_capacity,4);
+        if (code) { cancel_pending(s); s->busy=true; r=finish_response(s,code); goto finished; }
+        if (s->command.response) matter_tlv_writer_init(&s->work->body_writer,s->body,s->command.response_capacity,4);
         Matter_Result_T done=s->async.poll(s->port.user,s->pending_token,
-            s->command.response ? &s->body_writer : NULL,&s->result);
-        if (done==MATTER_PENDING) { s->busy=false; return MATTER_PENDING; }
+            s->command.response ? &s->work->body_writer : NULL,&s->result);
+        if (done==MATTER_PENDING) { s->busy=false; r=MATTER_PENDING; goto finished; }
         if (done!=MATTER_OK) { cancel_pending(s); s->busy=true; code=MATTER_IM_FAILURE; }
         else s->pending_token=0;
-        return finish_response(s,code);
+        r=finish_response(s,code); goto finished;
     }
-	if (!s->queued || (s->timed_status && s->state==MATTER_IM_INVOKE_IN_FLIGHT)) return MATTER_PENDING;
+	if (!s->queued || (s->timed_status && s->state==MATTER_IM_INVOKE_IN_FLIGHT)) { r=MATTER_PENDING; goto finished; }
 	s->busy=true; s->queued=false;
 	uint8_t code=decode(s); bool encoded;
 	s->timed_status=!code && s->request_opcode==10;
 	if (code || s->timed_status) encoded=status(s,code);
 	else {
 		code=execute(s);
-        erase(s->input,sizeof(s->input)); erase(s->args,sizeof(s->args));
-        if (s->state==MATTER_IM_INVOKE_PENDING) { s->busy=false; return MATTER_PENDING; }
-        return finish_response(s,code);
+        matter_im_buffer_clear(&s->input,&s->input_capacity); matter_im_buffer_clear(&s->args,&s->args_capacity);
+        if (s->state==MATTER_IM_INVOKE_PENDING) { s->busy=false; r=MATTER_PENDING; goto finished; }
+        r=finish_response(s,code); goto finished;
 	}
+	matter_im_buffer_clear(&s->input,&s->input_capacity);
 	s->state=encoded ? MATTER_IM_INVOKE_OUTPUT : MATTER_IM_INVOKE_FAILED;
-	s->busy=false; return encoded ? MATTER_PENDING : MATTER_PORT_ERROR;
+	s->busy=false; r=encoded ? MATTER_PENDING : MATTER_PORT_ERROR;
+finished:
+    if(s->state!=MATTER_IM_INVOKE_PENDING && !s->queued) { matter_im_workspace_delete(s->work,sizeof(*s->work)); s->work=NULL; }
+    return r;
 }
+
 Matter_Result_T matter_im_invoke_output(Matter_Im_Invoke_T s,Matter_Im_Invoke_Message_T* m) {
 	Matter_Result_T r=check(s); if (r!=MATTER_OK) return r;
 	if (!m) return MATTER_INVALID_ARGUMENT;
@@ -303,11 +329,12 @@ Matter_Result_T matter_im_invoke_confirm(Matter_Im_Invoke_T s,uint64_t now) {
 	Matter_Result_T r=check(s); if (r!=MATTER_OK) return r;
 	if (s->state!=MATTER_IM_INVOKE_IN_FLIGHT) return MATTER_INVALID_STATE;
 	r=clock_check(s,now); if (r!=MATTER_OK) return r;
+	matter_im_buffer_clear(&s->output,&s->output_capacity);
 	s->state=s->timed_status ? MATTER_IM_INVOKE_WAIT_INVOKE : MATTER_IM_INVOKE_COMPLETE; return MATTER_OK;
 }
 Matter_Result_T matter_im_invoke_cancel(Matter_Im_Invoke_T s) {
 	Matter_Result_T r=check(s); if (r!=MATTER_OK) return r;
-	cancel_pending(s); erase(s->input,sizeof(s->input)); erase(s->args,sizeof(s->args));
+	cancel_pending(s); matter_im_buffer_clear(&s->input,&s->input_capacity); matter_im_buffer_clear(&s->args,&s->args_capacity);
 	if (s->state!=MATTER_IM_INVOKE_COMPLETE) s->state=MATTER_IM_INVOKE_FAILED;
 	s->queued=false; s->output_size=0; return MATTER_OK;
 }
@@ -315,7 +342,10 @@ Matter_Im_Invoke_State_T matter_im_invoke_state(Matter_Im_Invoke_T s) { return s
 Matter_Result_T matter_im_invoke_delete(Matter_Im_Invoke_T s) {
 	if (!s) return MATTER_OK;
 	Matter_Result_T r=check(s); if (r!=MATTER_OK) return r;
-	cancel_pending(s); erase(s,sizeof(*s)); free(s); return MATTER_OK;
+	cancel_pending(s);
+	matter_im_buffer_clear(&s->input,&s->input_capacity); matter_im_buffer_clear(&s->args,&s->args_capacity);
+	matter_im_buffer_clear(&s->body,&s->body_capacity); matter_im_buffer_clear(&s->output,&s->output_capacity);
+	matter_im_workspace_delete(s->work,sizeof(*s->work)); erase(s,sizeof(*s)); free(s); return MATTER_OK;
 }
 
 Matter_Im_Invoke_T matter_im_invoke_new_fabric(const Matter_Im_Invoke_Port_T* p,const Matter_Im_Invoke_Async_Port_T* a,

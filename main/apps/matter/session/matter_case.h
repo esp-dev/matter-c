@@ -63,6 +63,11 @@ Matter_Case_T matter_case_new(const Matter_Crypto_Port_T*,const Matter_Credentia
 /* Copy only after validated transport routing of UNSECURED exchange:
  * protocol/vendor0, peer I, R=1, same session/exchange, duplicate filtering.
  * Application schedules process, refreshes time after costly work if needed. */
+/* RX allocation failure returns LIMIT_REACHED without accepting the message.
+ * Parser and full-Sigma scratch are per process; resumed CASE avoids full-Sigma
+ * buffers. Exact Sigma1 grows to the unchanged3600-byte transcript ceiling only
+ * for full CASE, before Sigma scratch. Transcript releases after key derivation;
+ * TX releases at sent, while MRP's independent packet retains retries/drain. */
 Matter_Result_T matter_case_receive(Matter_Case_T,uint8_t opcode,const uint8_t*,size_t);
 /* FAILED/PORT_ERROR can still expose a required failure StatusReport through
  * output. Deliver it using the same immutable MRP lifecycle; never take keys

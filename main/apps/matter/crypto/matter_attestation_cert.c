@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mbedtls/x509_crt.h"
+#include "matter_mbedtls_internal.h"
 #include "mbedtls/platform_util.h"
 
 typedef struct { const uint8_t* data; size_t size; } Span;
@@ -162,7 +163,7 @@ static bool profile(Work* w,Matter_Der_T der,unsigned role) {
     unsigned char* p=(unsigned char*)der.data; const uint8_t* end=p+der.size; Span seq;
     if(!item(&p,end,0x30,&seq) || p!=end || mbedtls_x509_crt_parse_der(&c->crt,der.data,der.size)) return false;
     if(c->crt.version!=3 || c->crt.MBEDTLS_PRIVATE(sig_md)!=MBEDTLS_MD_SHA256 ||
-        c->crt.MBEDTLS_PRIVATE(sig_pk)!=MBEDTLS_PK_ECDSA || c->crt.issuer_id.p || c->crt.subject_id.p ||
+        c->crt.MBEDTLS_PRIVATE(sig_pk)!=MATTER_MBEDTLS_ECDSA_SIGNATURE || c->crt.issuer_id.p || c->crt.subject_id.p ||
         !c->crt.serial.len || c->crt.serial.len>20 || (c->crt.serial.p[0]&0x80) ||
         (c->crt.serial.len>1 && !c->crt.serial.p[0] && !(c->crt.serial.p[1]&0x80))) return false;
     if(!ids(&c->crt.issuer,&c->issuer) || !ids(&c->crt.subject,&c->subject) || !extensions(w,c,role)) return false;

@@ -1,0 +1,3799 @@
+{
+  "schema": 1,
+  "date": "2026-10-22",
+  "base_commit": "5a577e4",
+  "scope": "Laboratory regressions, not CSA or certification",
+  "pre_fix": {
+    "baseline_bound": "second live own-fabric response timed out after model removal",
+    "local_close_trace": "response constructed; no UDP submission; bounded deadline retires invoker and cancels MRP"
+  },
+  "c6_common": {
+    "fixed-local-close": {
+      "phase": "COMMON_PASS",
+      "seconds": 165.4568254,
+      "kind": "c",
+      "mode": "reuse",
+      "cleanup": "local-close",
+      "inventory": 171,
+      "reads": 135,
+      "reports": 945,
+      "writes": 6,
+      "invokes": 18,
+      "casePairs": 10,
+      "resumed": 10,
+      "subscriptions": 15,
+      "updates": 90,
+      "busyRetries": 0,
+      "colorSettlePolls": 0,
+      "unexpectedClosures": 0,
+      "removals": [
+        {
+          "index": 67,
+          "milliseconds": 466.30160000000615
+        },
+        {
+          "index": 66,
+          "milliseconds": 449.26500000001397
+        },
+        {
+          "index": 65,
+          "milliseconds": 485.3300000000163
+        },
+        {
+          "index": 64,
+          "milliseconds": 453.80530000000726
+        }
+      ],
+      "checkpoints": [
+        {
+          "label": "before-controller",
+          "command": "m",
+          "ms": 31743,
+          "fabrics": 1,
+          "samples": 72,
+          "heap_max_sampled": 189428,
+          "heap_min_sampled": 231212,
+          "largest_min_sampled": 200704,
+          "heap_free": 232348,
+          "heap_allocated": 188356,
+          "largest_free": 200704,
+          "free_blocks": 8,
+          "allocated_blocks": 362,
+          "core_bytes": 92996,
+          "core_peak": 109208,
+          "core_live": 61,
+          "core_calls": 133,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 217744,
+          "dma_largest_free": 200704,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 31688,
+            "heap_free": 232348,
+            "heap_allocated": 188356,
+            "heap_min": 216028,
+            "largest_free": 200704,
+            "free_blocks": 8,
+            "allocated_blocks": 362,
+            "heap_max_sampled": 204424,
+            "heap_min_sampled": 216328,
+            "largest_min_sampled": 200704,
+            "samples": 317,
+            "task_min_free": 9732
+          }
+        },
+        {
+          "label": "one-fabric-idle",
+          "command": "m",
+          "ms": 43084,
+          "fabrics": 1,
+          "samples": 149,
+          "heap_max_sampled": 202884,
+          "heap_min_sampled": 217528,
+          "largest_min_sampled": 200704,
+          "heap_free": 230472,
+          "heap_allocated": 190216,
+          "largest_free": 200704,
+          "free_blocks": 10,
+          "allocated_blocks": 366,
+          "core_bytes": 94856,
+          "core_peak": 114864,
+          "core_live": 65,
+          "core_calls": 374,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 215868,
+          "dma_largest_free": 200704,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 43028,
+            "heap_free": 230472,
+            "heap_allocated": 190216,
+            "heap_min": 205948,
+            "largest_free": 200704,
+            "free_blocks": 10,
+            "allocated_blocks": 366,
+            "heap_max_sampled": 213900,
+            "heap_min_sampled": 206552,
+            "largest_min_sampled": 188416,
+            "samples": 430,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "one-fabric-three-sessions-subscriptions",
+          "command": "m",
+          "ms": 44748,
+          "fabrics": 1,
+          "samples": 163,
+          "heap_max_sampled": 202884,
+          "heap_min_sampled": 217528,
+          "largest_min_sampled": 200704,
+          "heap_free": 226944,
+          "heap_allocated": 193676,
+          "largest_free": 200704,
+          "free_blocks": 14,
+          "allocated_blocks": 383,
+          "core_bytes": 98316,
+          "core_peak": 114864,
+          "core_live": 82,
+          "core_calls": 515,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212340,
+          "dma_largest_free": 200704,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 44688,
+            "heap_free": 226908,
+            "heap_allocated": 193708,
+            "heap_min": 205948,
+            "largest_free": 200704,
+            "free_blocks": 13,
+            "allocated_blocks": 384,
+            "heap_max_sampled": 213900,
+            "heap_min_sampled": 206552,
+            "largest_min_sampled": 188416,
+            "samples": 447,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "five-fabrics-fifteen-sessions-subscriptions",
+          "command": "m",
+          "ms": 123298,
+          "fabrics": 5,
+          "samples": 451,
+          "heap_max_sampled": 227196,
+          "heap_min_sampled": 192732,
+          "largest_min_sampled": 147456,
+          "heap_free": 198080,
+          "heap_allocated": 221944,
+          "largest_free": 147456,
+          "free_blocks": 27,
+          "allocated_blocks": 532,
+          "core_bytes": 125668,
+          "core_peak": 159336,
+          "core_live": 187,
+          "core_calls": 3704,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 183476,
+          "dma_largest_free": 147456,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 123238,
+            "heap_free": 198044,
+            "heap_allocated": 221976,
+            "heap_min": 163256,
+            "largest_free": 147456,
+            "free_blocks": 26,
+            "allocated_blocks": 533,
+            "heap_max_sampled": 256156,
+            "heap_min_sampled": 163784,
+            "largest_min_sampled": 147456,
+            "samples": 1232,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "loaded-after-thirty-seconds",
+          "command": "m",
+          "ms": 183594,
+          "fabrics": 5,
+          "samples": 988,
+          "heap_max_sampled": 227196,
+          "heap_min_sampled": 192732,
+          "largest_min_sampled": 147456,
+          "heap_free": 198792,
+          "heap_allocated": 221252,
+          "largest_free": 176128,
+          "free_blocks": 30,
+          "allocated_blocks": 527,
+          "core_bytes": 125004,
+          "core_peak": 159336,
+          "core_live": 183,
+          "core_calls": 7824,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 184188,
+          "dma_largest_free": 176128,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 183538,
+            "heap_free": 198792,
+            "heap_allocated": 221252,
+            "heap_min": 163256,
+            "largest_free": 176128,
+            "free_blocks": 30,
+            "allocated_blocks": 527,
+            "heap_max_sampled": 256156,
+            "heap_min_sampled": 163784,
+            "largest_min_sampled": 143360,
+            "samples": 1835,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "one-fabric-after-cleanup",
+          "command": "m",
+          "ms": 196938,
+          "fabrics": 1,
+          "samples": 1095,
+          "heap_max_sampled": 227196,
+          "heap_min_sampled": 192732,
+          "largest_min_sampled": 147456,
+          "heap_free": 221824,
+          "heap_allocated": 198828,
+          "largest_free": 188416,
+          "free_blocks": 24,
+          "allocated_blocks": 375,
+          "core_bytes": 103488,
+          "core_peak": 159336,
+          "core_live": 75,
+          "core_calls": 8614,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 207220,
+          "dma_largest_free": 188416,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 196878,
+            "heap_free": 221824,
+            "heap_allocated": 198828,
+            "heap_min": 163256,
+            "largest_free": 188416,
+            "free_blocks": 24,
+            "allocated_blocks": 375,
+            "heap_max_sampled": 256156,
+            "heap_min_sampled": 163784,
+            "largest_min_sampled": 143360,
+            "samples": 1969,
+            "task_min_free": 9640
+          }
+        }
+      ],
+      "readPaths": [
+        {
+          "endpointId": 0,
+          "clusterId": 40,
+          "attributeId": 5
+        },
+        {
+          "endpointId": 0,
+          "clusterId": 62,
+          "attributeId": 3
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 6,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 8,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 1
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 8
+        }
+      ],
+      "subscriptionPaths": [
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        }
+      ],
+      "memory": {
+        "selected_owner_samples": [
+          {
+            "phase": "boot",
+            "ms": 50,
+            "heap_free": 397604,
+            "heap_allocated": 24344,
+            "heap_min": 397604,
+            "largest_free": 368640,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 12036,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 0,
+            "core_largest": 0,
+            "core_failures": 0
+          },
+          {
+            "phase": "wifi-ipv6-ready",
+            "ms": 3789,
+            "heap_free": 332052,
+            "heap_allocated": 89132,
+            "heap_min": 319312,
+            "largest_free": 311296,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 11272,
+            "core_live": 1,
+            "core_bytes": 496,
+            "core_peak": 496,
+            "core_largest": 496,
+            "core_failures": 0
+          },
+          {
+            "phase": "runtime-created",
+            "ms": 20269,
+            "heap_free": 267176,
+            "heap_allocated": 153768,
+            "heap_min": 238832,
+            "largest_free": 249856,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9732,
+            "core_live": 29,
+            "core_bytes": 59540,
+            "core_peak": 88020,
+            "core_largest": 32768,
+            "core_failures": 9
+          },
+          {
+            "phase": "runtime-started",
+            "ms": 21063,
+            "heap_free": 233340,
+            "heap_allocated": 187432,
+            "heap_min": 216028,
+            "largest_free": 200704,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9732,
+            "core_live": 57,
+            "core_bytes": 92480,
+            "core_peak": 109208,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 30498,
+            "heap_free": 232456,
+            "heap_allocated": 188252,
+            "heap_min": 216028,
+            "largest_free": 200704,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9732,
+            "core_live": 61,
+            "core_bytes": 92996,
+            "core_peak": 109208,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 40708,
+            "heap_free": 219768,
+            "heap_allocated": 200808,
+            "heap_min": 205948,
+            "largest_free": 200704,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 92,
+            "core_bytes": 105416,
+            "core_peak": 114864,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 126378,
+            "heap_free": 195224,
+            "heap_allocated": 224748,
+            "heap_min": 163256,
+            "largest_free": 147456,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 199,
+            "core_bytes": 128428,
+            "core_peak": 159336,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 136598,
+            "heap_free": 195224,
+            "heap_allocated": 224752,
+            "heap_min": 163256,
+            "largest_free": 159744,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 199,
+            "core_bytes": 128452,
+            "core_peak": 159336,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "complete",
+            "ms": 197988,
+            "heap_free": 390092,
+            "heap_allocated": 31660,
+            "heap_min": 163256,
+            "largest_free": 245760,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 159336,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "owner-thread-cleaned",
+            "ms": 198027,
+            "heap_free": 390204,
+            "heap_allocated": 31556,
+            "heap_min": 163256,
+            "largest_free": 245760,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9640,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 159336,
+            "core_largest": 32768,
+            "core_failures": 13
+          }
+        ],
+        "sdk_timer_final": {
+          "phase": "before-observer-stop",
+          "ms": 197959,
+          "heap_free": 390056,
+          "heap_allocated": 31692,
+          "heap_min": 163256,
+          "largest_free": 245760,
+          "free_blocks": 27,
+          "allocated_blocks": 101,
+          "heap_max_sampled": 256156,
+          "heap_min_sampled": 163784,
+          "largest_min_sampled": 143360,
+          "samples": 1980,
+          "task_min_free": 9640
+        },
+        "observed_main_stack_use": 3160,
+        "controller_sha256": "26de632e886993616bb61f4891ee0da433f2564c22968e7e5999716d27285e17"
+      }
+    },
+    "fixed-live": {
+      "phase": "COMMON_PASS",
+      "seconds": 161.86227849999997,
+      "kind": "c",
+      "mode": "reuse",
+      "cleanup": "live",
+      "inventory": 171,
+      "reads": 135,
+      "reports": 945,
+      "writes": 6,
+      "invokes": 18,
+      "casePairs": 10,
+      "resumed": 10,
+      "subscriptions": 15,
+      "updates": 90,
+      "busyRetries": 0,
+      "colorSettlePolls": 0,
+      "unexpectedClosures": 0,
+      "removals": [
+        {
+          "index": 67,
+          "milliseconds": 473.00479999999516
+        },
+        {
+          "index": 66,
+          "milliseconds": 504.67880000002333
+        },
+        {
+          "index": 65,
+          "milliseconds": 495.37160000001313
+        },
+        {
+          "index": 64,
+          "milliseconds": 654.3113000000012
+        }
+      ],
+      "checkpoints": [
+        {
+          "label": "before-controller",
+          "command": "m",
+          "ms": 31773,
+          "fabrics": 1,
+          "samples": 73,
+          "heap_max_sampled": 189280,
+          "heap_min_sampled": 231364,
+          "largest_min_sampled": 200704,
+          "heap_free": 232396,
+          "heap_allocated": 188308,
+          "largest_free": 200704,
+          "free_blocks": 8,
+          "allocated_blocks": 362,
+          "core_bytes": 92992,
+          "core_peak": 109204,
+          "core_live": 61,
+          "core_calls": 133,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 217792,
+          "dma_largest_free": 200704,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 31718,
+            "heap_free": 232396,
+            "heap_allocated": 188308,
+            "heap_min": 216064,
+            "largest_free": 200704,
+            "free_blocks": 8,
+            "allocated_blocks": 362,
+            "heap_max_sampled": 204388,
+            "heap_min_sampled": 216364,
+            "largest_min_sampled": 200704,
+            "samples": 317,
+            "task_min_free": 9720
+          }
+        },
+        {
+          "label": "one-fabric-idle",
+          "command": "m",
+          "ms": 42994,
+          "fabrics": 1,
+          "samples": 149,
+          "heap_max_sampled": 202816,
+          "heap_min_sampled": 217596,
+          "largest_min_sampled": 200704,
+          "heap_free": 230520,
+          "heap_allocated": 190168,
+          "largest_free": 200704,
+          "free_blocks": 10,
+          "allocated_blocks": 366,
+          "core_bytes": 94852,
+          "core_peak": 114072,
+          "core_live": 65,
+          "core_calls": 374,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 215916,
+          "dma_largest_free": 200704,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 42938,
+            "heap_free": 230520,
+            "heap_allocated": 190168,
+            "heap_min": 207120,
+            "largest_free": 200704,
+            "free_blocks": 10,
+            "allocated_blocks": 366,
+            "heap_max_sampled": 211868,
+            "heap_min_sampled": 208620,
+            "largest_min_sampled": 192512,
+            "samples": 429,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "one-fabric-three-sessions-subscriptions",
+          "command": "m",
+          "ms": 44684,
+          "fabrics": 1,
+          "samples": 164,
+          "heap_max_sampled": 202816,
+          "heap_min_sampled": 217596,
+          "largest_min_sampled": 200704,
+          "heap_free": 227032,
+          "heap_allocated": 193592,
+          "largest_free": 200704,
+          "free_blocks": 11,
+          "allocated_blocks": 382,
+          "core_bytes": 98276,
+          "core_peak": 114072,
+          "core_live": 81,
+          "core_calls": 518,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212428,
+          "dma_largest_free": 200704,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 44628,
+            "heap_free": 226996,
+            "heap_allocated": 193624,
+            "heap_min": 207120,
+            "largest_free": 200704,
+            "free_blocks": 10,
+            "allocated_blocks": 383,
+            "heap_max_sampled": 211868,
+            "heap_min_sampled": 208620,
+            "largest_min_sampled": 192512,
+            "samples": 446,
+            "task_min_free": 9640
+          }
+        },
+        {
+          "label": "five-fabrics-fifteen-sessions-subscriptions",
+          "command": "m",
+          "ms": 123618,
+          "fabrics": 5,
+          "samples": 457,
+          "heap_max_sampled": 225572,
+          "heap_min_sampled": 194400,
+          "largest_min_sampled": 176128,
+          "heap_free": 198204,
+          "heap_allocated": 221824,
+          "largest_free": 180224,
+          "free_blocks": 27,
+          "allocated_blocks": 531,
+          "core_bytes": 125636,
+          "core_peak": 159356,
+          "core_live": 186,
+          "core_calls": 3678,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 183600,
+          "dma_largest_free": 180224,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 123558,
+            "heap_free": 198168,
+            "heap_allocated": 221856,
+            "heap_min": 163656,
+            "largest_free": 180224,
+            "free_blocks": 26,
+            "allocated_blocks": 532,
+            "heap_max_sampled": 256116,
+            "heap_min_sampled": 163824,
+            "largest_min_sampled": 147456,
+            "samples": 1236,
+            "task_min_free": 9512
+          }
+        },
+        {
+          "label": "loaded-after-thirty-seconds",
+          "command": "m",
+          "ms": 180398,
+          "fabrics": 5,
+          "samples": 955,
+          "heap_max_sampled": 226900,
+          "heap_min_sampled": 193012,
+          "largest_min_sampled": 172032,
+          "heap_free": 198876,
+          "heap_allocated": 221168,
+          "largest_free": 180224,
+          "free_blocks": 26,
+          "allocated_blocks": 527,
+          "core_bytes": 124980,
+          "core_peak": 159356,
+          "core_live": 183,
+          "core_calls": 7867,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 184272,
+          "dma_largest_free": 180224,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 180338,
+            "heap_free": 198876,
+            "heap_allocated": 221168,
+            "heap_min": 163656,
+            "largest_free": 180224,
+            "free_blocks": 26,
+            "allocated_blocks": 527,
+            "heap_max_sampled": 256116,
+            "heap_min_sampled": 163824,
+            "largest_min_sampled": 147456,
+            "samples": 1803,
+            "task_min_free": 9512
+          }
+        },
+        {
+          "label": "one-fabric-after-cleanup",
+          "command": "m",
+          "ms": 193334,
+          "fabrics": 1,
+          "samples": 1057,
+          "heap_max_sampled": 226900,
+          "heap_min_sampled": 193012,
+          "largest_min_sampled": 172032,
+          "heap_free": 221856,
+          "heap_allocated": 198796,
+          "largest_free": 196608,
+          "free_blocks": 22,
+          "allocated_blocks": 375,
+          "core_bytes": 103492,
+          "core_peak": 159904,
+          "core_live": 75,
+          "core_calls": 8768,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 207252,
+          "dma_largest_free": 196608,
+          "timer_sample": {
+            "phase": "checkpoint",
+            "ms": 193278,
+            "heap_free": 221856,
+            "heap_allocated": 198796,
+            "heap_min": 163480,
+            "largest_free": 196608,
+            "free_blocks": 22,
+            "allocated_blocks": 375,
+            "heap_max_sampled": 256348,
+            "heap_min_sampled": 163636,
+            "largest_min_sampled": 147456,
+            "samples": 1933,
+            "task_min_free": 9512
+          }
+        }
+      ],
+      "readPaths": [
+        {
+          "endpointId": 0,
+          "clusterId": 40,
+          "attributeId": 5
+        },
+        {
+          "endpointId": 0,
+          "clusterId": 62,
+          "attributeId": 3
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 6,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 8,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 1
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 8
+        }
+      ],
+      "subscriptionPaths": [
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        }
+      ],
+      "memory": {
+        "selected_owner_samples": [
+          {
+            "phase": "boot",
+            "ms": 50,
+            "heap_free": 397604,
+            "heap_allocated": 24344,
+            "heap_min": 397604,
+            "largest_free": 368640,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 12036,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 0,
+            "core_largest": 0,
+            "core_failures": 0
+          },
+          {
+            "phase": "wifi-ipv6-ready",
+            "ms": 3749,
+            "heap_free": 332072,
+            "heap_allocated": 89112,
+            "heap_min": 319312,
+            "largest_free": 311296,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 11320,
+            "core_live": 1,
+            "core_bytes": 496,
+            "core_peak": 496,
+            "core_largest": 496,
+            "core_failures": 0
+          },
+          {
+            "phase": "runtime-created",
+            "ms": 20200,
+            "heap_free": 267196,
+            "heap_allocated": 153748,
+            "heap_min": 238628,
+            "largest_free": 249856,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9720,
+            "core_live": 29,
+            "core_bytes": 59540,
+            "core_peak": 88020,
+            "core_largest": 32768,
+            "core_failures": 9
+          },
+          {
+            "phase": "runtime-started",
+            "ms": 21027,
+            "heap_free": 233388,
+            "heap_allocated": 187384,
+            "heap_min": 216064,
+            "largest_free": 200704,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9720,
+            "core_live": 57,
+            "core_bytes": 92476,
+            "core_peak": 109204,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 30518,
+            "heap_free": 232500,
+            "heap_allocated": 188208,
+            "heap_min": 216064,
+            "largest_free": 200704,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9720,
+            "core_live": 61,
+            "core_bytes": 92992,
+            "core_peak": 109204,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 103678,
+            "heap_free": 203880,
+            "heap_allocated": 216292,
+            "heap_min": 168952,
+            "largest_free": 184320,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9512,
+            "core_live": 160,
+            "core_bytes": 120280,
+            "core_peak": 154432,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 150638,
+            "heap_free": 194928,
+            "heap_allocated": 224988,
+            "heap_min": 163656,
+            "largest_free": 176128,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9512,
+            "core_live": 214,
+            "core_bytes": 128796,
+            "core_peak": 159356,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "complete",
+            "ms": 194458,
+            "heap_free": 390088,
+            "heap_allocated": 31664,
+            "heap_min": 163480,
+            "largest_free": 212992,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9512,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 159904,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "owner-thread-cleaned",
+            "ms": 194509,
+            "heap_free": 390200,
+            "heap_allocated": 31560,
+            "heap_min": 163480,
+            "largest_free": 212992,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9512,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 159904,
+            "core_largest": 32768,
+            "core_failures": 13
+          }
+        ],
+        "sdk_timer_final": {
+          "phase": "before-observer-stop",
+          "ms": 194439,
+          "heap_free": 390052,
+          "heap_allocated": 31696,
+          "heap_min": 163480,
+          "largest_free": 212992,
+          "free_blocks": 26,
+          "allocated_blocks": 101,
+          "heap_max_sampled": 256348,
+          "heap_min_sampled": 163636,
+          "largest_min_sampled": 147456,
+          "samples": 1944,
+          "task_min_free": 9512
+        },
+        "observed_main_stack_use": 3288,
+        "controller_sha256": "26de632e886993616bb61f4891ee0da433f2564c22968e7e5999716d27285e17"
+      }
+    },
+    "alloc-live": {
+      "phase": "COMMON_PASS",
+      "seconds": 168.85216390000002,
+      "kind": "c",
+      "mode": "reuse",
+      "cleanup": "live",
+      "inventory": 171,
+      "reads": 135,
+      "reports": 945,
+      "writes": 6,
+      "invokes": 22,
+      "casePairs": 10,
+      "resumed": 10,
+      "subscriptions": 15,
+      "updates": 120,
+      "busyRetries": 0,
+      "colorSettlePolls": 0,
+      "unexpectedClosures": 0,
+      "removals": [
+        {
+          "index": 67,
+          "milliseconds": 482.3576999999932
+        },
+        {
+          "index": 66,
+          "milliseconds": 449.35150000001886
+        },
+        {
+          "index": 65,
+          "milliseconds": 477.2874999999767
+        },
+        {
+          "index": 64,
+          "milliseconds": 448.4753999999957
+        }
+      ],
+      "checkpoints": [
+        {
+          "label": "before-controller",
+          "command": "m",
+          "ms": 32616,
+          "fabrics": 1,
+          "samples": 74,
+          "heap_max_sampled": 189388,
+          "heap_min_sampled": 222820,
+          "largest_min_sampled": 192512,
+          "heap_free": 223996,
+          "heap_allocated": 188280,
+          "largest_free": 192512,
+          "free_blocks": 7,
+          "allocated_blocks": 361,
+          "core_bytes": 92992,
+          "core_peak": 109204,
+          "core_live": 61,
+          "core_calls": 133,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 209392,
+          "dma_largest_free": 192512
+        },
+        {
+          "label": "one-fabric-idle",
+          "command": "m",
+          "ms": 44566,
+          "fabrics": 1,
+          "samples": 150,
+          "heap_max_sampled": 202808,
+          "heap_min_sampled": 209176,
+          "largest_min_sampled": 192512,
+          "heap_free": 222116,
+          "heap_allocated": 190144,
+          "largest_free": 192512,
+          "free_blocks": 9,
+          "allocated_blocks": 365,
+          "core_bytes": 94856,
+          "core_peak": 114864,
+          "core_live": 65,
+          "core_calls": 379,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 207512,
+          "dma_largest_free": 192512
+        },
+        {
+          "label": "one-fabric-three-sessions-subscriptions",
+          "command": "m",
+          "ms": 46737,
+          "fabrics": 1,
+          "samples": 167,
+          "heap_max_sampled": 202808,
+          "heap_min_sampled": 209176,
+          "largest_min_sampled": 192512,
+          "heap_free": 218656,
+          "heap_allocated": 193540,
+          "largest_free": 192512,
+          "free_blocks": 13,
+          "allocated_blocks": 381,
+          "core_bytes": 98252,
+          "core_peak": 114864,
+          "core_live": 81,
+          "core_calls": 523,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 204052,
+          "dma_largest_free": 192512
+        },
+        {
+          "label": "five-fabrics-fifteen-sessions-subscriptions",
+          "command": "m",
+          "ms": 127555,
+          "fabrics": 5,
+          "samples": 476,
+          "heap_max_sampled": 227196,
+          "heap_min_sampled": 184296,
+          "largest_min_sampled": 155648,
+          "heap_free": 189744,
+          "heap_allocated": 221852,
+          "largest_free": 155648,
+          "free_blocks": 28,
+          "allocated_blocks": 531,
+          "core_bytes": 125624,
+          "core_peak": 159324,
+          "core_live": 186,
+          "core_calls": 3725,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 175140,
+          "dma_largest_free": 155648
+        },
+        {
+          "label": "loaded-after-thirty-seconds",
+          "command": "m",
+          "ms": 186158,
+          "fabrics": 5,
+          "samples": 971,
+          "heap_max_sampled": 227196,
+          "heap_min_sampled": 184296,
+          "largest_min_sampled": 155648,
+          "heap_free": 190480,
+          "heap_allocated": 221136,
+          "largest_free": 172032,
+          "free_blocks": 30,
+          "allocated_blocks": 526,
+          "core_bytes": 124976,
+          "core_peak": 159324,
+          "core_live": 183,
+          "core_calls": 7944,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 175876,
+          "dma_largest_free": 172032
+        },
+        {
+          "label": "one-fabric-after-cleanup",
+          "command": "m",
+          "ms": 201058,
+          "fabrics": 1,
+          "samples": 1088,
+          "heap_max_sampled": 227196,
+          "heap_min_sampled": 184296,
+          "largest_min_sampled": 155648,
+          "heap_free": 213468,
+          "heap_allocated": 198756,
+          "largest_free": 188416,
+          "free_blocks": 24,
+          "allocated_blocks": 374,
+          "core_bytes": 103488,
+          "core_peak": 159896,
+          "core_live": 75,
+          "core_calls": 9072,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 198864,
+          "dma_largest_free": 188416
+        }
+      ],
+      "readPaths": [
+        {
+          "endpointId": 0,
+          "clusterId": 40,
+          "attributeId": 5
+        },
+        {
+          "endpointId": 0,
+          "clusterId": 62,
+          "attributeId": 3
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 6,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 8,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 1
+        },
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 8
+        }
+      ],
+      "subscriptionPaths": [
+        {
+          "endpointId": 1,
+          "clusterId": 768,
+          "attributeId": 0
+        }
+      ],
+      "memory": {
+        "selected_owner_samples": [
+          {
+            "phase": "boot",
+            "ms": 50,
+            "heap_free": 389208,
+            "heap_allocated": 24312,
+            "heap_min": 389208,
+            "largest_free": 360448,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 12036,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 0,
+            "core_largest": 0,
+            "core_failures": 0
+          },
+          {
+            "phase": "wifi-ipv6-ready",
+            "ms": 3779,
+            "heap_free": 323676,
+            "heap_allocated": 89080,
+            "heap_min": 310880,
+            "largest_free": 303104,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 11320,
+            "core_live": 1,
+            "core_bytes": 496,
+            "core_peak": 496,
+            "core_largest": 496,
+            "core_failures": 0
+          },
+          {
+            "phase": "runtime-created",
+            "ms": 20320,
+            "heap_free": 258808,
+            "heap_allocated": 153708,
+            "heap_min": 230464,
+            "largest_free": 241664,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9704,
+            "core_live": 29,
+            "core_bytes": 59540,
+            "core_peak": 88020,
+            "core_largest": 32768,
+            "core_failures": 9
+          },
+          {
+            "phase": "runtime-started",
+            "ms": 21215,
+            "heap_free": 224988,
+            "heap_allocated": 187356,
+            "heap_min": 207676,
+            "largest_free": 192512,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9704,
+            "core_live": 57,
+            "core_bytes": 92476,
+            "core_peak": 109204,
+            "core_largest": 32768,
+            "core_failures": 12
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 31278,
+            "heap_free": 224104,
+            "heap_allocated": 188176,
+            "heap_min": 207676,
+            "largest_free": 192512,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9704,
+            "core_live": 61,
+            "core_bytes": 92992,
+            "core_peak": 109204,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 124918,
+            "heap_free": 193184,
+            "heap_allocated": 218468,
+            "heap_min": 149440,
+            "largest_free": 155648,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9512,
+            "core_live": 172,
+            "core_bytes": 122240,
+            "core_peak": 159324,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "runtime-serving",
+            "ms": 129998,
+            "heap_free": 185012,
+            "heap_allocated": 226484,
+            "heap_min": 149440,
+            "largest_free": 167936,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9512,
+            "core_live": 211,
+            "core_bytes": 130256,
+            "core_peak": 159324,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "complete",
+            "ms": 244509,
+            "heap_free": 381656,
+            "heap_allocated": 31664,
+            "heap_min": 149440,
+            "largest_free": 241664,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9512,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 159896,
+            "core_largest": 32768,
+            "core_failures": 13
+          },
+          {
+            "phase": "owner-thread-cleaned",
+            "ms": 244558,
+            "heap_free": 381768,
+            "heap_allocated": 31560,
+            "heap_min": 149440,
+            "largest_free": 241664,
+            "owner_stack_reserved": 12800,
+            "owner_stack_min_free": 9512,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 159896,
+            "core_largest": 32768,
+            "core_failures": 13
+          }
+        ],
+        "sdk_timer_final": null,
+        "observed_main_stack_use": 3288,
+        "controller_sha256": "458b898f9c6df01e8531589493ff8562b5f15a940406fcfd28c6e7913d945e53"
+      }
+    }
+  },
+  "c6_final_normal_soak": {
+    "workload": {
+      "mode": "run",
+      "read_workload": "wildcard",
+      "expected_attributes": 171,
+      "requested_seconds": 180,
+      "rounds": 9,
+      "full_reads": 71,
+      "read_attributes": 12141,
+      "concrete_reads": 0,
+      "concrete_read_attributes": 0,
+      "subscription_snapshots": 45,
+      "subscription_updates": 45,
+      "subscription_closed": 45,
+      "case_pairs": 30,
+      "case_resumed": 30,
+      "session_busy_probes": 1,
+      "oom_cycles": 1,
+      "fault_operations_rejected": 0,
+      "reconnect_cycles": 1,
+      "loss_cycles": 1,
+      "delayed_completion_cycles": 1,
+      "healthy_operation_errors": 0,
+      "checkpoints": [
+        {
+          "phase": "five-fabrics-before-subscriptions",
+          "command": "m",
+          "ms": 120318,
+          "fabrics": 5,
+          "samples": 428,
+          "heap_max_sampled": 207608,
+          "heap_min_sampled": 212636,
+          "largest_min_sampled": 167936,
+          "heap_free": 220212,
+          "heap_allocated": 200184,
+          "largest_free": 200704,
+          "free_blocks": 34,
+          "allocated_blocks": 447,
+          "core_bytes": 103920,
+          "core_peak": 140836,
+          "core_live": 103,
+          "core_calls": 2342,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 205608,
+          "dma_largest_free": 200704
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-fifteen-subscriptions",
+          "command": "m",
+          "ms": 192558,
+          "fabrics": 5,
+          "samples": 1060,
+          "heap_max_sampled": 273576,
+          "heap_min_sampled": 145432,
+          "largest_min_sampled": 126976,
+          "heap_free": 151124,
+          "heap_allocated": 268116,
+          "largest_free": 126976,
+          "free_blocks": 53,
+          "allocated_blocks": 736,
+          "core_bytes": 171896,
+          "core_peak": 181144,
+          "core_live": 393,
+          "core_calls": 9508,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 136520,
+          "dma_largest_free": 126976
+        },
+        {
+          "phase": "full-load-before-radio-reconnect",
+          "command": "m",
+          "ms": 386668,
+          "fabrics": 5,
+          "samples": 2697,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 60416,
+          "heap_free": 145976,
+          "heap_allocated": 273248,
+          "largest_free": 77824,
+          "free_blocks": 66,
+          "allocated_blocks": 740,
+          "core_bytes": 177024,
+          "core_peak": 241404,
+          "core_live": 397,
+          "core_calls": 37980,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 40,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 131372,
+          "dma_largest_free": 77824
+        },
+        {
+          "phase": "reconnected-full-load",
+          "command": "m",
+          "ms": 472318,
+          "fabrics": 5,
+          "samples": 3444,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 60416,
+          "heap_free": 146056,
+          "heap_allocated": 273172,
+          "largest_free": 120832,
+          "free_blocks": 54,
+          "allocated_blocks": 739,
+          "core_bytes": 176920,
+          "core_peak": 241404,
+          "core_live": 395,
+          "core_calls": 46849,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 40,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 131452,
+          "dma_largest_free": 120832
+        },
+        {
+          "phase": "all-subscriptions-and-sessions-drained-idle-trim",
+          "command": "m",
+          "ms": 486858,
+          "fabrics": 5,
+          "samples": 3574,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 60416,
+          "heap_free": 227536,
+          "heap_allocated": 192928,
+          "largest_free": 124928,
+          "free_blocks": 54,
+          "allocated_blocks": 430,
+          "core_bytes": 96676,
+          "core_peak": 241404,
+          "core_live": 86,
+          "core_calls": 46941,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 40,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212932,
+          "dma_largest_free": 124928
+        },
+        {
+          "phase": "original-fabric-restored",
+          "command": "m",
+          "ms": 494218,
+          "fabrics": 1,
+          "samples": 3627,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 60416,
+          "heap_free": 227240,
+          "heap_allocated": 193456,
+          "largest_free": 124928,
+          "free_blocks": 34,
+          "allocated_blocks": 372,
+          "core_bytes": 98080,
+          "core_peak": 241404,
+          "core_live": 71,
+          "core_calls": 47190,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 40,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212636,
+          "dma_largest_free": 124928
+        }
+      ],
+      "phases": [],
+      "unexpected_subscription_closures": 0,
+      "oom_lost_subscriptions": 1,
+      "oom_rebuilt_load_cycles": 1,
+      "fault_operation_errors": [],
+      "loss_operations_rejected": 0,
+      "loss_rebuilt_load_cycles": 0,
+      "loss_lost_subscriptions": 0,
+      "loss_operation_errors": [],
+      "recovery_busy_retries": 0,
+      "recovery_busy_wait_ms": 0,
+      "sustained_seconds": 279.636894,
+      "stop_wait_seconds": 3.7692119999999996,
+      "stop_read_outcome": {
+        "status": "rejected",
+        "name": "Error"
+      },
+      "pass": true,
+      "elapsed_seconds": 483.4456793,
+      "successful_read_latency_ms": {
+        "full": {
+          "count": 71,
+          "min": 2758.697999999975,
+          "median": 7757.498000000021,
+          "p95": 10845.666399999987,
+          "max": 13782.916399999987
+        },
+        "concrete": {
+          "count": 0
+        }
+      }
+    },
+    "memory": {
+      "selected_owner_samples": [
+        {
+          "phase": "boot",
+          "ms": 50,
+          "heap_free": 397672,
+          "heap_allocated": 24312,
+          "heap_min": 397672,
+          "largest_free": 368640,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 12036,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 0,
+          "core_largest": 0,
+          "core_failures": 0
+        },
+        {
+          "phase": "wifi-ipv6-ready",
+          "ms": 3749,
+          "heap_free": 332120,
+          "heap_allocated": 89100,
+          "heap_min": 319344,
+          "largest_free": 311296,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 11368,
+          "core_live": 1,
+          "core_bytes": 496,
+          "core_peak": 496,
+          "core_largest": 496,
+          "core_failures": 0
+        },
+        {
+          "phase": "runtime-created",
+          "ms": 20291,
+          "heap_free": 267244,
+          "heap_allocated": 153736,
+          "heap_min": 238900,
+          "largest_free": 249856,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9704,
+          "core_live": 29,
+          "core_bytes": 59540,
+          "core_peak": 88020,
+          "core_largest": 32768,
+          "core_failures": 9
+        },
+        {
+          "phase": "runtime-started",
+          "ms": 21045,
+          "heap_free": 233408,
+          "heap_allocated": 187400,
+          "heap_min": 216096,
+          "largest_free": 200704,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9704,
+          "core_live": 57,
+          "core_bytes": 92480,
+          "core_peak": 109208,
+          "core_largest": 32768,
+          "core_failures": 12
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 31078,
+          "heap_free": 232508,
+          "heap_allocated": 188236,
+          "heap_min": 216096,
+          "largest_free": 200704,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9704,
+          "core_live": 61,
+          "core_bytes": 92996,
+          "core_peak": 109208,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 41258,
+          "heap_free": 218952,
+          "heap_allocated": 201620,
+          "heap_min": 206372,
+          "largest_free": 200704,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9608,
+          "core_live": 102,
+          "core_bytes": 106244,
+          "core_peak": 114864,
+          "core_largest": 32768,
+          "core_failures": 13
+        },
+        {
+          "phase": "runtime-serving",
+          "ms": 348499,
+          "heap_free": 84280,
+          "heap_allocated": 333760,
+          "heap_min": 78412,
+          "largest_free": 65536,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9608,
+          "core_live": 693,
+          "core_bytes": 237524,
+          "core_peak": 241404,
+          "core_largest": 32768,
+          "core_failures": 14
+        },
+        {
+          "phase": "complete",
+          "ms": 500989,
+          "heap_free": 390124,
+          "heap_allocated": 31660,
+          "heap_min": 78412,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9608,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 241404,
+          "core_largest": 32768,
+          "core_failures": 14
+        },
+        {
+          "phase": "owner-thread-cleaned",
+          "ms": 501038,
+          "heap_free": 390236,
+          "heap_allocated": 31556,
+          "heap_min": 78412,
+          "largest_free": 212992,
+          "owner_stack_reserved": 12800,
+          "owner_stack_min_free": 9608,
+          "core_live": 0,
+          "core_bytes": 0,
+          "core_peak": 241404,
+          "core_largest": 32768,
+          "core_failures": 14
+        }
+      ],
+      "sdk_timer_final": null,
+      "observed_main_stack_use": 3192,
+      "controller_sha256": "e422785077b84f7bb39cc61a6c9c58b2da66a2d76e28507c8c9d25256e57986c",
+      "selected_soak_samples": [
+        {
+          "command": "m",
+          "ms": 36172,
+          "fabrics": 1,
+          "samples": 98,
+          "heap_max_sampled": 196496,
+          "heap_min_sampled": 224204,
+          "largest_min_sampled": 200704,
+          "heap_free": 224780,
+          "heap_allocated": 195944,
+          "largest_free": 200704,
+          "free_blocks": 8,
+          "allocated_blocks": 365,
+          "core_bytes": 100600,
+          "core_peak": 109208,
+          "core_live": 65,
+          "core_calls": 148,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 210176,
+          "dma_largest_free": 200704
+        },
+        {
+          "command": "m",
+          "ms": 205608,
+          "fabrics": 5,
+          "samples": 1167,
+          "heap_max_sampled": 333724,
+          "heap_min_sampled": 84312,
+          "largest_min_sampled": 61440,
+          "heap_free": 91940,
+          "heap_allocated": 326552,
+          "largest_free": 63488,
+          "free_blocks": 76,
+          "allocated_blocks": 923,
+          "core_bytes": 230300,
+          "core_peak": 241104,
+          "core_live": 579,
+          "core_calls": 12168,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 77336,
+          "dma_largest_free": 63488
+        },
+        {
+          "command": "m",
+          "ms": 215782,
+          "fabrics": 5,
+          "samples": 1251,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 61440,
+          "heap_free": 92020,
+          "heap_allocated": 326528,
+          "largest_free": 65536,
+          "free_blocks": 81,
+          "allocated_blocks": 909,
+          "core_bytes": 230260,
+          "core_peak": 241232,
+          "core_live": 564,
+          "core_calls": 13862,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 77416,
+          "dma_largest_free": 65536
+        },
+        {
+          "command": "m",
+          "ms": 231088,
+          "fabrics": 5,
+          "samples": 1374,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 61440,
+          "heap_free": 85116,
+          "heap_allocated": 333016,
+          "largest_free": 63488,
+          "free_blocks": 41,
+          "allocated_blocks": 1013,
+          "core_bytes": 236748,
+          "core_peak": 241404,
+          "core_live": 669,
+          "core_calls": 16744,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 0,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 70512,
+          "dma_largest_free": 63488
+        },
+        {
+          "command": "1",
+          "ms": 256078,
+          "fabrics": 5,
+          "samples": 1582,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 61440,
+          "heap_free": 146732,
+          "heap_allocated": 272508,
+          "largest_free": 79872,
+          "free_blocks": 58,
+          "allocated_blocks": 736,
+          "core_bytes": 176272,
+          "core_peak": 241404,
+          "core_live": 393,
+          "core_calls": 20755,
+          "core_failures": 13,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 132128,
+          "dma_largest_free": 79872
+        },
+        {
+          "command": "a",
+          "ms": 264078,
+          "fabrics": 5,
+          "samples": 1648,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 61440,
+          "heap_free": 150256,
+          "heap_allocated": 269032,
+          "largest_free": 94208,
+          "free_blocks": 66,
+          "allocated_blocks": 724,
+          "core_bytes": 172764,
+          "core_peak": 241404,
+          "core_live": 380,
+          "core_calls": 22320,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 135652,
+          "dma_largest_free": 94208
+        },
+        {
+          "command": "m",
+          "ms": 348518,
+          "fabrics": 5,
+          "samples": 2386,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 61440,
+          "heap_free": 84280,
+          "heap_allocated": 333760,
+          "largest_free": 65536,
+          "free_blocks": 20,
+          "allocated_blocks": 1036,
+          "core_bytes": 237524,
+          "core_peak": 241404,
+          "core_live": 693,
+          "core_calls": 31916,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 69676,
+          "dma_largest_free": 65536
+        },
+        {
+          "command": "d",
+          "ms": 355218,
+          "fabrics": 5,
+          "samples": 2439,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 61440,
+          "heap_free": 146696,
+          "heap_allocated": 272544,
+          "largest_free": 73728,
+          "free_blocks": 58,
+          "allocated_blocks": 736,
+          "core_bytes": 176296,
+          "core_peak": 241404,
+          "core_live": 393,
+          "core_calls": 32779,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 0,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 0,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 132092,
+          "dma_largest_free": 73728
+        },
+        {
+          "command": "w",
+          "ms": 386838,
+          "fabrics": 5,
+          "samples": 2698,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 60416,
+          "heap_free": 145976,
+          "heap_allocated": 273248,
+          "largest_free": 77824,
+          "free_blocks": 66,
+          "allocated_blocks": 740,
+          "core_bytes": 177024,
+          "core_peak": 241404,
+          "core_live": 397,
+          "core_calls": 37993,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 40,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 131372,
+          "dma_largest_free": 77824
+        },
+        {
+          "command": "h",
+          "ms": 497148,
+          "fabrics": 1,
+          "samples": 3652,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 60416,
+          "heap_free": 227344,
+          "heap_allocated": 193364,
+          "largest_free": 124928,
+          "free_blocks": 34,
+          "allocated_blocks": 369,
+          "core_bytes": 98024,
+          "core_peak": 241404,
+          "core_live": 69,
+          "core_calls": 47356,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 40,
+          "delayed_completions": 0,
+          "held_completion": 0,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212740,
+          "dma_largest_free": 124928
+        },
+        {
+          "command": "m",
+          "ms": 497318,
+          "fabrics": 1,
+          "samples": 3653,
+          "heap_max_sampled": 334508,
+          "heap_min_sampled": 83516,
+          "largest_min_sampled": 60416,
+          "heap_free": 227304,
+          "heap_allocated": 193400,
+          "largest_free": 124928,
+          "free_blocks": 33,
+          "allocated_blocks": 370,
+          "core_bytes": 98024,
+          "core_peak": 241404,
+          "core_live": 69,
+          "core_calls": 47357,
+          "core_failures": 14,
+          "rx_dropped_by_lab": 40,
+          "delayed_completions": 1,
+          "held_completion": 1,
+          "faults_armed": 1,
+          "reconnects": 1,
+          "sdk_alloc_failures": 0,
+          "sdk_largest_failed_request": 0,
+          "dma_free": 212700,
+          "dma_largest_free": 124928
+        }
+      ],
+      "sampling_summary": {
+        "samples_retained": 11,
+        "raw_soak_records": 104,
+        "peak_heap_owner_sampled": 334508,
+        "min_free_owner_sampled": 83516,
+        "min_largest_owner_sampled": 60416,
+        "sdk_alloc_failures": 0
+      }
+    }
+  },
+  "native": {
+    "windows_ctest_passed": 102,
+    "linux": {
+      "normal": {
+        "ctest_passed": 99,
+        "pair_checks": [
+          "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+          "independent-application-state",
+          "independent-Identify-and-UTC-anchors",
+          "B-meter-services-survive-active-A-Identify-teardown",
+          "B-subscription-and-phase-read-survive-A-deletion",
+          "both-last-fabric-responses"
+        ],
+        "node_stderr_bytes": 0
+      },
+      "sanitize": {
+        "ctest_passed": 99,
+        "pair_checks": [
+          "two-full-three-phase-instances-with-attestation-and-CASE-subscriptions",
+          "independent-application-state",
+          "independent-Identify-and-UTC-anchors",
+          "B-meter-services-survive-active-A-Identify-teardown",
+          "B-subscription-and-phase-read-survive-A-deletion",
+          "both-last-fabric-responses"
+        ],
+        "node_stderr_bytes": 0
+      }
+    },
+    "focused_memcheck": {
+      "test_dispatch": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "521a35c5bab8f17b16f52fd4996bebd4576ba704e32474404681e2043d1acdb0"
+      },
+      "test_im_read_alloc": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "63a6d134193de0b578cc5e051e9a2d2636854e9d5497516cfd83776838afa7b2"
+      },
+      "test_im_snapshots": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "699bd841d71c5bb9fcd0be8a164c9851704cf7d31a386f15cec1b6168b6f5abd"
+      },
+      "test_im_subscribe_alloc": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "b68cf2f70b5e2c476775a738f149345a4980e8428aa395761b0011e13cf52ecc"
+      },
+      "test_im_subscribe_alloc_full": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "b254408334b5cb41ba994d89ae58c0796990f73553e60a99b8e1dc2a31f7e00a"
+      },
+      "test_runtime": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "62e4dca53921d5bbf1f4b4d26e1a9b7c527d82ca69901d2ec76ab04f5d6a25f1"
+      },
+      "test_runtime_alloc": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "8311d121b7ad4e80c63020e7e02825187174ba066159ef15c732f17d39e1cec1"
+      },
+      "test_rx": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "876c015945a9e38726ba1989f760f1e0be7069c2b54df15ea23adbb776353744"
+      },
+      "test_rx_alloc": {
+        "errors": 0,
+        "live_bytes_at_exit": 0,
+        "log_sha256": "b230aa14f3973326d958399ce34e80cff190d2355dd5096c4411723925ca9dfb"
+      }
+    },
+    "pair_memcheck": {
+      "errors": 0,
+      "live_bytes_at_exit": 0
+    }
+  },
+  "stack_frames": {
+    "process_transaction": {
+      "bytes": 144,
+      "kind": "static"
+    },
+    "send_ack": {
+      "bytes": 64,
+      "kind": "static"
+    },
+    "dispatch_process": {
+      "bytes": 176,
+      "kind": "static"
+    },
+    "matter_dispatch_process": {
+      "bytes": 16,
+      "kind": "static"
+    }
+  },
+  "allocation_attribution": {
+    "instrumentation_static_bytes": 8460,
+    "metadata_excluded_from_headline": true,
+    "exact_elf_sha256": "508a6c7add1926e1c4b19b50d2dda81ca7ac416277eaa39008170a86ec23cf87",
+    "runtime_created": {
+      "phase": "runtime-created",
+      "live_count": 29,
+      "live_bytes": 59540,
+      "peak_bytes": 88020,
+      "overflows": 0,
+      "live": [
+        {
+          "address": "4203c9b8",
+          "bytes": 15552,
+          "count": 1,
+          "function": "matter_fabric_host_image_new",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:43"
+        },
+        {
+          "address": "42027b44",
+          "bytes": 8488,
+          "count": 1,
+          "function": "matter_diagnostics_new",
+          "source": "main/apps/matter/clusters/matter_diagnostics.c:82"
+        },
+        {
+          "address": "420192a0",
+          "bytes": 7576,
+          "count": 10,
+          "function": "matter_cluster_new",
+          "source": "main/apps/matter/model/matter_cluster.c:20"
+        },
+        {
+          "address": "42025054",
+          "bytes": 6384,
+          "count": 1,
+          "function": "matter_acl_new",
+          "source": "main/apps/matter/clusters/matter_acl.c:41"
+        },
+        {
+          "address": "42023340",
+          "bytes": 4224,
+          "count": 1,
+          "function": "matter_fabric_new",
+          "source": "main/apps/matter/clusters/matter_fabric.c:13"
+        },
+        {
+          "address": "4203ca86",
+          "bytes": 2600,
+          "count": 1,
+          "function": "matter_fabric_host_new",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:130"
+        },
+        {
+          "address": "4202e6b0",
+          "bytes": 2352,
+          "count": 1,
+          "function": "matter_runtime_new",
+          "source": "main/apps/matter/runtime/matter_runtime.c:250"
+        },
+        {
+          "address": "4201fee2",
+          "bytes": 2344,
+          "count": 1,
+          "function": "matter_wifi_new",
+          "source": "main/apps/matter/clusters/matter_wifi.c:56"
+        },
+        {
+          "address": "42021866",
+          "bytes": 2016,
+          "count": 1,
+          "function": "matter_opcreds_new",
+          "source": "main/apps/matter/clusters/matter_opcreds.c:36"
+        },
+        {
+          "address": "4203dcb0",
+          "bytes": 1728,
+          "count": 1,
+          "function": "matter_diagnostics_host_new_port",
+          "source": "main/apps/matter/runtime/matter_diagnostics_host.c:12"
+        },
+        {
+          "address": "4203002e",
+          "bytes": 1600,
+          "count": 1,
+          "function": "matter_admin_commissioning_new",
+          "source": "main/apps/matter/clusters/matter_admin_commissioning.c:180"
+        },
+        {
+          "address": "42025e46",
+          "bytes": 1176,
+          "count": 1,
+          "function": "matter_groupkey_new",
+          "source": "main/apps/matter/clusters/matter_groupkey.c:27"
+        },
+        {
+          "address": "4201d9b2",
+          "bytes": 1144,
+          "count": 1,
+          "function": "matter_root_new",
+          "source": "main/apps/matter/clusters/matter_root.c:344"
+        },
+        {
+          "address": "42014314",
+          "bytes": 496,
+          "count": 1,
+          "function": "lab_wifi_new",
+          "source": "examples/esp32-runtime/main/wifi_port.c:181"
+        },
+        {
+          "address": "4203d6d8",
+          "bytes": 480,
+          "count": 1,
+          "function": "matter_commissioning_host_new_port",
+          "source": "main/apps/matter/runtime/matter_commissioning_host.c:24"
+        },
+        {
+          "address": "4203d5fe",
+          "bytes": 444,
+          "count": 1,
+          "function": "matter_commissioning_host_image_new",
+          "source": "main/apps/matter/runtime/matter_commissioning_host.c:11"
+        },
+        {
+          "address": "4203d2f8",
+          "bytes": 400,
+          "count": 1,
+          "function": "matter_opcreds_host_new",
+          "source": "main/apps/matter/runtime/matter_opcreds_host.c:21"
+        },
+        {
+          "address": "4202a24e",
+          "bytes": 340,
+          "count": 1,
+          "function": "matter_crypto_mbedtls_new",
+          "source": "main/apps/matter/crypto/matter_crypto_mbedtls.c:692"
+        },
+        {
+          "address": "4202bf04",
+          "bytes": 184,
+          "count": 1,
+          "function": "matter_store_host_new",
+          "source": "main/apps/matter/runtime/matter_store_host.c:64"
+        },
+        {
+          "address": "42016f6c",
+          "bytes": 12,
+          "count": 1,
+          "function": "matter_idf_store_new",
+          "source": "components/matter_c_esp32/matter_idf_store.c:44"
+        }
+      ]
+    },
+    "retained_idle": {
+      "phase": "checkpoint",
+      "live_count": 61,
+      "live_bytes": 92992,
+      "peak_bytes": 109204,
+      "overflows": 0,
+      "live": [
+        {
+          "address": "4203c9b8",
+          "bytes": 15552,
+          "count": 1,
+          "function": "matter_fabric_host_image_new",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:43"
+        },
+        {
+          "address": "420192a0",
+          "bytes": 10488,
+          "count": 15,
+          "function": "matter_cluster_new",
+          "source": "main/apps/matter/model/matter_cluster.c:20"
+        },
+        {
+          "address": "42027b44",
+          "bytes": 8488,
+          "count": 1,
+          "function": "matter_diagnostics_new",
+          "source": "main/apps/matter/clusters/matter_diagnostics.c:82"
+        },
+        {
+          "address": "42039eb4",
+          "bytes": 7064,
+          "count": 1,
+          "function": "matter_dispatch_new",
+          "source": "main/apps/matter/runtime/matter_dispatch.c:1119"
+        },
+        {
+          "address": "42025054",
+          "bytes": 6384,
+          "count": 1,
+          "function": "matter_acl_new",
+          "source": "main/apps/matter/clusters/matter_acl.c:41"
+        },
+        {
+          "address": "420314ee",
+          "bytes": 5704,
+          "count": 1,
+          "function": "matter_ota_requestor_new",
+          "source": "main/apps/matter/clusters/matter_ota_requestor.c:240"
+        },
+        {
+          "address": "42023340",
+          "bytes": 4224,
+          "count": 1,
+          "function": "matter_fabric_new",
+          "source": "main/apps/matter/clusters/matter_fabric.c:13"
+        },
+        {
+          "address": "42051f9a",
+          "bytes": 3240,
+          "count": 1,
+          "function": "matter_rx_new",
+          "source": "main/apps/matter/transport/matter_rx.c:80"
+        },
+        {
+          "address": "4205436a",
+          "bytes": 3176,
+          "count": 1,
+          "function": "matter_retransmission_new",
+          "source": "main/apps/matter/transport/matter_retransmission.c:37"
+        },
+        {
+          "address": "4203ca86",
+          "bytes": 2600,
+          "count": 1,
+          "function": "matter_fabric_host_new",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:130"
+        },
+        {
+          "address": "4202e6b0",
+          "bytes": 2352,
+          "count": 1,
+          "function": "matter_runtime_new",
+          "source": "main/apps/matter/runtime/matter_runtime.c:250"
+        },
+        {
+          "address": "4201fee2",
+          "bytes": 2344,
+          "count": 1,
+          "function": "matter_wifi_new",
+          "source": "main/apps/matter/clusters/matter_wifi.c:56"
+        },
+        {
+          "address": "42021866",
+          "bytes": 2016,
+          "count": 1,
+          "function": "matter_opcreds_new",
+          "source": "main/apps/matter/clusters/matter_opcreds.c:36"
+        },
+        {
+          "address": "42031ea6",
+          "bytes": 2000,
+          "count": 1,
+          "function": "matter_ota_query_new",
+          "source": "main/apps/matter/clusters/matter_ota_query.c:26"
+        },
+        {
+          "address": "4205337e",
+          "bytes": 1856,
+          "count": 1,
+          "function": "matter_ack_new",
+          "source": "main/apps/matter/transport/matter_ack.c:53"
+        },
+        {
+          "address": "42052d4c",
+          "bytes": 1832,
+          "count": 1,
+          "function": "matter_exchange_new",
+          "source": "main/apps/matter/transport/matter_exchange.c:50"
+        },
+        {
+          "address": "4203dcb0",
+          "bytes": 1728,
+          "count": 1,
+          "function": "matter_diagnostics_host_new_port",
+          "source": "main/apps/matter/runtime/matter_diagnostics_host.c:12"
+        },
+        {
+          "address": "4203002e",
+          "bytes": 1600,
+          "count": 1,
+          "function": "matter_admin_commissioning_new",
+          "source": "main/apps/matter/clusters/matter_admin_commissioning.c:180"
+        },
+        {
+          "address": "420168ec",
+          "bytes": 1284,
+          "count": 1,
+          "function": "activate",
+          "source": "components/matter_c_esp32/matter_idf_udp.c:47"
+        },
+        {
+          "address": "42025e46",
+          "bytes": 1176,
+          "count": 1,
+          "function": "matter_groupkey_new",
+          "source": "main/apps/matter/clusters/matter_groupkey.c:27"
+        },
+        {
+          "address": "4201d9b2",
+          "bytes": 1144,
+          "count": 1,
+          "function": "matter_root_new",
+          "source": "main/apps/matter/clusters/matter_root.c:344"
+        },
+        {
+          "address": "42053d3e",
+          "bytes": 1016,
+          "count": 1,
+          "function": "matter_retransmission_sender_new",
+          "source": "main/apps/matter/transport/matter_retransmission_sender.c:37"
+        },
+        {
+          "address": "4201a250",
+          "bytes": 808,
+          "count": 1,
+          "function": "matter_events_new",
+          "source": "main/apps/matter/model/matter_events.c:41"
+        },
+        {
+          "address": "4201a3f6",
+          "bytes": 508,
+          "count": 2,
+          "function": "matter_events_prepare",
+          "source": "main/apps/matter/model/matter_events.c:74"
+        },
+        {
+          "address": "42014314",
+          "bytes": 496,
+          "count": 1,
+          "function": "lab_wifi_new",
+          "source": "examples/esp32-runtime/main/wifi_port.c:181"
+        },
+        {
+          "address": "4203d6d8",
+          "bytes": 480,
+          "count": 1,
+          "function": "matter_commissioning_host_new_port",
+          "source": "main/apps/matter/runtime/matter_commissioning_host.c:24"
+        },
+        {
+          "address": "4203d5fe",
+          "bytes": 444,
+          "count": 1,
+          "function": "matter_commissioning_host_image_new",
+          "source": "main/apps/matter/runtime/matter_commissioning_host.c:11"
+        },
+        {
+          "address": "4203d2f8",
+          "bytes": 400,
+          "count": 1,
+          "function": "matter_opcreds_host_new",
+          "source": "main/apps/matter/runtime/matter_opcreds_host.c:21"
+        },
+        {
+          "address": "4205012c",
+          "bytes": 344,
+          "count": 1,
+          "function": "matter_unsecured_new",
+          "source": "main/apps/matter/transport/matter_unsecured.c:56"
+        },
+        {
+          "address": "4202a24e",
+          "bytes": 340,
+          "count": 1,
+          "function": "matter_crypto_mbedtls_new",
+          "source": "main/apps/matter/crypto/matter_crypto_mbedtls.c:692"
+        },
+        {
+          "address": "42017414",
+          "bytes": 320,
+          "count": 2,
+          "function": "matter_new",
+          "source": "main/apps/matter/matter.c:27"
+        },
+        {
+          "address": "420154dc",
+          "bytes": 280,
+          "count": 1,
+          "function": "matter_lab_rgb_new",
+          "source": "examples/esp32-runtime/main/rgb_light.c:158"
+        },
+        {
+          "address": "42017b58",
+          "bytes": 196,
+          "count": 1,
+          "function": "create",
+          "source": "main/apps/matter/matter_discovery.c:17"
+        },
+        {
+          "address": "4201d49c",
+          "bytes": 188,
+          "count": 1,
+          "function": "matter_root_add_tagged_endpoint",
+          "source": "main/apps/matter/clusters/matter_root.c:134"
+        },
+        {
+          "address": "4202bf04",
+          "bytes": 184,
+          "count": 1,
+          "function": "matter_store_host_new",
+          "source": "main/apps/matter/runtime/matter_store_host.c:64"
+        },
+        {
+          "address": "42017ef6",
+          "bytes": 112,
+          "count": 1,
+          "function": "matter_udp_new",
+          "source": "main/apps/matter/matter_udp.c:18"
+        },
+        {
+          "address": "420509b0",
+          "bytes": 112,
+          "count": 1,
+          "function": "matter_unsecured_tx_new",
+          "source": "main/apps/matter/transport/matter_unsecured_tx.c:44"
+        },
+        {
+          "address": "42016b12",
+          "bytes": 104,
+          "count": 1,
+          "function": "matter_idf_udp_new",
+          "source": "components/matter_c_esp32/matter_idf_udp.c:106"
+        },
+        {
+          "address": "42017766",
+          "bytes": 104,
+          "count": 1,
+          "function": "matter_mdns_new",
+          "source": "main/apps/matter/matter_mdns.c:19"
+        },
+        {
+          "address": "4205054a",
+          "bytes": 88,
+          "count": 1,
+          "function": "matter_unsecured_rx_new",
+          "source": "main/apps/matter/transport/matter_unsecured_rx.c:29"
+        },
+        {
+          "address": "4205286e",
+          "bytes": 64,
+          "count": 1,
+          "function": "matter_rx_policy_new",
+          "source": "main/apps/matter/transport/matter_rx_policy.c:26"
+        },
+        {
+          "address": "420538a8",
+          "bytes": 64,
+          "count": 1,
+          "function": "matter_ack_sender_new",
+          "source": "main/apps/matter/transport/matter_ack_sender.c:16"
+        },
+        {
+          "address": "42017134",
+          "bytes": 56,
+          "count": 1,
+          "function": "matter_idf_discovery_new",
+          "source": "components/matter_c_esp32/matter_idf_discovery.c:23"
+        },
+        {
+          "address": "4201598e",
+          "bytes": 20,
+          "count": 1,
+          "function": "matter_lab_led_new",
+          "source": "examples/esp32-runtime/main/rgb_led.c:27"
+        },
+        {
+          "address": "42016f6c",
+          "bytes": 12,
+          "count": 1,
+          "function": "matter_idf_store_new",
+          "source": "components/matter_c_esp32/matter_idf_store.c:44"
+        }
+      ]
+    },
+    "retained_loaded": {
+      "phase": "checkpoint",
+      "live_count": 186,
+      "live_bytes": 125624,
+      "peak_bytes": 159324,
+      "overflows": 0,
+      "live": [
+        {
+          "address": "4203c9b8",
+          "bytes": 15552,
+          "count": 1,
+          "function": "matter_fabric_host_image_new",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:43"
+        },
+        {
+          "address": "420192a0",
+          "bytes": 10488,
+          "count": 15,
+          "function": "matter_cluster_new",
+          "source": "main/apps/matter/model/matter_cluster.c:20"
+        },
+        {
+          "address": "42016756",
+          "bytes": 8988,
+          "count": 7,
+          "function": "rx_capacity",
+          "source": "components/matter_c_esp32/matter_idf_udp.c:129"
+        },
+        {
+          "address": "42027b44",
+          "bytes": 8488,
+          "count": 1,
+          "function": "matter_diagnostics_new",
+          "source": "main/apps/matter/clusters/matter_diagnostics.c:82"
+        },
+        {
+          "address": "42039eb4",
+          "bytes": 7064,
+          "count": 1,
+          "function": "matter_dispatch_new",
+          "source": "main/apps/matter/runtime/matter_dispatch.c:1119"
+        },
+        {
+          "address": "42025054",
+          "bytes": 6384,
+          "count": 1,
+          "function": "matter_acl_new",
+          "source": "main/apps/matter/clusters/matter_acl.c:41"
+        },
+        {
+          "address": "420314ee",
+          "bytes": 5704,
+          "count": 1,
+          "function": "matter_ota_requestor_new",
+          "source": "main/apps/matter/clusters/matter_ota_requestor.c:240"
+        },
+        {
+          "address": "42049cec",
+          "bytes": 5640,
+          "count": 15,
+          "function": "matter_im_subscribe_new",
+          "source": "main/apps/matter/model/matter_im_subscribe.c:109"
+        },
+        {
+          "address": "420351d2",
+          "bytes": 4808,
+          "count": 15,
+          "function": "matter_secure_from_case",
+          "source": "main/apps/matter/session/matter_secure.c:169"
+        },
+        {
+          "address": "42036824",
+          "bytes": 4480,
+          "count": 16,
+          "function": "new_transaction",
+          "source": "main/apps/matter/runtime/matter_dispatch.c:83"
+        },
+        {
+          "address": "42023340",
+          "bytes": 4224,
+          "count": 1,
+          "function": "matter_fabric_new",
+          "source": "main/apps/matter/clusters/matter_fabric.c:13"
+        },
+        {
+          "address": "42051f9a",
+          "bytes": 3240,
+          "count": 1,
+          "function": "matter_rx_new",
+          "source": "main/apps/matter/transport/matter_rx.c:80"
+        },
+        {
+          "address": "4205436a",
+          "bytes": 3176,
+          "count": 1,
+          "function": "matter_retransmission_new",
+          "source": "main/apps/matter/transport/matter_retransmission.c:37"
+        },
+        {
+          "address": "4203ca86",
+          "bytes": 2600,
+          "count": 1,
+          "function": "matter_fabric_host_new",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:130"
+        },
+        {
+          "address": "4202e6b0",
+          "bytes": 2352,
+          "count": 1,
+          "function": "matter_runtime_new",
+          "source": "main/apps/matter/runtime/matter_runtime.c:250"
+        },
+        {
+          "address": "4201fee2",
+          "bytes": 2344,
+          "count": 1,
+          "function": "matter_wifi_new",
+          "source": "main/apps/matter/clusters/matter_wifi.c:56"
+        },
+        {
+          "address": "420470da",
+          "bytes": 2304,
+          "count": 15,
+          "function": "matter_im_blocks_reserve",
+          "source": "main/apps/matter/model/matter_im_blocks_internal.h:40"
+        },
+        {
+          "address": "4205118a",
+          "bytes": 2160,
+          "count": 15,
+          "function": "matter_secure_channel_new",
+          "source": "main/apps/matter/transport/matter_secure_channel.c:32"
+        },
+        {
+          "address": "42021866",
+          "bytes": 2016,
+          "count": 1,
+          "function": "matter_opcreds_new",
+          "source": "main/apps/matter/clusters/matter_opcreds.c:36"
+        },
+        {
+          "address": "42031ea6",
+          "bytes": 2000,
+          "count": 1,
+          "function": "matter_ota_query_new",
+          "source": "main/apps/matter/clusters/matter_ota_query.c:26"
+        },
+        {
+          "address": "4205337e",
+          "bytes": 1856,
+          "count": 1,
+          "function": "matter_ack_new",
+          "source": "main/apps/matter/transport/matter_ack.c:53"
+        },
+        {
+          "address": "42052d4c",
+          "bytes": 1832,
+          "count": 1,
+          "function": "matter_exchange_new",
+          "source": "main/apps/matter/transport/matter_exchange.c:50"
+        },
+        {
+          "address": "4203dcb0",
+          "bytes": 1728,
+          "count": 1,
+          "function": "matter_diagnostics_host_new_port",
+          "source": "main/apps/matter/runtime/matter_diagnostics_host.c:12"
+        },
+        {
+          "address": "4203002e",
+          "bytes": 1600,
+          "count": 1,
+          "function": "matter_admin_commissioning_new",
+          "source": "main/apps/matter/clusters/matter_admin_commissioning.c:180"
+        },
+        {
+          "address": "4201a3f6",
+          "bytes": 1516,
+          "count": 6,
+          "function": "matter_events_prepare",
+          "source": "main/apps/matter/model/matter_events.c:74"
+        },
+        {
+          "address": "420168ec",
+          "bytes": 1284,
+          "count": 1,
+          "function": "activate",
+          "source": "components/matter_c_esp32/matter_idf_udp.c:47"
+        },
+        {
+          "address": "42025e46",
+          "bytes": 1176,
+          "count": 1,
+          "function": "matter_groupkey_new",
+          "source": "main/apps/matter/clusters/matter_groupkey.c:27"
+        },
+        {
+          "address": "4201d9b2",
+          "bytes": 1144,
+          "count": 1,
+          "function": "matter_root_new",
+          "source": "main/apps/matter/clusters/matter_root.c:344"
+        },
+        {
+          "address": "42053d3e",
+          "bytes": 1016,
+          "count": 1,
+          "function": "matter_retransmission_sender_new",
+          "source": "main/apps/matter/transport/matter_retransmission_sender.c:37"
+        },
+        {
+          "address": "42017b58",
+          "bytes": 988,
+          "count": 5,
+          "function": "create",
+          "source": "main/apps/matter/matter_discovery.c:17"
+        },
+        {
+          "address": "42017414",
+          "bytes": 964,
+          "count": 6,
+          "function": "matter_new",
+          "source": "main/apps/matter/matter.c:27"
+        },
+        {
+          "address": "4201a250",
+          "bytes": 808,
+          "count": 1,
+          "function": "matter_events_new",
+          "source": "main/apps/matter/model/matter_events.c:41"
+        },
+        {
+          "address": "4203a818",
+          "bytes": 560,
+          "count": 5,
+          "function": "resume_save",
+          "source": "main/apps/matter/runtime/matter_fabric_resumption_internal.h:46"
+        },
+        {
+          "address": "42017766",
+          "bytes": 520,
+          "count": 5,
+          "function": "matter_mdns_new",
+          "source": "main/apps/matter/matter_mdns.c:19"
+        },
+        {
+          "address": "42014314",
+          "bytes": 496,
+          "count": 1,
+          "function": "lab_wifi_new",
+          "source": "examples/esp32-runtime/main/wifi_port.c:181"
+        },
+        {
+          "address": "4203d6d8",
+          "bytes": 480,
+          "count": 1,
+          "function": "matter_commissioning_host_new_port",
+          "source": "main/apps/matter/runtime/matter_commissioning_host.c:24"
+        },
+        {
+          "address": "4203d5fe",
+          "bytes": 444,
+          "count": 1,
+          "function": "matter_commissioning_host_image_new",
+          "source": "main/apps/matter/runtime/matter_commissioning_host.c:11"
+        },
+        {
+          "address": "4203d2f8",
+          "bytes": 400,
+          "count": 1,
+          "function": "matter_opcreds_host_new",
+          "source": "main/apps/matter/runtime/matter_opcreds_host.c:21"
+        },
+        {
+          "address": "4205012c",
+          "bytes": 344,
+          "count": 1,
+          "function": "matter_unsecured_new",
+          "source": "main/apps/matter/transport/matter_unsecured.c:56"
+        },
+        {
+          "address": "4202a24e",
+          "bytes": 340,
+          "count": 1,
+          "function": "matter_crypto_mbedtls_new",
+          "source": "main/apps/matter/crypto/matter_crypto_mbedtls.c:692"
+        },
+        {
+          "address": "42040d36",
+          "bytes": 320,
+          "count": 1,
+          "function": "matter_im_read_new",
+          "source": "main/apps/matter/model/matter_im_read.c:84"
+        },
+        {
+          "address": "42017134",
+          "bytes": 308,
+          "count": 5,
+          "function": "matter_idf_discovery_new",
+          "source": "components/matter_c_esp32/matter_idf_discovery.c:23"
+        },
+        {
+          "address": "420154dc",
+          "bytes": 280,
+          "count": 1,
+          "function": "matter_lab_rgb_new",
+          "source": "examples/esp32-runtime/main/rgb_light.c:158"
+        },
+        {
+          "address": "4201d49c",
+          "bytes": 188,
+          "count": 1,
+          "function": "matter_root_add_tagged_endpoint",
+          "source": "main/apps/matter/clusters/matter_root.c:134"
+        },
+        {
+          "address": "4204a0ba",
+          "bytes": 188,
+          "count": 15,
+          "function": "matter_im_subscribe_receive",
+          "source": "main/apps/matter/model/matter_im_subscribe.c:167 (discriminator 1)"
+        },
+        {
+          "address": "4202bf04",
+          "bytes": 184,
+          "count": 1,
+          "function": "matter_store_host_new",
+          "source": "main/apps/matter/runtime/matter_store_host.c:64"
+        },
+        {
+          "address": "42017ef6",
+          "bytes": 112,
+          "count": 1,
+          "function": "matter_udp_new",
+          "source": "main/apps/matter/matter_udp.c:18"
+        },
+        {
+          "address": "420509b0",
+          "bytes": 112,
+          "count": 1,
+          "function": "matter_unsecured_tx_new",
+          "source": "main/apps/matter/transport/matter_unsecured_tx.c:44"
+        },
+        {
+          "address": "42016b12",
+          "bytes": 104,
+          "count": 1,
+          "function": "matter_idf_udp_new",
+          "source": "components/matter_c_esp32/matter_idf_udp.c:106"
+        },
+        {
+          "address": "4205054a",
+          "bytes": 88,
+          "count": 1,
+          "function": "matter_unsecured_rx_new",
+          "source": "main/apps/matter/transport/matter_unsecured_rx.c:29"
+        },
+        {
+          "address": "42037cd0",
+          "bytes": 72,
+          "count": 1,
+          "function": "prepare_packet",
+          "source": "main/apps/matter/runtime/matter_dispatch.c:126"
+        },
+        {
+          "address": "4205286e",
+          "bytes": 64,
+          "count": 1,
+          "function": "matter_rx_policy_new",
+          "source": "main/apps/matter/transport/matter_rx_policy.c:26"
+        },
+        {
+          "address": "420538a8",
+          "bytes": 64,
+          "count": 1,
+          "function": "matter_ack_sender_new",
+          "source": "main/apps/matter/transport/matter_ack_sender.c:16"
+        },
+        {
+          "address": "4201598e",
+          "bytes": 20,
+          "count": 1,
+          "function": "matter_lab_led_new",
+          "source": "examples/esp32-runtime/main/rgb_led.c:27"
+        },
+        {
+          "address": "42016f6c",
+          "bytes": 12,
+          "count": 1,
+          "function": "matter_idf_store_new",
+          "source": "components/matter_c_esp32/matter_idf_store.c:44"
+        }
+      ]
+    },
+    "publication_high_water": {
+      "peak_bytes": 159896,
+      "peak": [
+        {
+          "address": "4202b77c",
+          "bytes": 16028,
+          "count": 1,
+          "function": "matter_store_source_encode",
+          "source": "main/apps/matter/storage/matter_store_tlv.c:93"
+        },
+        {
+          "address": "4203c9b8",
+          "bytes": 15552,
+          "count": 1,
+          "function": "matter_fabric_host_image_new",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:43"
+        },
+        {
+          "address": "4203a69a",
+          "bytes": 15536,
+          "count": 1,
+          "function": "before",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:54"
+        },
+        {
+          "address": "420192a0",
+          "bytes": 10488,
+          "count": 15,
+          "function": "matter_cluster_new",
+          "source": "main/apps/matter/model/matter_cluster.c:20"
+        },
+        {
+          "address": "42016756",
+          "bytes": 8988,
+          "count": 7,
+          "function": "rx_capacity",
+          "source": "components/matter_c_esp32/matter_idf_udp.c:129"
+        },
+        {
+          "address": "42027b44",
+          "bytes": 8488,
+          "count": 1,
+          "function": "matter_diagnostics_new",
+          "source": "main/apps/matter/clusters/matter_diagnostics.c:82"
+        },
+        {
+          "address": "42039eb4",
+          "bytes": 7064,
+          "count": 1,
+          "function": "matter_dispatch_new",
+          "source": "main/apps/matter/runtime/matter_dispatch.c:1119"
+        },
+        {
+          "address": "42025054",
+          "bytes": 6384,
+          "count": 1,
+          "function": "matter_acl_new",
+          "source": "main/apps/matter/clusters/matter_acl.c:41"
+        },
+        {
+          "address": "420314ee",
+          "bytes": 5704,
+          "count": 1,
+          "function": "matter_ota_requestor_new",
+          "source": "main/apps/matter/clusters/matter_ota_requestor.c:240"
+        },
+        {
+          "address": "42049cec",
+          "bytes": 5640,
+          "count": 15,
+          "function": "matter_im_subscribe_new",
+          "source": "main/apps/matter/model/matter_im_subscribe.c:109"
+        },
+        {
+          "address": "420351d2",
+          "bytes": 4808,
+          "count": 15,
+          "function": "matter_secure_from_case",
+          "source": "main/apps/matter/session/matter_secure.c:169"
+        },
+        {
+          "address": "42036824",
+          "bytes": 4760,
+          "count": 17,
+          "function": "new_transaction",
+          "source": "main/apps/matter/runtime/matter_dispatch.c:83"
+        },
+        {
+          "address": "42023340",
+          "bytes": 4224,
+          "count": 1,
+          "function": "matter_fabric_new",
+          "source": "main/apps/matter/clusters/matter_fabric.c:13"
+        },
+        {
+          "address": "42051f9a",
+          "bytes": 3240,
+          "count": 1,
+          "function": "matter_rx_new",
+          "source": "main/apps/matter/transport/matter_rx.c:80"
+        },
+        {
+          "address": "4205436a",
+          "bytes": 3176,
+          "count": 1,
+          "function": "matter_retransmission_new",
+          "source": "main/apps/matter/transport/matter_retransmission.c:37"
+        },
+        {
+          "address": "4203ca86",
+          "bytes": 2600,
+          "count": 1,
+          "function": "matter_fabric_host_new",
+          "source": "main/apps/matter/runtime/matter_fabric_host.c:130"
+        },
+        {
+          "address": "4202e6b0",
+          "bytes": 2352,
+          "count": 1,
+          "function": "matter_runtime_new",
+          "source": "main/apps/matter/runtime/matter_runtime.c:250"
+        },
+        {
+          "address": "4201fee2",
+          "bytes": 2344,
+          "count": 1,
+          "function": "matter_wifi_new",
+          "source": "main/apps/matter/clusters/matter_wifi.c:56"
+        },
+        {
+          "address": "420470da",
+          "bytes": 2304,
+          "count": 15,
+          "function": "matter_im_blocks_reserve",
+          "source": "main/apps/matter/model/matter_im_blocks_internal.h:40"
+        },
+        {
+          "address": "4205118a",
+          "bytes": 2160,
+          "count": 15,
+          "function": "matter_secure_channel_new",
+          "source": "main/apps/matter/transport/matter_secure_channel.c:32"
+        },
+        {
+          "address": "42021866",
+          "bytes": 2016,
+          "count": 1,
+          "function": "matter_opcreds_new",
+          "source": "main/apps/matter/clusters/matter_opcreds.c:36"
+        },
+        {
+          "address": "42031ea6",
+          "bytes": 2000,
+          "count": 1,
+          "function": "matter_ota_query_new",
+          "source": "main/apps/matter/clusters/matter_ota_query.c:26"
+        },
+        {
+          "address": "4205337e",
+          "bytes": 1856,
+          "count": 1,
+          "function": "matter_ack_new",
+          "source": "main/apps/matter/transport/matter_ack.c:53"
+        },
+        {
+          "address": "42052d4c",
+          "bytes": 1832,
+          "count": 1,
+          "function": "matter_exchange_new",
+          "source": "main/apps/matter/transport/matter_exchange.c:50"
+        },
+        {
+          "address": "4203dcb0",
+          "bytes": 1728,
+          "count": 1,
+          "function": "matter_diagnostics_host_new_port",
+          "source": "main/apps/matter/runtime/matter_diagnostics_host.c:12"
+        },
+        {
+          "address": "4203002e",
+          "bytes": 1600,
+          "count": 1,
+          "function": "matter_admin_commissioning_new",
+          "source": "main/apps/matter/clusters/matter_admin_commissioning.c:180"
+        },
+        {
+          "address": "4201a3f6",
+          "bytes": 1516,
+          "count": 6,
+          "function": "matter_events_prepare",
+          "source": "main/apps/matter/model/matter_events.c:74"
+        },
+        {
+          "address": "42044b40",
+          "bytes": 1328,
+          "count": 1,
+          "function": "matter_im_invoke_receive_at",
+          "source": "main/apps/matter/model/matter_im_invoke.c:75 (discriminator 2)"
+        },
+        {
+          "address": "420168ec",
+          "bytes": 1284,
+          "count": 1,
+          "function": "activate",
+          "source": "components/matter_c_esp32/matter_idf_udp.c:47"
+        },
+        {
+          "address": "42025e46",
+          "bytes": 1176,
+          "count": 1,
+          "function": "matter_groupkey_new",
+          "source": "main/apps/matter/clusters/matter_groupkey.c:27"
+        },
+        {
+          "address": "4201d9b2",
+          "bytes": 1144,
+          "count": 1,
+          "function": "matter_root_new",
+          "source": "main/apps/matter/clusters/matter_root.c:344"
+        },
+        {
+          "address": "42053d3e",
+          "bytes": 1016,
+          "count": 1,
+          "function": "matter_retransmission_sender_new",
+          "source": "main/apps/matter/transport/matter_retransmission_sender.c:37"
+        },
+        {
+          "address": "42017b58",
+          "bytes": 988,
+          "count": 5,
+          "function": "create",
+          "source": "main/apps/matter/matter_discovery.c:17"
+        },
+        {
+          "address": "42017414",
+          "bytes": 964,
+          "count": 6,
+          "function": "matter_new",
+          "source": "main/apps/matter/matter.c:27"
+        },
+        {
+          "address": "4201a250",
+          "bytes": 808,
+          "count": 1,
+          "function": "matter_events_new",
+          "source": "main/apps/matter/model/matter_events.c:41"
+        },
+        {
+          "address": "4202ba4a",
+          "bytes": 648,
+          "count": 1,
+          "function": "capture",
+          "source": "main/apps/matter/runtime/matter_store_host.c:19"
+        },
+        {
+          "address": "4203a818",
+          "bytes": 560,
+          "count": 5,
+          "function": "resume_save",
+          "source": "main/apps/matter/runtime/matter_fabric_resumption_internal.h:46"
+        },
+        {
+          "address": "42017766",
+          "bytes": 520,
+          "count": 5,
+          "function": "matter_mdns_new",
+          "source": "main/apps/matter/matter_mdns.c:19"
+        },
+        {
+          "address": "42014314",
+          "bytes": 496,
+          "count": 1,
+          "function": "lab_wifi_new",
+          "source": "examples/esp32-runtime/main/wifi_port.c:181"
+        },
+        {
+          "address": "4203d6d8",
+          "bytes": 480,
+          "count": 1,
+          "function": "matter_commissioning_host_new_port",
+          "source": "main/apps/matter/runtime/matter_commissioning_host.c:24"
+        },
+        {
+          "address": "4203d5fe",
+          "bytes": 444,
+          "count": 1,
+          "function": "matter_commissioning_host_image_new",
+          "source": "main/apps/matter/runtime/matter_commissioning_host.c:11"
+        },
+        {
+          "address": "4203d2f8",
+          "bytes": 400,
+          "count": 1,
+          "function": "matter_opcreds_host_new",
+          "source": "main/apps/matter/runtime/matter_opcreds_host.c:21"
+        },
+        {
+          "address": "4205012c",
+          "bytes": 344,
+          "count": 1,
+          "function": "matter_unsecured_new",
+          "source": "main/apps/matter/transport/matter_unsecured.c:56"
+        },
+        {
+          "address": "4202a24e",
+          "bytes": 340,
+          "count": 1,
+          "function": "matter_crypto_mbedtls_new",
+          "source": "main/apps/matter/crypto/matter_crypto_mbedtls.c:692"
+        },
+        {
+          "address": "42040d36",
+          "bytes": 320,
+          "count": 1,
+          "function": "matter_im_read_new",
+          "source": "main/apps/matter/model/matter_im_read.c:84"
+        },
+        {
+          "address": "42017134",
+          "bytes": 308,
+          "count": 5,
+          "function": "matter_idf_discovery_new",
+          "source": "components/matter_c_esp32/matter_idf_discovery.c:23"
+        },
+        {
+          "address": "420154dc",
+          "bytes": 280,
+          "count": 1,
+          "function": "matter_lab_rgb_new",
+          "source": "examples/esp32-runtime/main/rgb_light.c:158"
+        },
+        {
+          "address": "420448fa",
+          "bytes": 224,
+          "count": 1,
+          "function": "matter_im_invoke_new",
+          "source": "main/apps/matter/model/matter_im_invoke.c:37"
+        },
+        {
+          "address": "4204a0ba",
+          "bytes": 212,
+          "count": 15,
+          "function": "matter_im_subscribe_receive",
+          "source": "main/apps/matter/model/matter_im_subscribe.c:167 (discriminator 1)"
+        },
+        {
+          "address": "4201d49c",
+          "bytes": 188,
+          "count": 1,
+          "function": "matter_root_add_tagged_endpoint",
+          "source": "main/apps/matter/clusters/matter_root.c:134"
+        },
+        {
+          "address": "4202bf04",
+          "bytes": 184,
+          "count": 1,
+          "function": "matter_store_host_new",
+          "source": "main/apps/matter/runtime/matter_store_host.c:64"
+        },
+        {
+          "address": "42043c40",
+          "bytes": 156,
+          "count": 4,
+          "function": "matter_im_buffer_reserve",
+          "source": "main/apps/matter/model/matter_im_buffer_internal.h:19"
+        },
+        {
+          "address": "4202b70e",
+          "bytes": 120,
+          "count": 1,
+          "function": "matter_store_source_encode",
+          "source": "main/apps/matter/storage/matter_store_tlv.c:88"
+        },
+        {
+          "address": "42017ef6",
+          "bytes": 112,
+          "count": 1,
+          "function": "matter_udp_new",
+          "source": "main/apps/matter/matter_udp.c:18"
+        },
+        {
+          "address": "420509b0",
+          "bytes": 112,
+          "count": 1,
+          "function": "matter_unsecured_tx_new",
+          "source": "main/apps/matter/transport/matter_unsecured_tx.c:44"
+        },
+        {
+          "address": "42016b12",
+          "bytes": 104,
+          "count": 1,
+          "function": "matter_idf_udp_new",
+          "source": "components/matter_c_esp32/matter_idf_udp.c:106"
+        },
+        {
+          "address": "4205054a",
+          "bytes": 88,
+          "count": 1,
+          "function": "matter_unsecured_rx_new",
+          "source": "main/apps/matter/transport/matter_unsecured_rx.c:29"
+        },
+        {
+          "address": "4205286e",
+          "bytes": 64,
+          "count": 1,
+          "function": "matter_rx_policy_new",
+          "source": "main/apps/matter/transport/matter_rx_policy.c:26"
+        },
+        {
+          "address": "420538a8",
+          "bytes": 64,
+          "count": 1,
+          "function": "matter_ack_sender_new",
+          "source": "main/apps/matter/transport/matter_ack_sender.c:16"
+        },
+        {
+          "address": "4201598e",
+          "bytes": 20,
+          "count": 1,
+          "function": "matter_lab_led_new",
+          "source": "examples/esp32-runtime/main/rgb_led.c:27"
+        },
+        {
+          "address": "42016f6c",
+          "bytes": 12,
+          "count": 1,
+          "function": "matter_idf_store_new",
+          "source": "components/matter_c_esp32/matter_idf_store.c:44"
+        }
+      ]
+    }
+  },
+  "config_differences": {
+    "CONFIG_BT_BLUEDROID_ENABLED": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_CONTROLLER_ENABLED": {
+      "c": "unavailable",
+      "reference": "y"
+    },
+    "CONFIG_BT_CTRL_RUN_IN_FLASH_ONLY": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_ENABLED": {
+      "c": "n",
+      "reference": "y"
+    },
+    "CONFIG_BT_LE_ASSERT_WHEN_ABNORMAL_DISCONN_ENABLED": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_LE_DEBUG_REMAIN_SCENE_ENABLED": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_LE_DTM_ENABLED": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_LE_ERROR_SIM_ENABLED": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_LE_MEM_CHECK_ENABLED": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_LE_PTR_CHECK_ENABLED": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_LE_RXBUF_OPT_ENABLED": {
+      "c": "unavailable",
+      "reference": "y"
+    },
+    "CONFIG_BT_LE_TX_CCA_ENABLED": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_BT_NIMBLE_ENABLED": {
+      "c": "unavailable",
+      "reference": "y"
+    },
+    "CONFIG_CHIP_SYSTEM_CONFIG_POOL_USE_HEAP": {
+      "c": "unavailable",
+      "reference": "n"
+    },
+    "CONFIG_MBEDTLS_HARDWARE_ECC": {
+      "c": "n",
+      "reference": "y"
+    }
+  },
+  "final_restore": {
+    "pass": true,
+    "cleanup_free_gain": 112,
+    "phases": {
+      "boot": {
+        "phase": "boot",
+        "ms": 50,
+        "heap_free": 397672,
+        "heap_allocated": 24312,
+        "heap_min": 397672,
+        "largest_free": 368640,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 12036,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 0,
+        "core_largest": 0,
+        "core_failures": 0
+      },
+      "wifi-ipv6-ready": {
+        "phase": "wifi-ipv6-ready",
+        "ms": 3769,
+        "heap_free": 332120,
+        "heap_allocated": 89100,
+        "heap_min": 319344,
+        "largest_free": 311296,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 11380,
+        "core_live": 1,
+        "core_bytes": 496,
+        "core_peak": 496,
+        "core_largest": 496,
+        "core_failures": 0
+      },
+      "runtime-created": {
+        "phase": "runtime-created",
+        "ms": 20283,
+        "heap_free": 267252,
+        "heap_allocated": 153728,
+        "heap_min": 238908,
+        "largest_free": 249856,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9732,
+        "core_live": 29,
+        "core_bytes": 59540,
+        "core_peak": 88020,
+        "core_largest": 32768,
+        "core_failures": 9
+      },
+      "runtime-started": {
+        "phase": "runtime-started",
+        "ms": 21075,
+        "heap_free": 233408,
+        "heap_allocated": 187400,
+        "heap_min": 216096,
+        "largest_free": 200704,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9732,
+        "core_live": 57,
+        "core_bytes": 92480,
+        "core_peak": 109208,
+        "core_largest": 32768,
+        "core_failures": 12
+      },
+      "runtime-serving": {
+        "phase": "runtime-serving",
+        "ms": 51448,
+        "heap_free": 229664,
+        "heap_allocated": 191040,
+        "heap_min": 206188,
+        "largest_free": 200704,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9652,
+        "core_live": 69,
+        "core_bytes": 95680,
+        "core_peak": 114860,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "complete": {
+        "phase": "complete",
+        "ms": 52329,
+        "heap_free": 390108,
+        "heap_allocated": 31676,
+        "heap_min": 206188,
+        "largest_free": 245760,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9652,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 114860,
+        "core_largest": 32768,
+        "core_failures": 13
+      },
+      "owner-thread-cleaned": {
+        "phase": "owner-thread-cleaned",
+        "ms": 52378,
+        "heap_free": 390220,
+        "heap_allocated": 31572,
+        "heap_min": 206188,
+        "largest_free": 245760,
+        "owner_stack_reserved": 12800,
+        "owner_stack_min_free": 9652,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 114860,
+        "core_largest": 32768,
+        "core_failures": 13
+      }
+    }
+  },
+  "object_sizes": {
+    "c": {
+      "Matter_Fabric_Record_T": 1936,
+      "Matter_Store_Fabrics_T": 15536,
+      "Matter_Lab_Rgb": 280,
+      "Server": 8,
+      "Matter": 160,
+      "Transaction": 280,
+      "Matter_Im_Read": 320,
+      "Matter_Im_Subscribe": 376
+    },
+    "reference": {
+      "FabricInfo": 144,
+      "FabricTable": 904,
+      "Server": 12272,
+      "ReadHandler": 128,
+      "ExchangeContext": 80,
+      "SecureSession": 216,
+      "InteractionModelEngine": 9632
+    }
+  },
+  "static_reference_symbols": [
+    {
+      "name": "_ZN4chip6Server7sServerE",
+      "size": 12272,
+      "section": ".dram0.bss"
+    },
+    {
+      "name": "_ZN4chip3app23sInteractionModelEngineE",
+      "size": 9632,
+      "section": ".dram0.bss"
+    },
+    {
+      "name": "_ZN4chipL16sCritEventBufferE",
+      "size": 4096,
+      "section": ".dram0.bss"
+    },
+    {
+      "name": "_ZN4chipL17sDebugEventBufferE",
+      "size": 1024,
+      "section": ".dram0.bss"
+    },
+    {
+      "name": "_ZN4chipL16sInfoEventBufferE",
+      "size": 1024,
+      "section": ".dram0.bss"
+    }
+  ],
+  "memory21_comparison": {
+    "report_sha256": "676df25a09d0149e492d9ae4003240c0eeaf9436f78b47bdb09dbf93f6fdecf3",
+    "c_static_diram": 110493,
+    "reference_static_diram": 179798,
+    "c_timer_heap_peak": 256136,
+    "reference_timer_heap_peak": 143016,
+    "c_min_sampled_free": 163804,
+    "reference_min_sampled_free": 206396,
+    "c_steady_loaded_free": 198856,
+    "reference_steady_loaded_free": 236628,
+    "static_plus_peak_difference": 43815
+  },
+  "reference": {
+    "idf": "v6.0.2",
+    "idf_commit": "7101770dc6db2667b3c477cc31365dd1acd6db4e",
+    "esp_matter_commit": "4c9dd7aa80b3ddfa64c814bdfabe76c60944cc75",
+    "connectedhomeip_commit": "b1902b39ac6734913ce5f4d2abf153693a50264b"
+  },
+  "firmware_sha256": {
+    "fixed_matched": "137e44c2964ec658e7de816b604b6cf09aeccb67d7317668bd0c10e9d5312d68",
+    "allocation_diagnostic": "218e665ae31eb5274d979a925d870a08a7fc8bf15ebd3f9d9e053216809a2419",
+    "final_normal": "8c56f6c4e1224df90cc280f4a6c89c5649cc12dc16b44ac291f1525d94ffe42e"
+  },
+  "source_sha256": {
+    "main/apps/matter/runtime/matter_dispatch.c": "d06d3da554dcc38c0f8214d8f16b39de63062d0eb3e2f30720ebc6e592625061",
+    "tools/matter/tests/test_dispatch.c": "81a87d97e966d2edb762ed2971c563ce2d35d1b055d6bf229c8d6d19332480f0",
+    "examples/esp-matter-memory/compare.mjs": "458b898f9c6df01e8531589493ff8562b5f15a940406fcfd28c6e7913d945e53",
+    "examples/esp-matter-memory/README.md": "2bdf02a0c8700bb9c3d99a18ae6633e6ff49194e51f07ce9c56120fb4f2c6ca3",
+    "README.md": "453bb432225b8451135c241f45c13cf0ce6d7e8a12c11ca6f483c66582b5c1d7",
+    "doc/oss/status.md": "16a6a7ac05ae04b3ea1633ff0c088b5c8387820c3518e183ed2deb3c28475e8e",
+    "doc/oss/memory22-validation.md": "79d6bc81b4a9337723b03c2e0b9d4fffb3c4259757538a27adb264053ef9601e"
+  },
+  "linux_tested_core_sha256": {
+    "main/apps/matter/runtime/matter_dispatch.c": "d06d3da554dcc38c0f8214d8f16b39de63062d0eb3e2f30720ebc6e592625061",
+    "tools/matter/tests/test_dispatch.c": "81a87d97e966d2edb762ed2971c563ce2d35d1b055d6bf229c8d6d19332480f0"
+  },
+  "cleanup": {
+    "ipv6": true,
+    "collectors": [],
+    "adapter": "Disconnected",
+    "temporary_connection_was_active": true,
+    "temporary_profile_removed": true,
+    "temporary_xml_removed": true
+  },
+  "limitations": [
+    "100ms SDK-timer sampling can miss shorter peaks; region minimum-free watermark is separate.",
+    "Memory21 reference reused with verified ELF/source representation; COM24 not reflashed in Memory22.",
+    "Different SDK versions, inventories and resource ceilings; no pure feature-identical core comparison.",
+    "Diagnostic attribution adds8460 B static bookkeeping and timing overhead; free heap excluded from headline.",
+    "Memory22 full-source export precedes final controller/docs additions; changed portable core/test hashes match exactly.",
+    "No official CSA rerun, exhaustive RAM bound or matched reference fault-injection campaign."
+  ]
+}
