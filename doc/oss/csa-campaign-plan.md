@@ -387,6 +387,25 @@ before any sending. Continue only work whose prerequisite actually changed;
 do not restart the deferred multi-hour diagnostics test or already-attributed
 original failures merely to keep the campaign running. Counts stay123/27/5.
 
+## CSA73: frozen memory integration accepted
+
+The [integration plan](csa73-integration-plan.md) imports only40 committed changes
+through Memory39 `6c9835a`; ongoing Memory40/later work is excluded. Candidate
+`ff3a732` preserves CSA70..72 and matches the selected native source. Main advances
+only after the [regression gates](csa73-validation.md) pass; the source checkout
+and existing paired desktop nodes are preserved.
+
+Fresh acceptance:99/99 original automatic PASS positions, Windows112/112 CTest,
+Linux109/109 per build, complete pair/wire/IPv6 scenarios under Memcheck and
+separate sanitizers, signed simulated OTA and25 offline decoder checks. Raw
+original outcomes and source/PICS/binary identity remain in [the receipt](csa73-results.json).
+No additional native repair or new failure was found. Counts stay123/27/5;
+historical manual outcomes, existing failures and their CSA72 prerequisites remain.
+
+Next: separately review a frozen Memory40 delta with its Read lifetime/report
+regression. Do not silently absorb a moving source branch or reinterpret this
+automatic PASS-set regression as a fresh155-position full-matrix PASS. No push.
+
 ## Evidence and commits
 
 Each finished batch must have a public `csaNN-results.json` and concise validation

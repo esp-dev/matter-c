@@ -13,6 +13,11 @@ The [unsent CSA review packet](doc/oss/csa72-questions.md) groups the remaining
 questions and exact rerun prerequisites. Check its JSON coverage and rendering
 with `python tools/matter/csa_review_packet.py`; this never submits or runs tests.
 
+The frozen Memory39 merge passes the [CSA73 regression](doc/oss/csa73-validation.md):
+99 original automatic PASS positions, complete native tests and separate memory,
+wire and simulated OTA checks. [Integration gates](doc/oss/csa73-integration-plan.md)
+exclude later work; existing CSA failures and prerequisites remain open.
+
 The application owns scheduling, networking, storage and hardware callbacks.
 Multiple runtimes can run in one process/thread. The core does not require
 ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).

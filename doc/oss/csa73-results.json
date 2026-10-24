@@ -1,0 +1,3394 @@
+{
+  "schema": 1,
+  "baseline": "csa01-matrix.json",
+  "previous": "csa72-results.json",
+  "previous_sha256": "69e37fb437a9eb90d175c925597fbf3781d0de44d649e51ac807fccce2e5bacb",
+  "previous_sha256_encoding": "Canonical Git blob at baseline commit",
+  "source_base_commit": "ff3a73276bbe954822c5cb48897bb9311dca8162",
+  "scope": "Frozen Memory39 integration, full regression of99 previously PASS automatic positions, native/packaging, two-runtime lifecycle, faulted wire, raw IPv6 and signed simulated OTA. No full155-position rerun or certification.",
+  "latest_counts": {
+    "MANUAL": 37,
+    "NA": 707,
+    "PASS": 99,
+    "BLOCKED": 1,
+    "FAIL": 18
+  },
+  "classification_changes": [
+    {
+      "case": "TC-ACE-1.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 613,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC-ACL-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 614,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC-CNET-4.5",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 615,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC-DGGEN-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 616,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC-DGGEN-3.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 617,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC-DGWIFI-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 618,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC-DGWIFI-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 619,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC-OPCREDS-3.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 620,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC-I-2.1",
+      "endpoint": 1,
+      "collection": "SDK YAML Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 621,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DESC_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 622,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DESC_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 623,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DESC_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 624,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DT_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 625,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_2",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 626,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_3",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 627,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 628,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_5",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 629,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_12_1",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 630,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 1,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 631,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 3,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 632,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 4,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 633,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 5,
+      "collection": "Mandatory SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 634,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EEM_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 635,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EEM_2_2",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 636,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EEM_2_3",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 637,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 638,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 639,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_I_2_4",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 640,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_MTRID_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 641,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_MTRID_3_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 642,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 643,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 644,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 645,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 646,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 647,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 648,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 649,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 650,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 651,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 652,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACE_1_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 653,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACE_1_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 654,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACE_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 655,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACE_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 656,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACE_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 657,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACE_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 658,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACE_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 659,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACE_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 660,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACL_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 661,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 662,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_BINFO_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 663,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DGGEN_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 664,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DGGEN_2_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 665,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DGGEN_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 666,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_10_6",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 667,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_11_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 668,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_14_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 669,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_1_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 670,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 671,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 672,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 673,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 674,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_4_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 675,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 676,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_IDM_9_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 677,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_SC_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 678,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_SC_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 679,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_SC_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 680,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_SC_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 681,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_SC_4_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 682,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_TIMESYNC_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 683,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_TIMESYNC_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 684,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_TIMESYNC_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 685,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CADMIN_1_11",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 686,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CADMIN_1_15",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 687,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CADMIN_1_19",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 688,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CADMIN_1_22",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 689,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CADMIN_1_25",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 690,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 691,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CADMIN_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 692,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CADMIN_1_9",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 693,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CGEN_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 694,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CGEN_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 695,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CNET_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 696,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CNET_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 697,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CNET_4_15",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 698,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_CNET_4_9",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 699,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DA_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 700,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DA_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 701,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_OPCREDS_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 702,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_OPCREDS_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 703,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_OPCREDS_3_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 704,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_OPCREDS_3_8",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 705,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DD_1_16",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 706,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DD_1_17",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 707,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_SC_7_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 708,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_RR_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 709,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_SC_3_6",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 710,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    },
+    {
+      "case": "TC_DA_1_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "previous": "PASS",
+      "status": "PASS",
+      "run_id": 711,
+      "reason": "Unmodified original case passes after the frozen Memory39 merge; historical PASS retained and superseded by fresh regression evidence."
+    }
+  ],
+  "merge": {
+    "baseline": "e75885b7e12d4776108cc46f85130f5eddd231c9",
+    "source": "6c9835a986ec869c5d49f2d380f0818e307bf78d",
+    "common_ancestor": "6977da4f97fbd3b17dcfa173bda912d31d6d6808",
+    "commits_imported": 40,
+    "conflicts": 0,
+    "working_Memory40_at_capture_excluded": true,
+    "source_worktree_changed_by_integration": false,
+    "native_core_matches_selected_source": true
+  },
+  "automatic_regression": {
+    "positions": 99,
+    "PASS": 99,
+    "FAIL": 0,
+    "original_tests_or_PICS_changed": false,
+    "historical_manual_PASS_not_rerun": 24,
+    "existing_FAIL_retained": 27,
+    "existing_prerequisites_retained": 5,
+    "groups": {
+      "yaml": 9,
+      "composition": 13,
+      "measurements": 18,
+      "interaction-security": 33,
+      "commissioning": 21,
+      "setup-codes": 3,
+      "resource-long": 2
+    }
+  },
+  "original_runs": [
+    {
+      "case": "TC-ACE-1.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "run_id": 613,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "41c7f08053171943c2fd8b8041c14bccf99e109725eaf6d6e084e480d7a9c40d",
+      "log_sha256": "e97e22b0ac1cc839b2b435628b1b67fb031979d134f1620d3a9f72aef3efa7b2",
+      "source_sha256": "99a72a05351e24f88963a548b10b939b7050817f48b28b6aa5108acb8ab0e769",
+      "step_counts": {
+        "passed": 39
+      }
+    },
+    {
+      "case": "TC-ACL-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "run_id": 614,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "764f9546c07314df3117a55b8c8451a34ff63c6b7beb3a1d9ca67cae65ef29e7",
+      "log_sha256": "e6f6f4e16847f4da79690546b78583fdcd4dafefd98474c1092ea8f89f366ee4",
+      "source_sha256": "78e6113fd040ccf0b40a557a5aa57e30f85edab7a6393407f40bf6fb8d13e102",
+      "step_counts": {
+        "passed": 5
+      }
+    },
+    {
+      "case": "TC-CNET-4.5",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "run_id": 615,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "846bb3fc437acd9d4d4537678529b41682d94b496ec4944011b3ef4197501ea6",
+      "log_sha256": "d5042c2e1e4b922767028599d0ab99808fe8ad6f6c249d97b924fbe09d4de598",
+      "source_sha256": "29c21c623ddf7cd22083043d7daa327f49765933534dd76d1048535e6667a4d0",
+      "step_counts": {
+        "passed": 5
+      }
+    },
+    {
+      "case": "TC-DGGEN-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "run_id": 616,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "3283e128fb67687d3c810b19ee739575e1af80a4a56818ac5cb125a9c513d409",
+      "log_sha256": "66121e6b8b028aab097270620ab675dd2f1b1fd08272176f4b9b6b3a79d9a1ab",
+      "source_sha256": "40f7f0979ceaa5e333aba8d22a07fd2364ee309dcd3c4bf8570d8e806d3c624d",
+      "step_counts": {
+        "passed": 6,
+        "not_applicable": 4
+      }
+    },
+    {
+      "case": "TC-DGGEN-3.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "run_id": 617,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "e08636e8bd715a841e8c28908ce825ed29e3903371a68f102fcf6a28386d5b5a",
+      "log_sha256": "bcd6ef72cb61f5359fba970e8eab9ef9dd9ac2cfb564def92af8b6129b2e85f5",
+      "source_sha256": "f2208239316225a25266886d2c7e4b5ca24cb3d6cd4a1b62fd11326b37cfb9fe",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC-DGWIFI-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "run_id": 618,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "0ba8944b3e6bd631f53f8e353704e3eef83f15d9c2c84ca28daf983a6e0aafc2",
+      "log_sha256": "02a99e1e357f129265888fe668d96f096f344cb28ba1a0b2096c684f58f8cf12",
+      "source_sha256": "1dea1e066fa3c02095c498e03c1632862eecfa120a960f01eef40f002d2f9175",
+      "step_counts": {
+        "passed": 15
+      }
+    },
+    {
+      "case": "TC-DGWIFI-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "run_id": 619,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "5cfaa210fc12f2a2a2bcf8d4b977a3c0c034690466753ecae3a116e89ba0273a",
+      "log_sha256": "92b11d67e1e73faa3a5987420ed5ec4babdc22ebe2675cdcd23cb8caf0e81073",
+      "source_sha256": "ba201abda1f7d0bd4e262a26679748c918622590e7974f9357df8d9b851eb29f",
+      "step_counts": {
+        "passed": 9
+      }
+    },
+    {
+      "case": "TC-OPCREDS-3.7",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "run_id": 620,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "4e96581edf35e0702eee8887baf768ebd94587f027b6978ec8c98cc9408570fc",
+      "log_sha256": "94fe2e2bb4313ceaf8aff8e8bf60219b77aa0d3f2fb160702dc711346a5724f7",
+      "source_sha256": "a52ab596b7dad326611ab7c988731284d969da772459fc7063046fd48656e4a7",
+      "step_counts": {
+        "passed": 17
+      }
+    },
+    {
+      "case": "TC-I-2.1",
+      "endpoint": 1,
+      "collection": "SDK YAML Tests",
+      "run_id": 621,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "6bd50c80471b3fba22f7c4c51c7d8206393ff1f0a4f69b0f29e110dcc761e097",
+      "log_sha256": "5cd0ab49f30a3770196332873de41e80a7c186d4e5792b86ed4fca1b15db5c9a",
+      "source_sha256": "ede86cdd30c55267e10e4eba859f0b71df655b131277da430aefbbb30015c228",
+      "step_counts": {
+        "passed": 4
+      }
+    },
+    {
+      "case": "TC_DESC_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 622,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "b14c4cd2c0cfa54e87718194c2089cecdee9054b86c879548cfcb250afdba0c6",
+      "log_sha256": "fc0cee95d75e3cef729257ed916ea3842c0f56f03f6bb02f61ffe532e7a9b182",
+      "source_sha256": "0cd71ea50ded3dc78a12092cd844b4d843a2b256a00020f4c1f555305ae0fc22",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_DESC_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 623,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "d6c7e8da3fa2512523408740e1d6bd9f7a0e47c73ce25b7a42bac3f548c66dcf",
+      "log_sha256": "afb77ced655d77a4ac739faa2a088af22417e927bbc0476502cc054f68b254e0",
+      "source_sha256": "0cd71ea50ded3dc78a12092cd844b4d843a2b256a00020f4c1f555305ae0fc22",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_DESC_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 624,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "a2a40ead5389e34e3b9b434d9246f5a2e61117b10d11a46d6994cc4b6b46b11b",
+      "log_sha256": "7c8f3b55d0f05762d9b270f9f93e6359f4eef190863889bd7dd9ccd47dece274",
+      "source_sha256": "52cf071093e55b90d3c719565d784a6956be578b6b9c86000510d9d0e203e869",
+      "step_counts": {
+        "passed": 6
+      }
+    },
+    {
+      "case": "TC_DT_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 625,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ca9b05898b53c1ba4d7b2b2911c4544cbc8862926db0b8b54d1c15e462cfd18a",
+      "log_sha256": "76adfb6bb6b6549578a9a9202e4d07eaabbb8c29f1f4113668d9157540bef7ed",
+      "source_sha256": "0cd71ea50ded3dc78a12092cd844b4d843a2b256a00020f4c1f555305ae0fc22",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_IDM_10_2",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 626,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "2fa34e3a55f155b3a1aa22f9911a13dfc6d2db94e07d93a12d19aa0513b85a57",
+      "log_sha256": "9fc9b5ba0a00b0373a5bc0a0b7c26b391ad4d022a77e992147dffa22a5b35a22",
+      "source_sha256": "52cf071093e55b90d3c719565d784a6956be578b6b9c86000510d9d0e203e869",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_IDM_10_3",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 627,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "baab56fc058f846f0e7dba7a31e394c6bd183cf906d1ece6f77e77a08606fea3",
+      "log_sha256": "613a67cfce51a8dbe5d636a8d773317be793b6d0bda1badeb42317fdc1f7fcb5",
+      "source_sha256": "52cf071093e55b90d3c719565d784a6956be578b6b9c86000510d9d0e203e869",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 628,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "aab589b183fa1cc1fd035327a05ef17ea27e7bd070d43b299c1ee8ad33cff158",
+      "log_sha256": "b368100aa2657c4a132ecb355f8ec1223a19db445564902fbbf47cfed2aa7a82",
+      "source_sha256": "9f747ffc00d43ed64fc5385cc3e0b05f5447da7c98307e0da7afa9c0e8eba67d",
+      "step_counts": {
+        "passed": 12
+      }
+    },
+    {
+      "case": "TC_IDM_10_5",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 629,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "776408dc408ddc804930c60e9b16c531d5695b7563488e86962a05148abe2a46",
+      "log_sha256": "fd8800b7bdcd2bdb4d58e44260679d114fb4f01d8f5ddd6fc93d74b9fb1e2917",
+      "source_sha256": "52cf071093e55b90d3c719565d784a6956be578b6b9c86000510d9d0e203e869",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_IDM_12_1",
+      "endpoint": 0,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 630,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ac6cfa46d8eb5f5e626c874124a611fde132428a641edb347234dd8df61ba2b5",
+      "log_sha256": "c7a6d10264380347254a53de6a8a0261d272d910583055399407a4873902f9b2",
+      "source_sha256": "0cd71ea50ded3dc78a12092cd844b4d843a2b256a00020f4c1f555305ae0fc22",
+      "step_counts": {
+        "passed": 4
+      }
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 1,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 631,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "2497de0b7ec665e09e9be8c8b0cd665b4393b8d56ea5dbe5d71814ddee4c0c13",
+      "log_sha256": "1b489628157e6c92c147e8ef506f3ee575a5786b64b0afee18b8baca3dbdb5da",
+      "source_sha256": "9f747ffc00d43ed64fc5385cc3e0b05f5447da7c98307e0da7afa9c0e8eba67d",
+      "step_counts": {
+        "passed": 12
+      }
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 3,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 632,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "4498f180b28b5f2a2b6f0a18a7adabe1071628e9c0011a1bada022ab8d67f681",
+      "log_sha256": "1acf719a216eb5c9a7310706d1e484a9cd84920dd66a48cd0a92d20dd55d12d4",
+      "source_sha256": "9f747ffc00d43ed64fc5385cc3e0b05f5447da7c98307e0da7afa9c0e8eba67d",
+      "step_counts": {
+        "passed": 12
+      }
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 4,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 633,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ec26621c1b96c2fef9df80076543c2b1d47e7787cdadb30985308c4762bbf6c4",
+      "log_sha256": "d962fa4b131d3993773f02b6ad9613e1edb159b8062da710e5f47cf26acba446",
+      "source_sha256": "9f747ffc00d43ed64fc5385cc3e0b05f5447da7c98307e0da7afa9c0e8eba67d",
+      "step_counts": {
+        "passed": 12
+      }
+    },
+    {
+      "case": "TC_IDM_10_4",
+      "endpoint": 5,
+      "collection": "Mandatory SDK Python Tests",
+      "run_id": 634,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "093a83ed3be6eac43f65589dc780fa9c41cfa8f5a415aad8681372fdfd18b2ed",
+      "log_sha256": "3f9a8091d4f37f217fc009bb73cb11ada91babb6b35aae8aeb3625ec74624ceb",
+      "source_sha256": "9f747ffc00d43ed64fc5385cc3e0b05f5447da7c98307e0da7afa9c0e8eba67d",
+      "step_counts": {
+        "passed": 12
+      }
+    },
+    {
+      "case": "TC_EEM_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 635,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "17ca169695414678f1c83c2b99520f6dfb320f4c30938339e96ea1e45af84a2d",
+      "log_sha256": "b104215942bd655b3a56f6db30b58e012b3de49cfd63d844bc1de68faee77eb3",
+      "source_sha256": "91fd1f80e7b5f5677beb76b0686daefd8ee3096ec79baa5e1dfa86ef68ad22bd",
+      "step_counts": {
+        "passed": 7,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_EEM_2_2",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 636,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "9b021e71f276076909969370dc95e6400e3142ff66ee516f985065364097a624",
+      "log_sha256": "38ac4228dc2f9482527d54f8201c7e97dab75bb80d3ba6a66e8875e910b375d1",
+      "source_sha256": "fd93bc701f6ec8b0a198afb3f145d146b4c582907278957596bca8d29f4522c1",
+      "step_counts": {
+        "passed": 10
+      }
+    },
+    {
+      "case": "TC_EEM_2_3",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 637,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ce4a680ac49e124662c2b6475d5f52856606f33ee8bf6a3a3c6c7afce7d835bf",
+      "log_sha256": "388bdc80414e85992420f94f5615b08f46c3b2d3e2ce080ca5e4a9a379936bdd",
+      "source_sha256": "075d5ab30d7318226da937dddd411f27496c05d32df6ceb20fd1332f8118452c",
+      "step_counts": {
+        "passed": 10
+      }
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 638,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "2ce4e9a824efd6e3c6315bf6ff0c8d9ccc270345cd8d2609d1424d51c54e170b",
+      "log_sha256": "d689f83421be837d3a9cca1946c55423b5a5d2c5edcded95a11dafc359b700e3",
+      "source_sha256": "1b129d609a4b95413b7061a769ff77f5b2d5720e5f0e2ceb5156c923106b9951",
+      "step_counts": {
+        "passed": 10,
+        "not_applicable": 12
+      }
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 639,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "712447be023492d8277d104d80a26cf7d7e104defc2b39fa763edf4de4eb3c98",
+      "log_sha256": "dcd085d08e844a732d7eb6b1db9abf42f2531402e6b59fba6bdb4289ac31d1c3",
+      "source_sha256": "bfe2863599b3d68727c52a1083aaf3e192726e681016390d9045665abd898bd1",
+      "step_counts": {
+        "passed": 10,
+        "not_applicable": 4
+      }
+    },
+    {
+      "case": "TC_I_2_4",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 640,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "43445373e58c41ef581617c64ce54d1cfb9e25578b89fd0462b93a1fb4aa9bd9",
+      "log_sha256": "651c765bdf172673dc34a0d401527dde2178a55390b0a447758dc48dd86f9a96",
+      "source_sha256": "b742baba7b3a84f0e839a531baad48c843f87299d5dff44617cbcbaa13fc27ff",
+      "step_counts": {
+        "passed": 26
+      }
+    },
+    {
+      "case": "TC_MTRID_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 641,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "b6fefd5ad57936fd354fb92b6bc8870e6d98130290fb5e2e75e38a25ed87ee6f",
+      "log_sha256": "ef07579c20136d0a29640a11ecf197b87259bc7c4acae7d42119247e688aa0df",
+      "source_sha256": "ef4240d597082646b171fa4804122a837b63037c841b1df5c8711dee25d4a4e0",
+      "step_counts": {
+        "passed": 6,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_MTRID_3_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 642,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "9ee4a3bbd715c4d320afe9df5b5ab1c8c0d246c1c8d951adfe4f96bb8e6ac5cc",
+      "log_sha256": "4ffcd53a2fed7cb7735fe4a26667f2a8ec7b1af6c86f4643201abc300ecf235b",
+      "source_sha256": "8e7fc1bfa3e732a8e9de9d5b5af1a86e0555b1d53d808325c54f914662218ed3",
+      "step_counts": {
+        "passed": 14,
+        "not_applicable": 4
+      }
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 1,
+      "collection": "SDK Python Tests",
+      "run_id": 643,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "8101c88cafc456e7365dd6d5cafb763dc2686ba726244e31eaa2c19a8c6c0541",
+      "log_sha256": "605cc8df4e995003d1da4f3a10d857f72c85ed429c03e30c7beb1439eea6e36b",
+      "source_sha256": "b46f22cc9abad866a5e6a0bdc67e73d004677b04865f315dcd5ae7c1dd1e5ade",
+      "step_counts": {
+        "passed": 7,
+        "not_applicable": 6
+      }
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "run_id": 644,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "842fa655beb528ed15100f0a84c8d8be9973ee60e815ebe6944f0e58bbeef1a7",
+      "log_sha256": "0122ee202f05ed28f1a963362376671744f7686ca82d05818ee0802dad8fe78a",
+      "source_sha256": "1b129d609a4b95413b7061a769ff77f5b2d5720e5f0e2ceb5156c923106b9951",
+      "step_counts": {
+        "passed": 10,
+        "not_applicable": 12
+      }
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "run_id": 645,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "d517648a309c877b14ad98b145f04c59c874ecd585c6b4f0cfc52a2ddba7f85b",
+      "log_sha256": "8831c50ede02b7f1c099ef86772e34d06204cbd6702f357a37ad53cd61baf433",
+      "source_sha256": "bfe2863599b3d68727c52a1083aaf3e192726e681016390d9045665abd898bd1",
+      "step_counts": {
+        "passed": 12,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 3,
+      "collection": "SDK Python Tests",
+      "run_id": 646,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "d6f499fc29f44c8ac0cdb7c1bbde2cf71e353ace89fc63e55251335bd3272472",
+      "log_sha256": "f78c08242269dc8b814b8d3e1414d427a839fbf0497766069b1e018c14edefb5",
+      "source_sha256": "b46f22cc9abad866a5e6a0bdc67e73d004677b04865f315dcd5ae7c1dd1e5ade",
+      "step_counts": {
+        "passed": 7,
+        "not_applicable": 6
+      }
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "run_id": 647,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "7ecff9a93e556d69679a416d5c0feec94ea878958048db4bea19cb843a6c6248",
+      "log_sha256": "3d0dced4725a3ae29a6fb1b1f2d38f17f03431cd3405243294da28106d27d5fd",
+      "source_sha256": "1b129d609a4b95413b7061a769ff77f5b2d5720e5f0e2ceb5156c923106b9951",
+      "step_counts": {
+        "passed": 10,
+        "not_applicable": 12
+      }
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "run_id": 648,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ff5b9edc37134921c095c177f9673c917d919412578476973a1de602c20e393f",
+      "log_sha256": "20909c79a3c6fb065ff78847e67f3d950ace4a22f4eb028967ec12ea06388889",
+      "source_sha256": "bfe2863599b3d68727c52a1083aaf3e192726e681016390d9045665abd898bd1",
+      "step_counts": {
+        "passed": 12,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 4,
+      "collection": "SDK Python Tests",
+      "run_id": 649,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "7081b46fb97b53dbbccba278cffda2f5af3309c2ad3eddb02f350462b8d97402",
+      "log_sha256": "88e297bba2b7c4c574d35d64157ad002327711ae5347b7130a24174af0d40501",
+      "source_sha256": "b46f22cc9abad866a5e6a0bdc67e73d004677b04865f315dcd5ae7c1dd1e5ade",
+      "step_counts": {
+        "passed": 7,
+        "not_applicable": 6
+      }
+    },
+    {
+      "case": "TC_EPM_2_1",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "run_id": 650,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "d7f787016b5800c7d1d04de2ca9f06481eeb6c1d971975a02a89bc7278dc57a5",
+      "log_sha256": "ba75220e67ddf1c4745fb6bd2f1b6a72bef7626bc517f007dbf88b1ad2d237d4",
+      "source_sha256": "1b129d609a4b95413b7061a769ff77f5b2d5720e5f0e2ceb5156c923106b9951",
+      "step_counts": {
+        "passed": 10,
+        "not_applicable": 12
+      }
+    },
+    {
+      "case": "TC_EPM_2_2",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "run_id": 651,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "a014ef25cc1ba6636381339e639f6aeb96b07e6d3775db95313cabe6d7dc3e77",
+      "log_sha256": "ad231c82a83153dcc37f1ec3bc7bc1ddf783dfd8ba86937d4f3062c36468ce50",
+      "source_sha256": "bfe2863599b3d68727c52a1083aaf3e192726e681016390d9045665abd898bd1",
+      "step_counts": {
+        "passed": 12,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_PWRTL_2_1",
+      "endpoint": 5,
+      "collection": "SDK Python Tests",
+      "run_id": 652,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "65b1e4d0cf9c663e440d068feda12f8082f14c16d74548ae175f5fca23782266",
+      "log_sha256": "beafbdcdfe7049286d2e38822cb39dd3068d01b250f06a8ee2a784986e3a950a",
+      "source_sha256": "b46f22cc9abad866a5e6a0bdc67e73d004677b04865f315dcd5ae7c1dd1e5ade",
+      "step_counts": {
+        "passed": 7,
+        "not_applicable": 6
+      }
+    },
+    {
+      "case": "TC_ACE_1_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 653,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "c12ab6331052e6f1432bb28f7858a359806d6e7dc741e971ce773e5d94e0fafe",
+      "log_sha256": "50de378b8f8b2f7441cfd192513152cb1c7598d6760691190f737432729347b6",
+      "source_sha256": "f796abea085027314f39564d25cf986e2cc3442d07e43c3b7d8e47b20ce54878",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_ACE_1_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 654,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "c6175113df7bc700711b4b5e1563f338d356f0a5c8afcc0b35f960410d6ac0cf",
+      "log_sha256": "4c8ac18b9f4ad403e8dd9ce3fa40c49495bef4cd34c973c16813778b6db54336",
+      "source_sha256": "b5d79a8767add2690d4875e2c8e3c2c5fd3779f1e2551382e78872e48934d812",
+      "step_counts": {
+        "passed": 60
+      }
+    },
+    {
+      "case": "TC_ACE_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 655,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "aca2fda55c44586f063dead0dcaa48b0664652db0cea22eb60df0b8945ab1b24",
+      "log_sha256": "9f4953f111c6ac4c979c4791d353d96430ba6e6703dea8d6566f59dae9af230a",
+      "source_sha256": "9aa74c4662271375988f562e9413fe758d6805516f251cc0456a7e7d2d89971c",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_ACE_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 656,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "fb1045cd03716fa5f32ace6e5726d36f5327629513bb531f55a5f5ee6393603b",
+      "log_sha256": "9e53b165428cccb21c8cff373dd6f6ad36049463243c8bfce27ef3c8de61e8ec",
+      "source_sha256": "f12149f82f61adeebb322b04a26d1a49550338d41adb798e364463656f3cc565",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_ACE_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 657,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "5152dbb786acb3bb68937e4524cbd096d477f00bb21d571c69eb2148c101854a",
+      "log_sha256": "37defa37c11082a55e80663763c4115449c593e9125d59cf1ac120ab4ad7cfc6",
+      "source_sha256": "65f4360fdb23de79f7a3008224b78ca9535002eedea9e6831a0caa28913af369",
+      "step_counts": {
+        "passed": 14
+      }
+    },
+    {
+      "case": "TC_ACE_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 658,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "37395a89f2d9dd9d0ca8090db49469a38a8fe09a0bcd3f8820465bbff2e9a412",
+      "log_sha256": "cee45754ce455badff7a281f488e2cb28decfb3d04b43e8c803135e3f2593d17",
+      "source_sha256": "65f4360fdb23de79f7a3008224b78ca9535002eedea9e6831a0caa28913af369",
+      "step_counts": {
+        "passed": 16
+      }
+    },
+    {
+      "case": "TC_ACE_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 659,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ad1a0be403d69b876e7fb0b0efa03aad7ba522cc734fe9f49c8d54a1977a66a7",
+      "log_sha256": "2ac89b3ed0e6262fc7cecbdd11e92e29275826a2ee881d8b3361f2f04181f035",
+      "source_sha256": "65f4360fdb23de79f7a3008224b78ca9535002eedea9e6831a0caa28913af369",
+      "step_counts": {
+        "passed": 14
+      }
+    },
+    {
+      "case": "TC_ACE_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 660,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "f8785a32cb2537c1d7cd0adeca70a8474f55ed458b731e637219c02bfeacab47",
+      "log_sha256": "8c5f17eb30a02e993b932c6f2ff115d2704edb69808478c5f2f2df3ab43d8c1d",
+      "source_sha256": "65f4360fdb23de79f7a3008224b78ca9535002eedea9e6831a0caa28913af369",
+      "step_counts": {
+        "passed": 14
+      }
+    },
+    {
+      "case": "TC_ACL_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 661,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "c90c5814b439559df4ee42944998c45c6660e3cc8e783c7bd630c8453db1d8ae",
+      "log_sha256": "b5a069bbfc3a62fdbbfc9beb806f486d33788a7920bae2870e72de6846a1966f",
+      "source_sha256": "c097975d825fbbfc718305f6414df41ab9694bb9083e5a82aa578e367afc6f53",
+      "step_counts": {
+        "passed": 5
+      }
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 662,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "356119732e6427bf022b000c74affc0bb03d41b8567bac53bdbc1d3c9731c275",
+      "log_sha256": "d6f31923ea9d3c366b085afde2e127912c8b6e45655968b1ec0a3633af06b8be",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee",
+      "step_counts": {
+        "passed": 12,
+        "not_applicable": 1
+      }
+    },
+    {
+      "case": "TC_BINFO_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 663,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "7ccdad060f30a90cce05ef7da8192f221ccef826dadba19cff461dcf877cd8f5",
+      "log_sha256": "bbb3971de64600464d59940e8577c4f663406d330203cb7105fbfe6bcec1a9e6",
+      "source_sha256": "7782327eb189d12afb1b2501978364f89e9b157eea8b40459e6058cbcbddda41",
+      "step_counts": {
+        "passed": 19,
+        "not_applicable": 13
+      }
+    },
+    {
+      "case": "TC_DGGEN_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 664,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "49090de33e772895280bba2e4061a36e1333974109e09fbbf27b9e2205612b0b",
+      "log_sha256": "313601bcf00bf4c08f3a8833b234d6204257e48ed95ce3aee5ef5bc2cdb9e255",
+      "source_sha256": "c4e4e7bcd0b5aa7555b22f6bb2343a31abac95c59ac4f7d03d40c104ffd50c06",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_DGGEN_2_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 665,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "9944e60de5ddb902d62e0e6a1d0f45b270564775fb85ac8cb0797bf47d00556d",
+      "log_sha256": "375e68d9e1423e64460ba8589296c3b98734ab940b5e5bb4232471b135535565",
+      "source_sha256": "929fe4b4efc82b15de9e7adcccd36fe732888409c2636328884afdaa13653ef7",
+      "step_counts": {
+        "passed": 11
+      }
+    },
+    {
+      "case": "TC_DGGEN_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 666,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "6716b4f57cfa9c30f575a5c5ddb02c0d9e348413e8ec3e5206007712908f578b",
+      "log_sha256": "226cd806f3f91574aac7582473a016912aa43dd29951382af6a40cef862bce35",
+      "source_sha256": "7b38b1ae2dbdf727e2ef606808802b21ccbbb16c5cce4af5d9fde2e8a5937c93",
+      "step_counts": {
+        "passed": 5
+      }
+    },
+    {
+      "case": "TC_IDM_10_6",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 667,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "1c57097262fd0d9ec33a5c3f78549ee2ea62dd81ed78cbba3e41f7a6dca630c0",
+      "log_sha256": "762403c828703a5be35e21dee15d8b9a7344a613fc847c9fdf3f8019a25bb1c6",
+      "source_sha256": "52cf071093e55b90d3c719565d784a6956be578b6b9c86000510d9d0e203e869",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_IDM_11_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 668,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "90b785cfa3563f922eceff79227eb334e0e310b0d11eea70eb561f443b74e4a6",
+      "log_sha256": "5506c078dcf7969d8b75305e0bdfb029abe32a2db2bf81f55f92fe93d226f060",
+      "source_sha256": "0cd71ea50ded3dc78a12092cd844b4d843a2b256a00020f4c1f555305ae0fc22",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_IDM_14_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 669,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "c7fa46f9231fcedbb4d12637dc65580b1854c8b39297ed69968d532aa88f628d",
+      "log_sha256": "b0c8f3f579d59fce765a05c5871957a60b860b1fe0c3ae7ae1573a303a50cfd7",
+      "source_sha256": "52cf071093e55b90d3c719565d784a6956be578b6b9c86000510d9d0e203e869",
+      "step_counts": {
+        "passed": 6
+      }
+    },
+    {
+      "case": "TC_IDM_1_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 670,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "8707a6c19d56da7b8791440d6999d0c4266aa5c3a6f9b13a69dea2f72d456b1e",
+      "log_sha256": "874eeac87cda06734672e95b7830106d05d564e59f8af957102a313bfbeeaf6a",
+      "source_sha256": "1c1891e2dcc089edba88de0bba775aa7ec7a458550cb4da8e8906798846d47ae",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_IDM_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 671,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "fff029bcf09d9e5735d56d0bdf469f70e14e97288928a83a793a45eac9bc35bd",
+      "log_sha256": "3de0f6fbfcb25ac8558932f80207f8598773183426d366b86cafaa6eca9ae954",
+      "source_sha256": "bbd543c1707d1bb3269d484a9728cf48659e783c9646bb7823d7a4fd86e51d90",
+      "step_counts": {
+        "passed": 4,
+        "not_applicable": 9
+      }
+    },
+    {
+      "case": "TC_IDM_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 672,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "7af6cd515d4eedf1af17a0f46efdf82de883d0c49f3d2a0612c5a83154ea8c2d",
+      "log_sha256": "06206c09b668aa8b9ca4a92c373224f9897ddf28c9231f282aef9cb036c863cb",
+      "source_sha256": "5a2591f4a39561f971771099f736d371e2854ef38942f00df8b43766a03fc6a7",
+      "step_counts": {
+        "passed": 23
+      }
+    },
+    {
+      "case": "TC_IDM_2_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 673,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "74d93da906874576a338e69dd67084c5e6a7db442715c3dfc6d6a9f04c3a7bd7",
+      "log_sha256": "01bbe74f6bfa8ab51198c2867296f53f79db811278f358aaf793325c7ceb2fe5",
+      "source_sha256": "612981032d63cfff405a60e789a5ac444846ea17ec06a2437c8cf87ef2d36842",
+      "step_counts": {
+        "passed": 6
+      }
+    },
+    {
+      "case": "TC_IDM_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 674,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "5659e79836fafa3264423104f56cbfae5eeada5cc99e28e4011ae5b866c14eac",
+      "log_sha256": "aace58d0e790089a380b6e9d3e3d69ab1714dc8940b31a98e7415cf80e370dc4",
+      "source_sha256": "f0179c88613a41f1a3b4a8638ab5a57e35ece060cfadbc8890a70540584b7461",
+      "step_counts": {
+        "passed": 8,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_IDM_4_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 675,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "907fee0f7e76184525e700841e7f9726a436b63cb95791f32dcc2480f146e1ba",
+      "log_sha256": "45048aa2aeda494f8d5c6d6c985cdc7311685af68eac85968be8446cff6e480f",
+      "source_sha256": "ac68c6c9d75f960daf8d57a6592ee9a34cffda19ee6242c307e2917ddfc7798b",
+      "step_counts": {
+        "passed": 17
+      }
+    },
+    {
+      "case": "TC_IDM_4_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 676,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "b97c7b9160907ad64bca6c79f20d331e6d87c1a97a681f04a78941d2aa7cf7b8",
+      "log_sha256": "030de0b6437c5ea9949708b57673c5e1261268998d90e86cd28fadf074500e43",
+      "source_sha256": "f27bbb7a09a5bdfd4951861942f155e792fc55353c7aff70339fd7b7129bcf8d",
+      "step_counts": {
+        "passed": 15
+      }
+    },
+    {
+      "case": "TC_IDM_9_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 677,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "292941bcdd39187ea3fec00f134e325e21a0973226cafba6f7a59c2a20813c63",
+      "log_sha256": "828e08e1735d89c5abc44856c6db5f9fdcd72cdfb84424f1436440dd49c86c6c",
+      "source_sha256": "5d0e45d76842472e5fe84e1f341c1a37aff135f6c9c537c6ee4667fb7da1d315",
+      "step_counts": {
+        "passed": 6,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_SC_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 678,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "29a30a1e3258be9afe42d52e475d3f4c16a13c7f8d64ff53f52e6ef66fb527d8",
+      "log_sha256": "ca5928a1ca79b606ba522c8b7b28104139951966660b97eb61a96d919e9f62b1",
+      "source_sha256": "dbb755e623f58938441d3e9c294311e41c7ca267344aa2fe33e6b2e0c9238fe7",
+      "step_counts": {
+        "passed": 11
+      }
+    },
+    {
+      "case": "TC_SC_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 679,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "7c86b198a4f5d49d8b8769d3c7010ef0eba3cd66a5625d661ecd168982713a8d",
+      "log_sha256": "d61e703aa70f7da747a250f8e9d3d8f526b0c529f314c27d5892f1c7eaa1b2aa",
+      "source_sha256": "c539cc179225331e08a954a657a2660f82a676ba5ac0bd7371d0fa8babd5352c",
+      "step_counts": {
+        "passed": 7
+      }
+    },
+    {
+      "case": "TC_SC_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 680,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "06fc166859c39ce2a302ea8f388902ab4c212542adb2440b56dede5da1ecc757",
+      "log_sha256": "80bceddefdb0bf92a8fc2910a1055940141e1b60fda2ad089c5d29595f5582f8",
+      "source_sha256": "4e01c772d7123f0f43b5a480c01ac362ec7b355078e8b0369432c8a2e5522bb5",
+      "step_counts": {
+        "passed": 13
+      }
+    },
+    {
+      "case": "TC_SC_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 681,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "f70ef313e8b42a3b0d4933cc3146381501ec4ecda475e10e051963467072b084",
+      "log_sha256": "0e02063612896c847dbb3ef2d4a7d5d895205d2651241487734f1055f6a105bc",
+      "source_sha256": "9087d175b89da40c4ab654b036fa747a3b3247b94415d143a609993bab1df4b0",
+      "step_counts": {
+        "passed": 21,
+        "not_applicable": 9
+      }
+    },
+    {
+      "case": "TC_SC_4_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 682,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "d2441e43c3a783c7ba27973c0117807d86655b3167c7ebd332639ffed38080a4",
+      "log_sha256": "e377f120a8e92d382d2ea46b293125b41dfc1b8232ac87dffea1842d2cf23530",
+      "source_sha256": "7d51a69ebdc328b2609004c8397959d1cb138a1f2fe2b73260e7230d7afae921",
+      "step_counts": {
+        "passed": 15
+      }
+    },
+    {
+      "case": "TC_TIMESYNC_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 683,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ca9183cf65dbc70de86b15031a7000a3a25b312a5d0e23dd4bb535145eb5fa0d",
+      "log_sha256": "0873b9802e796e97681cba56273eaf615bf1fb9ee58fdf098ab21f0ed7a68ef5",
+      "source_sha256": "cd081d6da06a27c5a7149aee88c1b072c5537fca4091ea7189d416e843fb52da",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_TIMESYNC_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 684,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "f283424f2ba24ffe49bd8080fc23f56cbe9dc81451ea9c107b267aabb4640441",
+      "log_sha256": "03e5989c7b4993e386ad27578de10e67a2cddd59ceeae7d448bd5c0ab0ff2f8c",
+      "source_sha256": "55a13fd7aacd567e5c6f4fa703e99b63fd26b8e4acc02887d8c71c802f01f4e3",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_TIMESYNC_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 685,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "790cd5c4b23a9265f8d1648dcc573e8f7e3c728e00ae54d5f9665917306c8930",
+      "log_sha256": "2b14234ee321d581ca26bf9d5f1e24fdfcb1f234eb241234a7b268548f8424c8",
+      "source_sha256": "298a74b0c722ef11e3e44b515a2d58aa7ba228053f4bb8743ebf77cfecfc99ca",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_CADMIN_1_11",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 686,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "682175d6394797e6e724f773e06ca0e8f672eda7e53a88f8b997f845bffcd4ab",
+      "log_sha256": "2c63d552fca3a1e279f5127d0b98d3f2c9f06b167e711a1d1f499c3a6c002f20",
+      "source_sha256": "8ccdd5e46de7e65b54379748120a33a4c7db8a91bba2b58742192e5b0907319e",
+      "step_counts": {
+        "passed": 13,
+        "not_applicable": 4
+      }
+    },
+    {
+      "case": "TC_CADMIN_1_15",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 687,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "26a3172f238de29ccd0d04b71bcfe9701aa13c0292aefa5c75e4cb8367ec0162",
+      "log_sha256": "a1a943ee2f06bc360113257f677710f8e637f774c67a19ec63ac9353a3400e01",
+      "source_sha256": "bd672394d374598084454fb3473d973d33bcee71ec7b54e13f237f563085ab9b",
+      "step_counts": {
+        "passed": 23
+      }
+    },
+    {
+      "case": "TC_CADMIN_1_19",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 688,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "0cdb827aefc2f7134a20ac894b75965e7218d94978dd99d7b4e7546d52cd2be2",
+      "log_sha256": "f4691b0cab0caa54e9d4380f018eda0f058e78314a99eef9c5d42d5a3d136347",
+      "source_sha256": "e228385f4dcda374f82d1aa14983563d9e2f319e7a3f875066638cd1dd0307c0",
+      "step_counts": {
+        "passed": 19
+      }
+    },
+    {
+      "case": "TC_CADMIN_1_22",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 689,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "e2b03896de805848b196e0548d7a6ad5247f9338e8b0d13e86c5a84de6c6497f",
+      "log_sha256": "1228e5cff8723aed6f5dd0e6dbf28ada5f5a160fb0217464e9a70b2c2993b418",
+      "source_sha256": "4c886aeeabf87b4fbc0491a57c348ce33d3a5ed3a414695b1e3fe02512492a9a",
+      "step_counts": {
+        "passed": 12
+      }
+    },
+    {
+      "case": "TC_CADMIN_1_25",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 690,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "3b834403b4826265ed5bd6977f0217aa4323e5255ea227c4e7b99f427e2346ea",
+      "log_sha256": "e867ac2f89430b8ff78a70e5b4205a2dab9ccbc7bd9aa709641eade6ce5cc503",
+      "source_sha256": "9277c12f82221fc608c9d5114b792fcb948d0ee7d672159a94881b1e1c022950",
+      "step_counts": {
+        "passed": 35
+      }
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 691,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "57285417ed1bfac3101e49a0f5f1a21e0ff76ed1b043a11845800fb04cbec165",
+      "log_sha256": "0681c6a201e5c4cf9448555cfef6160fd17def8db1843dcaa0c4a5ac67a8fe90",
+      "source_sha256": "0b2dae1068f57c7e97417abb7b06c385061eab29cc2b2a176dbfbad41d3f0a43",
+      "step_counts": {
+        "passed": 17
+      }
+    },
+    {
+      "case": "TC_CADMIN_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 692,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ba030e93514eabb2ee70cc0b0f28a9b6b51dc08a7ba37148146d72cea4eb7413",
+      "log_sha256": "f0913028306b49c890acf6cacb285fbdc32aafa5f0b63bb286352a54f8ce6bd3",
+      "source_sha256": "cd8a2e1fc1d6959f19fb5e2fad11688f2de5ad9726e1cab868f9732256af811e",
+      "step_counts": {
+        "passed": 19
+      }
+    },
+    {
+      "case": "TC_CADMIN_1_9",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 693,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "92f84892ba5b837edc826541832cec6dff102b012a858fbb5fc12ed75f6c580d",
+      "log_sha256": "bc77e30909ff659a3e90fc911804f8298715e3b39f017a5fc5afc27a8fee6736",
+      "source_sha256": "ad0d27f0e4d55a842ca05a237eeeeb08c4b125534c2539e24f000afc7c52a8b4",
+      "step_counts": {
+        "passed": 8
+      }
+    },
+    {
+      "case": "TC_CGEN_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 694,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "0eaa823a1854b5bf297630ed7768bf15265d1d6e9975e35ebdcfeb76259cf357",
+      "log_sha256": "07f790ec522693780d03b31dd5fa28703c3f9e56f6a228ed9e6a2e124730151b",
+      "source_sha256": "dad5119f0d8fb7c021f7ad30b1517d852f8e7e2028edfa85d1d2d0aaf893b703",
+      "step_counts": {
+        "passed": 10
+      }
+    },
+    {
+      "case": "TC_CGEN_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 695,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "93f748246a02f7ae03fc470960c311350f7f90e9914654b4f6208cacc30783ed",
+      "log_sha256": "e3f8b8b495c22fe4ec11f5a4a4d074305416a86da97ba483836c5a148643c59f",
+      "source_sha256": "4b68f59796d76b03df1c22f508c16bab0268c2baef76445d7be18188e5c85efc",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_CNET_1_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 696,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "f4afd37a922ee09fd153a42627dc9d69a6ec22e33bc2b217d3f5203aef578687",
+      "log_sha256": "2b41fabfe2003bcce039abb3681dbacc8b550185c4bd95337057ad3c6d6b632d",
+      "source_sha256": "a33c3004b244348a626c6218398daa88ec38fd14d58b18384d30154d6c586708",
+      "step_counts": {
+        "passed": 6,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_CNET_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 697,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "c1aa45ca33afb3edbc146752b577f35c265c4ee939222a78f49bcb8bb4b07b21",
+      "log_sha256": "4e9a43df0d48119bb6e58025041e108f5379cca86ba21271b1531e134793408b",
+      "source_sha256": "61d4415b1a5f40b5443045ac824ff62fe15b744a20f996974f56e95228f94e65",
+      "step_counts": {
+        "passed": 12
+      }
+    },
+    {
+      "case": "TC_CNET_4_15",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 698,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "278b7cfead1a4295ed940c253a5f006fbad525196ccc7640a9296b7aae514289",
+      "log_sha256": "0d64e9889002ee0a2439a94580860395588f68819ff1c54a9a5e77a895ccdc27",
+      "source_sha256": "68e00eab77e935805f324ad2578c2a1a85d0d1c46c1353fbe4031053f2aa99f5",
+      "step_counts": {
+        "passed": 6
+      }
+    },
+    {
+      "case": "TC_CNET_4_9",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 699,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "0c15a5aa3d4d0110add6f75cbe8c3b11df275ad70ce6e99862b0283ce4bad6d6",
+      "log_sha256": "6f973ffe785afb815a5239b58747501cbd41f2f3d74473d1e5d8ed8caf386587",
+      "source_sha256": "9ee135dcb77f9ecaaf412234ed08f416934d81bfd20108aec95ce09f3a7495ec",
+      "step_counts": {
+        "passed": 25
+      }
+    },
+    {
+      "case": "TC_DA_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 700,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "a4ab20cdba9a4d7e87e70cdfcfc39f60da6581a4557a05b38c765c1b306353cf",
+      "log_sha256": "5ccee51604a650fbb7de560e144cbf1b37746b498c4439456d28beb92fb23202",
+      "source_sha256": "b5f088cf89760a35ecddf10cc31cd85f7bcd0e8421f438af8700ae3060eba26b",
+      "step_counts": {
+        "passed": 13
+      }
+    },
+    {
+      "case": "TC_DA_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 701,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "37e67f84ca264d646ec1d96fcf92d83eab84b509d5722ab4c7af973162a23c3c",
+      "log_sha256": "c4abed2fd2c626bfeb6a62ce0d3e0b971c95d2b68caffe798a8e003c9dd36c18",
+      "source_sha256": "c172860afbd4bf798fdacfdbc15894082e582e1dfcdc4b0d5c0a313b3355ca67",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_OPCREDS_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 702,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "f02b14a508568b03303edd77c559780e082999477f8cc1bf6bcdde238e99b330",
+      "log_sha256": "a830d716b6d518cb7f50f428a9e084d949ffd4cacda512208027c4343404949f",
+      "source_sha256": "66cd49bb82bcd54b4942289306693d095a42f7021132bd00d0552fadf2e6debd",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_OPCREDS_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 703,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "12cd2098ffb612650855b55c0fdd204e0f234a2e179d060a4e5d857416c55c42",
+      "log_sha256": "f2d1dab67bf3ba07892f9d2b0f9a8e02922807529fd02412682dc1b049ab86e4",
+      "source_sha256": "b4cbbb00cdd1328eca051a74955f5ebab5b064eb3d730c0593bb2cb454d304b6",
+      "step_counts": {
+        "passed": 11
+      }
+    },
+    {
+      "case": "TC_OPCREDS_3_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 704,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "fac848d5aa86cc0aa38f919a51c1fddf36fe28db82f7945e708debaf93064b85",
+      "log_sha256": "bd3f2afba2c68b5f7824f1a563328551a8ed41e5b53e4fe7e6a1fc2b9be80e6b",
+      "source_sha256": "3db4d174b0d30af7a014997d0d39038192464c40fc4b96c16065229e55ced455",
+      "step_counts": {
+        "passed": 22
+      }
+    },
+    {
+      "case": "TC_OPCREDS_3_8",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 705,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "dbb770f5afbbbbfab98a289f858169def555402daf0fe62347e8bbe0a8c09ead",
+      "log_sha256": "e79c6af21d6e674728b290e7dcbf930fafd745d7ccb8bfb33ed5b22b3612adc7",
+      "source_sha256": "5caa3bfc67e3dbf3f4642fd33cd9355b5033396a668ba4bcacbc449122da4025",
+      "step_counts": {
+        "passed": 31
+      }
+    },
+    {
+      "case": "TC_DD_1_16",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 706,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "a2743efc5069e8160b469608b813db82352d7b04d9d21a4b63f69944bdd2933a",
+      "log_sha256": "f50c5e462f949441af59caf0df4977b4d078b958d1bee76bdb4bff5f3e1a639d",
+      "source_sha256": "48a72fd9b29a863e74fa1ce0b782113bcd93b21e0aa0056a0f0340543862c375",
+      "step_counts": {
+        "passed": 4,
+        "not_applicable": 1
+      }
+    },
+    {
+      "case": "TC_DD_1_17",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 707,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "ff4a7fb2d14b7f34c89950626bd2bbd41219405b4fdbfa2bdcd360eb6b46c283",
+      "log_sha256": "a1e76fbea2b7ba75e8f8d5d1afa02adb2c5179ca6bb8df6f29f0ffbc27867630",
+      "source_sha256": "48a72fd9b29a863e74fa1ce0b782113bcd93b21e0aa0056a0f0340543862c375",
+      "step_counts": {
+        "passed": 4,
+        "not_applicable": 2
+      }
+    },
+    {
+      "case": "TC_SC_7_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 708,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "b251e3df8afcbb6e50604ae39fdedc856fa2d9b71ebc44fe325a8e06d5f1416b",
+      "log_sha256": "42882d52491e08e13701cf40b49bf844ae791998f2456508d4b351388db74263",
+      "source_sha256": "a247726d986d6208d77d6cd14335c8d41ca73c6dd6573acc57b14e2dec28ed19",
+      "step_counts": {
+        "passed": 6
+      }
+    },
+    {
+      "case": "TC_RR_1_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 709,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "b08362e6ae0565de40d2842c82cae78edb385275d0b3ef278cead163f573bdf0",
+      "log_sha256": "94933583eaf2f85b06ab449526e4065f74485d31b19c2aed5e90c5ba4c71c833",
+      "source_sha256": "9cf8c4a39c1fe2f55a69f26753c0b6bf3a8ad79ad058fbe7e507b312ddb7520f",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_SC_3_6",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 710,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "198de6d54fb6bfba12f57349696f28fdc193376f7261e4ecd347d094a8efa749",
+      "log_sha256": "473c5a4ab5339036a23f5536f8d4d0d90c24e766ab47cbd8bd0d12ebc5ccbaed",
+      "source_sha256": "f0c154d7da053774fe5b3454d176ab64b4fa329c3ff5adac3840f98ddf8c0717",
+      "step_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "case": "TC_DA_1_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 711,
+      "verdict": "PASS",
+      "state": "TestStateEnum.passed",
+      "raw_sha256": "9e7150e16a11cae288fc6a71d5004f487e889976f625e4d6eee029117e36374b",
+      "log_sha256": "b5a322dbc32cdbc0e6111f37a8bb383ca83db300768c89d83cc9cdfd166f4c34",
+      "source_sha256": "c71532d1ca884b3063a7def69f4bf0238a6179f947091147482c41bbda731af2",
+      "step_counts": {
+        "passed": 18
+      }
+    }
+  ],
+  "frozen_identity": {
+    "files": 862,
+    "all_match_after": true,
+    "source_manifest_sha256": "2b89be3d1f499f9a054eb29177fffd15ea7508ad6bfcce0a2e143764aac002df",
+    "normal_binary_sha256": "695359e324142cbfcabf5a583ae742fa73bb3911791ed112ec5815b38e6761f0",
+    "normal_binary_matches_DUT_build": true,
+    "SDK_source_files": 76,
+    "SDK_sources_match_after": true,
+    "shared_support_matches_after": true,
+    "PICS": {
+      "qr": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "two-codes": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "trigger-5": "de41ae3dec452153a5028086fd7d6d34e3918ca5e06f5e68707d8798182c163e",
+      "3": "de41ae3dec452153a5028086fd7d6d34e3918ca5e06f5e68707d8798182c163e",
+      "0": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "trigger-4": "de41ae3dec452153a5028086fd7d6d34e3918ca5e06f5e68707d8798182c163e",
+      "manual": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "4": "de41ae3dec452153a5028086fd7d6d34e3918ca5e06f5e68707d8798182c163e",
+      "trigger": "9ddbe2c5ba612fc87ebbf712d5a3ce3562ec9cec99a6aad2e1eb88cd98e3db24",
+      "long": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "trigger-3": "de41ae3dec452153a5028086fd7d6d34e3918ca5e06f5e68707d8798182c163e",
+      "5": "de41ae3dec452153a5028086fd7d6d34e3918ca5e06f5e68707d8798182c163e",
+      "1": "9ddbe2c5ba612fc87ebbf712d5a3ce3562ec9cec99a6aad2e1eb88cd98e3db24",
+      "window": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "wifi": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600"
+    },
+    "PICS_note": "Effective current root/phase fixtures; frozen baseline. These are source/helper fingerprints, not a fresh independent SDK binding Git identity.",
+    "harness_baseline": {
+      "repository_commit": "4cb5753ffb6915850fbf02b1dfbbcd382945ede2",
+      "existing_sdk_container_sha256": "07a6da1895e95a550a7eaf44786e87fd1077bfe1ba725c32fa55b7bb0631e442"
+    }
+  },
+  "native_regression": {
+    "Windows": {
+      "CTest": 112,
+      "failed": 0,
+      "CTest_log_sha256": "946db3aacb954c1a9b02d28216e6eae850460b4efccd31d7099282e4d1a66c24",
+      "build_log_sha256": "771cbebc7786c3bdb61d9b3c301718fd0e506315202f8db643f28f02769de8e7",
+      "compiler": "GCC16.2.0 UCRT MinGW",
+      "build_diagnostics": []
+    },
+    "Linux": [
+      {
+        "variant": "normal",
+        "CTest": {
+          "percent": 100,
+          "failed": 0,
+          "total": 109
+        },
+        "CTest_tail": null,
+        "CTest_log_sha256": "878651734d6bfb8debf7f47609610b9d6a30ecd403dfe0b5546218d469207249",
+        "build_diagnostics": [],
+        "binaries": {
+          "matter-node": "695359e324142cbfcabf5a583ae742fa73bb3911791ed112ec5815b38e6761f0",
+          "cmake/tests/runtime-pair-host": "2a70567e998f98250a8bdfc5e7df55a52d45e9f3fa1dd315b14022c9da4d56a9",
+          "cmake/tests/runtime-wire-host": "1ccafc013200d168a17662f543cdb6bb7c3c84453cd6d3e9cc11cc772f909b68"
+        },
+        "pair_checks": 6,
+        "pair_results_sha256": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+        "wire": [
+          {
+            "case": "before",
+            "pass_": true,
+            "elapsed_seconds": 93.356299549,
+            "subscription_snapshots": 30,
+            "full_reads": 15,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 17463,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255786,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 0,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1108,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null
+          },
+          {
+            "case": "after",
+            "pass_": true,
+            "elapsed_seconds": 392.105515531,
+            "subscription_snapshots": 75,
+            "full_reads": 79,
+            "oom_cycles": 3,
+            "stats": {
+              "core_calls": 61419,
+              "core_failures": 3,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254807,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 14,
+              "ack_after_completion": 3400,
+              "wrong_role_acks": 2,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null
+          },
+          {
+            "case": "single-original-before",
+            "pass_": true,
+            "elapsed_seconds": 136.157504805,
+            "subscription_snapshots": 45,
+            "full_reads": 30,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 27553,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255818,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1709,
+              "wrong_role_acks": 4,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": false,
+              "load": {
+                "currentSubscriptions": 14,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 989,
+                "totalInteractionModelMessagesReceived": 989
+              },
+              "stats": {
+                "core_calls": 15875,
+                "core_failures": 0,
+                "core_live": 354,
+                "core_bytes": 181517,
+                "core_peak": 254390,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 1,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1039,
+                "wrong_role_acks": 4,
+                "target_outcome": 2,
+                "target_attempts": 5
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "original",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": null
+            }
+          },
+          {
+            "case": "single-original-after",
+            "pass_": true,
+            "elapsed_seconds": 225.628067733,
+            "subscription_snapshots": 45,
+            "full_reads": 35,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 32952,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254367,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 8,
+              "ack_after_completion": 1893,
+              "wrong_role_acks": 2,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": false,
+              "load": {
+                "currentSubscriptions": 14,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1061,
+                "totalInteractionModelMessagesReceived": 1061
+              },
+              "stats": {
+                "core_calls": 18061,
+                "core_failures": 0,
+                "core_live": 355,
+                "core_bytes": 181534,
+                "core_peak": 254367,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 1,
+                "ack_before_completion": 3,
+                "ack_after_completion": 1108,
+                "wrong_role_acks": 2,
+                "target_outcome": 2,
+                "target_attempts": 5
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "original",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": null
+            }
+          },
+          {
+            "case": "single-corrected-before",
+            "pass_": true,
+            "elapsed_seconds": 130.381830021,
+            "subscription_snapshots": 45,
+            "full_reads": 30,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 27478,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255820,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 1,
+              "ack_after_completion": 1708,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": true,
+              "load": {
+                "currentSubscriptions": 15,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 990,
+                "totalInteractionModelMessagesReceived": 990
+              },
+              "stats": {
+                "core_calls": 15857,
+                "core_failures": 0,
+                "core_live": 372,
+                "core_bytes": 186243,
+                "core_peak": 255820,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 0,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1042,
+                "wrong_role_acks": 0,
+                "target_outcome": 1,
+                "target_attempts": 2
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "corrected",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": "fromInitialMessage: inverse incoming Initiator bit"
+            }
+          },
+          {
+            "case": "single-corrected-after",
+            "pass_": true,
+            "elapsed_seconds": 214.46873653699998,
+            "subscription_snapshots": 45,
+            "full_reads": 35,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 32777,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254572,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 9,
+              "ack_after_completion": 1889,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": true,
+              "load": {
+                "currentSubscriptions": 15,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1051,
+                "totalInteractionModelMessagesReceived": 1051
+              },
+              "stats": {
+                "core_calls": 17718,
+                "core_failures": 0,
+                "core_live": 373,
+                "core_bytes": 186260,
+                "core_peak": 254294,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 0,
+                "ack_before_completion": 5,
+                "ack_after_completion": 1097,
+                "wrong_role_acks": 0,
+                "target_outcome": 1,
+                "target_attempts": 2
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "corrected",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": "fromInitialMessage: inverse incoming Initiator bit"
+            }
+          }
+        ],
+        "wire_result_sha256": "eb0173f696582e46c9cdb4c8748455c586320c4a3275656fbe85a334edf0582f",
+        "memcheck": [
+          {
+            "case": "pair",
+            "zero_errors": true,
+            "zero_exit": true,
+            "sha256": "64ba302a8e3039e26910f3266e61429ff891ca963dbdf7b1e8eb91c57e707d12"
+          },
+          {
+            "case": "before",
+            "zero_errors": true,
+            "zero_exit": true,
+            "sha256": "dc4889c8feb90f7c7e2fa4869fb6f3dbc80e67cf6f88e9b223ca0e15243aaba7"
+          },
+          {
+            "case": "single-corrected-after",
+            "zero_errors": true,
+            "zero_exit": true,
+            "sha256": "91fcb3bf38514af75171460fdcb918b8cea79f8ae260a421ad0f96d20827e2c9"
+          },
+          {
+            "case": "single-original-before",
+            "zero_errors": true,
+            "zero_exit": true,
+            "sha256": "fcf6c8bd1cbb020aac0237653f59dae15882483ee31809d0f59807afa2153b54"
+          },
+          {
+            "case": "after",
+            "zero_errors": true,
+            "zero_exit": true,
+            "sha256": "817c109642cd9f95d2ee3f096fd2adfd9cf1ff0d2884bdbbdf33be718a9430a1"
+          },
+          {
+            "case": "single-original-after",
+            "zero_errors": true,
+            "zero_exit": true,
+            "sha256": "b336cabbbd0ff3d3165aa9c427c4d465215e8fbdfce383af507cea57ea923d7a"
+          },
+          {
+            "case": "single-corrected-before",
+            "zero_errors": true,
+            "zero_exit": true,
+            "sha256": "ecadd5031d9ba023eaa8e9ff087aac2b4fd22fec79ab44957b51bbc2b3691d4e"
+          }
+        ],
+        "stderr_nonempty": [],
+        "wire_host_health": [
+          {
+            "case": "before",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "single-corrected-after",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "single-original-before",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "after",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "single-original-after",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "single-corrected-before",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          }
+        ]
+      },
+      {
+        "variant": "sanitize",
+        "CTest": {
+          "percent": 100,
+          "failed": 0,
+          "total": 109
+        },
+        "CTest_tail": null,
+        "CTest_log_sha256": "2c0a925ab66509f5394cca9f4adefbd3f1fdc7af77343c3a69a9298968ed52e3",
+        "build_diagnostics": [],
+        "binaries": {
+          "matter-node": "b9f8ceaa4c9c79c54bfbb923a7a9daa885ccf0b61c735fe7f5b3745040336f0e",
+          "cmake/tests/runtime-pair-host": "00c43b3f7dd33a25b72006281935f8ca53bc101c083c1a79c2bf24707153485f",
+          "cmake/tests/runtime-wire-host": "429818389b601e73596d5608d8bb22adeb8682a8c32b8cb34db7a4d57a947a07"
+        },
+        "pair_checks": 6,
+        "pair_results_sha256": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+        "wire": [
+          {
+            "case": "before",
+            "pass_": true,
+            "elapsed_seconds": 65.44641563100001,
+            "subscription_snapshots": 30,
+            "full_reads": 15,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 16999,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254095,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 0,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1095,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null
+          },
+          {
+            "case": "after",
+            "pass_": true,
+            "elapsed_seconds": 399.1616243,
+            "subscription_snapshots": 90,
+            "full_reads": 80,
+            "oom_cycles": 3,
+            "stats": {
+              "core_calls": 66861,
+              "core_failures": 3,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 255557,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 105,
+              "ack_after_completion": 3747,
+              "wrong_role_acks": 2,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": null,
+            "diagnostic_peer": null
+          },
+          {
+            "case": "single-original-before",
+            "pass_": true,
+            "elapsed_seconds": 115.33799796400001,
+            "subscription_snapshots": 45,
+            "full_reads": 30,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 27279,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254330,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 1,
+              "ack_after_completion": 1717,
+              "wrong_role_acks": 4,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": false,
+              "load": {
+                "currentSubscriptions": 14,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 989,
+                "totalInteractionModelMessagesReceived": 989
+              },
+              "stats": {
+                "core_calls": 15873,
+                "core_failures": 0,
+                "core_live": 354,
+                "core_bytes": 181521,
+                "core_peak": 254330,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 1,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1059,
+                "wrong_role_acks": 4,
+                "target_outcome": 2,
+                "target_attempts": 5
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "original",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": null
+            }
+          },
+          {
+            "case": "single-original-after",
+            "pass_": true,
+            "elapsed_seconds": 170.60842358500003,
+            "subscription_snapshots": 45,
+            "full_reads": 35,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 31271,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254574,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 3,
+              "ack_after_completion": 1844,
+              "wrong_role_acks": 3,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": false,
+              "load": {
+                "currentSubscriptions": 14,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1034,
+                "totalInteractionModelMessagesReceived": 1034
+              },
+              "stats": {
+                "core_calls": 17188,
+                "core_failures": 0,
+                "core_live": 355,
+                "core_bytes": 181538,
+                "core_peak": 254328,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 1,
+                "ack_before_completion": 1,
+                "ack_after_completion": 1083,
+                "wrong_role_acks": 3,
+                "target_outcome": 2,
+                "target_attempts": 5
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "original",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": null
+            }
+          },
+          {
+            "case": "single-corrected-before",
+            "pass_": true,
+            "elapsed_seconds": 100.140306076,
+            "subscription_snapshots": 45,
+            "full_reads": 30,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 26657,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254101,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1684,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": true,
+              "load": {
+                "currentSubscriptions": 15,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 979,
+                "totalInteractionModelMessagesReceived": 979
+              },
+              "stats": {
+                "core_calls": 15459,
+                "core_failures": 0,
+                "core_live": 373,
+                "core_bytes": 186266,
+                "core_peak": 254101,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 0,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1030,
+                "wrong_role_acks": 0,
+                "target_outcome": 1,
+                "target_attempts": 2
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "corrected",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": "fromInitialMessage: inverse incoming Initiator bit"
+            }
+          },
+          {
+            "case": "single-corrected-after",
+            "pass_": true,
+            "elapsed_seconds": 169.309004393,
+            "subscription_snapshots": 45,
+            "full_reads": 35,
+            "oom_cycles": 0,
+            "stats": {
+              "core_calls": 31514,
+              "core_failures": 0,
+              "core_live": 0,
+              "core_bytes": 0,
+              "core_peak": 254330,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 2,
+              "ack_after_completion": 1855,
+              "wrong_role_acks": 0,
+              "target_outcome": 0,
+              "target_attempts": 0
+            },
+            "single_ack": {
+              "corrected": true,
+              "load": {
+                "currentSubscriptions": 15,
+                "currentSubscriptionsForFabric": 3,
+                "totalSubscriptionsEstablished": 30,
+                "totalInteractionModelMessagesSent": 1035,
+                "totalInteractionModelMessagesReceived": 1035
+              },
+              "stats": {
+                "core_calls": 17239,
+                "core_failures": 0,
+                "core_live": 373,
+                "core_bytes": 186264,
+                "core_peak": 254330,
+                "held_completion": 0,
+                "rx_held": 1,
+                "rx_reordered": 1,
+                "ack_dropped": 1,
+                "unacknowledged": 0,
+                "ack_before_completion": 0,
+                "ack_after_completion": 1086,
+                "wrong_role_acks": 0,
+                "target_outcome": 1,
+                "target_attempts": 2
+              },
+              "case_reads": 15
+            },
+            "diagnostic_peer": {
+              "mode": "corrected",
+              "package": "@matter/protocol",
+              "version": "0.17.9",
+              "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+              "override": "fromInitialMessage: inverse incoming Initiator bit"
+            }
+          }
+        ],
+        "wire_result_sha256": "53b146a953a71aa27a91d932af803ca9d94346c5e059e578cc21efcc858073d8",
+        "memcheck": [],
+        "stderr_nonempty": [],
+        "wire_host_health": [
+          {
+            "case": "before",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "single-corrected-after",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "single-original-before",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "after",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "single-original-after",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          },
+          {
+            "case": "single-corrected-before",
+            "zero_live": true,
+            "sanitizer_diagnostics": false
+          }
+        ]
+      }
+    ],
+    "IPv6": {
+      "variants": [
+        {
+          "variant": "normal",
+          "exit": 0,
+          "raw_cases": 14
+        },
+        {
+          "variant": "sanitize",
+          "exit": 0,
+          "raw_cases": 14
+        }
+      ],
+      "memcheck": {
+        "zero_errors": true,
+        "zero_exit": true
+      },
+      "scope": "Fixed14-case injector, loopback only; pre-existing capability, no permissions changed"
+    },
+    "tool_versions": {
+      "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+      "cmake": "cmake version 3.28.3",
+      "valgrind": "valgrind-3.22.0"
+    },
+    "offline_decoders": {
+      "heap_map": 14,
+      "report_blocks": 11,
+      "failed": 0
+    }
+  },
+  "OTA": [
+    {
+      "variant": "normal",
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "restarts": 1,
+      "driver_sha256": "bd90102ffe0e0f0f79f1ce4172ac03f6d400882400f52ab213f7602da9534331",
+      "binaries": {
+        "requestor": "695359e324142cbfcabf5a583ae742fa73bb3911791ed112ec5815b38e6761f0",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "artifact_sha256": "1d086e16e9fb3e1590aa7a92205043f8d53a6233e15d7aa7e0c85b36fc2aa7bb",
+      "original_automatic_CSA_verdict": false
+    },
+    {
+      "variant": "sanitize",
+      "result": "PASS",
+      "checks": [
+        {
+          "name": "commission-provider",
+          "status": "PASS"
+        },
+        {
+          "name": "commission-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-authorizes-requestor",
+          "status": "PASS"
+        },
+        {
+          "name": "advertised-subscription-budget",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-subscription-before-announcement",
+          "status": "PASS"
+        },
+        {
+          "name": "query-image-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "query-response-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "response-has-usable-bdx-location",
+          "status": "PASS"
+        },
+        {
+          "name": "signed-download-and-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "live-applying-before-reboot",
+          "status": "PASS"
+        },
+        {
+          "name": "download-matches-image",
+          "status": "PASS"
+        },
+        {
+          "name": "provider-received-final-block-ack",
+          "status": "PASS"
+        },
+        {
+          "name": "bdx-peer-binary-transfer-profile",
+          "status": "PASS"
+        },
+        {
+          "name": "notify-update-applied",
+          "status": "PASS"
+        },
+        {
+          "name": "apply-token-and-version-bound-to-query-and-image",
+          "status": "PASS"
+        },
+        {
+          "name": "fresh-case-after-restart",
+          "status": "PASS"
+        },
+        {
+          "name": "state-transition-target-version-fields",
+          "status": "PASS"
+        },
+        {
+          "name": "ota-event-transition-sequence",
+          "status": "PASS"
+        },
+        {
+          "name": "downloading-directly-to-applying",
+          "status": "PASS"
+        },
+        {
+          "name": "version-applied-event-matches-basic-information",
+          "status": "PASS"
+        },
+        {
+          "name": "clean-requestor-stop",
+          "status": "PASS"
+        },
+        {
+          "name": "memory-diagnostics-clean",
+          "status": "PASS"
+        }
+      ],
+      "restarts": 1,
+      "driver_sha256": "bd90102ffe0e0f0f79f1ce4172ac03f6d400882400f52ab213f7602da9534331",
+      "binaries": {
+        "requestor": "b9f8ceaa4c9c79c54bfbb923a7a9daa885ccf0b61c735fe7f5b3745040336f0e",
+        "provider": "237db5687dd541cf324c9351b9d21b41184c9234f8ef6b99bd6e34f0da6b5c40",
+        "chip-tool": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459"
+      },
+      "artifact_sha256": "854de233c91058ec3404addebd4a713428b35051c3074f741e031a111210676b",
+      "original_automatic_CSA_verdict": false
+    }
+  ],
+  "cleanup": {
+    "native_nodes_stopped_cleanly": true,
+    "temporary_PAA_removed": true,
+    "TH_state": {
+      "state": "idle"
+    },
+    "paired_Windows_profiles_changed": false,
+    "VM_services_or_interfaces_changed": false,
+    "source_memory_worktree_untouched": true,
+    "published_or_sent": false,
+    "own_test_processes_remaining": 0
+  },
+  "not_verified": [
+    "Existing27 FAIL and5 prerequisites are retained under CSA72 gates, not rerun/resolved by this PASS-set regression",
+    "Historical24 manual PASS positions were not all repeated as original procedures",
+    "No new physical target, Apple/Google UI, endurance or128KiB RAM-fit acceptance",
+    "Later Memory40/source commits excluded; no automatic absorption of ongoing work",
+    "Laboratory development identities only; no production provisioning/DCL qualification or certification"
+  ],
+  "next": "Review Memory40 as a separate frozen integration with its own affected-path and protocol regression; continue CSA72 clarification/prerequisite work without relabelling its open results.",
+  "observed_utc": "2026-10-24T02:03:08.038416+00:00"
+}

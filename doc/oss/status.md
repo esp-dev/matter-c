@@ -1,5 +1,21 @@
 # Development status
 
+**CSA73: frozen Memory39 integration passes regression.**
+Forty committed changes through `6c9835a` merged without conflicts into candidate
+`ff3a732`, preserving CSA70..72. Memory40/later work and the independent source
+worktree remain outside this integration. [Report](csa73-validation.md),
+[receipt](csa73-results.json) and [gates](csa73-integration-plan.md).
+All99 previously PASS automatic positions pass again: original98-case sweep and
+distinct-DAC TC_DA_1_7. Windows112/112 and Linux109/109 in each build pass. Full
+two-node lifecycle, six wire cases and14 IPv6 cases pass under Memcheck and
+separate ASan/UBSan/LSan; signed simulated OTA passes22 checks in each variant.
+Twenty-five offline decoder tests pass. No compiler or memory diagnostics;
+native lifetimes drain cleanly, temporary PAA removed, TH idle. Paired desktop
+profiles, source worktree, VM services/interfaces and physical targets untouched.
+Counts remain123 PASS/27 FAIL/5 prerequisites;24 manual PASS outcomes are historical.
+No new full-matrix/certification/RAM-fit claim. Next: separately frozen Memory40
+review and affected-path regression; continue the existing CSA72 gates. No push.
+
 **Memory39: measured stable Read/Subscribe block occupancy.**
 The observed joint attribute-table footprint is 89248 B, with 14272 B empty slots
 and 2400 B headers. Idle fifteen-subscription metadata is 45840 B. Independent
