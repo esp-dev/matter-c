@@ -1,5 +1,20 @@
 # Development status
 
+**Memory40: release consumed Read blocks after IM and MRP.**
+Whole prefix pages leave at the existing successful continuation gate; remaining
+ordinals/addresses, partial ARRAYs, limits, snapshots and ACK/drain stay intact.
+The matched normal C6 heap peak changes 325808 -> 325056 B;
+minimum sampled free 90452 -> 91168 B; SDK minimum
+88660 -> 88356 B. Earlier release is proved; the mixed small
+global extrema do not establish a substantial peak saving. RAM static sections and compiler
+frames are unchanged. Windows 112/112, Linux 109/109 per build, full two-instance
+Memcheck and separate sanitizer scenarios and all six wire cases pass. Both ACK
+orders, all 512 results, continuation OOM and partial-page lifetimes are checked.
+Four C6 runs finish with zero core objects/bytes and no SDK OOM. Original fabric,
+normal Memory40, RGB/drain and AP/COM cleanup pass; IPv6 enabled, COM24 untouched.
+See [report](memory40-validation.md) and [results](memory40-results.json).
+Next: measure sparse Subscribe value-page geometry against the dense 512-result case.
+
 **Memory39: measured stable Read/Subscribe block occupancy.**
 The observed joint attribute-table footprint is 89248 B, with 14272 B empty slots
 and 2400 B headers. Idle fifteen-subscription metadata is 45840 B. Independent

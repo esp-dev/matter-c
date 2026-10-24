@@ -106,6 +106,14 @@ maxima are not summed. Reproducible isolated generators/checked decoding leave
 normal storage unchanged. C6 and native tests pass; normal Memory38/original
 fabric are restored and COM/AP released. Next: consumed Read prefix blocks.
 
+The [Memory40 Read prefix reclamation](doc/oss/memory40-validation.md) releases
+complete consumed pages after both IM success and MRP confirmation. Remaining
+snapshots keep stable addresses; limits and ACK/drain are unchanged. The matched
+normal C6 sampled whole-heap peak changes by -752 B and
+minimum sampled free by +716 B; the SDK historical minimum changes
+by -304 B. These small mixed extrema do not prove a substantial
+global-peak saving. Host, OOM and physical regressions pass.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

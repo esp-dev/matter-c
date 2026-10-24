@@ -1287,6 +1287,16 @@
       "allocation_variant": "not applicable"
     },
     {
+      "path": "tools/matter/tests/test_im_read_reclaim.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
       "path": "tools/matter/tests/test_im_complex.h",
       "kind": "fixture-or-helper",
       "ctest": [],
