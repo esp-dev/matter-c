@@ -12,6 +12,13 @@ to check that public evidence and the queue agree.
 The application owns scheduling, networking, storage and hardware callbacks.
 Multiple runtimes can run in one process/thread. The core does not require
 ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).
+The optional [native ESP OTA installer](components/matter_c_esp32/OTA.md)
+adds signed inactive-partition writes, real reboot/rollback and provider
+notification; [Memory42](doc/oss/memory42-validation.md) records its validation.
+The [same-IDF C6 user-case comparison](doc/oss/memory43-validation.md) includes
+commissioning, RGB/Subscribe, multi-admin, signed OTA and Wi-Fi-preserving deletion.
+Its [heap chart](doc/oss/memory43/free-heap.png) records application headroom
+against an optimized ESP-Matter1.6.1 reference, including SDK and task stacks.
 The optional [native wire regression](doc/runtime-wire-tests.md) reuses the C6
 oracle for fast loopback RGB/Read/Subscribe tests, controlled ACK/RX/TX faults,
 allocation failures and orderly stop, without a board or access point.

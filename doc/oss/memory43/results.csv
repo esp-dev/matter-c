@@ -1,0 +1,23 @@
+stack,case,label,free_min_sdk_bytes,free_min_sampled_bytes,free_last_bytes,largest_min_sampled_bytes,largest_last_bytes,free_blocks_last,telemetry_records
+c,never-created,"Wi-Fi ready, Matter not created",355068,357304,357332,335872,335872,7,1
+c,wifi-onboarding,Wi-Fi + stack start,272276,274164,274684,258048,258048,3,5
+c,commissioning,On-network commissioning,243896,243932,269248,225280,245760,14,1
+c,first-session,First CASE session,265440,268612,269948,245760,245760,16,1
+c,control-subscribe,RGB control + subscription,264664,267844,269084,245760,245760,14,1
+c,multiple-controllers,Three CASE sessions,260568,262924,266476,245760,245760,13,1
+c,multi-admin,Second fabric,236844,238756,263976,221184,241664,22,1
+c,fabric-removal,Remove fabric,241464,241512,266464,221184,245760,22,1
+c,ota-download,"OTA download, apply + reboot",248028,248300,269604,229376,249856,8,8
+c,ota-reboot-reconnect,Reconnect after OTA,261572,266552,268516,245760,249856,11,1
+c,matter-absent,"Matter stopped, Wi-Fi active",355048,355676,357620,258048,258048,29,2
+reference,never-created,"Wi-Fi ready, Matter not created",318856,321680,321684,303104,303104,7,1
+reference,wifi-onboarding,Wi-Fi + stack start,286720,294256,294340,278528,278528,6,129
+reference,commissioning,On-network commissioning,282248,287948,293620,270336,270336,9,3
+reference,first-session,First CASE session,286412,293624,293664,270336,270336,9,4
+reference,control-subscribe,RGB control + subscription,286388,291716,293664,270336,270336,9,7
+reference,multiple-controllers,Three CASE sessions,281856,284784,293452,262144,270336,11,24
+reference,multi-admin,Second fabric,281948,287940,292404,270336,270336,10,9
+reference,fabric-removal,Remove fabric,285372,288048,293320,262144,270336,8,7
+reference,ota-download,"OTA download, apply + reboot",278588,284632,293496,262144,270336,8,52
+reference,ota-reboot-reconnect,Reconnect after OTA,285720,291880,293364,270336,270336,8,8
+reference,matter-absent,"Matter stopped, Wi-Fi active",315504,317592,317612,270336,270336,19,7

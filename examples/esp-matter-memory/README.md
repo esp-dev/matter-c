@@ -155,3 +155,107 @@ remains linked. Do not equate a connected netif or returning `Shutdown()` with
 complete RAM reclamation, unchanged application services, or proven restart.
 Compare a separate Wi-Fi-only reference configuration when BLE is unnecessary;
 retain the stock BLE-after-commissioning result and all Matter resource limits.
+
+## Same-IDF user case with real OTA
+
+[Memory42](../../doc/oss/memory42-validation.md) adds the native ESP installer.
+[Memory43](../../doc/oss/memory43-validation.md) measures both physical C6 boards
+with IDF6.0.2, mDNS1.14.0, BLE off, CHIP shell off and real signed OTA1→2.
+The matched controller is pinned Matter.js0.17.9; chip-tool is also suitable
+when its host can reach the DUT's scoped IPv6 address. Manual Apple/Google Home
+and production attestation are separate tests.
+
+The preparation tool modifies the C lab's defaults and partition file in an
+**exported source copy**. It rejects a Git checkout. Build outside shared SDK
+trees and use new output directories:
+
+```sh
+# Export this repository to <exported-c> first; do not use the working checkout.
+python tools/matter/prepare_esp_memory_reference.py \
+  --esp-matter <pinned-esp-matter> --output <new-hs-reference> \
+  --sdkconfig doc/oss/memory43/profiles/reference-sdkconfig --hue-saturation
+python tools/matter/prepare_memory_comparison.py --kind reference \
+  --source <new-hs-reference> --output <new-lifecycle-reference> --reserve-bytes 0
+python tools/matter/prepare_esp_usercase.py --source <exported-c> \
+  --reference <new-lifecycle-reference> --output <new-usercase-profiles>
+```
+
+Activate pinned IDF6.0.2 and ESP-Matter1.6.1. Use the same mDNS1.14.0 component
+for both projects; retain the reference's resolved dependency lock/components.
+Build the reference output directly and C at `<exported-c>/examples/esp32-runtime`.
+C requires `MATTER_LAB_MDNS_DIR` and `MATTER_C_LAB_CONFIG_DIR`. The latter can
+point to a public stub `matter_lab_wifi.h` with empty SSID/password strings:
+this profile obtains actual Wi-Fi bytes from NVS instead. Keep old fault-image
+and normal-image build directories/configs separate. Exact measured configs
+and hashes are under `doc/oss/memory43/`.
+
+```sh
+idf.py -C <exported-c>/examples/esp32-runtime -B <new-c-build> \
+  -D SDKCONFIG=<new-c-sdkconfig> -D IDF_TARGET=esp32c6 \
+  -D MATTER_LAB_MDNS_DIR=<mdns-1.14-component> \
+  -D MATTER_C_LAB_CONFIG_DIR=<stub-directory> build
+idf.py -C <new-usercase-profiles>/reference -B <new-reference-build> \
+  -D IDF_TARGET=esp32c6 build
+```
+
+For version2 set `CONFIG_APP_PROJECT_VER="2"` in both configs and
+`CONFIG_DEVICE_SOFTWARE_VERSION_NUMBER=2`,
+`CONFIG_DEVICE_SOFTWARE_VERSION_STRING="2"` in the reference, then reconfigure
+and rebuild. Preserve each version's ELF/map/config and flash manifest before
+reusing any build directory. Compilation used at most4 jobs, including CHIP's
+nested Ninja via a project-local PATH wrapper; shared SDKs were not modified.
+
+Before destructive lab setup, save and verify the entire original4MiB flash
+and the original controller state. The new shared partition layout changes
+offsets: table0xc000, NVS0x10000/256KiB, otadata0x50000, ota_0 at0x60000 and
+ota_1 at0x230000, each0x1d0000 bytes. Do not migrate by overwriting only an app.
+Provision default NVS namespace `lab_wifi`, blob keys `ssid` and `password`,
+locally. Sign both initial and update app images with the same local RSA3072
+key using `espsecure sign-data --version 2`, then wrap the signed update payload
+in a standard Matter OTA image (VID0xfff1/PID0x8000, numeric version2, SHA-256).
+Hardware Secure Boot and eFuses are not enabled. No signing keys, NVS seeds,
+network credentials, controller keys or raw logs belong in public exports.
+
+Use one new private output folder per run, with its version2 Matter image named
+`source.ota`. Flash signed version1 and provision Wi-Fi, then start capture before
+the controller. Substitute COM24 and `reference` for the other board:
+
+```sh
+python examples/esp-matter-memory/usercase_uart.py \
+  --port COM23 --output <private-c-run> --reset
+node examples/esp-matter-memory/usercase.mjs <node_modules> <scoped-ipv6> \
+  <private-c-run> c Wi-Fi full
+```
+
+The collector uses UART1M and follows reboots. A local `control-request.json`
+with `{"command":"stop"}` releases it. Digits0..9 select measurement phases;
+`m` records a checkpoint, `u` queries OTA, `q` deletes Matter while preserving
+Wi-Fi. On C only, `x` arms a single interrupted SDK trial boot. The controller
+waits for firmware READY, records successful version readback and requires one
+Apply and matching Notify after actual restart. Its Busy retries are bounded
+client behavior, not server capacity changes or shorter Matter timers.
+
+The optional C `commission-ota` mode with environment
+`MATTER_USERCASE_OTA_EXPECT=reject|interrupt|rollback` exercises a wrong signer,
+interrupted BDX or SDK rollback respectively. Use a fresh disposable version1
+setup each time. For `reject`, supply a valid Matter envelope around an image
+signed with a different private key. The interrupt case also needs separate
+inactive-flash readback to prove a partial transfer. `ota-only`, `commission-only`
+and provider-only `serve` modes support private diagnosis; they are not headline
+matched runs.
+
+After a full run, require external IPv6 ping3/3 while Matter is stopped and save
+`wifi-after-stop-ping.json` as `{"pass":true,"probes":3}` **only after that test**.
+Then export verified numeric data and plots (matplotlib required):
+
+```sh
+python tools/matter/plot_esp_usercase.py --c <private-c-run> \
+  --reference <private-reference-run> --output <new-public-results>
+```
+
+The exporter rejects failed/incomplete runs, missing phase data, OOM or missing
+post-shutdown ping evidence. It emits numeric JSON/CSV and lavender/blue PNG/SVG,
+without copying raw UART or controller stores. Inspect both plots visually.
+Finally restore both original full-flash images, probe their original controllers
+with fresh CASE/control/readback, stop collectors and release only the temporary
+AP profile. Leave the user's IPv6 setting intact.

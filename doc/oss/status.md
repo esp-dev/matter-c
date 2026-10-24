@@ -1,5 +1,29 @@
 # Development status
 
+**Memory42/43: native signed ESP OTA and same-IDF user-case comparison.**
+Both C6 boards run IDF6.0.2, mDNS1.14.0, BLE off and size optimization; reference
+CHIP shell is off. Real signed version1→2 download/install/reboot/Notify, fresh
+CASE/RGB/Subscribe, three CASE sessions, a second fabric and its live removal
+pass on both. Zero SDK OOM or unexpected subscription closure. C also passes
+physical wrong-signer rejection, interrupted download and pending-image rollback,
+retaining version1 and its fabric. Host suites, full two-instance Memcheck then
+separate sanitizers, wire regressions and SDK boundary OOM/crash models pass as
+detailed in [Memory42](memory42-validation.md). IDF6.1 compatibility is compiled,
+not flashed. Optional installer API/journal are separate from WWOTA simulation;
+old configurations, protocol limits and ACK/drain remain intact.
+
+Minimum SDK phase free heap is236844 /278588 B (C/reference), a41744 B active
+advantage for the optimized reference. At65s after deletion with Wi-Fi active,
+current free is357620 /317612 B, a40008 B advantage for C; largest blocks are
+258048 /270336 B. Both post-deletion IPv6 pings pass3/3. See the
+[report](memory43-validation.md), [chart](memory43/free-heap.png) and numeric data
+for conservative-versus-sampled minima, retained model/ECC/pool differences and
+scope. This is one full final run per stack, not CSA or manual Home certification.
+No MQTT/HTTP application fit is claimed. Optimization remains closed.
+Original full flash and controller/fabric state were restored on both boards;
+fresh CASE/control/readback pass, COM/AP are released and IPv6 remains enabled.
+Next: minimum compliant Wi-Fi RGB-light model, QR and recovery policy.
+
 **Memory41: optimization closed; measured application headroom versus CHIP.**
 Memory40/f366c2c library and C SDK settings are unchanged. Two common-workload
 normal repeats/stack pass. Isolated C/standard-CHIP/Wi-Fi-only-CHIP runs retain

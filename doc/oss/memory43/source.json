@@ -1,0 +1,22 @@
+{
+  "revision": "0851c476d78cd323ab5b2c692a86fbab23eed1e3",
+  "hash_normalization": "CRLF to LF",
+  "vm_source_matches": true,
+  "files": {
+    "components/matter_c_esp32/matter_idf_ota.c": "bf065f2f4e78bc55da7566d930871d3c95a034f4465152b5c05e0a24ae196258",
+    "components/matter_c_esp32/matter_idf_ota.h": "03c30cb06c24670edef397c84ea4b32a15c421b2d31bb7daa78bbaf7cef6a29c",
+    "components/matter_c_esp32/matter_idf_resolver.c": "abf927ad7b4972c4775d82c3a9d6e1f76fab400d9b7ab79db40bba426f21baf8",
+    "components/matter_c_esp32/matter_idf_resolver.h": "44ba1b6342cfbb458f284fa9a93a2b951bd3aee263eb5eabddd742d6a320fbcf",
+    "components/matter_c_esp32/matter_idf_store.c": "509e663c2982fe02d136b852a753d6eb2347cf36a6be1e21ead69608f4f51f55",
+    "components/matter_c_esp32/matter_idf_store.h": "c544ea79372816e2380c75e4873d4214f7d9e32145d6dd00704d45063970395a",
+    "examples/esp32-common/matter_lab_provision.h": "7312a26ec2eb40635dad555f1861bdb07fbe82229c146c9834834b76598eb1fa",
+    "examples/esp32-common/matter_lab_usercase.h": "67ea5ae3d7e56278c419a64e2d4cc981a306eeb877c22488042190269be425da",
+    "examples/esp32-runtime/main/app_main.c": "d633a8a9415ca43c43958c893bf1495fc68b3476d29b0d96b2d7446a43401648",
+    "main/apps/matter/codec/matter_ota_header_internal.h": "9def67afe38b38b3522b7fbbf1ae4ef675996245f265f0360c7c36cc1dffb075",
+    "main/apps/matter/runtime/matter_ota_install.h": "9a30f5f631af6778b94f98a3d54aab97fa54b135a18f4a0c2bc493aae9ce94cc",
+    "main/apps/matter/runtime/matter_runtime.c": "eec7e0acfd319fd6a8b0bb4973fcc1f00404dc9fb9bc67ad2e49a04538dcd513",
+    "main/apps/matter/runtime/matter_runtime.h": "1e4b38ec4e42d35e734d8fee1e77dfa189d47c232b2bf4000cf495f45c5e1721",
+    "tools/matter/host/matter_ota_file.c": "70ed7b50f0d1d06b6f36094a9f95e80c6246e41e9a4c82ade89af156e8ef00a3",
+    "tools/matter/host/matter_server.c": "e640b0339b49724719e38b75c652cd770e56ae59de3976206fff5df80be74a84"
+  }
+}
