@@ -1,5 +1,5 @@
-idf_component_register(SRCS "matter_idf_udp.c" "matter_idf_store.c" "matter_idf_discovery.c"
-    INCLUDE_DIRS "." REQUIRES matter_c esp_netif lwip nvs_flash mdns PRIV_REQUIRES esp_timer)
+idf_component_register(SRCS "matter_idf_udp.c" "matter_idf_store.c" "matter_idf_discovery.c" "matter_idf_ota.c" "matter_idf_resolver.c"
+    INCLUDE_DIRS "." REQUIRES matter_c esp_netif lwip nvs_flash mdns PRIV_REQUIRES esp_timer app_update bootloader_support esp_app_format esp_hw_support)
 target_compile_options(${COMPONENT_LIB} PRIVATE -fstack-usage)
 if(CONFIG_MATTER_C_PROFILE_ALLOCATIONS)
     target_compile_options(${COMPONENT_LIB} PRIVATE

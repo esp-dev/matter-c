@@ -144,14 +144,17 @@ static Node* node_new(unsigned id) {
     return n;
 }
 static void run(Node* n,uint64_t now) { Matter_Result_T r=matter_runtime_process(n->runtime,now); CHECK(r==MATTER_OK || r==MATTER_PENDING); }
-static void start_node(Node* n) {
-    n->runtime=matter_runtime_new(&n->config,20202021,0); CHECK(n->runtime);
+static void start_created_node(Node* n) {
     n->owner=matter_new(NULL); CHECK(n->owner && matter_start(n->owner)==MATTER_OK);
     Matter_Udp_Port_T port={n,activate,deactivate,send_packet,cancel_packet,detach};
     Matter_Udp_Listener_T listener={n,received,sent};
     n->udp=matter_udp_new(n->owner,&port,&listener); CHECK(n->udp && matter_udp_start(n->udp)==MATTER_OK);
     Matter_Events_Port_T events={n,event_load,event_store}; n->events=matter_events_new(&events); CHECK(n->events);
     CHECK(matter_runtime_start(n->runtime,n->owner,n->udp,n->events)==MATTER_OK);
+}
+static void start_node(Node* n) {
+    n->runtime=matter_runtime_new(&n->config,20202021,0); CHECK(n->runtime);
+    start_created_node(n);
 }
 static Matter_Result_T time_sample(void* u,uint64_t now,Matter_Time_Sync_Sample_T* out) {
     (void)now; *out=((Node*)u)->time_sample; return MATTER_OK;
@@ -308,7 +311,89 @@ static void pending_recovery(void) {
     }
     puts("PASS boot recovery: deferred radio is pumped, error preserves durable marker, admission stays closed, stop remains terminal");
 }
+typedef struct {
+    Matter_Ota_Install_Port_T port; Matter_Runtime_Ota_Port_T ota;
+    Matter_Ota_Install_Boot_T boot; Node* owner;
+    unsigned confirmations,claims; bool present,fail_confirm;
+} Installed;
+static const Matter_Ota_Install_Boot_T* installed_state(void* u) {
+    Installed* p=u; return p->present?&p->boot:NULL;
+}
+static Matter_Result_T installed_accept(void* u,const Matter_Ota_Apply_Context_T* c,const uint8_t fp[32]) {
+    (void)u; (void)c; (void)fp; CHECK(false); return MATTER_INVALID_STATE;
+}
+static Matter_Result_T installed_confirm(void* u) {
+    Installed* p=u;
+    CHECK(matter_runtime_ota_boot_ready(p->owner->runtime)==MATTER_BUSY);
+    CHECK(matter_runtime_process(p->owner->runtime,999999)==MATTER_BUSY);
+    CHECK(matter_runtime_stop(p->owner->runtime,999999)==MATTER_BUSY);
+    CHECK(matter_runtime_delete(p->owner->runtime)==MATTER_BUSY);
+    if(p->fail_confirm) return MATTER_PORT_ERROR;
+    ++p->confirmations;
+    if(p->boot.state==MATTER_OTA_INSTALL_ROLLBACK) p->present=false;
+    else p->boot.state=MATTER_OTA_INSTALL_NOTIFY;
+    return MATTER_OK;
+}
+static Matter_Result_T installed_claim(void* u,const uint8_t fp[32],bool live_fabric,Matter_Ota_Apply_Context_T* out) {
+    Installed* p=u; (void)out;
+    CHECK(p->present && p->boot.state==MATTER_OTA_INSTALL_NOTIFY && !live_fabric);
+    for(unsigned i=0;i<32;++i) CHECK(!fp[i]);
+    p->present=false; ++p->claims; return MATTER_OFFLINE;
+}
+static Matter_Result_T installed_simple(void* u) { (void)u; return MATTER_OK; }
+static Matter_Result_T installed_prepare(void* u,uint32_t version) { (void)u; (void)version; return MATTER_OK; }
+static Matter_Result_T installed_write(void* u,const uint8_t* data,size_t size) { (void)u; (void)data; (void)size; return MATTER_OK; }
+static Matter_Result_T installed_finish(void* u,uint64_t size) { (void)u; (void)size; return MATTER_OK; }
+static void installed_cancel(void* u) { (void)u; }
+static uint64_t installed_artifact(void* u) { (void)u; return 1; }
+static Matter_Result_T installed_check(void* u,uint64_t artifact) { (void)u; return artifact==1?MATTER_OK:MATTER_INVALID_ARGUMENT; }
+static void native_boot_policy(void) {
+    for(unsigned rollback=0;rollback<2;++rollback) {
+        Node* n=node_new(0); n->identity.software_version=2;
+        Installed* p=calloc(1,sizeof(*p)); CHECK(p); p->owner=n; p->present=true;
+        p->boot.state=rollback?MATTER_OTA_INSTALL_ROLLBACK:MATTER_OTA_INSTALL_TRIAL;
+        p->boot.context=(Matter_Ota_Apply_Context_T){.provider={.fabric=1,.node=42,.endpoint=0},.version=2,.token_size=8};
+        p->port=(Matter_Ota_Install_Port_T){p,installed_state,installed_accept,installed_confirm,installed_claim};
+        p->ota=(Matter_Runtime_Ota_Port_T){.user=p,.sink={p,installed_simple,installed_write,installed_finish,installed_cancel},
+            .limit=4096,.prepare=installed_prepare,.commit=installed_simple,.artifact=installed_artifact,.check=installed_check,
+            .invalidate=installed_cancel,.cancel=installed_cancel,.install=&p->port};
+        n->runtime=matter_runtime_new(&n->config,20202021,0); CHECK(n->runtime);
+        p->port.claim=NULL; CHECK(matter_runtime_set_ota(n->runtime,&p->ota)==MATTER_INVALID_ARGUMENT);
+        p->port.claim=installed_claim; CHECK(matter_runtime_set_ota(n->runtime,&p->ota)==MATTER_OK);
+        CHECK(matter_runtime_ota_boot_ready(n->runtime)==MATTER_INVALID_STATE);
+        start_created_node(n);
+        uint64_t before,after; CHECK(matter_events_position(n->events,&before)==MATTER_OK);
+        if(!rollback) {
+            CHECK(matter_runtime_ota_trial(n->runtime));
+            CHECK(matter_runtime_ota_request_query(n->runtime)==MATTER_BUSY);
+            p->boot.context.token_size=33; CHECK(matter_runtime_ota_boot_ready(n->runtime)==MATTER_INVALID_STATE);
+            run(n,1); CHECK(!p->claims && !p->confirmations);
+            p->boot.context.token_size=8; p->boot.context.version=3;
+            CHECK(matter_runtime_ota_boot_ready(n->runtime)==MATTER_INVALID_STATE);
+            p->boot.context.version=2; p->fail_confirm=true;
+            CHECK(matter_runtime_ota_boot_ready(n->runtime)==MATTER_PORT_ERROR);
+            CHECK(matter_events_position(n->events,&after)==MATTER_OK && before==after);
+            p->fail_confirm=false;
+#ifdef MATTER_TEST_ALLOC
+            fail_at=calls+1;
+            CHECK(matter_runtime_ota_boot_ready(n->runtime)==MATTER_LIMIT_REACHED);
+            fail_at=0;
+            CHECK(p->confirmations==1 && p->boot.state==MATTER_OTA_INSTALL_NOTIFY);
+            run(n,2); CHECK(!p->claims); /* VersionApplied still unpublished. */
+#endif
+        }
+        CHECK(matter_runtime_ota_boot_ready(n->runtime)==MATTER_OK);
+        CHECK(matter_events_position(n->events,&after)==MATTER_OK && after==before+(rollback?0:1));
+        CHECK(p->confirmations==1 && !matter_runtime_ota_trial(n->runtime));
+        CHECK(matter_runtime_ota_boot_ready(n->runtime)==MATTER_OK);
+        CHECK(matter_events_position(n->events,&before)==MATTER_OK && before==after);
+        run(n,3); run(n,4); CHECK(p->claims==(rollback?0u:1u));
+        close_runtime(n,5); free_node(n); free(p);
+    }
+    puts("PASS native OTA boot: actual-version/token bounds, confirmation failure/OOM, no premature Notify, orphan claim, rollback and callback reentry");
+}
 int main(void) {
+    native_boot_policy();
     Node* a=node_new(0); Node* b=node_new(1);
     CHECK(matter_runtime_ota_request_query(NULL)==MATTER_INVALID_ARGUMENT);
     CHECK(!matter_runtime_ota_reboot_ready(NULL));

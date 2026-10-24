@@ -3,6 +3,7 @@
 #include "matter_dispatch.h"
 #include "matter_store_host.h"
 #include "../clusters/matter_ota_update.h"
+#include "matter_ota_install.h"
 
 typedef struct Matter_Runtime* Matter_Runtime_T;
 /* Copied ports, borrowed users; one owner thread, no inline runtime reentry.
@@ -44,6 +45,10 @@ typedef struct {
      * Invalid values are reported unknown.
      * Zero-initialize omitted callbacks; consumers must rebuild for this field. */
     int (*progress)(void*);
+    /* Optional real installer, mutually exclusive with config.update. Borrowed
+     * port/user outlive runtime deletion. NULL preserves download-only behavior
+     * (no unverified installation) or the existing explicit simulation. */
+    const Matter_Ota_Install_Port_T* install;
 } Matter_Runtime_Ota_Port_T;
 typedef struct {
     const Matter_Root_Config_T* identity; /* Copied, including caller's UniqueID. */
@@ -85,6 +90,9 @@ Matter_Result_T matter_runtime_set_resumption(Matter_Runtime_T,Matter_Case_Resum
 Matter_Result_T matter_runtime_set_certificate_validity(Matter_Runtime_T,bool chip);
 Matter_Result_T matter_runtime_set_test_trigger(Matter_Runtime_T,const Matter_Diagnostics_Test_Trigger_T*);
 Matter_Result_T matter_runtime_set_resolver(Matter_Runtime_T,const Matter_Resolver_Port_T*);
+/* Pin a concrete local IPv6 address/port and interface for outgoing CASE.
+ * Unlike generic UDP TX source selection, handshake admission compares the
+ * complete reverse path; :: is not a substitute for its actual local address. */
 Matter_Result_T matter_runtime_set_outbound(Matter_Runtime_T,const Matter_Udp_Path_T*);
 Matter_Result_T matter_runtime_set_ota(Matter_Runtime_T,const Matter_Runtime_Ota_Port_T*);
 Matter_Result_T matter_runtime_start(Matter_Runtime_T,Matter_T,Matter_Udp_T,Matter_Events_T);
@@ -111,6 +119,10 @@ bool matter_runtime_ota_trial(Matter_Runtime_T);
  * OK means scheduled, not sent/available/installed. No schedule/rate-limit
  * bypass; no preemption during query, download, apply or boot notification. */
 Matter_Result_T matter_runtime_ota_request_query(Matter_Runtime_T);
+/* Owner declares the running application functional, after start/self-checks.
+ * Native installer confirms actual boot before VersionApplied/Notify readiness.
+ * OOM can be retried; no notification claim until event publication succeeds.
+ * Recursive calls/process/stop/delete from installer callbacks return BUSY. */
 Matter_Result_T matter_runtime_ota_boot_ready(Matter_Runtime_T);
 /* Keep UDP/resolver/radio and all borrowed ports alive while stop=PENDING.
  * Never free on timeout. stop=OK is required before delete; stop is terminal. */
