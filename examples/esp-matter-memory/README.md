@@ -94,3 +94,64 @@ seven-path subscription workload exhausted the stock reference's shared path
 pool; that failure is retained rather than increasing its limits. Our custom
 OOM, RX-loss, reconnect and held-TX drain controls remain a separate C-only
 regression, not a matched fault-injection test of ESP-Matter or official CSA.
+
+## Lifecycle and application-budget comparison
+
+Optimization ends at Memory40. Subsequent comparison images leave its library
+source and limits unchanged. The normal-image comparison measures available
+internal 8-bit heap, SDK minimum free, sampled minimum free, largest free block
+and loaded/idle checkpoints. Keep SDK regional minima separate from simultaneous
+100 ms samples. Heap-backed task stacks are already included in free heap.
+
+Use the same explicit diagnostic peer profile on both devices when selected:
+`MATTER_TEST_PEER_ROLE=corrected`. The optional override is the existing pinned
+Memory26/27 test-peer helper; it changes no installed package or DUT timer.
+Record the profile and package hash, including failed original-peer runs.
+
+For the one-way lifecycle experiment, first export clean C sources or prepare
+a new pinned HS reference as above. Generate another isolated project:
+
+```sh
+python tools/matter/prepare_memory_comparison.py \
+  --kind c --source /path/to/exported-c \
+  --output /path/to/new-c-observer --reserve-bytes 65536
+python tools/matter/prepare_memory_comparison.py \
+  --kind reference --source /path/to/prepared-reference \
+  --output /path/to/new-reference-observer --reserve-bytes 65536
+```
+
+The C output retains the exported repository structure; build its
+`examples/esp32-runtime`. Build the reference output directly. Keep the existing
+SDK versions/configurations. Set `IDF_PY_BUILD_JOBS=1` and
+`CMAKE_BUILD_PARALLEL_LEVEL=1`. CHIP's nested build invokes bare `ninja`; use a
+project-local PATH wrapper which executes the real Ninja with `-j1` as well.
+Do not change the shared SDK's build files or the system Ninja.
+
+Both probes keep Wi-Fi connected for 65 seconds before creating Matter, then
+reserve and pattern-fill the optional application payload through the common
+wire workload. The C collector's `q` command performs its existing ACK/drain and
+deletion sequence, followed by another 65-second Wi-Fi-up observation before
+radio teardown. The reference uses the previously saved SDK Wi-Fi configuration
+to connect before creating its node. After its common workload, request a UART
+checkpoint labelled `shutdown` (`memstat shutdown`). The probe destroys the
+model, shuts down Server and PlatformManager, observes Wi-Fi for 65 seconds,
+checks/releases the reserved payload, and remains stopped. Keep that collector
+running until `LIFECYCLE_SHUTDOWN_COMPLETE`, then stop the collector only.
+The reference observer removes its SDK IP/Wi-Fi event forwarding and verifies
+that the CHIP task has exited before deleting platform queues/locks.
+`StopEventLoopTask()` alone is asynchronous; the initial observer without this
+barrier asserted in FreeRTOS and is retained as a failed experiment.
+
+`LIFECYCLE_MEMORY` includes 0/1/5/15/30/65-second free-heap and largest-block
+checkpoints, local SDK regional minima, Wi-Fi/IPv6 state and reserved payload
+size. Check external IPv6 connectivity after deletion too. These instrumented
+images are separate from the normal-image headline measurements. A retained
+64 KiB allocation demonstrates that budget under this workload; it is not an
+MQTT, HTTP or TLS-handshake measurement.
+
+The reference probe is an experiment with the pinned low-level APIs, not a new
+supported ESP-Matter stop/restart interface. Its static singleton/pool storage
+remains linked. Do not equate a connected netif or returning `Shutdown()` with
+complete RAM reclamation, unchanged application services, or proven restart.
+Compare a separate Wi-Fi-only reference configuration when BLE is unnecessary;
+retain the stock BLE-after-commissioning result and all Matter resource limits.

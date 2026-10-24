@@ -114,6 +114,16 @@ minimum sampled free by +716 B; the SDK historical minimum changes
 by -304 B. These small mixed extrema do not prove a substantial
 global-peak saving. Host, OOM and physical regressions pass.
 
+Optimization is closed at Memory40. The [Memory41 comparison](doc/oss/memory41-validation.md)
+keeps that core and IDF6.1 configuration unchanged. With the same common workload
+and64 KiB occupied by an application reservation, C versus Wi-Fi-only CHIP/IDF6.0.2
+minimum SDK free is125396 /169308 B. Before creating Matter,65s free is
+331988 /308112 B; after shutdown and releasing the reservation it is
+331940 /293904 B. These are complete lab firmware measurements with different
+models/limits, not a feature-identical certified-light or MQTT/TLS benchmark.
+Both preserve Wi-Fi after checked retirement; largest blocks and SDK minima
+are reported separately. Next is the minimum required Wi-Fi-light profile.
+
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE

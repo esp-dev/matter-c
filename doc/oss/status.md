@@ -1,5 +1,20 @@
 # Development status
 
+**Memory41: optimization closed; measured application headroom versus CHIP.**
+Memory40/f366c2c library and C SDK settings are unchanged. Two common-workload
+normal repeats/stack pass. Isolated C/standard-CHIP/Wi-Fi-only-CHIP runs retain
+and verify64 KiB of application memory through five fabrics/15 sessions/subscriptions.
+C versus Wi-Fi-only CHIP SDK minimum free is125396 /169308 B with that allocation
+already occupied. With no instance,65s current free is331988 /308112 B; after
+shutdown and releasing the allocation,5s free is331940 /293904 B, largest
+139264 /180224 B. CHIP task-exit joining repairs the initial observer's queue
+assertion; both reference profiles then preserve Wi-Fi/IPv6 through65s and ping.
+Normal firmware/primary fabrics restored, RGB/CASE probes pass, COM/AP released,
+IPv6 enabled and SDK checkouts clean. See [report](memory41-validation.md) and
+[results](memory41-results.json) for different models/limits, SDK-counter caveats
+and failed exploratory runs. No new CSA/native-core campaign is claimed.
+Next: minimum required Wi-Fi RGB-light profile, onboarding QR and recovery policy.
+
 **Memory40: release consumed Read blocks after IM and MRP.**
 Whole prefix pages leave at the existing successful continuation gate; remaining
 ordinals/addresses, partial ARRAYs, limits, snapshots and ACK/drain stay intact.
@@ -13,7 +28,7 @@ orders, all 512 results, continuation OOM and partial-page lifetimes are checked
 Four C6 runs finish with zero core objects/bytes and no SDK OOM. Original fabric,
 normal Memory40, RGB/drain and AP/COM cleanup pass; IPv6 enabled, COM24 untouched.
 See [report](memory40-validation.md) and [results](memory40-results.json).
-Next: measure sparse Subscribe value-page geometry against the dense 512-result case.
+Optimization closes here; sparse-page geometry remains an unimplemented candidate.
 
 **Memory39: measured stable Read/Subscribe block occupancy.**
 The observed joint attribute-table footprint is 89248 B, with 14272 B empty slots
