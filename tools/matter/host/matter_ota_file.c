@@ -1,5 +1,5 @@
 #include "matter_ota_file.h"
-#include "codec/matter_tlv_validate.h"
+#include "codec/matter_ota_header_internal.h"
 #include <mbedtls/sha256.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,35 +42,8 @@ static Matter_Result_T open_file(void* u) {
     return MATTER_OK;
 }
 static bool header(Matter_Ota_File_T f) {
-    const Matter_Tlv_Validation_Options_T options={1024,128,2048,4,false,0,0}; Matter_Tlv_Validation_Report_T report;
-    const uint8_t* d=f->header+16; size_t n=f->header_size; Matter_Tlv_Reader_T r; Matter_Tlv_Element_T e;
-    if(!n || d[0]!=0x15 || matter_tlv_validate(d,n,&options,&f->validation,f->tags,32,&report)!=MATTER_TLV_OK ||
-        matter_tlv_init(&r,d,n,4)!=MATTER_TLV_OK || matter_tlv_next(&r,&e)!=MATTER_TLV_OK) return false;
-    unsigned seen=0; uint64_t payload=0,min=0,max=UINT32_MAX;
-    while(matter_tlv_next(&r,&e)==MATTER_TLV_OK && e.type!=MATTER_TLV_END) {
-        if(e.tag.control!=1) return false;
-        uint32_t tag=e.tag.number;
-        if(tag>9) { if((e.type==MATTER_TLV_STRUCTURE || e.type==MATTER_TLV_LIST || e.type==MATTER_TLV_ARRAY) && matter_tlv_skip_container(&r)!=MATTER_TLV_OK) return false; continue; }
-        seen|=1u<<tag;
-        if(tag==3 || tag==7) {
-            if(e.type!=MATTER_TLV_UTF8 || !e.size || e.size>(tag==3?64u:256u)) return false;
-        } else if(tag==9) {
-            if(e.type!=MATTER_TLV_BYTES || e.size!=32) return false;
-            memcpy(f->digest,e.data,32);
-        } else {
-            if(e.type!=MATTER_TLV_UNSIGNED) return false;
-            uint64_t v=e.unsigned_value;
-            if(tag==0 && v && v!=f->vendor) return false;
-            if(tag==1 && v && v!=f->product) return false;
-            if(tag==2 && v!=f->version) return false;
-            if(tag==4) payload=v;
-            if(tag==5) { if(v>UINT32_MAX) return false; min=v; }
-            if(tag==6) { if(v>UINT32_MAX) return false; max=v; }
-            if(tag==8 && v!=1) return false;
-        }
-    }
-    return matter_tlv_next(&r,&e)==MATTER_TLV_DONE && (seen&0x31f)==0x31f &&
-        min<=f->current && f->current<=max && payload==f->total-16-f->header_size;
+    return matter_ota_header_parse(f->header+16,f->header_size,f->total,f->vendor,f->product,
+        f->current,f->version,&f->validation,f->tags,f->digest);
 }
 static Matter_Result_T write_file(void* u,const uint8_t* d,size_t n) {
     Matter_Ota_File_T f=u;

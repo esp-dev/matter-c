@@ -1,4 +1,5 @@
 get_filename_component(matter_root "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${matter_root}/cmake/sources.json")
 file(READ "${matter_root}/cmake/sources.json" matter_manifest)
 set(matter_sources)
 foreach(group core runtime)

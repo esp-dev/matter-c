@@ -12,7 +12,7 @@ if(CONFIG_MATTER_C_RUNTIME_RGB)
 endif()
 idf_component_register(SRCS ${lab_sources} INCLUDE_DIRS "."
     PRIV_INCLUDE_DIRS "${matter_root}/tools/matter/tests"
-    REQUIRES matter_c_esp32 esp_wifi esp_event esp_timer bootloader_support esp_driver_uart esp_driver_rmt)
+    REQUIRES matter_c_esp32 esp_wifi esp_event esp_timer bootloader_support esp_driver_uart esp_driver_rmt app_update esp_app_format)
 target_compile_options(${COMPONENT_LIB} PRIVATE -fstack-usage)
 if(CONFIG_MATTER_C_PROFILE_ALLOCATIONS)
     set_source_files_properties("wifi_port.c" "rgb_light.c" "rgb_led.c" PROPERTIES

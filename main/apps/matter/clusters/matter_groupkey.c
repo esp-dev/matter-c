@@ -10,6 +10,7 @@ static Matter_Cluster_T interface_new(Groupkey);
 struct Matter_Groupkey {
     Matter_Cluster_T interface;
     Matter_Groupkey_Port_T port; bool busy;
+    Matter_Groupkey_Groups_Port_T groups;
     Matter_Groupkey_Set_T pending; uint8_t keys[3][16];
     Matter_Tlv_Reader_T reader; Matter_Tlv_Element_T e;
     Matter_Tlv_Validation_Workspace_T validation; Matter_Tlv_Tag_T tags[64];
@@ -22,9 +23,13 @@ static const Matter_Groupkey_Fabric_T* fabric(Groupkey m,uint8_t index) {
     for(unsigned i=0;i<MATTER_GROUPKEY_FABRICS;++i) if(v->fabrics[i].index==index) return &v->fabrics[i];
     return NULL;
 }
-Matter_Cluster_T matter_groupkey_new(const Matter_Groupkey_Port_T* p) {
+static uint32_t data_version(Groupkey m) { return m->port.view(m->port.user)->version+(m->groups.version?m->groups.version(m->groups.user):0); }
+Matter_Cluster_T matter_groupkey_new(const Matter_Groupkey_Port_T* p) { return matter_groupkey_new_groups(p,NULL); }
+Matter_Cluster_T matter_groupkey_new_groups(const Matter_Groupkey_Port_T* p,const Matter_Groupkey_Groups_Port_T* groups) {
     if(!p || !p->view || !p->store || !p->remove || !p->view(p->user)) return NULL;
+    if(groups&&(!groups->version||!groups->read||!groups->map||!groups->max_groups_per_fabric))return NULL;
     Groupkey m=calloc(1,sizeof(*m)); if(!m) return NULL; m->port=*p;
+    if(groups)m->groups=*groups;
     m->interface=interface_new(m); if(!m->interface) { erase(m,sizeof(*m)); free(m); return NULL; }
     return m->interface;
 }
@@ -37,7 +42,7 @@ Matter_Result_T matter_groupkey_delete(Matter_Groupkey_T m) {
     return matter_cluster_delete(m);
 }
 uint32_t matter_groupkey_version(Matter_Groupkey_T handle) {
-    Groupkey m=matter_cluster_context(handle,destroy); return m?m->port.view(m->port.user)->version:0;
+    Groupkey m=matter_cluster_context(handle,destroy); return m?data_version(m):0;
 }
 static bool next(Groupkey m) { return matter_tlv_next(&m->reader,&m->e)==MATTER_TLV_OK; }
 static bool skip(Groupkey m) {
@@ -51,6 +56,7 @@ static uint8_t parse_set(Groupkey m) {
         if(m->e.type==MATTER_TLV_END) {
             if(seen!=255 || keys!=times || !(keys&1) || (keys!=1 && keys!=3 && keys!=7) || !m->pending.times[0]) return MATTER_IM_INVALID_COMMAND;
             m->pending.count=keys==7?3:keys==3?2:1;
+            if(m->groups.groupcast&&m->pending.id&&m->pending.count>2)return MATTER_IM_INVALID_COMMAND;
             for(unsigned i=1;i<m->pending.count;++i) if(m->pending.times[i]<=m->pending.times[i-1]) return MATTER_IM_INVALID_COMMAND;
             return 0;
         }
@@ -151,6 +157,9 @@ uint8_t matter_groupkey_map(Matter_Groupkey_T handle,uint8_t index,Matter_Im_Lis
     if(!m || m->busy) return MATTER_IM_FAILURE;
     if(!fabric(m,index)) return MATTER_IM_UNSUPPORTED_ACCESS;
     if(change!=MATTER_IM_LIST_REPLACE && change!=MATTER_IM_LIST_ADD) return MATTER_IM_INVALID_ACTION;
+    if(m->groups.map) {
+        m->busy=true;uint8_t r=m->groups.map(m->groups.user,index,change,d,n,false);m->busy=false;return r;
+    }
     const Matter_Tlv_Validation_Options_T opt={1024,256,2048,4,false,0,0}; Matter_Tlv_Validation_Report_T report;
     if(matter_tlv_validate(d,n,&opt,&m->validation,m->tags,64,&report)!=MATTER_TLV_OK ||
         matter_tlv_init(&m->reader,d,n,4)!=MATTER_TLV_OK || !next(m) || m->e.tag.control) return MATTER_IM_INVALID_DATA_TYPE;
@@ -177,16 +186,16 @@ uint8_t matter_groupkey_map(Matter_Groupkey_T handle,uint8_t index,Matter_Im_Lis
 
 /* Descriptor callbacks select the operation; ref supplies its immutable ID.
  * These wrappers keep the older typed helper names source-compatible. */
-static Matter_Result_T cluster_version(void* u,uint32_t* out) { Groupkey m=u; *out=m->port.view(m->port.user)->version; return MATTER_OK; }
+static Matter_Result_T cluster_version(void* u,uint32_t* out) { *out=data_version(u); return MATTER_OK; }
 typedef struct { const uint32_t* ids; size_t count; bool fabric; } ReadList;
 static uint8_t read_scalar(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
     (void)q; Groupkey m=u; if(m->busy) return MATTER_IM_FAILURE;
-    *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=*(const uint32_t*)ref,.data_version=m->port.view(m->port.user)->version}; return 0;
+    *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=*(const uint32_t*)ref,.data_version=data_version(m)}; return 0;
 }
 static uint8_t read_list(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
     Groupkey m=u; const ReadList* list=ref; if(m->busy) return MATTER_IM_FAILURE;
     if(list->fabric && !fabric(m,q->fabric)) return MATTER_IM_UNSUPPORTED_ACCESS;
-    *out=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=m->port.view(m->port.user)->version};
+    *out=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=data_version(m)};
     Matter_Tlv_Writer_T* w=&m->writer;
     if(matter_tlv_writer_init(w,m->encoded,sizeof(m->encoded),2)!=MATTER_TLV_OK || !P(MATTER_TLV_ARRAY,-1,0)) return MATTER_IM_FAILURE;
     for(size_t i=0;i<list->count;++i) if(!U(-1,list->ids[i])) return MATTER_IM_FAILURE;
@@ -206,7 +215,28 @@ static uint8_t cluster_map(void* u,const void* ref,const Matter_Cluster_Request_
     (void)ref; Groupkey m=u; return q->is_case?matter_groupkey_map(m->interface,q->fabric,change,d,n):MATTER_IM_UNSUPPORTED_ACCESS;
 }
 static Matter_Im_Write_Result_T cluster_map_write(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_List_Change_T change,const uint8_t* d,size_t n) {
+    Groupkey m=u;
+    if(m->groups.map) {
+        if(!q->is_case)return (Matter_Im_Write_Result_T){.status=MATTER_IM_UNSUPPORTED_ACCESS};
+        if(m->busy)return (Matter_Im_Write_Result_T){.status=MATTER_IM_FAILURE};
+        if(!fabric(m,q->fabric))return (Matter_Im_Write_Result_T){.status=MATTER_IM_UNSUPPORTED_ACCESS};
+        if(change!=MATTER_IM_LIST_REPLACE&&change!=MATTER_IM_LIST_ADD)return (Matter_Im_Write_Result_T){.status=MATTER_IM_INVALID_ACTION};
+        m->busy=true;uint8_t r=m->groups.map(m->groups.user,q->fabric,change,d,n,true);m->busy=false;
+        return (Matter_Im_Write_Result_T){.status=r};
+    }
     return (Matter_Im_Write_Result_T){.status=cluster_map(u,ref,q,change,d,n)};
+}
+static uint8_t read_groups(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
+    Groupkey m=u;if(m->busy)return MATTER_IM_FAILURE;
+    uint32_t id=*(const uint32_t*)ref;
+    if(id<=1) {
+        if(!fabric(m,q->fabric))return MATTER_IM_UNSUPPORTED_ACCESS;
+        m->busy=true;uint8_t r=m->groups.read(m->groups.user,id,q,out);m->busy=false;
+        if(!r)out->data_version=data_version(m);
+        return r;
+    }
+    *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.data_version=data_version(m),
+        .unsigned_value=id==2?(m->groups.groupcast?0:m->groups.max_groups_per_fabric):m->groups.groupcast?2:0};return 0;
 }
 static Matter_Cluster_T interface_new(Groupkey m) {
     Matter_Cluster_Config_T config={.id=MATTER_GROUPKEY_CLUSTER,.attributes=MATTER_GROUPKEY_ATTRIBUTES,.commands=4,
@@ -226,8 +256,14 @@ static Matter_Cluster_T interface_new(Groupkey m) {
         {.id=0xfffc,.read_access={MATTER_IM_VIEW,false},.ref=&zero,.read=read_scalar},
         {.id=0xfffd,.read_access={MATTER_IM_VIEW,false},.ref=&revision,.read=read_scalar}
     };
-    for(size_t i=0;i<sizeof(definitions)/sizeof(*definitions);++i)
-        if(matter_cluster_add_attribute(c,&definitions[i])!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
+    static const uint32_t group_ids[]={0,1,2,0xfffc};
+    for(size_t i=0;i<sizeof(definitions)/sizeof(*definitions);++i) {
+        Matter_Attribute_Def_T a=definitions[i];
+        if(m->groups.read&&(a.id<=2||a.id==0xfffc)) {
+            a.read=read_groups;a.ref=&group_ids[a.id==0xfffc?3:a.id];
+        }
+        if(matter_cluster_add_attribute(c,&a)!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
+    }
     static const uint32_t ids[]={0,1,3,4};
     for(unsigned i=0;i<4;++i) {
         uint32_t id=ids[i]; Matter_Command_Def_T command={.id=id,.ref=&ids[i],.validate=cluster_validate,.start=cluster_start,

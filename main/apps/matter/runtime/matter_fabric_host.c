@@ -549,3 +549,14 @@ static uint8_t groupkey_remove(void* u,uint8_t index,uint16_t id) {
 Matter_Groupkey_Port_T matter_fabric_host_groupkey_port(Matter_Fabric_Host_T h) {
     return (Matter_Groupkey_Port_T){h,groupkey_view,groupkey_store,groupkey_remove};
 }
+Matter_Result_T matter_fabric_host_group_key(Matter_Fabric_Host_T h,uint8_t index,uint16_t id,unsigned epoch,uint8_t out[16]) {
+    if(!h||!out||!id||epoch>=3)return MATTER_INVALID_ARGUMENT;
+    if(h->busy)return MATTER_BUSY;
+    unsigned j=slot(h,index);if(j==5)return MATTER_OFFLINE;
+    const Matter_Groupkey_Fabric_T* f=&h->image->data.groupkey.fabrics[j];
+    for(unsigned i=0;i<MATTER_GROUPKEY_SETS;++i)if(f->sets[i].count&&f->sets[i].id==id) {
+        if(epoch>=f->sets[i].count||f->sets[i].times[epoch]==UINT64_MAX)return MATTER_OFFLINE;
+        memcpy(out,h->image->data.groupkeys[j][i][epoch],16);return MATTER_OK;
+    }
+    return MATTER_OFFLINE;
+}

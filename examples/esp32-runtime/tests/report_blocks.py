@@ -83,10 +83,11 @@ static size_t audit_bytes(const BlockAudit* a) { return a->headers+a->slots*size
 void matter_im_KIND_blocks_sample(void) {
     BlockAudit a={0}; ++audit_samples;
     for(HANDLE s=audit_head;s;s=s->audit_next) {
-        ++a.instances; a.logical+=s->count;
+        ++a.instances;
         for(Matter_Im_Block* b=s->items.head;b;b=b->next) {
             ++a.blocks; a.slots+=b->count; a.headers+=offsetof(PREFIX_items_Block,data);
             size_t used=s->count>b->start?s->count-b->start:0; if(used>b->count) used=b->count;
+            a.logical+=used; /* Resident records; released Read prefix blocks may be gone. */
             a.padding+=(b->count-used)*sizeof(ITEM);
             size_t retired=s->released>b->start?s->released-b->start:0; if(retired>used) retired=used;
             a.retired+=retired*sizeof(ITEM);

@@ -1,4 +1,18 @@
 menu "Matter C runtime laboratory"
+config MATTER_C_RUNTIME_USERCASE
+    bool "Matched user-case comparison without startup fault fixtures"
+    default n
+    help
+        NVS lab_wifi provisioning, phase heap observer and normal RGB runtime.
+        Explicitly skips the old constructor/store/radio crash fixtures. Their
+        validation remains a separate laboratory image, not a typical workload.
+config MATTER_C_RUNTIME_NATIVE_OTA
+    bool "Signed ESP image OTA with actual partition installation and rollback"
+    depends on BOOTLOADER_APP_ROLLBACK_ENABLE && SECURE_SIGNED_ON_UPDATE_NO_SECURE_BOOT
+    default n
+    help
+        Requires dual OTA app partitions, numeric project version and a signed
+        initial image. Never enables hardware Secure Boot or writes eFuses.
 config MATTER_C_RUNTIME_RGB
     bool "Experimental EP1 RGB light and DevKitM-1 GPIO8 WS2812"
     default n

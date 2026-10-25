@@ -39,6 +39,12 @@ Matter_Result_T matter_fabric_host_commit(Matter_Fabric_Host_T);
 Matter_Result_T matter_fabric_host_sign(Matter_Fabric_Host_T,uint8_t index,const uint8_t*,size_t,uint8_t signature[64]);
 /* Same image as AddNOC/CASE/rollback; no persisted epoch InputKeys. */
 Matter_Groupkey_Port_T matter_fabric_host_groupkey_port(Matter_Fabric_Host_T);
+/* Trusted group receiver only: copy one already-derived operational epoch key.
+ * KeySet0/IPK, absent fabric/key, disabled epoch and reentry are rejected.
+ * Caller clears the16-byte output after its last crypto use. No ownership or
+ * persistence change; never expose this material via the Data Model. */
+Matter_Result_T matter_fabric_host_group_key(Matter_Fabric_Host_T,uint8_t fabric,
+    uint16_t key_set,unsigned epoch,uint8_t out[16]);
 /* Borrow the same ACL image used by AddNOC/rollback. Model user must die before host. */
 Matter_Acl_Port_T matter_fabric_host_acl_port(Matter_Fabric_Host_T);
 /* Optional host event integration before commissioning. Borrow ACL/log; admin

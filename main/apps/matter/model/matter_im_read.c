@@ -632,6 +632,9 @@ static void release_consumed(Matter_Im_Read_T s) {
         size_t i=s->released++;
         matter_im_snapshot_release_value(&s->snapshots,&read_items_at(&s->items,i)->value);
     }
+    /* Both IM and MRP have consumed this prefix. Keep a partial ARRAY's block
+     * and all remaining inline snapshots at their original addresses. */
+    matter_im_blocks_release_before(&s->items,s->released);
     s->value.data=NULL; s->value.size=0;
     if(s->events) matter_events_snapshot_release_before(&s->events->records,s->events->cursor);
 }

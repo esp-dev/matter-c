@@ -1287,6 +1287,16 @@
       "allocation_variant": "not applicable"
     },
     {
+      "path": "tools/matter/tests/test_im_read_reclaim.h",
+      "kind": "fixture-or-helper",
+      "ctest": [],
+      "entrypoint": "Compiled through consuming tests; not a standalone test.",
+      "referenced_by": [
+        "tools/matter/tests/test_im_read.c"
+      ],
+      "allocation_variant": "not applicable"
+    },
+    {
       "path": "tools/matter/tests/test_im_complex.h",
       "kind": "fixture-or-helper",
       "ctest": [],
@@ -2517,13 +2527,15 @@
     },
     {
       "path": "tools/matter/tests/test_meter_source.c",
-      "kind": "native-test",
+      "kind": "native-regression",
       "ctest": [
         "test_meter_source",
         "test_meter_source_alloc"
       ],
       "entrypoint": "ctest --test-dir build/cmake -R test_meter_source --output-on-failure",
-      "referenced_by": [],
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
       "allocation_variant": "native test_meter_source_alloc"
     },
     {
@@ -2538,23 +2550,27 @@
     },
     {
       "path": "tools/matter/tests/test_meter_services.c",
-      "kind": "native-test",
+      "kind": "native-regression",
       "ctest": [
         "test_meter_services",
         "test_meter_services_alloc"
       ],
       "entrypoint": "ctest --test-dir build/cmake -R test_meter_services",
-      "referenced_by": [],
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
       "allocation_variant": "paired alloc"
     },
     {
       "path": "tools/matter/tests/test_time_host.c",
-      "kind": "native-test",
+      "kind": "native-regression",
       "ctest": [
         "test_time_host"
       ],
       "entrypoint": "ctest --test-dir build/cmake -R test_time_host",
-      "referenced_by": [],
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
       "allocation_variant": "host storage"
     },
     {
@@ -2611,12 +2627,14 @@
     },
     {
       "path": "tools/matter/tests/test_gui_pairing.c",
-      "kind": "native-test",
+      "kind": "native-regression",
       "ctest": [
         "test_gui_pairing"
       ],
       "entrypoint": "ctest --test-dir build/cmake -R test_gui_pairing --output-on-failure",
-      "referenced_by": [],
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
       "allocation_variant": "not applicable"
     },
     {
@@ -2848,6 +2866,100 @@
       "referenced_by": [
         "examples/esp32-runtime/tests/soak.mjs"
       ]
+    },
+    {
+      "path": "tools/matter/tests/test_light.c",
+      "kind": "native-regression",
+      "entrypoint": "ctest --test-dir <build> -R test_light",
+      "ctest": [
+        "test_light"
+      ],
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/test_group_privacy.c",
+      "kind": "native-regression",
+      "entrypoint": "ctest --test-dir <build> -R test_group_privacy",
+      "ctest": [
+        "test_group_privacy"
+      ],
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/test_light_groups.c",
+      "kind": "native-regression",
+      "entrypoint": "ctest --test-dir <build> -R test_light_groups",
+      "ctest": [
+        "test_light_groups"
+      ],
+      "allocation_variant": "test_alloc_bytes.h: image, fields, scene/group nodes and common clusters",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/test_group_invoke.c",
+      "kind": "native-regression",
+      "entrypoint": "ctest --test-dir <build> -R test_group_invoke",
+      "ctest": [
+        "test_group_invoke"
+      ],
+      "allocation_variant": "test_alloc_bytes.h: shared IM workspace, normalized args, provider response",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/test_group_profiles.c",
+      "kind": "native-regression",
+      "entrypoint": "ctest --test-dir <build> -R test_group_profiles",
+      "ctest": [
+        "test_group_profiles"
+      ],
+      "allocation_variant": "not applicable",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/test_groupcast.c",
+      "kind": "native-regression",
+      "entrypoint": "ctest --test-dir <build> -R test_groupcast",
+      "ctest": [
+        "test_groupcast"
+      ],
+      "allocation_variant": "instrumented group composition and shared IM parser",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ]
+    },
+    {
+      "path": "tools/matter/tests/test_idf_wifi_retry.c",
+      "kind": "native-regression",
+      "entrypoint": "ctest --test-dir <build> -R test_idf_wifi_retry",
+      "ctest": [
+        "test_idf_wifi_retry"
+      ],
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "none: fixed small owner state"
+    },
+    {
+      "path": "tools/matter/tests/test_runtime_notify.c",
+      "kind": "native-regression",
+      "entrypoint": "ctest --test-dir <build> -R test_runtime_notify",
+      "ctest": [
+        "test_runtime_notify"
+      ],
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "heap fixture; async peer preparation/claim, drain and Root store faults"
     }
   ],
   "local_only_files": []

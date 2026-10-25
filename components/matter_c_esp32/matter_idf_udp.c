@@ -1,7 +1,11 @@
 #include "matter_idf_udp.h"
+#include "sdkconfig.h"
 #include "matter_idf_ip6_internal.h"
 #include <stdlib.h>
 #include <string.h>
+#if CONFIG_MATTER_C_ESP32_UDP_TRACE
+#include <stdio.h>
+#endif
 #include "lwip/udp.h"
 #include "lwip/tcpip.h"
 #include "lwip/ip6.h"
@@ -80,12 +84,13 @@ static Matter_Result_T send_packet(void* user,uint64_t request,const Matter_Udp_
     ip_addr_t peer,local; IP_SET_TYPE_VAL(peer,IPADDR_TYPE_V6); IP_SET_TYPE_VAL(local,IPADDR_TYPE_V6);
     memcpy(ip_2_ip6(&peer)->addr,path->peer.address,16); ip6_addr_set_zone(ip_2_ip6(&peer),index);
     memcpy(ip_2_ip6(&local)->addr,path->local.address,16); ip6_addr_set_zone(ip_2_ip6(&local),index);
-    LOCK_TCPIP_CORE(); err_t e=ERR_IF;
-    if(s->epoch && s->pcb && netif_is_link_up(s->iface)) {
+    LOCK_TCPIP_CORE(); err_t e=ERR_IF;bool source_ready=false,link_ready=netif_is_link_up(s->iface);
+    if(s->epoch && s->pcb && link_ready) {
         bool valid=zero(path->local.address);
         for(unsigned i=0;i<LWIP_IPV6_NUM_ADDRESSES;++i)
             if(ip6_addr_isvalid(netif_ip6_addr_state(s->iface,i)) &&
                 !memcmp(netif_ip6_addr(s->iface,i)->addr,path->local.address,16)) valid=true;
+        source_ready=valid;
         if(valid) {
             struct pbuf* p=pbuf_alloc(PBUF_TRANSPORT,d->size,PBUF_RAM); e=p?ERR_OK:ERR_MEM;
             if(p) {
@@ -94,9 +99,16 @@ static Matter_Result_T send_packet(void* user,uint64_t request,const Matter_Udp_
                     udp_sendto_if_src(s->pcb,p,&peer,path->peer.port,s->iface,&local);
                 pbuf_free(p);
             }
-        } else e=ERR_ARG;
+        } /* A pinned source can temporarily disappear during Wi-Fi/DAD.
+           * Keep OFFLINE, not a permanent argument error: MRP owns its bounded
+           * retry and the old ciphertext/path must survive this transition. */
     }
     UNLOCK_TCPIP_CORE();
+#if CONFIG_MATTER_C_ESP32_UDP_TRACE
+    if(e)printf("MATTER_UDP_REJECT error=%d link=%u source=%u epoch=%u\n",e,link_ready?1u:0u,source_ready?1u:0u,s->epoch?1u:0u);
+#else
+    (void)source_ready;
+#endif
     if(!e) { s->pending=request; ++s->stats.sent; } return error(e);
 }
 static void cancel(void* user,uint64_t id) { (void)user; (void)id; /* Completed OS send wins cancellation. */ }

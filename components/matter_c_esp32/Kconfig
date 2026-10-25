@@ -1,0 +1,8 @@
+menu "Matter C ESP ports"
+config MATTER_C_ESP32_UDP_TRACE
+    bool "Trace UDP send failures (no packet payloads)"
+    default n
+    help
+        Development-only transport state/error counters on the console.
+        Leave disabled in silent release images.
+endmenu

@@ -63,6 +63,7 @@ static void status_response(Fixture* f,uint8_t status) {
 #include "test_im_chunks.h"
 #include "test_im_wildcard.h"
 #include "test_im_complex.h"
+#include "test_im_read_reclaim.h"
 #include "test_im_events.h"
 #include "test_im_multi_events.h"
 #include "test_im_event_wildcards.h"
@@ -108,6 +109,8 @@ static void shared_encoder_tests(void) {
     puts("PASS shared Read encoder: contention, exact configured cap, sent/cancel/delete/timeout handoff and every concrete capture OOM");
 }
 int main(void) {
+    read_reclaim_tests();
+    read_reclaim_list_test();
     shared_encoder_tests();
     path_grammar_tests();
     multi_tests();

@@ -1,0 +1,10 @@
+# Shared 4 MiB C6 laboratory layout; neither hardware Secure Boot nor eFuses.
+# Name,Type,SubType,Offset,Size,Flags
+esp_secure_cert,0x3F,,0xD000,0x2000,
+nvs_keys,data,nvs_keys,0xF000,0x1000,
+nvs,data,nvs,0x10000,0x40000,
+otadata,data,ota,0x50000,0x2000,
+phy_init,data,phy,0x52000,0x1000,
+fctry,data,nvs,0x53000,0xD000,
+ota_0,app,ota_0,0x60000,0x1D0000,
+ota_1,app,ota_1,0x230000,0x1D0000,

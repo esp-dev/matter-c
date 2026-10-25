@@ -33,7 +33,7 @@ typedef struct {
 	 * Synchronous, bounded and nonblocking: no hardware waits. Arguments borrowed
 	 * only during this call; no pointer retention. response=NULL for status-only
 	 * commands, otherwise an initialized writer for provider to emit one COMPLETE
-	 * anonymous STRUCTURE within declared response_capacity/depth 4. Check EVERY
+	 * anonymous STRUCTURE within declared response_capacity/depth 5. Check EVERY
 	 * write result; encoding failure must return FAILURE/RESOURCE_EXHAUSTED.
 	 * Handler validates/copies output, never invokes again on encoding/TX failure.
 	 * SUCCESS with metadata.response emits CommandDataIB; other outcomes emit
@@ -46,6 +46,19 @@ typedef struct {
 typedef Matter_Im_Read_Config_T Matter_Im_Invoke_Config_T;
 typedef Matter_Im_Read_Message_T Matter_Im_Invoke_Message_T;
 typedef struct Matter_Im_Invoke* Matter_Im_Invoke_T;
+
+/* Trusted authenticated group boundary. Caller has already checked MIC, group
+ * membership/fabric, replay, transport flags and destination. Expands the single
+ * endpoint-less path to one registered non-root endpoint, then uses the SAME
+ * schema/normalization/authorization and bounded synchronous invoke callbacks.
+ * Requires SuppressResponse=true and TimedRequest=false. Never creates a session,
+ * exchange, output packet, ACK or MRP state. Providers still receive separately
+ * reserved command response storage when their metadata requires it; it is
+ * discarded after invocation. No async providers. Borrowed input/user only for
+ * this call; all scratch is demand-owned, OOM precedes command side effects.
+ * Returns IM status. The caller is responsible for all group authorization. */
+uint8_t matter_im_invoke_group(const Matter_Im_Invoke_Port_T*,uint8_t fabric,uint16_t endpoint,
+    const uint8_t* data,size_t size);
 typedef enum { MATTER_IM_INVOKE_WAITING, MATTER_IM_INVOKE_OUTPUT, MATTER_IM_INVOKE_IN_FLIGHT,
 	MATTER_IM_INVOKE_COMPLETE, MATTER_IM_INVOKE_FAILED, MATTER_IM_INVOKE_WAIT_INVOKE, MATTER_IM_INVOKE_PENDING } Matter_Im_Invoke_State_T;
 

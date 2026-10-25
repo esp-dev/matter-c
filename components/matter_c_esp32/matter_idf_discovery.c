@@ -37,7 +37,8 @@ Matter_Result_T matter_idf_discovery_process(Matter_Idf_Discovery_T s) {
     if(s->cancelled && !s->rollback) result=MATTER_OPERATION_CANCELLED;
     else if(s->publish && !s->rollback) {
         mdns_txt_item_t* txt=r->txt_count?calloc(r->txt_count,sizeof(*txt)):NULL;
-        esp_err_t e=r->txt_count && !txt?ESP_ERR_NO_MEM:ESP_OK;
+        esp_err_t e=r->txt_count && !txt?ESP_ERR_NO_MEM:
+            r->hostname&&!mdns_hostname_exists(r->hostname)?ESP_ERR_INVALID_STATE:ESP_OK;
         if(!e) {
             for(unsigned i=0;i<r->txt_count;++i) txt[i]=(mdns_txt_item_t){r->txt[i].key,r->txt[i].value};
             e=mdns_service_add_for_host(r->instance,r->service,r->protocol,r->hostname,r->port,txt,r->txt_count);

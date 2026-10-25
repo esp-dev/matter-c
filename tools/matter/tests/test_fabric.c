@@ -345,6 +345,16 @@ int main(int argc,char** argv) {
     OC_CHECK(matter_opcreds_host_candidate(f->o->host,f->o->candidate)==MATTER_INVALID_STATE);
     Matter_Groupkey_Port_T gp=matter_fabric_host_groupkey_port(f->host);
     OC_CHECK(gp.view(gp.user)->fabrics[0].sets[0].count==1 && gp.view(gp.user)->fabrics[0].sets[0].times[0]==0);
+    uint8_t group_key[16],derived_group_key[16],group_inputs[3][16]={{0}};
+    memset(group_inputs[0],0x41,16);
+    Matter_Groupkey_Set_T operational_group={.times={1,0,0},.id=7,.count=1};
+    OC_CHECK(matter_fabric_host_group_key(f->host,1,0,0,group_key)==MATTER_INVALID_ARGUMENT);
+    OC_CHECK(!gp.store(gp.user,1,&operational_group,(const uint8_t (*)[16])group_inputs));
+    const uint8_t* compressed=f->port.view(f->host)->records[0].compressed_id;
+    OC_CHECK(crypto.hkdf_sha256(crypto.user,group_inputs[0],16,compressed,8,(const uint8_t*)"GroupKey v1.0",13,derived_group_key,16)==MATTER_OK);
+    OC_CHECK(matter_fabric_host_group_key(f->host,1,7,0,group_key)==MATTER_OK&&!memcmp(group_key,derived_group_key,16));
+    OC_CHECK(matter_fabric_host_group_key(f->host,1,7,1,group_key)==MATTER_OFFLINE);
+    OC_CHECK(!gp.remove(gp.user,1,7)&&matter_fabric_host_group_key(f->host,1,7,0,group_key)==MATTER_OFFLINE);
     OC_CHECK(matter_fabric_host_case_authorize(f->host,1,55,NULL,0,MATTER_IM_ADMINISTER));
     OC_CHECK(!matter_fabric_host_case_authorize(f->host,1,56,NULL,0,MATTER_IM_ADMINISTER));
     const Matter_Fabric_View_T* view=f->port.view(f->host);

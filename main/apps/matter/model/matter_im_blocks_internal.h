@@ -25,6 +25,20 @@ static inline void matter_im_blocks_free(Matter_Im_Block* block) {
 static inline void matter_im_blocks_clear(Matter_Im_Blocks* blocks) {
     matter_im_blocks_free(blocks->head); memset(blocks,0,sizeof(*blocks));
 }
+/* Dense tables only: retire complete prefix blocks after all their users have
+ * released them. Ordinals and remaining addresses stay fixed. capacity remains
+ * the reservation high-water mark: retired slots cannot be reused, and later
+ * growth appends at that mark. Clear resets it for a new capture. */
+static inline void matter_im_blocks_release_before(Matter_Im_Blocks* blocks,size_t index) {
+    while(blocks->head && index>=blocks->head->start &&
+        index-blocks->head->start>=blocks->head->count) {
+        Matter_Im_Block* block=blocks->head;
+        blocks->head=block->next;
+        if(blocks->cache==block) blocks->cache=NULL;
+        free(block);
+    }
+    if(!blocks->head) blocks->tail=NULL;
+}
 static inline bool matter_im_blocks_reserve(Matter_Im_Blocks* blocks,size_t needed,size_t limit,
     size_t offset,size_t item_size) {
     if(needed>limit || limit>UINT16_MAX || offset<sizeof(Matter_Im_Block) || !item_size) return false;

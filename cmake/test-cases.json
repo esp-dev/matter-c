@@ -1192,11 +1192,110 @@
     "platform": "all",
     "privileged": false,
     "variant": "alloc",
-    "replace": ["main/apps/matter/model/matter_cluster.c"]
+    "replace": [
+      "main/apps/matter/model/matter_cluster.c"
+    ]
   },
   {
     "name": "test_im_event_metadata",
     "source": "tools/matter/tests/test_im_event_metadata.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_light",
+    "source": "tools/matter/tests/test_light.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/model/matter_cluster.c"
+    ]
+  },
+  {
+    "name": "test_group_privacy",
+    "source": "tools/matter/tests/test_group_privacy.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_light_groups",
+    "source": "tools/matter/tests/test_light_groups.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_light_group_store.c",
+      "main/apps/matter/clusters/matter_light_group_network.c",
+      "main/apps/matter/clusters/matter_light_group_views.c",
+      "main/apps/matter/clusters/matter_light_scenes.c",
+      "main/apps/matter/clusters/matter_light_groups.c",
+      "main/apps/matter/clusters/matter_light_group_events.c",
+      "main/apps/matter/clusters/matter_light_groupcast.c",
+      "main/apps/matter/clusters/matter_light_group_rx.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/clusters/matter_light_global_scene.c"
+    ]
+  },
+  {
+    "name": "test_group_invoke",
+    "source": "tools/matter/tests/test_group_invoke.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_group_profiles",
+    "source": "tools/matter/tests/test_group_profiles.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_groupcast",
+    "source": "tools/matter/tests/test_groupcast.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "alloc",
+    "replace": [
+      "main/apps/matter/clusters/matter_light_group_store.c",
+      "main/apps/matter/clusters/matter_light_group_network.c",
+      "main/apps/matter/clusters/matter_light_group_views.c",
+      "main/apps/matter/clusters/matter_light_scenes.c",
+      "main/apps/matter/clusters/matter_light_groups.c",
+      "main/apps/matter/clusters/matter_light_group_events.c",
+      "main/apps/matter/clusters/matter_light_groupcast.c",
+      "main/apps/matter/clusters/matter_light_group_rx.c",
+      "main/apps/matter/model/matter_cluster.c",
+      "main/apps/matter/model/matter_im_invoke.c",
+      "main/apps/matter/clusters/matter_light_global_scene.c"
+    ]
+  },
+  {
+    "name": "test_idf_wifi_retry",
+    "source": "tools/matter/tests/test_idf_wifi_retry.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
+  },
+  {
+    "name": "test_runtime_notify",
+    "source": "tools/matter/tests/test_runtime_notify.c",
     "mode": "normal",
     "platform": "all",
     "privileged": false,

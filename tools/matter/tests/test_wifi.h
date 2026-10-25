@@ -28,6 +28,13 @@ static void wifi_tests(void) {
     const uint8_t networks[]={0x16,0x15,0x30,0,5,'g','u','e','s','t',0x28,1,0x18,
         0x15,0x30,0,3,'o','l','d',0x28,1,0x18,0x15,0x30,0,3,'n','e','w',0x29,1,0x18,0x18};
     ROOT_CHECK(v.size==sizeof(networks) && !memcmp(v.data,networks,v.size));
+    uint32_t observed_version=matter_wifi_version(w->wifi);Matter_Wifi_Id_T disconnected={0},actual=wf_id("new"),unknown=wf_id("unknown");
+    ROOT_CHECK(matter_wifi_observe_connection(w->wifi,&disconnected)==MATTER_OK&&matter_wifi_version(w->wifi)==observed_version+1);
+    ROOT_CHECK(v.size==sizeof(networks)&&!memcmp(v.data,networks,v.size)); /* Existing provider span has not been rewritten. */
+    ROOT_CHECK(matter_wifi_observe_connection(w->wifi,&disconnected)==MATTER_OK&&matter_wifi_version(w->wifi)==observed_version+1);
+    ROOT_CHECK(matter_wifi_observe_connection(w->wifi,&unknown)==MATTER_INVALID_ARGUMENT&&matter_wifi_version(w->wifi)==observed_version+1);
+    ROOT_CHECK(matter_wifi_observe_connection(w->wifi,&actual)==MATTER_OK&&matter_wifi_version(w->wifi)==observed_version+2);
+    ROOT_CHECK(gc_scalar(g,0x31,5,NULL)==0); /* Passive observations do not rewrite the last command result. */
     wf_command(w,2,"new","bad-pass",0,11,0,false);
     wf_command(w,6,"new",NULL,0,12,7,false);
     ROOT_CHECK(gc_scalar(g,0x30,0,NULL)==11 && matter_wifi_read(w->wifi,7,&v)==0 && v.type==MATTER_TLV_SIGNED && v.signed_value==13);

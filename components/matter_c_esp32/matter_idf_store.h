@@ -6,7 +6,7 @@ typedef struct Matter_Idf_Store* Matter_Idf_Store_T;
  * namespace. Two unchanged TLV blobs plus a one-byte active selector. A staged
  * candidate never replaces the selected blob. Corrupt/missing selected data
  * fails closed; do not erase/fall back to older commissioning state.
- * IDF6.1 NVS commits synchronously in set_item; commit on a live handle is a
+ * IDF6.0.2/6.1 NVS commits synchronously in set_item; commit on a live handle is a
  * no-op. Review that implementation before upgrading this adapter.
  * Ordinary rejected writes preserve the selected blob. Physical flash errors
  * latch the writer offline; power loss selects an entire old or new checkpoint.

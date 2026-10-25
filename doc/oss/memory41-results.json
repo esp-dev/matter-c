@@ -1,0 +1,1374 @@
+{
+  "schema": 1,
+  "date": "2026-10-24",
+  "stage": "Memory41 comparison; optimization closed at Memory40",
+  "core_commit": "f366c2c",
+  "scope": "Identical common wire workload on complete laboratory RGB firmware; not feature-identical full light models or CSA",
+  "versions": {
+    "c_idf": "v6.1",
+    "c_idf_commit": "fff9895c82d744c7237be8847347bdd1b07c6643",
+    "reference_idf": "v6.0.2",
+    "reference_idf_commit": "7101770dc6db2667b3c477cc31365dd1acd6db4e",
+    "esp_matter_commit": "4c9dd7aa80b3ddfa64c814bdfabe76c60944cc75",
+    "connectedhomeip_commit": "b1902b39ac6734913ce5f4d2abf153693a50264b"
+  },
+  "board": {
+    "chip": "ESP32-C6FH4",
+    "revision": "v0.0",
+    "flash_bytes": 4194304,
+    "c_uart_baud": 1000000,
+    "reference_uart_baud": 115200
+  },
+  "images": {
+    "c_normal": {
+      "bin_sha256": "b88e1dac2e90a7178a41e920458d8456a88a9ea2cdb1ee924c11637de4d22368",
+      "elf_sha256": "6aa597cb47820b1c56c8642b006bb5e20fa6cdc47616cad89fe14fa4920a818e",
+      "matched_pretest_board_flash": true
+    },
+    "reference_normal": {
+      "bin_sha256": "1b58714a64695efbc9cd514d27b4a2ce37a612571735262943af8b8390f51be8",
+      "elf_sha256": "2247e6eb1fa7dd38356c163b5552b6f56fd335c1eee267c027e986182091d51d",
+      "matched_pretest_board_flash": true
+    },
+    "c_reservation": {
+      "bin_sha256": "6126cbd6bc66161d08023a5ad688c198eb7c800662e1cd8a8934a256ec76b501",
+      "elf_sha256": "a2f8bce1665b2566760e016a87ed1e90b53c33596ff0f6292e1a8d2a9ad1d188"
+    },
+    "reference_reservation": {
+      "bin_sha256": "ac557b8b277c85570f857938c25beebc0f91c32d3a1d3519aaaaa8da54147e22",
+      "elf_sha256": "4e68ee4f4b918eaca7c40d91f998fbd01d9498093e67c3e4b565325eecb7b467"
+    },
+    "reference_wifi_reservation": {
+      "bin_sha256": "5957adc9fe277964dc09e7c7495019f6a4cd174d9c7758d3db11a434d76eccf6",
+      "elf_sha256": "ef041dbcd307f38506efe640d9c378dc4c373c995b07dd99830817bc8d3d4495"
+    }
+  },
+  "runs": {
+    "c-corrected1": {
+      "kind": "c",
+      "seconds": 173.18855839999998,
+      "inventory": 171,
+      "reads": 105,
+      "values": 735,
+      "subscriptions": 15,
+      "updates": 90,
+      "writes": 6,
+      "invokes": 18,
+      "case_pairs": 10,
+      "resumptions": 10,
+      "unexpected_closures": 0,
+      "removals": 4,
+      "checkpoints": [
+        {
+          "phase": "before-controller",
+          "free": 251556,
+          "largest": 233472,
+          "sdk_min": 235344
+        },
+        {
+          "phase": "one-fabric-idle",
+          "free": 249680,
+          "largest": 229376,
+          "sdk_min": 225284
+        },
+        {
+          "phase": "one-fabric-three-sessions-subscriptions",
+          "free": 246176,
+          "largest": 229376,
+          "sdk_min": 225284
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-subscriptions",
+          "free": 217468,
+          "largest": 196608,
+          "sdk_min": 194068
+        },
+        {
+          "phase": "loaded-after-thirty-seconds",
+          "free": 218048,
+          "largest": 196608,
+          "sdk_min": 186672
+        },
+        {
+          "phase": "subscriptions-closed",
+          "free": 246772,
+          "largest": 200704,
+          "sdk_min": 186672
+        },
+        {
+          "phase": "one-fabric-after-cleanup",
+          "free": 249700,
+          "largest": 204800,
+          "sdk_min": 186672
+        }
+      ],
+      "minimum_sampled_free": 187108,
+      "minimum_sdk_free": 186672,
+      "minimum_sampled_largest": 167936,
+      "sampled_allocated_peak": 232812,
+      "common_log_sha256": "fb2ba7ee00366edfc96ee03fc2437011ad355347415347e004a28f33ac2a11a6",
+      "events_sha256": "31735451723fe83a5a3b075b7d6c01e9aeef5af1155ede935dc740e82fee1749",
+      "core_peak": 125096,
+      "core_final_live": 0,
+      "core_final_bytes": 0,
+      "sdk_allocation_failures": 0
+    },
+    "reference-corrected1": {
+      "kind": "reference",
+      "seconds": 88.8192404,
+      "inventory": 202,
+      "reads": 105,
+      "values": 735,
+      "subscriptions": 15,
+      "updates": 90,
+      "writes": 6,
+      "invokes": 18,
+      "case_pairs": 10,
+      "resumptions": 10,
+      "unexpected_closures": 0,
+      "removals": 4,
+      "checkpoints": [
+        {
+          "phase": "before-controller",
+          "free": 243460,
+          "largest": 204800,
+          "sdk_min": 220712
+        },
+        {
+          "phase": "one-fabric-idle",
+          "free": 242912,
+          "largest": 204800,
+          "sdk_min": 220712
+        },
+        {
+          "phase": "one-fabric-three-sessions-subscriptions",
+          "free": 242736,
+          "largest": 204800,
+          "sdk_min": 220712
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-subscriptions",
+          "free": 236092,
+          "largest": 204800,
+          "sdk_min": 218976
+        },
+        {
+          "phase": "loaded-after-thirty-seconds",
+          "free": 236236,
+          "largest": 204800,
+          "sdk_min": 206600
+        },
+        {
+          "phase": "subscriptions-closed",
+          "free": 236852,
+          "largest": 204800,
+          "sdk_min": 206600
+        },
+        {
+          "phase": "one-fabric-after-cleanup",
+          "free": 240944,
+          "largest": 204800,
+          "sdk_min": 206600
+        }
+      ],
+      "minimum_sampled_free": 207836,
+      "minimum_sdk_free": 206600,
+      "minimum_sampled_largest": 188416,
+      "sampled_allocated_peak": 141916,
+      "common_log_sha256": "ddb86f9b139c8bd12491faabe25a75501444ae497cf7fe5bbb44547292659d48",
+      "events_sha256": "948c0e498f72ebb9fadd7f43822a2de796ce722454558569d3f380cd177b7520"
+    },
+    "c-corrected2": {
+      "kind": "c",
+      "seconds": 176.1121257,
+      "inventory": 171,
+      "reads": 105,
+      "values": 735,
+      "subscriptions": 15,
+      "updates": 90,
+      "writes": 6,
+      "invokes": 18,
+      "case_pairs": 10,
+      "resumptions": 10,
+      "unexpected_closures": 0,
+      "removals": 4,
+      "checkpoints": [
+        {
+          "phase": "before-controller",
+          "free": 251564,
+          "largest": 233472,
+          "sdk_min": 235348
+        },
+        {
+          "phase": "one-fabric-idle",
+          "free": 249684,
+          "largest": 229376,
+          "sdk_min": 225168
+        },
+        {
+          "phase": "one-fabric-three-sessions-subscriptions",
+          "free": 246212,
+          "largest": 229376,
+          "sdk_min": 225168
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-subscriptions",
+          "free": 217368,
+          "largest": 196608,
+          "sdk_min": 194340
+        },
+        {
+          "phase": "loaded-after-thirty-seconds",
+          "free": 218084,
+          "largest": 196608,
+          "sdk_min": 194340
+        },
+        {
+          "phase": "subscriptions-closed",
+          "free": 246796,
+          "largest": 200704,
+          "sdk_min": 194340
+        },
+        {
+          "phase": "one-fabric-after-cleanup",
+          "free": 249712,
+          "largest": 208896,
+          "sdk_min": 194340
+        }
+      ],
+      "minimum_sampled_free": 196296,
+      "minimum_sdk_free": 194340,
+      "minimum_sampled_largest": 180224,
+      "sampled_allocated_peak": 223468,
+      "common_log_sha256": "11a37b24f993ea8cf3474d1bdcb9d61565b168066212b91aa83b95daa1dfccbe",
+      "events_sha256": "2dd09be87bad6a3c7d634deff01c43e7a5e2620b3f43deb6663f4ef2e5168b2d",
+      "core_peak": 125208,
+      "core_final_live": 0,
+      "core_final_bytes": 0,
+      "sdk_allocation_failures": 0
+    },
+    "reference-corrected2": {
+      "kind": "reference",
+      "seconds": 88.7102502,
+      "inventory": 202,
+      "reads": 105,
+      "values": 735,
+      "subscriptions": 15,
+      "updates": 90,
+      "writes": 6,
+      "invokes": 18,
+      "case_pairs": 10,
+      "resumptions": 10,
+      "unexpected_closures": 0,
+      "removals": 4,
+      "checkpoints": [
+        {
+          "phase": "before-controller",
+          "free": 243420,
+          "largest": 204800,
+          "sdk_min": 220712
+        },
+        {
+          "phase": "one-fabric-idle",
+          "free": 242940,
+          "largest": 204800,
+          "sdk_min": 220712
+        },
+        {
+          "phase": "one-fabric-three-sessions-subscriptions",
+          "free": 242588,
+          "largest": 204800,
+          "sdk_min": 220712
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-subscriptions",
+          "free": 236192,
+          "largest": 204800,
+          "sdk_min": 219008
+        },
+        {
+          "phase": "loaded-after-thirty-seconds",
+          "free": 236320,
+          "largest": 204800,
+          "sdk_min": 206708
+        },
+        {
+          "phase": "subscriptions-closed",
+          "free": 236900,
+          "largest": 204800,
+          "sdk_min": 206708
+        },
+        {
+          "phase": "one-fabric-after-cleanup",
+          "free": 240984,
+          "largest": 204800,
+          "sdk_min": 206708
+        }
+      ],
+      "minimum_sampled_free": 209464,
+      "minimum_sdk_free": 206708,
+      "minimum_sampled_largest": 188416,
+      "sampled_allocated_peak": 140292,
+      "common_log_sha256": "3295d984b6c19e0297eb7a5bd13591edb6d211eca5446c44a67066ecc2179871",
+      "events_sha256": "7f98ba55b040ef23595caab9da443ae5ea9d181584cbc049793f09cc564da505"
+    },
+    "c-lifecycle64": {
+      "kind": "c",
+      "seconds": 178.42328949999998,
+      "inventory": 171,
+      "reads": 105,
+      "values": 735,
+      "subscriptions": 15,
+      "updates": 90,
+      "writes": 6,
+      "invokes": 18,
+      "case_pairs": 10,
+      "resumptions": 10,
+      "unexpected_closures": 0,
+      "removals": 4,
+      "checkpoints": [
+        {
+          "phase": "before-controller",
+          "free": 186004,
+          "largest": 167936,
+          "sdk_min": 169808
+        },
+        {
+          "phase": "one-fabric-idle",
+          "free": 184128,
+          "largest": 163840,
+          "sdk_min": 159120
+        },
+        {
+          "phase": "one-fabric-three-sessions-subscriptions",
+          "free": 180632,
+          "largest": 163840,
+          "sdk_min": 159120
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-subscriptions",
+          "free": 151788,
+          "largest": 135168,
+          "sdk_min": 125396
+        },
+        {
+          "phase": "loaded-after-thirty-seconds",
+          "free": 152500,
+          "largest": 116736,
+          "sdk_min": 125396
+        },
+        {
+          "phase": "subscriptions-closed",
+          "free": 181240,
+          "largest": 116736,
+          "sdk_min": 125396
+        },
+        {
+          "phase": "one-fabric-after-cleanup",
+          "free": 184164,
+          "largest": 139264,
+          "sdk_min": 125396
+        }
+      ],
+      "minimum_sampled_free": 129684,
+      "minimum_sdk_free": 125396,
+      "minimum_sampled_largest": 100352,
+      "sampled_allocated_peak": 290032,
+      "common_log_sha256": "5c0806f2149d3c916428aa0ee753d9b56da6cd8529fea59ed54f86dd06b5587f",
+      "events_sha256": "e907979453fdd753e48950d90803efcab34ac8ba7fc89b60d82b013f84fb8ec0",
+      "core_peak": 125092,
+      "core_final_live": 0,
+      "core_final_bytes": 0,
+      "sdk_allocation_failures": 0,
+      "lifecycle": [
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 0,
+          "heap_free": 332004,
+          "largest_free": 311296,
+          "heap_min": 332004,
+          "heap_allocated": 89156,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 1000,
+          "heap_free": 332060,
+          "largest_free": 311296,
+          "heap_min": 330152,
+          "heap_allocated": 89108,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 5000,
+          "heap_free": 331988,
+          "largest_free": 311296,
+          "heap_min": 329808,
+          "heap_allocated": 89172,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 15000,
+          "heap_free": 331988,
+          "largest_free": 311296,
+          "heap_min": 329808,
+          "heap_allocated": 89172,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 30000,
+          "heap_free": 331988,
+          "largest_free": 311296,
+          "heap_min": 329808,
+          "heap_allocated": 89172,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 65000,
+          "heap_free": 331988,
+          "largest_free": 311296,
+          "heap_min": 329808,
+          "heap_allocated": 89172,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 0,
+          "heap_free": 266340,
+          "largest_free": 139264,
+          "heap_min": 266340,
+          "heap_allocated": 154792,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 1000,
+          "heap_free": 266376,
+          "largest_free": 139264,
+          "heap_min": 264288,
+          "heap_allocated": 154760,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 5000,
+          "heap_free": 266376,
+          "largest_free": 139264,
+          "heap_min": 264116,
+          "heap_allocated": 154760,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 15000,
+          "heap_free": 266376,
+          "largest_free": 139264,
+          "heap_min": 264012,
+          "heap_allocated": 154760,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 30000,
+          "heap_free": 266376,
+          "largest_free": 139264,
+          "heap_min": 264012,
+          "heap_allocated": 154760,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 65000,
+          "heap_free": 266376,
+          "largest_free": 139264,
+          "heap_min": 264012,
+          "heap_allocated": 154760,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-no-reservation",
+          "elapsed_ms": 0,
+          "heap_free": 331940,
+          "largest_free": 139264,
+          "heap_min": 125396,
+          "heap_allocated": 89204,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "deleted-no-reservation",
+          "elapsed_ms": 5000,
+          "heap_free": 331940,
+          "largest_free": 139264,
+          "heap_min": 125396,
+          "heap_allocated": 89204,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        }
+      ],
+      "network_after_shutdown": {
+        "pass": true,
+        "probes": 3,
+        "windows_exit": 0
+      }
+    },
+    "reference-join-lifecycle64": {
+      "kind": "reference",
+      "seconds": 89.0473813,
+      "inventory": 202,
+      "reads": 105,
+      "values": 735,
+      "subscriptions": 15,
+      "updates": 90,
+      "writes": 6,
+      "invokes": 18,
+      "case_pairs": 10,
+      "resumptions": 10,
+      "unexpected_closures": 0,
+      "removals": 4,
+      "checkpoints": [
+        {
+          "phase": "before-controller",
+          "free": 177668,
+          "largest": 139264,
+          "sdk_min": 154872
+        },
+        {
+          "phase": "one-fabric-idle",
+          "free": 177336,
+          "largest": 139264,
+          "sdk_min": 154872
+        },
+        {
+          "phase": "one-fabric-three-sessions-subscriptions",
+          "free": 177160,
+          "largest": 139264,
+          "sdk_min": 154872
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-subscriptions",
+          "free": 170568,
+          "largest": 139264,
+          "sdk_min": 152300
+        },
+        {
+          "phase": "loaded-after-thirty-seconds",
+          "free": 170728,
+          "largest": 139264,
+          "sdk_min": 141000
+        },
+        {
+          "phase": "subscriptions-closed",
+          "free": 171324,
+          "largest": 139264,
+          "sdk_min": 141000
+        },
+        {
+          "phase": "one-fabric-after-cleanup",
+          "free": 175120,
+          "largest": 139264,
+          "sdk_min": 141000
+        }
+      ],
+      "minimum_sampled_free": 143848,
+      "minimum_sdk_free": 141000,
+      "minimum_sampled_largest": 122880,
+      "sampled_allocated_peak": 205868,
+      "common_log_sha256": "b18e4c700957d59f5ca1d26bb06b78a7f8f3bb3838ddb4a2f65a46697a27bec8",
+      "events_sha256": "31fe2fbdd688b1d91cd04bad2c8d970a4ecb43bc8c4ce199f59be8fe556f2f55",
+      "lifecycle": [
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 0,
+          "heap_free": 279928,
+          "largest_free": 262144,
+          "heap_min": 279928,
+          "heap_allocated": 71984,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 1000,
+          "heap_free": 279948,
+          "largest_free": 262144,
+          "heap_min": 278076,
+          "heap_allocated": 71968,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 5000,
+          "heap_free": 279908,
+          "largest_free": 262144,
+          "heap_min": 277736,
+          "heap_allocated": 72004,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 15000,
+          "heap_free": 279908,
+          "largest_free": 262144,
+          "heap_min": 277736,
+          "heap_allocated": 72004,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 30000,
+          "heap_free": 279908,
+          "largest_free": 262144,
+          "heap_min": 277736,
+          "heap_allocated": 72004,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 65000,
+          "heap_free": 279908,
+          "largest_free": 262144,
+          "heap_min": 277736,
+          "heap_allocated": 72004,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 0,
+          "heap_free": 200004,
+          "largest_free": 139264,
+          "heap_min": 200004,
+          "heap_allocated": 151520,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 1000,
+          "heap_free": 200004,
+          "largest_free": 139264,
+          "heap_min": 198064,
+          "heap_allocated": 151520,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 5000,
+          "heap_free": 200004,
+          "largest_free": 139264,
+          "heap_min": 198064,
+          "heap_allocated": 151520,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 15000,
+          "heap_free": 200004,
+          "largest_free": 139264,
+          "heap_min": 197652,
+          "heap_allocated": 151520,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 30000,
+          "heap_free": 200004,
+          "largest_free": 139264,
+          "heap_min": 197652,
+          "heap_allocated": 151520,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 65000,
+          "heap_free": 200004,
+          "largest_free": 139264,
+          "heap_min": 197652,
+          "heap_allocated": 151520,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-no-reservation",
+          "elapsed_ms": 0,
+          "heap_free": 265560,
+          "largest_free": 139264,
+          "heap_min": 141000,
+          "heap_allocated": 85972,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "deleted-no-reservation",
+          "elapsed_ms": 5000,
+          "heap_free": 265560,
+          "largest_free": 139264,
+          "heap_min": 141000,
+          "heap_allocated": 85972,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        }
+      ],
+      "network_after_shutdown": {
+        "pass": true,
+        "probes": 3,
+        "windows_exit": 0
+      },
+      "chip_task_absent_after_shutdown": true
+    },
+    "reference-wifi-lifecycle64": {
+      "kind": "reference",
+      "seconds": 88.7786227,
+      "inventory": 202,
+      "reads": 105,
+      "values": 735,
+      "subscriptions": 15,
+      "updates": 90,
+      "writes": 6,
+      "invokes": 18,
+      "case_pairs": 10,
+      "resumptions": 10,
+      "unexpected_closures": 0,
+      "removals": 4,
+      "checkpoints": [
+        {
+          "phase": "before-controller",
+          "free": 206004,
+          "largest": 188416,
+          "sdk_min": 201616
+        },
+        {
+          "phase": "one-fabric-idle",
+          "free": 205564,
+          "largest": 180224,
+          "sdk_min": 196804
+        },
+        {
+          "phase": "one-fabric-three-sessions-subscriptions",
+          "free": 205396,
+          "largest": 180224,
+          "sdk_min": 196804
+        },
+        {
+          "phase": "five-fabrics-fifteen-sessions-subscriptions",
+          "free": 198792,
+          "largest": 180224,
+          "sdk_min": 181608
+        },
+        {
+          "phase": "loaded-after-thirty-seconds",
+          "free": 198952,
+          "largest": 180224,
+          "sdk_min": 169308
+        },
+        {
+          "phase": "subscriptions-closed",
+          "free": 199540,
+          "largest": 180224,
+          "sdk_min": 169308
+        },
+        {
+          "phase": "one-fabric-after-cleanup",
+          "free": 203600,
+          "largest": 180224,
+          "sdk_min": 169308
+        }
+      ],
+      "minimum_sampled_free": 172160,
+      "minimum_sdk_free": 169308,
+      "minimum_sampled_largest": 151552,
+      "sampled_allocated_peak": 205664,
+      "common_log_sha256": "855932e95a2da27e2e9e9e2963f986e9945bf6937d3ed78f52effdb36d77fd22",
+      "events_sha256": "46b5028f7c14ac7ea0818a3c7df00026de31b2180ffa5edbbcb1636893c3493b",
+      "lifecycle": [
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 0,
+          "heap_free": 308136,
+          "largest_free": 286720,
+          "heap_min": 308136,
+          "heap_allocated": 71876,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 1000,
+          "heap_free": 308144,
+          "largest_free": 286720,
+          "heap_min": 306240,
+          "heap_allocated": 71872,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 5000,
+          "heap_free": 308112,
+          "largest_free": 286720,
+          "heap_min": 305940,
+          "heap_allocated": 71900,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 15000,
+          "heap_free": 308112,
+          "largest_free": 286720,
+          "heap_min": 305940,
+          "heap_allocated": 71900,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 30000,
+          "heap_free": 308112,
+          "largest_free": 286720,
+          "heap_min": 305940,
+          "heap_allocated": 71900,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "never-created-wifi-up",
+          "elapsed_ms": 65000,
+          "heap_free": 308112,
+          "largest_free": 286720,
+          "heap_min": 305940,
+          "heap_allocated": 71900,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 0,
+          "heap_free": 228348,
+          "largest_free": 180224,
+          "heap_min": 228348,
+          "heap_allocated": 151288,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 1000,
+          "heap_free": 228348,
+          "largest_free": 180224,
+          "heap_min": 228284,
+          "heap_allocated": 151288,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 5000,
+          "heap_free": 228348,
+          "largest_free": 180224,
+          "heap_min": 226368,
+          "heap_allocated": 151288,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 15000,
+          "heap_free": 228348,
+          "largest_free": 180224,
+          "heap_min": 225996,
+          "heap_allocated": 151288,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 30000,
+          "heap_free": 228348,
+          "largest_free": 180224,
+          "heap_min": 225996,
+          "heap_allocated": 151288,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-wifi-up",
+          "elapsed_ms": 65000,
+          "heap_free": 228348,
+          "largest_free": 180224,
+          "heap_min": 225996,
+          "heap_allocated": 151288,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 65536
+        },
+        {
+          "phase": "deleted-no-reservation",
+          "elapsed_ms": 0,
+          "heap_free": 293904,
+          "largest_free": 180224,
+          "heap_min": 169308,
+          "heap_allocated": 85740,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        },
+        {
+          "phase": "deleted-no-reservation",
+          "elapsed_ms": 5000,
+          "heap_free": 293904,
+          "largest_free": 180224,
+          "heap_min": 169308,
+          "heap_allocated": 85740,
+          "wifi_connected": 1,
+          "ipv6": 1,
+          "reserved_payload": 0
+        }
+      ],
+      "network_after_shutdown": {
+        "pass": true,
+        "probes": 3,
+        "windows_exit": 0
+      },
+      "chip_task_absent_after_shutdown": true
+    }
+  },
+  "size": {
+    "c-normal": {
+      "version": "1.2",
+      "total_size": 1316875,
+      "layout": [
+        {
+          "name": "Flash Code",
+          "total": 0,
+          "used": 1231570,
+          "free": 0,
+          "parts": {
+            ".text": {
+              "size": 1075446
+            },
+            ".rodata": {
+              "size": 155588
+            },
+            ".init_array": {
+              "size": 264
+            },
+            ".appdesc": {
+              "size": 256
+            },
+            ".tdata": {
+              "size": 16
+            }
+          }
+        },
+        {
+          "name": "DIRAM",
+          "total": 452112,
+          "used": 110493,
+          "free": 341619,
+          "parts": {
+            ".text": {
+              "size": 69066
+            },
+            ".bss": {
+              "size": 25192
+            },
+            ".data": {
+              "size": 16235
+            }
+          }
+        }
+      ]
+    },
+    "c-lifecycle": {
+      "version": "1.2",
+      "total_size": 1318335,
+      "layout": [
+        {
+          "name": "Flash Code",
+          "total": 0,
+          "used": 1233282,
+          "free": 0,
+          "parts": {
+            ".text": {
+              "size": 1076590
+            },
+            ".rodata": {
+              "size": 156156
+            },
+            ".init_array": {
+              "size": 264
+            },
+            ".appdesc": {
+              "size": 256
+            },
+            ".tdata": {
+              "size": 16
+            }
+          }
+        },
+        {
+          "name": "DIRAM",
+          "total": 452112,
+          "used": 110517,
+          "free": 341595,
+          "parts": {
+            ".text": {
+              "size": 69066
+            },
+            ".bss": {
+              "size": 25200
+            },
+            ".data": {
+              "size": 16251
+            }
+          }
+        },
+        {
+          "name": "LP SRAM",
+          "total": 16384,
+          "used": 24,
+          "free": 16360,
+          "parts": {
+            ".rtc_reserved": {
+              "size": 24
+            }
+          }
+        }
+      ]
+    },
+    "reference-normal": {
+      "version": "1.2",
+      "total_size": 1870474,
+      "layout": [
+        {
+          "name": "Flash Code",
+          "total": 0,
+          "used": 1762656,
+          "free": 0,
+          "parts": {
+            ".text": {
+              "size": 1496572
+            },
+            ".rodata": {
+              "size": 265344
+            },
+            ".init_array": {
+              "size": 432
+            },
+            ".appdesc": {
+              "size": 256
+            },
+            ".tbss": {
+              "size": 28
+            },
+            ".tdata": {
+              "size": 24
+            }
+          }
+        },
+        {
+          "name": "DIRAM",
+          "total": 452112,
+          "used": 179798,
+          "free": 272314,
+          "parts": {
+            ".text": {
+              "size": 91458
+            },
+            ".bss": {
+              "size": 71520
+            },
+            ".data": {
+              "size": 16820
+            }
+          }
+        },
+        {
+          "name": "LP SRAM",
+          "total": 16384,
+          "used": 24,
+          "free": 16360,
+          "parts": {
+            ".rtc_reserved": {
+              "size": 24
+            }
+          }
+        }
+      ]
+    },
+    "reference-join": {
+      "version": "1.2",
+      "total_size": 1877134,
+      "layout": [
+        {
+          "name": "Flash Code",
+          "total": 0,
+          "used": 1768828,
+          "free": 0,
+          "parts": {
+            ".text": {
+              "size": 1500800
+            },
+            ".rodata": {
+              "size": 267288
+            },
+            ".init_array": {
+              "size": 432
+            },
+            ".appdesc": {
+              "size": 256
+            },
+            ".tbss": {
+              "size": 28
+            },
+            ".tdata": {
+              "size": 24
+            }
+          }
+        },
+        {
+          "name": "DIRAM",
+          "total": 452112,
+          "used": 179822,
+          "free": 272290,
+          "parts": {
+            ".text": {
+              "size": 91458
+            },
+            ".bss": {
+              "size": 71528
+            },
+            ".data": {
+              "size": 16836
+            }
+          }
+        }
+      ]
+    },
+    "reference-wifi": {
+      "version": "1.2",
+      "total_size": 1495236,
+      "layout": [
+        {
+          "name": "Flash Code",
+          "total": 0,
+          "used": 1414036,
+          "free": 0,
+          "parts": {
+            ".text": {
+              "size": 1180064
+            },
+            ".rodata": {
+              "size": 233232
+            },
+            ".init_array": {
+              "size": 432
+            },
+            ".appdesc": {
+              "size": 256
+            },
+            ".tbss": {
+              "size": 28
+            },
+            ".tdata": {
+              "size": 24
+            }
+          }
+        },
+        {
+          "name": "DIRAM",
+          "total": 452112,
+          "used": 151760,
+          "free": 300352,
+          "parts": {
+            ".bss": {
+              "size": 70560
+            },
+            ".text": {
+              "size": 65072
+            },
+            ".data": {
+              "size": 16128
+            }
+          }
+        }
+      ]
+    }
+  },
+  "configuration": {
+    "c_all_normalized_settings_unchanged": true,
+    "c_unique_settings": 1726,
+    "c_sdkconfig_sha256": "ba54429eb34904928163b3cdbf872123a60ff6d9c461ea93a46c0e130f0d3a95",
+    "reference_sdkconfig_sha256": "b067c9d5d7b9fadf7da6248d73a2d8adaaca495b0acb84b80618371d34112591",
+    "reference_wifi_sdkconfig_sha256": "bdc59afaffa396b625000812dc272cd3309fdffce053365d9c5a247450f54c15",
+    "reference_selected": {
+      "CONFIG_MAX_EXCHANGE_CONTEXTS": [
+        "8",
+        "8"
+      ],
+      "CONFIG_MBEDTLS_HARDWARE_ECC": [
+        "y",
+        "y"
+      ],
+      "CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM": [
+        "10",
+        "10"
+      ],
+      "CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM": [
+        "32",
+        "32"
+      ],
+      "CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM": [
+        "32",
+        "32"
+      ],
+      "CONFIG_CHIP_TASK_STACK_SIZE": [
+        "8192",
+        "8192"
+      ],
+      "CONFIG_ENABLE_CHIPOBLE": [
+        "y",
+        "n"
+      ],
+      "CONFIG_BT_ENABLED": [
+        "y",
+        "n"
+      ]
+    },
+    "wifi_changed_settings": 278,
+    "other_than_bluetooth_changed_keys": [
+      "CONFIG_UART_HW_FLOWCTRL_CTS_RTS"
+    ],
+    "c_transactions": 52,
+    "reference_exchanges": 8,
+    "non_bt_max_or_pool_settings_changed": false
+  },
+  "source_sha256": {
+    "examples/esp-matter-memory/compare.mjs": "22a87a90abfc4b804d83800d48a10bf1a7ac92bf8b135810b38438eb224cf1b0",
+    "examples/esp-matter-memory/reference_lifecycle.h": "4bac46f66fc212ec40e0a964079e03acb1675d1e95a6b5782f141965b217eb21",
+    "examples/esp32-common/matter_lab_lifecycle.h": "7006cfc3dad9942473b7c7e12cf6ded2c8cbe5717208468f02b6267e5b688fff",
+    "tools/matter/prepare_memory_comparison.py": "9169d5df0568780153a9c7325d6c2de7d4a48095b0484de3f1c272f3205c25e3"
+  },
+  "source_core_files_unchanged": 162,
+  "validation": {
+    "normal_repetitions_per_stack": 2,
+    "reservation_bytes": 65536,
+    "reservation_runs_per_profile": 1,
+    "patterns_retained_and_checked": true,
+    "ping_after_shutdown_per_profile": 3,
+    "c_wifi_up_zero_core_gate_passed": true,
+    "source_generator_both_kinds_compiled": true,
+    "node_syntax_check": true,
+    "python_syntax_check": true,
+    "new_native_core_or_csa_campaign": false,
+    "final_helpers_compiled_with_one_job": true,
+    "shared_sdk_checkouts_clean": true
+  },
+  "exploratory_failures": [
+    {
+      "phase": "original peer normal reference",
+      "result": "15 subscriptions admitted; timed out after 19 of 105 Reads; cause not established; excluded from matched results"
+    },
+    {
+      "phase": "first reference full shutdown observer",
+      "result": "common workload passed; missing task-exit barrier before PlatformManager shutdown; FreeRTOS queue assertion and reset; repeated with checked join passed"
+    },
+    {
+      "phase": "first final reference probe helpers",
+      "result": "missing controller fabric label, then invalid empty-object argument for void OnOff command; helper repaired and final physical probe passed"
+    },
+    {
+      "phase": "first local observer build",
+      "result": "sandbox WinError 623; unchanged toolchain successfully used outside sandbox"
+    },
+    {
+      "phase": "first final SSH check",
+      "result": "connection timed out following WiFi cleanup; later ping and SSH succeeded; original WLAN disconnected state verified from events; cause not established"
+    }
+  ],
+  "cleanup": {
+    "ipv6": true,
+    "collectors": [],
+    "temporary_profile_removed": true,
+    "temporary_xml_removed": true,
+    "temporary_connection_was_active": true,
+    "boards_original_firmware_and_primary_fabric_restored": true,
+    "vm_ssh_final_ok": true,
+    "wlan_original_disconnected_state_verified": true
+  },
+  "limitations": [
+    "Different SDKs, crypto hardware-ECC configuration, models (171/202 attributes) and resource ceilings; shared functional workload only.",
+    "Normal standard-BLE references repeated twice; WiFi-only and 64KiB profiles are single observations, not statistical or specification-wide bounds.",
+    "100ms simultaneous samples can miss transients. SDK minimum is an aggregate of regional minima, not an exact simultaneous minimum.",
+    "Inactive never-created and reserved-deleted windows use local SDK minimum monitoring for65s. After unreserve only0/5s current free is reported; its SDK minimum is restored workload history.",
+    "One-way reference shutdown after drained controllers; not proof of restart or shutdown with arbitrary in-flight work/other SDK consumers.",
+    "64KiB reservation is not actual MQTT/HTTP/TLS workload; no matched worst-case wildcard-subscription, runtime OOM, phone pairing or new CSA test.",
+    "C SDK allocation-failure counter is zero; external reference has no equivalent failure-counter instrumentation.",
+    "C normal library files and SDK settings are unchanged; separate regression/CSA campaigns are outside this evidence."
+  ]
+}

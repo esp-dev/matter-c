@@ -3,7 +3,8 @@
 #include "esp_idf_version.h"
 #include "nvs.h"
 #include <stdlib.h>
-#if ESP_IDF_VERSION_MAJOR != 6 || ESP_IDF_VERSION_MINOR != 1
+#if ESP_IDF_VERSION_MAJOR != 6 || (ESP_IDF_VERSION_MINOR != 1 && \
+    (ESP_IDF_VERSION_MINOR != 0 || ESP_IDF_VERSION_PATCH != 2))
 #error "Review NVS synchronous publication/commit semantics for this SDK"
 #endif
 struct Matter_Idf_Store { nvs_handle_t nvs; uint8_t active; bool present,offline; unsigned fail; };

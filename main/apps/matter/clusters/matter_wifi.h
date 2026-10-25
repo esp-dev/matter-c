@@ -51,6 +51,12 @@ Matter_Result_T matter_wifi_delete(Matter_Wifi_T);
 Matter_Result_T matter_wifi_process(Matter_Wifi_T, uint64_t now_ms);
 Matter_Result_T matter_wifi_deadline(Matter_Wifi_T, uint64_t*);
 Matter_Result_T matter_wifi_complete(Matter_Wifi_T, uint64_t token, const Matter_Wifi_Completion_T*);
+/* Trusted radio observation on the owner thread, after SDK polling. Reflects
+ * passive loss/reconnect in Networks[].Connected without changing configured
+ * credentials, command results, fail-safe snapshot, tokens or persistence.
+ * Empty ID means disconnected; a nonempty ID must be configured. No port calls.
+ * Existing Read/Subscribe snapshots remain independent of this live update. */
+Matter_Result_T matter_wifi_observe_connection(Matter_Wifi_T,const Matter_Wifi_Id_T*);
 /* GC begin calls checkpoint only after creating its durable recovery journal.
  * GC cleanup revokes/drains PASE, then calls rollback until OK, THEN clears its
  * journal. Snapshot is RAM only. Boot recovery is the application's durable

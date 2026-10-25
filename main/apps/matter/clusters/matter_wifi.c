@@ -1,4 +1,5 @@
 #include "matter_wifi.h"
+#include "matter_wifi_internal.h"
 #include "../model/matter_cluster_internal.h"
 #include <stdlib.h>
 #include <string.h>
@@ -40,12 +41,12 @@ static bool credentials_valid(const Matter_Wifi_Network_T* n) {
     }
     return true;
 }
-static bool valid_settings(Wifi m) {
-    if(m->settings.count>m->config.max_networks || m->connected.size>32) return false;
-    for(unsigned i=0;i<m->settings.count;++i) {
-        Matter_Wifi_Network_T* n=&m->settings.networks[i];
+bool matter_wifi_settings_valid(const Matter_Wifi_Settings_T* settings,const Matter_Wifi_Id_T* connected,unsigned maximum) {
+    if(!settings||!connected||!maximum||maximum>MATTER_WIFI_NETWORKS||settings->count>maximum || connected->size>32) return false;
+    for(unsigned i=0;i<settings->count;++i) {
+        const Matter_Wifi_Network_T* n=&settings->networks[i];
         if(!n->id.size || n->id.size>32 || !credentials_valid(n)) return false;
-        for(unsigned j=0;j<i;++j) if(id_equal(&n->id,&m->settings.networks[j].id)) return false;
+        for(unsigned j=0;j<i;++j) if(id_equal(&n->id,&settings->networks[j].id)) return false;
     }
     return true;
 }
@@ -56,7 +57,7 @@ Matter_Cluster_T matter_wifi_new(const Matter_Wifi_Config_T* c,const Matter_Wifi
     Wifi m=calloc(1,sizeof(*m)); if(!m) return NULL;
     m->config=*c; m->port=*p; m->now=now; m->serial=c->token_seed; m->busy=true;
     Matter_Result_T r=p->load(p->user,&m->settings,&m->connected); m->busy=false;
-    if(r!=MATTER_OK || !valid_settings(m)) { erase(m,sizeof(*m)); free(m); return NULL; }
+    if(r!=MATTER_OK || !matter_wifi_settings_valid(&m->settings,&m->connected,m->config.max_networks)) { erase(m,sizeof(*m)); free(m); return NULL; }
     if(m->connected.size) { m->status_present=true; m->last_id=m->connected; }
     m->interface=interface_new(m); if(!m->interface) { erase(m,sizeof(*m)); free(m); return NULL; }
     return m->interface;
@@ -77,6 +78,14 @@ static bool put(Wifi m,Matter_Tlv_Writer_T* w,Matter_Tlv_Type_T t,int tag,uint64
 #define BYTES(tag,p,n) put(m,w,MATTER_TLV_BYTES,tag,0,p,n)
 uint32_t matter_wifi_version(Matter_Wifi_T handle) {
     Wifi m=matter_cluster_context(handle,destroy); return m?m->config.data_version:0; }
+Matter_Result_T matter_wifi_observe_connection(Matter_Wifi_T handle,const Matter_Wifi_Id_T* connected) {
+    Wifi m=matter_cluster_context(handle,destroy);if(!m||!connected||connected->size>32)return MATTER_INVALID_ARGUMENT;
+    if(m->busy)return MATTER_BUSY;
+    if(m->detached)return MATTER_INVALID_STATE;
+    if(connected->size&&find(m,connected)<0)return MATTER_INVALID_ARGUMENT;
+    if(!id_equal(&m->connected,connected)){m->connected=*connected;++m->config.data_version;}
+    return MATTER_OK;
+}
 uint8_t matter_wifi_describe(Matter_Wifi_T m,uint32_t a,Matter_Im_Attribute_T* out) {
     return matter_cluster_context(m,destroy)?matter_cluster_describe(m,a,out):MATTER_IM_FAILURE;
 }

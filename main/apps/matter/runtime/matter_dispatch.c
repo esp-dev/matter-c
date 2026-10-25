@@ -78,7 +78,7 @@ struct Matter_Dispatch {
     struct {
         uint64_t serial,id,node,resolve,deadline,revision; uint8_t fabric;
         Matter_Im_Client_T client; Matter_Bdx_T bdx; Matter_Exchange_Session_T session;
-        bool cancelled,resolve_cancelled,failed,invoked;
+        bool cancelled,resolve_cancelled,failed,invoked,peer;
         Matter_Udp_Path_T path;
     } outgoing;
 };
@@ -153,6 +153,7 @@ static void clear_connection(Connection* c) {
  * live subscriptions, exchanges, ACK/MRP references and borrowed I/O protect a slot. */
 static bool idle(Matter_Dispatch_T d,Connection* c,Matter_Secure_Info_T* info) {
     if(!c->token || !c->operational || c->retiring || c->reserved || d->sending==c ||
+        (d->outgoing.id && d->outgoing.session==c->token) ||
         matter_secure_info(c->secure,info)!=MATTER_OK || info->closing || info->pins!=1) return false;
     for(Transaction* t=d->transactions;t;t=t->next)
         if(t->key.session==c->token) return false;
@@ -363,7 +364,7 @@ static Matter_Retransmission_Submission_T send_message(void* u,const Matter_Retr
     if(c && (c->retiring || (c->removal_reply && c->removal_reply!=t->handle))) return MATTER_RETRANSMISSION_REJECTED_FATAL;
     Matter_Result_T result=c?matter_secure_channel_send(c->channel,d->udp,r->message.data,r->message.size,&d->request):
         matter_unsecured_tx_send(d->transport,r->message.exchange.session,r->message.data,r->message.size,&d->request);
-    if(result!=MATTER_PENDING) return result==MATTER_BUSY || result==MATTER_WOULD_BLOCK?
+    if(result!=MATTER_PENDING) return result==MATTER_BUSY || result==MATTER_WOULD_BLOCK || result==MATTER_OFFLINE?
         MATTER_RETRANSMISSION_REJECTED_RETRYABLE:MATTER_RETRANSMISSION_REJECTED_FATAL;
     d->sending=c; d->producer=r->id; d->ack_token=0; d->sending_message=t;
     if(!t->sent) {
@@ -1192,6 +1193,29 @@ static bool outgoing_transactions(Matter_Dispatch_T d) {
     for(Transaction* t=d->transactions;t;t=t->next) if(t->outbound) return true;
     return false;
 }
+Matter_Result_T matter_dispatch_set_outbound(Matter_Dispatch_T d,const Matter_Udp_Path_T* path) {
+    if(!d||!path||!path->local.port||!path->interface_id)return MATTER_INVALID_ARGUMENT;
+    if(d->processing)return MATTER_BUSY;
+    if(d->stopping)return MATTER_INVALID_STATE;
+    d->config.outbound=*path;return MATTER_OK;
+}
+static Connection* outgoing_connection(Matter_Dispatch_T d,uint8_t fabric,uint64_t node) {
+    for(unsigned i=0;i<CONNECTIONS;++i) {
+        Connection* c=&d->connections[i];
+        if(c->token&&c->operational&&!c->reserved&&!c->retiring&&!c->rotating&&!c->removal_reply&&c->fabric_index==fabric&&c->peer_node==node)return c;
+    }
+    return NULL;
+}
+Matter_Result_T matter_dispatch_invoke_ready(Matter_Dispatch_T d,uint8_t fabric,uint64_t node) {
+    if(!d||!fabric||fabric==255||!node||node>UINT64_C(0xffffffefffffffff))return MATTER_INVALID_ARGUMENT;
+    if(d->processing||d->outgoing.id)return MATTER_BUSY;
+    if(d->stopping||!d->config.fabric_live||!d->config.fabric_live(d->config.user,fabric)||!d->config.credential_revision)return MATTER_INVALID_STATE;
+    if(d->outgoing.serial==UINT64_MAX)return MATTER_LIMIT_REACHED;
+    if(outgoing_connection(d,fabric,node))return MATTER_OK;
+    if(!d->config.outbound.interface_id||!d->config.outbound.local.port||!d->config.resolver.start)return MATTER_OFFLINE;
+    for(unsigned i=0;i<16;++i)if(d->config.outbound.local.address[i])return MATTER_OK;
+    return MATTER_OFFLINE;
+}
 static Matter_Result_T outgoing_start(Matter_Dispatch_T d,uint8_t fabric,uint64_t node,
     Matter_Im_Client_T client,Matter_Bdx_T bdx,uint64_t* id) {
     if(!d || !id || !fabric || fabric==255 || !node || node>UINT64_C(0xffffffefffffffff)) return MATTER_INVALID_ARGUMENT;
@@ -1206,11 +1230,7 @@ static Matter_Result_T outgoing_start(Matter_Dispatch_T d,uint8_t fabric,uint64_
     d->outgoing.deadline=d->now>UINT64_MAX-60000?UINT64_MAX:d->now+60000;
     Matter_Exchange_Session_T ignored;
     d->outgoing.revision=d->config.credential_revision(d->config.user,fabric,&ignored);
-    for(unsigned i=0;i<CONNECTIONS;++i) {
-        Connection* c=&d->connections[i];
-        if(c->token && c->operational && !c->reserved && !c->retiring && !c->rotating && !c->removal_reply &&
-            c->fabric_index==fabric && c->peer_node==node) { d->outgoing.session=c->token; break; }
-    }
+    Connection* existing=outgoing_connection(d,fabric,node);if(existing)d->outgoing.session=existing->token;
     if(!d->outgoing.session) {
         Matter_Resolver_Query_T q={.node_id=node,.interface_id=d->config.outbound.interface_id};
         if(!q.interface_id || !d->config.outbound.local.port || !d->config.resolver.start ||
@@ -1218,6 +1238,28 @@ static Matter_Result_T outgoing_start(Matter_Dispatch_T d,uint8_t fabric,uint64_
             d->config.resolver.start(d->config.resolver.user,&q,&d->outgoing.resolve)!=MATTER_PENDING) d->outgoing.failed=true;
     }
     *id=serial; return MATTER_PENDING;
+}
+Matter_Result_T matter_dispatch_peer(Matter_Dispatch_T d,uint8_t fabric,uint64_t node,uint64_t* id) {
+    if(!id)return MATTER_INVALID_ARGUMENT;
+    Matter_Result_T r=matter_dispatch_invoke_ready(d,fabric,node);
+    if(r!=MATTER_OK)return r;
+    *id=0;if(outgoing_connection(d,fabric,node))return MATTER_OK;
+    r=outgoing_start(d,fabric,node,NULL,NULL,id);
+    if(r==MATTER_PENDING)d->outgoing.peer=true;
+    return r;
+}
+Matter_Result_T matter_dispatch_peer_take(Matter_Dispatch_T d,uint64_t id) {
+    if(d&&d->processing)return MATTER_BUSY;
+    if(!d||!id||d->outgoing.id!=id||!d->outgoing.peer)return MATTER_INVALID_ARGUMENT;
+    if(d->outgoing.resolve||outgoing_transactions(d))return MATTER_PENDING;
+    Matter_Exchange_Session_T ignored;
+    if(d->stopping||!d->config.fabric_live(d->config.user,d->outgoing.fabric)||
+        d->config.credential_revision(d->config.user,d->outgoing.fabric,&ignored)!=d->outgoing.revision)d->outgoing.failed=true;
+    if(d->outgoing.session&&!outgoing_connection(d,d->outgoing.fabric,d->outgoing.node))d->outgoing.failed=true;
+    Matter_Result_T r=(d->outgoing.failed||d->outgoing.cancelled)?MATTER_PORT_ERROR:
+        outgoing_connection(d,d->outgoing.fabric,d->outgoing.node)?MATTER_OK:MATTER_PENDING;
+    if(r!=MATTER_PENDING)d->outgoing.id=0;
+    return r;
 }
 Matter_Result_T matter_dispatch_invoke(Matter_Dispatch_T d,uint8_t fabric,uint64_t node,
     const Matter_Im_Command_Path_T* path,uint32_t response,const uint8_t* fields,size_t size,uint64_t* id) {
@@ -1255,7 +1297,7 @@ void matter_dispatch_invoke_cancel(Matter_Dispatch_T d,uint64_t id) {
 }
 Matter_Result_T matter_dispatch_invoke_take(Matter_Dispatch_T d,uint64_t id,uint8_t* status,const uint8_t** fields,size_t* size) {
     if(d && d->processing) return MATTER_BUSY;
-    if(!d || !id || id!=d->outgoing.id || !status || !fields || !size) return MATTER_INVALID_ARGUMENT;
+    if(!d || !id || id!=d->outgoing.id || !status || !fields || !size || !d->outgoing.client) return MATTER_INVALID_ARGUMENT;
     if(d->outgoing.resolve || outgoing_transactions(d)) return MATTER_PENDING;
     Matter_Exchange_Session_T ignored;
     if(d->stopping || !d->config.fabric_live(d->config.user,d->outgoing.fabric) ||
@@ -1292,6 +1334,7 @@ static void outgoing_process(Matter_Dispatch_T d) {
     if(d->outgoing.session) {
         Connection* c=connection(d,d->outgoing.session);
         if(!c || c->retiring || c->rotating || c->removal_reply) { d->outgoing.failed=true; return; }
+        if(d->outgoing.peer) { d->outgoing.invoked=true; return; }
         Transaction* t=new_transaction(d); if(!t) { d->outgoing.failed=true; return; }
         Matter_Exchange_Handle_T handle;
         if(matter_rx_initiate(d->rx,c->token,&handle)!=MATTER_OK) { free_transaction(t); return; }

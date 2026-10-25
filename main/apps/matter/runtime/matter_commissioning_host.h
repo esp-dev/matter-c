@@ -31,4 +31,10 @@ Matter_Result_T matter_commissioning_host_cleanup(void*);
 Matter_Result_T matter_commissioning_host_complete(void*,uint8_t fabric_index);
 /* Fault BEFORE commit, after drain. No partial effects; journal stays pending. */
 void matter_commissioning_host_fail_commit(Matter_Commissioning_Host_T,bool);
+/* Trusted external Wi-Fi provisioning AFTER the runtime has stopped/drained.
+ * Refuses a pending fail-safe. Commits only Wi-Fi data in the same core image,
+ * preserving fabrics/keys/ACL/settings/OTA. No radio or live model mutation;
+ * delete/recreate the stopped runtime before resuming protocol service. */
+Matter_Result_T matter_commissioning_host_provision_wifi(Matter_Commissioning_Host_T,
+    const Matter_Wifi_Settings_T*,const Matter_Wifi_Id_T*,unsigned max_networks);
 #endif
