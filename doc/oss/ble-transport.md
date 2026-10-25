@@ -46,3 +46,12 @@ tests cover bearer admission, immutable direct TX, drain, generation retirement
 and reentrancy. Native tests do not emulate the SDK allocator, controller,
 radio timing or phone applications; physical acceptance is recorded by the
 separate bulb application. These results are not CSA certification.
+
+The existing `MATTER_C_ESP32_UDP_TRACE` development switch also emits BTP
+lifecycle/completion metadata and Wi-Fi initialize/configure/start flags. These
+show whether commissioning was blocked by port ownership or disabled settings
+without logging SSIDs, credentials, pairing codes or packet contents. It remains
+off by default. The final bulb test commissioned a genuinely unconfigured C6
+over BLE with DHCPv4 blocked, then checked IPv6 control and automatic DHCP
+recovery; its application defaults enable an unconfigured interface while
+preserving an explicitly saved disable.

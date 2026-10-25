@@ -7,9 +7,10 @@ config MATTER_C_ESP32_BLE
         Optional phase-owned peripheral transport. Uses the application's owner
         scheduler and shares runtime limits with UDP; does not enable UDP PASE.
 config MATTER_C_ESP32_UDP_TRACE
-    bool "Trace UDP send failures (no packet payloads)"
+    bool "Trace transport and Wi-Fi state (no payloads or credentials)"
     default n
     help
-        Development-only transport state/error counters on the console.
+        Development-only UDP/BTP state/error counters and Wi-Fi operation flags
+        on the console. Never logs packet payloads, SSIDs or credentials.
         Leave disabled in silent release images.
 endmenu

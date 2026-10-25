@@ -7,6 +7,13 @@
 #include "freertos/FreeRTOS.h"
 #include <stdlib.h>
 #include <string.h>
+#include "sdkconfig.h"
+#if CONFIG_MATTER_C_ESP32_UDP_TRACE
+#include <stdio.h>
+#define WIFI_TRACE(...) printf(__VA_ARGS__)
+#else
+#define WIFI_TRACE(...) ((void)0)
+#endif
 
 typedef struct {
     uint64_t token;bool scan,started,cancelled,scan_stop,disconnect;
@@ -49,10 +56,13 @@ static Matter_Result_T load(void* u,Matter_Wifi_Settings_T* s,Matter_Wifi_Id_T* 
 static Matter_Result_T configure(void* u,const Matter_Wifi_Settings_T* s){
     Matter_Idf_Wifi_T w=u;if(w->busy)return MATTER_BUSY;
     Matter_Wifi_Id_T empty={0};if(!matter_wifi_settings_valid(s,&empty,MATTER_WIFI_NETWORKS))return MATTER_INVALID_ARGUMENT;
+    WIFI_TRACE("MATTER_WIFI configure enabled=%u count=%u\n",s->enabled?1u:0u,(unsigned)s->count);
     w->settings=*s;if(!s->enabled||(!network(w)&&w->target.size)){w->target.size=0;w->apply=true;}return MATTER_OK;
 }
 static Matter_Result_T start(void* u,uint64_t token,bool scan,const Matter_Wifi_Network_T* n){
-    Matter_Idf_Wifi_T w=u;if(w->busy||w->job||w->restoring)return MATTER_BUSY;
+    Matter_Idf_Wifi_T w=u;
+    WIFI_TRACE("MATTER_WIFI start scan=%u busy=%u job=%u restoring=%u initializing=%u enabled=%u\n",scan?1u:0u,w->busy?1u:0u,w->job?1u:0u,w->restoring?1u:0u,w->initializing?1u:0u,w->settings.enabled?1u:0u);
+    if(w->busy||w->job||w->restoring)return MATTER_BUSY;
     if(!n||!token||n->id.size>32)return MATTER_INVALID_ARGUMENT;
     if(!scan){Matter_Wifi_Settings_T s={.enabled=true,.count=1,.networks={*n}};Matter_Wifi_Id_T empty={0};if(!matter_wifi_settings_valid(&s,&empty,1))return MATTER_INVALID_ARGUMENT;}
     Job* job=calloc(1,sizeof(*job));if(!job)return MATTER_LIMIT_REACHED;
@@ -73,6 +83,7 @@ static Matter_Result_T restore(void* u,const Matter_Wifi_Settings_T* s,const Mat
 static Matter_Result_T initialize(void* u,const Matter_Wifi_Settings_T* s,const Matter_Wifi_Id_T* c){
     Matter_Idf_Wifi_T w=u;if(w->busy||w->job||w->restoring)return MATTER_BUSY;
     if(!matter_wifi_settings_valid(s,c,MATTER_WIFI_NETWORKS))return MATTER_INVALID_ARGUMENT;
+    WIFI_TRACE("MATTER_WIFI initialize enabled=%u count=%u connected=%u\n",s->enabled?1u:0u,(unsigned)s->count,c->size?1u:0u);
     w->settings=*s;select_target(w,c);w->initializing=true;return MATTER_OK;
 }
 /* The heap configuration is wiped after the synchronous SDK copy. If the
