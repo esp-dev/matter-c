@@ -1,0 +1,499 @@
+{
+  "schema": 1,
+  "date": "2026-10-25",
+  "scope": "main merge regression; not CSA certification or new physical acceptance",
+  "tested_source_commit": "ad7a272d194c7c358e06bf1b0ecdab5a0632a775",
+  "preserved_csa_commit": "6ab4e1a",
+  "bulb_parent": "21859f96dfced05f927d58888f31c22f61ed0313",
+  "source_archive": {
+    "main": "ad7a272d194c7c358e06bf1b0ecdab5a0632a775",
+    "archive_sha256": "b9f3c303d4c7bc126093b70c11ab33e8ab008ed5e5954d78fabded13cf3edd2e",
+    "file_count": 947
+  },
+  "preservation": {
+    "files": 27,
+    "added_removed_lines": 3034,
+    "exact_change_sequence_preserved": true
+  },
+  "ctest": {
+    "strict": 119,
+    "strict_sanitizers": 119,
+    "compatibility": 119,
+    "compatibility_sanitizers": 119
+  },
+  "host_runs": [
+    {
+      "name": "strict-configure",
+      "passed": true,
+      "seconds": 1.14
+    },
+    {
+      "name": "strict-build",
+      "passed": true,
+      "seconds": 15.44
+    },
+    {
+      "name": "strict-ctest",
+      "passed": true,
+      "seconds": 15.11
+    },
+    {
+      "name": "strict-memcheck-test_runtime_notify",
+      "passed": true,
+      "seconds": 0.58
+    },
+    {
+      "name": "strict-memcheck-test_light",
+      "passed": true,
+      "seconds": 0.68
+    },
+    {
+      "name": "strict-memcheck-test_light_groups",
+      "passed": true,
+      "seconds": 0.73
+    },
+    {
+      "name": "strict-memcheck-test_group_profiles",
+      "passed": true,
+      "seconds": 0.63
+    },
+    {
+      "name": "strict-memcheck-test_group_privacy",
+      "passed": true,
+      "seconds": 0.63
+    },
+    {
+      "name": "strict-memcheck-test_group_invoke",
+      "passed": true,
+      "seconds": 0.63
+    },
+    {
+      "name": "strict-memcheck-test_groupcast",
+      "passed": true,
+      "seconds": 0.89
+    },
+    {
+      "name": "strict-memcheck-test_runtime",
+      "passed": true,
+      "seconds": 19.88
+    },
+    {
+      "name": "strict-memcheck-test_runtime_alloc",
+      "passed": true,
+      "seconds": 37.57
+    },
+    {
+      "name": "strict-memcheck-test_reception",
+      "passed": true,
+      "seconds": 1.34
+    },
+    {
+      "name": "strict-memcheck-test_idf_wifi_retry",
+      "passed": true,
+      "seconds": 0.63
+    },
+    {
+      "name": "strict-memcheck-test_dispatch",
+      "passed": true,
+      "seconds": 1.39
+    },
+    {
+      "name": "strict-memcheck-test_root",
+      "passed": true,
+      "seconds": 1.45
+    },
+    {
+      "name": "strict-memcheck-test_root_alloc",
+      "passed": true,
+      "seconds": 1.54
+    },
+    {
+      "name": "strict-memcheck-test_fabric",
+      "passed": true,
+      "seconds": 55.1
+    },
+    {
+      "name": "strict-memcheck-test_fabric_encoding",
+      "passed": true,
+      "seconds": 0.62
+    },
+    {
+      "name": "strict-memcheck-test_acl",
+      "passed": true,
+      "seconds": 0.78
+    },
+    {
+      "name": "strict-memcheck-test_store",
+      "passed": false,
+      "seconds": 4.44
+    },
+    {
+      "name": "strict-memcheck-test_store-save",
+      "passed": true,
+      "seconds": 15.85
+    },
+    {
+      "name": "strict-pair-memcheck-controller",
+      "passed": true,
+      "seconds": 23.52
+    },
+    {
+      "name": "strict-pair-memcheck",
+      "passed": true,
+      "seconds": 28.2
+    },
+    {
+      "name": "strict-sanitize-configure",
+      "passed": true,
+      "seconds": 1.09
+    },
+    {
+      "name": "strict-sanitize-build",
+      "passed": true,
+      "seconds": 42.48
+    },
+    {
+      "name": "strict-sanitize-ctest",
+      "passed": true,
+      "seconds": 45.01
+    },
+    {
+      "name": "strict-pair-sanitize-controller",
+      "passed": true,
+      "seconds": 12.26
+    },
+    {
+      "name": "strict-pair-sanitize",
+      "passed": true,
+      "seconds": 13.39
+    },
+    {
+      "name": "compat-configure",
+      "passed": true,
+      "seconds": 1.08
+    },
+    {
+      "name": "compat-build",
+      "passed": true,
+      "seconds": 14.33
+    },
+    {
+      "name": "compat-ctest",
+      "passed": true,
+      "seconds": 15.43
+    },
+    {
+      "name": "compat-memcheck-test_runtime_notify",
+      "passed": true,
+      "seconds": 0.63
+    },
+    {
+      "name": "compat-memcheck-test_light",
+      "passed": true,
+      "seconds": 0.73
+    },
+    {
+      "name": "compat-memcheck-test_light_groups",
+      "passed": true,
+      "seconds": 0.9
+    },
+    {
+      "name": "compat-memcheck-test_group_profiles",
+      "passed": true,
+      "seconds": 0.63
+    },
+    {
+      "name": "compat-memcheck-test_group_privacy",
+      "passed": true,
+      "seconds": 0.68
+    },
+    {
+      "name": "compat-memcheck-test_group_invoke",
+      "passed": true,
+      "seconds": 0.63
+    },
+    {
+      "name": "compat-memcheck-test_groupcast",
+      "passed": true,
+      "seconds": 1.09
+    },
+    {
+      "name": "compat-memcheck-test_runtime",
+      "passed": true,
+      "seconds": 20.89
+    },
+    {
+      "name": "compat-memcheck-test_runtime_alloc",
+      "passed": true,
+      "seconds": 40.1
+    },
+    {
+      "name": "compat-memcheck-test_reception",
+      "passed": true,
+      "seconds": 1.48
+    },
+    {
+      "name": "compat-memcheck-test_idf_wifi_retry",
+      "passed": true,
+      "seconds": 0.57
+    },
+    {
+      "name": "compat-memcheck-test_dispatch",
+      "passed": true,
+      "seconds": 1.36
+    },
+    {
+      "name": "compat-memcheck-test_root",
+      "passed": true,
+      "seconds": 1.48
+    },
+    {
+      "name": "compat-memcheck-test_root_alloc",
+      "passed": true,
+      "seconds": 1.58
+    },
+    {
+      "name": "compat-memcheck-test_fabric",
+      "passed": true,
+      "seconds": 57.58
+    },
+    {
+      "name": "compat-memcheck-test_fabric_encoding",
+      "passed": true,
+      "seconds": 0.68
+    },
+    {
+      "name": "compat-memcheck-test_acl",
+      "passed": true,
+      "seconds": 0.85
+    },
+    {
+      "name": "compat-memcheck-test_store-save",
+      "passed": true,
+      "seconds": 16.67
+    },
+    {
+      "name": "compat-pair-memcheck-controller",
+      "passed": true,
+      "seconds": 27.79
+    },
+    {
+      "name": "compat-pair-memcheck",
+      "passed": true,
+      "seconds": 32.62
+    },
+    {
+      "name": "compat-sanitize-configure",
+      "passed": true,
+      "seconds": 0.98
+    },
+    {
+      "name": "compat-sanitize-build",
+      "passed": true,
+      "seconds": 42.3
+    },
+    {
+      "name": "compat-sanitize-ctest",
+      "passed": true,
+      "seconds": 46.83
+    },
+    {
+      "name": "compat-pair-sanitize-controller",
+      "passed": true,
+      "seconds": 17.06
+    },
+    {
+      "name": "compat-pair-sanitize",
+      "passed": true,
+      "seconds": 18.2
+    },
+    {
+      "name": "merge1-complete",
+      "passed": true,
+      "seconds": 0
+    }
+  ],
+  "wire_runs": [
+    {
+      "name": "strict-memcheck-wire-after",
+      "passed": true,
+      "seconds": 384.17
+    },
+    {
+      "name": "strict-sanitize-wire-after",
+      "passed": true,
+      "seconds": 291.44
+    },
+    {
+      "name": "compat-memcheck-wire-after",
+      "passed": true,
+      "seconds": 388.1
+    },
+    {
+      "name": "compat-sanitize-wire-after",
+      "passed": true,
+      "seconds": 298.39
+    }
+  ],
+  "wire_metrics": {
+    "strict-memcheck-wire-after": {
+      "pass": true,
+      "subscription_snapshots": 75,
+      "full_reads": 80,
+      "oom_cycles": 3,
+      "ack_negative_controls": 1,
+      "ack_session_survived": true,
+      "host_close_reconnect_cycles": 1,
+      "delayed_completion_cycles": 1,
+      "session_busy_probes": 1,
+      "unexpected_subscription_closures": 0,
+      "host_peer_closes": 15,
+      "ack_held_completion_cycles": 1,
+      "host_stats": {
+        "core_calls": 60045,
+        "core_failures": 3,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 254768,
+        "held_completion": 0,
+        "rx_held": 1,
+        "rx_reordered": 1,
+        "ack_dropped": 1,
+        "unacknowledged": 1,
+        "ack_before_completion": 12,
+        "ack_after_completion": 3359,
+        "wrong_role_acks": 2,
+        "target_outcome": 0,
+        "target_attempts": 0
+      }
+    },
+    "strict-sanitize-wire-after": {
+      "pass": true,
+      "subscription_snapshots": 75,
+      "full_reads": 80,
+      "oom_cycles": 3,
+      "ack_negative_controls": 1,
+      "ack_session_survived": true,
+      "host_close_reconnect_cycles": 1,
+      "delayed_completion_cycles": 1,
+      "session_busy_probes": 1,
+      "unexpected_subscription_closures": 0,
+      "host_peer_closes": 15,
+      "ack_held_completion_cycles": 1,
+      "host_stats": {
+        "core_calls": 56412,
+        "core_failures": 3,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 255760,
+        "held_completion": 0,
+        "rx_held": 1,
+        "rx_reordered": 1,
+        "ack_dropped": 1,
+        "unacknowledged": 1,
+        "ack_before_completion": 7,
+        "ack_after_completion": 3247,
+        "wrong_role_acks": 3,
+        "target_outcome": 0,
+        "target_attempts": 0
+      }
+    },
+    "compat-memcheck-wire-after": {
+      "pass": true,
+      "subscription_snapshots": 75,
+      "full_reads": 80,
+      "oom_cycles": 3,
+      "ack_negative_controls": 1,
+      "ack_session_survived": true,
+      "host_close_reconnect_cycles": 1,
+      "delayed_completion_cycles": 1,
+      "session_busy_probes": 1,
+      "unexpected_subscription_closures": 0,
+      "host_peer_closes": 15,
+      "ack_held_completion_cycles": 1,
+      "host_stats": {
+        "core_calls": 59905,
+        "core_failures": 3,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 253834,
+        "held_completion": 0,
+        "rx_held": 1,
+        "rx_reordered": 1,
+        "ack_dropped": 1,
+        "unacknowledged": 1,
+        "ack_before_completion": 12,
+        "ack_after_completion": 3352,
+        "wrong_role_acks": 2,
+        "target_outcome": 0,
+        "target_attempts": 0
+      }
+    },
+    "compat-sanitize-wire-after": {
+      "pass": true,
+      "subscription_snapshots": 75,
+      "full_reads": 80,
+      "oom_cycles": 3,
+      "ack_negative_controls": 1,
+      "ack_session_survived": true,
+      "host_close_reconnect_cycles": 1,
+      "delayed_completion_cycles": 1,
+      "session_busy_probes": 1,
+      "unexpected_subscription_closures": 0,
+      "host_peer_closes": 15,
+      "ack_held_completion_cycles": 1,
+      "host_stats": {
+        "core_calls": 56936,
+        "core_failures": 3,
+        "core_live": 0,
+        "core_bytes": 0,
+        "core_peak": 253834,
+        "held_completion": 0,
+        "rx_held": 1,
+        "rx_reordered": 1,
+        "ack_dropped": 1,
+        "unacknowledged": 1,
+        "ack_before_completion": 4,
+        "ack_after_completion": 3267,
+        "wrong_role_acks": 3,
+        "target_outcome": 0,
+        "target_attempts": 0
+      }
+    }
+  },
+  "application_tests": {
+    "ctest": "2/2",
+    "bridge_parser": "2/2"
+  },
+  "c6_builds": {
+    "idf": "6.1",
+    "compiled_version": 7,
+    "flashed": false,
+    "variants": {
+      "develop": {
+        "bytes": 1314816,
+        "sha256": "46e2520ae18c32bdfbf616dd09aa6785479cd97484146df0636f0aa3c551ca42",
+        "warnings": 0,
+        "stack_checkout": "matter submodule",
+        "compatibility": "header defaults OFF"
+      },
+      "release": {
+        "bytes": 1249280,
+        "sha256": "d1cf0d455811985f5f3eb18ab8c0f8580b9635b0df6af8cef78b1d7b8a024c5e",
+        "warnings": 0,
+        "stack_checkout": "matter submodule",
+        "compatibility": "header defaults OFF"
+      }
+    }
+  },
+  "harness_error": "First direct Memcheck test_store invocation omitted required arguments and aborted before allocation. Corrected save invocation passed in both profiles. Full four-phase store runner passed in every CTest profile. Original failed receipt retained.",
+  "physical_modified": false,
+  "release6_artifacts_unchanged": true,
+  "pushed": false,
+  "limits": [
+    "No new physical C6, original TH/CSA or Apple/Google Home run",
+    "Only after wire case repeated; six-case historical matrix not rerun",
+    "No new heap, fragmentation or task-stack measurements",
+    "No-DHCP physical acceptance remains a next task"
+  ]
+}

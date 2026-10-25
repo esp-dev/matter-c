@@ -1,5 +1,17 @@
 # Development status
 
+**Bulb integration merged into main with CSA74/75 preserved.**
+Snapshot `6ab4e1a` retains the previous dirty main work; merge `ad7a272` adds
+Memory40-43, native ESP OTA, shared lighting/groups/scenes and ESP-port repairs.
+The one authorization conflict retains both bounded Revoke reply authorization
+and the group-cleanup gate. Compatibility exceptions remain default-OFF.
+Strict and compatibility builds each pass 119/119 CTest normally and separately
+with ASan/UBSan/LSan, plus focused Memcheck and full two-runtime regressions.
+See the [merge report](bulb-main-integration.md) and
+[receipt](bulb-main-integration.json) for wire results, source pins and limits.
+C6 develop/release compile; no new physical/CSA result or push is claimed.
+Next: physical acceptance of the merged C6 image, including no-DHCP recovery.
+
 **CSA75: explicit default-OFF SDK/test compatibility.**
 The owner authorized the exceptions identified by CSA74. Select
 `MATTER_CSA_COMPAT=ON` in a separate CMake build, or choose its four independent
