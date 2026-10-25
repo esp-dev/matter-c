@@ -460,6 +460,10 @@ int main(void) {
     CHECK(matter_runtime_ota_request_query(b->runtime)==MATTER_INVALID_STATE);
     CHECK(matter_runtime_root(a->runtime)!=matter_runtime_root(b->runtime));
     Matter_Root_T ra=matter_runtime_root(a->runtime),rb=matter_runtime_root(b->runtime);
+    Matter_Cluster_Request_T regulatory_request={0};Matter_Im_Value_T regulatory_value,capability;
+    Matter_Cluster_T general=matter_root_cluster(ra,0x30);CHECK(general);
+    CHECK(!matter_cluster_read(general,2,&regulatory_request,&regulatory_value)&&!matter_cluster_read(general,3,&regulatory_request,&capability));
+    CHECK(regulatory_value.unsigned_value==2&&regulatory_value.unsigned_value==capability.unsigned_value);
     Matter_Root_Endpoint_Config_T endpoint={.endpoint=7,.device_type=0x100,.revision=1};
     CHECK(matter_root_add_endpoint(ra,&endpoint)==MATTER_OK);
     CHECK(matter_root_has_device_type(ra,7,0x100) && !matter_root_has_device_type(rb,7,0x100));

@@ -74,7 +74,9 @@ not close historical main-repository CSA findings or prove Apple/Google Home.
 
 Physical two-fabric acceptance also covers a two-second AP ban with continued
 subscription reporting, and a twenty-second ban followed by fresh CASE/control
-and subscription re-establishment. Next: product factory-reset acceptance. Physical group
+and subscription re-establishment. Five rapid EN resets and last-fabric removal
+restore the uncommissioned product state while preserving its factory identity;
+the same onboarding data commissions it again. Physical group
 multicast and a complete lighting certification campaign remain separate gates.
 
 The optional joint `store_light` callback publishes global scene 0/0 and the
@@ -115,3 +117,10 @@ link-up/source-not-ready phases. Limits, retry count, packet/counter identity
 and stop/ACK/UDP drain are unchanged; offline retries do not hold work forever.
 `MATTER_C_ESP32_UDP_TRACE`, off by default, logs only transport error/state flags,
 never packet payloads. Silent applications leave it disabled.
+
+The generic runtime's initial RegulatoryConfig now equals LocationCapability
+(Indoor/Outdoor =2), as required by Core11.10.6.4. A supplied current setting in
+the lower-level Root constructor remains supported. The new runtime regression
+reads both attributes before commissioning; no persistence format or public API
+changes. Linux normal/sanitized native suites and separate two-node Memcheck/
+sanitizer lifecycles pass after this correction.

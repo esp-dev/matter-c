@@ -333,7 +333,9 @@ Matter_Runtime_T matter_runtime_new(const Matter_Runtime_Config_T* c,uint32_t pi
     s->commission=matter_commissioning_host_new_port(s->commission_image,s->wifi,&c->wifi.control,s->opcreds,s->fabric_host,&cp); if(!s->commission) goto fail;
     s->recovering=matter_commissioning_host_pending(s->commission_image);
     Matter_Root_Port_T rp={s,load,authorize,store}; Matter_Root_Commissioning_Port_T gc={s,begin,cleanup,regulatory,window_open};
-    Matter_Root_Commissioning_Config_T rc={60,900,0,2,true,false,identity->descriptor_version};
+    /* Core11.10.6.4: the unconfigured regulatory value defaults to the
+     * advertised location capability (Indoor/Outdoor), not Indoor. */
+    Matter_Root_Commissioning_Config_T rc={60,900,2,2,true,false,identity->descriptor_version};
     s->root=matter_root_new_commissioning(&rp,&rc,&gc,now);
     Matter_Root_Complete_Port_T done={s,complete};
     if(!s->root || !s->acl || !s->groupkey || !s->diagnostics || matter_root_attach_wifi(s->root,s->wifi)!=MATTER_OK ||
