@@ -21,6 +21,13 @@ exclude later work; existing CSA failures and prerequisites remain open.
 The application owns scheduling, networking, storage and hardware callbacks.
 Multiple runtimes can run in one process/thread. The core does not require
 ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).
+The optional [native ESP OTA installer](components/matter_c_esp32/OTA.md)
+adds signed inactive-partition writes, real reboot/rollback and provider
+notification; [Memory42](doc/oss/memory42-validation.md) records its validation.
+The [same-IDF C6 user-case comparison](doc/oss/memory43-validation.md) includes
+commissioning, RGB/Subscribe, multi-admin, signed OTA and Wi-Fi-preserving deletion.
+Its [heap chart](doc/oss/memory43/free-heap.png) records application headroom
+against an optimized ESP-Matter1.6.1 reference, including SDK and task stacks.
 The optional [native wire regression](doc/runtime-wire-tests.md) reuses the C6
 oracle for fast loopback RGB/Read/Subscribe tests, controlled ACK/RX/TX faults,
 allocation failures and orderly stop, without a board or access point.
@@ -114,6 +121,24 @@ It separates real state, padding, headers and already-consumed records; independ
 maxima are not summed. Reproducible isolated generators/checked decoding leave
 normal storage unchanged. C6 and native tests pass; normal Memory38/original
 fabric are restored and COM/AP released. Next: consumed Read prefix blocks.
+
+The [Memory40 Read prefix reclamation](doc/oss/memory40-validation.md) releases
+complete consumed pages after both IM success and MRP confirmation. Remaining
+snapshots keep stable addresses; limits and ACK/drain are unchanged. The matched
+normal C6 sampled whole-heap peak changes by -752 B and
+minimum sampled free by +716 B; the SDK historical minimum changes
+by -304 B. These small mixed extrema do not prove a substantial
+global-peak saving. Host, OOM and physical regressions pass.
+
+Optimization is closed at Memory40. The [Memory41 comparison](doc/oss/memory41-validation.md)
+keeps that core and IDF6.1 configuration unchanged. With the same common workload
+and64 KiB occupied by an application reservation, C versus Wi-Fi-only CHIP/IDF6.0.2
+minimum SDK free is125396 /169308 B. Before creating Matter,65s free is
+331988 /308112 B; after shutdown and releasing the reservation it is
+331940 /293904 B. These are complete lab firmware measurements with different
+models/limits, not a feature-identical certified-light or MQTT/TLS benchmark.
+Both preserve Wi-Fi after checked retirement; largest blocks and SDK minima
+are reported separately. Next is the minimum required Wi-Fi-light profile.
 
 The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
 integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,

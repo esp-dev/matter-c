@@ -29,6 +29,10 @@ const env=NodeJsEnvironment(); env.vars.set('storage.path',resolve(stateRoot)); 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms)), started=performance.now(), run=randomBytes(6).toString('hex');
 const emit=(phase,data={})=>console.log(JSON.stringify({phase,seconds:(performance.now()-started)/1000,...data}));
 const summary={kind,mode,cleanup,inventory:0,reads:0,reports:0,writes:0,invokes:0,casePairs:0,resumed:0,subscriptions:0,updates:0,busyRetries:0,colorSettlePolls:0,unexpectedClosures:0,removals:[],checkpoints:[]};
+if(process.env.MATTER_TEST_PEER_ROLE) {
+    const {peerRole}=await import('../../tools/matter/tests/peer_role.mjs');
+    summary.diagnostic_peer=await peerRole(modules,process.env.MATTER_TEST_PEER_ROLE);
+}
 const contexts=[];
 const paths=[{endpointId:0,clusterId:0x28,attributeId:BasicInformation.Cluster.attributes.nodeLabel.id},
     {endpointId:0,clusterId:0x3e,attributeId:OperationalCredentials.Cluster.attributes.commissionedFabrics.id},

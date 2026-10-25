@@ -1,0 +1,91 @@
+{
+  "sdk": {
+    "idf": {
+      "revision": "7101770dc6db2667b3c477cc31365dd1acd6db4e",
+      "status": ""
+    },
+    "esp-matter": {
+      "revision": "4c9dd7aa80b3ddfa64c814bdfabe76c60944cc75",
+      "status": ""
+    },
+    "chip": {
+      "revision": "b1902b39ac6734913ce5f4d2abf153693a50264b",
+      "status": ""
+    }
+  },
+  "mdns_version": "1.14.0",
+  "firmware": {
+    "c": {
+      "1": {
+        "unsigned": {
+          "matter_c_runtime.map": "2d7418f60cbb19f051e728b94653c8d064e1733953086baaad71a6b2888582af",
+          "matter_c_runtime.elf": "bc52c32e84d98f56280a455adaf07116c2d05e6b192588e8438561a0726b82a4",
+          "flash-0xc000.bin": "4eecf8a89d6f2161053cdc504210e8f367593e87f4323ca2d4bafc399b5ba353",
+          "flash-0x50000.bin": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f",
+          "flash-0x0.bin": "b53767713d475fee47634c59b409aa7ec23ccf5785bbd939abf171d982da9bab",
+          "sdkconfig": "45026ba14def7de6137169cd493b55f36d0ca70d1b76033ba74b48865dd46963",
+          "flash-0x60000.bin": "84bd333889b0bffd7634abdf199eb1336a17fb8fc901c664806a874423066854"
+        },
+        "signed": {
+          "firmware.signed.bin": "d35b97099fc5377e688ab4dd70a6bd9ac4fa51a4c91c10f27c4c1947311db830",
+          "firmware.ota": "4841f228d381493fcb889e658cc5ae1626155eaf1aa8967ad34050c5884f17bc"
+        },
+        "signed_payload_bytes": 1183744,
+        "matter_ota_bytes": 1183828
+      },
+      "2": {
+        "unsigned": {
+          "matter_c_runtime.map": "2d7418f60cbb19f051e728b94653c8d064e1733953086baaad71a6b2888582af",
+          "matter_c_runtime.elf": "d0682a43c91b3e2d9ce2d8c3e0c5e30de86f9d4864aa460d9b255ddd72fdec65",
+          "flash-0xc000.bin": "4eecf8a89d6f2161053cdc504210e8f367593e87f4323ca2d4bafc399b5ba353",
+          "flash-0x50000.bin": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f",
+          "flash-0x0.bin": "be3503a87e754995dfe89d620b3686d7c87fccfc91faaaafaddfec4886ea401c",
+          "sdkconfig": "57360962a1e2ad8403404779471bbb0f2541de2053d99a9b78ae23c7e7eb619c",
+          "flash-0x60000.bin": "8600ed6036b11194e473a9325bc3507192c640d3529dceae130b5ba9bb22a6eb"
+        },
+        "signed": {
+          "firmware.signed.bin": "c80144677a5134ba71852d5e0abe3206a6ec8af91f25d0f87b272db5d59ab7e6",
+          "firmware.ota": "3193fc98ed05f86b7d77919802652872a5922014b98d6d21fbf65e7343a99183"
+        },
+        "signed_payload_bytes": 1183744,
+        "matter_ota_bytes": 1183828
+      }
+    },
+    "reference": {
+      "1": {
+        "unsigned": {
+          "light.map": "681ef22f30a49b5debb4e4374ba082e54a64b95bcd2280c56767b1bcefc3edc3",
+          "light.elf": "028a632806d76f6cf88071bf9d42cdadceafeaf87f18420227ff78d1999eda05",
+          "flash-0xc000.bin": "4eecf8a89d6f2161053cdc504210e8f367593e87f4323ca2d4bafc399b5ba353",
+          "flash-0x50000.bin": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f",
+          "flash-0x0.bin": "701243954f4428c11ccb827bffef3fd20a342b3563cd26ca239c8fd384c21106",
+          "sdkconfig": "d4368d02dcbbef3f1ad1466a0c032fe6420c1572236cf9d26f1a4e65f85de581",
+          "flash-0x60000.bin": "ea39a9bf83528069a448a934307c9f043ee34e922eaa833e5a410aabd4909d6a"
+        },
+        "signed": {
+          "firmware.signed.bin": "9cf727476c9f38ba96ddad906d5b7b673f03ce97143a93b82ba1a57a4211e428",
+          "firmware.ota": "1b5bd0e9c7e812e42295b01b2c2b1ac8cab3ced21272f7475e2c4639ba725dab"
+        },
+        "signed_payload_bytes": 1380352,
+        "matter_ota_bytes": 1380436
+      },
+      "2": {
+        "unsigned": {
+          "light.map": "681ef22f30a49b5debb4e4374ba082e54a64b95bcd2280c56767b1bcefc3edc3",
+          "light.elf": "00098f72ed8997e574aa3c02419d45b59611b74570903d7b0e5715457515ee85",
+          "flash-0xc000.bin": "4eecf8a89d6f2161053cdc504210e8f367593e87f4323ca2d4bafc399b5ba353",
+          "flash-0x50000.bin": "7d2c7ac4888bfd75cd5f56e8d61f69595121183afc81556c876732fd3782c62f",
+          "flash-0x0.bin": "8012b7f9992850fc20d650778fbc1fc0411986846760f870dc3d4b5af8ffd157",
+          "sdkconfig": "4de34e2f2e2e24adc704a274c9182e16a0dc4e91d1cc7768b35ec71a50df4685",
+          "flash-0x60000.bin": "0aa488eb46321300f8d21fa27d31ffbf38c11d993b10eed07f23656711ed919b"
+        },
+        "signed": {
+          "firmware.signed.bin": "9acfaea6f84fa6a64e8e333be280ba3a121c4c735cee7ad1b6f52a93498c3c86",
+          "firmware.ota": "275c4b4ecce09b21eba90d3759d4ef7743f97b510117b6979cc01a23d4f9baf3"
+        },
+        "signed_payload_bytes": 1380352,
+        "matter_ota_bytes": 1380436
+      }
+    }
+  }
+}

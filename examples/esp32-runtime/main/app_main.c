@@ -28,6 +28,12 @@
 #include "matter_idf_ip6_internal.h"
 #include "matter_idf_store.h"
 #include "matter_idf_discovery.h"
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+#include "matter_idf_ota.h"
+#include "matter_idf_resolver.h"
+#include "esp_app_desc.h"
+#include "esp_ota_ops.h"
+#endif
 #include "matter_idf_memory.h"
 #include "wifi_port.h"
 #include "soak_lab.h"
@@ -36,6 +42,18 @@
 #endif
 #include "lwip/sockets.h"
 #include "matter_lab_wifi.h"
+#ifndef CONFIG_MATTER_C_RUNTIME_USERCASE
+#define CONFIG_MATTER_C_RUNTIME_USERCASE 0
+#endif
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+#define MATTER_LAB_STORE_PARTITION "nvs"
+#else
+#define MATTER_LAB_STORE_PARTITION "matter"
+#endif
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+#include "../../esp32-common/matter_lab_provision.h"
+#include "../../esp32-common/matter_lab_usercase.h"
+#endif
 #include "test_opcreds_vectors.h" /* Public TEST identity/scalar, never production DAC. */
 #define REQUIRE(x) do { if(!(x)) { printf("RUNTIME_FAIL line=%u\n",(unsigned)__LINE__); abort(); } } while(0)
 static uint64_t now(void) { return (uint64_t)esp_timer_get_time()/1000; }
@@ -53,6 +71,9 @@ typedef struct {
 } Ad;
 typedef struct {
     esp_netif_t* iface; Lab_Wifi_T wifi; Matter_Idf_Store_T disk;
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+    Matter_Idf_Ota_T ota; Matter_Idf_Resolver_T resolver;
+#endif
     Matter_Crypto_Mbedtls_T backend; Matter_Runtime_T runtime;
     Matter_T owner; Matter_Idf_Udp_T udp; Matter_Events_T events;
     Matter_Lab_Soak_T soak;
@@ -129,9 +150,17 @@ static void boot_wifi(App* a) {
     REQUIRE(esp_wifi_set_storage(WIFI_STORAGE_RAM)==ESP_OK); REQUIRE(esp_wifi_set_mode(WIFI_MODE_STA)==ESP_OK);
     REQUIRE(esp_wifi_get_mac(WIFI_IF_STA,a->mac)==ESP_OK);
     wifi_config_t* cfg=calloc(1,sizeof(*cfg)); REQUIRE(cfg);
-    size_t ssid=strlen(MATTER_LAB_WIFI_SSID),password=strlen(MATTER_LAB_WIFI_PASSWORD);
+    size_t ssid=0,password=0;
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+    REQUIRE(matter_lab_wifi_config(cfg,&ssid,&password));
+#else
+    ssid=strlen(MATTER_LAB_WIFI_SSID); password=strlen(MATTER_LAB_WIFI_PASSWORD);
     REQUIRE(ssid && ssid<=32 && password<=64);
     memcpy(cfg->sta.ssid,MATTER_LAB_WIFI_SSID,ssid); memcpy(cfg->sta.password,MATTER_LAB_WIFI_PASSWORD,password);
+#endif
+    a->initial.enabled=true; a->initial.count=1;
+    a->initial.networks[0].id.size=ssid; memcpy(a->initial.networks[0].id.bytes,cfg->sta.ssid,ssid);
+    a->initial.networks[0].credential_size=password; memcpy(a->initial.networks[0].credentials,cfg->sta.password,password);
     cfg->sta.threshold.authmode=WIFI_AUTH_WPA2_PSK;
     REQUIRE(esp_wifi_set_config(WIFI_IF_STA,cfg)==ESP_OK); memset(cfg,0,sizeof(*cfg)); free(cfg);
     REQUIRE(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_CONNECTED,wifi_event,a)==ESP_OK);
@@ -141,9 +170,6 @@ static void boot_wifi(App* a) {
         esp_netif_get_ip_info(a->iface,&v4)!=ESP_OK || !v4.ip.addr)) vTaskDelay(pdMS_TO_TICKS(50));
     REQUIRE(now()<end);
     printf("IPV6_READY address=" IPV6STR " interface=%d\n",IPV62STR(ip),esp_netif_get_netif_impl_index(a->iface));
-    a->initial.enabled=true; a->initial.count=1;
-    a->initial.networks[0].id.size=ssid; memcpy(a->initial.networks[0].id.bytes,MATTER_LAB_WIFI_SSID,ssid);
-    a->initial.networks[0].credential_size=password; memcpy(a->initial.networks[0].credentials,MATTER_LAB_WIFI_PASSWORD,password);
     a->wifi=lab_wifi_new(a->iface,&a->initial); REQUIRE(a->wifi); sample("wifi-ipv6-ready");
 }
 static void text(Matter_Root_Text_T* out,const char* value) { out->size=strlen(value); memcpy(out->data,value,out->size); }
@@ -153,6 +179,10 @@ static void configuration(App* a) {
     text(&i->hardware_string,"C6"); text(&i->software_string,"Memory14");
     char unique[13]; for(unsigned j=0;j<6;++j) snprintf(unique+2*j,3,"%02X",a->mac[j]); text(&i->unique_id,unique);
     i->vendor_id=0xfff1; i->product_id=0x8000; i->software_version=i->hardware_version=i->configuration_version=1;
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+    i->software_version=matter_idf_ota_version(a->ota);
+    text(&i->software_string,esp_app_get_description()->version);
+#endif
     i->basic_version=i->descriptor_version=1; i->settings.location[0]=i->settings.location[1]='X';
     i->capabilities=(Matter_Root_Capabilities_T)MATTER_HOST_CAPABILITIES;
     Matter_Runtime_Config_T* c=&a->config; c->identity=i; c->user=a;
@@ -330,7 +360,7 @@ static void wifi_tests(App* a) {
 }
 static void clear_store_fixture(void) {
     nvs_handle_t disposable;
-    REQUIRE(nvs_open_from_partition("matter","port_test",NVS_READWRITE,&disposable)==ESP_OK);
+    REQUIRE(nvs_open_from_partition(MATTER_LAB_STORE_PARTITION,"port_test",NVS_READWRITE,&disposable)==ESP_OK);
     REQUIRE(nvs_erase_all(disposable)==ESP_OK && nvs_commit(disposable)==ESP_OK); nvs_close(disposable);
 }
 static void header_tests(void) {
@@ -344,7 +374,7 @@ static void header_tests(void) {
     puts("IPV6_HEADER_PASS base-HBH-destination-truncation-overrun-fragment");
 }
 static void store_tests(void) {
-    Matter_Idf_Store_T s=matter_idf_store_new("matter","port_test"); REQUIRE(s);
+    Matter_Idf_Store_T s=matter_idf_store_new(MATTER_LAB_STORE_PARTITION,"port_test"); REQUIRE(s);
     Matter_Store_Blob_Port_T p=matter_idf_store_port(s); size_t n=0;
     uint8_t* data=calloc(1,MATTER_STORE_BLOB_MAX); uint8_t* read=calloc(1,MATTER_STORE_BLOB_MAX); REQUIRE(data && read);
     memset(data,0x31,MATTER_STORE_BLOB_MAX);
@@ -353,7 +383,7 @@ static void store_tests(void) {
         matter_idf_store_fail(s,stage); data[0]=0x32;
         REQUIRE(p.replace(p.user,data,MATTER_STORE_BLOB_MAX)==MATTER_PORT_ERROR);
         REQUIRE(p.read(p.user,read,MATTER_STORE_BLOB_MAX,&n)==MATTER_OK && n==MATTER_STORE_BLOB_MAX && read[0]==0x31);
-        matter_idf_store_delete(s); s=matter_idf_store_new("matter","port_test"); REQUIRE(s); p=matter_idf_store_port(s);
+        matter_idf_store_delete(s); s=matter_idf_store_new(MATTER_LAB_STORE_PARTITION,"port_test"); REQUIRE(s); p=matter_idf_store_port(s);
         REQUIRE(p.read(p.user,read,MATTER_STORE_BLOB_MAX,&n)==MATTER_OK && read[0]==0x31);
     }
     REQUIRE(p.replace(p.user,data,MATTER_STORE_BLOB_MAX)==MATTER_OK);
@@ -365,7 +395,7 @@ static void store_tests(void) {
 static void constructor_faults(App* a) {
 #if CONFIG_MATTER_C_RUNTIME_OOM_SWEEP
     nvs_handle_t lab; uint8_t checked=0,recovery=0;
-    REQUIRE(nvs_open_from_partition("matter","lab",NVS_READWRITE,&lab)==ESP_OK);
+    REQUIRE(nvs_open_from_partition(MATTER_LAB_STORE_PARTITION,"lab",NVS_READWRITE,&lab)==ESP_OK);
     esp_err_t e=nvs_get_u8(lab,"oom_checked",&checked); REQUIRE(e==ESP_OK || e==ESP_ERR_NVS_NOT_FOUND);
     e=nvs_get_u8(lab,"recovery",&recovery); REQUIRE(e==ESP_OK || e==ESP_ERR_NVS_NOT_FOUND);
     enum { OOM_SUITE_REVISION=2 };
@@ -433,10 +463,23 @@ static void discovery_faults(App* a) {
     puts("ADVERTISEMENT_OOM_PASS constructors retry sticky-drain cleanup");
 }
 static void start(App* a) {
+#if !CONFIG_MATTER_C_RUNTIME_USERCASE
     size_t base=matter_idf_memory().live;
     matter_idf_memory_fail_after(1); REQUIRE(!matter_runtime_new(&a->config,20202021,now()));
     matter_idf_memory_fail_after(0); REQUIRE(matter_idf_memory().live==base);
+#endif
     a->runtime=matter_runtime_new(&a->config,20202021,now()); REQUIRE(a->runtime); sample("runtime-created");
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+    Matter_Runtime_Ota_Port_T ota=matter_idf_ota_port(a->ota);
+    Matter_Resolver_Port_T resolver=matter_idf_resolver_port(a->resolver);
+    Matter_Udp_Path_T outbound={.local.port=5540,.interface_id=(uint32_t)esp_netif_get_netif_impl_index(a->iface)};
+    esp_ip6_addr_t local;
+    REQUIRE(esp_netif_get_ip6_linklocal(a->iface,&local)==ESP_OK);
+    memcpy(outbound.local.address,local.addr,16); /* Pin the actual handshake source, never ::. */
+    REQUIRE(matter_runtime_set_ota(a->runtime,&ota)==MATTER_OK);
+    REQUIRE(matter_runtime_set_resolver(a->runtime,&resolver)==MATTER_OK);
+    REQUIRE(matter_runtime_set_outbound(a->runtime,&outbound)==MATTER_OK);
+#endif
 #if CONFIG_MATTER_C_RUNTIME_RGB
     a->light=matter_lab_rgb_new(esp_random(),now()); REQUIRE(a->light);
     REQUIRE(matter_lab_rgb_attach(a->light,matter_runtime_root(a->runtime))==MATTER_OK);
@@ -452,12 +495,17 @@ static void start(App* a) {
 #endif
     a->owner=matter_new(NULL); REQUIRE(a->owner && matter_start(a->owner)==MATTER_OK);
     Matter_Udp_Listener_T listener={a,received,sent};
+#if !CONFIG_MATTER_C_RUNTIME_USERCASE
     matter_idf_memory_fail_after(1); REQUIRE(!matter_idf_udp_new(a->owner,a->iface,5540,&listener)); matter_idf_memory_fail_after(0);
+#endif
     a->udp=matter_idf_udp_new(a->owner,a->iface,5540,&listener); REQUIRE(a->udp);
+#if !CONFIG_MATTER_C_RUNTIME_USERCASE
     matter_idf_memory_fail_after(1); REQUIRE(matter_udp_start(matter_idf_udp_module(a->udp))==MATTER_WOULD_BLOCK);
+#endif
     matter_idf_memory_fail_after(0); REQUIRE(matter_udp_start(matter_idf_udp_module(a->udp))==MATTER_OK);
     Matter_Events_Port_T events={a,event_load,event_store}; a->events=matter_events_new(&events); REQUIRE(a->events);
     REQUIRE(matter_runtime_start(a->runtime,a->owner,matter_idf_udp_module(a->udp),a->events)==MATTER_OK);
+#if !CONFIG_MATTER_C_RUNTIME_USERCASE
     uint64_t high,after; Matter_Store_Host_T store=matter_runtime_store(a->runtime);
     REQUIRE(matter_store_host_event_load(store,&high)==MATTER_OK);
     matter_idf_memory_fail_after(1);
@@ -469,6 +517,7 @@ static void start(App* a) {
         REQUIRE(matter_store_host_event_load(store,&after)==MATTER_OK && after==high);
     }
     puts("ATOMIC_MODEL_PASS allocator-and-two-storage-failures");
+#endif
     sample("runtime-started");
 }
 static void fail_safe_restart(App* a,nvs_handle_t lab) {
@@ -511,12 +560,15 @@ static void recovery_restart(App* a) {
     REQUIRE(port.replace(port.user,bytes,size)==MATTER_OK);
     a->config.crypto.clear(bytes,MATTER_STORE_BLOB_MAX); a->config.crypto.clear((uint8_t*)image,sizeof(*image));
     free(bytes); free(image);
-    nvs_handle_t lab; REQUIRE(nvs_open_from_partition("matter","lab",NVS_READWRITE,&lab)==ESP_OK);
+    nvs_handle_t lab; REQUIRE(nvs_open_from_partition(MATTER_LAB_STORE_PARTITION,"lab",NVS_READWRITE,&lab)==ESP_OK);
     REQUIRE(nvs_set_u8(lab,"recovery",1)==ESP_OK && nvs_commit(lab)==ESP_OK); nvs_close(lab);
     puts("FAILSAFE_DURABLE_RESTART local-crash-fixture-preserves-committed-fabric"); fflush(stdout);
     vTaskDelay(pdMS_TO_TICKS(200)); esp_restart();
 }
 void app_main(void) {
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+    matter_lab_heap_start(); matter_lab_usercase_begin(0);
+#endif
 #if CONFIG_MATTER_C_RUNTIME_COMPARE_SAMPLER
     matter_lab_heap_start();
 #endif
@@ -526,39 +578,83 @@ void app_main(void) {
     sample("boot"); header_tests(); REQUIRE(psa_crypto_init()==PSA_SUCCESS);
     struct timeval clock={.tv_sec=MATTER_LAB_BOOT_UTC}; REQUIRE(settimeofday(&clock,NULL)==0);
     puts("LAB_CLOCK build-time-bootstrap TEST_DAC enabled");
-    REQUIRE(nvs_flash_init()==ESP_OK); REQUIRE(nvs_flash_init_partition("matter")==ESP_OK);
+    REQUIRE(nvs_flash_init()==ESP_OK);
+    if(strcmp(MATTER_LAB_STORE_PARTITION,"nvs")) REQUIRE(nvs_flash_init_partition(MATTER_LAB_STORE_PARTITION)==ESP_OK);
     /* Dedicated capacity includes a live checkpoint plus maximum-size fixture
      * versions and NVS garbage collection. The fixture clears only its namespace. */
-    store_tests();
+    if(!CONFIG_MATTER_C_RUNTIME_USERCASE) store_tests();
     App* a=calloc(1,sizeof(*a)); REQUIRE(a);
     boot_wifi(a);
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+    vTaskDelay(pdMS_TO_TICKS(2000)); matter_lab_usercase_report();
+#endif
 #if CONFIG_MATTER_C_RUNTIME_SOAK
     udp_fairness(a);
 #endif
-    a->disk=matter_idf_store_new("matter","runtime"); REQUIRE(a->disk);
+    a->disk=matter_idf_store_new(MATTER_LAB_STORE_PARTITION,"runtime"); REQUIRE(a->disk);
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+    a->ota=matter_idf_ota_new(MATTER_LAB_STORE_PARTITION,"ota",0xfff1,0x8000); REQUIRE(a->ota);
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+    /* Explicit laboratory interruption of an unconfirmed physical boot. The
+     * SDK bootloader must return to the previous signed image on this reset. */
+    nvs_handle_t fault; uint8_t fail_boot=0; esp_ota_img_states_t image_state;
+    REQUIRE(nvs_open_from_partition(MATTER_LAB_STORE_PARTITION,"lab",NVS_READWRITE,&fault)==ESP_OK);
+    esp_err_t fault_read=nvs_get_u8(fault,"ota_failboot",&fail_boot);
+    REQUIRE(fault_read==ESP_OK || fault_read==ESP_ERR_NVS_NOT_FOUND);
+    if(fail_boot && esp_ota_get_state_partition(esp_ota_get_running_partition(),&image_state)==ESP_OK &&
+        image_state==ESP_OTA_IMG_PENDING_VERIFY) {
+        REQUIRE(nvs_set_u8(fault,"ota_failboot",0)==ESP_OK && nvs_commit(fault)==ESP_OK);
+        nvs_close(fault); puts("NATIVE_OTA_TRIAL_INTERRUPTED"); fflush(stdout); esp_restart();
+    }
+    nvs_close(fault);
+#endif
+#endif
     Matter_Crypto_Entropy_Port_T entropy_port={NULL,entropy}; a->backend=matter_crypto_mbedtls_new(&entropy_port); REQUIRE(a->backend);
     configuration(a);
     char hostname[13]; for(unsigned j=0;j<6;++j) snprintf(hostname+2*j,3,"%02X",a->mac[j]);
     REQUIRE(mdns_init()==ESP_OK); REQUIRE(mdns_hostname_set(hostname)==ESP_OK);
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+    a->resolver=matter_idf_resolver_new(a->iface); REQUIRE(a->resolver);
+#endif
     vTaskPrioritySet(NULL,tskIDLE_PRIORITY);
-    constructor_faults(a); discovery_faults(a); start(a);
-    nvs_handle_t lab; REQUIRE(nvs_open_from_partition("matter","lab",NVS_READWRITE,&lab)==ESP_OK);
-    fail_safe_restart(a,lab); nvs_close(lab);
-    wifi_tests(a);
+    if(!CONFIG_MATTER_C_RUNTIME_USERCASE) { constructor_faults(a); discovery_faults(a); }
+    start(a);
+    nvs_handle_t lab; REQUIRE(nvs_open_from_partition(MATTER_LAB_STORE_PARTITION,"lab",NVS_READWRITE,&lab)==ESP_OK);
+    if(!CONFIG_MATTER_C_RUNTIME_USERCASE) fail_safe_restart(a,lab);
+    nvs_close(lab);
+    if(!CONFIG_MATTER_C_RUNTIME_USERCASE) wifi_tests(a);
     a->soak=matter_lab_soak_new();
 #if CONFIG_MATTER_C_RUNTIME_SOAK
     REQUIRE(a->soak);
     a->reentry_probe=true; /* Next diagnostics snapshot is inside runtime process. */
 #endif
     for(unsigned j=0;j<200;++j) pump(a);
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+    REQUIRE(matter_runtime_ota_boot_ready(a->runtime)==MATTER_OK);
+    printf("NATIVE_OTA_BOOT_READY version=%lu\n",(unsigned long)matter_idf_ota_version(a->ota));
+#endif
     sample("runtime-serving"); tasks(); puts("RUNTIME_READY port=5540 pin=20202021");
     uart_vfs_dev_use_nonblocking(CONFIG_ESP_CONSOLE_UART_NUM);
-    uint64_t last=now();
+    uint64_t last=now(); bool ota_restart=false;
     for(;;) {
         pump(a);
         char c=0; (void)read(STDIN_FILENO,&c,1);
         if(c=='q') break;
         if(c=='r') recovery_restart(a);
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+        matter_lab_usercase_control(c);
+#endif
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+        if(c=='u') printf("NATIVE_OTA_QUERY result=%d\n",(int)matter_runtime_ota_request_query(a->runtime));
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+        if(c=='x') {
+            nvs_handle_t fault; REQUIRE(nvs_open_from_partition(MATTER_LAB_STORE_PARTITION,"lab",NVS_READWRITE,&fault)==ESP_OK);
+            REQUIRE(nvs_set_u8(fault,"ota_failboot",1)==ESP_OK && nvs_commit(fault)==ESP_OK); nvs_close(fault);
+            puts("NATIVE_OTA_TRIAL_FAULT_ARMED");
+        }
+#endif
+        if(matter_runtime_ota_reboot_requested(a->runtime) && matter_runtime_ota_reboot_ready(a->runtime)) { ota_restart=true; break; }
+#endif
 #if CONFIG_MATTER_C_RUNTIME_COMPARE_SAMPLER
         if(c=='m') { COMPARE_REPORT("checkpoint"); tasks(); }
 #endif
@@ -580,6 +676,9 @@ void app_main(void) {
     }
     /* Preserve UDP/backend/radio/storage through runtime retirement and MRP
      * drain. A timeout never permits freeing the live runtime. */
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+    matter_lab_usercase_report();
+#endif
     HEAP_STATE("before-runtime-stop");
     while(matter_runtime_stop(a->runtime,now())!=MATTER_OK) pump(a);
     HEAP_STATE("runtime-stopped");
@@ -590,6 +689,10 @@ void app_main(void) {
     }
     REQUIRE(matter_lab_soak_delete(a->soak)==MATTER_OK); a->soak=NULL;
     REQUIRE(matter_runtime_delete(a->runtime)==MATTER_OK); a->runtime=NULL;
+#if CONFIG_MATTER_C_RUNTIME_NATIVE_OTA
+    REQUIRE(matter_idf_resolver_delete(a->resolver)==MATTER_OK); a->resolver=NULL;
+    matter_idf_ota_delete(a->ota); a->ota=NULL;
+#endif
     HEAP_STATE("runtime-deleted");
 #if CONFIG_MATTER_C_RUNTIME_RGB
     while(!matter_lab_led_delete(a->led)) vTaskDelay(1);
@@ -607,11 +710,24 @@ void app_main(void) {
     REQUIRE(matter_crypto_mbedtls_delete(a->backend)==MATTER_OK);
     HEAP_STATE("backend-deleted");
     REQUIRE(esp_event_handler_unregister(WIFI_EVENT,WIFI_EVENT_STA_CONNECTED,wifi_event)==ESP_OK);
+#if CONFIG_MATTER_C_RUNTIME_USERCASE
+    if(!ota_restart) {
+        memset(a,0,sizeof(*a)); free(a); a=NULL;
+        REQUIRE(!matter_idf_memory().live && !matter_idf_memory().live_bytes);
+        REQUIRE(heap_caps_check_integrity_all(true));
+        matter_lab_usercase_begin(9); tasks(); puts("RUNTIME_PASS wifi-preserved");
+        for(;;) {
+            char c=0; (void)read(STDIN_FILENO,&c,1); matter_lab_usercase_control(c);
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+    }
+#endif
     REQUIRE(esp_wifi_stop()==ESP_OK); REQUIRE(esp_wifi_deinit()==ESP_OK);
     HEAP_STATE("wifi-deinitialized");
     esp_netif_destroy_default_wifi(a->iface); REQUIRE(esp_event_loop_delete_default()==ESP_OK);
     HEAP_STATE("event-loop-deleted");
-    REQUIRE(nvs_flash_deinit_partition("matter")==ESP_OK); REQUIRE(nvs_flash_deinit()==ESP_OK);
+    if(strcmp(MATTER_LAB_STORE_PARTITION,"nvs")) REQUIRE(nvs_flash_deinit_partition(MATTER_LAB_STORE_PARTITION)==ESP_OK);
+    REQUIRE(nvs_flash_deinit()==ESP_OK);
     memset(a,0,sizeof(*a)); free(a);
     REQUIRE(!matter_idf_memory().live && !matter_idf_memory().live_bytes); REQUIRE(heap_caps_check_integrity_all(true));
     COMPARE_REPORT("before-observer-stop");
@@ -623,5 +739,6 @@ void app_main(void) {
      * Release only its lwIP thread resource via the public SDK lifecycle API. */
     lwip_socket_thread_cleanup(); REQUIRE(heap_caps_check_integrity_all(true));
     HEAP_THREAD_AFTER(); sample("owner-thread-cleaned"); puts("RUNTIME_PASS");
+    if(ota_restart) { puts("NATIVE_OTA_RESTART drained"); fflush(stdout); esp_restart(); }
     for(;;) vTaskDelay(pdMS_TO_TICKS(1000));
 }

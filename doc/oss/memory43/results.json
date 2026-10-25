@@ -1,0 +1,350 @@
+{
+  "schema": 1,
+  "metric": "internal|8bit",
+  "sdk": "ESP-IDF v6.0.2",
+  "sample_period_ms": 100,
+  "measurements": [
+    {
+      "stack": "c",
+      "case": "never-created",
+      "label": "Wi-Fi ready, Matter not created",
+      "free_min_sdk_bytes": 355068,
+      "free_min_sampled_bytes": 357304,
+      "free_last_bytes": 357332,
+      "largest_min_sampled_bytes": 335872,
+      "largest_last_bytes": 335872,
+      "free_blocks_last": 7,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "c",
+      "case": "wifi-onboarding",
+      "label": "Wi-Fi + stack start",
+      "free_min_sdk_bytes": 272276,
+      "free_min_sampled_bytes": 274164,
+      "free_last_bytes": 274684,
+      "largest_min_sampled_bytes": 258048,
+      "largest_last_bytes": 258048,
+      "free_blocks_last": 3,
+      "telemetry_records": 5
+    },
+    {
+      "stack": "c",
+      "case": "commissioning",
+      "label": "On-network commissioning",
+      "free_min_sdk_bytes": 243896,
+      "free_min_sampled_bytes": 243932,
+      "free_last_bytes": 269248,
+      "largest_min_sampled_bytes": 225280,
+      "largest_last_bytes": 245760,
+      "free_blocks_last": 14,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "c",
+      "case": "first-session",
+      "label": "First CASE session",
+      "free_min_sdk_bytes": 265440,
+      "free_min_sampled_bytes": 268612,
+      "free_last_bytes": 269948,
+      "largest_min_sampled_bytes": 245760,
+      "largest_last_bytes": 245760,
+      "free_blocks_last": 16,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "c",
+      "case": "control-subscribe",
+      "label": "RGB control + subscription",
+      "free_min_sdk_bytes": 264664,
+      "free_min_sampled_bytes": 267844,
+      "free_last_bytes": 269084,
+      "largest_min_sampled_bytes": 245760,
+      "largest_last_bytes": 245760,
+      "free_blocks_last": 14,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "c",
+      "case": "multiple-controllers",
+      "label": "Three CASE sessions",
+      "free_min_sdk_bytes": 260568,
+      "free_min_sampled_bytes": 262924,
+      "free_last_bytes": 266476,
+      "largest_min_sampled_bytes": 245760,
+      "largest_last_bytes": 245760,
+      "free_blocks_last": 13,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "c",
+      "case": "multi-admin",
+      "label": "Second fabric",
+      "free_min_sdk_bytes": 236844,
+      "free_min_sampled_bytes": 238756,
+      "free_last_bytes": 263976,
+      "largest_min_sampled_bytes": 221184,
+      "largest_last_bytes": 241664,
+      "free_blocks_last": 22,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "c",
+      "case": "fabric-removal",
+      "label": "Remove fabric",
+      "free_min_sdk_bytes": 241464,
+      "free_min_sampled_bytes": 241512,
+      "free_last_bytes": 266464,
+      "largest_min_sampled_bytes": 221184,
+      "largest_last_bytes": 245760,
+      "free_blocks_last": 22,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "c",
+      "case": "ota-download",
+      "label": "OTA download, apply + reboot",
+      "free_min_sdk_bytes": 248028,
+      "free_min_sampled_bytes": 248300,
+      "free_last_bytes": 269604,
+      "largest_min_sampled_bytes": 229376,
+      "largest_last_bytes": 249856,
+      "free_blocks_last": 8,
+      "telemetry_records": 8
+    },
+    {
+      "stack": "c",
+      "case": "ota-reboot-reconnect",
+      "label": "Reconnect after OTA",
+      "free_min_sdk_bytes": 261572,
+      "free_min_sampled_bytes": 266552,
+      "free_last_bytes": 268516,
+      "largest_min_sampled_bytes": 245760,
+      "largest_last_bytes": 249856,
+      "free_blocks_last": 11,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "c",
+      "case": "matter-absent",
+      "label": "Matter stopped, Wi-Fi active",
+      "free_min_sdk_bytes": 355048,
+      "free_min_sampled_bytes": 355676,
+      "free_last_bytes": 357620,
+      "largest_min_sampled_bytes": 258048,
+      "largest_last_bytes": 258048,
+      "free_blocks_last": 29,
+      "telemetry_records": 2
+    },
+    {
+      "stack": "reference",
+      "case": "never-created",
+      "label": "Wi-Fi ready, Matter not created",
+      "free_min_sdk_bytes": 318856,
+      "free_min_sampled_bytes": 321680,
+      "free_last_bytes": 321684,
+      "largest_min_sampled_bytes": 303104,
+      "largest_last_bytes": 303104,
+      "free_blocks_last": 7,
+      "telemetry_records": 1
+    },
+    {
+      "stack": "reference",
+      "case": "wifi-onboarding",
+      "label": "Wi-Fi + stack start",
+      "free_min_sdk_bytes": 286720,
+      "free_min_sampled_bytes": 294256,
+      "free_last_bytes": 294340,
+      "largest_min_sampled_bytes": 278528,
+      "largest_last_bytes": 278528,
+      "free_blocks_last": 6,
+      "telemetry_records": 129
+    },
+    {
+      "stack": "reference",
+      "case": "commissioning",
+      "label": "On-network commissioning",
+      "free_min_sdk_bytes": 282248,
+      "free_min_sampled_bytes": 287948,
+      "free_last_bytes": 293620,
+      "largest_min_sampled_bytes": 270336,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 9,
+      "telemetry_records": 3
+    },
+    {
+      "stack": "reference",
+      "case": "first-session",
+      "label": "First CASE session",
+      "free_min_sdk_bytes": 286412,
+      "free_min_sampled_bytes": 293624,
+      "free_last_bytes": 293664,
+      "largest_min_sampled_bytes": 270336,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 9,
+      "telemetry_records": 4
+    },
+    {
+      "stack": "reference",
+      "case": "control-subscribe",
+      "label": "RGB control + subscription",
+      "free_min_sdk_bytes": 286388,
+      "free_min_sampled_bytes": 291716,
+      "free_last_bytes": 293664,
+      "largest_min_sampled_bytes": 270336,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 9,
+      "telemetry_records": 7
+    },
+    {
+      "stack": "reference",
+      "case": "multiple-controllers",
+      "label": "Three CASE sessions",
+      "free_min_sdk_bytes": 281856,
+      "free_min_sampled_bytes": 284784,
+      "free_last_bytes": 293452,
+      "largest_min_sampled_bytes": 262144,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 11,
+      "telemetry_records": 24
+    },
+    {
+      "stack": "reference",
+      "case": "multi-admin",
+      "label": "Second fabric",
+      "free_min_sdk_bytes": 281948,
+      "free_min_sampled_bytes": 287940,
+      "free_last_bytes": 292404,
+      "largest_min_sampled_bytes": 270336,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 10,
+      "telemetry_records": 9
+    },
+    {
+      "stack": "reference",
+      "case": "fabric-removal",
+      "label": "Remove fabric",
+      "free_min_sdk_bytes": 285372,
+      "free_min_sampled_bytes": 288048,
+      "free_last_bytes": 293320,
+      "largest_min_sampled_bytes": 262144,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 8,
+      "telemetry_records": 7
+    },
+    {
+      "stack": "reference",
+      "case": "ota-download",
+      "label": "OTA download, apply + reboot",
+      "free_min_sdk_bytes": 278588,
+      "free_min_sampled_bytes": 284632,
+      "free_last_bytes": 293496,
+      "largest_min_sampled_bytes": 262144,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 8,
+      "telemetry_records": 52
+    },
+    {
+      "stack": "reference",
+      "case": "ota-reboot-reconnect",
+      "label": "Reconnect after OTA",
+      "free_min_sdk_bytes": 285720,
+      "free_min_sampled_bytes": 291880,
+      "free_last_bytes": 293364,
+      "largest_min_sampled_bytes": 270336,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 8,
+      "telemetry_records": 8
+    },
+    {
+      "stack": "reference",
+      "case": "matter-absent",
+      "label": "Matter stopped, Wi-Fi active",
+      "free_min_sdk_bytes": 315504,
+      "free_min_sampled_bytes": 317592,
+      "free_last_bytes": 317612,
+      "largest_min_sampled_bytes": 270336,
+      "largest_last_bytes": 270336,
+      "free_blocks_last": 19,
+      "telemetry_records": 7
+    }
+  ],
+  "validation": {
+    "c": {
+      "counts": {
+        "casePairs": 2,
+        "subscriptions": 5,
+        "reports": 38,
+        "invokes": 23,
+        "reads": 28,
+        "busyRetries": 3,
+        "unexpectedClosures": 0,
+        "queries": 2,
+        "applies": 1,
+        "notifications": 1
+      },
+      "peer": {
+        "mode": "corrected",
+        "package": "@matter/protocol",
+        "version": "0.17.9",
+        "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+        "override": "fromInitialMessage: inverse incoming Initiator bit"
+      },
+      "task_min_free_bytes": {
+        "main": 8872,
+        "esp_timer": 3652,
+        "Tmr Svc": 1768,
+        "IDLE": 1240,
+        "wifi": 4716,
+        "tcpip": 2676,
+        "sys_evt": 3856,
+        "mdns": 3056
+      },
+      "sdk_failed_allocations": 0,
+      "physical_version_before": 1,
+      "physical_version_after": 2,
+      "wifi_after_stop_ping": {
+        "pass": true,
+        "probes": 3
+      }
+    },
+    "reference": {
+      "counts": {
+        "casePairs": 2,
+        "subscriptions": 5,
+        "reports": 20,
+        "invokes": 23,
+        "reads": 28,
+        "busyRetries": 0,
+        "unexpectedClosures": 0,
+        "queries": 1,
+        "applies": 1,
+        "notifications": 1
+      },
+      "peer": {
+        "mode": "corrected",
+        "package": "@matter/protocol",
+        "version": "0.17.9",
+        "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+        "override": "fromInitialMessage: inverse incoming Initiator bit"
+      },
+      "task_min_free_bytes": {
+        "main": 1960,
+        "esp_timer": 3636,
+        "Tmr Svc": 1720,
+        "IDLE": 1192,
+        "wifi": 4512,
+        "tcpip": 2644,
+        "sys_evt": 3792,
+        "CHIP": 2520
+      },
+      "sdk_failed_allocations": 0,
+      "physical_version_before": 1,
+      "physical_version_after": 2,
+      "wifi_after_stop_ping": {
+        "pass": true,
+        "probes": 3
+      }
+    }
+  }
+}

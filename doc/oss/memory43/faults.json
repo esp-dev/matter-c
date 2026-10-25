@@ -1,0 +1,46 @@
+{
+  "platform": "ESP32-C6",
+  "idf": "6.0.2",
+  "cases": [
+    {
+      "case": "reject",
+      "pass": true,
+      "running_version_after": 1,
+      "apply_requests": 0,
+      "notify_requests": 0,
+      "sdk_failed_allocations": 0,
+      "zero_core_teardown_assertion": true,
+      "fresh_case_readback_and_rgb": true,
+      "version_applied_event_absent": true,
+      "sdk_signature_rejection": true
+    },
+    {
+      "case": "interrupt",
+      "pass": true,
+      "running_version_after": 1,
+      "apply_requests": 0,
+      "notify_requests": 0,
+      "sdk_failed_allocations": 0,
+      "zero_core_teardown_assertion": true,
+      "fresh_case_readback_and_rgb": true,
+      "version_applied_event_absent": true,
+      "inactive_flash_readback": {
+        "first_512_match": true,
+        "last_sector_erased": true,
+        "running_version": 1
+      }
+    },
+    {
+      "case": "rollback",
+      "pass": true,
+      "running_version_after": 1,
+      "apply_requests": 1,
+      "notify_requests": 0,
+      "sdk_failed_allocations": 0,
+      "zero_core_teardown_assertion": true,
+      "fresh_case_readback_and_rgb": true,
+      "version_applied_event_absent": true,
+      "trial_image_reset_before_confirmation": true
+    }
+  ]
+}

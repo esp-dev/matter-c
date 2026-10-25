@@ -350,6 +350,25 @@ static Matter_Result_T event_admin(void* u,Matter_Exchange_Session_T token,Matte
 }
 static Matter_Result_T ota_load(void* u,Matter_Ota_Provider_T out[MATTER_OTA_PROVIDERS]) { return matter_store_host_ota_load(((Matter_Runtime_T)u)->store,out); }
 static Matter_Result_T ota_store(void* u,uint8_t fabric,const Matter_Ota_Provider_T* p) { return matter_store_host_ota_store(((Matter_Runtime_T)u)->store,fabric,p); }
+static const Matter_Ota_Install_Boot_T* installed_boot(Matter_Runtime_T s) {
+    const Matter_Ota_Install_Port_T* p=s->ota_port.install;
+    return p?p->boot(p->user):NULL;
+}
+static bool can_install(Matter_Runtime_T s) { return s->update || s->ota_port.install; }
+static bool install_context_valid(const Matter_Ota_Apply_Context_T* c) {
+    return c && c->provider.fabric && c->provider.fabric<255 && c->provider.node &&
+        c->provider.node<=UINT64_C(0xffffffefffffffff) && c->provider.endpoint<65535 &&
+        c->token_size>=8 && c->token_size<=sizeof(c->token);
+}
+static const Matter_Ota_Apply_Context_T* pending_update(Matter_Runtime_T s) {
+    if(s->update) return matter_ota_update_pending(s->update);
+    const Matter_Ota_Install_Boot_T* b=installed_boot(s);
+    return b && b->state==MATTER_OTA_INSTALL_NOTIFY && install_context_valid(&b->context)?&b->context:NULL;
+}
+static bool boot_waiting(Matter_Runtime_T s) {
+    const Matter_Ota_Install_Boot_T* b=installed_boot(s);
+    return pending_update(s) || (b && b->state!=MATTER_OTA_INSTALL_ROLLBACK);
+}
 static uint64_t ota_generation(void* u,uint8_t fabric) {
     if(!fabric || !fabric_live(u,fabric)) return 0;
     Matter_Exchange_Session_T ignored; uint64_t revision=credential_revision(u,fabric,&ignored);
@@ -358,7 +377,7 @@ static uint64_t ota_generation(void* u,uint8_t fabric) {
     return revision==UINT64_MAX?0:revision+1;
 }
 static bool ota_select(void* u,const Matter_Ota_Offer_T* offer) {
-    Matter_Runtime_T s=u; if(s->stopping || s->reset || s->ota_reboot || s->notify || matter_ota_update_pending(s->update) || s->download || matter_ota_apply_busy(s->apply)) return false;
+    Matter_Runtime_T s=u; if(s->stopping || s->reset || s->ota_reboot || s->notify || boot_waiting(s) || s->download || matter_ota_apply_busy(s->apply)) return false;
     runtime_log(s,"OTA_SELECTED fabric=%u node=%llu endpoint=%u source=%s reason=%u\n",(unsigned)offer->provider.fabric,
         (unsigned long long)offer->provider.node,(unsigned)offer->provider.endpoint,offer->announced?"announcement":"default",(unsigned)offer->reason);
      return s->query && matter_ota_query_offer(s->query,offer,s->now);
@@ -366,7 +385,7 @@ static bool ota_select(void* u,const Matter_Ota_Offer_T* offer) {
 Matter_Result_T matter_runtime_ota_request_query(Matter_Runtime_T s) {
     if(!s) return MATTER_INVALID_ARGUMENT;
     if(!s->dispatch || !s->query || s->reset || s->stopping || s->recovering) return MATTER_INVALID_STATE;
-    if(s->ota_reboot || s->notify || matter_ota_update_pending(s->update) ||
+    if(s->ota_reboot || s->notify || boot_waiting(s) ||
         s->download || matter_ota_apply_busy(s->apply)) return MATTER_BUSY;
     return matter_ota_query_request(s->query,s->now);
 }
@@ -389,7 +408,7 @@ static Matter_Result_T apply_take(void* u,uint64_t id,uint8_t* status,const uint
 }
 static void query_cancel(void* u,uint64_t id) { matter_dispatch_invoke_cancel(((Matter_Runtime_T)u)->dispatch,id); }
 static Matter_Result_T query_state(void* u,uint8_t state,uint8_t reason,uint64_t now) {
-    Matter_Runtime_T s=u; Matter_Result_T r=matter_ota_requestor_state(s->ota,s->update!=NULL,state,-1,reason,0,now);
+    Matter_Runtime_T s=u; Matter_Result_T r=matter_ota_requestor_state(s->ota,can_install(s),state,-1,reason,0,now);
     if(r==MATTER_OK) { matter_dispatch_changed(s->dispatch); runtime_log(s,"OTA_STATE state=%u reason=%u\n",state,reason);  }
     return r;
 }
@@ -401,7 +420,7 @@ static Matter_Result_T apply_start(void* u,const Matter_Ota_Provider_T* p,const 
 static Matter_Result_T apply_state(void* u,uint8_t state,uint8_t reason,uint32_t version,uint64_t now) {
     Matter_Runtime_T s=u; uint64_t before=0;
     if(state==5 && matter_events_position(s->events,&before)!=MATTER_OK) return MATTER_INVALID_STATE;
-    Matter_Result_T r=matter_ota_requestor_state(s->ota,s->update!=NULL,state,-1,reason,version,now);
+    Matter_Result_T r=matter_ota_requestor_state(s->ota,can_install(s),state,-1,reason,version,now);
     if(r==MATTER_OK && state==5) {
         uint64_t next=0; r=matter_events_position(s->events,&next);
         if(r==MATTER_OK && next>before) { s->applying_event=next-1; s->applying_event_valid=true; }
@@ -430,6 +449,15 @@ static Matter_Result_T apply_ready(void* u,const Matter_Ota_Apply_Context_T* c) 
          return r;
     }
     Matter_Result_T r=s->ota_port.check(s->ota_port.user,c->artifact);
+    if(s->ota_port.install) {
+        uint8_t fingerprint[32];
+        if(r==MATTER_OK && !ota_fingerprint(s,c->provider.fabric,fingerprint)) r=MATTER_INVALID_STATE;
+        const Matter_Ota_Install_Port_T* p=s->ota_port.install;
+        if(r==MATTER_OK) r=p->accept(p->user,c,fingerprint);
+        if(r==MATTER_OK) s->ota_reboot=true;
+        runtime_log(s,"OTA_NATIVE_HANDOFF accepted=%u version=%lu\n",r==MATTER_OK?1u:0u,(unsigned long)c->version);
+        return r;
+    }
     /* This host port deliberately has no signature verifier/installer. A real
      * application must authenticate and consume the SAME artifact itself. */
     runtime_log(s,"OTA_APPLY_GATE provider=1 integrity=%u authenticated=0 installed=0 version=%lu\n",r==MATTER_OK?1u:0u,(unsigned long)c->version);
@@ -465,7 +493,7 @@ static void query_available(void* u,const Matter_Ota_Provider_T* p,const Matter_
     if(r==MATTER_PENDING) {
         s->applying_event_valid=false;
         s->download_progress=s->ota_port.progress?-1:0;
-        (void)matter_ota_requestor_state(s->ota,s->update!=NULL,4,s->download_progress,1,image->version,s->now); matter_dispatch_changed(s->dispatch);
+        (void)matter_ota_requestor_state(s->ota,can_install(s),4,s->download_progress,1,image->version,s->now); matter_dispatch_changed(s->dispatch);
         runtime_log(s,"OTA_DOWNLOAD version=%lu\n",(unsigned long)image->version);
     } else {
         s->download=0; erase(&s->candidate,sizeof(s->candidate)); s->ota_port.cancel(s->ota_port.user);
@@ -481,7 +509,7 @@ static void download_process(Matter_Runtime_T s) {
             int progress=s->ota_port.progress(s->ota_port.user);
             if(progress< -1 || progress>100) progress=-1;
             if(progress!=s->download_progress &&
-                matter_ota_requestor_state(s->ota,s->update!=NULL,4,progress,1,s->download_version,s->now)==MATTER_OK) {
+                matter_ota_requestor_state(s->ota,can_install(s),4,progress,1,s->download_version,s->now)==MATTER_OK) {
                 s->download_progress=progress; matter_dispatch_changed(s->dispatch);
             }
         }
@@ -501,7 +529,7 @@ static void download_process(Matter_Runtime_T s) {
     if(r!=MATTER_OK) {
         s->ota_port.cancel(s->ota_port.user);
         (void)matter_ota_requestor_error(s->ota,s->download_version,bytes,progress,NULL,s->now);
-        (void)matter_ota_requestor_state(s->ota,s->update!=NULL,1,-1,2,0,s->now);
+        (void)matter_ota_requestor_state(s->ota,can_install(s),1,-1,2,0,s->now);
     }
     matter_dispatch_changed(s->dispatch);
     runtime_log(s,"OTA_DOWNLOAD_%s bytes=%llu version=%lu\n",r==MATTER_OK?"SAVED":"FAILED",(unsigned long long)bytes,(unsigned long)s->download_version);
@@ -509,7 +537,7 @@ static void download_process(Matter_Runtime_T s) {
         s->candidate.artifact=s->ota_port.artifact(s->ota_port.user);
         if(matter_ota_apply_begin(s->apply,&s->candidate,s->now)!=MATTER_OK) {
             s->ota_port.invalidate(s->ota_port.user);
-            (void)matter_ota_requestor_state(s->ota,s->update!=NULL,1,-1,2,0,s->now);
+            (void)matter_ota_requestor_state(s->ota,can_install(s),1,-1,2,0,s->now);
         }
     }
     erase(&s->candidate,sizeof(s->candidate));
@@ -519,6 +547,8 @@ Matter_Result_T matter_runtime_set_ota(Matter_Runtime_T s,const Matter_Runtime_O
         !p->prepare || !p->commit || !p->artifact || !p->check || !p->invalidate || !p->cancel ||
         (s->update && !p->signed_image)) return MATTER_INVALID_ARGUMENT;
     if(s->dispatch || s->stopping || s->has_ota) return MATTER_INVALID_STATE;
+    if(p->install && (s->update || !p->install->boot || !p->install->accept ||
+        !p->install->confirm || !p->install->claim)) return MATTER_INVALID_ARGUMENT;
     s->ota_port=*p; s->has_ota=true; return MATTER_OK;
 }
 bool matter_runtime_ota_reboot_requested(Matter_Runtime_T s) { return s && s->ota_reboot; }
@@ -527,8 +557,33 @@ bool matter_runtime_ota_reboot_ready(Matter_Runtime_T s) {
     return s && s->ota_reboot && s->applying_event_valid &&
         !matter_dispatch_event_pending(s->dispatch,&path,s->applying_event);
 }
-bool matter_runtime_ota_trial(Matter_Runtime_T s) { return s && matter_ota_update_trial(s->update); }
-Matter_Result_T matter_runtime_ota_boot_ready(Matter_Runtime_T s) {
+bool matter_runtime_ota_trial(Matter_Runtime_T s) {
+    if(!s) return false;
+    const Matter_Ota_Install_Boot_T* b=installed_boot(s);
+    return matter_ota_update_trial(s->update) || (b && b->state==MATTER_OTA_INSTALL_TRIAL);
+}
+static Matter_Result_T ota_boot_ready(Matter_Runtime_T s) {
+    if(s->ota_port.install) {
+        if(!s->dispatch || !s->ota) return MATTER_INVALID_STATE;
+        const Matter_Ota_Install_Port_T* p=s->ota_port.install;
+        const Matter_Ota_Install_Boot_T* b=installed_boot(s);
+        if(!b) return MATTER_OK;
+        if(b->state==MATTER_OTA_INSTALL_ROLLBACK) return p->confirm(p->user);
+        if((b->state!=MATTER_OTA_INSTALL_TRIAL && b->state!=MATTER_OTA_INSTALL_NOTIFY) ||
+            b->context.version!=s->identity.software_version || !install_context_valid(&b->context)) return MATTER_INVALID_STATE;
+        if(b->state==MATTER_OTA_INSTALL_TRIAL) {
+            Matter_Result_T r=p->confirm(p->user); if(r!=MATTER_OK) return r;
+            b=installed_boot(s);
+            if(!b || b->state!=MATTER_OTA_INSTALL_NOTIFY || b->context.version!=s->identity.software_version ||
+                !install_context_valid(&b->context)) return MATTER_INVALID_STATE;
+        }
+        if(!s->applied_event) {
+            Matter_Result_T r=matter_ota_requestor_applied(s->ota,s->identity.software_version,s->identity.product_id,event_clock(s));
+            if(r!=MATTER_OK) return r;
+            s->applied_event=true;
+        }
+        return MATTER_OK;
+    }
     if(!s || !s->update) return MATTER_OK;
     if(!s->dispatch || !s->ota) return MATTER_INVALID_STATE;
     bool trial=matter_ota_update_trial(s->update);
@@ -545,6 +600,11 @@ Matter_Result_T matter_runtime_ota_boot_ready(Matter_Runtime_T s) {
     }
     return MATTER_OK;
 }
+Matter_Result_T matter_runtime_ota_boot_ready(Matter_Runtime_T s) {
+    if(!s) return MATTER_OK;
+    if(s->processing) return MATTER_BUSY;
+    s->processing=true; Matter_Result_T r=ota_boot_ready(s); s->processing=false; return r;
+}
 static void notify_process(Matter_Runtime_T s) {
     if(s->notify) {
         if(s->stopping || s->reset) matter_dispatch_invoke_cancel(s->dispatch,s->notify);
@@ -554,11 +614,14 @@ static void notify_process(Matter_Runtime_T s) {
         s->notify=0; erase(s->notify_args,sizeof(s->notify_args));
         runtime_log(s,"OTA_NOTIFY_DONE success=%u\n",r==MATTER_OK && !status && !size?1u:0u);
     }
-    const Matter_Ota_Apply_Context_T* pending=matter_ota_update_pending(s->update);
+    const Matter_Ota_Apply_Context_T* pending=pending_update(s);
     if(!pending || s->stopping || s->reset || s->ota_reboot) return;
+    if(s->ota_port.install && !s->applied_event) return;
     uint8_t fingerprint[32]={0}; bool live=ota_fingerprint(s,pending->provider.fabric,fingerprint);
     Matter_Ota_Apply_Context_T context;
-    Matter_Result_T r=matter_ota_update_claim(s->update,fingerprint,live,&context);
+    const Matter_Ota_Install_Port_T* installer=s->ota_port.install;
+    Matter_Result_T r=installer?installer->claim(installer->user,fingerprint,live,&context):
+        matter_ota_update_claim(s->update,fingerprint,live,&context);
     if(r!=MATTER_OK) { if(r==MATTER_OFFLINE) runtime_log(s,"OTA_NOTIFY_ORPHAN\n"); return; }
     /* At-most-once application attempt, persisted before dispatch; MRP retries
      * belong to this exchange only. Crash before start may lose notification. */
@@ -580,14 +643,15 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Ud
     if(!s || s->stopping || s->dispatch || s->ota) return MATTER_INVALID_STATE;
     s->events=events;
     Matter_Ota_Requestor_Port_T ota={s,ota_load,ota_store,ota_generation,ota_select};
-    s->ota=matter_ota_requestor_new(&ota,events,s->identity.basic_version,s->update!=NULL);
+    s->ota=matter_ota_requestor_new(&ota,events,s->identity.basic_version,can_install(s));
     if(!s->ota || matter_root_attach_cluster(s->root,s->ota)!=MATTER_OK) return MATTER_PORT_ERROR;
     Matter_Acl_Events_Port_T ep={events,s,event_clock};
     Matter_Fabric_Host_Events_T fp={s->acl,events,s,event_admin,fabric_removed};
     if(matter_root_startup(s->root,events,event_clock(s))!=MATTER_OK ||
         matter_diagnostics_boot(s->diagnostics,events,event_clock(s))!=MATTER_OK ||
         matter_acl_bind_events(s->acl,&ep)!=MATTER_OK || matter_fabric_host_bind_events(s->fabric_host,&fp)!=MATTER_OK) return MATTER_PORT_ERROR;
-    if(matter_ota_update_rolled_back(s->update)) {
+    const Matter_Ota_Install_Boot_T* boot=installed_boot(s);
+    if(matter_ota_update_rolled_back(s->update) || (boot && boot->state==MATTER_OTA_INSTALL_ROLLBACK)) {
         if(matter_ota_requestor_state(s->ota,true,7,-1,2,s->identity.software_version,event_clock(s))!=MATTER_OK ||
             matter_ota_requestor_state(s->ota,true,1,-1,1,0,event_clock(s))!=MATTER_OK) return MATTER_PORT_ERROR;
     }
@@ -631,7 +695,7 @@ static Matter_Result_T runtime_process(Matter_Runtime_T s,uint64_t now) {
     download_process(s);
     if(s->reset || s->stopping) matter_ota_apply_cancel(s->apply);
     if(s->apply) (void)matter_ota_apply_process(s->apply,now);
-    if(s->query && !s->ota_reboot && !s->notify && !matter_ota_update_pending(s->update) && !s->download && !matter_ota_apply_busy(s->apply)) (void)matter_ota_query_process(s->query,now);
+    if(s->query && !s->ota_reboot && !s->notify && !boot_waiting(s) && !s->download && !matter_ota_apply_busy(s->apply)) (void)matter_ota_query_process(s->query,now);
     if(s->reset) {
         /* A real radio can need deferred cancellation completion after reset.
          * Keep its port alive while draining; do not republish old settings. */
@@ -647,7 +711,7 @@ static Matter_Result_T runtime_process(Matter_Runtime_T s,uint64_t now) {
     (void)matter_root_process(s->root,now);
     /* Keep the initial default-provider offer until boot notification finishes.
      * The cluster's false selection means ignore, not retry-later. */
-    if(s->ota && !matter_ota_update_trial(s->update) && !s->notify && !matter_ota_update_pending(s->update)) {
+    if(s->ota && !matter_runtime_ota_trial(s) && !s->notify && !pending_update(s)) {
         uint32_t before,after; (void)matter_cluster_version(s->ota,&before);
         Matter_Result_T ota=matter_cluster_process(s->ota,now); if(ota!=MATTER_OK) return ota;
         (void)matter_cluster_version(s->ota,&after); if(before!=after) matter_dispatch_changed(s->dispatch);

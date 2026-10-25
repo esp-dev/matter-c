@@ -12,6 +12,33 @@ This is a development laboratory with public TEST DAC/key/CD and passcode
 The controller's development attestation policy is not production validation.
 Provisioning, a trusted clock and encrypted storage are application responsibilities.
 
+## Signed native OTA profile
+
+The optional [ESP installer](../../components/matter_c_esp32/OTA.md) implements
+real inactive-partition writes, signed image verification, boot selection,
+confirmation/rollback and post-restart NotifyUpdateApplied. The default image
+below keeps its historical factory-only layout and native OTA disabled.
+
+The separate [matched user-case profile](../esp-matter-memory/README.md#same-idf-user-case-with-real-ota)
+uses IDF **6.0.2** on both stacks, mDNS **1.14.0**, two 1856 KiB OTA partitions,
+numeric app versions and software signing without enabling hardware Secure Boot.
+It was also compiled on IDF6.1. Do not flash its changed partition layout over
+existing state without a full flash backup and an explicit migration plan.
+
+`CONFIG_MATTER_C_RUNTIME_NATIVE_OTA` requires SDK rollback and verification of
+signed updates. Keep the installer, resolver, UDP and storage alive through
+runtime drain. The application calls boot-ready only after its service check,
+and restarts only after the existing IM/MRP retirement gates. UART `u` requests
+a query; in the disposable user-case image only, `x` arms an interrupted trial
+boot. This fault hook is not a production update/recovery policy.
+
+`CONFIG_MATTER_C_RUNTIME_USERCASE` skips the historical startup fault fixtures,
+reads external Wi-Fi configuration from local NVS `lab_wifi` blobs, and uses the
+shared 100 ms phase observer. Its UART `q` deletes Matter and keeps Wi-Fi active.
+The native image-installation tests are recorded in
+[Memory42](../../doc/oss/memory42-validation.md); the matched RAM measurements
+are in [Memory43](../../doc/oss/memory43-validation.md).
+
 ## Dependencies and build
 
 Use the unchanged official IDF v6.1 checkout and a separate official Espressif

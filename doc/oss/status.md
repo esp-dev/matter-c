@@ -16,6 +16,60 @@ Counts remain123 PASS/27 FAIL/5 prerequisites;24 manual PASS outcomes are histor
 No new full-matrix/certification/RAM-fit claim. Next: separately frozen Memory40
 review and affected-path regression; continue the existing CSA72 gates. No push.
 
+**Memory42/43: native signed ESP OTA and same-IDF user-case comparison.**
+Both C6 boards run IDF6.0.2, mDNS1.14.0, BLE off and size optimization; reference
+CHIP shell is off. Real signed version1→2 download/install/reboot/Notify, fresh
+CASE/RGB/Subscribe, three CASE sessions, a second fabric and its live removal
+pass on both. Zero SDK OOM or unexpected subscription closure. C also passes
+physical wrong-signer rejection, interrupted download and pending-image rollback,
+retaining version1 and its fabric. Host suites, full two-instance Memcheck then
+separate sanitizers, wire regressions and SDK boundary OOM/crash models pass as
+detailed in [Memory42](memory42-validation.md). IDF6.1 compatibility is compiled,
+not flashed. Optional installer API/journal are separate from WWOTA simulation;
+old configurations, protocol limits and ACK/drain remain intact.
+
+Minimum SDK phase free heap is236844 /278588 B (C/reference), a41744 B active
+advantage for the optimized reference. At65s after deletion with Wi-Fi active,
+current free is357620 /317612 B, a40008 B advantage for C; largest blocks are
+258048 /270336 B. Both post-deletion IPv6 pings pass3/3. See the
+[report](memory43-validation.md), [chart](memory43/free-heap.png) and numeric data
+for conservative-versus-sampled minima, retained model/ECC/pool differences and
+scope. This is one full final run per stack, not CSA or manual Home certification.
+No MQTT/HTTP application fit is claimed. Optimization remains closed.
+Original full flash and controller/fabric state were restored on both boards;
+fresh CASE/control/readback pass, COM/AP are released and IPv6 remains enabled.
+Next: minimum compliant Wi-Fi RGB-light model, QR and recovery policy.
+
+**Memory41: optimization closed; measured application headroom versus CHIP.**
+Memory40/f366c2c library and C SDK settings are unchanged. Two common-workload
+normal repeats/stack pass. Isolated C/standard-CHIP/Wi-Fi-only-CHIP runs retain
+and verify64 KiB of application memory through five fabrics/15 sessions/subscriptions.
+C versus Wi-Fi-only CHIP SDK minimum free is125396 /169308 B with that allocation
+already occupied. With no instance,65s current free is331988 /308112 B; after
+shutdown and releasing the allocation,5s free is331940 /293904 B, largest
+139264 /180224 B. CHIP task-exit joining repairs the initial observer's queue
+assertion; both reference profiles then preserve Wi-Fi/IPv6 through65s and ping.
+Normal firmware/primary fabrics restored, RGB/CASE probes pass, COM/AP released,
+IPv6 enabled and SDK checkouts clean. See [report](memory41-validation.md) and
+[results](memory41-results.json) for different models/limits, SDK-counter caveats
+and failed exploratory runs. No new CSA/native-core campaign is claimed.
+Next: minimum required Wi-Fi RGB-light profile, onboarding QR and recovery policy.
+
+**Memory40: release consumed Read blocks after IM and MRP.**
+Whole prefix pages leave at the existing successful continuation gate; remaining
+ordinals/addresses, partial ARRAYs, limits, snapshots and ACK/drain stay intact.
+The matched normal C6 heap peak changes 325808 -> 325056 B;
+minimum sampled free 90452 -> 91168 B; SDK minimum
+88660 -> 88356 B. Earlier release is proved; the mixed small
+global extrema do not establish a substantial peak saving. RAM static sections and compiler
+frames are unchanged. Windows 112/112, Linux 109/109 per build, full two-instance
+Memcheck and separate sanitizer scenarios and all six wire cases pass. Both ACK
+orders, all 512 results, continuation OOM and partial-page lifetimes are checked.
+Four C6 runs finish with zero core objects/bytes and no SDK OOM. Original fabric,
+normal Memory40, RGB/drain and AP/COM cleanup pass; IPv6 enabled, COM24 untouched.
+See [report](memory40-validation.md) and [results](memory40-results.json).
+Optimization closes here; sparse-page geometry remains an unimplemented candidate.
+
 **Memory39: measured stable Read/Subscribe block occupancy.**
 The observed joint attribute-table footprint is 89248 B, with 14272 B empty slots
 and 2400 B headers. Idle fifteen-subscription metadata is 45840 B. Independent

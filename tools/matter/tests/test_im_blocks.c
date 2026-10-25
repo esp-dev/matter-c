@@ -98,4 +98,32 @@ static void sparse(void) {
     matter_im_blocks_clear(&table); CHECK(!live && !live_bytes);
     puts("PASS sparse blocks: arbitrary insertion, leading/interior/trailing gaps, all512 stable aligned slots, short tail, OOM unchanged links/cache/data and full cleanup");
 }
-int main(void) { stable(); oom(); sparse(); return 0; }
+static void retire(void) {
+    Fixture* f=calloc(1,sizeof(*f)); CHECK(f);
+    for(size_t i=0;i<512;++i) {
+        CHECK(items_reserve(&f->table,i+1,512));
+        f->pointers[i]=items_at(&f->table,i); f->pointers[i]->value=i+1;
+    }
+    /* Exercise both a cache in a retired block and one in a retained block. */
+    for(size_t i=0;i<=512;++i) {
+        size_t before=calls; fail_at=calls+1;
+        size_t retained=i==512?512:f->table.head->start;
+        (void)items_at(&f->table,i%2?511:retained);
+        matter_im_blocks_release_before(&f->table,i); fail_at=0;
+        CHECK(calls==before && f->table.capacity==512 && !items_at(&f->table,512));
+        for(size_t j=i;j<512;++j) CHECK(items_at(&f->table,j)==f->pointers[j] && f->pointers[j]->value==j+1);
+        if(i<512) {
+            CHECK(f->table.head && f->table.head->start<=i && f->table.head->start+f->table.head->count>i);
+            if(f->table.head->start) CHECK(!items_at(&f->table,f->table.head->start-1));
+        }
+    }
+    CHECK(!live && !live_bytes && !f->table.head && !f->table.tail && !f->table.cache);
+    /* Retired ordinals stay absent; growth starts at the old high-water mark. */
+    CHECK(items_reserve(&f->table,512,512) && !items_at(&f->table,511));
+    CHECK(items_reserve(&f->table,513,513) && items_at(&f->table,512) && !items_at(&f->table,511));
+    matter_im_blocks_clear(&f->table); CHECK(!live && !live_bytes);
+    CHECK(items_reserve(&f->table,1,512) && items_at(&f->table,0));
+    matter_im_blocks_clear(&f->table); free(f); CHECK(!live && !live_bytes);
+    puts("PASS retired dense blocks: whole prefixes only, stable remaining addresses, both cache positions, no allocations, empty tail and high-water growth/reset");
+}
+int main(void) { stable(); oom(); sparse(); retire(); return 0; }

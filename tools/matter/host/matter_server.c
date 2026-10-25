@@ -147,7 +147,7 @@ Matter_Result_T matter_server_set_ota_file(Matter_Server_T s,const char* path) {
     if(!s || s->ota_file) return MATTER_INVALID_STATE;
     Matter_Ota_File_T file=matter_ota_file_new(path,s->identity.vendor_id,s->identity.product_id,s->identity.software_version);
     if(!file) return MATTER_INVALID_ARGUMENT;
-    Matter_Runtime_Ota_Port_T port={file,matter_ota_file_sink(file),MATTER_OTA_FILE_LIMIT,prepare,commit,artifact,check,signed_image,invalidate,cancel,discard,progress};
+    Matter_Runtime_Ota_Port_T port={file,matter_ota_file_sink(file),MATTER_OTA_FILE_LIMIT,prepare,commit,artifact,check,signed_image,invalidate,cancel,discard,progress,NULL};
     Matter_Result_T r=matter_runtime_set_ota(s->runtime,&port);
     if(r==MATTER_OK) s->ota_file=file; else matter_ota_file_delete(file);
     return r;

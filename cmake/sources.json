@@ -199,6 +199,7 @@
     "runtime/matter_fabric_host.h",
     "runtime/matter_host_limits.h",
     "runtime/matter_opcreds_host.h",
+    "runtime/matter_ota_install.h",
     "runtime/matter_runtime.h",
     "runtime/matter_store_host.h",
     "clusters/matter_meter_source.h",
@@ -207,6 +208,7 @@
     "clusters/matter_time_sync.h"
   ],
   "private_headers": [
+    "codec/matter_ota_header_internal.h",
     "crypto/matter_mbedtls_internal.h",
     "model/matter_events_internal.h",
     "model/matter_im_blocks_internal.h",
