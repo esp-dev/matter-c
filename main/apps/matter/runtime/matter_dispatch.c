@@ -358,7 +358,7 @@ static Matter_Retransmission_Submission_T send_message(void* u,const Matter_Retr
     if(c && (c->retiring || (c->removal_reply && c->removal_reply!=t->handle))) return MATTER_RETRANSMISSION_REJECTED_FATAL;
     Matter_Result_T result=c?matter_secure_channel_send(c->channel,d->udp,r->message.data,r->message.size,&d->request):
         matter_unsecured_tx_send(d->transport,r->message.exchange.session,r->message.data,r->message.size,&d->request);
-    if(result!=MATTER_PENDING) return result==MATTER_BUSY || result==MATTER_WOULD_BLOCK?
+    if(result!=MATTER_PENDING) return result==MATTER_BUSY || result==MATTER_WOULD_BLOCK || result==MATTER_OFFLINE?
         MATTER_RETRANSMISSION_REJECTED_RETRYABLE:MATTER_RETRANSMISSION_REJECTED_FATAL;
     d->sending=c; d->producer=r->id; d->ack_token=0; d->sending_message=t;
     if(!t->sent) {

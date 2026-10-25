@@ -72,7 +72,9 @@ a native VM-to-WLAN discovery/routing test. Original short OO/LVL/CC YAML cases
 are run by the separate product repository with explicit feature PICS; they do
 not close historical main-repository CSA findings or prove Apple/Google Home.
 
-Next: product Wi-Fi loss/reconnect and factory-reset acceptance. Physical group
+Physical two-fabric acceptance also covers a two-second AP ban with continued
+subscription reporting, and a twenty-second ban followed by fresh CASE/control
+and subscription re-establishment. Next: product factory-reset acceptance. Physical group
 multicast and a complete lighting certification campaign remain separate gates.
 
 The optional joint `store_light` callback publishes global scene 0/0 and the
@@ -104,3 +106,12 @@ unsupported country, as required by the Root port contract; storage failure
 still publishes neither setting. The ESP Wi-Fi adapter uses one common security
 bitmap mapping for scan/observation, including mixed WPA/WPA2 and WPA2/WPA3;
 unknown/enterprise modes are not misreported as WPA2-Personal.
+
+Transient UDP OFFLINE now consumes the existing bounded MRP retry rather than
+terminating a retained response/report immediately. The ESP port also reports a
+temporarily missing pinned IPv6 source during reassociation/DAD as OFFLINE,
+instead of a permanent argument error. Physical traces show both link-down and
+link-up/source-not-ready phases. Limits, retry count, packet/counter identity
+and stop/ACK/UDP drain are unchanged; offline retries do not hold work forever.
+`MATTER_C_ESP32_UDP_TRACE`, off by default, logs only transport error/state flags,
+never packet payloads. Silent applications leave it disabled.

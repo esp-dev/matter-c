@@ -12,7 +12,9 @@ typedef struct Matter_Idf_Udp* Matter_Idf_Udp_T;
  * Disable IPv6 reassembly: neither fragmented nor oversize packets reach core.
  * Core locking serializes callback/activate/deactivate/detach barriers. */
 /* Paths use the netif's index at adapter construction as a stable scope key.
- * TX translates that key to its current lwIP zone after radio stop/start. */
+ * TX translates that key to its current lwIP zone after radio stop/start.
+ * Link loss or a pinned source awaiting IPv6/DAD returns OFFLINE for bounded
+ * MRP retry; it is not an invalid packet/path argument. */
 Matter_Idf_Udp_T matter_idf_udp_new(Matter_T,esp_netif_t*,uint16_t,const Matter_Udp_Listener_T*);
 Matter_Udp_T matter_idf_udp_module(Matter_Idf_Udp_T);
 Matter_Result_T matter_idf_udp_process(Matter_Idf_Udp_T);

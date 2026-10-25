@@ -444,10 +444,10 @@ static void outgoing_cancel_tests(Matter_Dispatch_T d,const Matter_Udp_Address_T
     puts("PASS outbound BDX: fabric/revision/timeout/cancel drain; final EOF ACK retained; MRP failure discards staged sink");
     puts("PASS outbound Invoke: copied discovery identity, single admission, cancellation/timeout/rotation/removal, late resolver success drained");
 }
-typedef struct { const Matter_Udp_Datagram_T* borrowed; } Wire;
+typedef struct { const Matter_Udp_Datagram_T* borrowed; Matter_Result_T failure; } Wire;
 static Matter_Result_T wire_activate(void* u,Matter_Operation_Id_T id) { (void)u;(void)id; return MATTER_OK; }
 static void wire_deactivate(void* u,Matter_Operation_Id_T id) { (void)u;(void)id; }
-static Matter_Result_T wire_send(void* u,uint64_t id,const Matter_Udp_Datagram_T* p) { (void)id; ((Wire*)u)->borrowed=p; return MATTER_OK; }
+static Matter_Result_T wire_send(void* u,uint64_t id,const Matter_Udp_Datagram_T* p) { (void)id;Wire* w=u;if(w->failure)return w->failure;w->borrowed=p; return MATTER_OK; }
 static void wire_cancel(void* u,uint64_t id) { (void)u;(void)id; }
 static void wire_detach(void* u) { (void)u; }
 static Matter_Result_T peer_keys(void* u,Matter_Pase_Keys_T* keys,Matter_Secure_Identity_T* identity) {
@@ -591,7 +591,7 @@ static Matter_Result_T reentrant_encrypt(void* user,const uint8_t* key,const uin
     reentry_guard(p->d); CHECK(!memcmp(plain,saved,size)); free(saved); ++p->calls;
     return p->base.ccm_encrypt(user,key,nonce,aad,aad_size,plain,size,cipher);
 }
-static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Address_T* bind) {
+static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Address_T* bind,bool offline) {
     size_t idle=live_bytes; CHECK(!d->transactions && !d->delivered);
     Matter_Crypto_Mbedtls_T crypto=matter_crypto_mbedtls_new(NULL); CHECK(crypto);
     EncryptProbe p={.d=d,.path={.local=*bind,.peer=*bind}};
@@ -618,9 +618,17 @@ static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Addr
     size_t before=calls; uint32_t counter=99;
     CHECK(prepare_packet(t,1,&counter)==MATTER_BUSY && counter==99);
     process_transaction(t); CHECK(!t->packet && calls==before && d->decision.payload[d->decision.payload_size-1]==0xa5);
-    encrypt_probe=&p; CHECK(matter_dispatch_process(d,d->now)==MATTER_PENDING); encrypt_probe=NULL;
+    wire.failure=offline?MATTER_OFFLINE:MATTER_OK;encrypt_probe=&p; CHECK(matter_dispatch_process(d,d->now)==MATTER_PENDING); encrypt_probe=NULL;
     CHECK(p.calls==1 && !d->processing && !d->delivered && !d->decision.payload && !d->decision.payload_size);
-    CHECK(d->queued && wire.borrowed && t->pending);
+    CHECK(d->queued);
+    if(offline){
+        CHECK(!wire.borrowed && !d->request && t->pending && !t->notified && t->packet);
+        uint8_t* retained=t->packet;uint64_t retry_at;
+        CHECK(matter_retransmission_sender_deadline(d->tx,&retry_at)==MATTER_OK&&retry_at>d->now);
+        wire.failure=MATTER_OK;CHECK(matter_dispatch_process(d,retry_at)==MATTER_PENDING);
+        CHECK(t->packet==retained&&p.calls==1);
+    }
+    CHECK(wire.borrowed&&t->pending);
     size_t size=t->size; uint8_t* packet=t->packet; memcpy(input,packet,size);
     Matter_Message_Header_T h; size_t offset; CHECK(!matter_message_header_read(packet,size,&h,&offset));
     memset(d->plain,0xcc,PACKET); /* TX scratch can recycle while ciphertext is borrowed. */
@@ -641,6 +649,7 @@ static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Addr
     CHECK(!matter_secure_delete(c->secure)); memset(c,0,sizeof(*c)); CHECK(!matter_crypto_mbedtls_delete(crypto));
     d->im_sent=d->subscriptions_established=0;
     puts("PASS shared work: borrowed full RX stable until released, recursive process/control BUSY, queued RX during seal, immutable ciphertext through ACK-before-UDP and drain");
+    puts("PASS transient offline send consumes bounded MRP retry instead of terminating subscription/response; same ciphertext and counter survive recovery");
 }
 static void demand_allocations(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Address_T* bind) {
     CHECK(!d->transactions && live==1 && live_bytes==sizeof(*d));
@@ -1195,13 +1204,17 @@ int main(void) {
     handshake_failure(&d,owner,udp,&bind,root,false);
     handshake_failure(&d,owner,udp,&bind,root,true);
     Matter_Dispatch_Config_T cfg={.root=root,.crypto={.user=&fail_random,.random=entropy},.user=&reset,.fabric_live=fabric_live};
+    Matter_Dispatch_T offline=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg);CHECK(offline);
+    shared_work(offline,owner,&bind,true);
+    for(unsigned i=0;i<20&&matter_dispatch_stop(offline)!=MATTER_OK;++i)(void)matter_dispatch_process(offline,offline->now+1);
+    CHECK(matter_dispatch_delete(offline)==MATTER_OK);
     fail_at=calls+1; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_at=0;
     fail_random=true; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_random=false;
     CHECK(!allocations && matter_get_state(owner)==MATTER_STATE_RUNNING);
     for(unsigned run=0;run<3;++run) {
         d=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg); CHECK(d && allocations==1);
         demand_allocations(d,owner,&bind);
-        shared_work(d,owner,&bind);
+        shared_work(d,owner,&bind,false);
         CHECK(matter_dispatch_delete(d)==MATTER_BUSY && !matter_dispatch_session(d,1));
         /* Removal can happen after another transaction queued a retry in this
          * same owner iteration. No ciphertext or ACK may leave a retired identity. */
