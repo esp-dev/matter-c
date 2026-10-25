@@ -72,6 +72,10 @@ void matter_dispatch_sent(void*,uint64_t,Matter_Operation_Result_T);
 Matter_Result_T matter_dispatch_process(Matter_Dispatch_T,uint64_t now);
 /* Borrowed authenticated session only; NULL for unknown/revoked tokens. */
 Matter_Secure_T matter_dispatch_session(Matter_Dispatch_T,Matter_Exchange_Session_T);
+/* Opt-in reply-only authorization, true only inside the already accepted PASE
+ * RevokeCommissioning poll on its original exchange. Never exposes keys or
+ * authority to new requests; strict builds always return false. */
+bool matter_dispatch_revoke_reply_authorized(Matter_Dispatch_T,Matter_Exchange_Session_T,const Matter_Im_Path_T*);
 /* Revoke all PASE sessions, optionally all CASE sessions too. Repeated calls
  * drive retirement; include_case=false preserves CASE. Call before rollback.
  * An expiry response waits for local UDP completion, not a peer ACK. OK means

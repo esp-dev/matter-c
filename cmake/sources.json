@@ -130,6 +130,7 @@
     "platform"
   ],
   "public_headers": [
+    "matter_compat.h",
     "clusters/matter_acl.h",
     "clusters/matter_admin_commissioning.h",
     "clusters/matter_diagnostics.h",

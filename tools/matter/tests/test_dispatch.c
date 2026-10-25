@@ -182,6 +182,75 @@ static void expiry_retirement(Matter_Dispatch_T d) {
     memset(c,0,sizeof(*c)); fixture_clear(d);
     puts("PASS fail-safe retirement: local UDP completion without peer ACK, error/deadline, PASE and pending CASE; other fabric preserved");
 }
+static uint8_t revoke_auth(void* u,Matter_Exchange_Session_T s,const Matter_Im_Command_Path_T* p,Matter_Im_Privilege_T v) {
+    (void)u; (void)s; (void)p; (void)v; return 0;
+}
+static uint8_t revoke_describe(void* u,const Matter_Im_Command_Path_T* p,Matter_Im_Command_T* meta) {
+    (void)u; (void)p; *meta=(Matter_Im_Command_T){.privilege=MATTER_IM_ADMINISTER}; return 0;
+}
+static uint8_t revoke_validate(void* u,const Matter_Im_Command_Path_T* p,const uint8_t* b,size_t n) {
+    (void)u; (void)p; (void)b; (void)n; return 0;
+}
+static Matter_Im_Command_Result_T revoke_sync(void* u,const Matter_Im_Command_Path_T* p,const uint8_t* b,size_t n,Matter_Tlv_Writer_T* w) {
+    (void)u; (void)p; (void)b; (void)n; (void)w; CHECK(false);
+    return (Matter_Im_Command_Result_T){.status=MATTER_IM_FAILURE};
+}
+static Matter_Result_T revoke_start(void* u,const Matter_Im_Command_Path_T* p,const uint8_t* b,size_t n,
+    Matter_Tlv_Writer_T* w,Matter_Im_Command_Result_T* r,uint64_t* token) {
+    (void)u; (void)p; (void)b; (void)n; (void)w; (void)r; *token=1; return MATTER_PENDING;
+}
+static Matter_Result_T revoke_poll(void* u,uint64_t token,Matter_Tlv_Writer_T* w,Matter_Im_Command_Result_T* r) {
+    (void)u; (void)token; (void)w; (void)r; return MATTER_PENDING;
+}
+static void revoke_cancel(void* u,uint64_t token) { (void)u; (void)token; }
+static void revoke_reply_retirement(Matter_Dispatch_T d) {
+    static const uint8_t request[]={0x15,0x28,0,0x28,1,0x36,2,0x15,0x37,0,0x24,0,0,
+        0x24,1,0x3c,0x24,2,2,0x18,0x35,1,0x18,0x18,0x18,0x24,0xff,13,0x18};
+    for(unsigned mode=0;mode<5;++mode) {
+        Transaction* t=fixture(d,0); Connection* c=&d->connections[0];
+        *c=(Connection){.token=100,.operational=mode==3};
+        fixture_set(t,(Transaction){.owner=d,.handle=1,.key={100,1,false},.operational=mode==3});
+        Matter_Im_Invoke_Port_T port={NULL,revoke_auth,revoke_describe,revoke_validate,revoke_sync};
+        Matter_Im_Invoke_Async_Port_T async={revoke_start,revoke_poll,revoke_cancel};
+        Matter_Im_Invoke_Config_T config={t->key,30000,512,true};
+        t->invoke=matter_im_invoke_new_async(&port,&async,&config,d->now); CHECK(t->invoke);
+        Matter_Rx_Decision_T rx={.action=MATTER_RX_NEW_RESPONDER,.session=100,
+            .header={.protocol_id=1,.opcode=8,.exchange_id=1,.exchange_flags=5},.payload=request,.payload_size=sizeof(request)};
+        CHECK(matter_im_invoke_receive(t->invoke,&rx)==MATTER_OK);
+        CHECK(matter_im_invoke_process(t->invoke,d->now)==MATTER_PENDING && matter_im_invoke_state(t->invoke)==MATTER_IM_INVOKE_PENDING);
+        t->invoke_pase.pending_cluster=mode==1?0x30:MATTER_ADMIN_COMMISSIONING_CLUSTER;
+        t->invoke_pase.pending_endpoint=mode==2?1:0;
+        t->sent=true; /* TimedRequest Status already completed on this exchange. */
+        CHECK(matter_dispatch_retire(d,mode==4)==(mode==3?MATTER_OK:MATTER_PENDING));
+        if(MATTER_CSA_COMPAT_REVOKE_REPLY && !mode) {
+            CHECK(t->expiry_reply && !t->closing && !c->retiring && c->removal_reply==1);
+            CHECK(!matter_dispatch_session(d,100) && !create_handler(d,t,2));
+            Matter_Im_Path_T path={0,MATTER_ADMIN_COMMISSIONING_CLUSTER,2};
+            CHECK(!matter_dispatch_revoke_reply_authorized(d,100,&path));
+#if MATTER_CSA_COMPAT_REVOKE_REPLY
+            d->invoking=t;
+#endif
+            CHECK(matter_dispatch_revoke_reply_authorized(d,100,&path));
+            CHECK(!matter_dispatch_revoke_reply_authorized(d,101,&path));
+            path.attribute=0; CHECK(!matter_dispatch_revoke_reply_authorized(d,100,&path));
+            path.attribute=2; path.endpoint=1; CHECK(!matter_dispatch_revoke_reply_authorized(d,100,&path));
+            path.endpoint=0; path.cluster=0x28; CHECK(!matter_dispatch_revoke_reply_authorized(d,100,&path));
+            path.cluster=MATTER_ADMIN_COMMISSIONING_CLUSTER;
+            c->removal_deadline=d->now; CHECK(!matter_dispatch_revoke_reply_authorized(d,100,&path));
+            c->removal_deadline=d->now+30000;
+#if MATTER_CSA_COMPAT_REVOKE_REPLY
+            d->invoking=NULL;
+#endif
+            t->revoke_reply_waiting=false; /* Final InvokeResponse is now prepared. */
+            t->sent=true; d->sending=c; CHECK(matter_dispatch_retire(d,false)==MATTER_PENDING && !c->retiring);
+            d->sending=NULL; CHECK(matter_dispatch_retire(d,false)==MATTER_PENDING && c->retiring && t->closing);
+        } else if(mode==3) CHECK(!c->retiring && !t->closing && !t->expiry_reply);
+        else CHECK(c->retiring && t->closing && !t->expiry_reply);
+        CHECK(matter_im_invoke_delete(t->invoke)==MATTER_OK); t->invoke=NULL;
+        memset(c,0,sizeof(*c)); fixture_clear(d);
+    }
+    puts("PASS Revoke reply: original pending PASE exchange only, no new admission, no foreign/path authority, deadline/local-send/shutdown drain");
+}
 static void udp_sent(void* u,uint64_t id,Matter_Operation_Result_T r) { matter_dispatch_sent(*(Matter_Dispatch_T*)u,id,r); }
 static Matter_Result_T take_keys(void* u,Matter_Pase_Keys_T* keys,Matter_Secure_Identity_T* identity) {
     unsigned i=*(unsigned*)u; memset(keys,0,sizeof(*keys));
@@ -1174,6 +1243,7 @@ int main(void) {
         diagnostic_counts(d); rotation(d);
         removal(d);
         expiry_retirement(d);
+        revoke_reply_retirement(d);
         outgoing_cancel_tests(d,&bind);
         policy(d,owner,udp,&bind);
         resources(d,&bind);

@@ -1,6 +1,7 @@
 #ifndef TEST_ADMIN_COMMISSIONING_H
 #define TEST_ADMIN_COMMISSIONING_H
 #include "clusters/matter_admin_commissioning.h"
+#include "matter_compat.h"
 typedef struct {
     uint8_t args[256],request[300],verifier[97]; size_t n,request_size;
     Matter_Cluster_T model; bool blocked,published,fail_open,fail_close,fail_blocked,missing;
@@ -117,6 +118,22 @@ static bool admin_core(void) {
     admin_empty(f); CHECK(matter_cluster_start(f->model,2,&f->identity,f->args,f->n,NULL,&r,&token)==MATTER_PENDING);
     CHECK(!matter_admin_commissioning_pase_new(f->model,790,30000,180004));
     CHECK(matter_cluster_process(f->model,180005)==MATTER_OK && matter_cluster_poll(f->model,token,NULL,&r)==MATTER_OK && !r.status);
+    /* A final PASE reply may drain in the compatibility image while the owner
+     * continues revocation. CASE above still waited. Neither image admits a
+     * new PASE attempt, and natural expiry/shutdown keep their original path. */
+    admin_args(f,&p->config[1],180,1,1000,16,97); admin_call(f,0,0,-1);
+    f->identity.is_case=false; f->retire=MATTER_PENDING; admin_empty(f);
+    CHECK(matter_cluster_start(f->model,2,&f->identity,f->args,f->n,NULL,&r,&token)==MATTER_PENDING);
+    CHECK(matter_cluster_process(f->model,180005)==MATTER_PENDING);
+    CHECK(!matter_admin_commissioning_pase_new(f->model,790,30000,180005));
+    if(MATTER_CSA_COMPAT_REVOKE_REPLY)
+        CHECK(matter_cluster_poll(f->model,token,NULL,&r)==MATTER_OK && !r.status && !r.has_cluster_status);
+    else CHECK(matter_cluster_poll(f->model,token,NULL,&r)==MATTER_PENDING);
+    CHECK(matter_cluster_delete(f->model)==MATTER_BUSY);
+    f->retire=MATTER_OK; CHECK(matter_cluster_process(f->model,180005)==MATTER_OK);
+    if(!MATTER_CSA_COMPAT_REVOKE_REPLY)
+        CHECK(matter_cluster_poll(f->model,token,NULL,&r)==MATTER_OK && !r.status);
+    f->identity.is_case=true;
     CHECK(matter_cluster_process(f->model,1)==MATTER_INVALID_ARGUMENT);
     /* Complete/shutdown close is retryable, independent from Revoke. */
     admin_args(f,&p->config[1],180,1,1000,16,97); admin_call(f,0,0,-1);

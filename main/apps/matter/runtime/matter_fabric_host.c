@@ -1,4 +1,5 @@
 #include "matter_store_internal.h"
+#include "matter_compat.h"
 #include "matter_host_limits.h"
 #include <stdlib.h>
 #include <string.h>
@@ -204,7 +205,7 @@ static uint8_t root(void* u,Matter_Cert_Tlv_T cert) {
         if(!before(h,5,0)) { h->busy=false; return MATTER_IM_FAILURE; }
         i->data.saved_next=i->data.next_index; i->data.journal=true;
         memcpy(v->root,cert.data,cert.size); v->root_size=(uint16_t)cert.size; v->root_ready=true;
-        if(!duplicate) ++v->revision;
+        if(!duplicate || MATTER_CSA_COMPAT_PENDING_ROOT) ++v->revision;
         if(after(h)!=MATTER_OK) status=MATTER_IM_FAILURE;
     }
     h->busy=false; return status;

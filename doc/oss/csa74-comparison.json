@@ -1,0 +1,552 @@
+{
+  "schema": 1,
+  "stage": "CSA74_SOURCE_COMPARISON_INITIAL",
+  "native_base": "56f9053e953dfd36f416ffe40130b3592d364c6d",
+  "campaign_verdicts_changed": false,
+  "native_source_changed": false,
+  "reference_hosts_executed": false,
+  "CSA_tests_executed": false,
+  "comparison_type": "STATIC_SOURCE_TRACE_WITH_HISTORICAL_MODEL_EXTRACTS",
+  "source_packet": "csa72-questions.json",
+  "failed_identities": 27,
+  "initially_source_compared_identities": 4,
+  "complete_older_core_pdf_review": false,
+  "references": [
+    {
+      "implementation": "connectedhomeip",
+      "upstream": "https://github.com/project-chip/connectedhomeip.git",
+      "commit": "3bcdd56ba54fb88b2afb4bfef575014671df7aa7",
+      "tracked_checkout_clean": true,
+      "reviewed_files": [
+        {
+          "path": "src/access/AccessControl.cpp",
+          "git_blob_sha256": "9c6b24efa722943de65b8232ea7120568b7cd3f19c6d893541c7e3a8ee38d3f3"
+        },
+        {
+          "path": "src/app/server/AclStorage.cpp",
+          "git_blob_sha256": "866bbccdef69c92f74d332888c821b1c1e30e9e3d482460862a7618ed0919a24"
+        },
+        {
+          "path": "src/app/clusters/administrator-commissioning-server/AdministratorCommissioningLogic.cpp",
+          "git_blob_sha256": "7487c3bb289ae0417573a576c1133499e9fcca2c5a53c001259382ee8f2694e3"
+        },
+        {
+          "path": "src/app/server/CommissioningWindowManager.cpp",
+          "git_blob_sha256": "9e0fb660a946a7a0eeea259e5e00c117c7d753e344eeac09092a450a7b352520"
+        },
+        {
+          "path": "src/app/clusters/operational-credentials-server/OperationalCredentialsCluster.cpp",
+          "git_blob_sha256": "317f4a58f059f543bee63f3e1fe94a4c318590a734d8815b756764a74362ec7a"
+        },
+        {
+          "path": "src/credentials/FabricTable.cpp",
+          "git_blob_sha256": "4ef28af5492d6cc5702b680609acee93191ae7ce894327217d6ce80dde2582ab"
+        },
+        {
+          "path": "data_model/1.3/clusters/ACL-Cluster.xml",
+          "git_blob_sha256": "08516ff90f61be9529d89080dcd0e01348336cd2e33d56eabf2fa515e36a590a"
+        },
+        {
+          "path": "data_model/1.4/clusters/ACL-Cluster.xml",
+          "git_blob_sha256": "adbf380a2128499a090283a76e4bae01d0f66f50bc65e8a36d48eb3950b0d1f8"
+        },
+        {
+          "path": "data_model/1.4.1/clusters/ACL-Cluster.xml",
+          "git_blob_sha256": "adbf380a2128499a090283a76e4bae01d0f66f50bc65e8a36d48eb3950b0d1f8"
+        },
+        {
+          "path": "data_model/1.4.2/clusters/ACL-Cluster.xml",
+          "git_blob_sha256": "c37b9e4f8225ca5b28d9d911a554272422b8a753fce1f86e8df38d0a08548b28"
+        },
+        {
+          "path": "data_model/1.5/clusters/ACL-Cluster.xml",
+          "git_blob_sha256": "c37b9e4f8225ca5b28d9d911a554272422b8a753fce1f86e8df38d0a08548b28"
+        },
+        {
+          "path": "data_model/1.6.1/clusters/ACL-Cluster.xml",
+          "git_blob_sha256": "77d2f92bcffd8b567e1a017d0b661a25bec5fe90228687b6bf66bffa77a11471"
+        }
+      ]
+    },
+    {
+      "implementation": "rs-matter",
+      "upstream": "https://github.com/project-chip/rs-matter.git",
+      "commit": "7d5684f495fe5bca03d993647543508ab7587f10",
+      "tracked_checkout_clean": true,
+      "reviewed_files": [
+        {
+          "path": "README.md",
+          "git_blob_sha256": "12ad00507cdd26f136f7f7e72e4105eb8da6617bc7653b299197c4ddeb6313d6"
+        },
+        {
+          "path": "rs-matter/src/dm/types/privilege.rs",
+          "git_blob_sha256": "c7153e1b8eee0d12ffd9a53443c559c3f58883655f3303a7474f5fae292805e7"
+        },
+        {
+          "path": "rs-matter/src/dm/clusters/adm_comm.rs",
+          "git_blob_sha256": "7394ae825f8267095f3c7fb33ed9196d89ad8afad7b53e806f851f1a3bda14d9"
+        },
+        {
+          "path": "rs-matter/src/dm/clusters/noc.rs",
+          "git_blob_sha256": "64ddc750864a0af9646e58b508ca8cd1de7e36eeda7a948dfe194faf77b5bc64"
+        },
+        {
+          "path": "rs-matter/src/failsafe.rs",
+          "git_blob_sha256": "fae39ae98e294d72f34e23c6ec52713f76eb3ea616f4b5fd64f58fd471ff97ba"
+        },
+        {
+          "path": "rs-matter/src/transport/session.rs",
+          "git_blob_sha256": "8e31998753294aad1ad6f17a7a469f355a9500f853b053b5b1b2f484fee073f7"
+        }
+      ]
+    },
+    {
+      "implementation": "matter.js",
+      "upstream": "https://github.com/matter-js/matter.js.git",
+      "commit": "c363e9e6a651f6c18c0cb0c575e8a91ffa4234e6",
+      "tracked_checkout_clean": true,
+      "reviewed_files": [
+        {
+          "path": "packages/protocol/src/interaction/FabricAccessControl.ts",
+          "git_blob_sha256": "d7156bf9126512812fdda38752318e96f88588e0ab5544d2ff49b2aa8fb2b0f0"
+        },
+        {
+          "path": "packages/model/src/standard/elements/access-control.element.ts",
+          "git_blob_sha256": "8fdc10553a703ddb32841c4e46473d4ed4e8bf1cfb68dab81dd4b5b3c7053bb9"
+        },
+        {
+          "path": "packages/node/src/behaviors/access-control/AccessControlServer.ts",
+          "git_blob_sha256": "d4e636fdd1184199d5d0c6b5cf2941d3b55bebedec84917e9740578f64996078"
+        },
+        {
+          "path": "packages/node/src/behaviors/administrator-commissioning/AdministratorCommissioningServer.ts",
+          "git_blob_sha256": "d5047106357e8a00c5ce227c2a54d2396a5eaaa8894f541f5d86b4b3979846e7"
+        },
+        {
+          "path": "packages/node/src/behaviors/operational-credentials/OperationalCredentialsServer.ts",
+          "git_blob_sha256": "3d0340e796325096d9c5c22bacb586d90fa7c299f25b2baca725fbec66c87826"
+        },
+        {
+          "path": "packages/protocol/src/session/Session.ts",
+          "git_blob_sha256": "89c35fda0dfc9c14c57804cf92e06ea78dd2835fe5ed9e559daad6896a03f76e"
+        },
+        {
+          "path": "packages/protocol/src/session/NodeSession.ts",
+          "git_blob_sha256": "fc833caea3e4588e94e1774b20185f06c495dde414158e47b4edeb48c87cde46"
+        },
+        {
+          "path": "packages/protocol/src/session/SessionManager.ts",
+          "git_blob_sha256": "fb1b649e127a9bab890e3d37a003c1052545c66badb925ffc23454705489a2af"
+        }
+      ]
+    }
+  ],
+  "queue": [
+    {
+      "case": "TC-SC-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 472,
+      "reference_runs": [
+        472
+      ],
+      "historical_source_sha256": "30c643085fa69ca258bbe1d6ea67496aaa3ae612804c8798aaf7e3f23736b94e",
+      "question": "CSA72-Q01",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-SC-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 473,
+      "reference_runs": [
+        473
+      ],
+      "historical_source_sha256": "20544ce5190ad455b0fca8c9efec818d4bff6f265d665e73ab026bfb19c1bbfb",
+      "question": "CSA72-Q02",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-SC-1.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 477,
+      "reference_runs": [
+        477
+      ],
+      "historical_source_sha256": "beded47fe104dbd4ccb5f26b5ee2978174e21b26a7fdfe4e0d8e1c2f935cadcb",
+      "question": "CSA72-Q03",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-OPCREDS-3.6",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 466,
+      "reference_runs": [
+        466
+      ],
+      "historical_source_sha256": "29cb7aeb98042890f7979c0ccd613ac7551d2325e075fcf4df55a2e6dcda3de6",
+      "question": "CSA72-Q04",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 128,
+      "reference_runs": [
+        255
+      ],
+      "historical_source_sha256": "6ba91d188800dc26f63089390fadbbc8f5c691ef7e17859a6fde2ce451c407c3",
+      "question": "CSA72-Q05",
+      "comparison": "THREE_SOURCE_PATHS_PREDICT_PENDING_DUPLICATE",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 157,
+      "reference_runs": [
+        333
+      ],
+      "historical_source_sha256": "a983dbfc42a8555f7923cec3adb9d99436c13717995fbf463329de433c8782cd",
+      "question": "CSA72-Q06",
+      "comparison": "DEFERRED_TEARDOWN_CANDIDATE_WIRE_ORDER_UNKNOWN",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 129,
+      "reference_runs": [
+        256
+      ],
+      "historical_source_sha256": "a0cf0ff60fb45cd1a1e263eeae607ef4e3b353180785ee187c0d776c91630e76",
+      "question": "CSA72-Q06",
+      "comparison": "DEFERRED_TEARDOWN_CANDIDATE_WIRE_ORDER_UNKNOWN",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 130,
+      "reference_runs": [
+        287
+      ],
+      "historical_source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a",
+      "question": "CSA72-Q07",
+      "comparison": "PROXYVIEW_ACCEPTANCE_AND_AUTHORIZATION_DIFFER",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_ACL_2_6",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 131,
+      "reference_runs": [
+        288
+      ],
+      "historical_source_sha256": "f6f02e31bc99a052ec43832dc955bc198ca08f756deba3a3724e66f417390e8a",
+      "question": "CSA72-Q08",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_SU_4_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": null,
+      "reference_runs": [
+        456
+      ],
+      "historical_source_sha256": "644dde23f969393db842b84190978144a9279b02fa17e3d1e5ba4e0514811061",
+      "question": "CSA72-Q08",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_CNET_4_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 166,
+      "reference_runs": [
+        330
+      ],
+      "historical_source_sha256": "91e6c31c370388c5f644a3dde49250ae7d58f7d6d1cda1f6b2d607170405afcd",
+      "question": "CSA72-Q09",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-CNET-4.13",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 482,
+      "reference_runs": [
+        482
+      ],
+      "historical_source_sha256": "e41504240ec78e1e53cfdca7c79d98846a142eb27f3526b4540e79b133b08b9e",
+      "question": "CSA72-Q10",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-GRPKEY-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 493,
+      "reference_runs": [
+        493
+      ],
+      "historical_source_sha256": "030c3e840f6a09b4d5eda4bc3b58125939489195d7db098b8770280c80446e73",
+      "question": "CSA72-Q11",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-GRPKEY-2.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 487,
+      "reference_runs": [
+        487
+      ],
+      "historical_source_sha256": "5d1c86b732ff9d9c32dd810c6949085200796d5aecc6eebb43000e2b58327eec",
+      "question": "CSA72-Q12",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-DESC-2.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 480,
+      "reference_runs": [
+        480
+      ],
+      "historical_source_sha256": "5a14926651c2b7f6df96b8738c5f06ca8f8adc1db2cb4a739726a21401a3d55e",
+      "question": "CSA72-Q13",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-IDM-6.2",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 484,
+      "reference_runs": [
+        484
+      ],
+      "historical_source_sha256": "c9cbafd9aacc6298d9ad72674f653cb19051df1be09a804e07b17cb09675dae4",
+      "question": "CSA72-Q14",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-IDM-7.1",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 494,
+      "reference_runs": [
+        494
+      ],
+      "historical_source_sha256": "92450a1c27ac700ec90415136fb1a961d784cc756f988ceb11fe59a45afae8e3",
+      "question": "CSA72-Q15",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_BINFO_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 491,
+      "reference_runs": [
+        491
+      ],
+      "historical_source_sha256": "868ee3d7fedf097bc3e19aac5852f9bb2a5cd6de3218af33b6aae430ea6db409",
+      "question": "CSA72-Q16",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_IDM_5_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 603,
+      "reference_runs": [
+        603
+      ],
+      "historical_source_sha256": "454401a998f08d95dfbc2e6220838e038e343c34b7edb2ef32045ac4b7c89614",
+      "question": "CSA72-Q17",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC-BDX-2.3",
+      "endpoint": 0,
+      "collection": "SDK YAML Tests",
+      "status": "MANUAL",
+      "manual_result": "FAIL",
+      "campaign_run_id": 495,
+      "reference_runs": [
+        495
+      ],
+      "historical_source_sha256": "d383c621b31867ae31faef1a3656598573c59cce265fb312c2a7c3e7751ef2bd",
+      "question": "CSA72-Q18",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_SU_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 607,
+      "reference_runs": [
+        607
+      ],
+      "historical_source_sha256": "d5e9fbf867982ba7b1c8c8305c70a6fc6b04f018b521562d2e7028b6e672b8e4",
+      "question": "CSA72-Q19",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_SU_2_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": null,
+      "reference_runs": [
+        450
+      ],
+      "historical_source_sha256": "91b241ce0be6291c45cf74d731c7d130a986b1ae6e26d1d9c8814cca11321fdb",
+      "question": "CSA72-Q20",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_SU_2_7",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 606,
+      "reference_runs": [
+        606
+      ],
+      "historical_source_sha256": "9a8b0ffa278180cf3aaa772dae3d2d3a1650114c3260a035d784db11a4f8dd31",
+      "question": "CSA72-Q21",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_DA_1_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 171,
+      "reference_runs": [
+        171
+      ],
+      "historical_source_sha256": "e40e0eee6bb7d54ac1fb9e31c71211739f5cc4027c83dc7843aa45c271a0d442",
+      "question": "CSA72-P01",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_IDM_10_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 219,
+      "reference_runs": [
+        219
+      ],
+      "historical_source_sha256": "0cd71ea50ded3dc78a12092cd844b4d843a2b256a00020f4c1f555305ae0fc22",
+      "question": "CSA72-P01",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_IDM_13_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 206,
+      "reference_runs": [
+        206
+      ],
+      "historical_source_sha256": "f4d93d230f6461d3361a48ba452950c4b025577d389c5b4b7d40bd86297fb203",
+      "question": "CSA72-P01",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    },
+    {
+      "case": "TC_CNET_4_11",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "status": "FAIL",
+      "manual_result": null,
+      "campaign_run_id": 168,
+      "reference_runs": [
+        168
+      ],
+      "historical_source_sha256": "d3bb318d58568fc0c3935f3803fd6848255d7ab8b7e62724d670935eded4e5ac",
+      "question": "CSA72-P02",
+      "comparison": "NOT_YET_COMPARED",
+      "wire_comparison": "NOT_RUN"
+    }
+  ],
+  "next_task": "ISOLATED_IDENTICAL_ROOT_WIRE_PROBE"
+}

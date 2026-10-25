@@ -13,6 +13,16 @@ The [unsent CSA review packet](doc/oss/csa72-questions.md) groups the remaining
 questions and exact rerun prerequisites. Check its JSON coverage and rendering
 with `python tools/matter/csa_review_packet.py`; this never submits or runs tests.
 
+The [initial cross-stack comparison](doc/oss/csa74-comparison.md) traces four
+historical failed identities against pinned CHIP, rs-matter and matter.js
+sources. It records specification-history evidence and a 27-case differential
+queue; no new wire execution or CSA verdict is claimed.
+
+The [CSA75 compatibility profile](doc/oss/csa75-compatibility.md) adds explicit,
+default-OFF build switches for legacy SDK/test behavior. Four original failing
+test identities reach PASS with that profile; strict-profile campaign results
+remain separate. The report records differences, regression and memory checks.
+
 The frozen Memory39 merge passes the [CSA73 regression](doc/oss/csa73-validation.md):
 99 original automatic PASS positions, complete native tests and separate memory,
 wire and simulated OTA checks. [Integration gates](doc/oss/csa73-integration-plan.md)

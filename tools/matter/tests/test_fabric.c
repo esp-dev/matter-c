@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "matter_compat.h"
 #include <stdlib.h>
 #include <string.h>
 #include "crypto/matter_crypto_mbedtls.h"
@@ -19,6 +20,16 @@ static Matter_Result_T two_sessions(void* u,Matter_Exchange_Session_T s,uint8_t 
 static void read_count(FabFixture* f,unsigned count) {
     Matter_Im_Value_T v; OC_CHECK(matter_opcreds_read_session(f->o->core,3,1,true,&v)==0 && v.unsigned_value==count);
     OC_CHECK(matter_opcreds_read_session(f->o->core,2,1,true,&v)==0 && v.unsigned_value==5);
+}
+static void root_count(FabFixture* f,unsigned count) {
+    Matter_Im_Value_T v; OC_CHECK(!matter_opcreds_read_fabric(f->o->core,4,1,false,&v));
+    OC_CHECK(!matter_tlv_init(&f->reader,v.data,v.size,2));
+    OC_CHECK(!matter_tlv_next(&f->reader,&f->e) && f->e.type==MATTER_TLV_ARRAY);
+    unsigned seen=0;
+    while(matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type!=MATTER_TLV_END) {
+        OC_CHECK(f->e.type==MATTER_TLV_BYTES && f->e.size && f->e.size<=400); ++seen;
+    }
+    OC_CHECK(f->e.type==MATTER_TLV_END && seen==count && matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_DONE);
 }
 static void full_table_root(FabFixture* f) {
     const Matter_Fabric_View_T* v=f->port.view(f->host);
@@ -170,16 +181,23 @@ static void case_addition(const Matter_Crypto_Port_T* crypto,const Matter_Creden
     case_call(f,11,true,MATTER_IM_FAILURE,0);
     OC_CHECK(!f->port.view(f->host)->root_ready && f->port.view(f->host)->count==1);
     f->control.fail_store=false; matter_fabric_host_control(f->host,&f->control);
-    case_call(f,11,true,0,0); case_call(f,11,true,0,0);
-    /* Core 11.18.6.13: an identical installed RCAC succeeds without growing
-     * TrustedRootCertificates, even while a new fail-safe is armed. */
+    uint32_t before_root=f->port.view(f->host)->revision;
+    case_call(f,11,true,0,0);
+    OC_CHECK(f->port.view(f->host)->revision==before_root+(MATTER_CSA_COMPAT_PENDING_ROOT?1u:0u));
+    case_call(f,11,true,0,0);
+    OC_CHECK(f->port.view(f->host)->revision==before_root+(MATTER_CSA_COMPAT_PENDING_ROOT?1u:0u));
+    /* Core 11.18.6.13 suppresses the identical pending RCAC. The explicit
+     * compatibility profile exposes it once, advancing its data version once. */
     Matter_Im_Value_T roots;
     OC_CHECK(matter_opcreds_read_fabric(f->o->core,4,1,false,&roots)==0);
     OC_CHECK(matter_tlv_init(&f->reader,roots.data,roots.size,2)==MATTER_TLV_OK &&
         matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type==MATTER_TLV_ARRAY &&
         matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type==MATTER_TLV_BYTES &&
-        f->e.size==sizeof(fab_root) && !memcmp(f->e.data,fab_root,sizeof(fab_root)) &&
-        matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type==MATTER_TLV_END &&
+        f->e.size==sizeof(fab_root) && !memcmp(f->e.data,fab_root,sizeof(fab_root)));
+    if(MATTER_CSA_COMPAT_PENDING_ROOT)
+        OC_CHECK(matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type==MATTER_TLV_BYTES &&
+            f->e.size==sizeof(fab_root) && !memcmp(f->e.data,fab_root,sizeof(fab_root)));
+    OC_CHECK(matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_OK && f->e.type==MATTER_TLV_END &&
         matter_tlv_next(&f->reader,&f->e)==MATTER_TLV_DONE);
     fab_request(f,6,FAB_CERT(fab_noc1),(Matter_Cert_Tlv_T){0},55);
     case_call(f,6,false,0xca,0); case_call(f,6,true,0,4); /* Missing CSR. */
@@ -192,7 +210,9 @@ static void case_addition(const Matter_Crypto_Port_T* crypto,const Matter_Creden
     OC_CHECK(f->port.view(f->host)->count==1);
     fab_request(f,6,FAB_CERT(fab_noc1),(Matter_Cert_Tlv_T){0},55); case_call(f,6,true,0,0);
     OC_CHECK(f->port.view(f->host)->count==2 && matter_opcreds_pending_fabric(f->o->core)==2);
+    root_count(f,2); /* AddNOC consumed the staged root: no extra pending copy. */
     OC_CHECK(matter_opcreds_rollback(f->o->core)==MATTER_OK && f->port.view(f->host)->count==1);
+    root_count(f,1);
     fab_free(f);
     puts("PASS generic CASE AddRoot/AddNOC: failsafe, malformed root, storage error, CSR, signature, addition and rollback");
 }

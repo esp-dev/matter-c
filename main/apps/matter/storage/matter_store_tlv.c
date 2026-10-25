@@ -1,4 +1,5 @@
 #include "matter_store_tlv.h"
+#include "../matter_compat.h"
 #include "matter_store_source_internal.h"
 #include "../codec/matter_tlv_internal.h"
 #include <stdlib.h>
@@ -240,7 +241,8 @@ bool matter_store_source_valid(const Matter_Store_Source_T* d) {
         }
         for(unsigned j=0;j<a->count;++j) {
             const Matter_Acl_Entry_T* e=&a->entries[j];
-            if((e->privilege!=1 && e->privilege!=3 && e->privilege!=4 && e->privilege!=5) || (e->auth_mode!=2 && e->auth_mode!=3) ||
+            if((e->privilege!=1 && e->privilege!=3 && e->privilege!=4 && e->privilege!=5 &&
+                !(MATTER_CSA_COMPAT_PROXY_VIEW && e->privilege==2)) || (e->auth_mode!=2 && e->auth_mode!=3) ||
                 (e->auth_mode==3 && e->privilege==5) || e->subject_count>4 || e->target_count>3 ||
                 (e->subjects_null && e->subject_count) || (e->targets_null && e->target_count)) return false;
             for(unsigned k=0;k<e->subject_count;++k) if(!acl_subject(e->subjects[k],e->auth_mode)) return false;

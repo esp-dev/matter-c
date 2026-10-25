@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "matter_compat.h"
 #include <stdlib.h>
 #include <string.h>
 #include "clusters/matter_acl.h"
@@ -189,6 +190,7 @@ static void invalid_entries(void) {
     };
     unsigned stores=f->stores; uint32_t version=f->view.version;
     for(size_t i=0;i<sizeof(bad)/sizeof(*bad);++i) for(unsigned replace=0;replace<2;++replace) {
+        if(MATTER_CSA_COMPAT_PROXY_VIEW && bad[i].privilege==2) continue;
         w->size=0;
         if(replace) { aw_open(w,0x16,-1); aw_entry(w,101,5,0); }
         aw_entry_ex(w,bad[i].subject,bad[i].privilege,bad[i].mode,1,0,0);
@@ -349,6 +351,34 @@ static void acl_events(void) {
     A(matter_acl_delete(f->acl)==MATTER_OK && matter_events_delete(f->log)==MATTER_OK); free(f);
     puts("PASS ACL events: literal payload, CASE/PASE subjects, Added/Changed/Removed/equal-REPLACE, fabric isolation/purge, atomic store/reservation/capacity errors");
 }
+static void proxy_view_compatibility(void) {
+    Fixture* f=calloc(1,sizeof(*f)); A(f);
+    f->view.fabrics[0].index=1; f->view.fabrics[1].index=2;
+    Matter_Acl_Port_T ap={f,view,store}; f->acl=matter_acl_new(&ap); A(f->acl);
+    AclWire* w=&f->wire; aw_list(w,false);
+    A(!matter_acl_write(f->acl,1,MATTER_IM_LIST_REPLACE,w->data,w->size));
+    w->size=0; aw_entry_ex(w,102,2,2,1,1,1);
+    unsigned before=f->stores;
+    A(matter_acl_write(f->acl,1,MATTER_IM_LIST_ADD,w->data,w->size)==
+        (MATTER_CSA_COMPAT_PROXY_VIEW?MATTER_IM_SUCCESS:MATTER_IM_CONSTRAINT_ERROR));
+    A(f->stores==before+(MATTER_CSA_COMPAT_PROXY_VIEW?1u:0u));
+    /* Also model a persisted legacy ACL loaded by a strict image. Only the
+     * compatibility image may grant View; both must deny higher privileges. */
+    f->view.fabrics[0].count=2;
+    f->view.fabrics[0].entries[1]=(Matter_Acl_Entry_T){.privilege=2,.auth_mode=2,
+        .subjects={102},.subject_count=1,.targets={{.present=3,.endpoint=0,.cluster=0x28}},.target_count=1};
+    Matter_Im_Path_T basic={0,0x28,2},other={1,0x28,2},acl={0,0x1f,0};
+    A(matter_acl_authorize(f->acl,1,102,NULL,0,&basic,MATTER_IM_VIEW,NULL)==!!MATTER_CSA_COMPAT_PROXY_VIEW);
+    A(!matter_acl_authorize(f->acl,1,102,NULL,0,&basic,MATTER_IM_OPERATE,NULL));
+    A(!matter_acl_authorize(f->acl,1,102,NULL,0,&basic,MATTER_IM_MANAGE,NULL));
+    A(!matter_acl_authorize(f->acl,1,102,NULL,0,&basic,MATTER_IM_ADMINISTER,NULL));
+    A(!matter_acl_authorize(f->acl,1,102,NULL,0,&other,MATTER_IM_VIEW,NULL));
+    A(!matter_acl_authorize(f->acl,1,102,NULL,0,&acl,MATTER_IM_VIEW,NULL));
+    A(!matter_acl_authorize(f->acl,2,102,NULL,0,&basic,MATTER_IM_VIEW,NULL));
+    A(!matter_acl_authorize(f->acl,1,103,NULL,0,&basic,MATTER_IM_VIEW,NULL));
+    A(matter_acl_authorize(f->acl,1,101,NULL,0,&acl,MATTER_IM_ADMINISTER,NULL));
+    A(matter_acl_delete(f->acl)==MATTER_OK); free(f);
+}
 int main(void) {
     Fixture* f=calloc(1,sizeof(*f)); A(f); f->view.version=17;
     for(unsigned i=0;i<5;++i) f->view.fabrics[i].index=(uint8_t)(i+1);
@@ -394,6 +424,7 @@ int main(void) {
     /* Error paths leave count, version and all grants unchanged. */
     unsigned before=f->stores; uint32_t version=f->view.version;
     for(unsigned bad=0;bad<9;++bad) {
+        if(MATTER_CSA_COMPAT_PROXY_VIEW && bad==0) continue;
         w->size=0; aw_entry_ex(w,bad==3?0:bad==4?UINT64_C(0xfffffffd00010000):105,
             bad==0?2:bad==2?5:1,bad==1?1:bad==2?3:2,bad==5?5:1,bad==6?4:bad>=7?1:0,bad==7?3:bad==8?4:1);
         uint8_t status=matter_acl_write(f->acl,1,MATTER_IM_LIST_ADD,w->data,w->size);
@@ -424,7 +455,7 @@ int main(void) {
     A(f->view.fabrics[1].count==4);
     write_identity(f);
     A(matter_acl_delete(f->acl)==MATTER_OK); free(f);
-    acl_events(); target_ids(); legacy_acl(); invalid_entries(); invalid_group_write();
+    acl_events(); target_ids(); legacy_acl(); invalid_entries(); invalid_group_write(); proxy_view_compatibility();
 #ifdef MATTER_TEST_ALLOC
     A(!live && !live_bytes); encoding_storage();
 #endif

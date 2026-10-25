@@ -1,4 +1,5 @@
 #include "matter_runtime.h"
+#include "matter_compat.h"
 #include "../clusters/matter_time_sync.h"
 #include "../storage/matter_store_tlv.h"
 #include "matter_store_host.h"
@@ -121,7 +122,8 @@ static bool contains(void* u,uint16_t ep,uint32_t type) {
     return matter_root_has_device_type(((Matter_Runtime_T)u)->root,ep,type);
 }
 static uint8_t authorize(void* u,Matter_Exchange_Session_T token,const Matter_Im_Path_T* path,Matter_Im_Privilege_T privilege) {
-    Matter_Runtime_T s=u; Matter_Secure_T secure=matter_dispatch_session(s->dispatch,token); if(!secure) return MATTER_IM_UNSUPPORTED_ACCESS;
+    Matter_Runtime_T s=u; Matter_Secure_T secure=matter_dispatch_session(s->dispatch,token);
+    if(!secure) return matter_dispatch_revoke_reply_authorized(s->dispatch,token,path)?MATTER_IM_SUCCESS:MATTER_IM_UNSUPPORTED_ACCESS;
     Matter_Secure_Identity_T id;
     /* A completed PASE was admitted by the window. Expiry prevents NEW attempts;
      * explicit revoke/Complete/rollback gates its incarnation in the dispatcher. */
@@ -205,6 +207,9 @@ static Matter_Result_T admin_advertise(void* u,bool open,uint16_t discriminator)
 static Matter_Result_T admin_revoke(void* u) {
     Matter_Runtime_T s=u; s->enhanced=false;
     Matter_Result_T r=matter_dispatch_retire(s->dispatch,false);
+    /* Keep rollback behind the final reply's bounded local send. Dispatcher
+     * admission is already closed; this does not authorize another request. */
+    if(MATTER_CSA_COMPAT_REVOKE_REPLY && r==MATTER_PENDING) return r;
     Matter_Root_Fail_Safe_State_T state; (void)matter_root_fail_safe_state(s->root,&state);
     if(state!=MATTER_ROOT_FAIL_SAFE_IDLE) { (void)matter_root_expire(s->root); return MATTER_PENDING; }
     return r;

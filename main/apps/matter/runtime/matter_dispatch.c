@@ -1,4 +1,6 @@
 #include "matter_dispatch.h"
+#include "matter_compat.h"
+#include "clusters/matter_admin_commissioning.h"
 #include "matter_host_limits.h"
 #include "transport/matter_unsecured_rx.h"
 #include "transport/matter_unsecured_prepare.h"
@@ -46,7 +48,8 @@ typedef struct Transaction {
     Connection* slot; /* Reserved before successful handshake response, released on every exit. */
     bool busy_reply; uint64_t busy_deadline;
     bool pending,notified,acknowledged,sent,final,closing,operational;
-    bool outbound,expiry_reply; /* Only the Invoke which synchronously expired fail-safe. */
+    bool outbound,expiry_reply; /* Causal expiry reply, or opt-in PASE Revoke reply. */
+    bool revoke_reply_waiting; /* TimedRequest's earlier send is NOT the Invoke reply. */
     bool im_packet,im_counted,sub_response,sub_established;
 } Transaction;
 struct Matter_Dispatch {
@@ -68,6 +71,9 @@ struct Matter_Dispatch {
     bool completion; Matter_Operation_Result_T outcome;
     bool control; Transaction* control_transaction; /* Non-MRP Busy/CloseSession completion. */
     Transaction* sending_message; /* Pinned by pending MRP send until completion. */
+#if MATTER_CSA_COMPAT_REVOKE_REPLY
+    Transaction* invoking; /* Synchronous scope of the accepted Invoke poll only. */
+#endif
     uint32_t im_sent,subscriptions_established;
     struct {
         uint64_t serial,id,node,resolve,deadline,revision; uint8_t fabric;
@@ -775,6 +781,10 @@ static bool handoff(Transaction* t) {
     }
     c->channel=matter_secure_channel_new(c->secure,c->token,&r->path);
     if(!c->channel) { (void)matter_secure_close(c->secure); (void)matter_secure_delete(c->secure); clear_connection(c); return false; }
+    if(t->pase && matter_root_pase_established(d->config.root,d->now)!=MATTER_OK) {
+        (void)matter_secure_channel_delete(c->channel);
+        (void)matter_secure_close(c->secure); (void)matter_secure_delete(c->secure); clear_connection(c); return false;
+    }
     if(t->outbound) d->outgoing.session=c->token;
     c->reserved=false; t->slot=NULL; return true;
 }
@@ -873,7 +883,14 @@ static void process_transaction(Transaction* t) {
         bool live=c && c->operational && d->config.fabric_live && d->config.fabric_live(d->config.user,c->fabric_index);
         Matter_Root_Fail_Safe_State_T before,after;
         bool armed=matter_root_fail_safe_state(d->config.root,&before)==MATTER_OK && before==MATTER_ROOT_FAIL_SAFE_ARMED;
-        r=matter_im_invoke_process(t->invoke,d->now); (void)matter_im_invoke_output(t->invoke,&out);
+#if MATTER_CSA_COMPAT_REVOKE_REPLY
+        d->invoking=t;
+#endif
+        r=matter_im_invoke_process(t->invoke,d->now);
+#if MATTER_CSA_COMPAT_REVOKE_REPLY
+        d->invoking=NULL;
+#endif
+        (void)matter_im_invoke_output(t->invoke,&out);
         /* ArmFailSafe(0) expires synchronously, but cleanup runs at the next
          * owner process pass. Capture causality before cleanup retires PASE or
          * the pending fabric. An unrelated pending Invoke gets no exemption. */
@@ -940,6 +957,7 @@ static void process_transaction(Transaction* t) {
     r=matter_retransmission_sender_add(d->tx,&t->key,counter,t->packet,t->size,&t->message);
     if(r!=MATTER_OK) { t->closing=true; return; }
     t->pending=true; t->sent=false; t->final=out.opcode==0x40;
+    if(out.opcode==9) t->revoke_reply_waiting=false;
     t->im_packet=h.protocol_id==1; t->im_counted=false; t->sub_response=t->sub && out.opcode==4;
     if(t->pase) (void)matter_pase_sent(t->pase);
     if(t->read) (void)matter_im_read_sent(t->read);
@@ -952,7 +970,7 @@ static bool keep_expiry_reply(Matter_Dispatch_T d,Connection* c) {
         /* Core 11.10.7.2.2 clears the session context before rollback. Finish
          * the response's local UDP operation, not its peer ACK: a commissioner
          * can evict PASE immediately after reading ArmFailSafeResponse. */
-        if(t->sent && d->sending!=c) return false;
+        if(!t->revoke_reply_waiting && t->sent && d->sending!=c) return false;
         if(!c->removal_reply) {
             c->removal_reply=t->handle;
             c->removal_deadline=d->now>UINT64_MAX-30000?UINT64_MAX:d->now+30000;
@@ -961,9 +979,33 @@ static bool keep_expiry_reply(Matter_Dispatch_T d,Connection* c) {
     }
     return false;
 }
+bool matter_dispatch_revoke_reply_authorized(Matter_Dispatch_T d,Matter_Exchange_Session_T session,const Matter_Im_Path_T* path) {
+#if MATTER_CSA_COMPAT_REVOKE_REPLY
+    Transaction* t=d?d->invoking:NULL; Connection* c=d?connection(d,session):NULL;
+    return t && c && !c->operational && !c->retiring && c->removal_reply==t->handle &&
+        t->key.session==session && t->expiry_reply && !t->closing && !t->notified &&
+        d->now<c->removal_deadline && t->invoke && matter_im_invoke_state(t->invoke)==MATTER_IM_INVOKE_PENDING &&
+        !t->invoke_pase.pending_endpoint && t->invoke_pase.pending_cluster==MATTER_ADMIN_COMMISSIONING_CLUSTER &&
+        path && !path->endpoint && path->cluster==MATTER_ADMIN_COMMISSIONING_CLUSTER && path->attribute==2;
+#else
+    (void)d; (void)session; (void)path; return false;
+#endif
+}
 Matter_Result_T matter_dispatch_retire(Matter_Dispatch_T d,bool all) {
     if(!d) return MATTER_OK;
     bool pending=false;
+#if MATTER_CSA_COMPAT_REVOKE_REPLY
+    if(!all) for(Transaction* t=d->transactions;t;t=t->next) {
+        /* Revoke is the only asynchronous Administrator Commissioning command.
+         * The binding is populated only after access/schema checks and start.
+         * Never preserve an unrelated pending Invoke, or a CASE invocation. */
+        if(!t->operational && t->invoke && !t->closing &&
+            matter_im_invoke_state(t->invoke)==MATTER_IM_INVOKE_PENDING &&
+            !t->invoke_pase.pending_endpoint && t->invoke_pase.pending_cluster==MATTER_ADMIN_COMMISSIONING_CLUSTER && !t->expiry_reply) {
+            t->expiry_reply=true; t->revoke_reply_waiting=true;
+        }
+    }
+#endif
     if(!all) for(unsigned i=0;i<CONNECTIONS;++i) {
         Connection* c=&d->connections[i];
         if(c->token && !c->operational) (void)keep_expiry_reply(d,c);

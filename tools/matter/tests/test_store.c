@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "matter_compat.h"
 #include <stdlib.h>
 #include <string.h>
 #include "crypto/matter_crypto_mbedtls.h"
@@ -108,6 +109,19 @@ static void saturated_codec_checks(StoreTest* t) {
     t->data.eem=(Matter_Eem_Checkpoint_T){.generation=UINT64_MAX,.initialized=true,.raw_mwh={MATTER_EEM_LIMIT,MATTER_EEM_LIMIT},.total_mwh={MATTER_EEM_LIMIT,MATTER_EEM_LIMIT}};
     size_t n=0; OC_CHECK(encode_checked(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK && n<MATTER_STORE_BLOB_MAX);
     OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->previous)==MATTER_OK && t->previous.fabrics.view.count==5 && t->previous.fabrics.previous.index==1);
+    /* Full persistent image admission must match the cluster's opt-in legacy
+     * enum. No schema change: strict images fail closed on stored ProxyView. */
+    f->acl.fabrics[0].entries[0].privilege=2;
+    OC_CHECK(encode_checked(&t->data,t->copy,sizeof(t->copy),&n)==
+        (MATTER_CSA_COMPAT_PROXY_VIEW?MATTER_OK:MATTER_INVALID_ARGUMENT));
+    if(MATTER_CSA_COMPAT_PROXY_VIEW) {
+        OC_CHECK(matter_store_tlv_decode(t->copy,n,&t->previous)==MATTER_OK);
+        OC_CHECK(t->previous.fabrics.acl.fabrics[0].entries[0].privilege==2);
+    }
+    f->acl.fabrics[0].entries[0].privilege=6;
+    OC_CHECK(encode_checked(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_INVALID_ARGUMENT);
+    f->acl.fabrics[0].entries[0].privilege=5;
+    OC_CHECK(encode_checked(&t->data,t->copy,sizeof(t->copy),&n)==MATTER_OK);
     Matter_Store_Source_T source=matter_store_source(&t->data); uint8_t* encoded=NULL; size_t size=0;
 #ifdef MATTER_TEST_ALLOC
     size_t idle=live_bytes; peak_bytes=idle; max_request=0;

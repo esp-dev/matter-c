@@ -1,0 +1,1718 @@
+{
+  "schema": 1,
+  "stage": "CSA75_EXPLICIT_COMPATIBILITY",
+  "native_base": "56f9053e953dfd36f416ffe40130b3592d364c6d",
+  "profile": "legacy SDK/test compatibility, all exceptions enabled; separate from default strict campaign",
+  "compatibility_enabled_by_default": false,
+  "normative_repair_in_both_profiles": "Automatically arm initial60s fail-safe after successful PASE, before secure IM admission.",
+  "strict_campaign_reclassified": false,
+  "original_sdk_tests_modified": false,
+  "PICS_modified": false,
+  "reference_server_hosts_executed": false,
+  "physical_acceptance_executed": false,
+  "certification_claimed": false,
+  "comparison": "csa74-comparison.json",
+  "definition_values": {
+    "MATTER_CSA_COMPAT": 1,
+    "MATTER_CSA_COMPAT_PENDING_ROOT": 1,
+    "MATTER_CSA_COMPAT_PROXY_VIEW": 1,
+    "MATTER_CSA_COMPAT_REVOKE_REPLY": 1,
+    "MATTER_CSA_COMPAT_FAILSAFE_REARM": 1,
+    "MATTER_CSA_COMPAT_FAILSAFE_SECONDS": 20
+  },
+  "source_hash_encoding": "Exact worktree bytes exported and compiled, including their line endings; not canonical Git blob hashes.",
+  "changed_native_and_build_sha256": {
+    "CMakeLists.txt": "07057c3b6980782f276fcbef70fafeda732c2f4d20505a52de4b68d178dc51fc",
+    "cmake/sources.json": "e3127045b6af4ecef28358d06972ebba9c49545ebca53b063449761430c7c2a7",
+    "cmake/tests/CMakeLists.txt": "a27e6bc92e2b7463676ee8873ba270c42048286537a428ec6f06bd095e86e6c2",
+    "main/apps/matter/clusters/matter_acl.c": "7835953dd56d754ae65f00d250f2e25bf0e24337eea831ecbca3bda9b6d2dd90",
+    "main/apps/matter/clusters/matter_admin_commissioning.c": "aa669d098314deddfe993af01fb341ca7af255b0e2a1276f3091d03c1df6b2e0",
+    "main/apps/matter/clusters/matter_fabric.c": "c70963c6eeb19c3b12462f2abcbfab3f8a7b4a931f70c07d6eae03412c37cfc2",
+    "main/apps/matter/clusters/matter_root.c": "83131435f3f87c102122e4022fd962c849ebdac70c5821d56c701f0aca6848f4",
+    "main/apps/matter/clusters/matter_root.h": "16361d98b0087cb7701dc15283aa6de068fb647cc416765ee93821970f0b172d",
+    "main/apps/matter/runtime/matter_dispatch.c": "cdb8cde041fd98e3d0f2c862778df8a084a4e396ffeab6baa71524d55a40c518",
+    "main/apps/matter/runtime/matter_dispatch.h": "f51d6785072171a9ba7ef27597e29872baf0ff7db9c4e569c82acb8e9e1de20a",
+    "main/apps/matter/runtime/matter_fabric_host.c": "cde8c0d1ee2873f7357b5d995173a84902170aece9adcf6857c6cc7df038ed78",
+    "main/apps/matter/runtime/matter_runtime.c": "921b8fc8919b45cfcf011ce0a2024934b66e387e95614d1e90def807d55517ab",
+    "main/apps/matter/storage/matter_store_tlv.c": "033a9f83e9a622ecefe99bb56b50199f587f09482667471ca3577f2279f6100e",
+    "main/apps/matter/matter_compat.h": "d00a2d9aa901650d619c253ee5f70457ef54d45bd9c7f39af4b9f8528ca7ab15"
+  },
+  "changed_test_sha256": {
+    "tools/matter/tests/test_acl.c": "d9c03d07cb5601f298674363f3df3cefec109dd3e06b4b405d84ad003acf62f5",
+    "tools/matter/tests/test_admin_commissioning.h": "a007ab6787f360287c817ed440e59df8b9f39b6ca6ea876ae7a8b483f2c2406f",
+    "tools/matter/tests/test_commissioning.h": "1166e9ec87042e259ca7a7d83b11b83750d99f6a47a878e8c104b54966847008",
+    "tools/matter/tests/test_dispatch.c": "fa5f6a94727cdf1a25cc2cfaca7fc3c75120e15affc7356d29e2073b551d46f3",
+    "tools/matter/tests/test_fabric.c": "f31e8d58113baf3010ed64ba40acde96d89863283fc6ff4911df9ac59b18cb45",
+    "tools/matter/tests/test_fabric_encoding.c": "9fc890b7b3c8a55452c997603d6129daef84a6cbc48de41fb8714bd5dc46ac58",
+    "tools/matter/tests/test_store.c": "0d5a90035379ef582f69d22b74ad056f11a8b518ecd1fb4eb0a6939a75930014"
+  },
+  "final_images": [
+    {
+      "variant": "compat-normal",
+      "pair_checks": 6,
+      "node_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1"
+    },
+    {
+      "variant": "compat-sanitize",
+      "pair_checks": 6,
+      "node_sha256": "43c8be764ccf1e96be63c049675c75e94ba0fbe5938078578b9120c763243f86"
+    },
+    {
+      "variant": "strict-normal",
+      "pair_checks": 6,
+      "node_sha256": "e898c4918d7f5e9123331b1b1ebdf4804c5193538e34356b46f09ddbc4b09766"
+    }
+  ],
+  "final_original_test_confirmations": [
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 743,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 47
+      },
+      "source_path": "python_testing/scripts/sdk/TC_ACL_2_4.py",
+      "source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 23:07:38.149005",
+      "completed_at_utc": "2026-10-24 23:07:50.509634",
+      "raw_sha256": "fce580d7382e7aa0350f436b8718e0603cea08979ee53bda0129f3f9e57f6ca4",
+      "log_sha256": "454644ae234f81ff1b626639718841d55e70e01ffa92039aed1c1e8448136e7c",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 744,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 14
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_10.py",
+      "source_sha256": "a983dbfc42a8555f7923cec3adb9d99436c13717995fbf463329de433c8782cd",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 23:07:55.991546",
+      "completed_at_utc": "2026-10-24 23:08:33.753570",
+      "raw_sha256": "50113a844a1934d1b8ab36f4afc9624749be92fe1d5a04e4e1363fa72af23af1",
+      "log_sha256": "f590db44ded12bec46153f137f2707ec4d6a91e4f0e95db0adffb79585cbfda8",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 745,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 33
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_4.py",
+      "source_sha256": "a0cf0ff60fb45cd1a1e263eeae607ef4e3b353180785ee187c0d776c91630e76",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 23:08:39.243222",
+      "completed_at_utc": "2026-10-24 23:08:52.702559",
+      "raw_sha256": "b55f23aa5afe4ac0acc70aa233c512418b3d47318c83d9d342d0e7ec0fca364c",
+      "log_sha256": "f1aef4c4d38e67be3f48ad83dea4ad981f84f7ccdba4f12e6b41c907180bfe60",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 746,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 50
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CGEN_2_2.py",
+      "source_sha256": "6ba91d188800dc26f63089390fadbbc8f5c691ef7e17859a6fde2ce451c407c3",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 23:08:57.478547",
+      "completed_at_utc": "2026-10-24 23:10:06.218076",
+      "raw_sha256": "cda333397e880f30f355db3ea2f7d28fc3207eaebdf344230b5f7f422919c055",
+      "log_sha256": "c539a9928a308aebe5e2b1786667242fef8f13ab4dd6182c81568d486be58e97",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1",
+      "native_cleanup_clean": true
+    }
+  ],
+  "all_collected_original_runs": [
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 712,
+      "verdict": "FAIL",
+      "step_counts": {
+        "passed": 21,
+        "failed": 1,
+        "pending": 28
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CGEN_2_2.py",
+      "source_sha256": "6ba91d188800dc26f63089390fadbbc8f5c691ef7e17859a6fde2ce451c407c3",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 21:52:18.228154",
+      "completed_at_utc": "2026-10-24 21:52:32.533574",
+      "raw_sha256": "03f57cd3ff7c56f379af1ff28270634009f821e9c17e016ebf270d02df9914aa",
+      "log_sha256": "26250902109a17604adeb8d949255bafb9cfab8ed2d552f0ee018a24bbbad74e",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "58832d39b3b95c7e2548d43e3fc756fb1a9ec9a910f5da9a19509f308b8b0431",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 713,
+      "verdict": "FAIL",
+      "step_counts": {
+        "passed": 17,
+        "failed": 1,
+        "pending": 29
+      },
+      "source_path": "python_testing/scripts/sdk/TC_ACL_2_4.py",
+      "source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 21:52:37.960729",
+      "completed_at_utc": "2026-10-24 21:52:47.936983",
+      "raw_sha256": "656be9f462ce05c7bdf136723c07f23074f0666415ded201357e2e5934ad0d5c",
+      "log_sha256": "52350dd3b71476c5878ba01eaeb9e66f7646ce0729aa291d8a6afdc4df0eec56",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "58832d39b3b95c7e2548d43e3fc756fb1a9ec9a910f5da9a19509f308b8b0431",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 714,
+      "verdict": "FAIL",
+      "step_counts": {
+        "passed": 12,
+        "failed": 1,
+        "pending": 1
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_10.py",
+      "source_sha256": "a983dbfc42a8555f7923cec3adb9d99436c13717995fbf463329de433c8782cd",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 21:52:53.426037",
+      "completed_at_utc": "2026-10-24 21:53:30.828090",
+      "raw_sha256": "ab4f159bc0099b5072f405b184cb5e9d03de723bf9ee05e94b7f0dea3e790857",
+      "log_sha256": "5b77599d9da1d8366d34e87d5882c1b401347ea7222d325ac6357647a7b8185b",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "58832d39b3b95c7e2548d43e3fc756fb1a9ec9a910f5da9a19509f308b8b0431",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 715,
+      "verdict": "FAIL",
+      "step_counts": {
+        "passed": 32,
+        "failed": 1
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_4.py",
+      "source_sha256": "a0cf0ff60fb45cd1a1e263eeae607ef4e3b353180785ee187c0d776c91630e76",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 21:53:36.100712",
+      "completed_at_utc": "2026-10-24 21:53:59.497155",
+      "raw_sha256": "0fa9382eda9678cf2ff0fa66af63749f76fd8d20bf875cb959cf8b883f01c89d",
+      "log_sha256": "be9c5e7eb966232b2cd503b4ba2194fbc9fe0914c55e3477f6cf7e56aec32d34",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "58832d39b3b95c7e2548d43e3fc756fb1a9ec9a910f5da9a19509f308b8b0431",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 717,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 47
+      },
+      "source_path": "python_testing/scripts/sdk/TC_ACL_2_4.py",
+      "source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:11:05.259679",
+      "completed_at_utc": "2026-10-24 22:11:17.448411",
+      "raw_sha256": "36a8ea174ad0b19a6a4569d5c0c7f9e8b51f5b0c786783a17ba34ac4e4f3ae53",
+      "log_sha256": "4b9be8577ca0505c7f7cf80628a9824abd5ac2b33c8bb45bd4ce30783b5c3008",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "9f00d3ff3eeec7add3b6ccddec14f80f608ea71321d9ce6ec0f4552f6e3a134e",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 718,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 14
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_10.py",
+      "source_sha256": "a983dbfc42a8555f7923cec3adb9d99436c13717995fbf463329de433c8782cd",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:11:22.954271",
+      "completed_at_utc": "2026-10-24 22:12:00.075484",
+      "raw_sha256": "d4ae407bfab11a8fc4b55de6fe877760f14e895927c52afc0cda087239a74bc5",
+      "log_sha256": "a0f4c15bcac2788fc7b0dee3748b9683a71d74e377eebf0699d60b63b6aa9e4d",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "9f00d3ff3eeec7add3b6ccddec14f80f608ea71321d9ce6ec0f4552f6e3a134e",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 719,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 33
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_4.py",
+      "source_sha256": "a0cf0ff60fb45cd1a1e263eeae607ef4e3b353180785ee187c0d776c91630e76",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:12:05.420922",
+      "completed_at_utc": "2026-10-24 22:12:18.556922",
+      "raw_sha256": "73c632bbc94dc278d34b1c3e9306eb72ca6db36b29396e0ad733477b5d9a2d85",
+      "log_sha256": "c2bf60666b662c8486ca2ef474ed739b2b2d18f7033bd01abc0bec323ee52df3",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "9f00d3ff3eeec7add3b6ccddec14f80f608ea71321d9ce6ec0f4552f6e3a134e",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 720,
+      "verdict": "FAIL",
+      "step_counts": {
+        "passed": 39,
+        "failed": 1,
+        "pending": 10
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CGEN_2_2.py",
+      "source_sha256": "6ba91d188800dc26f63089390fadbbc8f5c691ef7e17859a6fde2ce451c407c3",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:12:23.022895",
+      "completed_at_utc": "2026-10-24 22:13:10.078261",
+      "raw_sha256": "b660b89e2ad053879bc0977440988f080ffd9dea2bed91b189040a59d65f3c6c",
+      "log_sha256": "de35ac7f297746bc3fb149910c55e012a6af937c3072de809b3b37fd2c3b55bd",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "9f00d3ff3eeec7add3b6ccddec14f80f608ea71321d9ce6ec0f4552f6e3a134e",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 721,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 50
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CGEN_2_2.py",
+      "source_sha256": "6ba91d188800dc26f63089390fadbbc8f5c691ef7e17859a6fde2ce451c407c3",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:17:22.140599",
+      "completed_at_utc": "2026-10-24 22:18:29.981288",
+      "raw_sha256": "77a68a0158099d0f210ac1d88832e0f997a2e381639486fa7495c81c3f1985aa",
+      "log_sha256": "2a30e70588475243807450557ed722cf36035f1acc05d4c8b2db8f8dda340c4e",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "a3b715dcba8e276da0789303d181aa1f693fbd11140b302073d6559318695c9e",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_ACL_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 722,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 5
+      },
+      "source_path": "python_testing/scripts/sdk/TC_ACL_2_2.py",
+      "source_sha256": "c097975d825fbbfc718305f6414df41ab9694bb9083e5a82aa578e367afc6f53",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:20:55.403130",
+      "completed_at_utc": "2026-10-24 22:21:04.905602",
+      "raw_sha256": "23c7881cb63480231b4be95d9a27385b2cb3ae1c787724e4b4322227e2891c02",
+      "log_sha256": "c7aedd6b8cccff48a6ef79248e757d35d0865bed889aad38f672bfe9ce4fd822",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_ACL_2_8",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 723,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 12,
+        "not_applicable": 1
+      },
+      "source_path": "python_testing/scripts/sdk/TC_ACL_2_8.py",
+      "source_sha256": "1cbf6a42aed9b6aa215787396fc68b63bc472b5954b617f5b8b5b8734f41a5ee",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:21:10.006585",
+      "completed_at_utc": "2026-10-24 22:21:34.296008",
+      "raw_sha256": "d02ead20b1d52661ec9d897846a159d0fdc0e0c66fee683771f955ab73eb5d17",
+      "log_sha256": "275fdfc512adfcbcfbe0d4e910faf7818569aadd5c68a6a9aa03f31d373f8e30",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_11",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 724,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 13,
+        "not_applicable": 4
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_11.py",
+      "source_sha256": "8ccdd5e46de7e65b54379748120a33a4c7db8a91bba2b58742192e5b0907319e",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:21:39.732909",
+      "completed_at_utc": "2026-10-24 22:21:54.633297",
+      "raw_sha256": "e1477dfff70488113ab457bf3acf3459c57de32fec18e9f897cf5bf6e0f6274b",
+      "log_sha256": "b9d9ffdee403ce0d835ded310afad9f1a28a34c1b87a484886ab37061933080d",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_15",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 725,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 23
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_15.py",
+      "source_sha256": "bd672394d374598084454fb3473d973d33bcee71ec7b54e13f237f563085ab9b",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:21:59.808360",
+      "completed_at_utc": "2026-10-24 22:22:37.162980",
+      "raw_sha256": "d5c896c5ebdc50ad505376ba61d784b40ef302b9416b645ff0797a093506443a",
+      "log_sha256": "ebb0d925ee799de8daf9f3f969f2e260f7b9b93b5ab2d205645a9da25a5f48f5",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_19",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 726,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 19
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_19.py",
+      "source_sha256": "e228385f4dcda374f82d1aa14983563d9e2f319e7a3f875066638cd1dd0307c0",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:22:41.464385",
+      "completed_at_utc": "2026-10-24 22:23:12.593963",
+      "raw_sha256": "d439a913a010738cdc87058314f23888659c4af38d008617bca286682fc49d13",
+      "log_sha256": "c90e2583b79f8fa3da58da62e5c136404c440cc5adfb5ae0f852c0a7ddc29206",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_22",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 727,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 12
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_22.py",
+      "source_sha256": "4c886aeeabf87b4fbc0491a57c348ce33d3a5ed3a414695b1e3fe02512492a9a",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:23:18.223679",
+      "completed_at_utc": "2026-10-24 22:23:28.203499",
+      "raw_sha256": "30bfd7b367c3e3c95dbbeab89a925ec7f88f57001616b7185851668dd2171807",
+      "log_sha256": "afdf9f29b2a41fc08592a4a4103b0e3dcb50f55f701539e7ef8879e33003ea91",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_25",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 728,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 35
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_25.py",
+      "source_sha256": "9277c12f82221fc608c9d5114b792fcb948d0ee7d672159a94881b1e1c022950",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:23:32.557714",
+      "completed_at_utc": "2026-10-24 22:23:53.491049",
+      "raw_sha256": "caa2f2f1755edf37d1df709baf2100251fbee87d5b1b0e02364e56861c156580",
+      "log_sha256": "7b2a45bc93c55b2ae840830acf17415742cc621504c9c4e32e70a5d7a2671a2a",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 729,
+      "verdict": "FAIL",
+      "step_counts": {
+        "passed": 13,
+        "failed": 1,
+        "pending": 3
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_3_4.py",
+      "source_sha256": "0b2dae1068f57c7e97417abb7b06c385061eab29cc2b2a176dbfbad41d3f0a43",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:23:58.196257",
+      "completed_at_utc": "2026-10-24 22:24:16.757356",
+      "raw_sha256": "e1845b9dd86555a8da849da6f39793bd39b66586d9a9aae742dad80372b865ca",
+      "log_sha256": "340167e4ec019c8f042e03fee40dd62ccd663932d2db5cb4a30b767a1670df63",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 730,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 19
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_5.py",
+      "source_sha256": "cd8a2e1fc1d6959f19fb5e2fad11688f2de5ad9726e1cab868f9732256af811e",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:24:21.187349",
+      "completed_at_utc": "2026-10-24 22:28:51.944205",
+      "raw_sha256": "32bcd55784b5fa148bbb0982a2ab1676e2574588902e11391590ecefc1bfa2bf",
+      "log_sha256": "18acbcf234a6b4bc574eae655568a4ef52f0074474f8f1547b06ea3461e2c302",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_9",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 731,
+      "verdict": "FAIL",
+      "step_counts": {
+        "passed": 5,
+        "failed": 1,
+        "pending": 2
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_9.py",
+      "source_sha256": "ad0d27f0e4d55a842ca05a237eeeeb08c4b125534c2539e24f000afc7c52a8b4",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:28:56.563101",
+      "completed_at_utc": "2026-10-24 22:29:12.722554",
+      "raw_sha256": "1a0a0e28853f770f57c5e934f0b6f142cd67fa36be60a9b416b91e74704906ff",
+      "log_sha256": "a94b987c63ace10b0b61bfd486881f01766691fd62ec8645a32a06eef216b3a3",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CGEN_2_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 732,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 10
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CGEN_2_1.py",
+      "source_sha256": "dad5119f0d8fb7c021f7ad30b1517d852f8e7e2028edfa85d1d2d0aaf893b703",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:29:18.719424",
+      "completed_at_utc": "2026-10-24 22:29:28.948617",
+      "raw_sha256": "f0ea7fee23cad24f37c1c530e34b8b40c95f35ceade19bbfe21927479cb50005",
+      "log_sha256": "d96198cc261d47ac7ab021c47ab725f202a68040b6935edfabd1a1cff6d71b88",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CGEN_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 733,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 3
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CGEN_2_4.py",
+      "source_sha256": "4b68f59796d76b03df1c22f508c16bab0268c2baef76445d7be18188e5c85efc",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:29:34.223773",
+      "completed_at_utc": "2026-10-24 22:30:14.051689",
+      "raw_sha256": "c8d04fcbaed07dc2a745f934b2189f77925ff40eff4f1f8ca6c36a74a9646a39",
+      "log_sha256": "d437fef6ecaedc3c2cbc23ff042aafc15ffb6e6e3e1bd0bd57e7344f15f1427e",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_1",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 734,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 3
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_1.py",
+      "source_sha256": "66cd49bb82bcd54b4942289306693d095a42f7021132bd00d0552fadf2e6debd",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:30:20.051741",
+      "completed_at_utc": "2026-10-24 22:31:01.636642",
+      "raw_sha256": "da9e381c92216f159d86eccb9e582a16532476efeacb2a1da27d6dcc39ecb7fa",
+      "log_sha256": "1ea4cab867de14097c68c258ce1e8988914459c75991c330b60bf63213043275",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 735,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 11
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_2.py",
+      "source_sha256": "b4cbbb00cdd1328eca051a74955f5ebab5b064eb3d730c0593bb2cb454d304b6",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:31:07.337183",
+      "completed_at_utc": "2026-10-24 22:31:22.864069",
+      "raw_sha256": "895eb47b2975de75ded119d2b11a0b6a8588766fe89cb29594c8b915ca577394",
+      "log_sha256": "cf8e0c32e721d0e40a8e0ebde7fdab7276e297b1501f68596baab50e83c40a54",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_5",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 736,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 22
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_5.py",
+      "source_sha256": "3db4d174b0d30af7a014997d0d39038192464c40fc4b96c16065229e55ced455",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:31:28.614271",
+      "completed_at_utc": "2026-10-24 22:31:42.327177",
+      "raw_sha256": "1c25dbfbadf17599815858cd746c84bc6227293d160dd0b1e6ed97590381a449",
+      "log_sha256": "cc528bed1e318f2105bea287cfaf5bf7601502d34d715ac126bfc1bcc919a067",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_8",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 737,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 31
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_8.py",
+      "source_sha256": "5caa3bfc67e3dbf3f4642fd33cd9355b5033396a668ba4bcacbc449122da4025",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:31:47.931130",
+      "completed_at_utc": "2026-10-24 22:32:16.487422",
+      "raw_sha256": "8fa942facfd267f2b24b84010f28504edcbf1b22bc83c621f47f31ccf987761f",
+      "log_sha256": "0ab914a5b6c4ff0279f0345d87a75561fc73f26f8281dd530dac86727ec7fc16",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 738,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 47
+      },
+      "source_path": "python_testing/scripts/sdk/TC_ACL_2_4.py",
+      "source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:32:22.169819",
+      "completed_at_utc": "2026-10-24 22:32:34.310828",
+      "raw_sha256": "ae5ad5c110b3d5bc017c449cfe61f84f584fa6d9ce7967eb193332afaeb61f8e",
+      "log_sha256": "d292d032d5e7398a39d4482b45b21ea4279fa517b48049dee5135cc8eccdad0c",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 739,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 14
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_10.py",
+      "source_sha256": "a983dbfc42a8555f7923cec3adb9d99436c13717995fbf463329de433c8782cd",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:32:40.093325",
+      "completed_at_utc": "2026-10-24 22:33:17.500341",
+      "raw_sha256": "b1774d2e16cd40a90d1bdee5f2a7bcb6732a011d43777f97f275a4e95f81d482",
+      "log_sha256": "7e02dabe8b5be9a07071085e804cedabeb65c48eba2bbb6554e9057f82cd48b6",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 740,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 33
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_4.py",
+      "source_sha256": "a0cf0ff60fb45cd1a1e263eeae607ef4e3b353180785ee187c0d776c91630e76",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:33:23.252333",
+      "completed_at_utc": "2026-10-24 22:33:36.961427",
+      "raw_sha256": "95c8beafa7d2f3fde0f03196b5e3fa5ca1c8121cf5b0eaed7840393e038ac017",
+      "log_sha256": "723d0b332297339f033939699da1b3a925fb5ebba08a480bb2d88937ba709242",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_3",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 741,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 17
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_3_4.py",
+      "source_sha256": "0b2dae1068f57c7e97417abb7b06c385061eab29cc2b2a176dbfbad41d3f0a43",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:43:01.841683",
+      "completed_at_utc": "2026-10-24 22:46:26.258511",
+      "raw_sha256": "707f658814256aee2759ccf6bc66c6fccf9939c5fce7a17107f675c89a64213c",
+      "log_sha256": "feefc9ed0f2096308bbecb53f9901fb66448002086d55be56f18a37b617388aa",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_9",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 742,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 8
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_9.py",
+      "source_sha256": "ad0d27f0e4d55a842ca05a237eeeeb08c4b125534c2539e24f000afc7c52a8b4",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 22:46:31.659485",
+      "completed_at_utc": "2026-10-24 22:46:57.625414",
+      "raw_sha256": "ea1dc55a918dd019779c98072211482eb820e33bee431bf1466cd2e9fb0e37ec",
+      "log_sha256": "669c6d5206aaa03693e8abea8a3a68296f0e211ed23bc2f1eb4ae626a2a9e718",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "7d95a5c0c0269cd4fdb211b0ff8873e77d809419a49d46f32c57264589c20ef6",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_ACL_2_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 743,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 47
+      },
+      "source_path": "python_testing/scripts/sdk/TC_ACL_2_4.py",
+      "source_sha256": "a360e04e847501edb6c299d9d53c0d9c1b7cc075811033cbcb71d801601ec87a",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 23:07:38.149005",
+      "completed_at_utc": "2026-10-24 23:07:50.509634",
+      "raw_sha256": "fce580d7382e7aa0350f436b8718e0603cea08979ee53bda0129f3f9e57f6ca4",
+      "log_sha256": "454644ae234f81ff1b626639718841d55e70e01ffa92039aed1c1e8448136e7c",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CADMIN_1_10",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 744,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 14
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CADMIN_1_10.py",
+      "source_sha256": "a983dbfc42a8555f7923cec3adb9d99436c13717995fbf463329de433c8782cd",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 23:07:55.991546",
+      "completed_at_utc": "2026-10-24 23:08:33.753570",
+      "raw_sha256": "50113a844a1934d1b8ab36f4afc9624749be92fe1d5a04e4e1363fa72af23af1",
+      "log_sha256": "f590db44ded12bec46153f137f2707ec4d6a91e4f0e95db0adffb79585cbfda8",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_OPCREDS_3_4",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 745,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 33
+      },
+      "source_path": "python_testing/scripts/sdk/TC_OPCREDS_3_4.py",
+      "source_sha256": "a0cf0ff60fb45cd1a1e263eeae607ef4e3b353180785ee187c0d776c91630e76",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 23:08:39.243222",
+      "completed_at_utc": "2026-10-24 23:08:52.702559",
+      "raw_sha256": "b55f23aa5afe4ac0acc70aa233c512418b3d47318c83d9d342d0e7ec0fca364c",
+      "log_sha256": "f1aef4c4d38e67be3f48ad83dea4ad981f84f7ccdba4f12e6b41c907180bfe60",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1",
+      "native_cleanup_clean": true
+    },
+    {
+      "case": "TC_CGEN_2_2",
+      "endpoint": 0,
+      "collection": "SDK Python Tests",
+      "run_id": 746,
+      "verdict": "PASS",
+      "step_counts": {
+        "passed": 50
+      },
+      "source_path": "python_testing/scripts/sdk/TC_CGEN_2_2.py",
+      "source_sha256": "6ba91d188800dc26f63089390fadbbc8f5c691ef7e17859a6fde2ce451c407c3",
+      "pics_sha256": "bf5469cb96f6ea195c70db1de32d922207f6e2c62065aa1dbaf3ec0418a19600",
+      "started_at_utc": "2026-10-24 23:08:57.478547",
+      "completed_at_utc": "2026-10-24 23:10:06.218076",
+      "raw_sha256": "cda333397e880f30f355db3ea2f7d28fc3207eaebdf344230b5f7f422919c055",
+      "log_sha256": "c539a9928a308aebe5e2b1786667242fef8f13ab4dd6182c81568d486be58e97",
+      "timeout": false,
+      "unexpected_prompt": false,
+      "binary_sha256": "35d75102d45e8180de9a732fcbf26008992db1c4caa06b41721dad021b3747f1",
+      "native_cleanup_clean": true
+    }
+  ],
+  "additional_preserved_attempt": {
+    "run_id": 716,
+    "case": "TC_CGEN_2_2",
+    "verdict": "FAIL",
+    "collection_failure": "Collector found duplicate title after test completed; raw result retained separately",
+    "result_sha256": "6e0c3eb36e1563695a9dec721c79b82a121159ea00a9109858925eb514869c34",
+    "log_sha256": "ee8f8211485c9da18729605220c037b6de8a8bdc03502650d5fa2f8103385758"
+  },
+  "regression_boundaries": {
+    "neighbor_sweep_runs": [
+      722,
+      723,
+      724,
+      725,
+      726,
+      727,
+      728,
+      729,
+      730,
+      731,
+      732,
+      733,
+      734,
+      735,
+      736,
+      737,
+      738,
+      739,
+      740
+    ],
+    "initial_counts": {
+      "PASS": 17,
+      "FAIL": 2
+    },
+    "unchanged_code_window_fixture_confirmations": [
+      741,
+      742
+    ],
+    "remaining_intermittent_failures_not_claimed_fixed": [
+      729,
+      731
+    ],
+    "final_delta": "Consumed staged root no longer duplicated after AddNOC; compile guard accepts duration65535; root data-version assertions. Five affected native tests and full two-instance scenario repeated after delta; broad109-test and six-case wire matrices belong to preceding image."
+  },
+  "native": {
+    "compiler": "13.3.0",
+    "cmake": "cmake version 3.28.3",
+    "logs": {
+      "probe-ctest.log": {
+        "sha256": "2f50645c818100d8298337db62d1dfb0e22e7288f042c5e016afc45eafbe551b",
+        "summary": [
+          "100% tests passed, 0 tests failed out of 5"
+        ]
+      },
+      "final-compat-sanitize-ctest.log": {
+        "sha256": "cdedd94fb407272dc1148896546d52455df5b711df9cc6d37c252e9ffd08285b",
+        "summary": [
+          "100% tests passed, 0 tests failed out of 5"
+        ]
+      },
+      "compat-normal-ctest.log": {
+        "sha256": "495da72b8d442e291cf3881263bf97df856ea310a7d8e7c63e15ddd0ccd2c5bc",
+        "summary": [
+          "100% tests passed, 0 tests failed out of 109"
+        ]
+      },
+      "compat-sanitize-ctest.log": {
+        "sha256": "0b303eb677eda54a6e1abac1b3e76a9c8764e8c009f96df1a7859687fbc0fb6b",
+        "summary": [
+          "100% tests passed, 0 tests failed out of 109"
+        ]
+      },
+      "strict-normal-ctest.log": {
+        "sha256": "919d69060983a21ce325286d827eb57748cf365a8fa0415d6b17dc810426d96d",
+        "summary": [
+          "100% tests passed, 0 tests failed out of 109"
+        ]
+      },
+      "final-compat-normal-ctest.log": {
+        "sha256": "819d761cccd5616e4d15d071bfcf3bb0b96799111e53f5cfc07282cfcce4640e",
+        "summary": [
+          "100% tests passed, 0 tests failed out of 5"
+        ]
+      },
+      "final-strict-normal-ctest.log": {
+        "sha256": "114a9a4279679a9a1fc08bdc368fceeef0d199ccc95451c66f4e5e46df093be4",
+        "summary": [
+          "100% tests passed, 0 tests failed out of 5"
+        ]
+      },
+      "probe-build.log": {
+        "sha256": "ff6bde74a52df02bceae113a1938156a2e7b13ae0b1c30613bb9b6e9de9d6316",
+        "summary": []
+      },
+      "final-compat-normal-build.log": {
+        "sha256": "c50641bb9ce828c7ef8ef05db56efac01a019d70caa88627a09165502250bafc",
+        "summary": []
+      },
+      "final-compat-sanitize-build.log": {
+        "sha256": "6d6f8cd6f8379b7fe8023ed4269d9108c8eeb3c691f1a848f7f464efb2fc5f68",
+        "summary": []
+      },
+      "compat-sanitize-build.log": {
+        "sha256": "6058e31bbff030e7ebaca69e399f209a226b46a8d0b4ca40e3e6ef8f4d7aa278",
+        "summary": []
+      },
+      "compat-normal-build.log": {
+        "sha256": "8415e1d33bf8b919e75b8b70cdceff8e08d6238bd586a24d02f04bcc3a2cec23",
+        "summary": []
+      },
+      "final-strict-normal-build.log": {
+        "sha256": "8206f88ba7392616ea7e4a78a12e2e966a1321fb7ab0bbe0b42f849b336a7765",
+        "summary": []
+      },
+      "strict-normal-build.log": {
+        "sha256": "3aec4dd35886dfc6d85c591ec2d67577105e6f01556acfd66ad6d75fceeea549",
+        "summary": []
+      },
+      "strict-normal-configure.log": {
+        "sha256": "b3e17d8022a00931f5c143c900f3f8a24a7ae110261ba62eec9a1da286e0dd94",
+        "summary": []
+      },
+      "compat-normal-configure.log": {
+        "sha256": "56b5de644fdfb35679ef4bfd88440e9011fec8bcd03ddc7eda2d43ca635c5175",
+        "summary": []
+      },
+      "compat-sanitize-configure.log": {
+        "sha256": "52f43632ed2edddc0082848b3f2beff3831a8ee46a61761bf7679a0d7dc255de",
+        "summary": []
+      }
+    },
+    "pairs": {
+      "pair-compat-normal": {
+        "checks": 6,
+        "result_sha256": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+        "stderr_empty": true,
+        "memcheck_clean": true
+      },
+      "pair-strict-normal": {
+        "checks": 6,
+        "result_sha256": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+        "stderr_empty": true,
+        "memcheck_clean": true
+      },
+      "pair-compat-sanitize": {
+        "checks": 6,
+        "result_sha256": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+        "stderr_empty": true,
+        "memcheck_clean": null
+      },
+      "final-pair-strict-normal": {
+        "checks": 6,
+        "result_sha256": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+        "stderr_empty": true,
+        "memcheck_clean": true
+      },
+      "final-pair-compat-sanitize": {
+        "checks": 6,
+        "result_sha256": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+        "stderr_empty": true,
+        "memcheck_clean": null
+      },
+      "final-pair-compat-normal": {
+        "checks": 6,
+        "result_sha256": "715af35b5fded765bb785f9644bad9d4f9982b3ddee8a10b5bee1fa949d85644",
+        "stderr_empty": true,
+        "memcheck_clean": true
+      }
+    },
+    "wire": {
+      "wire-compat-normal": [
+        {
+          "case": "before",
+          "pass_": true,
+          "elapsed_seconds": 85.651294081,
+          "subscription_snapshots": 30,
+          "full_reads": 15,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 17193,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 255808,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 0,
+            "unacknowledged": 0,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1100,
+            "wrong_role_acks": 0,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": null,
+          "diagnostic_peer": null
+        },
+        {
+          "case": "after",
+          "pass_": true,
+          "elapsed_seconds": 364.271355516,
+          "subscription_snapshots": 75,
+          "full_reads": 79,
+          "oom_cycles": 3,
+          "stats": {
+            "core_calls": 60214,
+            "core_failures": 3,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 255060,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 21,
+            "ack_after_completion": 3354,
+            "wrong_role_acks": 3,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": null,
+          "diagnostic_peer": null
+        },
+        {
+          "case": "single-original-before",
+          "pass_": true,
+          "elapsed_seconds": 138.71825962,
+          "subscription_snapshots": 45,
+          "full_reads": 30,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 27832,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 254412,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1720,
+            "wrong_role_acks": 4,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": {
+            "corrected": false,
+            "load": {
+              "currentSubscriptions": 14,
+              "currentSubscriptionsForFabric": 3,
+              "totalSubscriptionsEstablished": 30,
+              "totalInteractionModelMessagesSent": 997,
+              "totalInteractionModelMessagesReceived": 997
+            },
+            "stats": {
+              "core_calls": 16067,
+              "core_failures": 0,
+              "core_live": 355,
+              "core_bytes": 181558,
+              "core_peak": 254412,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1047,
+              "wrong_role_acks": 4,
+              "target_outcome": 2,
+              "target_attempts": 5
+            },
+            "case_reads": 15
+          },
+          "diagnostic_peer": {
+            "mode": "original",
+            "package": "@matter/protocol",
+            "version": "0.17.9",
+            "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+            "override": null
+          }
+        },
+        {
+          "case": "single-original-after",
+          "pass_": true,
+          "elapsed_seconds": 267.884628365,
+          "subscription_snapshots": 45,
+          "full_reads": 35,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 35247,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 254346,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 9,
+            "ack_after_completion": 1966,
+            "wrong_role_acks": 3,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": {
+            "corrected": false,
+            "load": {
+              "currentSubscriptions": 14,
+              "currentSubscriptionsForFabric": 3,
+              "totalSubscriptionsEstablished": 30,
+              "totalInteractionModelMessagesSent": 1063,
+              "totalInteractionModelMessagesReceived": 1063
+            },
+            "stats": {
+              "core_calls": 18122,
+              "core_failures": 0,
+              "core_live": 355,
+              "core_bytes": 181556,
+              "core_peak": 253950,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 7,
+              "ack_after_completion": 1106,
+              "wrong_role_acks": 3,
+              "target_outcome": 2,
+              "target_attempts": 5
+            },
+            "case_reads": 15
+          },
+          "diagnostic_peer": {
+            "mode": "original",
+            "package": "@matter/protocol",
+            "version": "0.17.9",
+            "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+            "override": null
+          }
+        },
+        {
+          "case": "single-corrected-before",
+          "pass_": true,
+          "elapsed_seconds": 160.74484221,
+          "subscription_snapshots": 45,
+          "full_reads": 30,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 28962,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 255842,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1757,
+            "wrong_role_acks": 0,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": {
+            "corrected": true,
+            "load": {
+              "currentSubscriptions": 15,
+              "currentSubscriptionsForFabric": 3,
+              "totalSubscriptionsEstablished": 30,
+              "totalInteractionModelMessagesSent": 1010,
+              "totalInteractionModelMessagesReceived": 1010
+            },
+            "stats": {
+              "core_calls": 16473,
+              "core_failures": 0,
+              "core_live": 372,
+              "core_bytes": 186265,
+              "core_peak": 254275,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1061,
+              "wrong_role_acks": 0,
+              "target_outcome": 1,
+              "target_attempts": 2
+            },
+            "case_reads": 15
+          },
+          "diagnostic_peer": {
+            "mode": "corrected",
+            "package": "@matter/protocol",
+            "version": "0.17.9",
+            "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+            "override": "fromInitialMessage: inverse incoming Initiator bit"
+          }
+        },
+        {
+          "case": "single-corrected-after",
+          "pass_": true,
+          "elapsed_seconds": 290.66670655,
+          "subscription_snapshots": 45,
+          "full_reads": 35,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 36514,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 254391,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 7,
+            "ack_after_completion": 2011,
+            "wrong_role_acks": 0,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": {
+            "corrected": true,
+            "load": {
+              "currentSubscriptions": 15,
+              "currentSubscriptionsForFabric": 3,
+              "totalSubscriptionsEstablished": 30,
+              "totalInteractionModelMessagesSent": 1123,
+              "totalInteractionModelMessagesReceived": 1121
+            },
+            "stats": {
+              "core_calls": 19985,
+              "core_failures": 0,
+              "core_live": 375,
+              "core_bytes": 186392,
+              "core_peak": 254391,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 4,
+              "ack_after_completion": 1170,
+              "wrong_role_acks": 0,
+              "target_outcome": 1,
+              "target_attempts": 2
+            },
+            "case_reads": 15
+          },
+          "diagnostic_peer": {
+            "mode": "corrected",
+            "package": "@matter/protocol",
+            "version": "0.17.9",
+            "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+            "override": "fromInitialMessage: inverse incoming Initiator bit"
+          }
+        }
+      ],
+      "wire-compat-sanitize": [
+        {
+          "case": "before",
+          "pass_": true,
+          "elapsed_seconds": 70.889906915,
+          "subscription_snapshots": 30,
+          "full_reads": 15,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 17327,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 254320,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 0,
+            "unacknowledged": 0,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1105,
+            "wrong_role_acks": 0,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": null,
+          "diagnostic_peer": null
+        },
+        {
+          "case": "after",
+          "pass_": true,
+          "elapsed_seconds": 315.576143262,
+          "subscription_snapshots": 75,
+          "full_reads": 80,
+          "oom_cycles": 3,
+          "stats": {
+            "core_calls": 57950,
+            "core_failures": 3,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 255310,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 5,
+            "ack_after_completion": 3296,
+            "wrong_role_acks": 3,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": null,
+          "diagnostic_peer": null
+        },
+        {
+          "case": "single-original-before",
+          "pass_": true,
+          "elapsed_seconds": 122.257460165,
+          "subscription_snapshots": 45,
+          "full_reads": 30,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 27523,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 254655,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 1,
+            "ack_after_completion": 1709,
+            "wrong_role_acks": 4,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": {
+            "corrected": false,
+            "load": {
+              "currentSubscriptions": 14,
+              "currentSubscriptionsForFabric": 3,
+              "totalSubscriptionsEstablished": 30,
+              "totalInteractionModelMessagesSent": 994,
+              "totalInteractionModelMessagesReceived": 994
+            },
+            "stats": {
+              "core_calls": 15919,
+              "core_failures": 0,
+              "core_live": 354,
+              "core_bytes": 181543,
+              "core_peak": 253032,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1045,
+              "wrong_role_acks": 4,
+              "target_outcome": 2,
+              "target_attempts": 5
+            },
+            "case_reads": 15
+          },
+          "diagnostic_peer": {
+            "mode": "original",
+            "package": "@matter/protocol",
+            "version": "0.17.9",
+            "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+            "override": null
+          }
+        },
+        {
+          "case": "single-original-after",
+          "pass_": true,
+          "elapsed_seconds": 189.308248834,
+          "subscription_snapshots": 45,
+          "full_reads": 35,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 31857,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 254696,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 1,
+            "ack_before_completion": 4,
+            "ack_after_completion": 1857,
+            "wrong_role_acks": 2,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": {
+            "corrected": false,
+            "load": {
+              "currentSubscriptions": 14,
+              "currentSubscriptionsForFabric": 3,
+              "totalSubscriptionsEstablished": 30,
+              "totalInteractionModelMessagesSent": 1044,
+              "totalInteractionModelMessagesReceived": 1040
+            },
+            "stats": {
+              "core_calls": 17535,
+              "core_failures": 0,
+              "core_live": 357,
+              "core_bytes": 181670,
+              "core_peak": 254696,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 1,
+              "ack_before_completion": 2,
+              "ack_after_completion": 1090,
+              "wrong_role_acks": 2,
+              "target_outcome": 2,
+              "target_attempts": 5
+            },
+            "case_reads": 15
+          },
+          "diagnostic_peer": {
+            "mode": "original",
+            "package": "@matter/protocol",
+            "version": "0.17.9",
+            "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+            "override": null
+          }
+        },
+        {
+          "case": "single-corrected-before",
+          "pass_": true,
+          "elapsed_seconds": 126.87162838900001,
+          "subscription_snapshots": 45,
+          "full_reads": 30,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 28020,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 254600,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 0,
+            "ack_after_completion": 1728,
+            "wrong_role_acks": 0,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": {
+            "corrected": true,
+            "load": {
+              "currentSubscriptions": 15,
+              "currentSubscriptionsForFabric": 3,
+              "totalSubscriptionsEstablished": 30,
+              "totalInteractionModelMessagesSent": 1002,
+              "totalInteractionModelMessagesReceived": 1002
+            },
+            "stats": {
+              "core_calls": 16163,
+              "core_failures": 0,
+              "core_live": 373,
+              "core_bytes": 186288,
+              "core_peak": 254354,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 0,
+              "ack_after_completion": 1053,
+              "wrong_role_acks": 0,
+              "target_outcome": 1,
+              "target_attempts": 2
+            },
+            "case_reads": 15
+          },
+          "diagnostic_peer": {
+            "mode": "corrected",
+            "package": "@matter/protocol",
+            "version": "0.17.9",
+            "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+            "override": "fromInitialMessage: inverse incoming Initiator bit"
+          }
+        },
+        {
+          "case": "single-corrected-after",
+          "pass_": true,
+          "elapsed_seconds": 192.37981672900003,
+          "subscription_snapshots": 45,
+          "full_reads": 35,
+          "oom_cycles": 0,
+          "stats": {
+            "core_calls": 32684,
+            "core_failures": 0,
+            "core_live": 0,
+            "core_bytes": 0,
+            "core_peak": 254626,
+            "held_completion": 0,
+            "rx_held": 1,
+            "rx_reordered": 1,
+            "ack_dropped": 1,
+            "unacknowledged": 0,
+            "ack_before_completion": 3,
+            "ack_after_completion": 1889,
+            "wrong_role_acks": 0,
+            "target_outcome": 0,
+            "target_attempts": 0
+          },
+          "single_ack": {
+            "corrected": true,
+            "load": {
+              "currentSubscriptions": 15,
+              "currentSubscriptionsForFabric": 3,
+              "totalSubscriptionsEstablished": 30,
+              "totalInteractionModelMessagesSent": 1053,
+              "totalInteractionModelMessagesReceived": 1052
+            },
+            "stats": {
+              "core_calls": 17838,
+              "core_failures": 0,
+              "core_live": 372,
+              "core_bytes": 186267,
+              "core_peak": 254626,
+              "held_completion": 0,
+              "rx_held": 1,
+              "rx_reordered": 1,
+              "ack_dropped": 1,
+              "unacknowledged": 0,
+              "ack_before_completion": 1,
+              "ack_after_completion": 1104,
+              "wrong_role_acks": 0,
+              "target_outcome": 1,
+              "target_attempts": 2
+            },
+            "case_reads": 15
+          },
+          "diagnostic_peer": {
+            "mode": "corrected",
+            "package": "@matter/protocol",
+            "version": "0.17.9",
+            "source_lf_sha256": "8fcefa35f0429d4a4f125613a66635c567e2cc3c7fb3c0a0085a87253ac95099",
+            "override": "fromInitialMessage: inverse incoming Initiator bit"
+          }
+        }
+      ]
+    },
+    "ctest_before_final_delta_per_variant": 109,
+    "ctest_affected_after_final_delta_per_variant": 5
+  },
+  "windows": {
+    "compiler": "GCC16.2.0 UCRT",
+    "final_focused_compatibility": "ACL, dispatch, Root, Store/StoreAlloc/RootAlloc; final Fabric/encoding/OOM/Root5/5 and data-version assertion1/1",
+    "final_focused_strict": "ACL/dispatch/Root/Store4/4; Fabric/encoding/OOM/Root5/5 and data-version assertion1/1",
+    "earlier_sandbox_UDP_timeouts": "Three UDP cases timed out inside restricted sandbox; all3 passed outside. Not hidden as protocol PASS inside sandbox."
+  },
+  "definition_checks": [
+    {
+      "selection": "default",
+      "result": "PASS"
+    },
+    {
+      "selection": "all",
+      "result": "PASS"
+    },
+    {
+      "selection": "PENDING_ROOT",
+      "result": "PASS"
+    },
+    {
+      "selection": "PROXY_VIEW",
+      "result": "PASS"
+    },
+    {
+      "selection": "REVOKE_REPLY",
+      "result": "PASS"
+    },
+    {
+      "selection": "FAILSAFE_REARM",
+      "result": "PASS"
+    },
+    {
+      "selection": "invalid-nonboolean",
+      "result": "REJECTED"
+    },
+    {
+      "selection": "duration-0",
+      "result": "REJECTED"
+    },
+    {
+      "selection": "duration-65536",
+      "result": "REJECTED"
+    },
+    {
+      "selection": "duration-1",
+      "result": "PASS"
+    },
+    {
+      "selection": "duration-65535",
+      "result": "PASS"
+    }
+  ],
+  "cleanup": {
+    "harness": {
+      "state": "idle"
+    },
+    "sources_unchanged": true,
+    "support_unchanged": true,
+    "temporary_PAA_removed": true,
+    "native_processes": []
+  },
+  "limitations": [
+    "Not a full rerun or closure of27 inherited failed identities.",
+    "Initial neighbor FAILs retained, both passed one bounded unchanged-code rerun with the longer fixture; no claim of timing root-cause removal.",
+    "No wire-server comparison across CHIP/rs-matter/matter.js.",
+    "No physical host/desktop pairing/ESP32 validation or resource-limit optimization.",
+    "ProxyView entries stored by compatibility build must be removed before loading state in strict build.",
+    "Short initial maximum CASE fail-safe budget intentionally differs from ordinary normative behavior."
+  ]
+}

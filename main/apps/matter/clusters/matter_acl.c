@@ -1,4 +1,5 @@
 #include "matter_acl.h"
+#include "../matter_compat.h"
 #include "../codec/matter_tlv_validate.h"
 #include "../codec/matter_tlv_internal.h"
 #include "../model/matter_cluster_internal.h"
@@ -34,7 +35,7 @@ static const Matter_Acl_Fabric_T* fabric(const Matter_Acl_View_T* v,uint8_t inde
     for(unsigned i=0;i<MATTER_ACL_FABRICS;++i) if(v->fabrics[i].index==index) return &v->fabrics[i];
     return NULL;
 }
-static bool privilege(uint64_t v) { return v==1 || v==3 || v==4 || v==5; }
+static bool privilege(uint64_t v) { return v==1 || v==3 || v==4 || v==5 || (MATTER_CSA_COMPAT_PROXY_VIEW && v==2); }
 static bool subject(uint64_t v,uint8_t mode) {
     if(mode==3) return v && v<=UINT16_MAX;
     return (v && v<=UINT64_C(0xffffffefffffffff)) ||
@@ -241,9 +242,15 @@ uint8_t matter_acl_read(Matter_Acl_T m,uint32_t attr,uint8_t index,bool filtered
 bool matter_acl_grants(const Matter_Acl_View_T* v,uint8_t index,uint64_t node,const uint32_t* cats,size_t count,
     const Matter_Im_Path_T* p,Matter_Im_Privilege_T required,const Matter_Acl_Device_Port_T* devices) {
     const Matter_Acl_Fabric_T* f=fabric(v,index);
-    if(!f || !node || node>UINT64_C(0xffffffefffffffff) || count>3 || (count && !cats) || !privilege(required)) return false;
+    if(!f || !node || node>UINT64_C(0xffffffefffffffff) || count>3 || (count && !cats) || !privilege(required) || required==2) return false;
     for(unsigned i=0;i<f->count;++i) {
-        const Matter_Acl_Entry_T* a=&f->entries[i]; if(a->auth_mode!=2 || a->privilege<required) continue;
+        const Matter_Acl_Entry_T* a=&f->entries[i];
+        /* Legacy ProxyView grants only View, retaining normal subject/target
+         * and fabric checks. Persisted legacy entries grant nothing in strict
+         * builds, even if a compatibility image previously stored them. */
+        uint8_t granted=a->privilege;
+        if(granted==2) granted=MATTER_CSA_COMPAT_PROXY_VIEW?MATTER_IM_VIEW:0;
+        if(a->auth_mode!=2 || granted<required) continue;
         bool matches=!a->subject_count;
         for(unsigned j=0;j<a->subject_count;++j) {
             uint64_t s=a->subjects[j]; if(s==node) matches=true;

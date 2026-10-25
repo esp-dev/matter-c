@@ -1,4 +1,5 @@
 #include "matter_admin_commissioning.h"
+#include "../matter_compat.h"
 #include "../model/matter_cluster_internal.h"
 #include "../codec/matter_tlv_validate.h"
 #include <stdlib.h>
@@ -14,6 +15,7 @@ typedef struct {
     Matter_Tlv_Validation_Workspace_T validation; Matter_Tlv_Tag_T tags[64];
     Matter_Tlv_Writer_T writer; uint8_t encoded[64];
 } Admin;
+enum { REVOKE_OPEN=1, REVOKE_CLOSED=2, REVOKE_WINDOW_MASK=3, REVOKE_PASE=4 };
 static void erase(void* p,size_t n) { volatile uint8_t* b=p; while(n--) *b++=0; }
 static void clear_window(Admin* m) {
     if(m->open) { m->open=false; m->unpublish=true; m->fabric=0; m->vendor=0; ++m->version; }
@@ -124,7 +126,10 @@ static Matter_Result_T start(void* u,const void* ref,const Matter_Cluster_Reques
     m->busy=true; *out=parse(m,cmd,d,n,candidate);
     if(out->status) goto done;
     if(cmd==2) {
-        *token=m->open?1:2; clear_window(m); m->revoking=true; m->revoke_error=MATTER_OK; ++m->waiters;
+        *token=m->open?REVOKE_OPEN:REVOKE_CLOSED; clear_window(m); m->revoking=true; m->revoke_error=MATTER_OK; ++m->waiters;
+        /* Bit 2 identifies only this PASE caller. CASE callers still wait for
+         * full revocation/rollback; the owner keeps driving cleanup either way. */
+        if(MATTER_CSA_COMPAT_REVOKE_REPLY && !q->is_case) *token|=REVOKE_PASE;
         erase(candidate,sizeof(*candidate)); m->busy=false; return MATTER_PENDING;
     }
     if(!q->is_case || !q->fabric || q->fabric==255) { *out=status(MATTER_IM_UNSUPPORTED_ACCESS); goto done; }
@@ -146,8 +151,9 @@ done:
 }
 static Matter_Result_T poll(void* u,const void* ref,uint64_t token,Matter_Tlv_Writer_T* w,Matter_Im_Command_Result_T* out) {
     (void)ref; (void)w; Admin* m=u;
-    if(m->revoke_error==MATTER_OK && (m->revoking || m->unpublish)) return MATTER_PENDING;
-    *out=m->revoke_error!=MATTER_OK?status(MATTER_IM_FAILURE):token==1?status(0):specific(4);
+    bool wait=m->revoking && !(MATTER_CSA_COMPAT_REVOKE_REPLY && (token&REVOKE_PASE));
+    if(m->revoke_error==MATTER_OK && (wait || m->unpublish)) return MATTER_PENDING;
+    *out=m->revoke_error!=MATTER_OK?status(MATTER_IM_FAILURE):(token&REVOKE_WINDOW_MASK)==REVOKE_OPEN?status(0):specific(4);
     --m->waiters; return MATTER_OK;
 }
 static void cancel(void* u,const void* ref,uint64_t token) { (void)ref; (void)token; --((Admin*)u)->waiters; }

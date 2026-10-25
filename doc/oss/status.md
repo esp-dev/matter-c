@@ -1,5 +1,29 @@
 # Development status
 
+**CSA75: explicit default-OFF SDK/test compatibility.**
+The owner authorized the exceptions identified by CSA74. Select
+`MATTER_CSA_COMPAT=ON` in a separate CMake build, or choose its four independent
+switches. Duplicate pending roots, legacy ProxyView and PASE Revoke reply draining
+follow the documented reference behavior; the shortened initial maximum CASE
+fail-safe budget is an explicit legacy-test exception, not a normative repair.
+The missing automatic initial 60s PASE fail-safe is repaired in both profiles.
+Four originally failed identities reach PASS with unchanged original tests/PICS.
+See [scope and validation](csa75-compatibility.md). Compatibility results do not
+overwrite the historical strict campaign or imply certification. Next: continue
+the remaining CSA74 differential queue, preserving separate build identities.
+
+**CSA74: initial source comparison of historical failures.**
+Four failed identities across ProxyView, identical root certificates and PASE
+RevokeCommissioning were compared with three clean pinned reference checkouts.
+All three predict an extra pending root entry; ProxyView authorization semantics
+differ, and revocation response/eviction ordering still needs wire evidence.
+Historical model extracts locate the ProxyView change at1.4.2; the supplied
+1.6.1 PDF confirms D conformance. Complete older Core PDFs were not reviewed.
+The [report](csa74-comparison.md) and [27-case queue](csa74-comparison.json) retain
+all outcomes and separate source predictions from unexecuted wire tests.
+No native code, PICS or paired state changed. Next: isolated byte-identical
+duplicate-root probe across all four stacks; Memory40 review remains separate.
+
 **CSA73: frozen Memory39 integration passes regression.**
 Forty committed changes through `6c9835a` merged without conflicts into candidate
 `ff3a732`, preserving CSA70..72. Memory40/later work and the independent source

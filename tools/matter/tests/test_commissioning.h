@@ -1,5 +1,6 @@
 #include "test_commissioning_fixture.h"
 #include "clusters/matter_root_internal.h"
+#include "matter_compat.h"
 static void gc_command(GcFixture* g,uint64_t now,uint32_t command,uint64_t value,const char* country,uint64_t breadcrumb,uint8_t code,bool status) {
     gc_request(g,command,value,country,breadcrumb);
     Matter_Result_T r=matter_root_process(g->f->root,now); ROOT_CHECK(r==MATTER_OK || r==MATTER_PENDING);
@@ -12,7 +13,62 @@ static void gc_command(GcFixture* g,uint64_t now,uint32_t command,uint64_t value
     gc_reply(out.data,out.size,command,code,status);
     ROOT_CHECK(matter_im_invoke_sent_at(im,now)==MATTER_OK && matter_im_invoke_confirm(im,now)==MATTER_OK && matter_im_invoke_delete(im)==MATTER_OK);
 }
+static void pase_initial_fail_safe(void) {
+    GcFixture* g=gc_fixture(); g->config.cumulative_seconds=900; gc_open(g,100);
+    Matter_Root_Fail_Safe_State_T state; uint64_t deadline;
+    g->fail_begin=true;
+    ROOT_CHECK(matter_root_pase_established(g->f->root,200)==MATTER_PORT_ERROR);
+    ROOT_CHECK(!g->marker && !matter_root_fail_safe_state(g->f->root,&state) && state==MATTER_ROOT_FAIL_SAFE_IDLE);
+    g->fail_begin=false;
+    ROOT_CHECK(matter_root_pase_established(g->f->root,200)==MATTER_OK && g->marker && g->begins==2);
+    ROOT_CHECK(!matter_root_deadline(g->f->root,&deadline) && deadline==60200);
+    ROOT_CHECK(matter_root_pase_established(g->f->root,201)==MATTER_INVALID_STATE && g->begins==2);
+    ROOT_CHECK(matter_root_pase_established(g->f->root,199)==MATTER_INVALID_ARGUMENT);
+    ROOT_CHECK(matter_root_process(g->f->root,60199)==MATTER_PENDING && !g->cleanups);
+    g->pending_cleanup=true;
+    ROOT_CHECK(matter_root_process(g->f->root,60200)==MATTER_PENDING && g->marker);
+    ROOT_CHECK(matter_root_pase_established(g->f->root,60200)==MATTER_INVALID_STATE);
+    g->pending_cleanup=false;
+    ROOT_CHECK(matter_root_process(g->f->root,60200)==MATTER_OK && !g->marker);
+    gc_release(g,60200);
+    g=gc_fixture(); g->config.cumulative_seconds=900; gc_open(g,UINT64_MAX-1000);
+    ROOT_CHECK(!matter_root_pase_established(g->f->root,UINT64_MAX-1000));
+    ROOT_CHECK(!matter_root_deadline(g->f->root,&deadline) && deadline==UINT64_MAX);
+    gc_release(g,UINT64_MAX);
+}
+static void case_cumulative_rearm(void) {
+    GcFixture* g=gc_fixture(); g->config.cumulative_seconds=900; gc_open(g,0);
+    static const uint8_t first[]={0x15,0x24,0,20,0x24,1,0,0x18};
+    static const uint8_t rearm[]={0x15,0x25,0,0x84,3,0x24,1,0,0x18};
+    uint8_t body[16]; Matter_Tlv_Writer_T writer; Matter_Im_Command_Result_T result; uint64_t token,deadline;
+    Matter_Cluster_Request_T request={.session=g->f->session,.fabric=1,.is_case=true};
+    const Matter_Im_Command_Path_T path={0,0x30,0};
+    ROOT_CHECK(!matter_tlv_writer_init(&writer,body,sizeof(body),2));
+    ROOT_CHECK(!matter_root_cluster_start(g->f->root,&path,&request,first,sizeof(first),&writer,&result,&token) && !result.status && !token);
+    ROOT_CHECK(matter_root_process(g->f->root,10000)==MATTER_PENDING);
+    ROOT_CHECK(!matter_tlv_writer_init(&writer,body,sizeof(body),2));
+    ROOT_CHECK(!matter_root_cluster_start(g->f->root,&path,&request,rearm,sizeof(rearm),&writer,&result,&token) && !result.status && !token);
+    ROOT_CHECK(!matter_root_deadline(g->f->root,&deadline));
+    ROOT_CHECK(deadline==UINT64_C(900000)); /* Short initial arms still extend. */
+    ROOT_CHECK(g->begins==1); gc_release(g,10000);
+    for(unsigned is_case=0;is_case<2;++is_case) {
+        g=gc_fixture(); g->config.cumulative_seconds=900; gc_open(g,0);
+        uint64_t at=MATTER_CSA_COMPAT_FAILSAFE_SECONDS>10?10000:0;
+        request.is_case=is_case!=0; request.fabric=is_case?1:0;
+        ROOT_CHECK(!matter_tlv_writer_init(&writer,body,sizeof(body),2));
+        ROOT_CHECK(!matter_root_cluster_start(g->f->root,&path,&request,rearm,sizeof(rearm),&writer,&result,&token) && !result.status);
+        ROOT_CHECK(matter_root_process(g->f->root,at)==MATTER_PENDING);
+        ROOT_CHECK(!matter_tlv_writer_init(&writer,body,sizeof(body),2));
+        ROOT_CHECK(!matter_root_cluster_start(g->f->root,&path,&request,rearm,sizeof(rearm),&writer,&result,&token) && !result.status);
+        ROOT_CHECK(!matter_root_deadline(g->f->root,&deadline));
+        ROOT_CHECK(deadline==(MATTER_CSA_COMPAT_FAILSAFE_REARM && is_case && MATTER_CSA_COMPAT_FAILSAFE_SECONDS<900?
+            (uint64_t)MATTER_CSA_COMPAT_FAILSAFE_SECONDS*1000:UINT64_C(900000)));
+        ROOT_CHECK(g->begins==1); gc_release(g,at);
+    }
+}
 static void commissioning_tests(void) {
+    pase_initial_fail_safe();
+    case_cumulative_rearm();
     for(unsigned mode=0;mode<5;++mode) {
         GcFixture* bad=gc_fixture(); Matter_Root_Port_T rp=root_port(bad->f);
         Matter_Root_Commissioning_Port_T cp={bad,gc_begin,gc_cleanup,gc_regulatory,NULL};

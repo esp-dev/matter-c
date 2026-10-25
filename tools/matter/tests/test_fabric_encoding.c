@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "clusters/matter_fabric.h"
+#include "matter_compat.h"
 #define CHECK(c) do { if(!(c)) { fprintf(stderr,"Fabric encoding:%d: %s\n",__LINE__,#c); abort(); } } while(0)
 #ifdef MATTER_TEST_ALLOC
 static void before_free(void*,size_t);
@@ -122,9 +123,12 @@ static void lists(Fixture* f) {
     f->view.root_ready=true; f->view.root_size=400; memset(f->view.root,0x66,400);
     Matter_Im_Value_T out=read_value(f,4,0,true); CHECK(out.size==2420); /* Six 400-byte roots, including pending. */
     memcpy(f->view.root,f->view.records[0].root,400);
-    out=read_value(f,4,0,true); CHECK(out.size==2017); /* Pending duplicate only is omitted. */
+    out=read_value(f,4,0,true); CHECK(out.size==(MATTER_CSA_COMPAT_PENDING_ROOT?2420u:2017u)); /* Optional extra pending entry. */
     memcpy(f->view.records[1].root,f->view.records[0].root,400);
-    out=read_value(f,4,0,true); CHECK(out.size==2017); /* Installed duplicate stays visible. */
+    out=read_value(f,4,0,true); CHECK(out.size==(MATTER_CSA_COMPAT_PENDING_ROOT?2420u:2017u)); /* Installed duplicate stays visible. */
+    f->view.added=true;
+    out=read_value(f,4,0,true); CHECK(out.size==2017); /* Pending root consumed by AddNOC. */
+    f->view.added=false;
 }
 static void signing(Fixture* f) {
     for(unsigned mode=0;mode<4;++mode) {

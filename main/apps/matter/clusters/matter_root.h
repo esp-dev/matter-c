@@ -177,6 +177,10 @@ Matter_Result_T matter_root_process(Matter_Root_T, uint64_t now_ms);
 Matter_Result_T matter_root_deadline(Matter_Root_T, uint64_t* deadline_ms);
 Matter_Result_T matter_root_expire(Matter_Root_T);
 Matter_Result_T matter_root_fail_safe_state(Matter_Root_T, Matter_Root_Fail_Safe_State_T*);
+/* Authenticated PASE handoff only: arm the initial 60s fail-safe and journal
+ * before exposing the session to IM. Refuse an already armed/cleaning context;
+ * a failed begin leaves it idle. Roots without GC are unaffected. */
+Matter_Result_T matter_root_pase_established(Matter_Root_T, uint64_t now_ms);
 /* Optional Wi-Fi model, borrowed until Root and all its handlers are destroyed.
  * Attach ONCE before publishing topology, to an idle concurrent GC instance.
  * Application GC begin/cleanup MUST checkpoint/rollback this SAME Wi-Fi model;

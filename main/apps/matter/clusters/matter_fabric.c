@@ -1,4 +1,5 @@
 #include "matter_fabric.h"
+#include "../matter_compat.h"
 #include "../codec/matter_tlv_internal.h"
 #include <stdlib.h>
 #include <string.h>
@@ -225,7 +226,7 @@ static bool encode(Matter_Fabric_T m,const Matter_Fabric_View_T* v,uint32_t attr
         if(attr==1 && f->vvs_size && !B(6,f->vvs,f->vvs_size)) return false;
         if(!P(MATTER_TLV_UNSIGNED,254,f->index) || !P(MATTER_TLV_END,-1,0)) return false;
     }
-    if(attr==4 && v->root_ready && !root_seen && !B(-1,v->root,v->root_size)) return false;
+    if(attr==4 && v->root_ready && (!root_seen || (MATTER_CSA_COMPAT_PENDING_ROOT && !v->added)) && !B(-1,v->root,v->root_size)) return false;
     return P(MATTER_TLV_END,-1,0);
 }
 uint8_t matter_fabric_read_index(Matter_Fabric_T m,uint32_t attr,uint8_t accessing,bool filtered,Matter_Im_Value_T* out) {

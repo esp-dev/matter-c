@@ -1,4 +1,5 @@
 #include "matter_root_internal.h"
+#include "../matter_compat.h"
 #include "../codec/matter_tlv_writer.h"
 #include "../codec/matter_tlv_internal.h"
 #include "../model/matter_cluster_internal.h"
@@ -404,6 +405,20 @@ static uint64_t deadline_after(uint64_t now,uint16_t seconds) {
 Matter_Result_T matter_root_fail_safe_state(Matter_Root_T m,Matter_Root_Fail_Safe_State_T* state) {
     if(!m || !state || !m->commissioning) return MATTER_INVALID_ARGUMENT;
     *state=m->fail_safe; return MATTER_OK;
+}
+Matter_Result_T matter_root_pase_established(Matter_Root_T m,uint64_t now) {
+    enum { INITIAL_PASE_FAIL_SAFE_SECONDS=60 };
+    if(!m) return MATTER_INVALID_ARGUMENT;
+    if(!m->commissioning) return MATTER_OK;
+    if(m->busy) return MATTER_BUSY;
+    if(now<m->now) return MATTER_INVALID_ARGUMENT;
+    if(m->fail_safe!=MATTER_ROOT_FAIL_SAFE_IDLE) return MATTER_INVALID_STATE;
+    m->busy=true; Matter_Result_T r=m->gc_port.begin(m->gc_port.user); m->busy=false;
+    if(r!=MATTER_OK) return r;
+    m->now=now; m->armed_fabric=0;
+    m->expiry=deadline_after(now,INITIAL_PASE_FAIL_SAFE_SECONDS);
+    m->cumulative=deadline_after(now,m->gc.cumulative_seconds);
+    m->fail_safe=MATTER_ROOT_FAIL_SAFE_ARMED; return MATTER_OK;
 }
 Matter_Result_T matter_root_expire(Matter_Root_T m) {
     if(!m || !m->commissioning) return MATTER_INVALID_ARGUMENT;
@@ -853,7 +868,16 @@ static Matter_Im_Command_Result_T gc_invoke(Matter_Root_T m,uint32_t command,con
             if(m->fail_safe==MATTER_ROOT_FAIL_SAFE_IDLE) {
                 m->busy=true; Matter_Result_T r=m->gc_port.begin(m->gc_port.user); m->busy=false;
                 if(r!=MATTER_OK) return (Matter_Im_Command_Result_T){.status=MATTER_IM_FAILURE};
-                m->cumulative=deadline_after(m->now,m->gc.cumulative_seconds); m->armed_fabric=q->is_case?q->fabric:0;
+                uint16_t cumulative=m->gc.cumulative_seconds;
+                /* Legacy TC_CGEN_2_2 initially arms CASE with the advertised
+                 * maximum, then substitutes a short PIXIT wait for that maximum
+                 * in its expiry assertion. Scope the opt-in shortened budget
+                 * to that initial arm. A prior short arm may still extend. */
+#if MATTER_CSA_COMPAT_FAILSAFE_REARM && MATTER_CSA_COMPAT_FAILSAFE_SECONDS < UINT16_MAX
+                if(q->is_case && m->args.seconds==cumulative &&
+                    MATTER_CSA_COMPAT_FAILSAFE_SECONDS<cumulative) cumulative=MATTER_CSA_COMPAT_FAILSAFE_SECONDS;
+#endif
+                m->cumulative=deadline_after(m->now,cumulative); m->armed_fabric=q->is_case?q->fabric:0;
             }
             m->expiry=deadline_after(m->now,m->args.seconds); m->fail_safe=MATTER_ROOT_FAIL_SAFE_ARMED;
         }
