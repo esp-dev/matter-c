@@ -27,7 +27,8 @@ static bool same_address(const Matter_Udp_Address_T* a, const Matter_Udp_Address
 Matter_Secure_Channel_T matter_secure_channel_new(Matter_Secure_T session,
 	Matter_Exchange_Session_T token, const Matter_Udp_Path_T* path) {
 	Matter_Secure_Info_T info;
-	if (!token || !path || !unicast(&path->local) || !unicast(&path->peer) ||
+	if (!token || !path || (path->transport == MATTER_TRANSPORT_BTP ? !path->interface_id :
+		(path->transport != MATTER_TRANSPORT_UDP || !unicast(&path->local) || !unicast(&path->peer))) ||
 		matter_secure_info(session,&info) != MATTER_OK || info.closing) return NULL;
 	Matter_Secure_Channel_T c = calloc(1,sizeof(*c));
 	if (!c) return NULL;
@@ -79,6 +80,8 @@ Matter_Result_T matter_secure_channel_prepare(Matter_Secure_Channel_T c,
 }
 static Matter_Result_T admit(void* user, const Matter_Secure_Received_T* m) {
 	Matter_Secure_Channel_T c=user;
+	if (c->datagram.path.transport == MATTER_TRANSPORT_BTP &&
+		(m->protocol.exchange_flags & (MATTER_PROTOCOL_ACK | MATTER_PROTOCOL_RELIABLE))) return MATTER_INVALID_ARGUMENT;
 	if (!m->protocol.vendor_id && !m->protocol.protocol_id && m->protocol.opcode == 0x40 && !m->duplicate) {
 		if (m->size < 8) return MATTER_INVALID_ARGUMENT;
 		/* Appendix D: GeneralCode SUCCESS, ProtocolId SECURE_CHANNEL, code 3.
@@ -104,7 +107,8 @@ Matter_Result_T matter_secure_channel_receive(Matter_Secure_Channel_T c, Matter_
 	Matter_Result_T r=check(c); if (r != MATTER_OK) return r;
 	if (!rx || !d || now < received) return MATTER_INVALID_ARGUMENT;
 	if (c->closed) return MATTER_INVALID_STATE;
-	if (!same_address(&d->path.local,&c->datagram.path.local) ||
+	if (d->path.transport != c->datagram.path.transport ||
+		!same_address(&d->path.local,&c->datagram.path.local) ||
 		!same_address(&d->path.peer,&c->datagram.path.peer) || d->path.interface_id != c->datagram.path.interface_id)
 		return MATTER_INVALID_ARGUMENT;
 	c->busy=true; c->rx=rx; c->received_ms=received;

@@ -17,7 +17,7 @@ struct Matter_Idf_Udp {
     Matter_Udp_T module; struct netif* iface; struct udp_pcb* pcb;
     Rx *free,*head,*tail; unsigned count; uint32_t pressure,observed_pressure;
     uint16_t port; uint32_t interface_id; Matter_Operation_Id_T epoch;
-    uint64_t pending,idle_until; bool busy; Matter_Idf_Udp_Stats_T stats;
+    uint64_t pending,idle_until; bool busy,receive_disabled; Matter_Idf_Udp_Stats_T stats;
 };
 static Matter_Result_T error(err_t e) {
     return e==ERR_OK?MATTER_OK:e==ERR_MEM || e==ERR_BUF?MATTER_WOULD_BLOCK:
@@ -78,7 +78,7 @@ static bool zero(const uint8_t* p) { for(unsigned i=0;i<16;++i) if(p[i]) return 
 static Matter_Result_T send_packet(void* user,uint64_t request,const Matter_Udp_Datagram_T* d) {
     Matter_Idf_Udp_T s=user; const Matter_Udp_Path_T* path=&d->path;
     unsigned index=netif_get_index(s->iface);
-    if(s->pending || path->local.port!=s->port || (path->interface_id && path->interface_id!=s->interface_id) ||
+    if(path->transport!=MATTER_TRANSPORT_UDP || s->pending || path->local.port!=s->port || (path->interface_id && path->interface_id!=s->interface_id) ||
         zero(path->peer.address) || path->peer.address[0]==0xff ||
         (path->peer.address[0]==0xfe && (path->peer.address[1]&0xc0)==0x80 && !path->interface_id)) return MATTER_PORT_ERROR;
     ip_addr_t peer,local; IP_SET_TYPE_VAL(peer,IPADDR_TYPE_V6); IP_SET_TYPE_VAL(local,IPADDR_TYPE_V6);
@@ -170,7 +170,7 @@ Matter_Result_T matter_idf_udp_process(Matter_Idf_Udp_T s) {
     }
     LOCK_TCPIP_CORE();
     Rx* rx=s->head; Matter_Operation_Id_T epoch=s->epoch;
-    bool deliver=rx && epoch;
+    bool deliver=rx && epoch && !s->receive_disabled;
     if(deliver) { s->head=rx->next; if(!s->head) s->tail=NULL; }
     UNLOCK_TCPIP_CORE();
     if(deliver) {
@@ -184,6 +184,7 @@ Matter_Result_T matter_idf_udp_delete(Matter_Idf_Udp_T s) {
     if(s->busy || s->pending) return MATTER_BUSY;
     Matter_Result_T r=matter_udp_delete(s->module); if(r==MATTER_OK) free(s); return r;
 }
+void matter_idf_udp_receive_enabled(Matter_Idf_Udp_T s,bool enabled){if(s)s->receive_disabled=!enabled;}
 Matter_Idf_Udp_Stats_T matter_idf_udp_stats(Matter_Idf_Udp_T s) {
     Matter_Idf_Udp_Stats_T result={0};
     if(s) { LOCK_TCPIP_CORE(); result=s->stats; UNLOCK_TCPIP_CORE(); } return result;

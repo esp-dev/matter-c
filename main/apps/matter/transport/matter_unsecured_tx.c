@@ -19,6 +19,8 @@ static bool valid_outcome(Matter_Operation_Result_T outcome) {
 		outcome == MATTER_OPERATION_CANCELLED;
 }
 static bool unicast(const Matter_Udp_Path_T* path) {
+	if (path->transport == MATTER_TRANSPORT_BTP) return path->interface_id != 0;
+	if (path->transport != MATTER_TRANSPORT_UDP) return false;
 	if (!path->local.port || !path->peer.port || path->peer.address[0] == 0xff) return false;
 	for (size_t i = 0; i < sizeof(path->peer.address); ++i)
 		if (path->peer.address[i]) return true;

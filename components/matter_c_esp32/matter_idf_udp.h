@@ -17,6 +17,9 @@ typedef struct Matter_Idf_Udp* Matter_Idf_Udp_T;
  * MRP retry; it is not an invalid packet/path argument. */
 Matter_Idf_Udp_T matter_idf_udp_new(Matter_T,esp_netif_t*,uint16_t,const Matter_Udp_Listener_T*);
 Matter_Udp_T matter_idf_udp_module(Matter_Idf_Udp_T);
+/* Optional mux fairness gate; defaults true. RX remains queued, TX completions
+ * and stop/drain still progress while owner delivery is disabled. */
+void matter_idf_udp_receive_enabled(Matter_Idf_Udp_T,bool);
 Matter_Result_T matter_idf_udp_process(Matter_Idf_Udp_T);
 Matter_Result_T matter_idf_udp_delete(Matter_Idf_Udp_T);
 typedef struct { uint32_t received,dropped,oversize,extensions,sent,rx_buffers,rx_buffer_peak; } Matter_Idf_Udp_Stats_T;

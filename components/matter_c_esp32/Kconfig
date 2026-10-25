@@ -1,4 +1,11 @@
 menu "Matter C ESP ports"
+config MATTER_C_ESP32_BLE
+    bool "Matter commissioning over NimBLE/BTP"
+    depends on BT_NIMBLE_ENABLED
+    default n
+    help
+        Optional phase-owned peripheral transport. Uses the application's owner
+        scheduler and shares runtime limits with UDP; does not enable UDP PASE.
 config MATTER_C_ESP32_UDP_TRACE
     bool "Trace UDP send failures (no packet payloads)"
     default n

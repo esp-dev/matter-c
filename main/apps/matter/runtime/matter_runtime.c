@@ -737,7 +737,8 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Ud
     }
     Matter_Dispatch_Config_T cfg={.root=s->root,.events=events,.crypto=s->crypto,.credentials=s->credentials,
         .fabrics=matter_fabric_host_case_port(s->fabric_host),.time=s->time,.user=s,.pase=pase,.fabric_live=fabric_live,.credential_revision=credential_revision,
-        .resolver=s->resolver,.compressed_fabric=compressed_fabric,.resumption_profile=s->resumption_profile,.outbound=s->outbound};
+        .resolver=s->resolver,.compressed_fabric=compressed_fabric,.resumption_profile=s->resumption_profile,.outbound=s->outbound,
+        .ble_commissioning_only=s->platform.ble_commissioning_only};
     s->dispatch=matter_dispatch_new(owner,udp,&cfg); if(!s->dispatch) return MATTER_PORT_ERROR;
     /* Advertise BDX only when an explicit file sink was configured. */
     Matter_Ota_Query_Config_T qc={.vendor=s->identity.vendor_id,.product=s->identity.product_id,
@@ -754,12 +755,17 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Ud
 void matter_runtime_received(Matter_Runtime_T s,const Matter_Udp_Datagram_T* d) {
     if(!s)return;
     if(d&&d->data&&d->size>=4&&(d->data[3]&MATTER_MESSAGE_SESSION_MASK)==MATTER_MESSAGE_SESSION_GROUP) {
-        if(s->groups_bound&&!s->groups_dirty&&!s->stopping)(void)matter_light_groups_received(s->platform.groupcast.model,d);
+        if(d->path.transport==MATTER_TRANSPORT_UDP&&s->groups_bound&&!s->groups_dirty&&!s->stopping)(void)matter_light_groups_received(s->platform.groupcast.model,d);
         return;
     }
     matter_dispatch_received(s->dispatch,d);
 }
 void matter_runtime_sent(Matter_Runtime_T s,uint64_t id,Matter_Operation_Result_T result) { if(s) matter_dispatch_sent(s->dispatch,id,result); }
+Matter_Result_T matter_runtime_link_closed(Matter_Runtime_T s,uint32_t generation) {
+    if(!s)return MATTER_INVALID_ARGUMENT;
+    if(s->processing)return MATTER_BUSY;
+    return matter_dispatch_link_closed(s->dispatch,generation);
+}
 void matter_runtime_changed(Matter_Runtime_T s) { if(s) matter_dispatch_changed(s->dispatch); }
 static Matter_Result_T recover(Matter_Runtime_T s,uint64_t now) {
     /* initialize only staged restored radio state. Pump it before allowing

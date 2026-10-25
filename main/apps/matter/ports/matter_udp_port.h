@@ -10,6 +10,8 @@
  * or truncated receive buffers may be passed as complete datagrams.
  */
 enum { MATTER_UDP_MAX_PAYLOAD = 1232 };
+/* Reliable BTP is a separate bearer, never an IPv6 address convention. */
+enum { MATTER_TRANSPORT_UDP = 0, MATTER_TRANSPORT_BTP = 1 };
 
 typedef struct {
 	uint8_t address[16]; /* IPv6 network byte order; no OS-specific address type. */
@@ -19,6 +21,8 @@ typedef struct {
 typedef struct {
 	Matter_Udp_Address_T local, peer;
 	uint32_t interface_id;
+	uint8_t transport; /* Zero retains UDP. BTP: interface_id is a fresh link generation;
+	                   * local/peer IPv6 metadata is unused. Rebuild consumers. */
 } Matter_Udp_Path_T;
 
 /* TX: local/peer are source/destination; local :: lets backend select source.

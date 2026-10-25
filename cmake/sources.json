@@ -69,7 +69,8 @@
     "clusters/matter_meter_source",
     "clusters/matter_identify",
     "clusters/matter_meter_identification",
-    "clusters/matter_time_sync"
+    "clusters/matter_time_sync",
+    "transport/matter_btp"
   ],
   "host_linux": [
     "matter_udp_linux",
@@ -218,7 +219,8 @@
     "clusters/matter_meter_source.h",
     "clusters/matter_identify.h",
     "clusters/matter_meter_identification.h",
-    "clusters/matter_time_sync.h"
+    "clusters/matter_time_sync.h",
+    "transport/matter_btp.h"
   ],
   "private_headers": [
     "codec/matter_ota_header_internal.h",

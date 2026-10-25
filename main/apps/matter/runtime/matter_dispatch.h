@@ -52,6 +52,7 @@ typedef struct {
     Matter_Result_T (*compressed_fabric)(void*,uint8_t index,uint8_t out[8]);
     Matter_Case_Resumption_Profile_T resumption_profile;
     Matter_Udp_Path_T outbound; /* Actual local IPv6/port and interface; peer resolved by DNS-SD. */
+    bool ble_commissioning_only; /* Reject new UDP PASE, preserve CASE. Default false. */
 } Matter_Dispatch_Config_T;
 /* One bounded outgoing CASE/Invoke job, distinct from server Invoke quota.
  * Copies request, owns discovery/handshake/MRP until take. Cancel only requests
@@ -84,6 +85,9 @@ Matter_Result_T matter_dispatch_peer(Matter_Dispatch_T,uint8_t fabric,uint64_t n
 Matter_Result_T matter_dispatch_peer_take(Matter_Dispatch_T,uint64_t id);
 void matter_dispatch_received(void*,const Matter_Udp_Datagram_T*);
 void matter_dispatch_sent(void*,uint64_t,Matter_Operation_Result_T);
+/* Owner-thread reliable-link barrier. Retire only this BTP generation; pending
+ * sends still owe completion and the ordinary stop/drain contract applies. */
+Matter_Result_T matter_dispatch_link_closed(Matter_Dispatch_T,uint32_t generation);
 Matter_Result_T matter_dispatch_process(Matter_Dispatch_T,uint64_t now);
 /* Borrowed authenticated session only; NULL for unknown/revoked tokens. */
 Matter_Secure_T matter_dispatch_session(Matter_Dispatch_T,Matter_Exchange_Session_T);

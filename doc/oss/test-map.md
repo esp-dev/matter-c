@@ -1,8 +1,13 @@
 # Test inventory
 
-test-map.json enumerates 279 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 280 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+The BLE commissioning transport adds `test_btp` for bounded reassembly,
+fragment/window/sequence negotiation, wrapping ACKs, timers and allocation
+failures. Dispatcher tests additionally cover reliable BTP completion, bearer
+separation, BLE-only PASE admission and generation-scoped disconnect/drain.
 
 The shared bulb profile adds `test_light`, `test_light_groups`,
 `test_group_profiles`, `test_group_privacy`, `test_group_invoke` and

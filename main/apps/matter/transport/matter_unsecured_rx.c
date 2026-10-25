@@ -38,7 +38,10 @@ Matter_Result_T matter_unsecured_rx_receive(Matter_Unsecured_Rx_T ingress,
 	if (!datagram || !datagram->data || !datagram->size) return MATTER_INVALID_ARGUMENT;
 	if (ingress->stopped) return MATTER_INVALID_STATE;
 	if (datagram->size > MATTER_UDP_MAX_PAYLOAD) return MATTER_LIMIT_REACHED;
-	if (!unicast(&datagram->path.local) || !unicast(&datagram->path.peer)) return MATTER_INVALID_ARGUMENT;
+	if (datagram->path.transport == MATTER_TRANSPORT_BTP) {
+		if (!datagram->path.interface_id) return MATTER_INVALID_ARGUMENT;
+	} else if (datagram->path.transport != MATTER_TRANSPORT_UDP ||
+		!unicast(&datagram->path.local) || !unicast(&datagram->path.peer)) return MATTER_INVALID_ARGUMENT;
 	ingress->busy = true;
 	Matter_Unsecured_Rx_Message_T* m = &ingress->message;
 	bool created = false, pinned = false, copied = false, allow_create = false, duplicate = false;

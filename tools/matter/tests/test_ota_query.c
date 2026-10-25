@@ -238,6 +238,20 @@ static void boundaries(void) {
     }
     puts("PASS QueryImageResponse URI256/version64/token32/metadata512 and each over-limit rejection");
 }
+static void metadata_shape(void) {
+    /* Core 11.20: presence requires an anonymous TLV list, even when there
+     * are no vendor elements. CHIP's example provider sends zero bytes for
+     * even requestor node IDs; that is distinct from a valid empty list. */
+    for(unsigned mode=0;mode<3;++mode) {
+        Test* t=setup(true); CHECK(matter_ota_query_offer(t->query,&t->offer,0)); pump(t,0);
+        response(t,0,0,true); size_t prefix=t->size-1;
+        const uint8_t zero[]={0x30,7,0,0x18},list[]={0x30,7,2,0x17,0x18,0x18},structure[]={0x30,7,2,0x15,0x18,0x18};
+        const uint8_t* bytes=mode==0?zero:mode==1?list:structure; size_t size=mode?sizeof(list):sizeof(zero);
+        memcpy(t->response+prefix,bytes,size);t->size=prefix+size;
+        pump(t,1); CHECK(t->available==(mode==1?1u:0u)); destroy(t);
+    }
+    puts("PASS OTA metadata: empty anonymous list accepted; zero bytes and wrong container rejected");
+}
 static void manual_requests(void) {
     CHECK(matter_ota_query_request(NULL,0)==MATTER_INVALID_ARGUMENT);
     Test* t=setup(false);
@@ -293,7 +307,7 @@ static void restart_retry_chain(void) {
     pump(t,600011); CHECK(t->starts==4); pump(t,600012); CHECK(t->starts==5); destroy(t);
     puts("PASS query restart chain: Busy60, transport failure/Idle, 240s backoff, actual NotAvailable resets failures and next Busy uses120s");
 }
-int main(void) { client(); policy(); retry_states(); handoff(); boundaries(); manual_requests(); restart_retry_chain();
+int main(void) { client(); policy(); retry_states(); handoff(); boundaries(); metadata_shape(); manual_requests(); restart_retry_chain();
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live); puts("PASS Query/Invoke constructor OOM and allocation ownership");
 #endif

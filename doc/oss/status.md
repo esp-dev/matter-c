@@ -1,5 +1,20 @@
 # Development status
 
+**Optional BLE/BTP commissioning transport, default-OFF.**
+The portable BTPv4 engine and ESP NimBLE/network ports share existing runtime
+quotas. Direct BTP TX retains immutable ciphertext through BTP/ATT completion
+and stop/drain; UDP CASE remains operational. Products may reject UDP PASE
+explicitly. See the [transport contract](ble-transport.md).
+Windows native tests pass123/123; Linux normal and separate sanitizer suites
+pass120/120, with focused Memcheck and full two-runtime regressions in both
+memory-checking profiles. The separate C6 bulb develop8/9 application passed
+real BLE commissioning, DHCP absence/expiry/recovery, Wi-Fi reconnect, nine
+unchanged lighting YAML cases and signed OTA installation/reboot/Notify with
+the official CHIP provider. Its report records bridge timing limits, strict
+rejection of the provider's zero-byte metadata for even node IDs and the
+outgoing-query session-capacity limitation. No certification or manual phone
+result is inferred. Next: manual Apple/Google Home commissioning over BLE.
+
 **Bulb integration merged into main with CSA74/75 preserved.**
 Snapshot `6ab4e1a` retains the previous dirty main work; merge `ad7a272` adds
 Memory40-43, native ESP OTA, shared lighting/groups/scenes and ESP-port repairs.

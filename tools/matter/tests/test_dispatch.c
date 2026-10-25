@@ -653,6 +653,8 @@ static EncryptProbe* encrypt_probe;
 static Matter_Result_T reentrant_encrypt(void* user,const uint8_t* key,const uint8_t* nonce,
     const uint8_t* aad,size_t aad_size,const uint8_t* plain,size_t size,uint8_t* cipher) {
     EncryptProbe* p=encrypt_probe; CHECK(p && !p->d->delivered && plain==p->d->plain);
+    if(p->path.transport==MATTER_TRANSPORT_BTP){Matter_Protocol_Header_T h;size_t n;
+        CHECK(matter_protocol_header_read(plain,size,&h,&n)==MATTER_MESSAGE_OK&&!(h.exchange_flags&(MATTER_PROTOCOL_ACK|MATTER_PROTOCOL_RELIABLE)));}
     reentry_guard(p->d);
     uint8_t* saved=malloc(size); CHECK(saved); memcpy(saved,plain,size);
     const uint8_t invalid[]={0xff}; Matter_Udp_Datagram_T in={p->path,invalid,sizeof(invalid)};
@@ -660,11 +662,12 @@ static Matter_Result_T reentrant_encrypt(void* user,const uint8_t* key,const uin
     reentry_guard(p->d); CHECK(!memcmp(plain,saved,size)); free(saved); ++p->calls;
     return p->base.ccm_encrypt(user,key,nonce,aad,aad_size,plain,size,cipher);
 }
-static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Address_T* bind,bool offline) {
+static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Address_T* bind,bool offline,bool btp) {
     size_t idle=live_bytes; CHECK(!d->transactions && !d->delivered);
     Matter_Crypto_Mbedtls_T crypto=matter_crypto_mbedtls_new(NULL); CHECK(crypto);
     EncryptProbe p={.d=d,.path={.local=*bind,.peer=*bind}};
     CHECK(matter_crypto_mbedtls_port(crypto,&p.base)==MATTER_OK); p.path.peer.port=9;
+    if(btp){p.path.transport=MATTER_TRANSPORT_BTP;p.path.interface_id=7;}
     Matter_Crypto_Port_T port=p.base; port.ccm_encrypt=reentrant_encrypt; unsigned key=0;
     Connection* c=&d->connections[0]; c->token=100; c->operational=true; c->fabric_index=1;
     c->secure=matter_secure_from_case(&port,&key,take_keys,d->now); CHECK(c->secure);
@@ -701,14 +704,16 @@ static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Addr
     size_t size=t->size; uint8_t* packet=t->packet; memcpy(input,packet,size);
     Matter_Message_Header_T h; size_t offset; CHECK(!matter_message_header_read(packet,size,&h,&offset));
     memset(d->plain,0xcc,PACKET); /* TX scratch can recycle while ciphertext is borrowed. */
-    CHECK(!matter_retransmission_sender_ack(d->tx,&t->key,h.message_counter));
+    if(!btp)CHECK(!matter_retransmission_sender_ack(d->tx,&t->key,h.message_counter));
+    else {CHECK(t->direct&&drained(d,&t->key)==MATTER_PENDING);
+        CHECK(matter_dispatch_link_closed(d,8)==MATTER_OK&&!c->retiring&&!t->closing);}
     CHECK(matter_dispatch_process(d,d->now+1)==MATTER_PENDING && !d->queued);
     release_packet(t); CHECK(t->packet==packet && t->pending && !memcmp(input,packet,size));
     uint64_t request=d->request; wire.borrowed=NULL;
     CHECK(!matter_udp_complete(udp,request,MATTER_OPERATION_SUCCEEDED));
     matter_dispatch_sent(d,request,MATTER_OPERATION_SUCCEEDED);
     CHECK(matter_dispatch_process(d,d->now+1)==MATTER_PENDING);
-    t->closing=true;
+    if(!btp)t->closing=true;
     for(unsigned i=0;i<8 && d->transactions;++i) CHECK(matter_dispatch_process(d,d->now+1)==MATTER_PENDING);
     CHECK(!d->transactions && live_bytes==idle); free(input);
     d->udp=original;
@@ -719,6 +724,28 @@ static void shared_work(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Addr
     d->im_sent=d->subscriptions_established=0;
     puts("PASS shared work: borrowed full RX stable until released, recursive process/control BUSY, queued RX during seal, immutable ciphertext through ACK-before-UDP and drain");
     puts("PASS transient offline send consumes bounded MRP retry instead of terminating subscription/response; same ciphertext and counter survive recovery");
+    if(btp)puts("PASS reliable BTP: no MRP flags, shared quota, reentrant RX, immutable held TX, direct completion and drain");
+}
+static void btp_admission(Matter_Dispatch_T d,const Matter_Udp_Address_T* local){
+    Matter_Dispatch_Config_T saved=d->config;d->config.ble_commissioning_only=true;
+    Matter_Udp_Datagram_T packet={.path={.local=*local,.peer=*local,.interface_id=7,.transport=MATTER_TRANSPORT_BTP}};
+    Matter_Unsecured_Rx_Message_T m={.datagram=&packet,.protocol={.opcode=0x20,.exchange_id=9,.exchange_flags=MATTER_PROTOCOL_INITIATOR}};bool create=false;
+    CHECK(admit(d,&m,&create)==MATTER_OK&&create);
+    m.protocol.exchange_flags|=MATTER_PROTOCOL_RELIABLE;CHECK(admit(d,&m,&create)==MATTER_INVALID_ARGUMENT);
+    packet.path.transport=MATTER_TRANSPORT_UDP;CHECK(admit(d,&m,&create)==MATTER_INVALID_STATE);
+    packet.path.transport=MATTER_TRANSPORT_BTP;m.protocol.exchange_flags=MATTER_PROTOCOL_INITIATOR;m.protocol.opcode=0x30;
+    CHECK(admit(d,&m,&create)==MATTER_INVALID_ARGUMENT);
+    packet.path.transport=MATTER_TRANSPORT_UDP;CHECK(admit(d,&m,&create)==MATTER_INVALID_ARGUMENT);
+    m.protocol.exchange_flags|=MATTER_PROTOCOL_RELIABLE;CHECK(admit(d,&m,&create)==MATTER_OK);
+    Transaction* a=fixture(d,0);fixture_set(a,(Transaction){.key={900,1,false}});
+    Transaction* b=fixture(d,1);fixture_set(b,(Transaction){.key={901,1,false}});
+    d->routes[0]=(Route){.token=900,.path={.transport=MATTER_TRANSPORT_BTP,.interface_id=7}};
+    d->routes[1]=(Route){.token=901,.path={.transport=MATTER_TRANSPORT_BTP,.interface_id=8}};
+    d->queued=true;d->received_path=d->routes[0].path;
+    d->processing=true;CHECK(matter_dispatch_link_closed(d,7)==MATTER_BUSY&&!a->closing);d->processing=false;
+    CHECK(matter_dispatch_link_closed(d,7)==MATTER_OK&&a->closing&&!b->closing&&!d->queued&&d->routes[0].closed&&!d->routes[1].closed);
+    fixture_clear(d);memset(d->routes,0,sizeof(d->routes));d->config=saved;
+    puts("PASS BLE-only admission: UDP PASE rejected, UDP CASE retained, BTP MRP/CASE rejected, close generation isolated and reentry guarded");
 }
 static void demand_allocations(Matter_Dispatch_T d,Matter_T owner,const Matter_Udp_Address_T* bind) {
     CHECK(!d->transactions && live==1 && live_bytes==sizeof(*d));
@@ -1274,7 +1301,7 @@ int main(void) {
     handshake_failure(&d,owner,udp,&bind,root,true);
     Matter_Dispatch_Config_T cfg={.root=root,.crypto={.user=&fail_random,.random=entropy},.user=&reset,.fabric_live=fabric_live};
     Matter_Dispatch_T offline=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg);CHECK(offline);
-    shared_work(offline,owner,&bind,true);
+    shared_work(offline,owner,&bind,true,false);
     for(unsigned i=0;i<20&&matter_dispatch_stop(offline)!=MATTER_OK;++i)(void)matter_dispatch_process(offline,offline->now+1);
     CHECK(matter_dispatch_delete(offline)==MATTER_OK);
     fail_at=calls+1; CHECK(!matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg)); fail_at=0;
@@ -1283,7 +1310,9 @@ int main(void) {
     for(unsigned run=0;run<3;++run) {
         d=matter_dispatch_new(owner,matter_udp_windows_module(udp),&cfg); CHECK(d && allocations==1);
         demand_allocations(d,owner,&bind);
-        shared_work(d,owner,&bind,false);
+        shared_work(d,owner,&bind,false,false);
+        shared_work(d,owner,&bind,false,true);
+        btp_admission(d,&bind);
         CHECK(matter_dispatch_delete(d)==MATTER_BUSY && !matter_dispatch_session(d,1));
         /* Removal can happen after another transaction queued a retry in this
          * same owner iteration. No ciphertext or ACK may leave a retired identity. */

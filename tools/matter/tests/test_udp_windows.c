@@ -259,7 +259,7 @@ static bool errors(void) {
     CHECK(raw_send(&e[0], 1));
     CHECK(wait_event(&e[0]) == MATTER_OK && e[0].rx == 1);
     CHECK(send_to(&e[0], &e[0], MATTER_UDP_MAX_PAYLOAD+1, &id) == MATTER_LIMIT_REACHED && id == 999);
-    Matter_Udp_Datagram_T packet = {{e[0].local, e[0].local, 0}, e[0].bytes, 1};
+    Matter_Udp_Datagram_T packet = {.path={.local=e[0].local,.peer=e[0].local},.data=e[0].bytes,.size=1};
     packet.path.local.port ^= 1;
     if (!packet.path.local.port) packet.path.local.port = 2;
     CHECK(matter_udp_send(e[0].udp, &packet, &id) == MATTER_PORT_ERROR && id == 999);

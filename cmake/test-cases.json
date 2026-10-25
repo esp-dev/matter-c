@@ -1301,5 +1301,14 @@
     "privileged": false,
     "variant": "libc",
     "replace": []
+  },
+  {
+    "name": "test_btp",
+    "source": "tools/matter/tests/test_btp.c",
+    "mode": "normal",
+    "platform": "all",
+    "privileged": false,
+    "variant": "libc",
+    "replace": []
   }
 ]

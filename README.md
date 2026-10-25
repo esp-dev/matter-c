@@ -155,6 +155,10 @@ integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
 Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE
 resumption, Read/Write/Subscribe, a second fabric and durable recovery.
 See the [Memory14 evidence and limits](doc/oss/memory14-validation.md).
+The optional [BLE/BTP commissioning port](doc/oss/ble-transport.md) adds a
+phase-owned NimBLE peripheral alongside UDP/IPv6. Products can require BLE PASE
+while retaining operational UDP CASE. It is disabled by default; the separate
+bulb application enables it and records its physical develop-firmware tests.
 The optional [Memory16 RGB profile](doc/oss/memory16-validation.md) adds a
 development EP1 light on the C6's addressable LED. Shared immutable value bytes
 and compact Read/Subscribe results lower its observed heap peak from 403016 B

@@ -108,7 +108,7 @@ static Matter_Result_T send_packet(void* user, uint64_t request,
     Matter_Udp_Windows_T host = user;
     const Matter_Udp_Path_T* path = &datagram->path;
     if (host->socket == INVALID_SOCKET) return MATTER_OFFLINE;
-    if ((host->interface_id && path->interface_id != host->interface_id) ||
+    if (path->transport != MATTER_TRANSPORT_UDP || (host->interface_id && path->interface_id != host->interface_id) ||
         path->local.port != host->local.port || unspecified(path->peer.address) ||
         !unicast(path->peer.address) || !unicast(path->local.address) ||
         ((link_local(path->peer.address) || link_local(path->local.address)) && !path->interface_id) ||

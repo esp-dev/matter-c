@@ -81,6 +81,7 @@ typedef struct {
      * Zero initialization preserves the existing no-groups composition.
      * Rebuild consumers after this additive configuration extension. */
     struct {Matter_Light_Groups_T model;Matter_Group_Privacy_T privacy;} groupcast;
+    bool ble_commissioning_only; /* UDP CASE stays enabled; new PASE only over BTP. */
 } Matter_Runtime_Config_T;
 /* Builds complete commissioning/fabric/ACL/diagnostics composition. No I/O
  * implementation, socket, OS clock, scheduler or crypto backend is created.
@@ -108,6 +109,7 @@ Matter_Result_T matter_runtime_set_ota(Matter_Runtime_T,const Matter_Runtime_Ota
 Matter_Result_T matter_runtime_start(Matter_Runtime_T,Matter_T,Matter_Udp_T,Matter_Events_T);
 void matter_runtime_received(Matter_Runtime_T,const Matter_Udp_Datagram_T*);
 void matter_runtime_sent(Matter_Runtime_T,uint64_t,Matter_Operation_Result_T);
+Matter_Result_T matter_runtime_link_closed(Matter_Runtime_T,uint32_t generation);
 void matter_runtime_changed(Matter_Runtime_T);
 /* Recursive process, or stop/delete from its callbacks, returns BUSY before
  * advancing clocks or models. This is an owner-thread guard, not a mutex. */

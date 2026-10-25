@@ -16,7 +16,7 @@ enum { CONNECTIONS=MATTER_HOST_CONNECTIONS, TRANSACTIONS=MATTER_HOST_TRANSACTION
     ACK_PROTOCOL=10, ACK_PACKET=MATTER_UNSECURED_OVERHEAD+ACK_PROTOCOL };
 typedef char TransportBudget[(MATTER_TRANSPORT_CAPACITY>=MATTER_HOST_TRANSACTIONS)?1:-1];
 typedef enum { NONE, READ, SUBSCRIBE, WRITE, INVOKE, TIMED, HANDSHAKE, REJECT, CLIENT } Admission;
-typedef struct { Matter_Exchange_Session_T token; Matter_Udp_Path_T path; uint64_t touched; } Route;
+typedef struct { Matter_Exchange_Session_T token; Matter_Udp_Path_T path; uint64_t touched; bool closed; } Route;
 typedef struct {
     Matter_Exchange_Session_T token; Matter_Secure_T secure;
     Matter_Secure_Channel_T channel; bool operational,retiring;
@@ -50,7 +50,7 @@ typedef struct Transaction {
     bool pending,notified,acknowledged,sent,final,closing,operational;
     bool outbound,expiry_reply; /* Causal expiry reply, or opt-in PASE Revoke reply. */
     bool revoke_reply_waiting; /* TimedRequest's earlier send is NOT the Invoke reply. */
-    bool im_packet,im_counted,sub_response,sub_established;
+    bool im_packet,im_counted,sub_response,sub_established,direct;
 } Transaction;
 struct Matter_Dispatch {
     Matter_Im_Snapshot_Pool snapshots;
@@ -297,6 +297,8 @@ static Matter_Result_T process_ack(void* u,const Matter_Exchange_Info_T* k,uint3
     return matter_retransmission_sender_ack(((Matter_Dispatch_T)u)->tx,k,counter);
 }
 static Matter_Result_T drained(void* u,const Matter_Exchange_Info_T* k) {
+    Transaction* t=transaction(u,k);
+    if(t && t->direct && t->pending) return MATTER_PENDING;
     return matter_retransmission_sender_drained(((Matter_Dispatch_T)u)->tx,k);
 }
 static Matter_Result_T dependencies(void* u) {
@@ -356,17 +358,7 @@ static Matter_Result_T rediscover(void* u,const Matter_Retransmission_Message_T*
     }
     return MATTER_OK; /* Resolution runs alongside the retransmission. */
 }
-static Matter_Retransmission_Submission_T send_message(void* u,const Matter_Retransmission_Request_T* r) {
-    Matter_Dispatch_T d=u; Transaction* t=transaction(d,&r->message.exchange);
-    if(d->request || !t) return MATTER_RETRANSMISSION_REJECTED_RETRYABLE;
-    if(t->closing) return MATTER_RETRANSMISSION_REJECTED_FATAL;
-    Connection* c=connection(d,r->message.exchange.session);
-    if(c && (c->retiring || (c->removal_reply && c->removal_reply!=t->handle))) return MATTER_RETRANSMISSION_REJECTED_FATAL;
-    Matter_Result_T result=c?matter_secure_channel_send(c->channel,d->udp,r->message.data,r->message.size,&d->request):
-        matter_unsecured_tx_send(d->transport,r->message.exchange.session,r->message.data,r->message.size,&d->request);
-    if(result!=MATTER_PENDING) return result==MATTER_BUSY || result==MATTER_WOULD_BLOCK || result==MATTER_OFFLINE?
-        MATTER_RETRANSMISSION_REJECTED_RETRYABLE:MATTER_RETRANSMISSION_REJECTED_FATAL;
-    d->sending=c; d->producer=r->id; d->ack_token=0; d->sending_message=t;
+static void transaction_sent(Matter_Dispatch_T d,Transaction* t) {
     if(!t->sent) {
         t->sent=true;
         if(t->case_attempt) {
@@ -382,6 +374,19 @@ static Matter_Retransmission_Submission_T send_message(void* u,const Matter_Retr
         }
         delivery_slot(t);
     }
+}
+static Matter_Retransmission_Submission_T send_message(void* u,const Matter_Retransmission_Request_T* r) {
+    Matter_Dispatch_T d=u; Transaction* t=transaction(d,&r->message.exchange);
+    if(d->request || !t) return MATTER_RETRANSMISSION_REJECTED_RETRYABLE;
+    if(t->closing) return MATTER_RETRANSMISSION_REJECTED_FATAL;
+    Connection* c=connection(d,r->message.exchange.session);
+    if(c && (c->retiring || (c->removal_reply && c->removal_reply!=t->handle))) return MATTER_RETRANSMISSION_REJECTED_FATAL;
+    Matter_Result_T result=c?matter_secure_channel_send(c->channel,d->udp,r->message.data,r->message.size,&d->request):
+        matter_unsecured_tx_send(d->transport,r->message.exchange.session,r->message.data,r->message.size,&d->request);
+    if(result!=MATTER_PENDING) return result==MATTER_BUSY || result==MATTER_WOULD_BLOCK || result==MATTER_OFFLINE?
+        MATTER_RETRANSMISSION_REJECTED_RETRYABLE:MATTER_RETRANSMISSION_REJECTED_FATAL;
+    d->sending=c; d->producer=r->id; d->ack_token=0; d->sending_message=t;
+    transaction_sent(d,t);
     return MATTER_RETRANSMISSION_SUBMITTED;
 }
 static void cancel_send(void* u,uint64_t id) { (void)u; (void)id; /* UDP owes actual completion. */ }
@@ -421,17 +426,21 @@ static Matter_Result_T send_ack(void* u,uint64_t id,const Matter_Ack_Message_T* 
     d->sending=c; d->producer=id; d->ack_token=m->exchange.session; return MATTER_OK;
 }
 static bool same_path(const Matter_Udp_Path_T* a,const Matter_Udp_Path_T* b) {
-    return a->interface_id==b->interface_id && a->peer.port==b->peer.port && a->local.port==b->local.port &&
+    return a->transport==b->transport && a->interface_id==b->interface_id && a->peer.port==b->peer.port && a->local.port==b->local.port &&
         !memcmp(a->peer.address,b->peer.address,16) && !memcmp(a->local.address,b->local.address,16);
 }
 static Matter_Result_T admit(void* u,const Matter_Unsecured_Rx_Message_T* m,bool* create) {
     Matter_Dispatch_T d=u; const Matter_Protocol_Header_T* h=&m->protocol;
     if(h->vendor_id || h->protocol_id) return MATTER_INVALID_ARGUMENT;
     Route* r=m->session?route(d,m->session):NULL;
-    if(r && !same_path(&r->path,&m->datagram->path)) return MATTER_INVALID_ARGUMENT;
+    bool btp=m->datagram->path.transport==MATTER_TRANSPORT_BTP;
+    if(r && (r->closed || !same_path(&r->path,&m->datagram->path))) return MATTER_INVALID_ARGUMENT;
+    if(btp && ((h->exchange_flags&(MATTER_PROTOCOL_ACK|MATTER_PROTOCOL_RELIABLE)) ||
+        (h->opcode>=0x30 && h->opcode<=0x33))) return MATTER_INVALID_ARGUMENT;
     bool ack=h->opcode==0x10 && !m->payload_size && (h->exchange_flags&MATTER_PROTOCOL_ACK) && !(h->exchange_flags&MATTER_PROTOCOL_RELIABLE);
     if(ack) return r?MATTER_OK:MATTER_INVALID_STATE;
-    if(!(h->exchange_flags&MATTER_PROTOCOL_RELIABLE)) return MATTER_INVALID_ARGUMENT;
+    if(!btp && !(h->exchange_flags&MATTER_PROTOCOL_RELIABLE)) return MATTER_INVALID_ARGUMENT;
+    if(!btp && d->config.ble_commissioning_only && h->opcode==0x20) return MATTER_INVALID_STATE;
     Matter_Exchange_Info_T k={m->session,h->exchange_id,!(h->exchange_flags&MATTER_PROTOCOL_INITIATOR)}; Transaction* t=transaction(d,&k);
     if(t && !t->closing) return ((t->pase && ((h->opcode>=0x20 && h->opcode<=0x24)||h->opcode==0x40)) ||
         (t->case_attempt && ((h->opcode>=0x30 && h->opcode<=0x33)||h->opcode==0x40)))?MATTER_OK:MATTER_INVALID_ARGUMENT;
@@ -510,9 +519,15 @@ static Matter_Result_T take_completion(Matter_Dispatch_T d) {
         if(r==MATTER_OK) r=matter_unsecured_tx_take(d->transport,&out);
     }
     if(r!=MATTER_OK) return r;
+    Transaction* direct=d->sending_message && d->sending_message->direct?d->sending_message:NULL;
     count_sent(d,d->sending_message,d->outcome); d->sending_message=NULL;
     if(d->sending && d->sending->rotating && d->outcome!=MATTER_OPERATION_SUCCEEDED) d->sending->retiring=true;
     d->request=0; d->completion=false; d->sending=NULL;
+    if(direct) {
+        direct->pending=false; direct->notified=true;
+        direct->acknowledged=d->outcome==MATTER_OPERATION_SUCCEEDED;
+        return MATTER_OK; /* BTP owns reliability; never synthesize an MRP ACK. */
+    }
     if(d->control) {
         if(d->control_transaction) { d->control_transaction->pending=false; d->control_transaction->closing=true; }
         d->control=false; d->control_transaction=NULL; d->ack_token=0; return MATTER_OK;
@@ -699,8 +714,10 @@ static void dispatch(Matter_Dispatch_T d) {
         Connection* c=connection(d,key.session);
         t->fabric_index=c && c->operational?c->fabric_index:0;
         Admission kind=admission(in->header.protocol_id,in->header.opcode);
+        Route* incoming=route(d,key.session);
         if(in->header.vendor_id || key.initiator ||
-            (kind==HANDSHAKE && !(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE)) ||
+            (kind==HANDSHAKE && !(in->header.exchange_flags&MATTER_PROTOCOL_RELIABLE) &&
+                (!incoming || incoming->path.transport!=MATTER_TRANSPORT_BTP)) ||
             kind==NONE || (in->header.protocol_id==1 && !c) || (!in->header.protocol_id && c)) {
             reject_work(t,false,false); return;
         }
@@ -816,7 +833,7 @@ static void process_transaction(Transaction* t) {
         t->admission=t->timed_target==6?WRITE:INVOKE;
     }
     if(t->closing) {
-        if(t->pending || d->sending_message==t || d->control_transaction==t) { if(!t->busy_reply) (void)matter_retransmission_sender_cancel(d->tx,t->message); return; }
+        if(t->pending || d->sending_message==t || d->control_transaction==t) { if(!t->busy_reply && !t->direct) (void)matter_retransmission_sender_cancel(d->tx,t->message); return; }
         if(matter_rx_close(d->rx,t->handle)==MATTER_PENDING) return;
         Matter_Exchange_Info_T ignored;
         if(matter_rx_get(d->rx,t->handle,&ignored)==MATTER_OK) return;
@@ -834,7 +851,7 @@ static void process_transaction(Transaction* t) {
          * Piggyback ACK is allowed; packet lives until actual UDP completion. */
         const uint8_t busy[10]={8,0,0,0,0,0,4,0,0xf4,1}; size_t n;
         Matter_Protocol_Header_T h={.opcode=0x40,.exchange_id=t->key.exchange_id,
-            .exchange_flags=MATTER_PROTOCOL_ACK,.acknowledged_message_counter=t->received_counter};
+            .exchange_flags=t->has_ack?MATTER_PROTOCOL_ACK:0,.acknowledged_message_counter=t->received_counter};
         uint32_t counter;
         if(matter_protocol_header_write(&h,d->plain,sizeof(d->plain),&n)!=MATTER_MESSAGE_OK) { t->closing=true; return; }
         memcpy(d->plain+n,busy,sizeof(busy));
@@ -948,21 +965,49 @@ static void process_transaction(Transaction* t) {
             return;
         }
     }
+    Matter_Udp_Path_T path;
+    Connection* transport_connection=connection(d,t->key.session);
+    if((transport_connection?matter_secure_channel_path(transport_connection->channel,&path):tx_route(d,t->key.session,&path))!=MATTER_OK){t->closing=true;return;}
+    bool direct=path.transport==MATTER_TRANSPORT_BTP;
+    if(direct && d->request) return;
     Matter_Protocol_Header_T h={.protocol_id=(t->pase || t->case_attempt)?0:bdx_out.data?bdx_out.protocol:1,.opcode=out.opcode,.exchange_id=t->key.exchange_id,
-        .exchange_flags=MATTER_PROTOCOL_RELIABLE|(t->key.initiator?MATTER_PROTOCOL_INITIATOR:0)|
+        .exchange_flags=(direct?0:MATTER_PROTOCOL_RELIABLE)|(t->key.initiator?MATTER_PROTOCOL_INITIATOR:0)|
             (t->has_ack?MATTER_PROTOCOL_ACK:0),.acknowledged_message_counter=t->received_counter};
     size_t n; if(matter_protocol_header_write(&h,d->plain,sizeof(d->plain),&n)!=MATTER_MESSAGE_OK || out.size>sizeof(d->plain)-n) { t->closing=true; return; }
     memcpy(d->plain+n,out.data,out.size); n+=out.size; uint32_t counter;
     r=prepare_packet(t,n,&counter);
     if(r!=MATTER_OK) { t->closing=true; return; }
-    r=matter_retransmission_sender_add(d->tx,&t->key,counter,t->packet,t->size,&t->message);
-    if(r!=MATTER_OK) { t->closing=true; return; }
+    if(direct) {
+        r=transport_connection?matter_secure_channel_send(transport_connection->channel,d->udp,t->packet,t->size,&d->request):
+            matter_unsecured_tx_send(d->transport,t->key.session,t->packet,t->size,&d->request);
+        if(r!=MATTER_PENDING){t->closing=true;return;}
+        t->direct=true;d->sending=transport_connection;d->sending_message=t;d->ack_token=0;d->producer=0;
+    } else {
+        r=matter_retransmission_sender_add(d->tx,&t->key,counter,t->packet,t->size,&t->message);
+        if(r!=MATTER_OK) { t->closing=true; return; }
+    }
     t->pending=true; t->sent=false; t->final=out.opcode==0x40;
     if(out.opcode==9) t->revoke_reply_waiting=false;
     t->im_packet=h.protocol_id==1; t->im_counted=false; t->sub_response=t->sub && out.opcode==4;
     if(t->pase) (void)matter_pase_sent(t->pase);
     if(t->read) (void)matter_im_read_sent(t->read);
     if(t->sub && matter_im_subscribe_output_copied(t->sub)!=MATTER_OK) t->closing=true;
+    if(direct) transaction_sent(d,t);
+}
+Matter_Result_T matter_dispatch_link_closed(Matter_Dispatch_T d,uint32_t generation) {
+    if(!d || !generation) return MATTER_INVALID_ARGUMENT;
+    if(d->processing) return MATTER_BUSY;
+    for(unsigned i=0;i<ROUTES;++i){Route* r=&d->routes[i];
+        if(r->token && r->path.transport==MATTER_TRANSPORT_BTP && r->path.interface_id==generation){
+            r->closed=true;for(Transaction* t=d->transactions;t;t=t->next)if(t->key.session==r->token)t->closing=true;
+        }
+    }
+    for(unsigned i=0;i<CONNECTIONS;++i){Connection* c=&d->connections[i];Matter_Udp_Path_T path;
+        if(c->token && matter_secure_channel_path(c->channel,&path)==MATTER_OK &&
+            path.transport==MATTER_TRANSPORT_BTP && path.interface_id==generation)c->retiring=true;
+    }
+    if(d->queued && d->received_path.transport==MATTER_TRANSPORT_BTP && d->received_path.interface_id==generation)d->queued=false;
+    return MATTER_OK;
 }
 static bool keep_expiry_reply(Matter_Dispatch_T d,Connection* c) {
     if(c->retiring) return false;
@@ -1114,7 +1159,7 @@ static Matter_Result_T dispatch_process(Matter_Dispatch_T d,uint64_t now) {
         }
     } }
     for(unsigned i=0;i<ROUTES;++i) { Route* r=&d->routes[i]; Matter_Unsecured_Info_T info;
-        if(r->token && (d->stopping || now-r->touched>=60000) && matter_unsecured_get(d->unsecured,r->token,&info)==MATTER_OK && !info.pins) {
+        if(r->token && (r->closed || d->stopping || now-r->touched>=60000) && matter_unsecured_get(d->unsecured,r->token,&info)==MATTER_OK && !info.pins) {
             (void)matter_unsecured_remove(d->unsecured,r->token); memset(r,0,sizeof(*r));
         }
     }
@@ -1350,7 +1395,7 @@ static void outgoing_process(Matter_Dispatch_T d) {
     Transaction* t=new_transaction(d); if(!t) { d->outgoing.failed=true; return; }
     Matter_Exchange_Session_T token;
     if(matter_unsecured_initiate(d->unsecured,random64,d,&token)!=MATTER_OK) { free_transaction(t); d->outgoing.failed=true; return; }
-    *route_slot=(Route){token,d->outgoing.path,d->now};
+    *route_slot=(Route){.token=token,.path=d->outgoing.path,.touched=d->now};
     Matter_Exchange_Handle_T handle;
     if(matter_rx_initiate(d->rx,token,&handle)!=MATTER_OK) {
         (void)matter_unsecured_remove(d->unsecured,token); memset(route_slot,0,sizeof(*route_slot)); free_transaction(t); return;

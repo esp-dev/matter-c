@@ -2960,6 +2960,18 @@
         "cmake/test-cases.json"
       ],
       "allocation_variant": "heap fixture; async peer preparation/claim, drain and Root store faults"
+    },
+    {
+      "path": "tools/matter/tests/test_btp.c",
+      "kind": "unit-test",
+      "ctest": [
+        "test_btp"
+      ],
+      "entrypoint": "ctest -R ^test_btp$",
+      "referenced_by": [
+        "cmake/test-cases.json"
+      ],
+      "allocation_variant": "in-file fault injection for engine and reassembly"
     }
   ],
   "local_only_files": []

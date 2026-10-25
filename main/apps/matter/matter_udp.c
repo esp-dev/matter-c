@@ -95,8 +95,11 @@ Matter_Result_T matter_udp_process(Matter_Udp_T udp) {
 }
 
 static Matter_Result_T validate(const Matter_Udp_Datagram_T* datagram) {
-	if (!datagram || !datagram->data || !datagram->size || !datagram->path.local.port ||
-		!datagram->path.peer.port) return MATTER_INVALID_ARGUMENT;
+	if (!datagram || !datagram->data || !datagram->size) return MATTER_INVALID_ARGUMENT;
+	if (datagram->path.transport == MATTER_TRANSPORT_BTP) {
+		if (!datagram->path.interface_id) return MATTER_INVALID_ARGUMENT;
+	} else if (datagram->path.transport != MATTER_TRANSPORT_UDP ||
+		!datagram->path.local.port || !datagram->path.peer.port) return MATTER_INVALID_ARGUMENT;
 	if (datagram->size > MATTER_UDP_MAX_PAYLOAD) return MATTER_LIMIT_REACHED;
 	return MATTER_OK;
 }
