@@ -31,6 +31,8 @@ typedef struct {
     bool reenter; unsigned reentries; Matter_Runtime_T other;
     uint64_t wifi_token; bool cancelling,hold_cancel;
     Matter_Cluster_T time_sync; Matter_Time_Sync_Sample_T time_sample;
+    Matter_Light_T light;Matter_Light_Groups_T groups;Matter_Light_State_T light_state;
+    uint8_t* group_blob;size_t group_blob_size;
 } Node;
 static Matter_Result_T blob_read(void* u,uint8_t* out,size_t cap,size_t* size) {
     Node* n=u; if(!n->blob) return MATTER_OFFLINE;
@@ -145,6 +147,7 @@ static Node* node_new(unsigned id) {
 }
 static void run(Node* n,uint64_t now) { Matter_Result_T r=matter_runtime_process(n->runtime,now); CHECK(r==MATTER_OK || r==MATTER_PENDING); }
 static void start_created_node(Node* n) {
+    if(n->groups){Matter_Root_T root=matter_runtime_root(n->runtime);CHECK(matter_light_attach(n->light,root,1)==MATTER_OK&&matter_light_groups_attach(n->groups,root)==MATTER_OK);}
     n->owner=matter_new(NULL); CHECK(n->owner && matter_start(n->owner)==MATTER_OK);
     Matter_Udp_Port_T port={n,activate,deactivate,send_packet,cancel_packet,detach};
     Matter_Udp_Listener_T listener={n,received,sent};
@@ -220,14 +223,7 @@ static void diagnostic_network(Node* a,Node* b) {
     CHECK(matter_cluster_read(diag,0,&request,&value)==MATTER_IM_SUCCESS);
     puts("PASS runtime network callback: live state, padded MAC, failure/oversize/malformed rejection, recovery and default isolation");
 }
-static void close_runtime(Node* n,uint64_t now) {
-    CHECK(matter_runtime_delete(n->runtime)==MATTER_BUSY);
-    Matter_Result_T result=matter_runtime_stop(n->runtime,now);
-    for(unsigned i=0;result==MATTER_PENDING && i<100;++i) {
-        run(n,now); result=matter_runtime_stop(n->runtime,now);
-    }
-    CHECK(result==MATTER_OK);
-    CHECK(matter_runtime_start(n->runtime,n->owner,n->udp,n->events)==MATTER_INVALID_STATE);
+static void delete_stopped_runtime(Node* n) {
     CHECK(matter_runtime_delete(n->runtime)==MATTER_OK); n->runtime=NULL;
     if(n->time_sync) { CHECK(matter_cluster_delete(n->time_sync)==MATTER_OK); n->time_sync=NULL; }
     if(n->events) { CHECK(matter_events_delete(n->events)==MATTER_OK); n->events=NULL; }
@@ -238,7 +234,50 @@ static void close_runtime(Node* n,uint64_t now) {
         CHECK(matter_delete(n->owner)==MATTER_OK); n->owner=NULL;
     }
 }
-static void free_node(Node* n) { CHECK(!n->runtime && !n->owner); free(n->blob); CHECK(matter_crypto_mbedtls_delete(n->crypto)==MATTER_OK); memset(n,0,sizeof(*n)); free(n); }
+static void close_runtime(Node* n,uint64_t now) {
+    CHECK(matter_runtime_delete(n->runtime)==MATTER_BUSY);
+    Matter_Result_T result=matter_runtime_stop(n->runtime,now);
+    for(unsigned i=0;result==MATTER_PENDING && i<100;++i) {
+        run(n,now); result=matter_runtime_stop(n->runtime,now);
+    }
+    CHECK(result==MATTER_OK);
+    CHECK(matter_runtime_start(n->runtime,n->owner,n->udp,n->events)==MATTER_INVALID_STATE);
+    delete_stopped_runtime(n);
+}
+static void free_node(Node* n) { CHECK(!n->runtime && !n->owner);if(n->groups)CHECK(matter_light_groups_delete(n->groups)==MATTER_OK);if(n->light)CHECK(matter_light_delete(n->light)==MATTER_OK);free(n->group_blob);free(n->blob); CHECK(matter_crypto_mbedtls_delete(n->crypto)==MATTER_OK); memset(n,0,sizeof(*n)); free(n); }
+static Matter_Result_T group_load(void* u,uint8_t* data,size_t capacity,size_t* size){Node* n=u;*size=n->group_blob_size;if(data){if(capacity<n->group_blob_size)return MATTER_LIMIT_REACHED;memcpy(data,n->group_blob,n->group_blob_size);}return MATTER_OK;}
+static Matter_Result_T group_store(void* u,const uint8_t* data,size_t size){Node* n=u;if(n->fail_store)return MATTER_PORT_ERROR;uint8_t* copy=malloc(size);if(!copy)return MATTER_LIMIT_REACHED;memcpy(copy,data,size);free(n->group_blob);n->group_blob=copy;n->group_blob_size=size;return MATTER_OK;}
+static Matter_Result_T light_load(void* u,Matter_Light_State_T* out){*out=((Node*)u)->light_state;return MATTER_OK;}
+static Matter_Result_T light_store(void* u,const Matter_Light_State_T* state){((Node*)u)->light_state=*state;return MATTER_OK;}
+static Matter_Result_T group_multicast(void* u,const uint8_t address[16]){(void)u;(void)address;return MATTER_OK;}
+static void group_runtime(void){
+    Node* n=node_new(2);matter_light_defaults(&n->light_state);Matter_Light_Port_T light={n,light_load,light_store};n->light=matter_light_new(&light,10,0,true);CHECK(n->light);
+    Matter_Light_Groups_Config_T groups={.light=n->light,.endpoint=1,.storage={n,group_load,group_store},.multicast_user=n,.join=group_multicast,.leave=group_multicast};
+    n->groups=matter_light_groups_new(&groups);CHECK(n->groups);n->config.groupcast.model=n->groups;n->config.groupcast.privacy=matter_crypto_mbedtls_privacy;
+    start_node(n);Matter_Cluster_Request_T q={0};Matter_Im_Value_T value;Matter_Root_T root=matter_runtime_root(n->runtime);
+    CHECK(matter_root_cluster(root,0x65)&&matter_root_cluster_at(root,1,4)&&matter_root_cluster_at(root,1,0x62));
+    CHECK(!matter_cluster_read(matter_root_cluster(root,0x1f),0xfffc,&q,&value)&&value.unsigned_value==4);
+    CHECK(!matter_cluster_read(matter_root_cluster(root,0x3f),0xfffc,&q,&value)&&value.unsigned_value==2);
+    run(n,1);close_runtime(n,2);
+    /* Rebind the same owner across a runtime restart. It retains group replay
+     * history, while core ports/root/events belong to the new runtime only. */
+    start_node(n);run(n,3);close_runtime(n,4);free_node(n);
+}
+static void external_wifi(void){
+    Node* n=node_new(3);start_node(n);CHECK(matter_runtime_recovered(n->runtime));
+    Matter_Wifi_Settings_T* settings=calloc(1,sizeof(*settings));CHECK(settings);settings->enabled=true;settings->count=1;
+    settings->networks[0].id.size=6;memcpy(settings->networks[0].id.bytes,"new-ap",6);settings->networks[0].credential_size=8;memcpy(settings->networks[0].credentials,"password",8);
+    const Matter_Wifi_Id_T* connected=&settings->networks[0].id;
+    CHECK(matter_runtime_provision_wifi(n->runtime,settings,connected)==MATTER_INVALID_STATE);
+    Matter_Result_T stopped=matter_runtime_stop(n->runtime,1);
+    for(unsigned i=0;stopped==MATTER_PENDING&&i<100;++i){run(n,1);stopped=matter_runtime_stop(n->runtime,1);}CHECK(stopped==MATTER_OK&&!matter_runtime_recovered(n->runtime));
+    uint8_t* before=malloc(n->blob_size);CHECK(before);size_t size=n->blob_size;memcpy(before,n->blob,size);
+    n->fail_store=true;CHECK(matter_runtime_provision_wifi(n->runtime,settings,connected)==MATTER_PORT_ERROR&&n->blob_size==size&&!memcmp(before,n->blob,size));n->fail_store=false;free(before);
+    settings->networks[0].credential_size=3;CHECK(matter_runtime_provision_wifi(n->runtime,settings,connected)==MATTER_INVALID_ARGUMENT);settings->networks[0].credential_size=8;
+    CHECK(matter_runtime_provision_wifi(n->runtime,settings,connected)==MATTER_OK&&!n->settings.count);delete_stopped_runtime(n);
+    start_node(n);CHECK(n->settings.count==1&&n->settings.networks[0].id.size==6&&!memcmp(n->settings.networks[0].id.bytes,"new-ap",6));
+    CHECK(!matter_runtime_fabrics(n->runtime)->count&&matter_runtime_recovered(n->runtime));close_runtime(n,2);free_node(n);free(settings);
+}
 static void commissioning_failures(void) {
     Node* a=node_new(0); Node* b=node_new(1); start_node(a); start_node(b); a->accept_packets=true; a->ack_pase_failures=true;
     uint64_t now=0; uint32_t peer_counter=100; uint8_t bytes[40],ack[40]; size_t n,h;
@@ -460,7 +499,7 @@ int main(void) {
     CHECK(matter_store_host_event_load(matter_runtime_store(a->runtime),&a->event_high)==MATTER_OK && a->event_high>ha+100);
     CHECK(matter_store_host_event_load(sb,&b->event_high)==MATTER_OK && b->event_high==hb+300);
     close_runtime(a,2); close_runtime(b,61); free_node(a); free_node(b);
-    commissioning_failures(); pending_recovery();
+    commissioning_failures(); pending_recovery();group_runtime();external_wifi();
 #ifdef MATTER_TEST_ALLOC
     CHECK(!live);
 #endif

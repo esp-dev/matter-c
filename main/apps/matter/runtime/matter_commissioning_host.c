@@ -1,5 +1,7 @@
 #include "matter_store_internal.h"
 #include <stdlib.h>
+#include <string.h>
+#include "../clusters/matter_wifi_internal.h"
 struct Matter_Commissioning_Host {
     Matter_Commissioning_Host_Image_T image; Matter_Wifi_T wifi; Matter_Wifi_Port_T platform;
     Matter_Opcreds_T credentials; Matter_Fabric_Host_T fabric; Matter_Commissioning_Host_Port_T port;
@@ -92,3 +94,15 @@ Matter_Result_T matter_commissioning_host_complete(void* u,uint8_t index) {
     erase(&h->candidate,sizeof(h->candidate)); h->busy=false; return r;
 }
 void matter_commissioning_host_fail_commit(Matter_Commissioning_Host_T h,bool fail) { if(h && !h->busy) h->fail_commit=fail; }
+Matter_Result_T matter_commissioning_host_provision_wifi(Matter_Commissioning_Host_T h,const Matter_Wifi_Settings_T* settings,const Matter_Wifi_Id_T* connected,unsigned maximum) {
+    if(!h||!matter_wifi_settings_valid(settings,connected,maximum))return MATTER_INVALID_ARGUMENT;
+    if(h->busy)return MATTER_BUSY;
+    if(h->image->data.pending||!h->image->persist.publish)return MATTER_INVALID_STATE;
+    bool found=!connected->size;
+    for(unsigned i=0;i<settings->count;++i)if(settings->networks[i].id.size==connected->size&&!memcmp(settings->networks[i].id.bytes,connected->bytes,connected->size))found=true;
+    if(!found||(!settings->enabled&&connected->size))return MATTER_INVALID_ARGUMENT;
+    h->busy=true;h->candidate=h->image->data;h->candidate.settings=*settings;h->candidate.connected=*connected;
+    Matter_Result_T r=h->image->persist.publish(h->image->persist.user,NULL,&h->candidate,false);
+    if(r==MATTER_OK)h->image->data=h->candidate;
+    erase(&h->candidate,sizeof(h->candidate));h->busy=false;return r;
+}

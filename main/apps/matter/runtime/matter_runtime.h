@@ -4,6 +4,7 @@
 #include "matter_store_host.h"
 #include "../clusters/matter_ota_update.h"
 #include "matter_ota_install.h"
+#include "../clusters/matter_light_groups.h"
 
 typedef struct Matter_Runtime* Matter_Runtime_T;
 /* Copied ports, borrowed users; one owner thread, no inline runtime reentry.
@@ -73,6 +74,13 @@ typedef struct {
      * Zero-initialize when unused; borrowed user outlives delete. Rebuild
      * consumers after this configuration extension. Other diagnostics unchanged. */
     Matter_Diagnostics_Network_Port_T network;
+    /* Optional single-light Groups/Scenes/Groupcast profile. Borrowed model
+     * outlives runtime deletion, and retains TrustFirst replay state across
+     * runtime restarts in the same boot. Attach light/groups to borrowed root
+     * before start. Privacy uses crypto.user; no backend-specific dependency.
+     * Zero initialization preserves the existing no-groups composition.
+     * Rebuild consumers after this additive configuration extension. */
+    struct {Matter_Light_Groups_T model;Matter_Group_Privacy_T privacy;} groupcast;
 } Matter_Runtime_Config_T;
 /* Builds complete commissioning/fabric/ACL/diagnostics composition. No I/O
  * implementation, socket, OS clock, scheduler or crypto backend is created.
@@ -92,7 +100,9 @@ Matter_Result_T matter_runtime_set_test_trigger(Matter_Runtime_T,const Matter_Di
 Matter_Result_T matter_runtime_set_resolver(Matter_Runtime_T,const Matter_Resolver_Port_T*);
 /* Pin a concrete local IPv6 address/port and interface for outgoing CASE.
  * Unlike generic UDP TX source selection, handshake admission compares the
- * complete reverse path; :: is not a substitute for its actual local address. */
+ * complete reverse path; :: is not a substitute for its actual local address.
+ * May be refreshed after start when IPv6 becomes ready or reconnects: changes
+ * only future jobs, preserving all accepted jobs/session paths and ACK/drain. */
 Matter_Result_T matter_runtime_set_outbound(Matter_Runtime_T,const Matter_Udp_Path_T*);
 Matter_Result_T matter_runtime_set_ota(Matter_Runtime_T,const Matter_Runtime_Ota_Port_T*);
 Matter_Result_T matter_runtime_start(Matter_Runtime_T,Matter_T,Matter_Udp_T,Matter_Events_T);
@@ -102,6 +112,15 @@ void matter_runtime_changed(Matter_Runtime_T);
 /* Recursive process, or stop/delete from its callbacks, returns BUSY before
  * advancing clocks or models. This is an owner-thread guard, not a mutex. */
 Matter_Result_T matter_runtime_process(Matter_Runtime_T,uint64_t now_ms);
+/* Pure boot-recovery gate for an application-owned radio policy. False while
+ * restoring a durable pending fail-safe, or during stop; passive reconnect
+ * policy must not override that recovery's explicit offline snapshot. */
+bool matter_runtime_recovered(Matter_Runtime_T);
+/* Local authenticated/physical factory action, not an IM authorization bypass.
+ * Requires completed stop/drain and no pending fail-safe. Atomically changes
+ * persisted Wi-Fi only; preserves fabrics and application factory identity.
+ * Delete/recreate this terminal runtime to apply the new radio settings. */
+Matter_Result_T matter_runtime_provision_wifi(Matter_Runtime_T,const Matter_Wifi_Settings_T*,const Matter_Wifi_Id_T*);
 bool matter_runtime_commissionable(Matter_Runtime_T);
 uint8_t matter_runtime_commissioning_mode(Matter_Runtime_T,uint16_t* discriminator);
 const Matter_Fabric_View_T* matter_runtime_fabrics(Matter_Runtime_T);

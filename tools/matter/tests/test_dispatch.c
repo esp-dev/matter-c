@@ -318,12 +318,55 @@ static void outgoing_cancel_tests(Matter_Dispatch_T d,const Matter_Udp_Address_T
     Resolver resolver={0}; d->config.resolver=(Matter_Resolver_Port_T){&resolver,resolve_begin,resolve_end,resolve_abort};
     d->config.compressed_fabric=compressed; d->config.credential_revision=rotated;
     d->config.outbound=(Matter_Udp_Path_T){.local=*bind,.interface_id=1};
+    Matter_Udp_Path_T ready_path=d->config.outbound;size_t ready_calls=calls;
+    CHECK(matter_dispatch_invoke_ready(d,1,42)==MATTER_OK&&!resolver.starts&&calls==ready_calls);
+    memset(&d->config.outbound,0,sizeof(d->config.outbound));CHECK(matter_dispatch_invoke_ready(d,1,42)==MATTER_OFFLINE);
+    d->connections[0]=(Connection){.token=123,.operational=true,.fabric_index=1,.peer_node=42};
+    CHECK(matter_dispatch_invoke_ready(d,1,42)==MATTER_OK);d->connections[0].retiring=true;CHECK(matter_dispatch_invoke_ready(d,1,42)==MATTER_OFFLINE);
+    memset(&d->connections[0],0,sizeof(d->connections[0]));d->config.outbound=ready_path;
+    d->processing=true;CHECK(matter_dispatch_invoke_ready(d,1,42)==MATTER_BUSY);d->processing=false;
+    CHECK(matter_dispatch_invoke_ready(d,1,0)==MATTER_INVALID_ARGUMENT&&calls==ready_calls&&!resolver.starts);
+    for(unsigned mode=0;mode<6;++mode) {
+        uint64_t peer=0;
+        CHECK(matter_dispatch_peer(d,1,42,&peer)==MATTER_PENDING&&peer&&d->outgoing.peer&&!d->outgoing.client&&!d->outgoing.bdx);
+        CHECK(matter_dispatch_peer_take(d,peer)==MATTER_PENDING);
+        if(mode==0)matter_dispatch_invoke_cancel(d,peer);
+        if(mode==1)--d->outgoing.revision;
+        if(mode==2)d->now=d->outgoing.deadline;
+        resolver.done=true;resolver.result=mode==3?MATTER_OPERATION_FAILED:MATTER_OPERATION_SUCCEEDED;
+        if(mode<4) {
+            outgoing_process(d);CHECK(matter_dispatch_peer_take(d,peer)==MATTER_PORT_ERROR);
+        } else {
+            /* Simulated handoff: even a ready CASE cannot bypass its final
+             * transaction's ACK/UDP drain. No CLIENT exchange is created. */
+            d->outgoing.resolve=0;resolver.id=0;
+            d->connections[0]=(Connection){.token=123,.operational=true,.fabric_index=1,.peer_node=42};d->outgoing.session=123;
+            Transaction* final=fixture(d,0);final->outbound=true;
+            outgoing_process(d);CHECK(d->outgoing.invoked&&d->transaction_count==1);
+            CHECK(matter_dispatch_peer_take(d,peer)==MATTER_PENDING);
+            fixture_clear(d);
+            if(mode==5)d->connections[0].rotating=true;
+            if(mode==5) {outgoing_process(d);CHECK(matter_dispatch_peer_take(d,peer)==MATTER_PORT_ERROR);}
+            else {
+                CHECK(matter_dispatch_peer_take(d,peer)==MATTER_OK);
+                size_t before=calls;CHECK(matter_dispatch_peer(d,1,42,&peer)==MATTER_OK&&!peer&&calls==before);
+            }
+            memset(&d->connections[0],0,sizeof(d->connections[0]));
+        }
+        d->now=saved_now;
+    }
     const uint8_t fields[]={0x15,0x18}; Matter_Im_Command_Path_T path={1,0x29,0};
     for(unsigned mode=0;mode<4;++mode) {
         uint64_t id=0,other=0; uint8_t status; const uint8_t* data; size_t size;
         CHECK(matter_dispatch_invoke(d,1,42,&path,1,fields,sizeof(fields),&id)==MATTER_PENDING && id);
+        CHECK(matter_dispatch_invoke_ready(d,1,42)==MATTER_BUSY);
         CHECK(matter_dispatch_invoke(d,1,42,&path,1,fields,sizeof(fields),&other)==MATTER_BUSY && !other);
         CHECK(resolver.query.node_id==42 && resolver.query.interface_id==1 && resolver.query.compressed_fabric[0]==1);
+        Matter_Udp_Path_T original=d->outgoing.path,rebound=d->config.outbound;rebound.interface_id=2;rebound.local.address[15]^=1;
+        CHECK(matter_dispatch_set_outbound(d,&rebound)==MATTER_OK&&d->config.outbound.interface_id==2&&d->outgoing.path.interface_id==1&&resolver.query.interface_id==1);
+        CHECK(!memcmp(&original,&d->outgoing.path,sizeof(original)));
+        d->processing=true;CHECK(matter_dispatch_set_outbound(d,&original)==MATTER_BUSY&&d->config.outbound.interface_id==2);d->processing=false;
+        CHECK(matter_dispatch_set_outbound(d,&original)==MATTER_OK);
         CHECK(matter_dispatch_invoke_take(d,id,&status,&data,&size)==MATTER_PENDING);
         if(mode==0) matter_dispatch_invoke_cancel(d,id);
         if(mode==1) d->now=d->outgoing.deadline;
@@ -529,6 +572,8 @@ static void reentry_guard(Matter_Dispatch_T d) {
     CHECK(matter_dispatch_bdx(d,1,2,NULL,0,NULL,0,&id)==MATTER_BUSY);
     CHECK(matter_dispatch_invoke_take(d,123,&code,&fields,&size)==MATTER_BUSY);
     CHECK(matter_dispatch_bdx_take(d,123,&bytes)==MATTER_BUSY);
+    CHECK(matter_dispatch_peer(d,1,2,&id)==MATTER_BUSY);
+    CHECK(matter_dispatch_peer_take(d,123)==MATTER_BUSY);
     CHECK(id==123 && code==7 && fields==saved && size==789 && bytes==456);
     CHECK(calls==before && !memcmp(saved,d,sizeof(*d))); free(saved);
 }

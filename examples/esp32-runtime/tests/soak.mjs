@@ -155,6 +155,8 @@ async function addSubscription(ctx,client) {
         keepSubscriptions:true,isUrgent:true,dataVersionFilters:[],eventFilters:[],
         attributeListener:()=>{},eventListener:()=>{},updateReceived:()=>{++summary.subscription_updates;},
         updateTimeoutHandler:()=>{++summary.subscription_closed;
+            emit('SUBSCRIPTION_TIMEOUT',{client:clientNames.get(client),subscription_generation:generation,
+                current_generation:ctx.generation,expected:ctx.generation!==generation||ctx.expectedLoss});
             if(ctx.generation===generation && !ctx.expectedLoss) ++summary.unexpected_subscription_closures;}});
     if(response.attributeReports.length!==expectedAttributes) throw Error(`Incomplete Subscribe: ${response.attributeReports.length}`);
     const added=[...registry].filter(s=>!before.has(s));

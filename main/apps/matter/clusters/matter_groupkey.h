@@ -23,6 +23,17 @@ typedef struct {
 } Matter_Groupkey_Port_T;
 typedef Matter_Cluster_T Matter_Groupkey_T; /* Compatibility spelling; common handle. */
 Matter_Cluster_T matter_groupkey_new(const Matter_Groupkey_Port_T*);
+/* Optional group-table composition. KeySet storage remains in the original
+ * atomic fabric backend; map validation is side-effect-free, store is atomic.
+ * Array reads borrow extension-owned storage until its next accepted read.
+ * Port/user outlive the cluster; select only during construction. */
+typedef struct {
+    void* user; uint16_t max_groups_per_fabric; bool groupcast;
+    uint32_t (*version)(void*);
+    uint8_t (*read)(void*,uint32_t,const Matter_Cluster_Request_T*,Matter_Im_Value_T*);
+    uint8_t (*map)(void*,uint8_t,Matter_Im_List_Change_T,const uint8_t*,size_t,bool store);
+} Matter_Groupkey_Groups_Port_T;
+Matter_Cluster_T matter_groupkey_new_groups(const Matter_Groupkey_Port_T*,const Matter_Groupkey_Groups_Port_T*);
 Matter_Result_T matter_groupkey_delete(Matter_Groupkey_T);
 uint32_t matter_groupkey_version(Matter_Groupkey_T);
 extern const uint32_t matter_groupkey_attributes[MATTER_GROUPKEY_ATTRIBUTES];

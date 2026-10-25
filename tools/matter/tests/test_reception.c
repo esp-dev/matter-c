@@ -25,7 +25,7 @@ static bool initialization_and_errors(void) {
     CHECK(matter_reception_reset(NULL, MATTER_RECEPTION_UNSECURED) == MATTER_INVALID_ARGUMENT);
     CHECK(matter_reception_seed(NULL, MATTER_RECEPTION_UNSECURED, 0) == MATTER_INVALID_ARGUMENT);
     CHECK(matter_reception_reset(&s, (Matter_Reception_Mode_T)0) == MATTER_INVALID_ARGUMENT && same(&s, &before));
-    CHECK(matter_reception_seed(&s, (Matter_Reception_Mode_T)3, 0) == MATTER_INVALID_ARGUMENT && same(&s, &before));
+    CHECK(matter_reception_seed(&s, (Matter_Reception_Mode_T)99, 0) == MATTER_INVALID_ARGUMENT && same(&s, &before));
     CHECK(matter_reception_classify(NULL, 0, &duplicate) == MATTER_INVALID_ARGUMENT && duplicate);
     CHECK(matter_reception_commit(NULL, 0, &duplicate) == MATTER_INVALID_ARGUMENT && duplicate);
     CHECK(matter_reception_reset(&s, MATTER_RECEPTION_SECURE_UNICAST) == MATTER_OK);
@@ -105,7 +105,7 @@ static bool readonly_and_isolation(void) {
 /* Independent representation: explicit history counters, no bitmap shifts.
  * Heap-owned model keeps the 33-counter array off the test call stack.
  */
-typedef struct { uint32_t maximum, history[33]; size_t count; bool initialized, secure; } Model;
+typedef struct { uint32_t maximum, history[33]; size_t count; bool initialized, secure,group; } Model;
 static bool model_receive(Model* m, uint32_t counter) {
     if (!m->initialized) {
         m->initialized = true; m->maximum = counter; m->count = 33;
@@ -113,7 +113,8 @@ static bool model_receive(Model* m, uint32_t counter) {
         return false;
     }
     uint32_t back = m->maximum - counter;
-    bool future = m->secure && counter > m->maximum;
+    uint32_t forward=counter-m->maximum;
+    bool future = m->group?(forward&&forward<UINT32_C(0x80000000)):m->secure && counter > m->maximum;
     if (!future) {
         if (m->secure && back > 32) return true;
         for (size_t i = 0; i < m->count; ++i) if (m->history[i] == counter) return true;
@@ -132,8 +133,8 @@ static bool reference_sequences(void) {
     CHECK(model);
     Matter_Reception_T state;
     uint32_t random = UINT32_C(0x725ad319);
-    for (unsigned mode = 1; mode <= 2 && ok; ++mode) {
-        *model = (Model){.secure = mode == 2};
+    for (unsigned mode = 1; mode <= 3 && ok; ++mode) {
+        *model = (Model){.secure = mode != 1,.group=mode==3};
         ok = matter_reception_reset(&state, (Matter_Reception_Mode_T)mode) == MATTER_OK;
         for (unsigned i = 0; i < 20000 && ok; ++i) {
             random ^= random << 13; random ^= random >> 17; random ^= random << 5;
@@ -156,6 +157,6 @@ static bool reference_sequences(void) {
 int main(void) {
     if (!initialization_and_errors() || !secure_window() || !unsecured_window() ||
         !readonly_and_isolation() || !reference_sequences()) return 1;
-    puts("PASS reception: 5 groups (40000 explicit-history comparisons)");
+    puts("PASS reception: unicast/unsecured/group rollover (60000 explicit-history comparisons)");
     return 0;
 }

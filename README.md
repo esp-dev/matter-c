@@ -702,6 +702,11 @@ Committed fixtures remain available without any upstream checkout or CSA PDF.
 
 See [current status and validation](doc/oss/status.md) for the next task.
 
+The optional shared-library [RGB bulb profile](doc/oss/bulb-integration.md) adds
+lighting, Groups/Scenes and Groupcast composition. It is under development;
+the linked contract separates focused host coverage from pending physical and
+CSA validation. The product application remains separate from this library.
+
 CSA44 records original TC-DESC-2.1 FAIL, TH run480: flat PartsList wording and
 incomplete whole-device cluster acceptance. Independent five-endpoint Descriptor/
 served-catalog acceptance passes 117 checks per memory variant without native changes.

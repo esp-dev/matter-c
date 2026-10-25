@@ -1,8 +1,14 @@
 # Test inventory
 
-test-map.json enumerates 257 test, fixture, fuzz and controller files. Run
+test-map.json enumerates 279 test, fixture, fuzz and controller files. Run
 `python tools/matter/check_test_map.py` to verify coverage, current dependency
 source membership and the closed public-header set.
+
+The shared bulb profile adds `test_light`, `test_light_groups`,
+`test_group_profiles`, `test_group_privacy`, `test_group_invoke` and
+`test_groupcast`, `test_idf_wifi_retry` and `test_runtime_notify`; `test_runtime` also checks optional composition across
+stop/delete/rebind, and `test_reception` now covers group counter rollover.
+See [profile scope and remaining validation](bulb-integration.md).
 
 Memory21 adds external C6 reference/controller tools under
 `examples/esp-matter-memory/`, outside this native inventory's scope roots.

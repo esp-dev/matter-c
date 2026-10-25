@@ -8,6 +8,9 @@ typedef struct Matter_Idf_Discovery* Matter_Idf_Discovery_T;
  * Supports builder records with <=8 TXT items/4 subtypes. Uses exact instance
  * removal, never removes unrelated advertisements or stops the shared service.
  * SDK success means registry installation, not peer receipt or a Matter ACK. */
+/* A non-NULL record hostname must already be the SDK's local hostname or a
+ * registered delegated host with addresses. Otherwise publication fails and
+ * remains retryable; an SRV-only dangling hostname cannot resolve to a node. */
 Matter_Idf_Discovery_T matter_idf_discovery_new(Matter_T,const Matter_Mdns_Record_T*);
 Matter_Mdns_T matter_idf_discovery_module(Matter_Idf_Discovery_T);
 Matter_Result_T matter_idf_discovery_process(Matter_Idf_Discovery_T);

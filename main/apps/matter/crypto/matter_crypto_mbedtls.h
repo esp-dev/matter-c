@@ -31,6 +31,13 @@ Matter_Result_T matter_crypto_mbedtls_port(Matter_Crypto_Mbedtls_T crypto, Matte
  * explicit operational extension policy. Matter TLV/profile checks remain
  * the caller's responsibility; generic DER/attestation policy is unchanged. */
 Matter_Result_T matter_crypto_mbedtls_credentials(Matter_Crypto_Mbedtls_T crypto, Matter_Credentials_Port_T* port);
+/* Matter Core3.7 privacy transform: AES-CTR, q=2, counter starts at0.
+ * Same operation encrypts/decrypts <=20 header bytes. Key16/nonce13 and input/
+ * output spans are disjoint. Invalid/preflight/OOM preserves output; a crypto
+ * failure clears it. No RNG dependency after key provisioning. */
+/* Callback-compatible context is the same crypto instance / crypto.port.user. */
+Matter_Result_T matter_crypto_mbedtls_privacy(void*,
+    const uint8_t key[16],const uint8_t nonce[13],const uint8_t*,size_t,uint8_t*);
 /* Explicit entropy refresh/recovery. Failure disables random (OFFLINE) until
  * a successful explicit reseed. Automatic reseed failure has the same rule.
  * Hash/HMAC/HKDF/PBKDF2 and P-256 reduction remain usable; P-256 base/SPAKE2+

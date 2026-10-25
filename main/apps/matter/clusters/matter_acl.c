@@ -12,6 +12,7 @@ static uint8_t prepare_events(Acl,const Matter_Cluster_Request_T*,Matter_Im_List
 struct Matter_Acl {
     Matter_Cluster_T interface;
     Matter_Acl_Port_T port; bool busy,added_prepared;
+    Matter_Acl_Auxiliary_Port_T auxiliary;
     Matter_Acl_Events_Port_T events;
     Matter_Event_Record_T changes[MATTER_ACL_ENTRIES];
     Matter_Acl_Entry_T pending[MATTER_ACL_ENTRIES]; size_t count;
@@ -40,9 +41,13 @@ static bool subject(uint64_t v,uint8_t mode) {
     return (v && v<=UINT64_C(0xffffffefffffffff)) ||
         ((v>>32)==UINT64_C(0xfffffffd) && ((v>>16)&0xffff) && (v&0xffff));
 }
-Matter_Cluster_T matter_acl_new(const Matter_Acl_Port_T* p) {
+static uint32_t data_version(Acl m) { return m->port.view(m->port.user)->version+(m->auxiliary.version?m->auxiliary.version(m->auxiliary.user):0); }
+Matter_Cluster_T matter_acl_new(const Matter_Acl_Port_T* p) { return matter_acl_new_auxiliary(p,NULL); }
+Matter_Cluster_T matter_acl_new_auxiliary(const Matter_Acl_Port_T* p,const Matter_Acl_Auxiliary_Port_T* auxiliary) {
     if(!p || !p->view || !p->store || !p->view(p->user)) return NULL;
+    if(auxiliary&&(!auxiliary->version||!auxiliary->read))return NULL;
     Acl m=calloc(1,sizeof(*m)); if(!m) return NULL; m->port=*p;
+    if(auxiliary)m->auxiliary=*auxiliary;
     m->interface=interface_new(m); if(!m->interface) { free(m); return NULL; } return m->interface;
 }
 static Matter_Result_T destroy(void* ctx) {
@@ -53,7 +58,7 @@ static Matter_Result_T destroy(void* ctx) {
     memset(m,0,sizeof(*m)); free(m); return MATTER_OK;
 }
 uint32_t matter_acl_version(Matter_Acl_T handle) {
-    Acl m=matter_cluster_context(handle,destroy); return m?m->port.view(m->port.user)->version:0; }
+    Acl m=matter_cluster_context(handle,destroy); return m?data_version(m):0; }
 static bool next(Acl m) { return matter_tlv_next(&m->reader,&m->token)==MATTER_TLV_OK; }
 static bool skip(Acl m) {
     Matter_Tlv_Type_T t=m->token.type;
@@ -238,6 +243,18 @@ uint8_t matter_acl_read(Matter_Acl_T m,uint32_t attr,uint8_t index,bool filtered
     if(!matter_cluster_context(m,destroy)) return MATTER_IM_FAILURE;
     Matter_Cluster_Request_T q={.fabric=index,.filtered=filtered}; return matter_cluster_read(m,attr,&q,out);
 }
+static bool matches_target(const Matter_Acl_Entry_T* a,const Matter_Im_Path_T* p,const Matter_Acl_Device_Port_T* devices) {
+    if(!a->target_count)return true;
+    if(!p)return false;
+    for(unsigned j=0;j<a->target_count;++j) {
+        const Matter_Acl_Target_T* t=&a->targets[j];
+        if((t->present&1) && t->cluster!=p->cluster)continue;
+        if((t->present&2) && t->endpoint!=p->endpoint)continue;
+        if((t->present&4) && (!devices || !devices->contains || !devices->contains(devices->user,p->endpoint,t->device_type)))continue;
+        return true;
+    }
+    return false;
+}
 bool matter_acl_grants(const Matter_Acl_View_T* v,uint8_t index,uint64_t node,const uint32_t* cats,size_t count,
     const Matter_Im_Path_T* p,Matter_Im_Privilege_T required,const Matter_Acl_Device_Port_T* devices) {
     const Matter_Acl_Fabric_T* f=fabric(v,index);
@@ -251,15 +268,19 @@ bool matter_acl_grants(const Matter_Acl_View_T* v,uint8_t index,uint64_t node,co
                 if((cats[k]>>16)==((uint32_t)s>>16) && (cats[k]&0xffff)>=(s&0xffff)) matches=true;
         }
         if(!matches) continue;
-        if(!a->target_count) return true;
-        if(!p) continue;
-        for(unsigned j=0;j<a->target_count;++j) {
-            const Matter_Acl_Target_T* t=&a->targets[j];
-            if((t->present&1) && t->cluster!=p->cluster) continue;
-            if((t->present&2) && t->endpoint!=p->endpoint) continue;
-            if((t->present&4) && (!devices || !devices->contains || !devices->contains(devices->user,p->endpoint,t->device_type))) continue;
-            return true;
-        }
+        if(matches_target(a,p,devices))return true;
+    }
+    return false;
+}
+bool matter_acl_group_grants(const Matter_Acl_View_T* v,uint8_t index,uint16_t group,
+    const Matter_Im_Path_T* p,Matter_Im_Privilege_T required,const Matter_Acl_Device_Port_T* devices) {
+    const Matter_Acl_Fabric_T* f=v?fabric(v,index):NULL;
+    if(!f||!group||!p||!p->endpoint||!privilege(required))return false;
+    for(unsigned i=0;i<f->count;++i) {
+        const Matter_Acl_Entry_T* a=&f->entries[i];if(a->auth_mode!=3||a->privilege<required)continue;
+        bool subject=!a->subject_count;
+        for(unsigned j=0;j<a->subject_count;++j)if(a->subjects[j]==group)subject=true;
+        if(subject&&matches_target(a,p,devices))return true;
     }
     return false;
 }
@@ -275,11 +296,11 @@ Matter_Result_T matter_acl_delete(Matter_Acl_T m) {
     return matter_cluster_delete(m);
 }
 
-static Matter_Result_T cluster_version(void* u,uint32_t* out) { Acl m=u; *out=m->port.view(m->port.user)->version; return MATTER_OK; }
+static Matter_Result_T cluster_version(void* u,uint32_t* out) { *out=data_version(u); return MATTER_OK; }
 static uint8_t read_scalar(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
     (void)q; Acl m=u; if(m->busy) return MATTER_IM_FAILURE;
     m->busy=true; clear_encoded(m);
-    *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=*(const uint32_t*)ref,.data_version=m->port.view(m->port.user)->version};
+    *out=(Matter_Im_Value_T){.type=MATTER_TLV_UNSIGNED,.unsigned_value=*(const uint32_t*)ref,.data_version=data_version(m)};
     m->busy=false; return 0;
 }
 static bool encode_entries(Acl m,const Matter_Acl_View_T* v,const void* ref,const Matter_Cluster_Request_T* q) {
@@ -300,7 +321,10 @@ static bool encode_entries(Acl m,const Matter_Acl_View_T* v,const void* ref,cons
 static bool encode_ids(Acl m,const Matter_Acl_View_T* v,const void* ref,const Matter_Cluster_Request_T* q) {
     (void)v; (void)q;
     if(!P(MATTER_TLV_ARRAY,-1,0)) return false;
-    if(ref) for(unsigned i=0;i<MATTER_ACL_ATTRIBUTES;++i) if(!U(-1,matter_acl_attributes[i])) return false;
+    if(ref) for(unsigned i=0;i<MATTER_ACL_ATTRIBUTES;++i) {
+        if(i==4&&m->auxiliary.read&&!U(-1,7))return false;
+        if(!U(-1,matter_acl_attributes[i]))return false;
+    }
     return END();
 }
 typedef bool (*Encode_Value)(Acl,const Matter_Acl_View_T*,const void*,const Matter_Cluster_Request_T*);
@@ -312,7 +336,7 @@ static uint8_t read_encoded(void* u,const void* ref,const Matter_Cluster_Request
     uint8_t result=MATTER_IM_UNSUPPORTED_ACCESS; size_t size=0,written=0;
     if(scoped && !fabric(v,q->fabric)) goto done;
     clear_encoded(m);
-    *out=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=v->version}; result=MATTER_IM_FAILURE;
+    *out=(Matter_Im_Value_T){.type=MATTER_TLV_ARRAY,.data_version=v->version+(m->auxiliary.version?m->auxiliary.version(m->auxiliary.user):0)}; result=MATTER_IM_FAILURE;
     /* The owner serializes the stable validated view. Both pure passes keep
      * the original TLV budget/depth, without another view/store callback. */
     if(matter_tlv_measure_init(&m->writer,4096,depth)!=MATTER_TLV_OK || !encode(m,v,ref,q) ||
@@ -339,8 +363,15 @@ static uint8_t cluster_validate(void* u,const void* ref,const Matter_Cluster_Req
 static Matter_Im_Write_Result_T cluster_write(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_List_Change_T c,const uint8_t* d,size_t n) {
     (void)ref; Acl m=u; return (Matter_Im_Write_Result_T){.status=q->is_case?write_entries(m->interface,q->fabric,c,d,n,q):MATTER_IM_UNSUPPORTED_ACCESS};
 }
+static uint8_t read_auxiliary(void* u,const void* ref,const Matter_Cluster_Request_T* q,Matter_Im_Value_T* out) {
+    (void)ref;Acl m=u;if(m->busy)return MATTER_IM_FAILURE;
+    if(!fabric(m->port.view(m->port.user),q->fabric))return MATTER_IM_UNSUPPORTED_ACCESS;
+    m->busy=true;clear_encoded(m);uint8_t r=m->auxiliary.read(m->auxiliary.user,q,out);m->busy=false;
+    if(!r)out->data_version=data_version(m);
+    return r;
+}
 static Matter_Cluster_T interface_new(Acl m) {
-    Matter_Cluster_Config_T cfg={.id=MATTER_ACL_CLUSTER,.attributes=MATTER_ACL_ATTRIBUTES,.events=1,.callbacks={.ctx=m,.version=cluster_version,.destroy=destroy}};
+    Matter_Cluster_Config_T cfg={.id=MATTER_ACL_CLUSTER,.attributes=MATTER_ACL_ATTRIBUTES+(m->auxiliary.read?1:0),.events=m->auxiliary.read?2:1,.callbacks={.ctx=m,.version=cluster_version,.destroy=destroy}};
     Matter_Cluster_T c=matter_cluster_new(&cfg); if(!c) return NULL;
     static const uint32_t subjects=MATTER_ACL_SUBJECTS,targets=MATTER_ACL_TARGETS,entries=MATTER_ACL_ENTRIES,zero=0,revision=3;
     static const Matter_Attribute_Def_T attrs[]={
@@ -355,7 +386,16 @@ static Matter_Cluster_T interface_new(Acl m) {
         {.id=0xfffc,.read_access={MATTER_IM_VIEW,false},.read=read_scalar,.ref=&zero},
         {.id=0xfffd,.read_access={MATTER_IM_VIEW,false},.read=read_scalar,.ref=&revision}
     };
-    for(size_t i=0;i<sizeof(attrs)/sizeof(*attrs);++i) if(matter_cluster_add_attribute(c,&attrs[i])!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
+    static const uint32_t auxiliary_feature=4;
+    for(size_t i=0;i<sizeof(attrs)/sizeof(*attrs);++i) {
+        Matter_Attribute_Def_T a=attrs[i];if(m->auxiliary.read&&a.id==0xfffc)a.ref=&auxiliary_feature;
+        if(matter_cluster_add_attribute(c,&a)!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
+    }
+    if(m->auxiliary.read) {
+        const Matter_Attribute_Def_T a={.id=7,.read_access={MATTER_IM_ADMINISTER,true},.read=read_auxiliary};
+        const Matter_Event_Def_T e={3,MATTER_IM_ADMINISTER,1,true};
+        if(matter_cluster_add_attribute(c,&a)!=MATTER_OK||matter_cluster_add_event(c,&e)!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
+    }
     const Matter_Event_Def_T event={0,MATTER_IM_ADMINISTER,1,true};
     if(matter_cluster_add_event(c,&event)!=MATTER_OK) { matter_cluster_abandon(c); return NULL; }
     (void)matter_cluster_seal(c); return c;

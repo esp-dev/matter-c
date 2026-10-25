@@ -67,6 +67,21 @@ Matter_Result_T matter_dispatch_bdx(Matter_Dispatch_T,uint8_t fabric,uint64_t no
     const uint8_t* fd,size_t fd_size,const Matter_Bdx_Sink_T*,uint64_t limit,uint64_t* id);
 Matter_Result_T matter_dispatch_bdx_take(Matter_Dispatch_T,uint64_t id,uint64_t* bytes);
 Matter_Dispatch_T matter_dispatch_new(Matter_T,Matter_Udp_T,const Matter_Dispatch_Config_T*);
+/* Owner updates the concrete source for FUTURE outbound jobs after IPv6
+ * readiness/reconnect. Each accepted job already owns its path/query copy;
+ * existing handshake, ciphertext, sessions and ACK/MRP drain are untouched. */
+Matter_Result_T matter_dispatch_set_outbound(Matter_Dispatch_T,const Matter_Udp_Path_T*);
+/* Pure, allocation-free preflight for a durable caller's admission decision.
+ * OK requires a reusable peer session or configured concrete source/resolver.
+ * BUSY/OFFLINE do not consume one-shot application work. Does not guarantee
+ * current network reachability or that a subsequent allocation will succeed. */
+Matter_Result_T matter_dispatch_invoke_ready(Matter_Dispatch_T,uint8_t fabric,uint64_t node);
+/* Prepare DNS/CASE without sending an application request. OK means an existing
+ * reusable peer; PENDING owns the shared outgoing slot until peer_take includes
+ * handshake ACK/drain. Cancel through invoke_cancel. Failed preparation can be
+ * retried without consuming a durable application notification. */
+Matter_Result_T matter_dispatch_peer(Matter_Dispatch_T,uint8_t fabric,uint64_t node,uint64_t* id);
+Matter_Result_T matter_dispatch_peer_take(Matter_Dispatch_T,uint64_t id);
 void matter_dispatch_received(void*,const Matter_Udp_Datagram_T*);
 void matter_dispatch_sent(void*,uint64_t,Matter_Operation_Result_T);
 Matter_Result_T matter_dispatch_process(Matter_Dispatch_T,uint64_t now);

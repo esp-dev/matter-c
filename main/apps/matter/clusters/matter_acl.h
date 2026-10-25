@@ -32,6 +32,15 @@ typedef Matter_Cluster_T Matter_Acl_T; /* Compatibility name; state is private. 
  * Encoding OOM returns RESOURCE_EXHAUSTED to direct reads; existing IM provider
  * error mappings still apply. The owner serializes the stable backend view. */
 Matter_Cluster_T matter_acl_new(const Matter_Acl_Port_T*);
+/* Optional Groupcast-generated, read-only auxiliary entries. select before
+ * cluster publication; existing writable ACL remains independent. Callbacks are
+ * pure owner snapshots and their encoded borrow expires on their next read. */
+typedef struct {
+    void* user;
+    uint32_t (*version)(void*);
+    uint8_t (*read)(void*,const Matter_Cluster_Request_T*,Matter_Im_Value_T*);
+} Matter_Acl_Auxiliary_Port_T;
+Matter_Cluster_T matter_acl_new_auxiliary(const Matter_Acl_Port_T*,const Matter_Acl_Auxiliary_Port_T*);
 typedef struct { Matter_Events_T log; void* user; uint64_t (*now)(void*); } Matter_Acl_Events_Port_T;
 /* Bind before serving IM. Borrowed log/clock, once per instance. Internal
  * trusted matter_acl_write calls do not represent an Administrator and emit
@@ -59,5 +68,10 @@ uint8_t matter_acl_write(Matter_Acl_T,uint8_t accessing,Matter_Im_List_Change_T,
 bool matter_acl_grants(const Matter_Acl_View_T*,uint8_t,uint64_t,const uint32_t*,size_t,
     const Matter_Im_Path_T*,Matter_Im_Privilege_T,const Matter_Acl_Device_Port_T*);
 bool matter_acl_authorize(Matter_Acl_T,uint8_t,uint64_t,const uint32_t*,size_t,
+    const Matter_Im_Path_T*,Matter_Im_Privilege_T,const Matter_Acl_Device_Port_T*);
+/* Group-only writable ACL grants. The caller has already authenticated a group
+ * message, its fabric/group binding and replay counter. No CASE/CAT matching,
+ * implicit PASE, auxiliary ACL or wildcard endpoint expansion is performed. */
+bool matter_acl_group_grants(const Matter_Acl_View_T*,uint8_t,uint16_t,
     const Matter_Im_Path_T*,Matter_Im_Privilege_T,const Matter_Acl_Device_Port_T*);
 #endif

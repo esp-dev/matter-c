@@ -9,6 +9,9 @@
 #include <mbedtls/asn1write.h>
 #include <mbedtls/oid.h>
 #include <mbedtls/constant_time.h>
+#if MBEDTLS_VERSION_MAJOR < 4
+#include <mbedtls/aes.h>
+#endif
 #include "matter_spake2p_points.h"
 #include <mbedtls/platform_util.h>
 
@@ -357,6 +360,37 @@ static Matter_Result_T ccm_encrypt(void* user, const uint8_t* key, const uint8_t
 static Matter_Result_T ccm_decrypt(void* user, const uint8_t* key, const uint8_t* nonce,
 	const uint8_t* aad, size_t aad_size, const uint8_t* cipher, size_t size, uint8_t* plain) {
 	return ccm(user, key, nonce, aad, aad_size, cipher, size, plain, true);
+}
+Matter_Result_T matter_crypto_mbedtls_privacy(void* user,
+    const uint8_t key[16],const uint8_t nonce[13],const uint8_t* data,size_t size,uint8_t* out) {
+    Matter_Crypto_Mbedtls_T c=user;
+    Matter_Result_T r=check(c);if(r!=MATTER_OK)return r;
+    if(!key||!nonce||!span(data,size)||!span(out,size)||size>20)return MATTER_INVALID_ARGUMENT;
+    uint8_t counter[16]={1},stream[16]={0};size_t offset=0;memcpy(counter+1,nonce,13);
+#if MBEDTLS_VERSION_MAJOR >= 4
+    typedef struct { psa_key_attributes_t attributes; psa_cipher_operation_t operation; mbedtls_svc_key_id_t key; } Work;
+    Work* w=calloc(1,sizeof(*w));if(!w)return MATTER_LIMIT_REACHED;
+    w->attributes=psa_key_attributes_init();w->operation=psa_cipher_operation_init();
+    psa_set_key_type(&w->attributes,PSA_KEY_TYPE_AES);psa_set_key_bits(&w->attributes,128);
+    psa_set_key_algorithm(&w->attributes,PSA_ALG_CTR);psa_set_key_usage_flags(&w->attributes,PSA_KEY_USAGE_ENCRYPT);
+    c->busy=true;
+    int error=psa_import_key(&w->attributes,key,16,&w->key);size_t written=0,last=0;
+    if(!error)error=psa_cipher_encrypt_setup(&w->operation,w->key,PSA_ALG_CTR);
+    if(!error)error=psa_cipher_set_iv(&w->operation,counter,sizeof(counter));
+    if(!error)error=psa_cipher_update(&w->operation,input(data),size,out,size,&written);
+    if(!error)error=psa_cipher_finish(&w->operation,out?out+written:NULL,size-written,&last);
+    if(!error && written+last!=size)error=PSA_ERROR_CORRUPTION_DETECTED;
+    (void)psa_cipher_abort(&w->operation);(void)psa_destroy_key(w->key);psa_reset_key_attributes(&w->attributes);
+    clear((uint8_t*)w,sizeof(*w));free(w);(void)stream;(void)offset;
+#else
+    mbedtls_aes_context* aes=calloc(1,sizeof(*aes));if(!aes)return MATTER_LIMIT_REACHED;
+    c->busy=true;mbedtls_aes_init(aes);
+    int error=mbedtls_aes_setkey_enc(aes,key,128);
+    if(!error&&size)error=mbedtls_aes_crypt_ctr(aes,size,&offset,counter,stream,data,out);
+    mbedtls_aes_free(aes);clear((uint8_t*)aes,sizeof(*aes));free(aes);
+#endif
+    clear(counter,sizeof(counter));clear(stream,sizeof(stream));
+    return finish(c,error,out,size);
 }
 /* Credential workspaces are per call on the heap, never a task-stack keypair. */
 typedef struct {

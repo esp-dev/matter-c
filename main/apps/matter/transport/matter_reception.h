@@ -11,7 +11,8 @@ extern "C" {
 enum { MATTER_RECEPTION_WINDOW_SIZE = 32 };
 typedef enum {
 	MATTER_RECEPTION_UNSECURED = 1,
-	MATTER_RECEPTION_SECURE_UNICAST
+	MATTER_RECEPTION_SECURE_UNICAST,
+	MATTER_RECEPTION_SECURE_GROUP
 } Matter_Reception_Mode_T;
 
 /* Caller-owned value, no pointers/allocations. Fields are read-only to callers;
@@ -37,7 +38,9 @@ Matter_Result_T matter_reception_reset(Matter_Reception_T* state, Matter_Recepti
 Matter_Result_T matter_reception_seed(Matter_Reception_T* state, Matter_Reception_Mode_T mode, uint32_t counter);
 /* Read-only classification. False means new according to the selected counter
  * policy, NOT trusted. Secure unicast never rolls its maximum back; unsecured
- * permits reboot/rollback outside the modulo window. No group-counter policy.
+ * permits reboot/rollback outside the modulo window. Secure group counters use
+ * the forward half of the modulo-2^32 space and retain the same replay window.
+ * Group peer/key states MUST NOT be recycled during the boot (Core 4.16.1).
  * Duplicates still need MRP A/R processing after required authentication.
  */
 Matter_Result_T matter_reception_classify(const Matter_Reception_T* state, uint32_t counter, bool* duplicate);

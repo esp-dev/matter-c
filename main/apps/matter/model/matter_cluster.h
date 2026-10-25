@@ -10,6 +10,9 @@ typedef struct {
     Matter_Exchange_Session_T session; uint8_t fabric;
     bool filtered,is_case,armed;
     uint64_t peer_node; /* Authenticated CASE subject, supplied by session binding. */
+    /* Trusted group adapter only, after MIC/replay/fabric/ACL checks. Group
+     * requests never impersonate CASE and cannot grant CASE-only operations. */
+    bool is_group; uint16_t group;
 } Matter_Cluster_Request_T;
 typedef struct {
     uint32_t id; Matter_Im_Attribute_T read_access; Matter_Im_Write_Attribute_T write_access;

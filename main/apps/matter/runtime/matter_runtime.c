@@ -6,6 +6,7 @@
 #include "clusters/matter_admin_commissioning.h"
 #include "clusters/matter_ota_query.h"
 #include "clusters/matter_ota_apply.h"
+#include "clusters/matter_light_groups_internal.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -33,10 +34,11 @@ struct Matter_Runtime {
     Matter_Ota_Apply_T apply; Matter_Ota_Apply_Context_T candidate;
     Matter_Ota_Update_T update; Matter_Ota_Signed_T proof;
     Matter_Events_T events; uint64_t applying_event; bool applying_event_valid;
-    uint64_t notify; uint8_t notify_args[48]; bool ota_reboot,applied_event;
+    uint64_t notify,notify_peer,notify_retry; uint8_t notify_args[48]; bool ota_reboot,applied_event;
     uint64_t deadline; bool window,enhanced,stopping,stopped,reset,recovering,processing;
     uint64_t commissioning_epoch; unsigned commissioning_failures;
     bool close_failed_window;
+    bool groups_bound,groups_dirty;uint32_t groups_revision;
     char log_buffer[384];
 };
 static void runtime_log(Matter_Runtime_T s,const char* format,...) {
@@ -122,6 +124,8 @@ static bool contains(void* u,uint16_t ep,uint32_t type) {
 }
 static uint8_t authorize(void* u,Matter_Exchange_Session_T token,const Matter_Im_Path_T* path,Matter_Im_Privilege_T privilege) {
     Matter_Runtime_T s=u; Matter_Secure_T secure=matter_dispatch_session(s->dispatch,token); if(!secure) return MATTER_IM_UNSUPPORTED_ACCESS;
+    if(s->groups_dirty&&path&&(path->cluster==4||path->cluster==0x62||path->cluster==0x65||
+        (privilege>=MATTER_IM_OPERATE&&(path->cluster==0x3e||path->cluster==0x3c))))return MATTER_IM_UNSUPPORTED_ACCESS;
     Matter_Secure_Identity_T id;
     /* A completed PASE was admitted by the window. Expiry prevents NEW attempts;
      * explicit revoke/Complete/rollback gates its incarnation in the dispatcher. */
@@ -158,7 +162,9 @@ static Matter_Result_T complete(void* u,uint8_t fabric) { return matter_commissi
 static Matter_Result_T regulatory(void* u,const Matter_Root_Settings_T* settings,uint8_t candidate,bool* supported) {
     Matter_Runtime_T s=u; *supported=false;
     Matter_Result_T r=s->platform.regulatory(s->platform.user,settings,candidate,supported);
-    if(r==MATTER_OK && *supported) r=store(u,settings);
+    /* Core Location is durable even for an unsupported radio country. Root
+     * publishes ValueOutsideRange separately; a store error publishes neither. */
+    if(r==MATTER_OK) r=store(u,settings);
     return r;
 }
 static void pase_failed(void* u,uint64_t epoch) {
@@ -171,7 +177,7 @@ static void pase_failed(void* u,uint64_t epoch) {
     }
 }
 static Matter_Pase_T pase(void* u,uint16_t id,uint64_t now) {
-    Matter_Runtime_T s=u; if(s->stopping || s->recovering) return NULL;
+    Matter_Runtime_T s=u; if(s->stopping || s->recovering || s->groups_dirty) return NULL;
     Matter_Root_Fail_Safe_State_T state;
     if(matter_root_fail_safe_state(s->root,&state)!=MATTER_OK || state==MATTER_ROOT_FAIL_SAFE_CLEANUP) return NULL;
     Matter_Pase_T p;
@@ -209,15 +215,46 @@ static Matter_Result_T admin_revoke(void* u) {
     if(state!=MATTER_ROOT_FAIL_SAFE_IDLE) { (void)matter_root_expire(s->root); return MATTER_PENDING; }
     return r;
 }
+static Matter_Result_T groups_sync(Matter_Runtime_T s) {
+    if(!s->groups_bound)return MATTER_OK;
+    const Matter_Fabric_View_T* view=s->fabric_port.view(s->fabric_port.user);
+    if(!s->groups_dirty&&s->groups_revision==view->revision)return MATTER_OK;
+    s->groups_dirty=true;
+    Matter_Light_Groups_Fabric_T* fabrics=view->count?calloc(view->count,sizeof(*fabrics)):NULL;
+    if(view->count&&!fabrics)return MATTER_LIMIT_REACHED;
+    size_t count=0;
+    for(unsigned i=0;i<MATTER_FABRIC_CAPACITY;++i)if(view->records[i].index) {
+        if(count>=view->count){free(fabrics);return MATTER_PORT_ERROR;}
+        Matter_Light_Groups_Fabric_T* f=&fabrics[count++];f->index=view->records[i].index;f->id=view->records[i].fabric_id;
+        memcpy(f->root_public,view->records[i].root_public+1,64);
+    }
+    Matter_Result_T r=count==view->count?matter_light_groups_bind(s->platform.groupcast.model,fabrics,count):MATTER_PORT_ERROR;
+    free(fabrics);if(r==MATTER_OK){s->groups_revision=view->revision;s->groups_dirty=false;}return r;
+}
+static Matter_Result_T group_key(void* u,uint8_t fabric,uint16_t id,unsigned epoch,uint8_t out[16]) {
+    return matter_fabric_host_group_key(((Matter_Runtime_T)u)->fabric_host,fabric,id,epoch,out);
+}
+static bool group_admin(void* u,const Matter_Cluster_Request_T* q) {
+    const Matter_Im_Path_T path={0,0x65,0};
+    return q->is_case&&authorize(u,q->session,&path,MATTER_IM_ADMINISTER)==MATTER_IM_SUCCESS;
+}
 static void fabric_removed(void* u,uint8_t index) {
     Matter_Runtime_T s=u;
     /* Core 11.19.7.2/3: retain window, PAKE credentials and opening VendorID;
      * only the reference to the removed fabric becomes null. */
     (void)matter_admin_commissioning_fabric_removed(s->admin,index);
+    if(s->groups_bound){matter_light_groupcast_pause(s->platform.groupcast.model,false);s->groups_dirty=true;(void)groups_sync(s);}
     matter_dispatch_changed(s->dispatch);
 }
 Matter_Root_T matter_runtime_root(Matter_Runtime_T s) { return s?s->root:NULL; }
-bool matter_runtime_commissionable(Matter_Runtime_T s) { return s && (s->window || s->enhanced) && !s->stopping && !s->recovering; }
+bool matter_runtime_recovered(Matter_Runtime_T s){return s&&!s->recovering&&!s->stopping;}
+Matter_Result_T matter_runtime_provision_wifi(Matter_Runtime_T s,const Matter_Wifi_Settings_T* settings,const Matter_Wifi_Id_T* connected) {
+    if(!s)return MATTER_INVALID_ARGUMENT;
+    if(s->processing)return MATTER_BUSY;
+    if(!s->stopped)return MATTER_INVALID_STATE;
+    return matter_commissioning_host_provision_wifi(s->commission,settings,connected,s->platform.wifi_config.max_networks);
+}
+bool matter_runtime_commissionable(Matter_Runtime_T s) { return s && (s->window || s->enhanced) && !s->stopping && !s->recovering && !s->groups_dirty; }
 uint8_t matter_runtime_commissioning_mode(Matter_Runtime_T s,uint16_t* discriminator) {
     if(!matter_runtime_commissionable(s)) return 0;
     if(s->enhanced) { if(discriminator) *discriminator=s->enhanced_discriminator; return 2; }
@@ -277,8 +314,17 @@ Matter_Runtime_T matter_runtime_new(const Matter_Runtime_Config_T* c,uint32_t pi
     s->fabric_host=matter_fabric_host_new(s->fabric_image,s->keys,&s->crypto,&s->credentials,&s->time); if(!s->fabric_host) goto fail;
     s->fabric_port=matter_fabric_host_port(s->fabric_host); s->fabrics=matter_fabric_new(&s->fabric_port);
     if(!s->fabrics || matter_opcreds_attach_fabrics(s->opcreds,s->fabrics)!=MATTER_OK) goto fail;
-    Matter_Acl_Port_T ap=matter_fabric_host_acl_port(s->fabric_host); s->acl=matter_acl_new(&ap);
-    Matter_Groupkey_Port_T gp=matter_fabric_host_groupkey_port(s->fabric_host); s->groupkey=matter_groupkey_new(&gp);
+    Matter_Acl_Port_T ap=matter_fabric_host_acl_port(s->fabric_host);
+    Matter_Groupkey_Port_T gp=matter_fabric_host_groupkey_port(s->fabric_host);
+    if(c->groupcast.model) {
+        Matter_Light_Groupcast_Port_T groups={.keys=gp,.acl=ap,.crypto=s->crypto,.devices={s,contains},.user=s,
+            .key=group_key,.privacy=c->groupcast.privacy,.administrator=group_admin};
+        if(matter_light_groups_groupcast(c->groupcast.model,&groups,NULL)!=MATTER_OK)goto fail;
+        s->groups_bound=true;s->groups_dirty=true;if(groups_sync(s)!=MATTER_OK)goto fail;
+        Matter_Acl_Auxiliary_Port_T auxiliary=matter_light_groups_auxiliary(c->groupcast.model);
+        Matter_Groupkey_Groups_Port_T maps=matter_light_groups_keymap(c->groupcast.model);
+        s->acl=matter_acl_new_auxiliary(&ap,&auxiliary);s->groupkey=matter_groupkey_new_groups(&gp,&maps);
+    } else {s->acl=matter_acl_new(&ap);s->groupkey=matter_groupkey_new(&gp);}
     Matter_Diagnostics_Radio_Port_T radio={c->wifi.control.user,c->wifi.observe};
     s->diagnostics_host=matter_diagnostics_host_new_port(&s->diagnostics_image,&radio,&c->iface,c->boot_reason,c->reboot,now);
     if(!s->diagnostics_host) goto fail;
@@ -606,6 +652,16 @@ Matter_Result_T matter_runtime_ota_boot_ready(Matter_Runtime_T s) {
     s->processing=true; Matter_Result_T r=ota_boot_ready(s); s->processing=false; return r;
 }
 static void notify_process(Matter_Runtime_T s) {
+    if(s->notify_peer) {
+        if(s->stopping||s->reset)matter_dispatch_invoke_cancel(s->dispatch,s->notify_peer);
+        Matter_Result_T r=matter_dispatch_peer_take(s->dispatch,s->notify_peer);
+        if(r==MATTER_PENDING||r==MATTER_BUSY)return;
+        s->notify_peer=0;
+        if(r!=MATTER_OK) {
+            s->notify_retry=s->now>UINT64_MAX-5000?UINT64_MAX:s->now+5000;
+            return;
+        }
+    }
     if(s->notify) {
         if(s->stopping || s->reset) matter_dispatch_invoke_cancel(s->dispatch,s->notify);
         uint8_t status=0; const uint8_t* body=NULL; size_t size=0;
@@ -618,6 +674,18 @@ static void notify_process(Matter_Runtime_T s) {
     if(!pending || s->stopping || s->reset || s->ota_reboot) return;
     if(s->ota_port.install && !s->applied_event) return;
     uint8_t fingerprint[32]={0}; bool live=ota_fingerprint(s,pending->provider.fabric,fingerprint);
+    /* Keep the durable one-shot claim through offline boot, DNS/CASE failure
+     * and handshake drain. Only preparation is retried; after the claim, the
+     * existing at-most-once Invoke/MRP policy still applies. */
+    if(live) {
+        if(s->now<s->notify_retry)return;
+        Matter_Result_T prepared=matter_dispatch_peer(s->dispatch,pending->provider.fabric,pending->provider.node,&s->notify_peer);
+        if(prepared==MATTER_PENDING)return;
+        if(prepared!=MATTER_OK) {
+            if(prepared!=MATTER_BUSY)s->notify_retry=s->now>UINT64_MAX-5000?UINT64_MAX:s->now+5000;
+            return;
+        }
+    }
     Matter_Ota_Apply_Context_T context;
     const Matter_Ota_Install_Port_T* installer=s->ota_port.install;
     Matter_Result_T r=installer?installer->claim(installer->user,fingerprint,live,&context):
@@ -636,12 +704,17 @@ static void notify_process(Matter_Runtime_T s) {
     erase(&context,sizeof(context)); runtime_log(s,"OTA_NOTIFY_ATTEMPT started=%u\n",r==MATTER_PENDING?1u:0u);
 }
 Matter_Result_T matter_runtime_set_outbound(Matter_Runtime_T s,const Matter_Udp_Path_T* path) {
-    if(!s || !path || s->dispatch || !path->local.port || !path->interface_id) return MATTER_INVALID_ARGUMENT;
+    if(!s || !path || !path->local.port || !path->interface_id) return MATTER_INVALID_ARGUMENT;
+    if(s->processing)return MATTER_BUSY;
+    if(s->stopping)return MATTER_INVALID_STATE;
+    if(s->dispatch){Matter_Result_T r=matter_dispatch_set_outbound(s->dispatch,path);if(r!=MATTER_OK)return r;}
     s->outbound=*path; return MATTER_OK;
 }
 Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Udp_T udp,Matter_Events_T events) {
     if(!s || s->stopping || s->dispatch || s->ota) return MATTER_INVALID_STATE;
     s->events=events;
+    if(s->groups_bound&&(matter_root_cluster(s->root,0x65)!=matter_light_groups_cluster(s->platform.groupcast.model,0x65)||
+        matter_light_groups_events(s->platform.groupcast.model,events)!=MATTER_OK))return MATTER_INVALID_STATE;
     Matter_Ota_Requestor_Port_T ota={s,ota_load,ota_store,ota_generation,ota_select};
     s->ota=matter_ota_requestor_new(&ota,events,s->identity.basic_version,can_install(s));
     if(!s->ota || matter_root_attach_cluster(s->root,s->ota)!=MATTER_OK) return MATTER_PORT_ERROR;
@@ -671,7 +744,14 @@ Matter_Result_T matter_runtime_start(Matter_Runtime_T s,Matter_T owner,Matter_Ud
      * belong to OTA Requestor even when updates are currently unavailable. */
     return matter_root_add_device_type(s->root,0x12,1);
 }
-void matter_runtime_received(Matter_Runtime_T s,const Matter_Udp_Datagram_T* d) { if(s) matter_dispatch_received(s->dispatch,d); }
+void matter_runtime_received(Matter_Runtime_T s,const Matter_Udp_Datagram_T* d) {
+    if(!s)return;
+    if(d&&d->data&&d->size>=4&&(d->data[3]&MATTER_MESSAGE_SESSION_MASK)==MATTER_MESSAGE_SESSION_GROUP) {
+        if(s->groups_bound&&!s->groups_dirty&&!s->stopping)(void)matter_light_groups_received(s->platform.groupcast.model,d);
+        return;
+    }
+    matter_dispatch_received(s->dispatch,d);
+}
 void matter_runtime_sent(Matter_Runtime_T s,uint64_t id,Matter_Operation_Result_T result) { if(s) matter_dispatch_sent(s->dispatch,id,result); }
 void matter_runtime_changed(Matter_Runtime_T s) { if(s) matter_dispatch_changed(s->dispatch); }
 static Matter_Result_T recover(Matter_Runtime_T s,uint64_t now) {
@@ -709,6 +789,10 @@ static Matter_Result_T runtime_process(Matter_Runtime_T s,uint64_t now) {
     }
     if(s->admin) (void)matter_cluster_process(s->admin,now);
     (void)matter_root_process(s->root,now);
+    if(s->groups_bound) {
+        (void)groups_sync(s);
+        if(!s->groups_dirty)(void)matter_light_groups_process(s->platform.groupcast.model,now);
+    }
     /* Keep the initial default-provider offer until boot notification finishes.
      * The cluster's false selection means ignore, not retry-later. */
     if(s->ota && !matter_runtime_ota_trial(s) && !s->notify && !pending_update(s)) {
@@ -740,6 +824,7 @@ Matter_Result_T matter_runtime_stop(Matter_Runtime_T s,uint64_t now) {
     if(now<s->now) return MATTER_INVALID_ARGUMENT;
     if(s->stopped) return MATTER_OK;
     s->stopping=true; s->window=false; s->enhanced=false; s->now=now;
+    if(s->groups_bound)matter_light_groupcast_pause(s->platform.groupcast.model,true);
     if(s->recovering) {
         Matter_Result_T recovery=recover(s,now);
         if(recovery!=MATTER_OK) return MATTER_PENDING;
@@ -754,14 +839,14 @@ Matter_Result_T matter_runtime_stop(Matter_Runtime_T s,uint64_t now) {
     if(s->root) { (void)matter_root_expire(s->root); (void)matter_root_process(s->root,now); }
     if(s->wifi && matter_wifi_stop(s->wifi)!=MATTER_OK) return MATTER_PENDING;
     if(s->dispatch && matter_dispatch_stop(s->dispatch)!=MATTER_OK) return MATTER_PENDING;
-    if(s->download || s->notify || matter_ota_apply_busy(s->apply) || matter_ota_query_stop(s->query)!=MATTER_OK) return MATTER_PENDING;
+    if(s->download || s->notify || s->notify_peer || matter_ota_apply_busy(s->apply) || matter_ota_query_stop(s->query)!=MATTER_OK) return MATTER_PENDING;
     if(s->root) { Matter_Root_Fail_Safe_State_T state; if(matter_root_fail_safe_state(s->root,&state)==MATTER_OK && state!=MATTER_ROOT_FAIL_SAFE_IDLE) return MATTER_PENDING; }
     s->stopped=true; return MATTER_OK;
 }
 Matter_Result_T matter_runtime_delete(Matter_Runtime_T s) {
     if(!s) return MATTER_OK;
     if(s->processing) return MATTER_BUSY;
-    if(!s->stopped || s->download || s->notify || matter_ota_apply_busy(s->apply) || matter_ota_query_stop(s->query)!=MATTER_OK || matter_dispatch_delete(s->dispatch)!=MATTER_OK) return MATTER_BUSY;
+    if(!s->stopped || s->download || s->notify || s->notify_peer || matter_ota_apply_busy(s->apply) || matter_ota_query_stop(s->query)!=MATTER_OK || matter_dispatch_delete(s->dispatch)!=MATTER_OK) return MATTER_BUSY;
     s->dispatch=NULL;
     if(matter_ota_query_delete(s->query)!=MATTER_OK) return MATTER_BUSY;
     (void)matter_ota_apply_delete(s->apply); s->apply=NULL;
@@ -773,6 +858,7 @@ Matter_Result_T matter_runtime_delete(Matter_Runtime_T s) {
     if(s->admin && matter_cluster_delete(s->admin)!=MATTER_OK) return MATTER_BUSY;
     if(s->commission) (void)matter_commissioning_host_delete(s->commission);
     (void)matter_cluster_delete(s->acl); (void)matter_cluster_delete(s->groupkey); (void)matter_diagnostics_delete(s->diagnostics);
+    if(s->groups_bound){matter_light_groupcast_unbind(s->platform.groupcast.model);s->groups_bound=false;}
     if(s->diagnostics_host) (void)matter_diagnostics_host_delete(s->diagnostics_host);
     if(s->wifi) { (void)matter_wifi_stop(s->wifi); (void)matter_wifi_delete(s->wifi); }
     if(s->opcreds) { (void)matter_opcreds_rollback(s->opcreds); (void)matter_opcreds_delete(s->opcreds); }

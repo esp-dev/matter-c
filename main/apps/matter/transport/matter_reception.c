@@ -1,7 +1,7 @@
 #include "matter_reception.h"
 
 static bool valid_mode(Matter_Reception_Mode_T mode) {
-	return mode == MATTER_RECEPTION_UNSECURED || mode == MATTER_RECEPTION_SECURE_UNICAST;
+	return mode == MATTER_RECEPTION_UNSECURED || mode == MATTER_RECEPTION_SECURE_UNICAST || mode == MATTER_RECEPTION_SECURE_GROUP;
 }
 
 Matter_Result_T matter_reception_reset(Matter_Reception_T* state, Matter_Reception_Mode_T mode) {
@@ -24,9 +24,10 @@ Matter_Result_T matter_reception_classify(const Matter_Reception_T* state, uint3
 		uint32_t back = state->max_counter - counter;
 		if (!back) seen = true;
 		else if (state->mode == MATTER_RECEPTION_SECURE_UNICAST && counter > state->max_counter) seen = false;
+		else if (state->mode == MATTER_RECEPTION_SECURE_GROUP && counter-state->max_counter < UINT32_C(0x80000000)) seen = false;
 		else if (back <= MATTER_RECEPTION_WINDOW_SIZE)
 			seen = (state->bitmap & (UINT32_C(1) << (back - 1u))) != 0;
-		else seen = state->mode == MATTER_RECEPTION_SECURE_UNICAST;
+		else seen = state->mode != MATTER_RECEPTION_UNSECURED;
 	}
 	*duplicate = seen;
 	return MATTER_OK;
@@ -42,7 +43,8 @@ Matter_Result_T matter_reception_commit(Matter_Reception_T* state, uint32_t coun
 		else {
 			uint32_t back = state->max_counter - counter;
 			if (back <= MATTER_RECEPTION_WINDOW_SIZE &&
-				(state->mode == MATTER_RECEPTION_UNSECURED || counter < state->max_counter)) {
+				(state->mode == MATTER_RECEPTION_UNSECURED ||
+                    (state->mode == MATTER_RECEPTION_SECURE_UNICAST ? counter < state->max_counter : counter-state->max_counter >= UINT32_C(0x80000000)))) {
 				state->bitmap |= UINT32_C(1) << (back - 1u);
 			} else {
 				uint32_t forward = counter - state->max_counter;
