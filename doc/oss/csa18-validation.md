@@ -98,7 +98,7 @@ python build/csa18/lab.py official baseline 1 TC_EPM_2_2
 python build/csa18/lab.py build
 python build/csa18/lab.py official final 1 TC_EPM_2_2
 # Repeat EPM2.2 for endpoints 3,4,5, then EEM2.2/2.3 for endpoint1.
-python build/csa18/remote.py dut python3 /home/codex/matter-csa18/memory_run.py
+python build/csa18/remote.py dut python3 "<lab-checkout>/memory_run.py"
 python build/csa18/collect.py
 python tools/matter/check_test_map.py
 python -m py_compile tools/matter/tests/chip_tool_three_phase.py

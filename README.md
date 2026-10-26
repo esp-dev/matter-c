@@ -1,264 +1,82 @@
 # Matter C
 
-Standalone C99 Matter library and host development environment, licensed under
-[Apache-2.0](LICENSE). Third-party terms are retained in [NOTICE](NOTICE) and
-[provenance](doc/oss/provenance.md). This is experimental software, not a CSA
-certified implementation. See [status and known failures](doc/oss/status.md).
-The [CSA execution plan](doc/oss/csa-campaign-plan.md) and
-[generated queue](doc/oss/csa-campaign-status.md) track remaining coverage,
-failure attribution and later native repairs. Run `python tools/matter/csa_campaign.py`
-to check that public evidence and the queue agree.
+A standalone **C99 Matter stack** for embedded devices and native Linux/Windows
+applications. The application owns the event loop, networking, storage and radio;
+the portable core does not require ESP-IDF or FreeRTOS.
 
-The [unsent CSA review packet](doc/oss/csa72-questions.md) groups the remaining
-questions and exact rerun prerequisites. Check its JSON coverage and rendering
-with `python tools/matter/csa_review_packet.py`; this never submits or runs tests.
+The project targets **Matter 1.6.1** and is licensed under [Apache-2.0](LICENSE).
+It is experimental and **not CSA certified**. Supported functionality and local
+interoperability results do not establish complete device conformance; see
+[current status and known failures](doc/oss/status.md).
 
-The [initial cross-stack comparison](doc/oss/csa74-comparison.md) traces four
-historical failed identities against pinned CHIP, rs-matter and matter.js
-sources. It records specification-history evidence and a 27-case differential
-queue; no new wire execution or CSA verdict is claimed.
+## Features
 
-The [CSA75 compatibility profile](doc/oss/csa75-compatibility.md) adds explicit,
-default-OFF build switches for legacy SDK/test behavior. Four original failing
-test identities reach PASS with that profile; strict-profile campaign results
-remain separate. The report records differences, regression and memory checks.
+| Area | Implemented functionality |
+| --- | --- |
+| Commissioning and security | PASE/SPAKE2+, operational CASE with resumption, operational certificates, multi-fabric administration, ACLs, group keys and fail-safe recovery. Explicit trusted-UTC or Last Known Good certificate-time policy. |
+| Interaction Model | Read, Write, Invoke, Subscribe, events, wildcard paths, version filters and multipart reports with stable snapshots. |
+| Networking | IPv6 UDP, MRP acknowledgements/retransmission, commissionable and operational DNS-SD/mDNS discovery. Optional BLE/BTP commissioning through the ESP NimBLE port. |
+| Device models | Root services and diagnostics; shared RGB lighting with OnOff, Level Control, HS/XY/CT Color Control, Groups, Scenes and optional Groupcast Listener/PerGroup. Electrical power/energy, meter identity and time synchronization models are also available. |
+| Updates | OTA Requestor and BDX transfer, plus an optional ESP installer for signed inactive-partition writes, confirmation/rollback and NotifyUpdateApplied. |
+| Platforms and tools | Portable CMake libraries, Linux/Windows CLI hosts, a native Windows desktop simulator, ESP-IDF components and controller/fault-injection test tools. |
 
-The frozen Memory39 merge passes the [CSA73 regression](doc/oss/csa73-validation.md):
-99 original automatic PASS positions, complete native tests and separate memory,
-wire and simulated OTA checks. [Integration gates](doc/oss/csa73-integration-plan.md)
-exclude later work; existing CSA failures and prerequisites remain open.
+Features are composed through application-selected models and ports. The
+[RGB profile contract](doc/oss/bulb-integration.md),
+[runtime contract](doc/runtime.md) and [test map](doc/oss/test-map.md) describe
+limits, optional roles and their actual coverage.
 
-The application owns scheduling, networking, storage and hardware callbacks.
-Multiple runtimes can run in one process/thread. The core does not require
-ESP-IDF or FreeRTOS. See the [runtime contract](doc/runtime.md).
-The optional [native ESP OTA installer](components/matter_c_esp32/OTA.md)
-adds signed inactive-partition writes, real reboot/rollback and provider
-notification; [Memory42](doc/oss/memory42-validation.md) records its validation.
-The [same-IDF C6 user-case comparison](doc/oss/memory43-validation.md) includes
-commissioning, RGB/Subscribe, multi-admin, signed OTA and Wi-Fi-preserving deletion.
-Its [heap chart](doc/oss/memory43/free-heap.png) records application headroom
-against an optimized ESP-Matter1.6.1 reference, including SDK and task stacks.
-The optional [native wire regression](doc/runtime-wire-tests.md) reuses the C6
-oracle for fast loopback RGB/Read/Subscribe tests, controlled ACK/RX/TX faults,
-allocation failures and orderly stop, without a board or access point.
-The [Memory26 C6 investigation](doc/oss/memory26-validation.md) reproduces startup
-14/15 after one lost ACK and identifies a problem in the pinned test controller's
-exchange-role fallback. It includes a matched controller comparison, physically
-verified 1Mbaud UART and the remaining limit on historical attribution.
+## Ownership and memory
 
-The [Memory27 host regression](doc/oss/memory27-validation.md) checks exactly one
-lost ACK with the original and explicitly corrected peer in both loop orders.
-It requires strict wrong-role rejection, survival of all15 CASE sessions and
-orderly TX drain; private dependencies remain unchanged.
+- **Application-owned lifecycle.** Create, process, stop/drain and delete each
+  instance explicitly. Multiple instances can share one application thread; the
+  core creates no background task or socket.
+- **Demand-owned memory.** Transactions, packet storage, report blocks, snapshots
+  and handshake/encoding workspaces allocate as needed within configured bounds.
+  Allocation failure is handled before publication where the operation requires
+  atomic changes; retained snapshots and ciphertext keep their delivery lifetime.
+- **Explicit resource budgets.** Limits are checked and advertised consistently.
+  Asynchronous send completion, IM confirmation and MRP ACK/drain have distinct
+  ownership gates; stopping does not invalidate data still borrowed by a port.
+- **Platform control stays with the product.** Wi-Fi initialization/reconnect,
+  external provisioning, persistent storage, time provenance and hardware output
+  belong to the application. Matter can be retired while other application
+  services and Wi-Fi continue running, as demonstrated by the ESP examples.
 
-The [Memory28 RX fix](doc/oss/memory28-validation.md) consumes a ready retained
-packet before admitting a new inbox. It fixes an avoidable admission loss,
-adds a failing-before native regression and records C6 OOM/reconnect/drain tests.
-
-The [Memory29 fixed C6 profile](doc/oss/memory29-validation.md) measures normal
-whole-system heap separately from allocation attribution: sampled peak 357652 B,
-minimum free 58520 B and minimum largest block 33792 B. It covers parallel full
-Reads, live Fabric publication/removal and TX drain, and ranks remaining RAM work.
-
-The [Memory30 compact report plan](doc/oss/memory30-validation.md) halves each
-C6 plan entry to8 B and records a normal-image sampled peak351084 B. Windows
-and physical tests pass as documented. Linux99 native tests, the full6-check
-two-instance scenario and both wire cases pass under Memcheck and separately
-ASan/UBSan/LSan.
-
-The [Memory31 selective Subscribe values](doc/oss/memory31-validation.md) keep
-stable ordinal blocks only for included values. The matched C6 normal profile
-records peak 344968 B, minimum free 71284 B and minimum largest block 47104 B;
-the two stages together reduce the observed whole-heap peak by 12684 B. Windows,
-Linux Memcheck/separate sanitizers and C6 OOM/reconnect/drain tests pass with
-unchanged limits, immutable snapshots and ACK/drain gates.
-
-The [Memory32 Diagnostics encoding](doc/oss/memory32-validation.md) replaces its
-resident 4096-byte output with an exact-size borrowed span. The C6 context saves
-4096 B; normal sampled whole-heap peak is 341008 B, minimum free 75216 B and minimum
-largest block 52224 B. Dedicated tests cover all 11 encoding OOM/retry cases and
-interleaved Read/Subscribe snapshots across provider refresh/free and both ACK
-orders. The report records normal/fault C6 results, stack cost and host validation.
-
-The [Memory33 ACL encoding](doc/oss/memory33-validation.md) uses an exact-size
-borrowed span while retaining fabric filtering, foreign-field privacy and atomic
-writes/events. The C6 ACL context saves 4096 B; normal sampled whole-heap peak is
-338944 B, minimum free 77272 B and minimum largest block 55296 B. Tests cover all
-13 fabric/filter/global encoding OOM retries, read-to-write aliasing and immutable
-multipart Read/Subscribe snapshots across ACL changes and both ACK orders.
-
-The [Memory34 Fabric encoding](doc/oss/memory34-validation.md) replaces its
-resident 4096-byte workspace with exact-size certificate output and separate
-126/211-byte VID scratch, securely erased before release. The C6 model context
-shrinks 4224 -> 136 B; normal sampled whole-heap peak is 333104 B, minimum free
-83400 B and minimum largest block 57344 B. Native tests cover output/signing OOM,
-secure wipe and certificate lifetime; C6 tests cover load, OOM recovery, reconnect
-and ACK/drain. Observed owner stack use is 3288/12800 B. The report records the
-one subscription rebuilt after fault injection and the validation limitations.
-
-The [Memory35 Operational Credentials workspaces](doc/oss/memory35-validation.md)
-replace resident TBS/CSR arrays with phase-owned allocations, securely erased
-after their last use. The C6 context shrinks 2016 -> 464 B. The normal profile
-records sampled whole-heap peak 331396 B, minimum free 84920 B and minimum largest
-block 61440 B; observed owner stack use remains 3288/12800 B. The report covers
-key/challenge lifetime, bounded response copies, OOM, reentry and ACK/drain.
-It also retains the worse post-fault largest-free-block observation, despite
-zero remaining core allocations; its exact SDK allocation placement needs a
-separate settled-heap follow-up, completed in Memory36 below.
-
-The [Memory36 settled-heap investigation](doc/oss/memory36-validation.md) compares
-the exact Memory34/35 images and identifies a 16-byte lwIP timeout node splitting
-large free spans after full ACK/drain. In the instrumented long probe, releasing
-20 B of accounting after the 5 s sample grows the largest block from 147456 B to
-286720 B by 15 s, stable through 65 s. RMT/MPI mutexes form other SDK islands.
-Nine C6 fault runs and checked exact-ELF maps separate deferred SDK lifetime,
-persistent allocation placement and core leaks; normal firmware/fabric are restored.
-
-The [Memory37 RMT experiment](doc/oss/memory37-validation.md) rejects a standalone
-startup reorder: normal cleaned largest blocks are equal, while the 65-second
-probe falls 249856 -> 221184 B when a UART allocation replaces the RMT separator.
-Four C6 fault workloads pass; the original normal startup remains in place.
-
-The [Memory38 OTA workspaces](doc/oss/memory38-validation.md) shrink the C6 resident
-Requestor context 5704 -> 344 B. Input scratch, queued offers and encoding allocate
-by phase; default-delivery OOM retries while ACK/TX keeps draining. The matched
-normal profile records heap peak 326256 B and minimum free 90172 B. Native,
-Memcheck/separate sanitizers and C6 tests preserve atomicity and immutable snapshots.
-
-The [Memory39 block audit](doc/oss/memory39-validation.md) measures 89248 B of
-coincident Read/Subscribe attribute tables, including 14272 B empty slots.
-It separates real state, padding, headers and already-consumed records; independent
-maxima are not summed. Reproducible isolated generators/checked decoding leave
-normal storage unchanged. C6 and native tests pass; normal Memory38/original
-fabric are restored and COM/AP released. Next: consumed Read prefix blocks.
-
-The [Memory40 Read prefix reclamation](doc/oss/memory40-validation.md) releases
-complete consumed pages after both IM success and MRP confirmation. Remaining
-snapshots keep stable addresses; limits and ACK/drain are unchanged. The matched
-normal C6 sampled whole-heap peak changes by -752 B and
-minimum sampled free by +716 B; the SDK historical minimum changes
-by -304 B. These small mixed extrema do not prove a substantial
-global-peak saving. Host, OOM and physical regressions pass.
-
-Optimization is closed at Memory40. The [Memory41 comparison](doc/oss/memory41-validation.md)
-keeps that core and IDF6.1 configuration unchanged. With the same common workload
-and64 KiB occupied by an application reservation, C versus Wi-Fi-only CHIP/IDF6.0.2
-minimum SDK free is125396 /169308 B. Before creating Matter,65s free is
-331988 /308112 B; after shutdown and releasing the reservation it is
-331940 /293904 B. These are complete lab firmware measurements with different
-models/limits, not a feature-identical certified-light or MQTT/TLS benchmark.
-Both preserve Wi-Fi after checked retirement; largest blocks and SDK minima
-are reported separately. Next is the minimum required Wi-Fi-light profile.
-
-The experimental [ESP32-C6 runtime laboratory](examples/esp32-runtime/README.md)
-integrates ESP-IDF 6.1/Mbed TLS 4.1 with application-owned UDP/IPv6, mDNS,
-Wi-Fi and atomic NVS checkpoints. Physical tests cover commissioning, CASE
-resumption, Read/Write/Subscribe, a second fabric and durable recovery.
-See the [Memory14 evidence and limits](doc/oss/memory14-validation.md).
-The optional [BLE/BTP commissioning port](doc/oss/ble-transport.md) adds a
-phase-owned NimBLE peripheral alongside UDP/IPv6. Products can require BLE PASE
-while retaining operational UDP CASE. It is disabled by default; the separate
-bulb application enables it and records its physical develop-firmware tests.
-The optional [Memory16 RGB profile](doc/oss/memory16-validation.md) adds a
-development EP1 light on the C6's addressable LED. Shared immutable value bytes
-and compact Read/Subscribe results lower its observed heap peak from 403016 B
-(baseline traffic failure) to 362480 B. A 437 s load/recovery window passes with
-five fabrics/15 protected sessions/subscriptions, OOM/loss/reconnect and held-TX
-drain, with no SDK allocation failures. This is an incomplete light profile,
-not a complete or certified Extended Color Light implementation.
-The [Memory17 report](doc/oss/memory17-validation.md) covers inline short
-snapshots and the packet-buffer lifetime audit. Encoded values through eight
-bytes need no separate payload allocation; the C6 snapshot record stays 16 B.
-The standalone unsecured ACK envelope falls 1232 ->26 B without changing UDP
-limits or asynchronous completion/ACK ownership.
-The [Memory18 report](doc/oss/memory18-validation.md) covers guarded phase sharing
-of delivery/TX plaintext: the C6 dispatcher falls 7096 ->5864 B while inbox, ACK
-and retained ciphertext remain independent. Recursive processing/control is
-rejected before work bytes or clocks can change.
-The [Memory19 report](doc/oss/memory19-validation.md) covers an optional held RX
-delivery view. The dispatcher consumes queue bytes directly, removing one
-payload copy without new allocations or changing resident buffer sizes. The
-queue keeps its session pin and drain barrier until explicit release; default
-callback borrowing and all ACK/TX ownership remain compatible.
-The [Memory20 report](doc/oss/memory20-validation.md) covers one private encoder
-for Read/Subscribe per dispatcher. Snapshot blocks remain stable and immutable
-ciphertext retains its ACK/drain lifetime; Subscribe activation/intervals still
-start at actual UDP send. The C6 sampled heap peak changes
-357148 ->334036 B, minimum sampled free heap
-60792 ->83944 B. The report also gives SDK free
-watermarks, largest blocks, lifecycle free-heap checkpoints and stack evidence.
-The [Memory21 report](doc/oss/memory21-validation.md) attributes persistent
-post-stop holes to SDK MPI/RMT mutex placement, adds settled heap observations
-and explicit owner-thread lwIP cleanup, and compares two physical C6 boards
-with ESP-Matter1.6.1/IDF6.0.2. A common SDK-timer sampler captures crypto peaks
-missed by owner-loop sampling. The C fixture leaves37772 B less free heap in
-the matched small-path loaded scenario despite69305 B less static D/IRAM;
-limits and model/configuration differences are explicit. It also corrects the
-previous main-stack reservation by IDF's additional512 B. No new CSA PASS.
-The [Memory22 report](doc/oss/memory22-validation.md) fixes MRP starvation of
-  own-fabric RemoveFabric replies by rejected stale ACKs, adds live-session
-  removal regressions, and attributes C6 allocation peaks to actual call sites.
-  It separates the reference's lower heap figure from its larger static D/IRAM
-  footprint and identifies retained cluster workspaces/publication overlap.
-The [Memory23 report](doc/oss/memory23-validation.md) replaces whole-image Fabric
-rollback copies with bounded changed-range undo and emits committed TLV without a
-second Fabric candidate. The common C6 publication workload saves about12kB of
-sampled heap; the full wildcard peak remains about335kB. Format, fail-safe and
-ACK/drain checks pass in the reported runs; an intermittent14/15 full-subscription
-startup result remains open despite a successful unchanged retry and baseline.
-The [Memory24 host investigation](doc/oss/memory24-validation.md) passes eight
-healthy old/new comparisons, including15 full subscriptions and parallel Reads.
-Two missing-ACK controls produce14/15 on both versions; the original C6 cause
-remains unproven. Native CTest passes102/102; the UART collector accepts a selected
-baud rate for the next hardware check.
-The earlier [Memory15 concurrency run](doc/oss/memory15-validation.md) completes 3606 s
-with five fabrics, 15 protected sessions/subscriptions, OOM/loss/reconnect and
-deferred-TX drain. It fixes RX starvation/burst loss and transient interface
-identity; an optional Wi-Fi code-placement profile recovers 33332 B DIRAM.
-The successful hour observes 368184 B sampled internal heap and 2584 B owner
-stack use. These scoped root-node results are not specification-wide bounds.
-The earlier [component memory laboratory](examples/esp32-memory/README.md)
-retains its separate crypto/IM/PASE profiling fixtures.
+There is no universal RAM figure for the stack. Application models, resource
+limits, SDK configuration and overlapping operations determine peak use. The
+[same-IDF C6 comparison](doc/oss/memory43-validation.md) measures complete firmware
+headroom, largest free blocks and stack observations against ESP-Matter, with
+workload and coverage limits. It includes Wi-Fi/SDK/task allocations; it is not
+an isolated-core memory claim or a guarantee for another product.
 
 ## Build
 
-Requirements: CMake 3.20+, Git, GCC with C99, Python 3.9+ for tests/bootstrap.
-Current package targets Linux or MinGW Windows. PowerShell is needed only for
-the preserved Windows runners. Configuration/build never downloads dependencies.
-On Windows put the MinGW-w64 compiler/DLL directory on PATH or pass `-Compiler`.
-The package defaults to 128 buffered events. Set `-DMATTER_EVENTS_CAPACITY=16`
-through `1024` at configure time to change the shared library/consumer budget;
-the selected capacity propagates through the exported CMake target.
+The native package requires CMake 3.20+, Git, a C99 GCC/Clang toolchain and
+Python 3.9+. Windows uses MinGW-w64 and native Python. Dependencies are fetched
+explicitly by the bootstrap, never implicitly by CMake.
 
 ```sh
+git clone https://github.com/esp-dev/matter-c.git
+cd matter-c
 python tools/matter/bootstrap_mbedtls.py
-# Offline alternative: add --source /path/to/existing/mbedtls-git-checkout
 cmake -S . -B build/cmake -DCMAKE_BUILD_TYPE=Debug
 cmake --build build/cmake -j 3
 ctest --test-dir build/cmake --output-on-failure
 ```
 
+On Windows, put MinGW-w64 on PATH and configure with a matching generator:
+
 ```powershell
+python tools/matter/bootstrap_mbedtls.py
 cmake -S . -B build/cmake -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Debug
 cmake --build build/cmake -j 3
 ctest --test-dir build/cmake --output-on-failure
 ```
 
-The bootstrap clones official [Mbed-TLS/mbedtls](https://github.com/Mbed-TLS/mbedtls)
-3.6.0 (`mbedtls-3.6.0`, commit `2ca6c285a0dd3f33982dd57299012dacab1ff206`)
-into ignored `third_party/mbedtls`, without Espressif patches.
-It validates existing checkouts without resetting them. Build scripts accept
-`--mbedtls` / `-MbedtlsDir` overrides. No source path outside this repo is needed.
-Upstream license remains in that checkout. The current pin and evidence are in
-[cmake/dependencies.json](cmake/dependencies.json), shared by bootstrap, CMake
-and the legacy build/test runners.
-For an existing old checkout, preserve it separately before bootstrapping, or use
-`--destination third_party/mbedtls-upstream` and the CMake directory override.
-The selected C sources and checked-in headers require no framework submodule.
-
-Use `-DMATTER_MBEDTLS_DIR=/path/to/checkout` with CMake. On Windows, use native
-CPython and set `-DPython3_EXECUTABLE=/path/to/python.exe` if CMake selects a
-different installation. Socket/file-lock tests need normal local OS access.
+The native package pins official Mbed TLS 3.6.0 in
+[cmake/dependencies.json](cmake/dependencies.json). ESP builds use their SDK's
+crypto backend. See [build and configuration](doc/build.md) for offline dependency
+paths, capacity options, library-only builds and separate sanitizer builds.
 
 ## Install and consume
 
@@ -269,472 +87,80 @@ cmake --build build/consumer
 ctest --test-dir build/consumer --output-on-failure
 ```
 
-The consumer needs only `find_package(MatterC CONFIG REQUIRED)` and
-`target_link_libraries(my_app PRIVATE MatterC::Matter)`. The exported target
-propagates the selected ABI capacity and transitive platform/crypto libraries.
-The development package has version 0.0.0, with no stability or publication claim.
-Use `MatterC::Runtime` and `<runtime/matter_runtime.h>` for complete composition.
-It links `MatterC::Matter` transitively. Supply crypto/credentials, atomic blob,
-Wi-Fi, UTC/timestamp and regulatory callbacks, then attach application endpoints
-to the borrowed Root. The application owns UDP, discovery and the event loop.
-The small example exercises lifecycle/TLV/crypto; the installation test also
-builds `tools/matter/tests/test_runtime.c` outside the repository against the
-relocated package and starts two full runtimes using only public headers.
+```cmake
+find_package(MatterC CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE MatterC::Matter)
+```
 
-For a library-only build use `-DMATTER_BUILD_HOST=OFF -DBUILD_TESTING=OFF`.
-For a small core-only configuration also set `-DMATTER_BUILD_RUNTIME=OFF` and
-`-DMATTER_TRANSPORT_CAPACITY=8`. The complete runtime needs at least 52 slots;
-the default is 56. Subscription capacity is configurable per instance through
-`identity.capabilities.subscriptions`, also exposed by the host as
-`--subscriptions-per-fabric N`. The dispatcher allocates its transaction table
-for that budget and advertises the same value. For eight per fabric, build with
-`-DMATTER_TRANSPORT_CAPACITY=128` and pass `--subscriptions-per-fabric 8`; the
-existing default remains three. Impossible configurations fail before startup.
-See [resource ownership and bounds](doc/runtime.md#subscription-resource-budget).
-`-DMATTER_SANITIZE=ON` enables
-ASan/UBSan and Linux leak detection in CTest. Do not run that build under Valgrind.
+`MatterC::Matter` exposes the portable modules. `MatterC::Runtime` adds complete
+commissioning/fabric/ACL/diagnostics composition through
+`<runtime/matter_runtime.h>`. Supply crypto/credentials, atomic storage, Wi-Fi,
+time and regulatory callbacks, attach application endpoints, then drive the
+runtime from the application's scheduler. The exported target carries its
+capacity definitions and required dependencies. The development package version
+is 0.0.0; API/ABI stability is not promised.
 
-[Test map](doc/oss/test-map.md) records every retained test and optional route.
-The default CTest suite excludes external controller, privileged IPv6 and fuzz
-campaigns. The original `build_host.ps1`, `build_host_linux.py`, `run_tests.ps1`
-and other runners remain usable; their production lists share `cmake/sources.json`.
-They retain their previous command line and output locations.
+## ESP32 and example applications
+
+| Entry point | Purpose |
+| --- | --- |
+| [ESP-IDF core component](components/matter_c/CMakeLists.txt) and [platform ports](components/matter_c_esp32) | Embed the C runtime with application-owned SDK services. |
+| [ESP32-C6 runtime example](examples/esp32-runtime/README.md) | UDP/IPv6, discovery, Wi-Fi, atomic NVS and lifecycle integration on ESP-IDF 6.1. |
+| [BLE/BTP port](doc/oss/ble-transport.md) | Optional NimBLE commissioning with retained TX ownership; disabled by default. |
+| [Native ESP OTA installer](components/matter_c_esp32/OTA.md) | Signed firmware installation, real reboot/rollback and provider notification. |
+| [RGB bulb application](https://github.com/esp-dev/matter-c-bulb) | Separate ESP32-C6/WS2812 product firmware using this repository as a submodule, with BLE commissioning, Wi-Fi, signed OTA and authenticated REST provisioning. |
+| [ESP memory fixtures](examples/esp32-memory/README.md) and [reference comparison](examples/esp-matter-memory/README.md) | Reproducible profiling and matched ESP-Matter workloads. |
+
+The shared lighting helper currently composes one light endpoint. Example/test
+images use development identities; provision real credentials and review the
+application's partition, clock and storage policy before deployment. The product
+repository records its own physical and app interoperability acceptance.
 
 ## Host and tests
 
-The English-language Windows [native C desktop](doc/desktop.md) builds as `matter-desktop.exe`:
-one executable manages independent power-sensor windows, commissioning QR/status
-and a release-triggered −10…+10 kW slider. Per-user state retains each node's
-identity/pairing. Runtime dependencies are Windows/UCRT only; development
-credentials remain external. See [acceptance](doc/oss/desktop-validation.md).
-REST HTTP(S) integrations are planned, not implemented.
+CMake builds `matter-node` on Linux/Windows and `matter-desktop.exe` on Windows.
+The hosts provide optional measurement/switch simulations and explicit
+interface, credential and state selection. See [host usage](doc/host.md),
+[native desktop](doc/desktop.md), [three-phase measurements](doc/three-phase.md),
+[meter services](doc/meter-services.md) and [source registers](doc/meter-source.md).
+The simulated Wi-Fi model does not configure the computer's Wi-Fi adapter.
 
-The [CSA18 campaign](doc/oss/csa18-validation.md) enables targeted energy test
-inputs on the three-phase host. Official EPM2.2 passes on aggregate/L1/L2/L3,
-and EEM2.2/2.3 pass on aggregate import/export. The laboratory key also retains
-the MTRID fixture; phase energy is never fabricated. Current matrix and limits
-are recorded in the [result delta](doc/oss/csa18-results.json).
+Validation has several distinct layers:
 
-The [CSA17 follow-up](doc/oss/csa17-review-validation.md) fixes redundant Meter
-Identification subscription reports: unrelated energy samples no longer report
-unchanged identity. Official MTRID 3.1/2.1 pass (runs336/337); full pair Memcheck
-and separate sanitizer acceptance pass. Independent chip-tool also confirms
-selective/last-fabric removal, restart and recommissioning with the same store.
-The host exits after its last fabric is removed; restart it to commission again.
-This is protocol acceptance, not a current manual Google/Apple Home UI test.
-See the [result delta](doc/oss/csa17-review-results.json) and
-[CLI/fixture contract](doc/meter-services.md#test-event-triggers-csa17).
+- Native CTest, including allocation-failure and installed-package checks.
+- Full two-instance/controller scenarios under Memcheck and, separately,
+  ASan/UBSan/LSan. [Wire regressions](doc/runtime-wire-tests.md) add controlled
+  ACK/RX/TX faults and OOM cases without a physical board.
+- Physical ESP32-C6 tests and scoped cross-stack memory comparisons.
+- Original CSA procedures, local compatibility/patch results and manual
+  ecosystem checks, each recorded separately in its own report.
 
-The [CSA15 report](doc/oss/csa15-validation.md) records TC_CNET_4_9 PASS with an
-explicit Wi-Fi parameter fixture and the unchanged CSA14 binary. TC_CNET_4_11
-still needs a controller/DUT environment that can switch between real or
-validated virtual AP networks; the local two-instance migration regression is
-separate from official acceptance. See [result delta](doc/oss/csa15-results.json).
+External controller and CSA/TH environments are not bundled. Optional
+[CSA compatibility switches](doc/oss/csa75-compatibility.md) are OFF by default;
+compatibility outcomes do not replace strict results. Keep private keys, live
+state and laboratory configuration in ignored `local/` or `build/`; public test
+keys are unsuitable for real devices.
 
-The [CSA14 report](doc/oss/csa14-validation.md) records the optional connected
-Wi-Fi simulation: TC_CNET_4_1 passes; TC_CNET_4_4 remains FAIL because its
-unarmed ScanNetworks receives the status required by Core 1.6.1. Supplementary
-armed scans pass without relaxing that guard. See [result delta](doc/oss/csa14-results.json).
+## Documentation and validation history
 
-The [CSA13 report](doc/oss/csa13-validation.md) records full-fabric-table acceptance:
-unchanged TC_CADMIN_1_19 and TC_OPCREDS_3_1 pass after removing premature RCAC
-rejection, allowing AddNOC to return TableFull. See [result delta](doc/oss/csa13-results.json).
+| Document | Contents |
+| --- | --- |
+| [Runtime contract](doc/runtime.md) | Ports, lifecycle, ownership, atomicity and resource bounds. |
+| [Build guide](doc/build.md) | Dependencies, installation, exported targets and capacity options. |
+| [Host guide](doc/host.md) | CLI flags, simulated models, credentials, discovery and optional controllers. |
+| [Development status](doc/oss/status.md) | Dated changes, known failures and validation limits. |
+| [Validation index](doc/oss/validation-index.md) | CSA and memory reports, retained as historical evidence. |
+| [Test map](doc/oss/test-map.md) | Retained tests, fixtures and optional execution routes. |
+| [CSA campaign](doc/oss/csa-campaign-plan.md) and [progress](doc/oss/csa-campaign-status.md) | Applicable procedures, results, blockers and next work. |
+| [Roadmap](doc/roadmap.md) | Development and acceptance priorities. |
 
-The [CSA12 report](doc/oss/csa12-validation.md) records the failed-PASE attempt
-limit: unchanged TC_CADMIN_1_9 and TC_CADMIN_1_11 pass after closing the window
-at twenty failures. See [result delta and coverage limits](doc/oss/csa12-results.json).
+Detailed run counts and per-iteration memory measurements live in those reports.
+A historical PASS is scoped to its recorded revision/profile and does not imply
+certification or a new run on the current branch.
 
-The [CSA11 report](doc/oss/csa11-validation.md) records concurrent resource
-acceptance: TC_RR_1_1 passes with 15 subscriptions across five fabrics, including
-the optional unchanged-session-ID check. TC_IDM_4_3 also passes after repairs to
-redundant reporting and heartbeat scheduling. See [result delta](doc/oss/csa11-results.json).
+## License and provenance
 
-The [CSA10 report](doc/oss/csa10-validation.md) records DNS-SD service/subtype
-enumeration. Unchanged TC_SC_4_1 and the TC_SC_4_3 operational discovery recheck
-pass, with the Basic Commissioning Window coverage limit recorded explicitly.
-See [result delta](doc/oss/csa10-results.json).
-
-The [development roadmap](doc/roadmap.md) orders CSA acceptance, Google Test Suite
-and manual checks, measured optimization, then downstream firmware integration.
-The [CSA01 acceptance report](doc/oss/csa01-validation.md) links the complete
-installed-catalog matrix, frozen x86 profile, official results and coverage gaps.
-The [CSA02 lifecycle report](doc/oss/csa02-validation.md) and
-[recheck results](doc/oss/csa02-results.json) preserve subsequent fixes and attempts.
-The opt-in [meter services](doc/meter-services.md) add Identify, Meter Identification
-and a per-instance Time Synchronization server (`--three-phase --meter-services`).
-The [CSA03 report](doc/oss/csa03-validation.md) records their corrected device-type
-composition, official Descriptor/PICS rechecks and remaining test-identity limit.
-The [CSA04 report](doc/oss/csa04-validation.md) covers subscription delta reporting,
-all-cluster selector capacity and window state after fabric removal.
-The [CSA05 report](doc/oss/csa05-validation.md) covers invalid Read/Subscribe
-paths, global-attribute wildcard rules and the unchanged official IDM rechecks.
-The [CSA06 report](doc/oss/csa06-validation.md) records Access Control validation,
-two test/specification discrepancies and an unresolved intermittent discovery
-timeout during multi-fabric commissioning.
-The [CSA07 report](doc/oss/csa07-validation.md) documents the reproduced rapid
-window-reopen discovery race, its fix, instance-name rotation and official
-commissioning rechecks, with the historical timeout's attribution limit.
-
-The optional [three-phase profile](doc/three-phase.md) adds tagged aggregate/L1/L2/L3
-endpoints and EEM source-register semantics: run the host with `--three-phase`
-and a separate state file. The default host profile is preserved.
-Add `--source-registers` for the [manufacturer-specific source view](doc/meter-source.md):
-tariff/quadrant/demand registers, directional values, metadata and volume channels.
-
-`--test-switch` adds a simulated metered socket on endpoint 2: On/Off plus
-Electrical Sensor, Power Topology, EPM and EEM. It reports 600 W while on and
-0 W while off, with its own cumulative import register and zero export.
-With `--state`, a separate `.plug-energy` TLV sidecar retains that register
-and its fractional remainder. It starts off after restart. This UI experiment
-is an incomplete plug device profile, not certified hardware; see
-[validation and UI limitations](doc/oss/plug-energy-validation.md).
-
-For a separate power-only UI experiment, add `--test-power-only`. Endpoint 6
-is an Electrical Sensor with Descriptor, EPM and Power Topology, reporting
-a fixed synthetic 123 W independently of the socket. It has neither On/Off
-nor EEM. Existing endpoint numbers and the profile without this flag remain
-unchanged. See [acceptance and UI limits](doc/oss/power-only-validation.md).
-
-Use `--power-sensor-only` for a minimal node: required Root services on endpoint
-0 and one Electrical Sensor on endpoint 1, with Descriptor/EPM/Power Topology
-and synthetic 123 W. There is no On/Off or EEM anywhere. This mode excludes
-the other measurement/switch/test-trigger profiles and uses a separate mDNS
-host label so it can coexist with other simulated nodes on the same interface.
-See [minimal sensor acceptance](doc/oss/sensor-only-validation.md).
-
-`--power-sensor-only --sensor-energy` also exposes EEM on endpoint 1:
-separate cumulative import/export registers and the cumulative measurement
-event. Initial simulated registers are 12.345 kWh imported and 2.345 kWh
-exported. The constant +123 W increases import; export is historical and
-unchanged. With `--state`, accepted register checkpoints survive restart through
-the existing store. Display and unit selection remain the controller's choice.
-See [energy-register acceptance](doc/oss/sensor-energy-validation.md).
-
-The optional [OTA host laboratory](doc/ota-host.md) uses an unmodified CHIP
-provider to exercise QueryImage, Busy timing, BDX, a signed simulation image,
-restart and NotifyUpdateApplied. Its memory-tool modes cover both boots.
-The fixture does not install executable firmware or certify a bootloader.
-The [CSA20 report](doc/oss/csa20-validation.md) records QueryImageResponse
-manual acceptance and the timing fix that keeps repeated announcements from
-bypassing the OTA query floor during asynchronous CASE setup.
-The [CSA21 report](doc/oss/csa21-validation.md) records manual TC-SU-2.3
-acceptance: interruption, five real minutes, Idle readback and retry from zero.
-An outbound MRP timeout now retires the stale peer session, allowing CASE after
-the provider restarts.
-
-The [CSA22 report](doc/oss/csa22-validation.md) records manual TC-SU-2.4
-acceptance: peer-trace UpdateToken/NewVersion binding for image versions 2 and 3,
-and rejection of a signed image with the wrong version. Read/Subscribe RX/TX
-buffers now use per-handler allocations and transport-derived UDP budgets.
-
-The [CSA23 report](doc/oss/csa23-validation.md) records manual TC-SU-2.5
-acceptance of Proceed, AwaitNextAction and Discontinue, using real 120/180-second
-intervals and decoded peer responses. Discontinue now disposes of the downloaded
-host candidate through an optional application callback; accepted simulation
-images remain available for inspection. Memcheck and separate sanitizer runs
-cover retry/restart and disposal. Rebuild consumers for the appended runtime OTA
-port field. This is simulated host OTA, not firmware installation or certification.
-
-The [CSA24 report](doc/oss/csa24-validation.md) records automatic Python
-TC_SU_2_5 run449: both delay/provider-loss scenarios pass; Discontinue fails
-before its OTA assertions on a fourth live subscription. The host supports the
-Core minimum of three per fabric; the test retains earlier state handlers.
-This remains an official FAIL pending resource-capacity clarification. Query
-error states and actual download progress are corrected, with native tests,
-Memcheck and separate sanitizer acceptance. Rebuild OTA port consumers for the
-new optional progress callback. The separate manual CSA23 result is retained.
-
-The [CSA24a follow-up](doc/oss/csa24a-validation.md) adds a per-instance budget
-and dynamically sized transaction table, validated with eight subscriptions per
-fabric. Automatic run450 accepts the fourth subscription but remains FAIL on
-premature progress-history matching in the unmodified test. A minimal replay of
-the original helper/predicate reproduces that behavior; no CSA-approved test fix
-or automatic PASS is claimed. Defaults and existing paired Windows nodes remain.
-
-The [CSA24b correction](doc/oss/csa24b-validation.md) is an explicit local SDK
-test patch with 11 passing source regressions and preserved original assertions.
-It consumes progress reports chronologically and cleans up scenario subscriptions.
-Full corrected run451 passes with budget three/transport 56, including both delay
-scenarios and Discontinue/image disposal. The original SDK source is restored
-exactly and the isolated node is stopped. This is LOCAL-PATCH PASS; no new
-unmodified official CSA PASS is claimed. Notify acceptance is recorded below.
-
-The [CSA25 acceptance](doc/oss/csa25-validation.md) records manual TC-SU-2.6 PASS
-in TH run452. Two independent updates to versions 2/3 verify actual Notify token
-and version against Query/Apply and fresh CASE Basic Information/BootReason.
-Full Memcheck and separate sanitizers are clean; no C/H, PICS or SDK test changes
-were required. Only this manual row changes, giving 97 PASS, 15 FAIL, 8 BLOCKED,
-38 MANUAL and 704 NA. Other rows are inherited; this is not automatic CSA
-assertions or certification. OTA event acceptance is recorded below.
-
-The [CSA30 General Diagnostics work](doc/oss/csa30-validation.md) corrects host
-OS uptime leaking into Node time and connects actual selected-NIC diagnostics
-through an optional application callback. Independent chip-tool acceptance
-passes 59 checks with clean Memcheck and separate sanitizers; focused Linux,
-Windows and installed-package checks pass. Original semi-automated TC-DGGEN-2.1
-ended as **ERROR in TH run463**: after its original 2h05 wait, the next read
-encountered a TH/chip-tool WebSocket keepalive timeout. No second hours value
-was obtained; later steps were not executed. **No official PASS; cumulative
-CSA counts are unchanged.** See the [result record](doc/oss/csa30-results.json)
-and [callback contract](doc/runtime.md).
-The unchanged case's retry **run464 also ends ERROR**, after passing the full
-2h05 wait and verifying TotalOperationalHours **0 to 2**. A controller WebSocket
-keepalive timeout interrupts commissioning after the following factory reset;
-the later 1h05 segment is unexecuted. Final evidence and cleanup are complete.
-CSA30 is unsuccessful; further investigation is deferred by the owner, with
-no further long retry in this pass. The next campaign is CSA31 onboarding
-QR/manual pairing payload tests.
-
-[CSA31 onboarding acceptance](doc/oss/csa31-validation.md) completes original
-TC-DD-1.1/1.2 in TH run465: 9 and 3 passed steps, respectively, with the 21-digit
-manual branch not applicable. Operator inputs come from a scanned C QR bitmap,
-live mDNS and a CHIP-generated development manual card. Independent acceptance
-passes 24 checks, and the existing C payload self-test passes Memcheck. No runtime
-changes, physical-label/GUI acceptance, DCL verification or certification are
-claimed. Last-fabric removal/discovery follows below; CSA30 remains deferred.
-
-[CSA32 last-fabric acceptance](doc/oss/csa32-validation.md) verifies successful
-removal, mDNS withdrawal and same-store restart/recommissioning. Independent
-acceptance passes 27 Memcheck and 25 separate sanitizer checks, with clean memory
-diagnostics. Original manual TC-OPCREDS-3.6 run466 is **FAIL at Step4**: its
-verification expects CM=0/no-_CM, while an explicitly restarted uncommissioned
-node opens a CM=1 basic window with _CM. The contradictory CM=2 heading is retained
-for CSA clarification; no runtime/test workaround was introduced. The follow-up
-commissioning/unpair/recommission result is below; paired Windows devices are untouched.
-
-[CSA33 lifecycle acceptance](doc/oss/csa33-validation.md) completes original manual
-TC-DD-3.19 in TH run467: preconditions, five protocol steps and evidence upload
-pass. Both pairings use the same live controller, unchanged credentials and the
-same scanned C-generated QR. Removal withdraws the operational identity; explicit
-same-store restart opens CM=1, and recommissioning restores CASE/operational
-discovery and CM=0. Independent acceptance passes 37 Memcheck and 35 separate
-sanitizer checks, with zero memory errors/leaks. No runtime changes were needed.
-The manual category now has 11 PASS, 1 FAIL and 28 without an outcome. CSA32's
-separate discrepancy and deferred CSA30 remain open. Announcement verification
-follows below. See the [result record](doc/oss/csa33-results.json).
-
-[CSA34 announcement verification](doc/oss/csa34-validation.md) records original
-manual TC-DD-2.1 FAIL in TH run468: 8 PASS, 17 NOT APPLICABLE and 1 FAIL. Actual
-CM=0 Extended Discovery omits mandatory PH (Core1.6.1 4.3.1.11). Basic/closed/
-enhanced discovery, records/subtypes/IPv6 addresses, instance rotation and
-unmodified chip-tool browsing work; 37 Memcheck and 36 separate sanitizer
-functional checks pass with clean memory, while overall conformance remains
-FAIL. Original test/PICS and runtime C/H are unchanged. Next: CSA35, PH and
-customer Extended Discovery policy, truthful PICS and affected discovery rechecks.
-The manual category now has 11 PASS, 2 FAIL and 27 without an outcome. See the
-[result record](doc/oss/csa34-results.json).
-
-[CSA35 PH and discovery policy](doc/oss/csa35-validation.md) fixes that failure.
-Automatic TC_SC_4_1/4_3 pass in runs469/470; manual TC-DD-2.1 passes in run471,
-including its newly declared PH/Extended Discovery branches. Three policy modes
-pass full Memcheck and separate sanitizer scenarios; restored disabled boots
-accept fresh CASE. Four accepted Memcheck processes have zero errors/live bytes.
-The manual category now has 12 PASS, 1 FAIL and 27 without an outcome; category
-totals remain unchanged. Its Commissioner Discovery declaration is audited below.
-
-[CSA36 Commissioner Discovery / UDC audit](doc/oss/csa36-validation.md) corrects
-the unsupported optional `MCORE.DD.COMM_DISCOVERY` declaration to false.
-The original TH applicability endpoint excludes only TC-SC-4.7; ordinary
-commissionable/operational discovery remains supported. No protocol test PASS
-is claimed. Five endpoint CLI exports preserve all other PICS/project values.
-Current totals: **97 PASS, 18 FAIL, 3 BLOCKED, 39 MANUAL, 705 NA**; MANUAL contains
-12 PASS, 1 FAIL and 26 without an outcome. No native code or paired-node changes.
-The original PASE procedure is reviewed below.
-
-[CSA37 PASE exchange review](doc/oss/csa37-validation.md) records original manual
-TC-SC-2.1 **FAIL**, run472: five steps conflict with Core1.6.1 addressing/boolean/
-byte-size rules; final success verification and upload pass. Two full scenarios
-pass 40 independent checks across Memcheck and separate sanitizers, including four
-complete PASE exchanges and two fabrics per scenario. Memcheck has 43510 matched
-allocations/frees and zero errors/live bytes. No native/test-source/PICS change.
-Category totals are unchanged; MANUAL now contains 12 PASS, 2 FAIL and 25 without
-an outcome, plus 3 BLOCKED positions outside MANUAL. The original FAIL is retained.
-The bidirectional/error procedure is reviewed below.
-
-[CSA38 PASE decryption-error review](doc/oss/csa38-validation.md) records original
-manual TC-SC-2.2 **FAIL**, run473: four communication steps/upload pass; its
-session-termination/key-clear expectation after bad MIC is not met. Core4.8.3
-message rejection and subsequent same-session recovery pass 50 independent checks
-across Memcheck/separate sanitizers. Memcheck has 43536 matched allocations/frees,
-zero errors/live bytes; two focused tests pass per build. No native/PICS change.
-Totals are unchanged; MANUAL now has 12 PASS, 3 FAIL and 24 without an outcome.
-The invalid-input procedure is reviewed below.
-
-[CSA39 PASE error handling](doc/oss/csa39-validation.md) records original manual
-TC-SC-2.3 **FAIL**, run474: both required error StatusReports are absent. The PASE
-machine prepares them, but the dispatcher closes before sending; repair is
-deferred. Late-message rejection and full new commissioning/CASE work without
-restart, with 52 functional checks passing; four required-status assertions fail
-across Memcheck/separate sanitizers, so overall FAIL is retained. Memcheck has
-48294 matched allocations/frees and zero errors/live bytes. No native/PICS change.
-MANUAL now has 12 PASS, 4 FAIL and 23 without an outcome; totals are unchanged.
-The MRP size-boundary procedure follows below; failures remain deferred.
-
-[CSA40 MRP size boundary](doc/oss/csa40-validation.md) records original manual
-TC-SC-1.1 **PASS**, TH run475. Complete IPv6 packets1279/1280 bytes receive ACKs
-and valid PBKDF replies;1281/1328/1329 receive none. Core4.4.4/4.15 includes the
-IPv6/UDP headers in the1280-byte MTU, giving a1232-byte Matter ceiling without
-IPv6 extensions. No native/PICS changes were needed. Full scenarios pass64
-independent checks across Memcheck/separate sanitizers; memory is clean and five
-focused tests build/pass per variant. MANUAL now has13 PASS,4 FAIL and22 without
-an outcome; category totals are unchanged. The MRP flow review follows below.
-
-[CSA41 MRP flows](doc/oss/csa41-validation.md) records original manual TC-SC-1.2
-**FAIL**, TH run476. Piggyback and duplicate standalone ACKs pass. Five valid
-encrypted R=0 reads receive no data reply, with R=1 controls working before/
-after in the same session. Runtime admission applies a blanket R requirement;
-repair is deferred. Both full scenarios retain FAIL despite clean Memcheck/
-separate sanitizers and successful later commissioning/CASE. Five focused tests
-build/pass per variant; no native/PICS change. MANUAL now has13 PASS,5 FAIL and21
-without an outcome; category totals stay unchanged. The retry review follows below.
-
-[CSA42 MRP retries](doc/oss/csa42-validation.md) records original TC-SC-1.3
-**literal manual FAIL**, TH run477, for Step4's total MAX-1 wording. Core acceptance
-passes: five total immutable transmissions/four retries, correct timed backoff,
-terminal silence and no restart on late ACK. Both full scenarios pass64 checks
-under Memcheck/separate sanitizers; memory is clean and two focused CTests pass
-per variant. No native/PICS change; no native count defect is established. MANUAL
-now has13 PASS,6 FAIL and20 without an outcome; category totals stay unchanged.
-The counter/duplicate acceptance follows below; earlier failures stay deferred.
-
-[CSA43 counters and duplicates](doc/oss/csa43-validation.md): original manual
-TC-SC-1.4 PASS, TH run478. Exact repeat requests receive matching standalone ACKs
-without repeating the original PBKDF data response. Both full scenarios pass64
-checks with clean native memory instrumentation and successful subsequent CASE.
-Three focused tests pass per variant. MANUAL now has14 PASS,6 FAIL,19 unexecuted.
-Continue with CSA44 Descriptor and the generated campaign queue; no native fix
-or certification claim is made by this acceptance.
-
-The [CSA29 Identify acceptance](doc/oss/csa29-validation.md) records original
-semi-automated TC-I-2.2 PASS in TH run460, all 15 step entries. Two operator
-verifications use live x86 callbacks with IdentifyType0 (None); no physical
-indicator is claimed. Independent chip-tool acceptance passes 34 checks with
-clean Memcheck and separate ASan/UBSan/LSan, including countdown reporting and
-fresh CASE after restart. The TH laboratory is responsive after Docker recovery.
-No C/H or official test changes were needed. Current counts: **97 PASS, 18 FAIL,
-3 BLOCKED, 40 MANUAL, 704 NA**. This is not fully automatic acceptance or
-certification. See the [result record](doc/oss/csa29-results.json).
-
-The [CSA28 QueryImageResponse acceptance](doc/oss/csa28-validation.md) records
-original automatic TC_SU_2_2 FAIL in run457: its initial UpdateAvailable
-announcement does not arrange a normal query opportunity for this daily policy.
-The independent lab adds an explicit default-provider fixture while retaining
-the same production schedule and 120/180-second limits. Seven scenarios pass
-134 local checks with clean Memcheck/separate sanitizers. Original test/PICS/C/H
-sources remain unchanged. CSA28 counts: **97 PASS, 18 FAIL, 4 BLOCKED,
-39 MANUAL, 704 NA**; local acceptance is separate from official results and certification.
-
-The [CSA27 attribute acceptance](doc/oss/csa27-validation.md) records original
-TC_SU_4_1 FAIL at step5: the test examines the first Success instead of the later
-ConstraintError in a list write. Two-fabric chip-tool acceptance passes 29
-Memcheck and 27 sanitizer checks, including partial writes, fabric isolation and
-restart persistence. No C/H, PICS or official test changes were required.
-CSA27 counts: **97 PASS, 17 FAIL, 5 BLOCKED, 39 MANUAL, 704 NA**. This is not
-certification; retain the response-status observation for CSA review.
-
-The [CSA26 event acceptance](doc/oss/csa26-validation.md) fixes spurious Idle
-handoffs and null progress on known-length download errors. Manual TC-SU-2.7
-passes in run455; unchanged automatic TC_SU_2_7 fails in run454 because it misses
-an initial query transition during setup. Seven independent scenarios pass 156
-checks, including actual BDX idle timing/recovery, with clean Memcheck/separate
-sanitizers and 15 focused tests per build. Counts become 97 PASS, 16 FAIL,
-6 BLOCKED, 39 MANUAL and 704 NA; other rows are inherited. No certification or
-automatic PASS is claimed. Attribute acceptance is recorded in CSA27 above.
-
-The CMake executable is `build/cmake/matter-node` (with `.exe` on Windows).
-Legacy builders keep `build/matter-host/linux-gcc/matter-node` or
-`build/matter-host/gcc/matter-node.exe`. An unknown option prints usage and exits 2.
-The application owns its event loop; network interface, credential directory and
-persistent state are explicit parameters. Keep generated credentials/state in
-ignored `build/`, and never use public fixture keys as device credentials.
-
-For the credential-backed runtime host, Extended Discovery (CM=0) defaults to
-900 seconds per closed-mode entry/boot. Add `--extended-discovery-seconds 0` to
-disable it, a numeric seconds value to bound it, or `unlimited` to opt into
-indefinite advertising. This setting withdraws only commissionable DNS-SD;
-operational discovery, CASE and authenticated new commissioning windows stay
-available. It is a process option, not a stored GUI preference. Host PH is 1
-before commissioning and 4 for a commissioned administrator. See
-[policy, API and acceptance limits](doc/oss/csa35-validation.md).
-
-The host defaults to VendorName `Matter C` and ProductName `Matter C host simulation`.
-Override them at compilation, for example:
-
-```sh
-cmake -S . -B build/cmake -DMATTER_HOST_VENDOR_NAME="Example" -DMATTER_HOST_PRODUCT_NAME="Example energy meter"
-```
-
-The legacy builders accept `--vendor-name` / `--product-name` (Python) and
-`-VendorName` / `-ProductName` (PowerShell). Both strings must contain 1..32 UTF-8
-bytes; NUL, line breaks and semicolons are unsupported. Direct C compilation can
-define `MATTER_HOST_VENDOR_NAME` and `MATTER_HOST_PRODUCT_NAME` as string literals.
-VID/PID and credential matching are unchanged. For custom branding, give the same
-expected strings to `chip_tool_acceptance.py --vendor-name ... --product-name ...`.
-Library consumers continue to supply their identity through `Matter_Root_Config_T`.
-
-Local lab paths may be kept in ignored `local/lab.json`; this file is a private
-notebook, not automatically loaded by the host. Builds still take explicit paths.
-Portable certificate tests use synthetic signed chains and public upstream
-fixtures with retained notices. See [fixture provenance](tools/matter/fixtures/fixture-provenance.md).
-
-The optional Matter.js test controller uses the committed package lock:
-
-```sh
-npm ci --prefix tools/matter/controller --ignore-scripts
-mkdir -p build
-node tools/matter/tests/host_controller.mjs tools/matter/controller/node_modules credentials build/credentials
-build/cmake/matter-node --interface 2 --seconds 60 --port 5541 --credentials build/credentials --state build/state.bin --pin 20202021 --discriminator 3846 --case-resumption-profile chip --certificate-validity strict
-```
-
-Choose your isolated test interface. `--case-resumption-profile chip` is the
-explicit interoperability profile; certificate validity remains strict above.
-For an already connected simulated Wi-Fi device, add `--wifi-sim-connected`
-and use a fresh state path. It seeds the existing `testharness` AP as configured
-and connected; `testharness-2` remains available to scans. The default still has
-an empty Networks list. A restored file always takes precedence, including an
-empty list: this option never replaces saved settings. It requires `--credentials`.
-The radio is simulated; IPv6 transport uses the selected real host interface.
-It neither configures nor connects the OS Wi-Fi adapter. ScanNetworks requires
-an armed fail-safe as specified by Core 1.6.1 section 11.9.7.1.
-To execute the Matter.js network scenario, pass `--modules tools/matter/controller/node_modules`
-to `tools/matter/tests/test_host_network.py` together with `--exe`, `--interface`
-and `--ipv6`. Windows DLL search can be set with `--runtime`; Node with `--node`.
-Other network runners retain these explicit overrides.
-
-`build_host_linux.py --sanitize` builds ASan/UBSan (LSan enabled at runtime).
-Run Memcheck separately on the ordinary build with `--leak-check=full
---show-leak-kinds=all --track-origins=yes --error-exitcode=99`.
-The Linux `--test` runner also requires `MATTER_IPV6_INJECTOR` pointing to the
-fixed-case helper with CAP_NET_RAW; it never grants that capability itself.
-SDK/CSA test scripts in `tools/matter/tests` require an externally provisioned
-CHIP/TH environment; neither SDK nor TH is redistributed here.
-
-Fixture generators are optional, not build prerequisites. OpenSSL/GCC default
-to PATH and support `OPENSSL`/`GCC`. `extract_operational.py` takes explicit
-`--rs-matter` and `--matter-js` checkouts; use revisions in tools/matter/fixtures/operational-sources.md.
-Committed fixtures remain available without any upstream checkout or CSA PDF.
-
-See [current status and validation](doc/oss/status.md) for the next task.
-
-The optional shared-library [RGB bulb profile](doc/oss/bulb-integration.md) adds
-lighting, Groups/Scenes and Groupcast composition. It is under development;
-the linked contract separates focused host coverage from pending physical and
-CSA validation. The product application remains separate from this library.
-
-CSA44 records original TC-DESC-2.1 FAIL, TH run480: flat PartsList wording and
-incomplete whole-device cluster acceptance. Independent five-endpoint Descriptor/
-served-catalog acceptance passes 117 checks per memory variant without native changes.
-See [CSA44 evidence](doc/oss/csa44-validation.md). Continue with BDX receiver coverage.
-
-CSA45 records TH run481: BDX1.2/2.2 and IDM1.1 manual PASS; BDX2.3 restart FAIL.
-Real binary transfer/image/counter checks and four DUT-originated invokes are
-separate from the failed recovery. See [CSA45 evidence](doc/oss/csa45-validation.md).
-
-CSA46 records TH run482: DGGEN2.2/DGWIFI2.2/GRPKEY5.4 manual PASS with explicit
-optional-event NAs; CNET4.13 FAIL retains BLE/arithmetic limits. Functional BootReason,
-network reorder/rollback/commit and policy rejection pass. See [CSA46 evidence](doc/oss/csa46-validation.md).
-
-CSA47 corrects two stale onboarding applicability positions to NA using original
-PICS predicates and current TH exclusion, without changing PICS. Four explicit
-manual prerequisites remain visible; no new test run or PASS is claimed. See
-[CSA47 review](doc/oss/csa47-validation.md).
+First-party code is licensed under [Apache-2.0](LICENSE). Third-party material
+retains its original terms; see [NOTICE](NOTICE),
+[source provenance](doc/oss/provenance.md) and
+[fixture provenance](tools/matter/fixtures/fixture-provenance.md).

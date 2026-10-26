@@ -172,9 +172,9 @@ ctest --test-dir source/build/memory19-normal --output-on-failure
 # ASAN_OPTIONS=detect_leaks=1:halt_on_error=1
 # UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --errors-for-leak-kinds=definite,indirect,possible --error-exitcode=99 <ordinary-test-or-pair-host>
-# From examples/esp32-runtime, native PowerShell wrapper:
-& D:/Work/ww/.tools/idf-v6.1.ps1 -B D:/Work/ww/matter-c-memory/build/memory16/idf61-rgb build
-& D:/Work/ww/.tools/idf-v6.1.ps1 -B D:/Work/ww/matter-c-memory/build/memory16/idf61-default build
+# From examples/esp32-runtime with ESP-IDF6.1 activated (machine paths normalized):
+idf.py -B ../../build/memory16/idf61-rgb build
+idf.py -B ../../build/memory16/idf61-default build
 ```
 
 Physical commands run esptool app-only writes, UART reset/capture, RGB and

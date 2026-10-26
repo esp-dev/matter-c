@@ -3581,8 +3581,8 @@
   },
   "chip_tool_sha256": "7203652c18c2773274d738506fce137598e1478b28502259e8751c7d9b30b459",
   "upstream_sdk_status": {
-    "/home/codex/esp-idf-v6.0.2": "",
-    "/home/codex/esp-matter-v1.6.1": ""
+    "esp-idf-v6.0.2": "",
+    "esp-matter-v1.6.1": ""
   },
   "windows_ctest": {
     "passed": 102,
