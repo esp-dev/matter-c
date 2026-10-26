@@ -675,9 +675,9 @@ static Matter_Result_T verify_chain(void* user, Matter_Der_T leaf, Matter_Der_T 
 	if (!leaf.data || !leaf.size || !root.data || !root.size || !out || !policy ||
 		(!intermediate.data != !intermediate.size) ||
 		(policy->mode != MATTER_CERT_TIME_SUPPLIED && policy->mode != MATTER_CERT_TIME_LEAF_NOT_BEFORE &&
-		 policy->mode != MATTER_CERT_TIME_IGNORE_VALIDITY)) return MATTER_INVALID_ARGUMENT;
+		 policy->mode != MATTER_CERT_TIME_IGNORE_VALIDITY && policy->mode != MATTER_CERT_TIME_LAST_KNOWN_GOOD)) return MATTER_INVALID_ARGUMENT;
 	uint64_t now = time_key(policy->now.year,policy->now.month,policy->now.day,policy->now.hour,policy->now.minute,policy->now.second);
-	if (policy->mode == MATTER_CERT_TIME_SUPPLIED && !now) return MATTER_INVALID_ARGUMENT;
+	if ((policy->mode == MATTER_CERT_TIME_SUPPLIED || policy->mode == MATTER_CERT_TIME_LAST_KNOWN_GOOD) && !now) return MATTER_INVALID_ARGUMENT;
 	if (leaf.size > MATTER_CREDENTIALS_MAX_DER || intermediate.size > MATTER_CREDENTIALS_MAX_DER || root.size > MATTER_CREDENTIALS_MAX_DER) return MATTER_LIMIT_REACHED;
     if(operational && (leaf.size>600 || intermediate.size>600 || root.size>600)) return MATTER_LIMIT_REACHED;
 	c->busy = true; Chain_Work_T* w = calloc(1, sizeof(*w));
@@ -689,6 +689,15 @@ static Matter_Result_T verify_chain(void* user, Matter_Der_T leaf, Matter_Der_T 
 		(intermediate.size && !mbedtls_x509_crt_get_ca_istrue(w->chain.next)))) e = MBEDTLS_ERR_X509_BAD_INPUT_DATA;
 	if (!e) {
 		w->now = policy->mode == MATTER_CERT_TIME_LEAF_NOT_BEFORE ? cert_time(&w->chain.valid_from) : now;
+		if(policy->mode == MATTER_CERT_TIME_LAST_KNOWN_GOOD) {
+            /* An untrusted clock may lag a newly issued NOC. Choose one
+             * common validation instant, retaining expiry/overlap checks.
+             * This local candidate never updates the caller's clock. */
+            for(mbedtls_x509_crt* cert=&w->chain;cert;cert=cert->next) {
+                uint64_t from=cert_time(&cert->valid_from);if(from>w->now)w->now=from;
+            }
+            uint64_t from=cert_time(&w->root.valid_from);if(from>w->now)w->now=from;
+        }
 		w->ignore_validity = policy->mode == MATTER_CERT_TIME_IGNORE_VALIDITY;
 #if MBEDTLS_VERSION_MAJOR >= 4
 		mbedtls_x509_crt_profile profile = mbedtls_x509_crt_profile_suiteb;

@@ -70,6 +70,17 @@ See [Memory19](oss/memory19-validation.md) and the earlier
 Strict operational certificate validation reads the supplied UTC callback at
 verification, not a cached construction time. The explicit CHIP validity
 profile still waives only validity dates, preserving signatures/root/identity.
+
+Applications without trusted current UTC may select
+`matter_runtime_set_certificate_time_mode(..., MATTER_CERT_TIME_LAST_KNOWN_GOOD)`
+before start. Their UTC callback must then return the durable LKG floor, initially
+the firmware build timestamp. This explicit Core3.5.6 policy validates at the
+later of LKG and every path certificate's NotBefore; expiry, validity-period
+overlap, signatures, profiles and anchor checks remain enforced. A peer's
+certificate never updates the clock. The application must advance/persist LKG
+at successful commissioning, using its committed own operational certificates,
+and reconstruct the floor on recovery; fail-safe candidates must not advance it.
+The default remains strict supplied UTC. Attestation time policy is unchanged.
 The host retains its DAC-derived UniqueID behavior; generic runtime preserves
 the caller's UniqueID. Event time uses the latest supplied monotonic time.
 

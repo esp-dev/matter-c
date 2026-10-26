@@ -29,8 +29,9 @@ Matter_Result_T matter_operational_cert_decode(Matter_Cert_Tlv_T certificate,
 
 /* Verify NOC -> optional ICAC -> caller's explicitly TRUSTED RCAC. Check all
  * profiles, AKID/SKID, CA Fabric IDs, expected_fabric (nonzero), signatures,
- * path length and validity using the DER credentials port. Only SUPPLIED
- * trusted UTC/LKG time is supported here (no attestation leaf-time fallback).
+ * path length and validity using the DER credentials port. SUPPLIED validates
+ * at trusted UTC; LAST_KNOWN_GOOD selects the bounded fallback described by
+ * the credentials port (no attestation leaf-time fallback).
  * Uses operational_verify_chain when provided; the legacy cert_verify_chain
  * fallback may reject opaque future extensions understood by its X.509 parser.
  * Empty ICAC must be {NULL,0}. Root selection/trust provisioning and time/LKG

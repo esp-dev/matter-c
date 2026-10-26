@@ -183,7 +183,7 @@ static bool collision(void* u,const uint8_t p[65]) {
 Matter_Fabric_Host_T matter_fabric_host_new(Matter_Fabric_Host_Image_T i,Matter_Opcreds_Host_T keys,
     const Matter_Crypto_Port_T* crypto,const Matter_Credentials_Port_T* cp,const Matter_Cert_Time_Policy_T* time) {
     if(!i || i->attached || !keys || !crypto || !crypto->hkdf_sha256 || !crypto->equal || !crypto->ecdsa_sign || !crypto->ecdsa_verify || !cp || !cp->cert_verify_chain ||
-        !time || time->mode!=MATTER_CERT_TIME_SUPPLIED) return NULL;
+        !time || (time->mode!=MATTER_CERT_TIME_SUPPLIED && time->mode!=MATTER_CERT_TIME_LAST_KNOWN_GOOD)) return NULL;
     Matter_Fabric_Host_T h=calloc(1,sizeof(*h)); if(!h) return NULL;
     h->image=i; h->keys=keys; h->crypto=*crypto; h->credentials=*cp; h->time=*time;
     if(matter_opcreds_host_collision(keys,h,collision)!=MATTER_OK) { free(h); return NULL; }

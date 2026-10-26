@@ -14,7 +14,7 @@
 #include <string.h>
 
 enum { COMMISSIONING_FAILURE_LIMIT=20 }; /* Core 1.6.1 section 5.5.1. */
-typedef struct { Matter_Credentials_Port_T base; void* user; Matter_Result_T (*utc)(void*,Matter_Cert_Time_T*); bool chip_validity; } Host_Credentials_T;
+typedef struct { Matter_Credentials_Port_T base; void* user; Matter_Runtime_T runtime; Matter_Result_T (*utc)(void*,Matter_Cert_Time_T*); bool chip_validity; Matter_Cert_Time_Mode_T time_mode; } Host_Credentials_T;
 struct Matter_Runtime {
     Matter_Root_Config_T identity; Matter_Root_T root; Matter_Dispatch_T dispatch;
     Matter_Runtime_Config_T platform; Matter_Crypto_Port_T crypto; Matter_Credentials_Port_T credentials;
@@ -43,7 +43,7 @@ struct Matter_Runtime {
     char log_buffer[384];
 };
 static void runtime_log(Matter_Runtime_T s,const char* format,...) {
-    if(!s->platform.log) return;
+    if(!s || !s->platform.log) return;
     va_list args; va_start(args,format);
     (void)vsnprintf(s->log_buffer,sizeof(s->log_buffer),format,args); va_end(args);
     s->platform.log(s->platform.user,s->log_buffer);
@@ -68,9 +68,12 @@ static Matter_Result_T live_chain_verify(void* user,Matter_Der_T leaf,Matter_Der
         current.mode=MATTER_CERT_TIME_IGNORE_VALIDITY;
     } else if(current.mode==MATTER_CERT_TIME_SUPPLIED) {
         if(h->utc(h->user,&current.now)!=MATTER_OK) { erase(public_key,65); return MATTER_OFFLINE; }
+        if(operational) current.mode=h->time_mode;
     }
-    return (operational && h->base.operational_verify_chain ? h->base.operational_verify_chain : h->base.cert_verify_chain)
+    Matter_Result_T result=(operational && h->base.operational_verify_chain ? h->base.operational_verify_chain : h->base.cert_verify_chain)
         (h->base.user,leaf,intermediate,root,&current,public_key);
+    runtime_log(h->runtime,"CERT_VERIFY operational=%u mode=%u result=%u\n",operational?1u:0u,(unsigned)current.mode,(unsigned)result);
+    return result;
 }
 static Matter_Result_T live_cert_verify(void* user,Matter_Der_T leaf,Matter_Der_T intermediate,
     Matter_Der_T root,const Matter_Cert_Time_Policy_T* policy,uint8_t* public_key) {
@@ -125,6 +128,8 @@ static bool contains(void* u,uint16_t ep,uint32_t type) {
 }
 static uint8_t authorize(void* u,Matter_Exchange_Session_T token,const Matter_Im_Path_T* path,Matter_Im_Privilege_T privilege) {
     Matter_Runtime_T s=u; Matter_Secure_T secure=matter_dispatch_session(s->dispatch,token);
+    if(path && privilege>=MATTER_IM_OPERATE && (path->cluster==0x30 || path->cluster==0x31 || path->cluster==0x3e))
+        runtime_log(s,"COMMISSION_REQUEST endpoint=%u cluster=%lu command=%lu privilege=%u\n",(unsigned)path->endpoint,(unsigned long)path->cluster,(unsigned long)path->attribute,(unsigned)privilege);
     if(!secure) return matter_dispatch_revoke_reply_authorized(s->dispatch,token,path)?MATTER_IM_SUCCESS:MATTER_IM_UNSUPPORTED_ACCESS;
     if(s->groups_dirty&&path&&(path->cluster==4||path->cluster==0x62||path->cluster==0x65||
         (privilege>=MATTER_IM_OPERATE&&(path->cluster==0x3e||path->cluster==0x3c))))return MATTER_IM_UNSUPPORTED_ACCESS;
@@ -155,8 +160,8 @@ static Matter_Result_T retire(void* u,bool success) {
     if(!success && matter_dispatch_retire_fabric(s->dispatch,matter_opcreds_pending_fabric(s->opcreds))!=MATTER_OK) r=MATTER_PENDING;
     return r;
 }
-static Matter_Result_T begin(void* u) { return matter_commissioning_host_begin(((Matter_Runtime_T)u)->commission); }
-static Matter_Result_T cleanup(void* u) { return matter_commissioning_host_cleanup(((Matter_Runtime_T)u)->commission); }
+static Matter_Result_T begin(void* u) { Matter_Runtime_T s=u; Matter_Result_T r=matter_commissioning_host_begin(s->commission);runtime_log(s,"COMMISSION_BEGIN result=%u\n",(unsigned)r);return r; }
+static Matter_Result_T cleanup(void* u) { Matter_Runtime_T s=u;Matter_Result_T r=matter_commissioning_host_cleanup(s->commission);if(r!=MATTER_PENDING)runtime_log(s,"COMMISSION_CLEANUP result=%u\n",(unsigned)r);return r; }
 static Matter_Result_T window_open(void* u,bool* open) {
     Matter_Runtime_T s=u; *open=(s->window || s->enhanced) && !s->stopping; return MATTER_OK;
 }
@@ -293,7 +298,7 @@ Matter_Runtime_T matter_runtime_new(const Matter_Runtime_Config_T* c,uint32_t pi
     s->platform=*c; s->platform.identity=NULL; s->platform.attestation.dac_private=NULL;
     const Matter_Root_Config_T* identity=c->identity;
     s->identity=*identity; s->now=now; s->crypto=c->crypto; s->update=c->update;
-    s->credential_adapter=(Host_Credentials_T){.base=c->credentials,.user=c->user,.utc=c->utc};
+    s->credential_adapter=(Host_Credentials_T){.base=c->credentials,.user=c->user,.runtime=s,.utc=c->utc};
     s->credentials=(Matter_Credentials_Port_T){.user=&s->credential_adapter,.csr_create=host_csr_create,
         .csr_verify=host_csr_verify,.cert_verify_chain=live_cert_verify,.operational_verify_chain=live_operational_verify};
     s->attestation=c->attestation; s->attestation.user=s; s->attestation.challenge=challenge; s->attestation.timestamp=timestamp;
@@ -375,6 +380,11 @@ Matter_Result_T matter_runtime_set_certificate_validity(Matter_Runtime_T s,bool 
     if(!s) return MATTER_INVALID_ARGUMENT;
     if(s->dispatch || s->stopping) return MATTER_INVALID_STATE;
     s->credential_adapter.chip_validity=chip; return MATTER_OK;
+}
+Matter_Result_T matter_runtime_set_certificate_time_mode(Matter_Runtime_T s,Matter_Cert_Time_Mode_T mode) {
+    if(!s || (mode!=MATTER_CERT_TIME_SUPPLIED && mode!=MATTER_CERT_TIME_LAST_KNOWN_GOOD)) return MATTER_INVALID_ARGUMENT;
+    if(s->dispatch || s->stopping) return MATTER_INVALID_STATE;
+    s->credential_adapter.time_mode=mode; return MATTER_OK;
 }
 Matter_Result_T matter_runtime_set_test_trigger(Matter_Runtime_T s,const Matter_Diagnostics_Test_Trigger_T* p) {
     if(!s) return MATTER_INVALID_ARGUMENT;

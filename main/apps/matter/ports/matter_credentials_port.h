@@ -6,7 +6,7 @@ enum { MATTER_CREDENTIALS_MAX_DER = 2048, MATTER_CREDENTIALS_MAX_CSR = 512 };
 typedef struct { const uint8_t* data; size_t size; } Matter_Der_T;
 typedef struct { uint16_t year; uint8_t month, day, hour, minute, second; } Matter_Cert_Time_T;
 typedef enum { MATTER_CERT_TIME_SUPPLIED, MATTER_CERT_TIME_LEAF_NOT_BEFORE,
-    MATTER_CERT_TIME_IGNORE_VALIDITY } Matter_Cert_Time_Mode_T;
+    MATTER_CERT_TIME_IGNORE_VALIDITY, MATTER_CERT_TIME_LAST_KNOWN_GOOD } Matter_Cert_Time_Mode_T;
 typedef struct {
     Matter_Cert_Time_Mode_T mode;
     Matter_Cert_Time_T now; /* Trusted UTC or last-known-good time, never local time. */
@@ -38,7 +38,11 @@ typedef struct {
      * notBefore for all (Core 3.5.5 DER attestation time rule). IGNORE_VALIDITY
      * explicitly waives only not-yet-valid/expired errors (Core 3.5.6); malformed
      * periods and every other chain check still fail. Caller owns the choice
-     * and time provenance/LKG persistence. No CRL/revocation
+     * and time provenance/LKG persistence. LAST_KNOWN_GOOD uses the later of
+     * now and every path element's notBefore (Core 3.5.6 fallback policy).
+     * It still enforces notAfter, period overlap and all other checks; never
+     * use it with trusted current UTC or persist time from an unverified peer.
+     * No CRL/revocation
      * lookup, name/purpose/identity policy, or claim of full Crypto_VerifyChain. */
     Matter_Result_T (*cert_verify_chain)(void*, Matter_Der_T leaf, Matter_Der_T intermediate,
         Matter_Der_T trusted_root, const Matter_Cert_Time_Policy_T*, uint8_t* public_key);

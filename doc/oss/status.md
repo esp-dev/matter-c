@@ -1,5 +1,15 @@
 # Development status
 
+**Explicit certificate Last Known Good time policy.**
+Applications without trusted UTC may select a bounded LKG policy before runtime
+start. Future NotBefore values advance only the verification-local candidate;
+expiry, period overlap, signatures and trust remain enforced. Default UTC and
+attestation behavior remain unchanged. Linux CTest passes120/120 normally and
+separately with ASan/UBSan/LSan, plus focused Memcheck and full two-runtime
+regressions in both memory-checking profiles. The C6 bulb develop15 uses durable
+application LKG and is flashed for manual Google Home verification; no manual
+success or certification is claimed. See the [runtime contract](../runtime.md).
+
 **Optional BLE/BTP commissioning transport, default-OFF.**
 The portable BTPv4 engine and ESP NimBLE/network ports share existing runtime
 quotas. Direct BTP TX retains immutable ciphertext through BTP/ATT completion

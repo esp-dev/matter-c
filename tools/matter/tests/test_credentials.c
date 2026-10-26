@@ -78,6 +78,10 @@ static void certificates(Fixture* f) {
     Matter_Cert_Time_Policy_T t=cred_time; t.now.year=2000;
     CHECK(chain(f,DER(cred_leaf),DER(cred_intermediate),DER(cred_root),&t)==MATTER_PORT_ERROR);
     t.now.year=2099; CHECK(chain(f,DER(cred_leaf),DER(cred_intermediate),DER(cred_root),&t)==MATTER_PORT_ERROR);
+    t.mode=MATTER_CERT_TIME_LAST_KNOWN_GOOD; t.now.year=2000;
+    CHECK(chain(f,DER(cred_leaf),DER(cred_intermediate),DER(cred_root),&t)==MATTER_OK);
+    t.now.year=2099;
+    CHECK(chain(f,DER(cred_leaf),DER(cred_intermediate),DER(cred_root),&t)==MATTER_PORT_ERROR && filled(f->public_key,65,0));
     t.mode=MATTER_CERT_TIME_LEAF_NOT_BEFORE; CHECK(chain(f,DER(cred_leaf),DER(cred_intermediate),DER(cred_root),&t)==MATTER_OK);
     t.mode=MATTER_CERT_TIME_IGNORE_VALIDITY;
     CHECK(chain(f,DER(cred_leaf),DER(cred_intermediate),DER(cred_root),&t)==MATTER_OK);
@@ -147,6 +151,10 @@ static Matter_Result_T operation(Fixture* f,unsigned op) {
     if(op==2) return c->ecdh(c->user,f->key,cred_intermediate_public,f->shared);
     if(op==3) return p->csr_create(p->user,f->key,f->csr,512,&f->csr_size);
     if(op==4) return p->csr_verify(p->user,DER(cred_csr),f->public_key);
+    if(op==7) {
+        Matter_Cert_Time_Policy_T time={MATTER_CERT_TIME_LAST_KNOWN_GOOD,{2000,1,1,0,0,0}};
+        return chain(f,DER(cred_leaf),DER(cred_intermediate),DER(cred_root),&time);
+    }
     if(op==6) {
         Matter_Cert_Time_Policy_T time={MATTER_CERT_TIME_IGNORE_VALIDITY,{0}};
         return chain(f,DER(cred_leaf),DER(cred_intermediate),DER(cred_root),&time);
@@ -155,7 +163,7 @@ static Matter_Result_T operation(Fixture* f,unsigned op) {
 }
 static void oom(Fixture* f) {
     size_t baseline=live;
-    for(unsigned op=0;op<7;++op) {
+    for(unsigned op=0;op<8;++op) {
         size_t before=calls; CHECK(operation(f,op)==MATTER_OK); size_t count=calls-before;
         for(size_t point=1;point<=count;++point) {
             fail_at=calls+point; Matter_Result_T r=operation(f,op); fail_at=0;

@@ -1,6 +1,7 @@
 /* Exercise the actual host adapter with a controllable OS clock. The portable
  * credential backend still receives explicit UTC and verifies real signatures. */
 #include "runtime/matter_runtime.h"
+#include <string.h>
 static bool clock_available=true;
 static unsigned clock_calls;
 static Matter_Cert_Time_T clock_value={2026,10,10,0,0,0};
@@ -71,6 +72,24 @@ int main(void) {
     CHECK(matter_runtime_set_certificate_validity(server,false)==MATTER_OK && !server->credential_adapter.chip_validity);
     server->stopping=true;
     CHECK(matter_runtime_set_certificate_validity(server,true)==MATTER_INVALID_STATE && !server->credential_adapter.chip_validity);
+    server->stopping=false;
+    CHECK(matter_runtime_set_certificate_time_mode(NULL,MATTER_CERT_TIME_LAST_KNOWN_GOOD)==MATTER_INVALID_ARGUMENT);
+    CHECK(matter_runtime_set_certificate_time_mode(server,MATTER_CERT_TIME_IGNORE_VALIDITY)==MATTER_INVALID_ARGUMENT);
+    CHECK(matter_runtime_set_certificate_time_mode(server,MATTER_CERT_TIME_LAST_KNOWN_GOOD)==MATTER_OK);
+    adapter.time_mode=server->credential_adapter.time_mode;
+    clock_available=true;clock_value.year=2000;
+    CHECK(live_operational_verify(&adapter,th_leaf,th_ca,th_root,&stale,w->key)==MATTER_OK);
+    CHECK(stale.now.year==2000 && stale.mode==MATTER_CERT_TIME_SUPPLIED);
+    CHECK(live_cert_verify(&adapter,th_leaf,th_ca,th_root,&stale,w->key)==MATTER_PORT_ERROR); /* Attestation unchanged. */
+    CHECK(live_operational_verify(&adapter,leaf,ca,root,&stale,w->key)==MATTER_PORT_ERROR); /* Tampered signature. */
+    clock_value.year=2040;memset(w->key,0xa5,sizeof(w->key));
+    CHECK(live_operational_verify(&adapter,th_leaf,th_ca,th_root,&stale,w->key)==MATTER_PORT_ERROR);
+    for(unsigned i=0;i<sizeof(w->key);++i)CHECK(!w->key[i]); /* Expiry at LKG is still enforced. */
+    clock_available=false;
+    CHECK(live_operational_verify(&adapter,th_leaf,th_ca,th_root,&stale,w->key)==MATTER_OFFLINE);
+    CHECK(matter_runtime_set_certificate_time_mode(server,MATTER_CERT_TIME_SUPPLIED)==MATTER_OK);
+    server->stopping=true;
+    CHECK(matter_runtime_set_certificate_time_mode(server,MATTER_CERT_TIME_LAST_KNOWN_GOOD)==MATTER_INVALID_STATE);
     free(server);
     CHECK(matter_crypto_mbedtls_delete(backend)==MATTER_OK); free(w);
     puts("PASS host live UTC, strict/CHIP policy isolation, clock failure, attestation, bad signature, CSR and configuration lifecycle");

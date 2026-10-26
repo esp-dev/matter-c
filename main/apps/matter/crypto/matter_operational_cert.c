@@ -332,7 +332,8 @@ Matter_Result_T matter_operational_cert_decode(Matter_Cert_Tlv_T in, Matter_Oper
 Matter_Result_T matter_operational_cert_verify(const Matter_Credentials_Port_T* port,
     Matter_Cert_Tlv_T noc, Matter_Cert_Tlv_T icac, Matter_Cert_Tlv_T root, uint64_t fabric,
     const Matter_Cert_Time_Policy_T* time, Matter_Operational_Identity_T* identity) {
-    if(!port || !port->cert_verify_chain || !identity || !time || time->mode!=MATTER_CERT_TIME_SUPPLIED || !fabric ||
+    if(!port || !port->cert_verify_chain || !identity || !time ||
+        (time->mode!=MATTER_CERT_TIME_SUPPLIED && time->mode!=MATTER_CERT_TIME_LAST_KNOWN_GOOD) || !fabric ||
         (!icac.size&&icac.data)) return MATTER_INVALID_ARGUMENT;
     Matter_Result_T r=input(noc); if(r==MATTER_OK) r=input(root); if(r==MATTER_OK&&icac.size) r=input(icac);
     if(r!=MATTER_OK) return r;

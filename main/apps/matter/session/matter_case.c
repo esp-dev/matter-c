@@ -56,7 +56,8 @@ Matter_Case_T matter_case_new(const Matter_Crypto_Port_T* p,const Matter_Credent
     const Matter_Case_Port_T* port,const Matter_Case_Config_T* c,uint64_t now) {
     if(!p || !cp || !cp->cert_verify_chain || !port || !port->load || !port->valid || !port->sign || !port->capacity ||
         (!!port->resume_find!=!!port->resume_save) ||
-        !c || (c->resumption_profile!=MATTER_CASE_RESUMPTION_SPEC && c->resumption_profile!=MATTER_CASE_RESUMPTION_CHIP) || !c->local_session_id || !c->timeout_ms || c->time.mode!=MATTER_CERT_TIME_SUPPLIED ||
+        !c || (c->resumption_profile!=MATTER_CASE_RESUMPTION_SPEC && c->resumption_profile!=MATTER_CASE_RESUMPTION_CHIP) || !c->local_session_id || !c->timeout_ms ||
+        (c->time.mode!=MATTER_CERT_TIME_SUPPLIED && c->time.mode!=MATTER_CERT_TIME_LAST_KNOWN_GOOD) ||
         (!c->responder && (!c->fabric_index || c->fabric_index==255 || !c->peer_node_id || c->peer_node_id>UINT64_C(0xffffffefffffffff))) ||
         !p->random || !p->sha256 || !p->hmac_sha256 || !p->hkdf_sha256 || !p->p256_scalar || !p->p256_base ||
         !p->ecdh || !p->ecdsa_verify || !p->ccm_encrypt || !p->ccm_decrypt || !p->equal) return NULL;

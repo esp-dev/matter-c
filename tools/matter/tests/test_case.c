@@ -232,7 +232,13 @@ int main(int argc,char** argv) {
     }
     OC_CHECK(!memcmp(f->keys[0].traffic.send_key,f->keys[1].traffic.receive_key,16) && !memcmp(f->keys[0].traffic.receive_key,f->keys[1].traffic.send_key,16) &&
         !memcmp(f->keys[0].traffic.attestation_challenge,f->keys[1].traffic.attestation_challenge,16)); case_free(f);
-    f=case_fixture(&crypto,&cp); case_establish(f);
+    f=case_fixture(&crypto,&cp);
+    for(unsigned i=0;i<2;++i) {
+        OC_CHECK(matter_case_delete(f->session[i])==MATTER_OK);
+        f->config[i].time=(Matter_Cert_Time_Policy_T){MATTER_CERT_TIME_LAST_KNOWN_GOOD,{2000,1,1,0,0,0}};
+        f->session[i]=matter_case_new(&crypto,&cp,&f->ports[i],&f->config[i],0);OC_CHECK(f->session[i]);
+    }
+    case_establish(f);
     for(unsigned i=0;i<2;++i) { f->secure[i]=matter_secure_new_case(&crypto,f->session[i],5); OC_CHECK(f->secure[i] && !matter_secure_new_case(&crypto,f->session[i],5)); }
     static const uint8_t plain[]={1,2,0x34,0x12,1,0,0x15};
     OC_CHECK(matter_secure_seal(f->secure[0],plain,sizeof(plain),6,f->packet,sizeof(f->packet),&f->size)==MATTER_OK);

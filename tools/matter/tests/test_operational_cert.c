@@ -240,6 +240,11 @@ static void bounds(Fixture* f) {
     Matter_Cert_Time_Policy_T time={MATTER_CERT_TIME_LEAF_NOT_BEFORE,{0}};
     CHECK(matter_operational_cert_verify(&f->port,TLV(rs_noc1_success),TLV(rs_icac1_success),TLV(rs_rca1_success),1,&time,&f->identity)==MATTER_INVALID_ARGUMENT);
     CHECK(filled(&f->identity,sizeof(f->identity),0xa5));
+    time=(Matter_Cert_Time_Policy_T){MATTER_CERT_TIME_LAST_KNOWN_GOOD,{2000,1,1,0,0,0}};
+    CHECK(matter_operational_cert_verify(&f->port,TLV(rs_noc1_success),TLV(rs_icac1_success),TLV(rs_rca1_success),1,&time,&f->identity)==MATTER_OK);
+    time.now.year=2099;
+    CHECK(matter_operational_cert_verify(&f->port,TLV(rs_noc1_success),TLV(rs_icac1_success),TLV(rs_rca1_success),1,&time,&f->identity)==MATTER_PORT_ERROR);
+    CHECK(filled(&f->identity,sizeof(f->identity),0));
 }
 static void future_chain(Fixture* f) {
     const Matter_Cert_Tlv_T tlv[]={TLV(synthetic_noc_tlv),TLV(synthetic_icac_tlv),TLV(synthetic_root_tlv)};

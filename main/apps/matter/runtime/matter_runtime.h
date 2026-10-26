@@ -97,6 +97,12 @@ Matter_Root_T matter_runtime_root(Matter_Runtime_T);
 Matter_Store_Host_T matter_runtime_store(Matter_Runtime_T);
 Matter_Result_T matter_runtime_set_resumption(Matter_Runtime_T,Matter_Case_Resumption_Profile_T);
 Matter_Result_T matter_runtime_set_certificate_validity(Matter_Runtime_T,bool chip);
+/* Before start only. Default SUPPLIED: utc returns trusted current UTC.
+ * LAST_KNOWN_GOOD: utc returns the application's durable LKG floor; operational
+ * verification may advance its local candidate to path notBefore, preserving
+ * expiry/signatures. Attestation is unchanged. Application owns LKG persistence
+ * after successful commissioning, and reconstruction from committed own certs. */
+Matter_Result_T matter_runtime_set_certificate_time_mode(Matter_Runtime_T,Matter_Cert_Time_Mode_T);
 Matter_Result_T matter_runtime_set_test_trigger(Matter_Runtime_T,const Matter_Diagnostics_Test_Trigger_T*);
 Matter_Result_T matter_runtime_set_resolver(Matter_Runtime_T,const Matter_Resolver_Port_T*);
 /* Pin a concrete local IPv6 address/port and interface for outgoing CASE.
