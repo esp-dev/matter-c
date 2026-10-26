@@ -118,11 +118,15 @@ static Matter_Result_T cancelled(Matter_Idf_Wifi_T w){
 static void connection(Matter_Idf_Wifi_T w,uint64_t now){
     uint32_t serial;uint8_t reason;portENTER_CRITICAL(&w->lock);serial=w->disconnects;reason=w->reason;portEXIT_CRITICAL(&w->lock);
     bool disconnected=serial!=w->seen_disconnects;w->seen_disconnects=serial;
+    if(disconnected)WIFI_TRACE("MATTER_WIFI disconnected reason=%u phase=%u explicit=%u\n",(unsigned)reason,w->phase,w->job?1u:0u);
     wifi_ap_record_t ap;esp_ip6_addr_t ip;uint32_t association;bool associated;
     portENTER_CRITICAL(&w->lock);association=w->association_events;associated=w->associated;portEXIT_CRITICAL(&w->lock);
     /* Creating LL again while DAD is tentative restarts DAD in lwIP. Do it
      * once per association, not once per owner tick; retry only API errors. */
-    if(associated&&association!=w->link_event&&(esp_netif_get_ip6_linklocal(w->iface,&ip)==ESP_OK||esp_netif_create_ip6_linklocal(w->iface)==ESP_OK))w->link_event=association;
+    if(associated&&association!=w->link_event&&(esp_netif_get_ip6_linklocal(w->iface,&ip)==ESP_OK||esp_netif_create_ip6_linklocal(w->iface)==ESP_OK)){
+        w->link_event=association;
+        if(ap_info(w,&ap)==ESP_OK)WIFI_TRACE("MATTER_WIFI associated channel=%u auth=%u\n",(unsigned)ap.primary,(unsigned)ap.authmode);
+    }
     if(!w->settings.enabled||!w->target.size){
         matter_idf_wifi_retry_enabled(&w->retry,false,now);
         if(w->apply){esp_err_t e=esp_wifi_disconnect();if(e==ESP_OK||e==ESP_ERR_WIFI_NOT_CONNECT){w->apply=false;w->phase=0;w->connected.size=0;}}

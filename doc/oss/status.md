@@ -6,9 +6,13 @@ start. Future NotBefore values advance only the verification-local candidate;
 expiry, period overlap, signatures and trust remain enforced. Default UTC and
 attestation behavior remain unchanged. Linux CTest passes120/120 normally and
 separately with ASan/UBSan/LSan, plus focused Memcheck and full two-runtime
-regressions in both memory-checking profiles. The C6 bulb develop15 uses durable
-application LKG and is flashed for manual Google Home verification; no manual
-success or certification is claimed. See the [runtime contract](../runtime.md).
+regressions in both memory-checking profiles. The C6 bulb develop17 uses durable
+application LKG, accepted Google's NOC with the original stale build timestamp,
+and completed Google Home commissioning with user-confirmed app control.
+Its application enables 802.11d AUTO for a channel13/WPA3 AP; the shared ESP port
+logs association channel/auth and disconnect reason without credentials.
+This bounded interoperability result is not certification or long-duration
+acceptance. See the [runtime contract](../runtime.md).
 
 **Optional BLE/BTP commissioning transport, default-OFF.**
 The portable BTPv4 engine and ESP NimBLE/network ports share existing runtime
